@@ -4,18 +4,18 @@
 //  20030902 RW version 1.0.0
 //
 // Exception classes:
-//    All of the exceptions derive from ve_base, so all offer the 
-//    function GetErrorCode. Use this to get back the status code 
+//    All of the exceptions derive from ve_base, so all offer the
+//    function GetErrorCode. Use this to get back the status code
 //    from the SignedFile::status_enum enumeration. These codes should
 //    be converted into translatable strings since they report
 //    the fundamental status of the operation.
-//    In addition, all of the exception classes can be output to 
-//    a stream (such as cerr) for debugging purposes. These 
+//    In addition, all of the exception classes can be output to
+//    a stream (such as cerr) for debugging purposes. These
 //    messages are always in English so are not good to show to a user.
 //
 //    ve_crypt is thrown whenever an OpenSSL error is detected. This
 //    does not happen for an 'expected' crypto event like a verify
-//    failing or a certificate being revoked. These are reported 
+//    failing or a certificate being revoked. These are reported
 //    differently. If a ve_crypt exception has been thrown, OpenSSL
 //    has failed; maybe a corrupted file or a real sytem problem.
 //
@@ -24,7 +24,7 @@
 //    the data has been corrupted or tampered with or that the certificate
 //    that was used to attempt the verification is not the correct one.
 //
-//    ve_badcert is thrown if the signature itself was fine, but that the 
+//    ve_badcert is thrown if the signature itself was fine, but that the
 //    certificate used to verify it could not itself be verified. This could
 //    mean a revoked certificate, an expired certificate or that the cert path
 //    did not have a trust path to a trusted root certificate. The names of the
@@ -32,7 +32,7 @@
 //    is useful to diagnose where the problem lies.
 //
 //    ve_file is thrown if a file cannot be found or has the wrong format.
-//    
+//
 //////////////////////////////////////////////////////////////////////
 #if !defined(_VERIFY_EXCEPTIONS_H_INCLUDED_)
 #define _VERIFY_EXCEPTIONS_H_INCLUDED_
@@ -42,10 +42,10 @@
 #include "signed_file.h"
 #include "CertificateTracker.h"
 
-//This next define is needed as a macro since it gets used to 
-//size arrays. I'd prefer to have it as a static const, but 
-//then it wouldn't work. This constant allows us to set a 
-//maximum string length when we create temp char buffers 
+//This next define is needed as a macro since it gets used to
+//size arrays. I'd prefer to have it as a static const, but
+//then it wouldn't work. This constant allows us to set a
+//maximum string length when we create temp char buffers
 //for use with the OpenSSL functions and copy into them.
 #define StringBufSize 512
 
@@ -55,8 +55,8 @@ namespace verify_exceptions {
 
 
    // All exceptions thrown will derive from this base class.
-   // Note that the error code stored in here is one of the 
-   // SignedFile::status_enum codes and these should be used to 
+   // Note that the error code stored in here is one of the
+   // SignedFile::status_enum codes and these should be used to
    // produce a suitable, translated message to the end user.
    //
    class ve_base {
@@ -64,17 +64,18 @@ namespace verify_exceptions {
       SignedFile::status_enum m_Error;
    public:
       //Constructor from an erorr code
-      explicit ve_base( 
-         const SignedFile::status_enum ErrorCode 
+      explicit ve_base(
+         const SignedFile::status_enum ErrorCode
       ) : m_Error(ErrorCode) {}
+      virtual ~ve_base() {}
 
       //Copy constructor (defined for the use of derived classes)
       ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
 
       //Assignment operator (defined for the use of derived classes)
-      const ve_base& operator = (const ve_base& rhs){ 
-         m_Error = rhs.m_Error; 
-         return *this; 
+      const ve_base& operator = (const ve_base& rhs){
+         m_Error = rhs.m_Error;
+         return *this;
       }
 
       //This function allows the error code to be returned.
@@ -82,8 +83,8 @@ namespace verify_exceptions {
 
       // This function ensures that the friend operator correctly redirects to
       // a derived class if accessed through a base class reference.
-      // This is pure virtual to ensure that no instance of this class is EVER 
-      // created (if it were, the act of writing it to an ostream would be 
+      // This is pure virtual to ensure that no instance of this class is EVER
+      // created (if it were, the act of writing it to an ostream would be
       // infinitely recursive!).
       virtual ostream& output(ostream &s) = 0;
 
@@ -100,45 +101,45 @@ namespace verify_exceptions {
       string m_Filename;
    public:
       // Constructor from an error code and filename
-      explicit ve_file( 
+      explicit ve_file(
          const SignedFile::status_enum ErrorCode,
          const string& Filename
       ) : ve_base(ErrorCode), m_Filename(Filename) {}
 
       // Copy constructor
-      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename) 
+      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename)
       {}
 
       // Assignment operator
       ve_file& operator = ( const ve_file& rhs ) {
          ve_base::operator=(rhs);
-         m_Filename = rhs.m_Filename;         
+         m_Filename = rhs.m_Filename;
          return *this;
       }
 
       // Allow the filename to be accessed
       const string& GetFilename() const { return m_Filename; }
 
-      // Overload of the base class function to ensure that 
+      // Overload of the base class function to ensure that
       // the correct operator gets called.
       virtual ostream& output(ostream &s) { s << *this; return s; }
 
       // Define this as a friend since this allows a natural syntax
       // to be used to call the operator.
       friend ostream& operator<<(ostream &s, ve_file &vf);
-      
+
       virtual ~ve_file() {}
    };
 
    // This class derives from ve_base. It represents any exception
    // which is caused by an OpenSSL error. This class encompasses
-   // the more detailed information from OpenSSL itself. This is 
+   // the more detailed information from OpenSSL itself. This is
    // available as a set of error strings that OpenSSL provides. These are
    // useful for debugging, but are NOT suitable to be
    // exposed to users for 2 reasons:
    //  1) They are distinctly non-user-friendly
    //  2) They are only available in English.
-   // 
+   //
    // So while this class offers the ability to retrieve the extra
    // OpenSSL information, it is only really suitable for debug
    // or tech support use and shouldn't be written into a user-
@@ -171,7 +172,7 @@ namespace verify_exceptions {
       virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_crypt &vc);
-      
+
       virtual ~ve_crypt() {}
    };
 
@@ -196,15 +197,15 @@ namespace verify_exceptions {
    };
 
    // This exception class is thrown when a certificate path cannot
-   // be verified back to a trusted root. This might indicate that a 
+   // be verified back to a trusted root. This might indicate that a
    // certificate has been revoked, or has expired or it may indicate
    // some other problem with the chain.
    //
    class ve_badcert : public ve_base {
       string m_BadCertNames;
    public:
-      ve_badcert() : 
-         ve_base( SignedFile::bad_certificate ), 
+      ve_badcert() :
+         ve_base( SignedFile::bad_certificate ),
          m_BadCertNames( CertificateTracker::GetInstance().GetNames() )
       {}
 
@@ -215,8 +216,8 @@ namespace verify_exceptions {
       //through a base class reference.
       virtual ostream& output(ostream &s) { s << *this; return s; }
 
-      friend ostream& operator<<(ostream &s, ve_badcert &vc);  
-      
+      friend ostream& operator<<(ostream &s, ve_badcert &vc);
+
       virtual ~ve_badcert() {}
    };
 
@@ -227,21 +228,21 @@ namespace verify_exceptions {
    protected:
       string m_Filename;
    public:
-      explicit ve_logic( 
+      explicit ve_logic(
          const SignedFile::status_enum ErrorCode
       ) : ve_base(ErrorCode) {}
 
       ve_logic( const ve_logic& rhs ) : ve_base(rhs.m_Error) {}
 
       ve_logic& operator = ( const ve_logic& rhs ) {
-         ve_base::operator=(rhs);       
+         ve_base::operator=(rhs);
          return *this;
       }
 
       virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_logic &vl);
-      
+
       virtual ~ve_logic() {}
    };
 
