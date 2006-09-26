@@ -1,4 +1,4 @@
-// crypto_utils.cpp: implementation of the cryptographic verification 
+// crypto_utils.cpp: implementation of the cryptographic verification
 // functions.
 //
 //  20030902 Original code from DC version 1.0.0
@@ -14,8 +14,8 @@ namespace VerificationToolCrypto {
 
 using namespace std;
 using namespace verify_exceptions;
-	
-X509* X509_decode(const string &);	
+
+X509* X509_decode(const string &);
 string BIO_read_all(BIO *bio);
 
 // This function verifies a signature.
@@ -37,7 +37,9 @@ bool verify_signature(
 		char buf[4096];         //4k buffer
 		body.read(buf, 4096);
 		if (body.gcount() > 0)
+		{
 			EVP_VerifyUpdate(&ctx, buf, body.gcount());
+		}
 	}
 
 	int result = EVP_VerifyFinal(&ctx, (unsigned char*)(signature.c_str()), signature.length(), pubkey);
@@ -59,7 +61,7 @@ bool verify_signature(
 // This function is a utility to extract a suitable error string from an
 // OpenSSL store once an error has occurred. We get a human-readable string
 // from the store (this is only available in English) and access the CN part
-// of the certificate name. This is used to manage logical 'errors' that crop 
+// of the certificate name. This is used to manage logical 'errors' that crop
 // up during the verification of a certificate chain (such as revoked cert,
 // or expired cert) rather than actual errors (which are handled differently).
 string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
@@ -81,11 +83,11 @@ string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
 
 // This function is a callback supplied to the OpenSSL library. We get called
 // each time a certificate is handled during the verification process. If there
-// is a problem with a certificate we can spot this and extract details about the 
+// is a problem with a certificate we can spot this and extract details about the
 // error and the certificate. This function uses MakeErrString above to help
 // it extract information from the certificate.
-// Note. The OpenSSL errors are only in English so these messages are NOT 
-// suitable for exposure to a user. They are, however, essential for 
+// Note. The OpenSSL errors are only in English so these messages are NOT
+// suitable for exposure to a user. They are, however, essential for
 // debugging/support purposes, so this code remains to extract the details.
 //
 int verify_callback(int ok, X509_STORE_CTX *stor) {
@@ -99,7 +101,7 @@ int verify_callback(int ok, X509_STORE_CTX *stor) {
          Error.append("OpenSSL store not available.");
       }
       CertificateTracker::GetInstance().AddProblem( Error, CertName );
-   } 
+   }
 	return ok;
 }
 
@@ -153,7 +155,7 @@ bool verify_certificate_path(
 	X509StoreWrapper store;
 	X509_LOOKUP     *lookup;
 	X509StoreCtxWrapper verify_ctx;
-	
+
 	OpenSSL_add_all_digests();
 	ERR_load_crypto_strings();
 
@@ -183,7 +185,7 @@ bool verify_certificate_path(
 #endif
 #endif
 	}
-	
+
 	if (!verify_ctx.GetPtr()) throw ve_crypt("Error creating X509_STORE_CTX object");
 
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
@@ -251,7 +253,7 @@ bytestring sha1sum_raw(istream &in) {
 		if (in.gcount() > 0)
 			EVP_DigestUpdate(&ctx, buf, in.gcount());
 	}
-	
+
 	unsigned char hash_buf[EVP_MAX_MD_SIZE];
 	unsigned int hash_len = 0;
 	EVP_DigestFinal(&ctx, hash_buf, &hash_len);

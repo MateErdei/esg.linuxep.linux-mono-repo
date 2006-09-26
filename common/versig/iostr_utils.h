@@ -1,6 +1,6 @@
 // iostr_utils.h
 //   Some extra io manipulators for reading strings
-//   
+//
 //   Note that all these manipulators do not use lookahead
 //   so if they fail, they do not wind back the stream to
 //   the initial state.
@@ -21,7 +21,7 @@
 namespace std {
 
 ////////////////////////////////////////////////////////////
-// 
+//
 //	Various character classes
 //
 
@@ -40,7 +40,7 @@ inline bool char_class_file(char c)		{ return (c >= 32 && c <= 126)
 						}
 inline bool char_literal_eq(char c)		{ return (c == '='); }
 
-	
+
 ////////////////////////////////////////////////////////////
 // cin << expect("some constant string")
 //
@@ -219,7 +219,7 @@ operator>>(istream& is, _Get_upto f)
 	// and wait til the string we're looking for appears at the
 	// end of our temp buffer
 	// ie we're using lookbehind rather than lookahead.
-	
+
 	stringstream tmpbuf;
 
 	while (1) {
@@ -227,19 +227,20 @@ operator>>(istream& is, _Get_upto f)
 		is.get(*tmpbuf.rdbuf(), f.delim[f.delim.length()-1]);
 		if (is.eof()) break;
 		tmpbuf.put(is.get());	//extract and store terminator
-		
-		if (tmpbuf.str().length() >= f.delim.length()) {
-			string lookbehind = tmpbuf.str().substr(
-					(tmpbuf.str().length() - f.delim.length()),
+
+		std::string tmpstr = tmpbuf.str();
+		if (tmpstr.length() >= f.delim.length()) {
+			string lookbehind = tmpstr.substr(
+					(tmpstr.length() - f.delim.length()),
 					f.delim.length());
 
 			if (lookbehind == f.delim) { //found it
-				f.s = tmpbuf.str().substr(0, tmpbuf.str().length() - f.delim.length());
+				f.s = tmpstr.substr(0, tmpstr.length() - f.delim.length());
 				return is;
 			}
 		}
 	}
-	
+
 	is.clear(ios::failbit);
 	return is;
 }
