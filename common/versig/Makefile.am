@@ -12,9 +12,9 @@ versig_SOURCES =	products/versig/CertificateTracker.cpp \
 			products/versig/versig.cpp
 
 
-versig_CXXFLAGS = -I$(OPENSSLDIR)/include $(AM_CXXFLAGS)
-versig_LDFLAGS = -L$(OPENSSLDIR) -lcrypto
-versig_DEPENDENCIES = $(OPENSSLDIR)/libcrypto.so.0.9.7
+versig_CXXFLAGS = -I$(OPENSSL_INCLUDE) $(AM_CXXFLAGS)
+versig_LDFLAGS = -L$(OPENSSL_LIBDIR) -lcrypto
+versig_DEPENDENCIES = $(OPENSSL_LIBDIR)/libcrypto.so.$(OPENSSL_VERSION)
 
 .libs/versig : versig
 
