@@ -11,9 +11,9 @@ versig_SOURCES =	products/versig/CertificateTracker.cpp \
 			products/versig/verify_exceptions.cpp \
 			products/versig/versig.cpp
 
-# OPENSSL_NO_SHA512 defined for openssl >= 0.9.8 - not needed and uses
-# 'long long' which is not C++ standard
-versig_CXXFLAGS = -I$(OPENSSL_INCLUDE) $(AM_CXXFLAGS) -DOPENSSL_NO_SHA512
+# OPENSSL_NO_SHA512 defined for openssl >= 0.9.8 as it is not needed
+# openssl includes included using isystem to limit warnings and accept long long type
+versig_CXXFLAGS = -isystem $(OPENSSL_INCLUDE) $(AM_CXXFLAGS) -DOPENSSL_NO_SHA512
 versig_LDFLAGS = -L$(OPENSSL_LIBDIR) -Llib -lcrypto
 versig_DEPENDENCIES = $(OPENSSL_LIBDIR)/libcrypto.so.$(OPENSSL_VERSION)
 
