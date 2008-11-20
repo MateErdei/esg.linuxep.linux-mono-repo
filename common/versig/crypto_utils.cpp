@@ -171,6 +171,9 @@ bool verify_certificate_path(
 	lookup = X509_STORE_add_lookup(store.GetPtr(), X509_LOOKUP_file());
 	if (!lookup) throw ve_crypt("Error creating X509_LOOKUP object");
 
+#define EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE 1
+
+#ifndef EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE
 	if (crl_file.length() > 0) {
 		int sts = X509_load_crl_file(lookup, crl_file.c_str(), X509_FILETYPE_PEM);
 		if (sts ==0)
@@ -185,6 +188,7 @@ bool verify_certificate_path(
 #endif
 #endif
 	}
+#endif
 
 	if (!verify_ctx.GetPtr()) throw ve_crypt("Error creating X509_STORE_CTX object");
 
@@ -193,6 +197,25 @@ bool verify_certificate_path(
 		throw ve_crypt("Error initialising verification context");
 #else
 	X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack);
+#endif
+
+#ifdef EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE
+	tm jan_first_tm = { 0, 0, 0, 1, 0, 109, 0, 0, 0 };
+
+//struct tm {
+//        int tm_sec;     /* seconds after the minute - [0,59] */
+//        int tm_min;     /* minutes after the hour - [0,59] */
+//        int tm_hour;    /* hours since midnight - [0,23] */
+//        int tm_mday;    /* day of the month - [1,31] */
+//        int tm_mon;     /* months since January - [0,11] */
+//        int tm_year;    /* years since 1900 */
+//        int tm_wday;    /* days since Sunday - [0,6] */
+//        int tm_yday;    /* days since January 1 - [0,365] */
+//        int tm_isdst;   /* daylight savings time flag */
+//        };
+
+	time_t january_the_first = mktime(&jan_first_tm);
+	X509_STORE_CTX_set_time(verify_ctx.GetPtr(), 0, january_the_first);
 #endif
 
 	int status = X509_verify_cert(verify_ctx.GetPtr());
