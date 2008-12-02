@@ -4,15 +4,18 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
+
 #include "digest_body.h"
 #include "crypto_utils.h"
 #include <fstream>
+#include <algorithm>
 
 namespace VerificationTool {
 
 using VerificationToolCrypto::sha1sum;
 
-file_info::verify_result file_info::verify_file(const string& root_path) const 
+file_info::verify_result file_info::verify_file(const string& root_path) const
 {
 	//Obtain (relative) path to file as recorded in manifest file
 		//Allow for preceeding '.'
@@ -29,7 +32,7 @@ file_info::verify_result file_info::verify_file(const string& root_path) const
 
 	//Open file
 	fstream file(file_path.c_str(), ios::in | ios::binary);
-	if (!file) // could not open file 
+	if (!file) // could not open file
 	{
 		return file_missing;
 	}
@@ -39,7 +42,7 @@ file_info::verify_result file_info::verify_file(const string& root_path) const
 	{
 		return file_invalid;
 	}
-	
+
 	//File exists and has recorded checksum
 	return file_ok;
 }
