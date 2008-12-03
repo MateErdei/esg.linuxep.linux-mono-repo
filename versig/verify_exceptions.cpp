@@ -1,4 +1,4 @@
-// verify_exceptions.cpp. This file implements exception and helper 
+// verify_exceptions.cpp. This file implements exception and helper
 // classes for error handling within the verify library.
 //
 //  20030909 RW version 1.0.0
@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 #include "verify_exceptions.h"
 #include <iostream>
+#include <string.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -43,7 +44,7 @@ bool ve_crypt::getNextCryptErr( string& ErrorDesc ) const {
    if ( flags & ERR_TXT_STRING ){
       //The OpenSSL flag ERR_TXT_STRING is used
       //when the data field is a text string we can
-      //safely handle. However, even in this case we 
+      //safely handle. However, even in this case we
       //will impose a maximum length, just in case.
       if ( strlen(data) < StringBufSize ){
          ErrorDesc.append(" :data=");
@@ -54,10 +55,10 @@ bool ve_crypt::getNextCryptErr( string& ErrorDesc ) const {
 }
 
 // this function is a C++ trick to get the correct operator
-// called in each case. All this does is call 'output', a member 
+// called in each case. All this does is call 'output', a member
 // function that can be overridden in derived classes. This is
 // necessary since we are using friend functions (and the binding
-// to friend functions is not polymorphic; the static type is 
+// to friend functions is not polymorphic; the static type is
 // always used). This indirection allows a caller to write:
 //
 // try {
@@ -65,11 +66,11 @@ bool ve_crypt::getNextCryptErr( string& ErrorDesc ) const {
 // } catch ( ve_base& except ){
 //    cerr << except << endl;
 // }
-// 
+//
 // and have the correct friend operator get called. If we didn't do
 // this then the static type (ve_base) would always get called, whichever
 // type of exception was actually thrown. We want to use the friend
-// functions rather than member operators since this allows the natural 
+// functions rather than member operators since this allows the natural
 // semantics of having the stream on the left hand side of the expression;
 // if we used a member function, the exception instance would have to be
 // there and it would look odd.
