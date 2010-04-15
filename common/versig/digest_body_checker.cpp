@@ -4,12 +4,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <algorithm>
 
 #include "digest_body.h"
 #include "crypto_utils.h"
-#include <fstream>
-#include <algorithm>
+
+
 
 namespace VerificationTool {
 
