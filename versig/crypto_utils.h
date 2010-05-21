@@ -12,7 +12,7 @@
 #include <list>
 #include <iostream>
 
-namespace VerificationToolCrypto {
+#include <cstdio>
 
 // uses the OpenSSL library
 #include <openssl/evp.h>
@@ -20,6 +20,8 @@ namespace VerificationToolCrypto {
 #include <openssl/x509_vfy.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
+
+namespace VerificationToolCrypto {
 
 using namespace std;
 
