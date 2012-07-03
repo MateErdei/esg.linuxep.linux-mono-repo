@@ -30,14 +30,19 @@ public:
 	);
 	//Confirm files in data-directory match contents of manifest.
 
+    /**
+     * Verify that relFilePath is included in this manifest file
+     */
+    bool CheckFilePresent(string relFilePath);
+
 private:
 	digest_file_body m_DigestBody;
 
-	ManifestFile::files_iter FileRecordsBegin(); 
+	ManifestFile::files_iter FileRecordsBegin();
 	//Return iterator identifying first file-record in ManifestFile
 
 	ManifestFile::files_iter FileRecordsEnd();
-	//Return iterator identifying last file-record in ManifestFile 
+	//Return iterator identifying last file-record in ManifestFile
 
 	void RequireValid();
 	//Throw XXX exception if ManifestFile status IS NOT valid

@@ -32,9 +32,9 @@ bool ManifestFile::ReadBody()
 {
 	istringstream FileBody(m_DigestBuffer.file_body());
 	FileBody >> m_DigestBody;
-	if (!FileBody) 
-   	{ 
-		m_Status = bad_syntax; 
+	if (!FileBody)
+   	{
+		m_Status = bad_syntax;
 		return false;
    	}
 
@@ -49,24 +49,24 @@ bool ManifestFile::DataCheck
 	string DataDirpath	//[i] Path to directory containing data files.
 )
 //Confirm files in data-directory match contents of manifest.
-	//Returns true if checksums of all actual files match those recorded in 
+	//Returns true if checksums of all actual files match those recorded in
 	//the manifest. Otherwise, returns false.
 	//Only checks files recorded in the manifest. For SAV for Linux, the set
 	//of file in a CID may be a subset of the files recorded in the manifest,
-	//so missing files are treated as OK.		
+	//so missing files are treated as OK.
 {
 	if (DataDirpath.size() == 0)
 	{
 		//Missing files are not a problem
 		return true;
 	}
-	
+
 	bool bAllFilesOK = true;
 	ManifestFile::files_iter p = FileRecordsBegin();
 	while( bAllFilesOK && (p != FileRecordsEnd()) )
 	{
 		string Msg = "";
-		switch (p->verify_file(DataDirpath)) 
+		switch (p->verify_file(DataDirpath))
 		{
 			case file_info::file_ok:
 			case file_info::file_missing:
@@ -83,6 +83,22 @@ bool ManifestFile::DataCheck
 	return bAllFilesOK;
 }
 
+/**
+ * Verify that relFilePath is included in this manifest file
+ */
+bool ManifestFile::CheckFilePresent(string relFilePath)
+{
+	ManifestFile::files_iter p = FileRecordsBegin();
+	while(p != FileRecordsEnd())
+	{
+        if (p->path() == relFilePath)
+        {
+            return true;
+        }
+        p++;
+	}
+    return false;
+}
 
 void ManifestFile::RequireValid()
 //Throw ve_logic exception if ManifestFile status IS NOT valid
@@ -93,7 +109,7 @@ void ManifestFile::RequireValid()
 	}
 }
 
-ManifestFile::files_iter ManifestFile::FileRecordsBegin() 
+ManifestFile::files_iter ManifestFile::FileRecordsBegin()
 //Return iterator identifying first file-record in ManifestFile
 {
 	RequireValid();
@@ -101,7 +117,7 @@ ManifestFile::files_iter ManifestFile::FileRecordsBegin()
 }
 
 ManifestFile::files_iter ManifestFile::FileRecordsEnd()
-//Return iterator identifying last file-record in ManifestFile 
+//Return iterator identifying last file-record in ManifestFile
 {
 	RequireValid();
 	return m_DigestBody.files_end();

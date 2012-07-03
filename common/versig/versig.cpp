@@ -1,6 +1,6 @@
 //versig.cpp
 //
-// Application to verify digitally-signed files and verify data files 
+// Application to verify digitally-signed files and verify data files
 // against Sophos manifest file.
 //
 // Usage:
@@ -12,7 +12,7 @@
 //       Verifies digital-signature on specified signed-file using specified
 //       certificates-file.
 //
-//    versig -c<cert_file_path> -r<crl_file_path> -f<signed_file_path> 
+//    versig -c<cert_file_path> -r<crl_file_path> -f<signed_file_path>
 //       As above, but certificates-file is first checked against revocation list
 //       in specified certificate-revocation-list-file.
 //
@@ -26,12 +26,12 @@
 //       As above, but certificates-file is first checked against revocation list
 //       in specified certificate-revocation-list-file.
 //
-//    By default, versig runs silently, indicating success or failure of verification through 
+//    By default, versig runs silently, indicating success or failure of verification through
 //    its exit value, one of the g_EXIT values listed below.
 //
 //    Output (useful for debugging) can be elicited by running versig with the optional
 //    argument --silent-off. Note: this output is in English only - it is not intended for
-//    customer use.       
+//    customer use.
 
 #include "manifest_file.h"
 #include "verify_exceptions.h"
@@ -51,11 +51,12 @@ const int g_EXIT_BADLOGIC = 7;
 
 
 bool g_bSilent = true;	//Silent by default
+bool g_checkInstall = false;
 
 
 void Output
 (
-	string Msg	//[i] Message 
+	string Msg	//[i] Message
 )
 //Output message if not in silent mode.
 	//NB: Output in English. Use for debug only.
@@ -89,38 +90,39 @@ bool ReadArgs
 	rDataDirpath = "";
 
 	//Assign argument values
-	if( (1 < argc) && (argc < 7) )
-	{
-		for(int i=1; i<argc; i++)
-		{
-			string arg = argv[i];
-			if( (arg.compare(0,2,"-c") == 0) && rCertsFilepath.size() == 0 )
-			{
-				rCertsFilepath = arg.substr(2);
-			}
-			else if( (arg.compare(0,2,"-d") == 0) && rDataDirpath.size() == 0 )
-			{
- 				rDataDirpath = arg.substr(2);
-			}
-			else if( (arg.compare(0,2,"-f") == 0) && rSignedFilepath.size() == 0 )
-			{
-				rSignedFilepath = arg.substr(2);
-			}
-			else if( (arg.compare(0,2,"-r") == 0) && rCRLFilepath.size() == 0 )
-			{
-				rCRLFilepath = arg.substr(2);
-			}
-			else if( (arg.compare(0,12,"--silent-off") == 0) )
-			{
-				g_bSilent = false;
-			}
-		}
+    for(int i=1; i<argc; i++)
+    {
+        string arg = argv[i];
+        if( (arg.compare(0,2,"-c") == 0) && rCertsFilepath.size() == 0 )
+        {
+            rCertsFilepath = arg.substr(2);
+        }
+        else if( (arg.compare(0,2,"-d") == 0) && rDataDirpath.size() == 0 )
+        {
+            rDataDirpath = arg.substr(2);
+        }
+        else if( (arg.compare(0,2,"-f") == 0) && rSignedFilepath.size() == 0 )
+        {
+            rSignedFilepath = arg.substr(2);
+        }
+        else if( (arg.compare(0,2,"-r") == 0) && rCRLFilepath.size() == 0 )
+        {
+            rCRLFilepath = arg.substr(2);
+        }
+        else if( (arg.compare(0,12,"--silent-off") == 0) )
+        {
+            g_bSilent = false;
+        }
+        else if( (arg.compare(0,18,"--check-install-sh") == 0) )
+        {
+            g_checkInstall = true;
+        }
+    }
 
-		if( (rSignedFilepath.size() > 0) && (rCertsFilepath.size() > 0) )
-		{
-			bGoodArgs = true;
-		}
-	}
+    if( (rSignedFilepath.size() > 0) && (rCertsFilepath.size() > 0) )
+    {
+        bGoodArgs = true;
+    }
 
 	//Take action if bad arguments
 	if(!bGoodArgs)
@@ -132,7 +134,8 @@ bool ReadArgs
 			string(" [-d<path to data files to be checked>]\n") +
 			string(" -f<signed_file_path>\n") +
 			string(" [-r<certificate_revocation_list_file_path>]\n") +
-			string(" [-s0|-s1]\n")
+			string(" --silent-off\n") +
+			string(" --check-install-sh\n")
 		);
 		return false;
 	}
@@ -144,7 +147,7 @@ bool ReadArgs
 
 int main
 (
-	int argc,		//[i] Count of arguments 
+	int argc,		//[i] Count of arguments
 	char* argv[]	//[i] Array of argument values
 )
 {
@@ -168,7 +171,6 @@ int main
 	);
 
 	//Process signed-file
-
 	VerificationTool::ManifestFile MF;
 
 	try
@@ -182,7 +184,7 @@ int main
 		bOK = MF.IsValid();
 		if (!bOK)
 		{
-			switch (MF.Status()) 
+			switch (MF.Status())
 			{
 				case SignedFile::notopened:
 					Output("cannot find / read signed file\n");
@@ -206,7 +208,7 @@ int main
 					break;
 			}
 		}
-			
+
 		//Validate data files against contents of manifest
 		if(DataDirpath.size() > 0)
 		{
@@ -221,6 +223,15 @@ int main
 				Output("data files verified ok\n");
 			}
 		}
+
+        if (g_checkInstall)
+        {
+            if (!MF.CheckFilePresent(".\\install.sh"))
+            {
+				Output("install.sh absent from Manifest\n");
+				return g_EXIT_BADFILE;
+            }
+        }
 	}
 
 	catch ( ve_file& except )
@@ -262,7 +273,7 @@ int main
 		Output(Msgstrm.str());
 		return g_EXIT_BADLOGIC;
 	}
-	
+
 	catch (...)
 	{
 		Output("Failed: unexpected exception\n");
