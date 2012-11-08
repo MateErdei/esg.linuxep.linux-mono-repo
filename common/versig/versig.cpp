@@ -54,7 +54,7 @@ bool g_bSilent = true;	//Silent by default
 bool g_checkInstall = false;
 
 
-void Output
+static void Output
 (
 	string Msg	//[i] Message
 )
@@ -68,7 +68,7 @@ void Output
 }
 
 
-bool ReadArgs
+static bool ReadArgs
 (
 	int	argc,				//[i] Arguments count
 	char*	argv[],				//[i] Argument values
