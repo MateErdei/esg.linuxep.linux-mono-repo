@@ -60,13 +60,14 @@ bool verify_signature(
 	// -1 for error, 0 for bad sig, 1 for verified sig
 }
 
+#ifndef NDEBUG
 // This function is a utility to extract a suitable error string from an
 // OpenSSL store once an error has occurred. We get a human-readable string
 // from the store (this is only available in English) and access the CN part
 // of the certificate name. This is used to manage logical 'errors' that crop
 // up during the verification of a certificate chain (such as revoked cert,
 // or expired cert) rather than actual errors (which are handled differently).
-string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
+static string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
    string Error;
    Error.append( X509_verify_cert_error_string(stor->error) );
    CertName.clear();
@@ -92,7 +93,7 @@ string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
 // suitable for exposure to a user. They are, however, essential for
 // debugging/support purposes, so this code remains to extract the details.
 //
-int verify_callback(int ok, X509_STORE_CTX *stor) {
+static int verify_callback(int ok, X509_STORE_CTX *stor) {
    //Extract information about the current certificate
    string Error;
    if (!ok){
@@ -106,6 +107,7 @@ int verify_callback(int ok, X509_STORE_CTX *stor) {
    }
 	return ok;
 }
+#endif /* ndef NDEBUG */
 
 
 // Wrapper around these X509 objects take ownership& ensure memory cleanup
@@ -302,7 +304,7 @@ X509* X509_decode(const string &data) {
 
 typedef string bytestring; //used as just a sequence of bytes
 
-bytestring sha1sum_raw(istream &in) {
+static bytestring sha1sum_raw(istream &in) {
         EVP_MD_CTX ctx;
 	EVP_DigestInit(&ctx, EVP_sha1());
 	while (!in.eof()) {
@@ -322,7 +324,7 @@ bytestring sha1sum_raw(istream &in) {
 }
 
 
-string hex(const bytestring &data) {
+static string hex(const bytestring &data) {
 	string result;
 	result.reserve(data.length() * 2); //prealocate double the space (since hex conversion doubles length)
 
