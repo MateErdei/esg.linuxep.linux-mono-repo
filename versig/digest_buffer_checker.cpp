@@ -1,4 +1,4 @@
-// digest_buffer_checker.cpp: implementation of the 
+// digest_buffer_checker.cpp: implementation of the
 // digest_buffer_checker class.
 //
 //  20030902 Original code from DC version 1.0.0
@@ -23,8 +23,8 @@ class CertFreer {
 public:
    CertFreer( X509 *cert ) : m_Cert(cert) {}
    ~CertFreer() {
-      if (m_Cert) { 
-         X509_free(m_Cert); 
+      if (m_Cert) {
+         X509_free(m_Cert);
       }
    }
 };
@@ -33,7 +33,7 @@ class CertListFreer {
    list<X509*> m_List;
 public:
    CertListFreer( list<X509*> list ) : m_List(list) {}
-   ~CertListFreer() { 
+   ~CertListFreer() {
       for ( list<X509*>::iterator i = m_List.begin(); i != m_List.end(); i++ ){
          X509_free(*i);
       }
@@ -52,7 +52,6 @@ public:
 };
 
 bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const string &crl_file) {
-	bool status = false;
 
 	//make X509 object from pem encoding
 	X509 *cert = X509_decode(certificate());
@@ -60,17 +59,17 @@ bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const s
       throw ve_crypt("Decoding certificate");
    }
    CertFreer FreeCert(cert);
-	
+
 	//extract public key from certificate
 	EVP_PKEY *pubkey = X509_get_pubkey(cert);
    if ( !pubkey ){
       throw ve_crypt("Getting public key from certificate");
    }
    KeyFreer FreeKey(pubkey);
-	
+
 	//verify the signature against the file body using the public key
 	istringstream file_body_stream(file_body());
-	status = verify_signature(file_body_stream, base64_decode(signature()), pubkey);
+	verify_signature(file_body_stream, base64_decode(signature()), pubkey); // throws
 
 	//make X509 objects from pem encoding for cert chain
 	list<X509 *> intermediate_cert_chain;
@@ -82,11 +81,11 @@ bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const s
       }
 		intermediate_cert_chain.push_front(CurrentCert);
    }
-	
-	//verify the signing cert's path to a trusted cert
-	status = verify_certificate_path(cert, trusted_certs_file, intermediate_cert_chain, crl_file);
 
-	return status;	
+	//verify the signing cert's path to a trusted cert
+	verify_certificate_path(cert, trusted_certs_file, intermediate_cert_chain, crl_file); // throws
+
+    return true;
 }
 
 } // namespace VerificationTool.Crypto
