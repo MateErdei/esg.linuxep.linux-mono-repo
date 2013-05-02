@@ -265,8 +265,6 @@ bool verify_certificate_path(
 	default:
 		throw ve_crypt("Verifying certificate");
 	}
-
-	return status==1;
 }
 
 
