@@ -51,7 +51,6 @@ const int g_EXIT_BADLOGIC = 7;
 
 
 bool g_bSilent = true;	//Silent by default
-bool g_checkInstall = false;
 
 
 static void Output
@@ -67,15 +66,24 @@ static void Output
 	}
 }
 
+struct Arguments
+{
+    string SignedFilepath;	// Path to signed-file
+    string CertsFilepath;	// Path to certificates-file
+    string CRLFilepath;		// Path to CRL-file
+    string DataDirpath;		// Path to directory containing data files
+    bool fixDate;
+    bool checkInstall;
+    bool requireAllManifestFilesPresentOnDisk;
+    bool requireAllDiskFilesPresentInManifest;
+};
+
 
 static bool ReadArgs
 (
 	int	argc,				//[i] Arguments count
 	char*	argv[],				//[i] Argument values
-	string& rSignedFilepath,	//[o] Path to signed-file
-	string& rCertsFilepath,		//[o] Path to certificates-file
-	string&	rCRLFilepath,		//[o] Path to CRL-file
-	string& rDataDirpath		//[o] Path to directory containing data files
+	Arguments& args
 )
 //Read and process the command-line arguments
 	//Return true if a valid set of arguments found
@@ -84,30 +92,34 @@ static bool ReadArgs
 	bool bGoodArgs = false;
 
 	//Initialise
-	rSignedFilepath = "";
-	rCertsFilepath = "";
-	rCRLFilepath = "";
-	rDataDirpath = "";
+	args.SignedFilepath = "";
+	args.CertsFilepath = "";
+	args.CRLFilepath = "";
+	args.DataDirpath = "";
+	args.fixDate = true;
+	args.checkInstall = false;
+	args.requireAllManifestFilesPresentOnDisk = false;
+	args.requireAllDiskFilesPresentInManifest = false;
 
 	//Assign argument values
     for(int i=1; i<argc; i++)
     {
         string arg = argv[i];
-        if( (arg.compare(0,2,"-c") == 0) && rCertsFilepath.size() == 0 )
+        if( (arg.compare(0,2,"-c") == 0) && args.CertsFilepath.size() == 0 )
         {
-            rCertsFilepath = arg.substr(2);
+            args.CertsFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-d") == 0) && rDataDirpath.size() == 0 )
+        else if( (arg.compare(0,2,"-d") == 0) && args.DataDirpath.size() == 0 )
         {
-            rDataDirpath = arg.substr(2);
+            args.DataDirpath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-f") == 0) && rSignedFilepath.size() == 0 )
+        else if( (arg.compare(0,2,"-f") == 0) && args.SignedFilepath.size() == 0 )
         {
-            rSignedFilepath = arg.substr(2);
+            args.SignedFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-r") == 0) && rCRLFilepath.size() == 0 )
+        else if( (arg.compare(0,2,"-r") == 0) && args.CRLFilepath.size() == 0 )
         {
-            rCRLFilepath = arg.substr(2);
+            args.CRLFilepath = arg.substr(2);
         }
         else if( (arg.compare(0,12,"--silent-off") == 0) )
         {
@@ -115,11 +127,15 @@ static bool ReadArgs
         }
         else if( (arg.compare(0,18,"--check-install-sh") == 0) )
         {
-            g_checkInstall = true;
+            args.checkInstall = true;
+        }
+        else if( (arg.compare(0,18,"--no-fix-date") == 0) )
+        {
+            args.fixDate = false;
         }
     }
 
-    if( (rSignedFilepath.size() > 0) && (rCertsFilepath.size() > 0) )
+    if( (args.SignedFilepath.size() > 0) && (args.CertsFilepath.size() > 0) )
     {
         bGoodArgs = true;
     }
@@ -151,23 +167,25 @@ int main
 	char* argv[]	//[i] Array of argument values
 )
 {
-	string SignedFilepath;	//Path to signed-file
-	string CertsFilepath;	//Path to certificates-file
-	string CRLFilepath;		//Path to CRL-file
-	string DataDirpath;		//Path to data-directory
+	Arguments args;
 
 	//Read arguments
-	if( !ReadArgs(argc,argv,SignedFilepath,CertsFilepath,CRLFilepath,DataDirpath) )
+	if( !ReadArgs(argc,argv,args) )
 	{
 		return g_EXIT_BADARGS;
 	}
 
+	string SignedFilepath = args.SignedFilepath;	//Path to signed-file
+	string CertsFilepath = args.CertsFilepath;	//Path to certificates-file
+	string CRLFilepath = args.CRLFilepath;		//Path to CRL-file
+	string DataDirpath = args.DataDirpath;		//Path to data-directory
+
 	Output
 	(
-		string("Path to signed-file       = [") + SignedFilepath + string("]\n") +
-	        string("Path to certificates-file = [") + CertsFilepath + string("]\n") +
-	        string("Path to crl-file          = [") + CRLFilepath + string("]\n") +
-                string("Path to data directory    = [") + DataDirpath + string("]\n")
+        string("Path to signed-file       = [") + SignedFilepath + string("]\n") +
+        string("Path to certificates-file = [") + CertsFilepath + string("]\n") +
+        string("Path to crl-file          = [") + CRLFilepath + string("]\n") +
+        string("Path to data directory    = [") + DataDirpath + string("]\n")
 	);
 
 	//Process signed-file
@@ -178,7 +196,7 @@ int main
 		bool bOK = false;
 
 		//Open the signed file (assumed to be manifest file)
-		MF.Open(SignedFilepath, CertsFilepath, CRLFilepath);
+		MF.Open(SignedFilepath, CertsFilepath, CRLFilepath, args.fixDate);
 
 		//Validate signature
 		bOK = MF.IsValid();
@@ -224,7 +242,7 @@ int main
 			}
 		}
 
-        if (g_checkInstall)
+        if (args.checkInstall)
         {
             if (!MF.CheckFilePresent(".\\install.sh"))
             {
@@ -250,10 +268,18 @@ int main
 		return g_EXIT_BADCRYPT;
 	}
 
+	catch ( ve_missingsig& except )
+	{
+		ostringstream Msgstrm;
+		Msgstrm << "Missing signature exception:" << except << endl;
+		Output(Msgstrm.str());
+		return g_EXIT_BADSIG;
+	}
+
 	catch ( ve_badsig& except )
 	{
 		ostringstream Msgstrm;
-		Msgstrm << "Failed signature:" << except << endl;
+		Msgstrm << "Failed signature exception:" << except << endl;
 		Output(Msgstrm.str());
 		return g_EXIT_BADSIG;
 	}
@@ -261,7 +287,7 @@ int main
 	catch ( ve_badcert& except )
 	{
 		ostringstream Msgstrm;
-		Msgstrm << "Failed certificate:" << except << endl;
+		Msgstrm << "Failed certificate exception:" << except << endl;
 		Output(Msgstrm.str());
 		return g_EXIT_BADCERT;
 	}

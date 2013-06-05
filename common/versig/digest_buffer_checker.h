@@ -15,7 +15,7 @@ using namespace std;
 
 class digest_buffer_checker : public digest_file_buffer {
 public:
-   bool verify_all(const string &trusted_certs_file, const string &crl_file = "");
+   bool verify_all(const string &trusted_certs_file, const string &crl_file, const bool fixDate);
 
 };
 

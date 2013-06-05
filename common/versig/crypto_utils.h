@@ -1,4 +1,4 @@
-// crypto_utils.h: interface for the cryptographic verification 
+// crypto_utils.h: interface for the cryptographic verification
 // functions.
 //
 //  20030902 Original code from DC version 1.0.0
@@ -41,7 +41,8 @@ bool verify_signature(istream &body,
 bool verify_certificate_path(X509 *cert,
 			     const string &trusted_certs_file,
 			     const list<X509*> &untrusted_certs,
-			     const string &crl_file = "");
+			     const string &crl_file,
+			     bool fixDate);
 
 X509* X509_decode(const string&);
 
