@@ -84,6 +84,11 @@ ostream& operator<<(ostream &s, ve_badsig &vb) {
    return s;
 }
 
+ostream& operator<<(ostream &s, ve_missingsig &vb) {
+   s << "[MISSINGSIG]: " << vb.m_Error << endl;
+   return s;
+}
+
 // And the following are the actual friend operators that get called from
 // each of the derived classes and output their data correctly.
 ostream& operator<<(ostream &s, ve_file &vf) {

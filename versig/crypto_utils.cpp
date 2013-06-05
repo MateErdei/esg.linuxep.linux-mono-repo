@@ -147,7 +147,8 @@ bool verify_certificate_path(
 	X509 *cert,
 	const string &trusted_certs_file,
 	const list<X509*> &untrusted_certs,
-	const string &crl_file
+	const string &crl_file,
+	bool fixDate
 ) {
 
 	// make a stack of untrusted certs
@@ -206,6 +207,8 @@ bool verify_certificate_path(
 #endif
 
 #ifdef EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE
+    if (fixDate)
+    {
 	struct tm jan_first_tm;
 	jan_first_tm.tm_sec = 0;
 	jan_first_tm.tm_min = 0;
@@ -253,6 +256,7 @@ bool verify_certificate_path(
 
 	time_t january_the_first = mktime(&jan_first_tm);
 	X509_STORE_CTX_set_time(verify_ctx.GetPtr(), 0, january_the_first);
+    }
 #endif
 
 	int status = X509_verify_cert(verify_ctx.GetPtr());

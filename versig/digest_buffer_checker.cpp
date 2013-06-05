@@ -51,7 +51,7 @@ public:
    }
 };
 
-bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const string &crl_file) {
+bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const string &crl_file, bool fixDate) {
 
 	//make X509 object from pem encoding
 	X509 *cert = X509_decode(certificate());
@@ -83,7 +83,7 @@ bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const s
    }
 
 	//verify the signing cert's path to a trusted cert
-	verify_certificate_path(cert, trusted_certs_file, intermediate_cert_chain, crl_file); // throws
+	verify_certificate_path(cert, trusted_certs_file, intermediate_cert_chain, crl_file, fixDate); // throws
 
     return true;
 }

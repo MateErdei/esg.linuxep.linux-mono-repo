@@ -27,7 +27,7 @@ using namespace std;
 //	<certificate header>	::= "-----BEGIN CERTIFICATE-----"<LF>
 //	<certificate body>	::= ((<base64>){32-79}<LF>){1-40}<equal>{0-2}<LF>
 //	<certificate footer>	::= "-----END CERTIFICATE-----"<LF>
-//	
+//
 //	<space>	::= ' '
 //	<dot>	::= '.'
 //	<hash>	::= '#'
@@ -56,24 +56,24 @@ istream& operator>>(istream &in, digest_file_buffer &v) {
 	string body;
 	string signature;
 	string certificate;
-	
+
 	in >> noskipws;
-	
+
 	// look for the signature header
 	in >> get_upto(body, "\n-----BEGIN SIGNATURE-----\n")
 	   >> match_base64(signature)
 	   >> expect("-----END SIGNATURE-----\n");
-	
+
 	if (0==signature.length())
 	{
 		// No signature
-		throw verify_exceptions::ve_badsig();
+		throw verify_exceptions::ve_missingsig();
 	}
 
 	// directly after the signature we expect one or more certificates
 	string cert_header = "-----BEGIN CERTIFICATE-----\n";
 	string cert_footer = "-----END CERTIFICATE-----\n";
-	
+
 	in >> expect(cert_header) >> match_base64(certificate) >> expect(cert_footer);
 
 	if (0==certificate.length())
@@ -89,14 +89,14 @@ istream& operator>>(istream &in, digest_file_buffer &v) {
 		cert_chain.push_front(cert_header + cert + cert_footer);
 	}
 	in >> expect_eof;
-	
+
 	if (in) {
 		v._file_buf    = body + '\n';
 		v._signature   = signature;
 		v._certificate = cert_header + certificate + cert_footer;
 		v._cert_chain  = cert_chain;
 	}
-	
+
 	return in;
 }
 

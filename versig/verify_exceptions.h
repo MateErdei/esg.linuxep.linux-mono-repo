@@ -196,6 +196,16 @@ namespace verify_exceptions {
       friend ostream& operator<<(ostream &s, ve_badsig &vc);
    };
 
+   class ve_missingsig : public ve_badsig {
+   public:
+      //This function ensures that the friend operator
+      //correctly redirects to a derived class if accessed
+      //through a base class reference.
+      virtual ostream& output(ostream &s) { s << *this; return s; }
+
+      friend ostream& operator<<(ostream &s, ve_missingsig &vc);
+   };
+
    // This exception class is thrown when a certificate path cannot
    // be verified back to a trusted root. This might indicate that a
    // certificate has been revoked, or has expired or it may indicate

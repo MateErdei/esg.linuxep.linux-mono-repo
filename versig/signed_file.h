@@ -15,19 +15,19 @@ namespace VerificationTool {
 
 class SignedFile {
 public:
-	typedef enum { 
+	typedef enum {
 		ok = 0,
-		uninitialised, 
-		valid, 
-		notopened, 
-		malformed, 
+		uninitialised,
+		valid,
+		notopened,
+		malformed,
 		openssl_error,
 		bad_signature,
 		bad_certificate,
 		bad_syntax
 	} status_enum;
 
-	SignedFile(); 
+	SignedFile();
 
 	virtual ~SignedFile();
 
@@ -38,25 +38,26 @@ public:
 	//Sets the maximum digest buffer size
 
 	virtual bool ReadBody();
-	//Read body of signed file	
+	//Read body of signed file
 
 	void Open
 	//Open the signed file and verify signature
-	(					
+	(
 		const string &SignedFilepath,	//[i] Path to signed file
 		const string &CertFilepath,		//[i] Path to CA certificate file
-		const string &CRLFilepath = ""	//[i] Path to (optional) certificate revocation list
+		const string &CRLFilepath,		//[i] Path to (optional) certificate revocation list
+		const bool fixDate				//[i] Fix the date of verification to work with old certs
 	);
 
-	bool IsValid(); 
+	bool IsValid();
 	//Returns true if file properly signed
 
 	status_enum Status();
 	//Returns status of signed-file
-	
+
 protected:
 	//Protected so can be used directly by child classes
-	digest_buffer_checker	m_DigestBuffer;	
+	digest_buffer_checker	m_DigestBuffer;
 	status_enum				m_Status;
 
 private:
