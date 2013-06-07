@@ -119,7 +119,7 @@ ostream& operator<<(ostream &s, ve_badcert &vb) {
    for (
       CertificateTracker::iter_type iter = CertificateTracker::GetInstance().GetProblems();
       iter != CertificateTracker::GetInstance().GetEnd();
-      iter++
+      ++iter
    ){
       s << *iter << endl;
    }
