@@ -73,7 +73,7 @@ namespace verify_exceptions {
       ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
 
       //Assignment operator (defined for the use of derived classes)
-      const ve_base& operator = (const ve_base& rhs){
+      ve_base& operator = (const ve_base& rhs){
          m_Error = rhs.m_Error;
          return *this;
       }

@@ -51,7 +51,6 @@ bool verify_signature(
    switch (result) {
    case 1:
       return true;
-      break;
    case 0:
       throw ve_badsig();
    default:
