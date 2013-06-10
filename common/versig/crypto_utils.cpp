@@ -331,7 +331,7 @@ static string hex(const bytestring &data) {
 
 	for (unsigned int n = 0; n < data.length(); n++) {
 		char hexbuf[3];
-		sprintf(hexbuf, "%02x", (unsigned char)data[n]);
+		snprintf(hexbuf, 3, "%02x", (unsigned char)data[n]);
 		result += hexbuf[0]; result += hexbuf[1];
 	}
 
