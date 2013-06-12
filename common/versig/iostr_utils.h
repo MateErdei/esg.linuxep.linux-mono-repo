@@ -203,46 +203,81 @@ operator>>(istream& is, _Match_base64 f)
 // 	to a failed state.
 //
 struct _Get_upto {
-	string &s;
-	const string &delim;
-	int maxbytes;
-	_Get_upto(string &s, const string &delim, int maxbytes): s(s), delim(delim), maxbytes(maxbytes) {}
+    string &s;
+    const string &delim;
+    int maxbytes;
+
+    _Get_upto(string &s, const string &delim, int maxbytes):
+        s(s), delim(delim), maxbytes(maxbytes) {}
 };
-inline _Get_upto get_upto(string &s, const string &delim, int maxbytes = -1) {
-	_Get_upto m(s, delim, maxbytes);
-	return m;
-}
-inline istream&
-operator>>(istream& is, _Get_upto f)
+
+inline _Get_upto get_upto(string &s, const string &delim, int maxbytes = -1)
 {
-	// the algorithm is to read through the stream char by char
-	// and wait til the string we're looking for appears at the
-	// end of our temp buffer
-	// ie we're using lookbehind rather than lookahead.
+    _Get_upto m(s, delim, maxbytes);
+    return m;
+}
 
-	stringstream tmpbuf;
+inline istream& operator>>(istream& is, _Get_upto f)
+{
+    // the algorithm is to read through the stream char by char
+    // and wait til the string we're looking for appears at the
+    // end of our temp buffer
+    // ie we're using lookbehind rather than lookahead.
 
-	while (1) {
-		//read into tmpbuf up to last character in the delim string
-		is.get(*tmpbuf.rdbuf(), f.delim[f.delim.length()-1]);
-		if (is.eof()) break;
-		tmpbuf.put(is.get());	//extract and store terminator
+    stringstream tmpbuf;
+    int f_delim_len = f.delim.length();
+    char f_delim_end = f.delim[f_delim_len - 1];
+    int tmpstr_len, terminator;
 
-		std::string tmpstr = tmpbuf.str();
-		if (tmpstr.length() >= f.delim.length()) {
-			string lookbehind = tmpstr.substr(
-					(tmpstr.length() - f.delim.length()),
-					f.delim.length());
+    //read into tmpbuf up to last character in the delim string
+    while (is.good()) {
+        is.get(*tmpbuf.rdbuf(), f_delim_end);
 
-			if (lookbehind == f.delim) { //found it
-				f.s = tmpstr.substr(0, tmpstr.length() - f.delim.length());
-				return is;
-			}
-		}
-	}
+        if (! is.good())
+        {
+            // ifstream goes into fail state when writing blank lines into
+            // tmpbuf.  According to docs, it can be cleared to continue.
+            if (is.fail())
+            {
+                is.clear();
+            }
+            else
+            {
+                // Unknown state, break and continue to signature verification.
+                break;
+            }
+        }
 
-	is.clear(ios::failbit);
-	return is;
+        //get returns EOF if there is nothing left to read.
+        if (-1 == (terminator = is.get()))
+        {
+            continue;
+        }
+
+        //extract and store terminator
+        tmpbuf.put(terminator);
+        std::string tmpstr = tmpbuf.str();
+
+        if ((tmpstr_len = tmpstr.length()) < f_delim_len)
+        {
+            continue;
+        }
+
+        string lookbehind = tmpstr.substr(
+            (tmpstr_len - f_delim_len),
+            f_delim_len
+        );
+
+        if (lookbehind == f.delim)
+        {
+            //found it
+            f.s = tmpstr.substr(0, tmpstr_len - f_delim_len);
+            return is;
+        }
+    }
+
+    is.clear(ios::failbit);
+    return is;
 }
 
 } // namespace std

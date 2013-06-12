@@ -32,13 +32,8 @@ bool ManifestFile::ReadBody()
 {
 	istringstream FileBody(m_DigestBuffer.file_body());
 	FileBody >> m_DigestBody;
-	if (!FileBody)
-   	{
-		m_Status = bad_syntax;
-		return false;
-   	}
 
-	//All ok
+	// All ok, allow empty manifests.
 	return true;
 }
 
