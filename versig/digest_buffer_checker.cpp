@@ -30,9 +30,9 @@ public:
 };
 
 class CertListFreer {
-   list<X509*> m_List;
+   list<X509*>& m_List;
 public:
-   CertListFreer( list<X509*> list ) : m_List(list) {}
+   CertListFreer( list<X509*>& list ) : m_List(list) {}
    ~CertListFreer() {
       for ( list<X509*>::iterator i = m_List.begin(); i != m_List.end(); i++ ){
          X509_free(*i);
