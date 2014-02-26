@@ -52,7 +52,7 @@ public:
 	bool IsValid();
 	//Returns true if file properly signed
 
-	status_enum Status();
+	//status_enum Status();
 	//Returns status of signed-file
 
 protected:

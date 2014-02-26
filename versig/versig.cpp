@@ -202,24 +202,9 @@ int main
 		bOK = MF.IsValid();
 		if (!bOK)
 		{
-			switch (MF.Status())
-			{
-				case SignedFile::notopened:
-					Output("cannot find / read signed file\n");
-					return g_EXIT_BADFILE;
-				case SignedFile::malformed:
-					Output("corrupt / invalid format signed file\n");
-					return g_EXIT_BADFILE;
-				case SignedFile::bad_signature:
-					Output("invalid signature on signed file\n");
-					return g_EXIT_BADSIG;
-				case SignedFile::bad_syntax:
-					Output("syntax error in signed file\n");
-					return g_EXIT_BADFILE;
-				default:
-					Output("unknown error in signed file\n");
-					return g_EXIT_BAD;
-			}
+			// Shouldn't get here as signed_file::Open usually throws a helpful exception
+			Output("unknown error in signed file\n");
+			return g_EXIT_BAD;
 		}
 
 		//Validate data files against contents of manifest
