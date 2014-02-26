@@ -119,10 +119,10 @@ bool SignedFile::IsValid()
 }
 
 
-SignedFile::status_enum SignedFile::Status()
-{
-	return m_Status;
-}
+//SignedFile::status_enum SignedFile::Status()
+//{
+//	return m_Status;
+//}
 
 
 } // namespace VerificationTool
