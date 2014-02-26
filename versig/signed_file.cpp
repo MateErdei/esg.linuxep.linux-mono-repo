@@ -24,15 +24,15 @@ SignedFile::~SignedFile()
 {}
 
 
-void SignedFile::SetDigestSizeLimit
-(
-	unsigned long MaxSizeBytes
-)
-//Sets the maximum digest buffer size
-	//Call this before open if you really need to
-{
-	m_DigestBufferMaxSizeBytes = MaxSizeBytes;
-}
+//void SignedFile::SetDigestSizeLimit
+//(
+//	unsigned long MaxSizeBytes
+//)
+////Sets the maximum digest buffer size
+//	//Call this before open if you really need to
+//{
+//	m_DigestBufferMaxSizeBytes = MaxSizeBytes;
+//}
 
 
 bool SignedFile::ReadBody()

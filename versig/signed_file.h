@@ -31,11 +31,11 @@ public:
 
 	virtual ~SignedFile();
 
-	void SetDigestSizeLimit
-	(
-		unsigned long MaxSizeBytes
-	);
-	//Sets the maximum digest buffer size
+//	void SetDigestSizeLimit
+//	(
+//		unsigned long MaxSizeBytes
+//	);
+//	//Sets the maximum digest buffer size
 
 	virtual bool ReadBody();
 	//Read body of signed file
