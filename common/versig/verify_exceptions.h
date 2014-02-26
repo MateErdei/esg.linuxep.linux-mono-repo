@@ -79,7 +79,7 @@ namespace verify_exceptions {
       }
 
       //This function allows the error code to be returned.
-      SignedFile::status_enum getErrorCode() const { return m_Error; }
+//      SignedFile::status_enum getErrorCode() const { return m_Error; }
 
       // This function ensures that the friend operator correctly redirects to
       // a derived class if accessed through a base class reference.
@@ -118,7 +118,7 @@ namespace verify_exceptions {
       }
 
       // Allow the filename to be accessed
-      const string& GetFilename() const { return m_Filename; }
+//      const string& GetFilename() const { return m_Filename; }
 
       // Overload of the base class function to ensure that
       // the correct operator gets called.
@@ -219,7 +219,7 @@ namespace verify_exceptions {
          m_BadCertNames( CertificateTracker::GetInstance().GetNames() )
       {}
 
-      string GetBadCertNames() { return m_BadCertNames; }
+//      string GetBadCertNames() { return m_BadCertNames; }
 
       //This function ensures that the friend operator
       //correctly redirects to a derived class if accessed
