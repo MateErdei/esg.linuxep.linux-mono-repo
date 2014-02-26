@@ -25,14 +25,14 @@ namespace VerificationToolCrypto {
 
 using namespace std;
 
-class CleanUpStack {
-   STACK_OF(X509) * m_Stack;
-public:
-   CleanUpStack( STACK_OF(X509) * Stack ) : m_Stack(Stack) {}
-   ~CleanUpStack() {
-      sk_X509_pop_free(m_Stack, X509_free);
-   }
-};
+//class CleanUpStack {
+//   STACK_OF(X509) * m_Stack;
+//public:
+//   CleanUpStack( STACK_OF(X509) * Stack ) : m_Stack(Stack) {}
+//   ~CleanUpStack() {
+//      sk_X509_pop_free(m_Stack, X509_free);
+//   }
+//};
 
 bool verify_signature(istream &body,
 		      const string &signature,
