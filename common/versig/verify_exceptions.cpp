@@ -75,9 +75,9 @@ bool ve_crypt::getNextCryptErr( string& ErrorDesc ) const {
 // if we used a member function, the exception instance would have to be
 // there and it would look odd.
 //
-ostream& operator<<(ostream &s, ve_base &vb) {
-   return vb.output(s);
-}
+//ostream& operator<<(ostream &s, ve_base &vb) {
+//   return vb.output(s);
+//}
 
 ostream& operator<<(ostream &s, ve_badsig &vb) {
    s << "[BADSIG]: " << vb.m_Error << endl;

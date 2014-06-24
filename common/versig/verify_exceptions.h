@@ -86,7 +86,7 @@ namespace verify_exceptions {
       // This is pure virtual to ensure that no instance of this class is EVER
       // created (if it were, the act of writing it to an ostream would be
       // infinitely recursive!).
-      virtual ostream& output(ostream &s) = 0;
+      //virtual ostream& output(ostream &s) = 0;
 
       //Output the class to a stream.
       friend ostream& operator<<(ostream &s, ve_base &vb);
@@ -122,7 +122,7 @@ namespace verify_exceptions {
 
       // Overload of the base class function to ensure that
       // the correct operator gets called.
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       // Define this as a friend since this allows a natural syntax
       // to be used to call the operator.
@@ -169,7 +169,7 @@ namespace verify_exceptions {
       //This function ensures that the friend operator
       //correctly redirects to a derived class if accessed
       //through a base class reference.
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_crypt &vc);
 
@@ -191,7 +191,7 @@ namespace verify_exceptions {
       //This function ensures that the friend operator
       //correctly redirects to a derived class if accessed
       //through a base class reference.
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_badsig &vc);
    };
@@ -201,7 +201,7 @@ namespace verify_exceptions {
       //This function ensures that the friend operator
       //correctly redirects to a derived class if accessed
       //through a base class reference.
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_missingsig &vc);
    };
@@ -224,7 +224,7 @@ namespace verify_exceptions {
       //This function ensures that the friend operator
       //correctly redirects to a derived class if accessed
       //through a base class reference.
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_badcert &vc);
 
@@ -249,7 +249,7 @@ namespace verify_exceptions {
          return *this;
       }
 
-      virtual ostream& output(ostream &s) { s << *this; return s; }
+      //virtual ostream& output(ostream &s) { s << *this; return s; }
 
       friend ostream& operator<<(ostream &s, ve_logic &vl);
 
