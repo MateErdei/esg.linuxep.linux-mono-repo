@@ -95,26 +95,26 @@ bool ManifestFile::CheckFilePresent(string relFilePath)
     return false;
 }
 
-void ManifestFile::RequireValid()
-//Throw ve_logic exception if ManifestFile status IS NOT valid
-{
-	if(m_Status != valid)
-	{
-		throw ve_logic(m_Status);
-	}
-}
+//void ManifestFile::RequireValid()
+////Throw ve_logic exception if ManifestFile status IS NOT valid
+//{
+//	if(m_Status != valid)
+//	{
+//		throw ve_logic(m_Status);
+//	}
+//}
 
 ManifestFile::files_iter ManifestFile::FileRecordsBegin()
 //Return iterator identifying first file-record in ManifestFile
 {
-	RequireValid();
+	//RequireValid();
 	return m_DigestBody.files_begin();
 }
 
 ManifestFile::files_iter ManifestFile::FileRecordsEnd()
 //Return iterator identifying last file-record in ManifestFile
 {
-	RequireValid();
+	//RequireValid();
 	return m_DigestBody.files_end();
 }
 

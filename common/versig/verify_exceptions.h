@@ -73,10 +73,10 @@ namespace verify_exceptions {
       ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
 
       //Assignment operator (defined for the use of derived classes)
-      ve_base& operator = (const ve_base& rhs){
-         m_Error = rhs.m_Error;
-         return *this;
-      }
+      //ve_base& operator = (const ve_base& rhs){
+      //   m_Error = rhs.m_Error;
+      //   return *this;
+      //}
 
       //This function allows the error code to be returned.
 //      SignedFile::status_enum getErrorCode() const { return m_Error; }
@@ -111,11 +111,11 @@ namespace verify_exceptions {
       {}
 
       // Assignment operator
-      ve_file& operator = ( const ve_file& rhs ) {
-         ve_base::operator=(rhs);
-         m_Filename = rhs.m_Filename;
-         return *this;
-      }
+      //ve_file& operator = ( const ve_file& rhs ) {
+      //   ve_base::operator=(rhs);
+      //   m_Filename = rhs.m_Filename;
+      //   return *this;
+      //}
 
       // Allow the filename to be accessed
 //      const string& GetFilename() const { return m_Filename; }
@@ -150,11 +150,11 @@ namespace verify_exceptions {
    public:
       ve_crypt( const string Msg ) : ve_base( SignedFile::openssl_error ), m_Message(Msg) {}
       ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
-      ve_crypt& operator=(const ve_crypt& rhs) {
-         ve_base::operator=(rhs);
-         m_Message = rhs.m_Message;
-         return *this;
-      }
+      //ve_crypt& operator=(const ve_crypt& rhs) {
+      //   ve_base::operator=(rhs);
+      //   m_Message = rhs.m_Message;
+      //   return *this;
+      //}
 
       //OpenSSL errors are in an error queue from which
       //we need to pop them. Call this function until it
@@ -234,27 +234,27 @@ namespace verify_exceptions {
    // This exception class is thrown when a logic error occurs.
    // Typically, it indicates that an operation has been attempted
    // by an object in an unfit state to perform the operation.
-   class ve_logic : public ve_base {
-   protected:
-      string m_Filename;
-   public:
-      explicit ve_logic(
-         const SignedFile::status_enum ErrorCode
-      ) : ve_base(ErrorCode) {}
+   //class ve_logic : public ve_base {
+   //protected:
+   //   string m_Filename;
+   //public:
+   //   explicit ve_logic(
+   //      const SignedFile::status_enum ErrorCode
+   //   ) : ve_base(ErrorCode) {}
 
-      ve_logic( const ve_logic& rhs ) : ve_base(rhs.m_Error) {}
+   //   ve_logic( const ve_logic& rhs ) : ve_base(rhs.m_Error) {}
 
-      ve_logic& operator = ( const ve_logic& rhs ) {
-         ve_base::operator=(rhs);
-         return *this;
-      }
+   //   //ve_logic& operator = ( const ve_logic& rhs ) {
+   //   //   ve_base::operator=(rhs);
+   //   //   return *this;
+   //   //}
 
-      //virtual ostream& output(ostream &s) { s << *this; return s; }
+   //   //virtual ostream& output(ostream &s) { s << *this; return s; }
 
-      friend ostream& operator<<(ostream &s, ve_logic &vl);
+   //   friend ostream& operator<<(ostream &s, ve_logic &vl);
 
-      virtual ~ve_logic() {}
-   };
+   //   virtual ~ve_logic() {}
+   //};
 
 }
 #endif
