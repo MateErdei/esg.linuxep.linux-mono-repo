@@ -272,13 +272,13 @@ int main
 		return g_EXIT_BADCERT;
 	}
 
-	catch ( ve_logic& except )
-	{
-		ostringstream Msgstrm;
-		Msgstrm << "Failed logic:" << except << endl;
-		Output(Msgstrm.str());
-		return g_EXIT_BADLOGIC;
-	}
+	//catch ( ve_logic& except )
+	//{
+	//	ostringstream Msgstrm;
+	//	Msgstrm << "Failed logic:" << except << endl;
+	//	Output(Msgstrm.str());
+	//	return g_EXIT_BADLOGIC;
+	//}
 
 	catch (...)
 	{

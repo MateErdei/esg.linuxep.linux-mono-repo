@@ -129,10 +129,10 @@ ostream& operator<<(ostream &s, ve_badcert &vb) {
 
 // Output an instance of the ve_logic exception class onto
 // a stream.
-ostream& operator<<(ostream &s, ve_logic &vl) {
-   s << "[LOGIC]: " << vl.m_Error;
-   return s;
-}
+//ostream& operator<<(ostream &s, ve_logic &vl) {
+//   s << "[LOGIC]: " << vl.m_Error;
+//   return s;
+//}
 
 } //namespace verify_exceptions
 
