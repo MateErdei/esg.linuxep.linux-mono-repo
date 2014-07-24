@@ -70,7 +70,7 @@ namespace verify_exceptions {
       virtual ~ve_base() {}
 
       //Copy constructor (defined for the use of derived classes)
-      ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
+//      ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
 
       //Assignment operator (defined for the use of derived classes)
       //ve_base& operator = (const ve_base& rhs){
@@ -107,8 +107,8 @@ namespace verify_exceptions {
       ) : ve_base(ErrorCode), m_Filename(Filename) {}
 
       // Copy constructor
-      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename)
-      {}
+//      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename)
+//      {}
 
       // Assignment operator
       //ve_file& operator = ( const ve_file& rhs ) {
@@ -149,7 +149,7 @@ namespace verify_exceptions {
       string m_Message;
    public:
       ve_crypt( const string Msg ) : ve_base( SignedFile::openssl_error ), m_Message(Msg) {}
-      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
+//      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
       //ve_crypt& operator=(const ve_crypt& rhs) {
       //   ve_base::operator=(rhs);
       //   m_Message = rhs.m_Message;
