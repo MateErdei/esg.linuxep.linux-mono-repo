@@ -23,7 +23,7 @@ class file_info {
 
 public:
 	string path() const { return _path; };
-	unsigned long size() const { return _size; };
+	//unsigned long size() const { return _size; };
 	string checksum() const { return _checksum; };
 
 	typedef enum { file_ok, file_invalid, file_missing } verify_result;

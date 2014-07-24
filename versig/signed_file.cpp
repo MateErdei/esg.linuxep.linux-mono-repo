@@ -16,7 +16,7 @@ using namespace verify_exceptions;
 namespace VerificationTool {
 
 SignedFile::SignedFile()
-: m_Status(uninitialised), m_DigestBufferMaxSizeBytes(0)
+: m_Status(uninitialised) //, m_DigestBufferMaxSizeBytes(0)
 {}
 
 
@@ -83,11 +83,13 @@ void SignedFile::Open
 		throw ve_file(notopened, SignedFilepath);
    	}
 
-	//Make digest from signed file
-	if (m_DigestBufferMaxSizeBytes != 0)
-	{
-		m_DigestBuffer.set_file_body_limit(m_DigestBufferMaxSizeBytes);
-	}
+// Currently not possible to set m_DigestBufferMaxSizeBytes to anything
+// except 0 therefore the following condition is redundant.
+//	//Make digest from signed file
+//	if (m_DigestBufferMaxSizeBytes != 0)
+//	{
+//		m_DigestBuffer.set_file_body_limit(m_DigestBufferMaxSizeBytes);
+//	}
 
 	SignedFilestrm >> m_DigestBuffer;
 
