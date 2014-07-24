@@ -25,7 +25,7 @@ private:
 
 public:
 	digest_file_buffer(): _file_buf_max(1024 * 128) {}
-	void set_file_body_limit(unsigned long lim) { _file_buf_max = lim; }
+	//void set_file_body_limit(unsigned long lim) { _file_buf_max = lim; }
 	
 	const string&		file_body()   const { return _file_buf; }
 	const string&		signature()   const { return _signature; }

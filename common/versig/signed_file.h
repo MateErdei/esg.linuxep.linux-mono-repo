@@ -61,7 +61,7 @@ protected:
 	status_enum				m_Status;
 
 private:
-	unsigned long			m_DigestBufferMaxSizeBytes;	// 0 for default
+	//unsigned long			m_DigestBufferMaxSizeBytes;	// 0 for default
 };
 
 } // namespace VerificationTool
