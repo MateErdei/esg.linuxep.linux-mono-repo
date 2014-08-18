@@ -152,7 +152,7 @@ bool verify_certificate_path(
 
 	// make a stack of untrusted certs
 	X509StackWrapper untrusted_certs_stack;
-	for (list<X509 *>::const_iterator p = untrusted_certs.begin(); p != untrusted_certs.end(); p++)
+	for (list<X509 *>::const_iterator p = untrusted_certs.begin(); p != untrusted_certs.end(); ++p)
 		sk_X509_push(untrusted_certs_stack.GetPtr(), *p);
 
 	//do everything else
@@ -329,7 +329,7 @@ static string hex(const bytestring &data) {
 	string result;
 	result.reserve(data.length() * 2); //prealocate double the space (since hex conversion doubles length)
 
-	for (unsigned int n = 0; n < data.length(); n++) {
+	for (unsigned int n = 0; n < data.length(); ++n) {
 		char hexbuf[3];
 		snprintf(hexbuf, 3, "%02x", (unsigned char)data[n]);
 		result += hexbuf[0]; result += hexbuf[1];

@@ -34,7 +34,7 @@ class CertListFreer {
 public:
    CertListFreer( list<X509*>& list ) : m_List(list) {}
    ~CertListFreer() {
-      for ( list<X509*>::iterator i = m_List.begin(); i != m_List.end(); i++ ){
+      for ( list<X509*>::iterator i = m_List.begin(); i != m_List.end(); ++i ){
           X509_free(*i);
       }
    }
@@ -76,7 +76,7 @@ bool digest_buffer_checker::verify_all(const string &trusted_certs_file, const s
     list<X509 *> intermediate_cert_chain;
     {
         CertListFreer cert_chain_freers(intermediate_cert_chain);
-        for (list<string>::const_iterator p = cert_chain().begin(); p != cert_chain().end(); p++)
+        for (list<string>::const_iterator p = cert_chain().begin(); p != cert_chain().end(); ++p)
         {
             X509* CurrentCert = X509_decode(*p);
             if (!CurrentCert)

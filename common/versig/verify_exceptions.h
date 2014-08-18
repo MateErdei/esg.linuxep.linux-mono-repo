@@ -148,7 +148,7 @@ namespace verify_exceptions {
    class ve_crypt : public ve_base {
       string m_Message;
    public:
-      ve_crypt( const string Msg ) : ve_base( SignedFile::openssl_error ), m_Message(Msg) {}
+      ve_crypt( const string& Msg ) : ve_base( SignedFile::openssl_error ), m_Message(Msg) {}
 //      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
       //ve_crypt& operator=(const ve_crypt& rhs) {
       //   ve_base::operator=(rhs);
