@@ -60,7 +60,6 @@ bool ManifestFile::DataCheck
 	ManifestFile::files_iter p = FileRecordsBegin();
 	while( bAllFilesOK && (p != FileRecordsEnd()) )
 	{
-		string Msg = "";
 		switch (p->verify_file(DataDirpath))
 		{
 			case file_info::file_ok:
@@ -72,7 +71,7 @@ bool ManifestFile::DataCheck
 				bAllFilesOK = false;
 				break;
 		}
-		p++;
+		++p;
 	}
 
 	return bAllFilesOK;
@@ -90,7 +89,7 @@ bool ManifestFile::CheckFilePresent(string relFilePath)
         {
             return true;
         }
-        p++;
+        ++p;
 	}
     return false;
 }
