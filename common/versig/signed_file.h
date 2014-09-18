@@ -37,7 +37,7 @@ public:
 //	);
 //	//Sets the maximum digest buffer size
 
-	virtual bool ReadBody();
+	virtual bool ReadBody() =0;
 	//Read body of signed file
 
 	void Open
