@@ -35,17 +35,17 @@ SignedFile::~SignedFile()
 //}
 
 
-bool SignedFile::ReadBody()
+//bool SignedFile::ReadBody()
 //Read body of signed file
 	//Returns true if the format of its body is OK.
 	//Otherwise returns false.
-{
+//{
 	//SignedFile makes no assumptions about the format of the
 	//body of the signed file, so SignedFile::ReadBody() is a
 	//null function. Override in any child classes where
 	//this function is required.
-	return true;
-}
+//	return true;
+//}
 
 
 void SignedFile::Open
