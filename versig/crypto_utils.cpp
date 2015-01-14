@@ -12,6 +12,9 @@
 #include <assert.h>
 #include <time.h>
 
+#include <fstream>
+#include <stdexcept>
+
 namespace VerificationToolCrypto {
 
 using namespace std;
@@ -41,7 +44,7 @@ bool verify_signature(
 		if (body.gcount() > 0)
 		{
 			EVP_VerifyUpdate(&ctx, buf, body.gcount());
-		}
+	}
 	}
 
 	int result = EVP_VerifyFinal(&ctx, (unsigned char*)(signature.c_str()), signature.length(), pubkey);
@@ -134,6 +137,30 @@ struct X509StackWrapper
 	STACK_OF(X509) * GetPtr() { return m_ref;}
 };
 
+// Helper function to pull a string from a file.
+static std::string SimpleLoadFile(const std::string& filename)
+{
+	if (filename.empty())
+	{
+		return std::string();
+	}
+	std::ifstream ifsInput(filename.c_str(), std::ios::binary | std::ios::in);
+	std::vector<char>inputBuffer;
+	ifsInput.seekg(0, std::ios_base::end);
+	std::streamoff ifsStreamSize = ifsInput.tellg();
+	if (ifsStreamSize == 0)
+	{
+		return std::string();
+	}
+	ifsInput.seekg(0, std::ios_base::beg);
+	inputBuffer.resize(ifsStreamSize);
+	char *pBuffer = &inputBuffer[0];
+	ifsInput.read(pBuffer, ifsStreamSize);
+	std::string output(inputBuffer.begin(), inputBuffer.end());
+	ifsInput.close();
+	return output;
+}
+
 
 // This function verifies a chain of certificates. These are
 // supplied into the program in 2 ways; the first is by appending
@@ -146,119 +173,109 @@ bool verify_certificate_path(
 	X509 *cert,
 	const string &trusted_certs_file,
 	const list<X509*> &untrusted_certs,
-	const string &crl_file,
+	const string& crl_file,
 	bool fixDate
-) {
+)
+{
+    static_cast<void>(fixDate);
 
 	// make a stack of untrusted certs
 	X509StackWrapper untrusted_certs_stack;
 	for (list<X509 *>::const_iterator p = untrusted_certs.begin(); p != untrusted_certs.end(); ++p)
-		sk_X509_push(untrusted_certs_stack.GetPtr(), *p);
-
-	//do everything else
-	X509StoreWrapper store;
-	X509_LOOKUP     *lookup;
-	X509StoreCtxWrapper verify_ctx;
-
-	OpenSSL_add_all_digests();
-	ERR_load_crypto_strings();
-
-	if (!store.GetPtr()) throw ve_crypt("Error creating X509_STORE object");
-
-#ifndef NDEBUG
-	X509_STORE_set_verify_cb_func(store.GetPtr(), verify_callback);	//for debug
-#endif
-
-	if (X509_STORE_load_locations(store.GetPtr(), trusted_certs_file.c_str(), NULL) != 1)
-		throw ve_crypt("Error loading trusted certificates file");
-
-	lookup = X509_STORE_add_lookup(store.GetPtr(), X509_LOOKUP_file());
-	if (!lookup) throw ve_crypt("Error creating X509_LOOKUP object");
-
-#define EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE 1
-
-#ifndef EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE
-	if (crl_file.length() > 0) {
-		int sts = X509_load_crl_file(lookup, crl_file.c_str(), X509_FILETYPE_PEM);
-		if (sts ==0)
-         throw ve_file( SignedFile::notopened, crl_file );
-
-#if (OPENSSL_VERSION_NUMBER > 0x00907000L)
-		X509_STORE_set_flags(store.GetPtr(), X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
-#else
-#warning No CRL checking will be performed, that requires OpenSSL 0.9.7 or later
-#ifndef NDEBUG
-		cerr << "No CRL checking will be performed, that requires OpenSSL 0.9.7 or later" << endl;
-#endif
-#endif
-	}
-#else
-    static_cast<void>(crl_file);
-#endif
-
-	if (!verify_ctx.GetPtr()) throw ve_crypt("Error creating X509_STORE_CTX object");
-
-#if (OPENSSL_VERSION_NUMBER > 0x00907000L)
-	if (X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack.GetPtr()) != 1)
-		throw ve_crypt("Error initialising verification context");
-#else
-	X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack);
-#endif
-
-#ifdef EMERGENCY_CERTIFICATE_ROLLOVER_KLUDGE
-    if (fixDate)
     {
-	struct tm jan_first_tm;
-	jan_first_tm.tm_sec = 0;
-	jan_first_tm.tm_min = 0;
-	jan_first_tm.tm_hour = 0;
-	jan_first_tm.tm_mday = 1;
-	jan_first_tm.tm_mon = 0;
-	jan_first_tm.tm_year = 109;
-	jan_first_tm.tm_wday = 0;
-	jan_first_tm.tm_yday = 0;
-	jan_first_tm.tm_isdst = 0;
-
-//struct tm {
-//        int tm_sec;     /* seconds after the minute - [0,59] */
-//        int tm_min;     /* minutes after the hour - [0,59] */
-//        int tm_hour;    /* hours since midnight - [0,23] */
-//        int tm_mday;    /* day of the month - [1,31] */
-//        int tm_mon;     /* months since January - [0,11] */
-//        int tm_year;    /* years since 1900 */
-//        int tm_wday;    /* days since Sunday - [0,6] */
-//        int tm_yday;    /* days since January 1 - [0,365] */
-//        int tm_isdst;   /* daylight savings time flag */
-//        };
-
-// /* Used by other time functions.  */
-// struct tm
-// {
-//   int tm_sec;                   /* Seconds.     [0-60] (1 leap second) */
-//   int tm_min;                   /* Minutes.     [0-59] */
-//   int tm_hour;                  /* Hours.       [0-23] */
-//   int tm_mday;                  /* Day.         [1-31] */
-//   int tm_mon;                   /* Month.       [0-11] */
-//   int tm_year;                  /* Year - 1900.  */
-//   int tm_wday;                  /* Day of week. [0-6] */
-//   int tm_yday;                  /* Days in year.[0-365] */
-//   int tm_isdst;                 /* DST.         [-1/0/1]*/
-
-// #ifdef  __USE_BSD
-//   long int tm_gmtoff;           /* Seconds east of UTC.  */
-//   __const char *tm_zone;        /* Timezone abbreviation.  */
-// #else
-//   long int __tm_gmtoff;         /* Seconds east of UTC.  */
-//   __const char *__tm_zone;      /* Timezone abbreviation.  */
-// #endif
-// };
-
-	time_t january_the_first = mktime(&jan_first_tm);
-	X509_STORE_CTX_set_time(verify_ctx.GetPtr(), 0, january_the_first);
+		sk_X509_push(untrusted_certs_stack.GetPtr(), *p);
     }
-#endif
 
-	int status = X509_verify_cert(verify_ctx.GetPtr());
+	X509StoreWrapper store;
+
+	int status = 0;
+
+	try {
+
+		OpenSSL_add_all_digests();
+		//ERR_load_crypto_strings();
+
+#ifndef NDEBUG
+        X509_STORE_set_verify_cb_func(store.GetPtr(), verify_callback);	//for debug
+#endif
+		std::string trusted_certs_string = SimpleLoadFile(trusted_certs_file);
+
+#ifdef CRL_CHECKING
+		std::string crl_string = SimpleLoadFile(crl_file);
+		// Load all crl records
+
+		if (!crl_string.empty())
+		{
+			char *data = const_cast<char *>(crl_string.c_str());
+			BIO *in = BIO_new_mem_buf(data, int(crl_string.length()));
+			if (!in) {throw std::bad_alloc();}
+			int result = 1; // Can be no crl
+			for (;;)
+			{
+				X509_CRL *crl = PEM_read_bio_X509_CRL(in,NULL,NULL,NULL);
+				if (!crl)
+				{
+					break;
+				}
+				result = X509_STORE_add_crl(store.GetPtr(), crl);
+				X509_CRL_free(crl);
+				if (!result)
+				{
+					break;
+				}
+				X509_STORE_set_flags(store.GetPtr(), X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
+			}
+			BIO_free_all(in);
+			if (!result)
+            {
+                throw std::runtime_error("Failed to add CRL");
+            }
+		}
+#else /* CRL_CHECKING */
+        static_cast<void>(crl_file);
+#endif /* CRL_CHECKING */
+
+		// Load all root certificates
+        char *data = const_cast<char *>(trusted_certs_string.c_str());
+        BIO *in = BIO_new_mem_buf(data, int(trusted_certs_string.length()));
+        if (!in)
+        {
+            throw std::bad_alloc();
+        }
+        int result = 0; // Must be at least one root certificate
+        for (;;)
+        {
+            X509 *this_cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
+            if (!this_cert)
+            {
+                break;
+            }
+            result = X509_STORE_add_cert(store.GetPtr(), this_cert);
+            X509_free(this_cert);
+            if (!result)
+            {
+                break;
+            }
+        }
+        BIO_free_all(in);
+
+        if (!result)
+        {
+            throw std::runtime_error("Failed to add root certificate");
+        }
+
+        // Verify against this certificate.
+        X509StoreCtxWrapper verify_ctx;
+
+        if (X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack.GetPtr()))
+        {
+            status = X509_verify_cert(verify_ctx.GetPtr());
+        }
+	}
+	catch (...)
+	{
+	}
+
 	switch (status)
 	{
 	case 1:
@@ -330,8 +347,9 @@ static string hex(const bytestring &data) {
 	result.reserve(data.length() * 2); //prealocate double the space (since hex conversion doubles length)
 
 	for (unsigned int n = 0; n < data.length(); ++n) {
-		char hexbuf[3];
-		snprintf(hexbuf, 3, "%02x", (unsigned char)data[n]);
+		const size_t HEX_BUFFER_SIZE = 3;
+		char hexbuf[HEX_BUFFER_SIZE];
+		snprintf(hexbuf, HEX_BUFFER_SIZE, "%02x", (unsigned char)data[n]);
 		result += hexbuf[0]; result += hexbuf[1];
 	}
 
