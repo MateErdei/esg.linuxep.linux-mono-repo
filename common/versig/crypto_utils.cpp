@@ -190,92 +190,90 @@ bool verify_certificate_path(
 
 	int status = 0;
 
-	try {
-
-		OpenSSL_add_all_digests();
-		//ERR_load_crypto_strings();
+    OpenSSL_add_all_digests();
+    //ERR_load_crypto_strings();
 
 #ifndef NDEBUG
-        X509_STORE_set_verify_cb_func(store.GetPtr(), verify_callback);	//for debug
+    X509_STORE_set_verify_cb_func(store.GetPtr(), verify_callback);	//for debug
 #endif
-		std::string trusted_certs_string = SimpleLoadFile(trusted_certs_file);
+    std::string trusted_certs_string = SimpleLoadFile(trusted_certs_file);
 
 #ifdef CRL_CHECKING
-		std::string crl_string = SimpleLoadFile(crl_file);
-		// Load all crl records
+    std::string crl_string = SimpleLoadFile(crl_file);
+    // Load all crl records
 
-		if (!crl_string.empty())
-		{
-			char *data = const_cast<char *>(crl_string.c_str());
-			BIO *in = BIO_new_mem_buf(data, int(crl_string.length()));
-			if (!in) {throw std::bad_alloc();}
-			int result = 1; // Can be no crl
-			for (;;)
-			{
-				X509_CRL *crl = PEM_read_bio_X509_CRL(in,NULL,NULL,NULL);
-				if (!crl)
-				{
-					break;
-				}
-				result = X509_STORE_add_crl(store.GetPtr(), crl);
-				X509_CRL_free(crl);
-				if (!result)
-				{
-					break;
-				}
-				X509_STORE_set_flags(store.GetPtr(), X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
-			}
-			BIO_free_all(in);
-			if (!result)
-            {
-                throw std::runtime_error("Failed to add CRL");
-            }
-		}
-#else /* CRL_CHECKING */
-        static_cast<void>(crl_file);
-#endif /* CRL_CHECKING */
-
-		// Load all root certificates
-        char *data = const_cast<char *>(trusted_certs_string.c_str());
-        BIO *in = BIO_new_mem_buf(data, int(trusted_certs_string.length()));
+    if (!crl_string.empty())
+    {
+        char *data = const_cast<char *>(crl_string.c_str());
+        BIO *in = BIO_new_mem_buf(data, int(crl_string.length()));
         if (!in)
         {
-            throw std::bad_alloc();
+            throw ve_crypt("Failed to open CRL file");
         }
-        int result = 0; // Must be at least one root certificate
+        int result = 1; // Can be no crl
         for (;;)
         {
-            X509 *this_cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
-            if (!this_cert)
+            X509_CRL *crl = PEM_read_bio_X509_CRL(in,NULL,NULL,NULL);
+            if (!crl)
             {
                 break;
             }
-            result = X509_STORE_add_cert(store.GetPtr(), this_cert);
-            X509_free(this_cert);
+            result = X509_STORE_add_crl(store.GetPtr(), crl);
+            X509_CRL_free(crl);
             if (!result)
             {
                 break;
             }
+            X509_STORE_set_flags(store.GetPtr(), X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
         }
         BIO_free_all(in);
-
         if (!result)
         {
-            throw std::runtime_error("Failed to add root certificate");
+            throw ve_crypt("Failed to add CRL");
         }
+    }
+#else /* CRL_CHECKING */
+    static_cast<void>(crl_file);
+#endif /* CRL_CHECKING */
 
-        // Verify against this certificate.
-        X509StoreCtxWrapper verify_ctx;
-
-        if (X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack.GetPtr()))
+    // Load all root certificates
+    char *data = const_cast<char *>(trusted_certs_string.c_str());
+    BIO *in = BIO_new_mem_buf(data, int(trusted_certs_string.length()));
+    if (!in)
+    {
+        throw ve_crypt("Error opening trusted certificates file");
+    }
+    int result = 0; // Must be at least one root certificate
+    for (;;)
+    {
+        X509 *this_cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
+        if (!this_cert)
         {
-            status = X509_verify_cert(verify_ctx.GetPtr());
+            break;
         }
-	}
-	catch (...)
-	{
-	}
+        result = X509_STORE_add_cert(store.GetPtr(), this_cert);
+        X509_free(this_cert);
+        if (!result)
+        {
+            break;
+        }
+    }
+    BIO_free_all(in);
 
+    if (!result)
+    {
+        throw ve_crypt("Error loading trusted certificates file");
+    }
+
+    // Verify against this certificate.
+    X509StoreCtxWrapper verify_ctx;
+
+    if (X509_STORE_CTX_init(verify_ctx.GetPtr(), store.GetPtr(), cert, untrusted_certs_stack.GetPtr()) != 1)
+    {
+        throw ve_crypt("Error initialising verification context");
+    }
+
+    status = X509_verify_cert(verify_ctx.GetPtr());
 	switch (status)
 	{
 	case 1:
