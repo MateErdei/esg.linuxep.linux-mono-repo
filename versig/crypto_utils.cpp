@@ -321,11 +321,12 @@ X509* X509_decode(const string &data) {
 typedef string bytestring; //used as just a sequence of bytes
 
 static bytestring sha1sum_raw(istream &in) {
-        EVP_MD_CTX ctx;
+	EVP_MD_CTX ctx;
 	EVP_DigestInit(&ctx, EVP_sha1());
+	char buf[128*1024];
+
 	while (!in.eof()) {
-		char buf[4096];         //4k buffer
-		in.read(buf, 4096);
+		in.read(buf, sizeof(buf));
 		if (in.gcount() > 0)
 			EVP_DigestUpdate(&ctx, buf, in.gcount());
 	}
