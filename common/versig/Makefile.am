@@ -1,4 +1,4 @@
-# Makefile.am for standalone executable versig
+## Makefile.am for standalone executable versig
 
 versig_SOURCES =	products/versig/CertificateTracker.cpp \
 			products/versig/crypto_utils.cpp \
@@ -11,11 +11,11 @@ versig_SOURCES =	products/versig/CertificateTracker.cpp \
 			products/versig/verify_exceptions.cpp \
 			products/versig/versig.cpp
 
-# OPENSSL_NO_SHA512 defined for openssl >= 0.9.8 as it is not needed
-# openssl includes included using isystem to limit warnings and accept long long type
+## OPENSSL_NO_SHA512 defined for openssl >= 0.9.8 as it is not needed
+## openssl includes included using isystem to limit warnings and accept long long type
 
 if COMPILER_IS_GCC
-VERSIG_OPENSSL_INCLUDE := -isystem $(OPENSSL_INCLUDE)
+VERSIG_OPENSSL_INCLUDE := $(ISYSTEM) $(OPENSSL_INCLUDE)
 else !COMPILER_IS_GCC
 VERSIG_OPENSSL_INCLUDE := -I$(OPENSSL_INCLUDE)
 endif !COMPILER_IS_GCC
@@ -27,5 +27,5 @@ versig_DEPENDENCIES = $(OPENSSL_LIBCRYPTO) $(OPENSSL_LIBSSP)
 .libs/versig : versig
 
 
-# Add in our extras.
+## Add in our extras.
 bin_PROGRAMS += versig
