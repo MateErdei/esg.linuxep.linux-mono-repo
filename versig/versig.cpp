@@ -193,13 +193,11 @@ int main
 
 	try
 	{
-		bool bOK = false;
-
 		//Open the signed file (assumed to be manifest file)
 		MF.Open(SignedFilepath, CertsFilepath, CRLFilepath, args.fixDate);
 
 		//Validate signature
-		bOK = MF.IsValid();
+		bool bOK = MF.IsValid();
 		if (!bOK)
 		{
 			// Shouldn't get here as signed_file::Open usually throws a helpful exception
