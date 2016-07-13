@@ -79,7 +79,7 @@ void SignedFile::Open
 	ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
 	if ( !SignedFilestrm.is_open() )
    	{
-      		m_Status = notopened;
+		m_Status = notopened;
 		throw ve_file(notopened, SignedFilepath);
    	}
 

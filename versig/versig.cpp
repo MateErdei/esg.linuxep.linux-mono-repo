@@ -143,6 +143,7 @@ static bool ReadArgs
 	//Take action if bad arguments
 	if(!bGoodArgs)
 	{
+        g_bSilent = false;
 		Output
 		(
 			string("Usage: ") + string(argv[0]) + string("\n") +
@@ -222,7 +223,7 @@ int main
 
         if (args.checkInstall)
         {
-            if (!MF.CheckFilePresent(".\\install.sh"))
+            if (!(MF.CheckFilePresent(".\\install.sh") || MF.CheckFilePresent("install.sh")))
             {
 				Output("install.sh absent from Manifest\n");
 				return g_EXIT_BADFILE;
@@ -277,6 +278,20 @@ int main
 	//	Output(Msgstrm.str());
 	//	return g_EXIT_BADLOGIC;
 	//}
+	catch (const std::bad_alloc& except)
+	{
+		ostringstream Msgstrm;
+		Msgstrm << "Failed: std::bad_alloc" << endl;
+		Output(Msgstrm.str());
+		return g_EXIT_BAD;
+	}
+	catch (const std::exception& except)
+	{
+		ostringstream Msgstrm;
+		Msgstrm << "Failed: std::exception:" << except.what() << endl;
+		Output(Msgstrm.str());
+		return g_EXIT_BAD;
+	}
 
 	catch (...)
 	{

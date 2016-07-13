@@ -49,6 +49,16 @@ X509* X509_decode(const string&);
 string base64_decode(const string&);
 
 string sha1sum(istream &);
+string sha512sum(istream &);
+
+/**
+ * Size of a SHA1 hash digest
+ */
+unsigned int sha1size();
+/**
+ * Size of a SHA-512 hash digest
+ */
+unsigned int sha512size();
 
 // This function is used to build a human-readable
 // error string from a stor context during the verification

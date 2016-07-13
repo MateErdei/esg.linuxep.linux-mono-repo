@@ -15,6 +15,8 @@
 #include <fstream>
 #include <stdexcept>
 
+#define PRINT(_X) std::cerr << _X << std::endl
+
 namespace VerificationToolCrypto {
 
 using namespace std;
@@ -140,25 +142,42 @@ struct X509StackWrapper
 // Helper function to pull a string from a file.
 static std::string SimpleLoadFile(const std::string& filename)
 {
-	if (filename.empty())
-	{
-		return std::string();
-	}
-	std::ifstream ifsInput(filename.c_str(), std::ios::binary | std::ios::in);
-	std::vector<char>inputBuffer;
-	ifsInput.seekg(0, std::ios_base::end);
-	std::streamoff ifsStreamSize = ifsInput.tellg();
-	if (ifsStreamSize == 0)
-	{
-		return std::string();
-	}
-	ifsInput.seekg(0, std::ios_base::beg);
-	inputBuffer.resize(ifsStreamSize);
-	char *pBuffer = &inputBuffer[0];
-	ifsInput.read(pBuffer, ifsStreamSize);
-	std::string output(inputBuffer.begin(), inputBuffer.end());
-	ifsInput.close();
-	return output;
+    if (filename.empty())
+    {
+        return std::string();
+    }
+    std::ifstream ifsInput(filename.c_str(), std::ios::binary | std::ios::in);
+
+    if (!ifsInput)
+    {
+        PRINT("File "<<filename<<" can't be opened");
+        throw ve_crypt("Bad file");
+    }
+
+    std::vector<char>inputBuffer;
+    ifsInput.seekg(0, std::ios_base::end);
+    std::streamoff ifsStreamSize = ifsInput.tellg();
+    if (ifsStreamSize == 0)
+    {
+        return std::string();
+    }
+    else if (ifsStreamSize > 1024*1024)
+    {
+        PRINT("File "<<filename<<" is too large: "<<ifsStreamSize);
+        throw ve_crypt("File is too large");
+    }
+    else if (ifsStreamSize < 0)
+    {
+        PRINT("File "<<filename<<" can't read stream size: "<<ifsStreamSize);
+        throw ve_crypt("File size can't be read");
+    }
+    ifsInput.seekg(0, std::ios_base::beg);
+    inputBuffer.resize(ifsStreamSize);
+    char *pBuffer = &inputBuffer[0];
+    ifsInput.read(pBuffer, ifsStreamSize);
+    std::string output(inputBuffer.begin(), inputBuffer.end());
+    ifsInput.close();
+    return output;
 }
 
 
@@ -320,9 +339,9 @@ X509* X509_decode(const string &data) {
 
 typedef string bytestring; //used as just a sequence of bytes
 
-static bytestring sha1sum_raw(istream &in) {
+static bytestring sum_raw(istream &in, const EVP_MD * digest) {
 	EVP_MD_CTX ctx;
-	EVP_DigestInit(&ctx, EVP_sha1());
+	EVP_DigestInit(&ctx, digest);
 	char buf[128*1024];
 
 	while (!in.eof()) {
@@ -341,6 +360,15 @@ static bytestring sha1sum_raw(istream &in) {
 }
 
 
+static bytestring sha1sum_raw(istream &in) {
+    return sum_raw(in, EVP_sha1());
+}
+
+static bytestring sha512sum_raw(istream &in) {
+    return sum_raw(in, EVP_sha512());
+}
+
+
 static string hex(const bytestring &data) {
 	string result;
 	result.reserve(data.length() * 2); //prealocate double the space (since hex conversion doubles length)
@@ -356,5 +384,10 @@ static string hex(const bytestring &data) {
 }
 
 string sha1sum(istream &in) { return hex(sha1sum_raw(in)); }
+
+string sha512sum(istream &in) { return hex(sha512sum_raw(in)); }
+
+unsigned int sha1size() { return EVP_MD_size(EVP_sha1()) * 2; }
+unsigned int sha512size() { return EVP_MD_size(EVP_sha512()) * 2; }
 
 } // namespace VerificationToolCrypto

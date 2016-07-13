@@ -11,7 +11,6 @@ versig_SOURCES =	products/versig/CertificateTracker.cpp \
 			products/versig/verify_exceptions.cpp \
 			products/versig/versig.cpp
 
-## OPENSSL_NO_SHA512 defined for openssl >= 0.9.8 as it is not needed
 ## openssl includes included using isystem to limit warnings and accept long long type
 
 if COMPILER_IS_GCC
@@ -20,9 +19,9 @@ else !COMPILER_IS_GCC
 VERSIG_OPENSSL_INCLUDE := -I$(OPENSSL_INCLUDE)
 endif !COMPILER_IS_GCC
 
-versig_CXXFLAGS = $(VERSIG_OPENSSL_INCLUDE) $(EXE_CXX_COMPILE_FLAGS) -DOPENSSL_NO_SHA512
+versig_CXXFLAGS = $(VERSIG_OPENSSL_INCLUDE) $(EXE_CXX_COMPILE_FLAGS)
 versig_LDFLAGS =  $(EXE_LD_FLAGS) -Llib -lcrypto
-versig_DEPENDENCIES = $(OPENSSL_LIBCRYPTO) $(OPENSSL_LIBSSP) 
+versig_DEPENDENCIES = $(OPENSSL_LIBCRYPTO) $(OPENSSL_LIBSSP)
 
 .libs/versig : versig
 
