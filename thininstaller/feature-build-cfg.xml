@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<feature-build-cfg featurename="FlyingPenguin" maxdevbuilds="10">
+
+   <component  name="linuxthininstaller"
+               srcfolder=""
+               buildcfg="buildcfg-linux.xml"
+               buildmachinetype="virtual"
+               buildmachineusername="builder"
+               buildmachinesharename="build"
+               >
+   </component>
+
+</feature-build-cfg>

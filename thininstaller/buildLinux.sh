@@ -1,229 +1,96 @@
 #!/bin/bash
-PRODUCT=sspl-thininstaller
 
-FAILED_TO_COPY_INSTALLED=16
-FAILED_TO_COPY_COMPATIBILITY_SCRIPT=17
-FAILURE_INPUT_NOT_AVAILABLE=50
-
-source /etc/profile
-set -ex
-set -o pipefail
-
-STARTINGDIR=$(pwd)
-
+PRODUCT=thininstaller
 cd ${0%/*}
 BASE=$(pwd)
-OUTPUT=$BASE/output
-INSTALLER_HEADER=installer_header.sh
+[ -f "$BASE"/pathmgr.sh ] || { echo "Failed to find $BASE/bin/build/pathmgr.sh" | tee log/build.log ; exit 1 ; }
+source "$BASE"/pathmgr.sh
+source "$BASE"/common.sh
 
-LOG=$BASE/log/build.log
-mkdir -p $BASE/log || exit 1
-export NO_REMOVE_GCC=1
-TARGET=
-VAGRANT=0
+ORIG_PATH=$PATH
+ORIG_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
-while [[ $# -ge 1 ]]
+rm -rf $BASE/output $BASE/installer
+
+## Create redist from input
+INPUT=$BASE/input
+[ -d $INPUT ] || failure "Can't find input"
+
+REDIST=$BASE/redist
+rm -rf $REDIST
+mkdir -p $REDIST
+pushd $REDIST
+tar xf $INPUT/boost.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack boost"
+tar xf $INPUT/curl.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack curl"
+tar xf $INPUT/expat.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack expat"
+tar xf $INPUT/openssl.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack openssl"
+tar xf $INPUT/SUL.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack SUL"
+tar xf $INPUT/zlib.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack zlib"
+## Setup redist symlinks
+for BITS in 32 64
 do
-    case $1 in
-        --no-build)
-            NO_BUILD=1
-            ;;
-        --no-unpack)
-            NO_UNPACK=1
-            ;;
-        --setup)
-            NO_BUILD=1
-            tap fetch sspl_thininstaller
-            ;;
-        --ci)
-            NO_UNPACK=
-            NO_BUILD=0
-            ;;
-        --combine|--target)
-            shift
-            TARGET=$1
-            ;;
-        --vagrant)
-            VAGRANT=1
-            ;;
-        *)
-            exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
-            ;;
-    esac
-    shift
+    pushd openssl/lib${BITS}
+    for lib in ssl crypto
+    do
+        ln -snf lib${lib}.so.1.* "lib${lib}.so.1"
+        ln -snf lib${lib}.so.1.* "lib${lib}.so"
+    done
+    popd
+    pushd expat/lib${BITS}
+    ln -snf libexpat.so.1.* libexpat.so.1
+    ln -snf libexpat.so.1.* libexpat.so
+    popd
 done
 
-INPUT=/build/input
+tar zxf $INPUT/sav-linux-x86-precid-*.tgz 2>&1 | tee -a "$LOG" || failure "Unable to unpack savlinux tarfile"
 
-if [[ ! -d "$INPUT" ]]
-then
-    if [[ -d "$BASE/sspl-thininstaller-build" ]]
-    then
-        INPUT="$BASE/sspl-thininstaller-build/input"
-    else
-        MESSAGE_PART1="You need to run the following to setup your input folder: "
-        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch release-package.xml"
-        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
-    fi
-fi
+popd
 
-REDIST=/build/redist
-mkdir -p $REDIST
+LIBRARIES="-lSUL -lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lretailer_lib -lxmlcpp -laesclib -lsaucrypto -lcurl -lexpat -lcrypto -lssl -lz -lssp"
 
+g++ -std=c++11 -g -DLINUX64 installer.cpp -Iredist/SUL/include -Iredist/curl/include64 -Lredist/curl/lib64 -Lredist/SUL/lib64 -Lredist/boost/lib64 -Lredist/openssl/lib64 -Lredist/zlib/lib64 -Lredist/expat/lib64 $LIBRARIES -o installer64 2>&1 | tee -a "$LOG" || failure "Failure to compile 64 bit version!"
 
-## These can't be exitFailure since it doesn't exist till the sourcing is done
-[ -f "$BASE"/build-scripts/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-source "$BASE"/build-scripts/pathmgr.sh
-[ -f "$BASE"/build-scripts/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
-source "$BASE"/build-scripts/common.sh
+g++ -std=c++11 -m32 -g -DLINUX32 installer.cpp -Iredist/SUL/include -Iredist/curl/include32 -Lredist/curl/lib32 -Lredist/SUL/lib32 -Lredist/boost/lib32 -Lredist/openssl/lib32 -Lredist/zlib/lib32 -Lredist/expat/lib32 $LIBRARIES -o installer32 2>&1 | tee -a "$LOG" || failure "Failure to compile 32 bit version!"
 
+mkdir -p installer/bin64
+mkdir -p installer/bin32
 
-function untar_input()
-{
-    local input=$1
-    local tar=${INPUT}/${input}.tar
+cp installer64 installer/bin64/installer || failure "Failure to copy 64 bit version!"
+cp -a redist/SUL/lib64/*.so* installer/bin64/
+cp -a redist/curl/lib64/*.so* installer/bin64/
+cp -a redist/boost/lib64/*.so* installer/bin64/
+cp -a redist/openssl/lib64/*.so* installer/bin64/
+cp -a redist/expat/lib64/*.so* installer/bin64/
+cp -a redist/zlib/lib64/*.so* installer/bin64/
+cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
+cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
+cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
+strip installer/bin64/*
+cp *rootca* installer/
 
-    if [[ -f $tar ]]
-    then
-        echo "Untaring $tar"
-        tar xf "$tar" -C "$REDIST"
-    else
-      local targz=${INPUT}/${input}.tar.gz
-      if [[ -f $targz ]]
-      then
-        echo "Untaring $targz"
-        tar xvf "$targz" -C "$REDIST"
-      else
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
-      fi
-    fi
-}
+cp installer32 installer/bin32/installer || failure "Failure to copy 32 bit version!"
+cp -a redist/SUL/lib32/*.so* installer/bin32/
+cp -a redist/curl/lib32/*.so* installer/bin32/
+cp -a redist/boost/lib32/*.so* installer/bin32/
+cp -a redist/openssl/lib32/*.so* installer/bin32/
+cp -a redist/expat/lib32/*.so* installer/bin32/
+cp -a redist/zlib/lib32/*.so* installer/bin32/
+cp /opt/toolchain/lib32/libstdc++.so.6 installer/bin32/ || cp /opt/toolchain/lib/libstdc++.so.6 installer/bin32/ || failure "Failure to copy 32 bit libstdc++!"
+cp /opt/toolchain/lib32/libgcc_s.so.1 installer/bin32/ || cp /opt/toolchain/lib/libgcc_s.so.1 installer/bin32/ || failure "Failure to copy 32 bit libgcc!"
+cp -a redist/sophos-av/sav-linux/x86/32/engine/versig installer/bin32/
+strip installer/bin32/*
 
-function prepare_dependencies()
-{
-    echo "Preparing dependencies"
+mkdir -p output
+tar cf installer.tar installer/*
+rm -f installer.tar.gz
+gzip installer.tar
+cp installer.tar.gz output/
 
-    if [[ -d $INPUT ]]
-    then
-        unpack_scaffold_gcc_make "$INPUT"
+cat installer_header.sh credentials.txt installer.tar.gz > output/installer.sh
+cat installer_header.sh credentials_with_windows_line_endings.txt installer.tar.gz > output/installer_with_windows_line_endings.sh
+cat installer_header.sh credentials_with_extra_lines.txt installer.tar.gz > output/installer_with_extra_lines.sh
+cat installer_header.sh credentials_with_windows_line_endings_and_extra_lines.txt installer.tar.gz > output/installer_with_windows_line_endings_and_extra_lines.sh
 
-        # cmake
-        if [[ -f "$INPUT/cmake/bin/cmake" ]]
-        then
-            addpath "$INPUT/cmake/bin"
-            chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
-        else
-            echo "WARNING: using system cmake"
-        fi
-        echo "Using cmake: $(which cmake)"
-
-        untar_input versig
-        untar_input cmcsrouterapi
-        untar_input pluginapi
-
-        if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
-        then
-          # copy prod certs into expected location.
-          cp ${INPUT}/update_certs/ps_rootca.crt ./ps_rootca.crt
-          cp ${INPUT}/update_certs/ps_rootca.crt ./rootca.crt
-        else
-          exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Missing cert inputs"
-        fi
-    else
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
-    fi
-}
-
-function build()
-{
-    echo "STARTINGDIR=$STARTINGDIR"
-    echo "BASE=$BASE"
-    echo "PATH=$PATH"
-    echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
-
-    cd $BASE
-
-    if [[ -z "$NO_UNPACK" ]]
-    then
-        prepare_dependencies
-    else
-        set_paths_for_unpacked_tools
-    fi
-
-    if [[ ${NO_BUILD} == 1 ]]
-    then
-        exit 0
-    fi
-
-    PYTHON=python3
-    [[ -x $(which $PYTHON) ]] || PYTHON=python
-
-    output=$BASE/output
-    rm -rf "${output}"
-    mkdir -p "${output}"
-
-    rm -rf $BASE/installer
-    mkdir -p ${BASE}/build
-
-    GCC_PATH=/build/input/gcc
-    [[ -d $GCC_PATH ]] || exitFailure 10 "GCC not available"
-
-#   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=${GCC_PATH}/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
-    export CPLUS_INCLUDE_PATH=${GCC_PATH}/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
-    export CPATH=${GCC_PATH}/include/:${CPATH}
-    installer_dir=$BASE/installer
-    pushd ${BASE}/build
-    chmod +x "$INPUT/cmake/bin/cmake"
-    which g++
-    which make
-    "$INPUT/cmake/bin/cmake" -DREDIST="${REDIST}" -DINSTALLERDIR="${installer_dir}" -DOUTPUT="${output}" ..
-    make || exitFailure 15 "Failed to build thininstaller"
-    make install || exitFailure 15 "Failed to build thininstaller"
-    make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
-    make copyCompatibilityScript || exitFailure $FAILED_TO_COPY_COMPATIBILITY_SCRIPT "Failed to copy SPL compatibility script"
-    popd
-
-    echo "Bundled libs:"
-    ls -l installer/lib64
-
-    tar cf partial_installer.tar installer/*
-    rm -f partial_installer.tar.gz
-    gzip partial_installer.tar
-
-    output_install_script="SophosSetup.sh"
-    cat $INSTALLER_HEADER partial_installer.tar.gz > output/${output_install_script}
-    rm -f partial_installer.tar.gz
-
-    pushd output
-    chmod u+x ${output_install_script}
-    LD_LIBRARY_PATH= \
-        sb_manifest_sign --folder . --output manifest.dat --legacy
-    tar cf installer.tar *
-    gzip installer.tar
-
-    sha256=$($PYTHON ../sha256OfFile.py installer.tar.gz)
-    mv installer.tar.gz "${sha256}.tar.gz"
-    echo "{\"name\": \"${sha256}\"}" > latest.json
-    rm manifest.dat
-
-    if [[ -n "$TARGET" ]]
-    then
-        echo "Combine ${output_install_script} with $TARGET"
-        bash $BASE/test/extractAndCombineThinInstallers.sh "$TARGET" "${output_install_script}"
-    fi
-
-    rm ${output_install_script}
-    popd
-
-    if (( VAGRANT == 1 ))
-    then
-        ../esg.linuxep.sspl-tools/vagrant rsync
-    fi
-
-    echo "Build completed"
-}
-
-build | tee -a $LOG
-EXIT=$?
-exit $EXIT
+chmod u+x output/installer*.sh
+cp installer_header.sh output/
+cp credentials.txt output/
