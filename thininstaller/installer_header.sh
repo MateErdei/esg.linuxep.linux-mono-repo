@@ -77,9 +77,9 @@ handleInstallerErrorcodes()
         cleanupAndExit 3
     elif [ $errcode -eq 0 ]
     then
-        echo "Finished downloading the medium installer."
+        echo "Finished downloading base installer."
     else
-        echo "Failed to download the medium installer! (Error code = $errcode)" >&2
+        echo "Failed to download the base installer! (Error code = $errcode)" >&2
         cleanupAndExit 10
     fi
 }
@@ -332,7 +332,7 @@ else
     BIN=installer/bin32
 fi
 
-echo "Downloading medium installer"
+echo "Downloading base installer"
 $BIN/installer credentials.txt
 handleInstallerErrorcodes $?
 
@@ -342,7 +342,7 @@ CERT=installer/rootca.crt
 [ -f $CERT ] || CERT=installer/rootca.crt
 
 $BIN/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
-    || failure 8 "ERROR: Failed to verify medium installer: $?"
+    || failure 8 "ERROR: Failed to verify b installer: $?"
 
 [ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp $OVERRIDE_PROD_SOPHOS_CERTS/* distribute/update/certificates/
 
@@ -375,14 +375,14 @@ fi
 
 cd distribute
 
-chmod u+x install.sh || failure 13 "Failed to chmod medium installer: $?"
+chmod u+x install.sh || failure 13 "Failed to chmod base installer: $?"
 
 if [ -f "installOptions" ]
 then
     # Remove excess whitespace from the arguments with tr
     echo -n " $credentials $args $update_caches $sslca --PrimaryUpdateUseHttps=True --UpdateHttpsAllowDowngradeToHttp=True" | tr -s " " >> installOptions
 else
-    failure 9 "INTERNAL ERROR: No 'installOptions' file in medium installer."
+    failure 9 "INTERNAL ERROR: No 'installOptions' file in base installer."
 fi
 
 if [ $MACHINE_TYPE = "x86_64" ]
@@ -394,8 +394,8 @@ fi
 createSymlinks
 cd ..
 
-echo "Running medium installer (this may take some time)"
-./install.sh --minipkg $installer_args
+echo "Running base installer (this may take some time)"
+./install.sh $installer_args
 inst_ret=$?
 if [ $inst_ret -ne 0 ] && [ $inst_ret -ne 4 ]
 then
