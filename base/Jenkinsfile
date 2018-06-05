@@ -1,0 +1,6 @@
+node ('LinuxTest') {
+    stage('Build gcc'){
+        checkout scm
+        sh 'bash -x ./build.sh'
+    }
+}
