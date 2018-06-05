@@ -254,7 +254,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
     return proxies;
 }
 
-static int downloadMediumInstaller(std::string location, bool https, bool updateCache)
+static int downloadInstaller(std::string location, bool https, bool updateCache)
 {
     SU_init();
     SU_Result ret;
@@ -424,7 +424,7 @@ static int downloadMediumInstaller(std::string location, bool https, bool update
 }
 
 
-static int downloadMediumInstallerDirectOrCaches(const std::vector<ServerAddress>& caches)
+static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& caches)
 {
     int ret = 0;
 
@@ -438,7 +438,7 @@ static int downloadMediumInstallerDirectOrCaches(const std::vector<ServerAddress
         // Use update caches
         for (auto & cache : caches)
         {
-            ret = downloadMediumInstaller(cache.getAddress(), true, true);
+            ret = downloadInstaller(cache.getAddress(), true, true);
             if (ret == 0)
             {
                 return ret;
@@ -447,12 +447,12 @@ static int downloadMediumInstallerDirectOrCaches(const std::vector<ServerAddress
     }
 
     // Go direct, preferring https
-    ret = downloadMediumInstaller(sophosLocation, true, false);
+    ret = downloadInstaller(sophosLocation, true, false);
     if (ret == 0)
     {
         return ret;
     }
-    return downloadMediumInstaller(sophosLocation, false, false);
+    return downloadInstaller(sophosLocation, false, false);
 }
 
 int main(int argc, char ** argv)
@@ -544,5 +544,5 @@ int main(int argc, char ** argv)
         return 44;
     }
 
-    return downloadMediumInstallerDirectOrCaches(update_caches);
+    return downloadInstallerDirectOrCaches(update_caches);
 }
