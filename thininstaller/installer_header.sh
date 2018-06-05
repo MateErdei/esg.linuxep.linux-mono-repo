@@ -342,7 +342,7 @@ CERT=installer/rootca.crt
 [ -f $CERT ] || CERT=installer/rootca.crt
 
 $BIN/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
-    || failure 8 "ERROR: Failed to verify b installer: $?"
+    || failure 8 "ERROR: Failed to verify base installer: $?"
 
 [ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp $OVERRIDE_PROD_SOPHOS_CERTS/* distribute/update/certificates/
 
