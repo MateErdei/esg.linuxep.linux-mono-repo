@@ -15,8 +15,8 @@ namespace Common
         class ContextImpl
         {
         public:
-            ContextImpl();
-            virtual ~ContextImpl();
+            ContextImpl() = default;
+            virtual ~ContextImpl() = default;
         private:
             ContextHolder m_context;
         };

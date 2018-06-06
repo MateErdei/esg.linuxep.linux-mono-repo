@@ -7,7 +7,7 @@
 
 namespace
 {
-    TEST(TestContextHolder, Creation)
+    TEST(TestContextHolder, Creation) // NOLINT
     {
         Common::ZeroMQWrapperImpl::ContextHolder holder;
     }
