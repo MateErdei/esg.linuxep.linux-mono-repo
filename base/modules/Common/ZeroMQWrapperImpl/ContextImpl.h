@@ -5,18 +5,28 @@
 #ifndef EVEREST_BASE_COMMON_ZEROMQWRAPPERIMPL_CONTEXT_H
 #define EVEREST_BASE_COMMON_ZEROMQWRAPPERIMPL_CONTEXT_H
 
-
 #include "ContextHolder.h"
+
+#include <Common/ZeroMQ_wrapper/IContext.h>
 
 namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
-        class ContextImpl
+        class ContextImpl : public virtual Common::ZeroMQ_wrapper::IContext
         {
         public:
             ContextImpl() = default;
-            virtual ~ContextImpl() = default;
+            ~ContextImpl() override = default;
+
+            std::unique_ptr<ZeroMQ_wrapper::ISocketSubscriber> getSubscriber(const std::string &address) override;
+
+            std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher> getPublisher(const std::string &address) override;
+
+            std::unique_ptr<ZeroMQ_wrapper::ISocketRequester> getRequester(const std::string &address) override;
+
+            std::unique_ptr<ZeroMQ_wrapper::ISocketReplier> getReplier(const std::string &address) override;
+
         private:
             ContextHolder m_context;
         };
