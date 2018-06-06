@@ -11,4 +11,10 @@ namespace
     {
         Common::ZeroMQWrapperImpl::ContextHolder holder;
     }
+
+    TEST(TestContextHolder, ContainsPointer) // NOLINT
+    {
+        Common::ZeroMQWrapperImpl::ContextHolder holder;
+        ASSERT_NE(holder.ctx(),nullptr);
+    }
 }

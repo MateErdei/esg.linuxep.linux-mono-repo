@@ -1,11 +1,14 @@
 
 add_executable(TestContextHolder TestContextHolder.cpp)
-
 target_include_directories(TestContextHolder SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
 target_include_directories(TestContextHolder BEFORE PUBLIC "${gtest_SOURCE_DIR}")
-
 target_link_libraries(TestContextHolder gtest gtest_main)
-
 target_link_libraries(TestContextHolder zeromqwrapperimpl)
-
 add_test(NAME TestContextHolder COMMAND TestContextHolder)
+
+add_executable(TestSocketHolder TestSocketHolder.cpp)
+target_include_directories(TestSocketHolder SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
+target_include_directories(TestSocketHolder BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_link_libraries(TestSocketHolder gtest gtest_main)
+target_link_libraries(TestSocketHolder zeromqwrapperimpl)
+add_test(NAME TestSocketHolder COMMAND TestSocketHolder)
