@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "../../../modules/Common/ZeroMQWrapperImpl/ContextHolder.h"
+#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
 
 namespace
 {

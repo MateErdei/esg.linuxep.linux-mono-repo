@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 #include <Common/ZeroMQWrapperImpl/SocketHolder.h>
+#include <Common/ZeroMQWrapperImpl/ContextHolder.h>
+#include <zmq.h>
 
 namespace
 {
@@ -16,8 +18,23 @@ namespace
 
     TEST(TestSocketHolder, PointerCreation) // NOLINT
     {
-        int foo = 10;
-        Common::ZeroMQWrapperImpl::SocketHolder socket(&foo);
-        ASSERT_EQ(socket.skt(),&foo);
+        Common::ZeroMQWrapperImpl::ContextHolder holder;
+
+        void* callbackSocket = zmq_socket(holder.ctx(), ZMQ_REP);
+        Common::ZeroMQWrapperImpl::SocketHolder socket(callbackSocket);
+        ASSERT_EQ(socket.skt(),callbackSocket);
+    }
+
+    TEST(TestSocketHolder, TestResetReplacesPointer) // NOLINT
+    {
+        Common::ZeroMQWrapperImpl::ContextHolder holder;
+
+        void* callbackSocket = zmq_socket(holder.ctx(), ZMQ_REP);
+        Common::ZeroMQWrapperImpl::SocketHolder socket(callbackSocket);
+        ASSERT_EQ(socket.skt(),callbackSocket);
+
+        void* socket2 = zmq_socket(holder.ctx(), ZMQ_REP);
+        socket.reset(socket2);
+        ASSERT_EQ(socket.skt(),socket2);
     }
 }
