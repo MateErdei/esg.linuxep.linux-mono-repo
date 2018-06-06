@@ -1,1 +1,2 @@
 add_subdirectory(ZeroMQ_wrapper)
+add_subdirectory(ZeroMQWrapperImpl)
