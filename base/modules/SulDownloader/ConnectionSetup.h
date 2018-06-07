@@ -16,7 +16,8 @@ namespace SulDownloader
     {
 
     public:
-        explicit ConnectionSetup(const std::vector<std::string> & m_sophosLocationURL,  Credentials credentials = Credentials(), const std::string & m_updateCache = "", Proxy m_proxy = Proxy());
+        explicit  ConnectionSetup ( const std::string updateLocationURL,Credentials credentials = Credentials(), bool isCacheUpdate = false
+                , Proxy proxy = Proxy());
 
         const Credentials &getCredentials() const;
 
@@ -26,22 +27,24 @@ namespace SulDownloader
 
         void setProxy(const Proxy &proxy);
 
-        const std::string &getUpdateCache() const;
+        const std::string & getUpdateLocationURL() const;
 
-        void setUpdateCache(const std::string &updateCache);
+        void setUpdateLocationURL(const std::string & updateLocationURL);
 
-        const std::vector<std::string> & getSophosLocationURL() const;
+        std::string toString() const;
 
-        void setSophosLocationURL(const std::vector<std::string> &sophosLocationURL);
+        bool isCacheUpdate() const;
 
     private:
-        std::vector<std::string> m_sophosLocationURL;
+        std::string m_updateLocationURL;
         Credentials m_credentials;
-        std::string m_updateCache;
+        bool m_isUpdateCache;
         Proxy m_proxy;
 
 
     };
+
+
 }
 
 #endif //SULDOWNLOADER_CONNECTIONSETUP_H

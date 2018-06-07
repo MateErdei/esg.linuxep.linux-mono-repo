@@ -12,12 +12,13 @@ extern "C" {
 #include "Tag.h"
 #include "ProductSelection.h"
 #include "SULUtils.h"
-
+#include "Logger.h"
+#include <cassert>
 namespace
 {
     static std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
     {
-        std::vector<SulDownloader::Tag> tags;
+        std::vector<SulDownloader::Tag> tags;e
         int index = 0;
 
         while (true)
@@ -53,30 +54,39 @@ namespace SulDownloader
         {
             auto warehouse = std::unique_ptr<Warehouse>(new Warehouse(true));
             SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_verbose);
+            //SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_important);
+            LOGSUPPORT("Certificate path: " << certificatePath);
             SU_setCertificatePath(warehouse->session(), certificatePath.c_str());
 
+            LOGSUPPORT("Warehouse local repository: " << localRepository);
             SU_setLocalRepository(warehouse->session(), localRepository.c_str());
             SU_setUserAgent(warehouse->session(), "SULDownloader");
 
             warehouse->setConnectionSetup(connectionSetup);
             if ( warehouse->hasError())
             {
-                continue; //TODO deal with the errors
+                continue;
             }
 
-            SU_readRemoteMetadata(warehouse->session());
-
+            if (!SULUtils::isSuccess(SU_readRemoteMetadata(warehouse->session())))
+            {
+                LOGSUPPORT("Failed to connect to warehouse\n" << warehouse->m_connectionSetup->toString());
+                continue;
+            }
+            // for verbose it will list the entries in the warehouse
+            SULUtils::displayLogs(warehouse->session());
+            warehouse->m_state = State::Connected;
             return warehouse;
         }
 
         auto warehouse_empty = std::unique_ptr<Warehouse>(new Warehouse(false));
-        warehouse_empty->setError("Failed to connect to the warehouse");
+        warehouse_empty->setError("Failed to connect to warehouse");
         return warehouse_empty;
     }
 
     bool Warehouse::hasError() const
     {
-        return false;
+        return !m_error.empty();
     }
 
     const std::string &Warehouse::getError() const
@@ -87,6 +97,8 @@ namespace SulDownloader
 
     void Warehouse::synchronize(ProductSelection & selection)
     {
+        assert( m_state == State::Connected);
+        m_state = State::Synchronized;
 
         std::vector<ProductInformation> productInformationList;
 
@@ -95,7 +107,7 @@ namespace SulDownloader
         {
 
             SU_PHandle product = SU_getProductRelease(session());
-            SULUtils::displayLogs(session());
+
             if (product == nullptr)
             {
                 break;
@@ -125,6 +137,7 @@ namespace SulDownloader
         {
             if ( selection.keepProduct(productInformation))
             {
+                LOGSUPPORT("Product will be downloaded: " << productInformation.getName());
                 selectedProducts.push_back(productInformation);
             }
             else
@@ -135,111 +148,119 @@ namespace SulDownloader
 
         for ( auto & productInformation : unwantedProducts)
         {
-            SU_removeProduct(productInformation.getPHandle());
+            if(!SULUtils::isSuccess(SU_removeProduct(productInformation.getPHandle())))
+            {
+                SULUtils::displayLogs(session());
+                LOGERROR("Failed to remove product: " << productInformation.getName());
+            }
         }
+
+
+        if(!SULUtils::isSuccess(SU_synchronise(session())))
+        {
+            LOGERROR("Failed to synchronise warehouse");
+            setError("Failed to Sync warehouse"); // FIXME need to know error code to send to central
+        }
+
         SULUtils::displayLogs(session());
-        SU_synchronise(session());
-        SULUtils::displayLogs(session());
-//        result = SU_synchronise(session);
-//        if (!isSuccess(result))
-//        {
-//            displayLogs(session);
-//            ASSERT_TRUE(isSuccess(result));
-//        }
+
 
 
         m_products.clear();
         for (auto & product : selectedProducts)
         {
 
-            SU_getSynchroniseStatus(product.getPHandle());
-            //TODO: handle the error
+            if(!SULUtils::isSuccess(SU_getSynchroniseStatus(product.getPHandle())))
+            {
+                LOGERROR("Failed to synchronise product: " << product.getName());
+            }
+
             m_products.push_back(Product(product));
-            //result =
-            //ASSERT_TRUE(isSuccess(result));
+
         }
     }
 
 
     void Warehouse::distribute()
     {
+        assert( m_state == State::Synchronized);
+        m_state = State::Distributed;
+
         for ( auto & product : getProducts())
         {
-            const char *empty = "";
             std::string distributePath = "/tmp/distribute/" + product.distributionFolderName();
+            LOGSUPPORT("Distribution path: " << distributePath);
             product.setDistributePath(distributePath);
         }
 
-        SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute);
+        if(!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
+        {
+            LOGERROR("Failed to distribute products");
+            setError("Failed to distribute products"); //FIXME get error code from sul distribute to go to central
+        }
 
 
         for (auto product : getProducts())
         {
-            product.getDistributionStatus();
+            product.verifyDistributionStatus();
         }
     }
 
     std::vector<Product> &Warehouse::getProducts()
     {
+        assert( m_state == State::Synchronized || m_state == State::Distributed);
         return m_products;
     }
 
     void Warehouse::setError(const std::string & error)
     {
+        m_state = State::Failure;
+
         m_error = error;
     }
 
     void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup)
     {
-        for(const auto & sophosUpdateUrl : connectionSetup.getSophosLocationURL())
+        assert( m_state == State::Initialized);
+
+        m_connectionSetup = std::unique_ptr<ConnectionSetup>(new ConnectionSetup(connectionSetup));
+
+
+        auto & updateLocation =  connectionSetup.getUpdateLocationURL();
+        if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
         {
-            SU_addSophosLocation(session(), sophosUpdateUrl.c_str());
+            LOGSUPPORT ("Adding Sophos update location failed: " << updateLocation);
+            setError("invalid location"); //
         }
 
-        SU_addUpdateSource(session(),
-                           "SOPHOS",
+        std::string updateSource("SOPHOS");
+
+        if(!SULUtils::isSuccess(SU_addUpdateSource(session(),
+                           updateSource.c_str(),
                            connectionSetup.getCredentials().getUsername().c_str(),
                            connectionSetup.getCredentials().getPassword().c_str(),
                            connectionSetup.getProxy().getUrl().c_str(),
                            connectionSetup.getProxy().getCredentials().getUsername().c_str(),
-                           connectionSetup.getProxy().getCredentials().getPassword().c_str());
+                           connectionSetup.getProxy().getCredentials().getPassword().c_str())))
+        {
+            LOGERROR("Failed to add Update source: " << updateSource);
+            setError("Failed to add Update source"); //FIXME code to central
+            return;
+        }
 
-//
-//        const std::string source = "SOPHOS";
-////    const std::string username = "QA940267";
-////    const std::string password = "54m5ung";
-//        const std::string username = "administrator";
-//        const std::string password = "password";
-//
-////    result = SU_addSophosLocation(session, "http://dci.sophosupd.com/update/");
-////    ASSERT_TRUE(isSuccess(result));
-////    result = SU_addSophosLocation(session, "http://dci.sophosupd.net/update/");
-////    ASSERT_TRUE(isSuccess(result));
-//        //result = SU_addSophosLocation(session, "http://localhost:3333/customer_files.live");
-//        //result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield/1/74/174e6bde8263d4b72cbe69dff029e62a.dat");
-//        result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield");
-//
-//        ASSERT_TRUE(isSuccess(result));
-//
-//        result = SU_addUpdateSource(session,
-//                                    source.c_str(),
-//                                    username.c_str(),
-//                                    password.c_str(),
-//                                    "",
-//                                    "",
-//                                    "");
-//        ASSERT_TRUE(isSuccess(result));
-//
-//        std::string localRepository(safegetcwd() + "/" + LOCAL_REPOSITORY);
-//        P("Local Repository = " << localRepository);
-//        mkdir(localRepository.c_str(), 0700);
-//        result = SU_setLocalRepository(session, localRepository.c_str());
-//        ASSERT_TRUE(isSuccess(result));
-//
-//        result = SU_setUserAgent(session, "SULDownloader");
-//        ASSERT_TRUE(isSuccess(result));
-//
-//        result = SU_readRemoteMetadata(session);
+        if ( connectionSetup.isCacheUpdate())
+        {
+            std::string cacheURL = connectionSetup.getUpdateLocationURL();
+            for (std::string externalURL : {"d1.sophosupd.com/update",
+                                             "d1.sophosupd.net/update",
+                                             "d2.sophosupd.com/update",
+                                             "d2.sophosupd.net/update",
+                                             "d3.sophosupd.com/update",
+                                             "d3.sophosupd.net/update"})
+            {
+                SU_addRedirect(session(), externalURL.c_str(), cacheURL.c_str());
+            }
+        }
 
     }
 
@@ -249,6 +270,7 @@ namespace SulDownloader
         {
             m_session.reset(new SULSession());
         }
+        m_state = State::Initialized;
 
     }
 

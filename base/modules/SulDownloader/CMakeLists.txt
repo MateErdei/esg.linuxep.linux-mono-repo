@@ -24,7 +24,7 @@ add_library(SulDownloader SHARED
         ProductSelection.h
         Tag.h
         DownloadReport.cpp
-        DownloadReport.h SULUtils.cpp SULUtils.h)
+        DownloadReport.h SULUtils.cpp SULUtils.h Logger.cpp Logger.h)
 #
 #/redist/binaries/linux10/input/SUL
 set( REDIST /redist )

@@ -3,18 +3,19 @@
 //
 
 #include <cassert>
+#include <sstream>
 #include "ConnectionSetup.h"
 #include "SulDownloaderException.h"
 namespace SulDownloader
 {
 
-    ConnectionSetup::ConnectionSetup(const std::vector<std::string> &sophosLocationURL, Credentials credentials ,
-                    const std::string &updateCache, Proxy proxy)
-     : m_credentials(credentials)
-     , m_updateCache(updateCache)
-     , m_proxy(proxy)
+    ConnectionSetup::ConnectionSetup(const std::string updateLocationURL, Credentials credentials, bool isCacheUpdate,
+                                     Proxy proxy)
+    : m_credentials(credentials)
+    , m_isUpdateCache(isCacheUpdate)
+    , m_proxy(proxy)
     {
-        setSophosLocationURL(sophosLocationURL);
+        setUpdateLocationURL(updateLocationURL);
     }
 
     const Credentials &ConnectionSetup::getCredentials() const
@@ -37,24 +38,46 @@ namespace SulDownloader
         m_proxy = proxy;
     }
 
-    const std::string &ConnectionSetup::getUpdateCache() const
+    void ConnectionSetup::setUpdateLocationURL(const std::string &updateLocationURL)
     {
-        return m_updateCache;
+        m_updateLocationURL = updateLocationURL;
+        assert( !m_updateLocationURL.empty());
     }
 
-    void ConnectionSetup::setUpdateCache(const std::string &updateCache)
+
+    std::string ConnectionSetup::toString() const
     {
-        m_updateCache = updateCache;
+        std::stringstream ss;
+        if ( isCacheUpdate())
+        {
+            ss << "Update cache Url: ";
+        }
+        else
+        {
+            ss << "Sophos Url: ";
+        }
+
+        ss << m_updateLocationURL << "\n";
+
+        if (!m_proxy.empty())
+        {
+            ss << "Proxy url: " << m_proxy.getUrl();
+        }
+
+        return ss.str();
+
     }
 
-    const std::vector<std::string> &ConnectionSetup::getSophosLocationURL() const
+    bool ConnectionSetup::isCacheUpdate() const
     {
-        return m_sophosLocationURL;
+        return m_isUpdateCache;
     }
 
-    void ConnectionSetup::setSophosLocationURL(const std::vector<std::string> &sophosLocationURL)
+
+
+    const std::string &ConnectionSetup::getUpdateLocationURL() const
     {
-        m_sophosLocationURL = sophosLocationURL;
-        assert( !m_sophosLocationURL.empty());
+        return m_updateLocationURL;
     }
+
 }

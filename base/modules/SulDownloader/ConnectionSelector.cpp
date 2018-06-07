@@ -9,11 +9,18 @@ namespace SulDownloader
     std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const ConfigurationData &configurationData)
     {
 
+        // TODO: get proxies ( environment variable, and others)
+        // TODO: get sohposurl from sophos_alias.txt
         std::vector<ConnectionSetup> candidates;
 
-        ConnectionSetup hardCoded(std::vector<std::string>{"http://ostia.eng.sophos/latest/Virt-vShield"},
+        ConnectionSetup wrongoded("http://ostia.eng.sophos/latest/Virt-vShield",
+                                  Credentials( "administrator", "passwor")
+        );
+
+        ConnectionSetup hardCoded("http://ostia.eng.sophos/latest/Virt-vShield",
           Credentials( "administrator", "password")
         );
+        candidates.push_back(wrongoded);
         candidates.push_back(hardCoded);
         return candidates;
     }

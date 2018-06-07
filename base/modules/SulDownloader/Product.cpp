@@ -3,6 +3,8 @@
 //
 
 #include "Product.h"
+#include "SULUtils.h"
+
 namespace SulDownloader
 {
 
@@ -52,9 +54,13 @@ namespace SulDownloader
                            empty);
     }
 
-    SU_Result Product::getDistributionStatus()
+    void Product::verifyDistributionStatus()
     {
-        return SU_getDistributionStatus(m_productInformation.getPHandle(), m_distributePath.c_str());
+        if (! SULUtils::isSuccess(SU_getDistributionStatus(m_productInformation.getPHandle(), m_distributePath.c_str())))
+        {
+            SULUtils::displayLogs(SU_getSession(m_productInformation.getPHandle()));
+            setError(std::string("Product distribution failed: ") + m_productInformation.getName()); //FIXME: get sul code to central
+        }
     }
 
 }

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#define P(x) std::cerr << x << std::endl
+#include "Logger.h"
 
 
 namespace
@@ -81,12 +81,12 @@ namespace  SulDownloader
     {
         if ( !isSuccess(SU_getLastError(ses)))
         {
-            P("Error:" << SulGetErrorDetails(ses));
+            LOGERROR("Error:" << SulGetErrorDetails(ses));
         }
 
         for ( auto & log : SulLogs(ses))
         {
-            P("Log:" << log);
+            LOGSUPPORT("Log:" << log);
         }
 
     }

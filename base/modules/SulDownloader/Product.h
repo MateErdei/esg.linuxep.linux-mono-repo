@@ -21,10 +21,9 @@ namespace SulDownloader
         const std::string & getError() const;
         std::string distributionFolderName();
         void setDistributePath(const std::string & distributePath);
-        SU_Result getDistributionStatus();
+        void verifyDistributionStatus();
 
     private :
-
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
         std::string m_error;
         ProductInformation m_productInformation;

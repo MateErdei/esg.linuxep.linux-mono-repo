@@ -36,7 +36,7 @@ namespace SulDownloader
 
 
     private:
-        enum class State{ Initialized, ConnectionFailure, SyncFailure, Synchronized, Connected} m_state;
+        enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 
         void setError( const std::string & );
         void setConnectionSetup( const ConnectionSetup & connectionSetup);
@@ -46,6 +46,7 @@ namespace SulDownloader
         std::string m_error;
         std::vector<Product> m_products;
         std::unique_ptr<SULSession> m_session ;
+        std::unique_ptr<ConnectionSetup> m_connectionSetup;
     };
 }
 

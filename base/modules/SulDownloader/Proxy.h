@@ -20,6 +20,7 @@ namespace SulDownloader
         const Credentials & getCredentials() const;
 
         const std::string &getUrl() const;
+        bool empty() const;
 
     private:
         Credentials m_credentials;

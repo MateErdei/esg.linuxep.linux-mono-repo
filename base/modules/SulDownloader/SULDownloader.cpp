@@ -22,6 +22,7 @@ extern "C" {
 
 #define P(x) std::cerr << x << std::endl
 
+
 namespace
 {
     bool hasError( const std::vector<SulDownloader::Product> & products )
@@ -126,9 +127,9 @@ namespace SulDownloader
     {
         std::vector<std::string> urls = {"notused"};
         ConfigurationData configdata(urls);
-        std::cerr << "Run sul downloader\n";
+
         auto downloadReport = runSULDownloader(configdata);
-        std::cerr << "Runentry finished\n";
+
         return 0;
     }
 

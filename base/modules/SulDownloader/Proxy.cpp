@@ -25,7 +25,10 @@ namespace SulDownloader
         return m_url;
     }
 
-
+    bool Proxy::empty() const
+    {
+        return m_url.empty();
+    }
 
 
 }
