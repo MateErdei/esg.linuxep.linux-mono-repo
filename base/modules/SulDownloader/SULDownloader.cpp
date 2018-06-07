@@ -13,57 +13,125 @@ extern "C" {
 #include <sys/stat.h>
 #include <vector>
 #include <map>
+#include "SULRaii.h"
+#include "DownloadReport.h"
+#include "ConfigurationData.h"
+#include "Warehouse.h"
+#include "ProductSelection.h"
+#include "Product.h"
 
 #define P(x) std::cerr << x << std::endl
 
-class SULSession
+namespace
 {
-public:
-    SULSession()
+    bool hasError( const std::vector<SulDownloader::Product> & products )
     {
-        m_session = SU_beginSession();
-    }
-    ~SULSession()
-    {
-        if (m_session != nullptr)
+        for( const auto & product: products)
         {
-            SU_endSession(m_session);
+            if ( product.hasError())
+            {
+                return true;
+            }
         }
+        return false;
     }
-    SU_Handle m_session;
-};
-
-class SULInit
-{
-public:
-    SULInit() {SU_init();}
-    ~SULInit() {SU_deinit();}
-};
-
-static bool isSuccess(SU_Result result)
-{
-    return result == SU_Result_OK
-           || result == SU_Result_nullSuccess
-           || result == SU_Result_notAttempted;
 }
 
-static void displayLogs(SU_Handle ses)
+namespace SulDownloader
 {
-    P("LastError:"<<SU_getLastError(ses));
-    P("Error:"<<SU_getErrorDetails(ses));
-    const char* log;
-    while (true)
+
+
+
+
+    static bool isSuccess(SU_Result result)
     {
-        log = SU_getLogEntry(ses);
-        if (log == 0)
+        return result == SU_Result_OK
+               || result == SU_Result_nullSuccess
+               || result == SU_Result_notAttempted;
+    }
+
+    static void displayLogs(SU_Handle ses)
+    {
+        P("LastError:" << SU_getLastError(ses));
+        P("Error:" << SU_getErrorDetails(ses));
+        const char *log;
+        while (true)
         {
-            break;
+            log = SU_getLogEntry(ses);
+            if (log == 0)
+            {
+                break;
+            }
+            P("Log:" << log);
         }
-        P("Log:"<<log);
     }
 
 
-}
+
+
+    DownloadReport runSULDownloader( ConfigurationData & configurationData)
+    {
+
+        std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
+
+        if ( warehouse->hasError())
+            return DownloadReport::Report(*warehouse);
+
+
+        auto productSelection = ProductSelection::CreateProductSelection(configurationData);
+
+        warehouse->synchronize(productSelection);
+
+        auto & products = warehouse->getProducts();
+
+        if ( hasError(products))
+        {
+            return DownloadReport::Report(products);
+        }
+
+        warehouse->distribute();
+
+        if ( hasError(products))
+        {
+            return DownloadReport::Report(products);
+        }
+
+        for( auto & product: products)
+        {
+            product.verify();
+        }
+
+        if ( hasError(products))
+        {
+            return DownloadReport::Report(products);
+        }
+
+
+        for( auto & product: products)
+        {
+            product.install();
+        }
+
+        if ( hasError(products))
+        {
+            return DownloadReport::Report(products);
+        }
+
+
+        return DownloadReport::Report(products);
+
+    }
+
+    int run_entry()
+    {
+        std::vector<std::string> urls = {"notused"};
+        ConfigurationData configdata(urls);
+        std::cerr << "Run sul downloader\n";
+        auto downloadReport = runSULDownloader(configdata);
+        std::cerr << "Runentry finished\n";
+        return 0;
+    }
+
 
 /*
 
@@ -92,7 +160,7 @@ Selection GetSelectionFilter( settings )
 //    if (hasError(warehouse))
 //
 //
-//    auto products = warehouse.syncrhonize( GetSelectionFilter(settings) );
+//    auto products = warehouse.syncrhonize( GetProductSelection(settings) );
 //    if( hasError(products))
 //        return DownloadReport::create(products);
 //
@@ -107,33 +175,34 @@ Selection GetSelectionFilter( settings )
 
 
 
-class AssertionFail : public std::runtime_error
-{
-public:
-    AssertionFail(int ret)
-        : std::runtime_error(std::to_string(ret))
-    {}
-};
+    class AssertionFail : public std::runtime_error
+    {
+    public:
+        AssertionFail(int ret)
+                : std::runtime_error(std::to_string(ret))
+        {
+        }
+    };
 
 #define ASSERT_TRUE(_b)       do {if (!(_b)) {std::cerr << #_b << " is False at " << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << std::endl;throw AssertionFail(1);}} while(0)
-#define ASSERT_NE(_v,_e) do {if (  (_v) == (_e) ) {std::cerr << #_v << "(" << _v << ") == " << #_e << "(" << _e << ")" << __FILE__ << ":" << __LINE__ << std::endl;throw std::runtime_error("Assertion failure");}} while(0)
+#define ASSERT_NE(_v, _e) do {if (  (_v) == (_e) ) {std::cerr << #_v << "(" << _v << ") == " << #_e << "(" << _e << ")" << __FILE__ << ":" << __LINE__ << std::endl;throw std::runtime_error("Assertion failure");}} while(0)
 
-static std::string safegetcwd()
-{
-    char path[MAXPATHLEN];
-    char* res = getcwd(path,MAXPATHLEN);
-    ASSERT_NE(res,0);
-    return res;
-}
+    static std::string safegetcwd()
+    {
+        char path[MAXPATHLEN];
+        char *res = getcwd(path, MAXPATHLEN);
+        ASSERT_NE(res, 0);
+        return res;
+    }
 
-static const char* LOCAL_REPOSITORY = "tmp/warehouse";
-static const char* LOCAL_LCD        = "tmp/installset";
+    static const char *LOCAL_REPOSITORY = "tmp/warehouse";
+    static const char *LOCAL_LCD = "tmp/installset";
 
-template<class T>
-static bool in(const std::vector<T>& hay, const T& needle)
-{
-    return std::find(hay.begin(),hay.end(),needle) != hay.end();
-}
+    template<class T>
+    static bool in(const std::vector<T> &hay, const T &needle)
+    {
+        return std::find(hay.begin(), hay.end(), needle) != hay.end();
+    }
 
 //def getTags(product):
 //"""
@@ -152,215 +221,228 @@ static bool in(const std::vector<T>& hay, const T& needle)
 //
 //return tags
 
-struct Tag
-{
-    Tag(const std::string& t, const std::string& b, const std::string& l)
-            : tag(t),baseversion(b),label(l) {}
-    std::string tag;
-    std::string baseversion;
-    std::string label;
-};
+//    struct Tag
+//    {
+//        Tag(const std::string &t, const std::string &b, const std::string &l)
+//                : tag(t), baseversion(b), label(l)
+//        {
+//        }
+//
+//        std::string tag;
+//        std::string baseversion;
+//        std::string label;
+//    };
+//
+//    static std::vector<Tag> getTags(SU_PHandle &product)
+//    {
+//        std::vector<Tag> tags;
+//        std::string tag;
+//        int index = 0;
+//
+//        while (true)
+//        {
+//            tag = SU_queryProductMetadata(product, "R_ReleaseTagsTag", index);
+//            if (tag == "")
+//            {
+//                break;
+//            }
+//            CStringOwner st(SU_queryProductMetadata(product, "R_ReleaseTagsBaseVersion", index));
+//            std::string baseversion = st.get();
+//            std::string label = SU_queryProductMetadata(product, "R_ReleaseTagsLabel", index);
+//            tags.emplace_back(tag, baseversion, label);
+//            index++;
+//        }
+//        return tags;
+//    }
 
-static std::vector<Tag> getTags(SU_PHandle& product)
-{
-    std::vector<Tag> tags;
-    std::string tag;
-    int index = 0;
+//    static bool hasRecommended(const std::vector<Tag> &tags)
+//    {
+//        for (auto &tag : tags)
+//        {
+//            if (tag.tag == "RECOMMENDED")
+//            {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    while (true)
+//    static int run(SU_Handle session)
+//    {
+//
+//
+//
+//        SU_Result result;
+//        SU_setLoggingLevel(session, SU_LoggingLevel_verbose);
+//        std::string certificatePath(safegetcwd() + "/../certificates");
+//
+//        P("Certificates = " << certificatePath);
+//        SU_setCertificatePath(session, certificatePath.c_str());
+//
+//        const std::string source = "SOPHOS";
+////    const std::string username = "QA940267";
+////    const std::string password = "54m5ung";
+//        const std::string username = "administrator";
+//        const std::string password = "password";
+//
+////    result = SU_addSophosLocation(session, "http://dci.sophosupd.com/update/");
+////    ASSERT_TRUE(isSuccess(result));
+////    result = SU_addSophosLocation(session, "http://dci.sophosupd.net/update/");
+////    ASSERT_TRUE(isSuccess(result));
+//        //result = SU_addSophosLocation(session, "http://localhost:3333/customer_files.live");
+//        //result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield/1/74/174e6bde8263d4b72cbe69dff029e62a.dat");
+//        result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield");
+//
+//        ASSERT_TRUE(isSuccess(result));
+//
+//        result = SU_addUpdateSource(session,
+//                                    source.c_str(),
+//                                    username.c_str(),
+//                                    password.c_str(),
+//                                    "",
+//                                    "",
+//                                    "");
+//        ASSERT_TRUE(isSuccess(result));
+//
+//        std::string localRepository(safegetcwd() + "/" + LOCAL_REPOSITORY);
+//        P("Local Repository = " << localRepository);
+//        mkdir(localRepository.c_str(), 0700);
+//        result = SU_setLocalRepository(session, localRepository.c_str());
+//        ASSERT_TRUE(isSuccess(result));
+//
+//        result = SU_setUserAgent(session, "SULDownloader");
+//        ASSERT_TRUE(isSuccess(result));
+//
+//        result = SU_readRemoteMetadata(session);
+//        if (!isSuccess(result))
+//        {
+//            displayLogs(session);
+//            ASSERT_TRUE(isSuccess(result));
+//        }
+//
+//        std::vector<std::string> wantedGUIDs;
+//
+//        // TODO: Fill in wantedGUIDs from plugins...
+////    wantedGUIDs.push_back("5CF594B0-9FED-4212-BA91-A4077CB1D1F3");
+//        //wantedGUIDs.emplace_back("Linux-SENSORS-plugin");
+//        //wantedGUIDs.emplace_back("Linux-SAV-plugin");
+//        //wantedGUIDs.emplace_back("Linux-Beagle-Base");
+//        wantedGUIDs.emplace_back("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1");
+//        wantedGUIDs.emplace_back("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+//
+//
+//        std::vector<SU_PHandle> wantedProducts;
+//        std::vector<SU_PHandle> unwantedProducts;
+//
+//        while (true)
+//        {
+//            SU_PHandle product = SU_getProductRelease(session);
+//            if (product == nullptr)
+//            {
+//                break;
+//            }
+//            std::string line = SU_queryProductMetadata(product, "R_Line", 0);
+//            if (!in(wantedGUIDs, line))
+//            {
+//                P("Removing product without wanted R_line: " << line);
+//                unwantedProducts.emplace_back(product);
+//                continue;
+//            }
+//            std::vector<Tag> tags(getTags(product));
+//            if (!hasRecommended(tags))
+//            {
+//                P("Removing product because it doesn't have recommended");
+//                unwantedProducts.emplace_back(product);
+//                continue;
+//            }
+//            P("Keeping wanted product " << line);
+//
+//            // TODO: other conditions
+//            wantedProducts.emplace_back(product);
+//        }
+//
+//        for (auto product : unwantedProducts)
+//        {
+//            SU_removeProduct(product);
+//        }
+//
+//
+//        result = SU_synchronise(session);
+//        if (!isSuccess(result))
+//        {
+//            displayLogs(session);
+//            ASSERT_TRUE(isSuccess(result));
+//        }
+//
+//        for (auto product : wantedProducts)
+//        {
+//            result = SU_getSynchroniseStatus(product);
+//            ASSERT_TRUE(isSuccess(result));
+//        }
+//
+//        // distribute
+//        std::map<SU_PHandle, std::string> distributionPaths;
+//        for (auto product : wantedProducts)
+//        {
+//            const char *empty = "";
+//            std::string distributePath = safegetcwd() + "/distribute/" + SU_queryProductMetadata(product, "R_Line", 0) +
+//                                         SU_queryProductMetadata(product, "VersionId", 0);
+//            P("Distribute to " << distributePath);
+//            SU_addDistribution(product, distributePath.c_str(), SU_AddDistributionFlag_UseDefaultHomeFolder, empty,
+//                               empty);
+//            distributionPaths[product] = distributePath;
+//        }
+//        result = SU_distribute(session, SU_DistributionFlag_AlwaysDistribute);
+//        if (!isSuccess(result))
+//        {
+//            displayLogs(session);
+//            ASSERT_TRUE(isSuccess(result));
+//        }
+//        for (auto product : wantedProducts)
+//        {
+//            result = SU_getDistributionStatus(product, distributionPaths[product].c_str());
+//            ASSERT_TRUE(isSuccess(result));
+//        }
+//
+//        // TODO: verify - versig
+//        for (auto product : wantedProducts)
+//        {
+//            std::string distributePath = distributionPaths[product];
+//            // fork
+//            // exec versig
+//        }
+//
+//
+//        // TODO: install
+//        for (auto product : wantedProducts)
+//        {
+//            std::string distributePath = distributionPaths[product];
+//            result = SU_getDistributionStatus(product, distributePath.c_str());
+//            if (result == SU_Result_OK)
+//            {
+//                std::string installsh =
+//                        distributePath + "/installdummy.sh"; // prevent install.sh running until we want to
+//                std::string command = std::string("bash ") + installsh;
+//                P("Running " << command);
+//                system(command.c_str());
+//                // fork
+//                // exec install.sh
+//            }
+//        }
+//
+//        return 0;
+//    }
+
+    int main_entry()
     {
-        tag = SU_queryProductMetadata(product, "R_ReleaseTagsTag", index);
-        if (tag == "")
-        {
-            break;
-        }
-        std::string baseversion = SU_queryProductMetadata(product, "R_ReleaseTagsBaseVersion", index);
-        std::string label = SU_queryProductMetadata(product, "R_ReleaseTagsLabel", index);
-        tags.emplace_back(tag,baseversion,label);
-        index++;
+        SULInit init;
+        return run_entry();
+
+//        SULSession session;
+//        if (session.m_session == nullptr)
+//        {
+//            return 10;
+//        }
+//        return run(session.m_session);
     }
-    return tags;
-}
-
-static bool hasRecommended(const std::vector<Tag> &tags)
-{
-    for (auto& tag : tags)
-    {
-        if (tag.tag == "RECOMMENDED")
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-static int run(SU_Handle session)
-{
-    SU_Result result;
-    SU_setLoggingLevel(session,SU_LoggingLevel_verbose);
-    std::string certificatePath(safegetcwd()+"/../certificates");
-
-    P("Certificates = "<<certificatePath);
-    SU_setCertificatePath(session,certificatePath.c_str());
-
-    const std::string source = "SOPHOS";
-//    const std::string username = "QA940267";
-//    const std::string password = "54m5ung";
-    const std::string username = "administrator";
-    const std::string password = "password";
-
-//    result = SU_addSophosLocation(session, "http://dci.sophosupd.com/update/");
-//    ASSERT_TRUE(isSuccess(result));
-//    result = SU_addSophosLocation(session, "http://dci.sophosupd.net/update/");
-//    ASSERT_TRUE(isSuccess(result));
-    //result = SU_addSophosLocation(session, "http://localhost:3333/customer_files.live");
-    //result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield/1/74/174e6bde8263d4b72cbe69dff029e62a.dat");
-    result = SU_addSophosLocation(session, "http://ostia.eng.sophos/latest/Virt-vShield");
-
-    ASSERT_TRUE(isSuccess(result));
-
-    result = SU_addUpdateSource(session,
-                                source.c_str(),
-                                username.c_str(),
-                                password.c_str(),
-                                "",
-                                "",
-                                "");
-    ASSERT_TRUE(isSuccess(result));
-
-    std::string localRepository(safegetcwd()+"/"+LOCAL_REPOSITORY);
-    P("Local Repository = "<<localRepository);
-    mkdir(localRepository.c_str(),0700);
-    result = SU_setLocalRepository(session,localRepository.c_str());
-    ASSERT_TRUE(isSuccess(result));
-
-    result = SU_setUserAgent(session, "SULDownloader");
-    ASSERT_TRUE(isSuccess(result));
-
-    result = SU_readRemoteMetadata(session);
-    if (!isSuccess(result))
-    {
-        displayLogs(session);
-        ASSERT_TRUE(isSuccess(result));
-    }
-
-    std::vector<std::string> wantedGUIDs;
-
-    // TODO: Fill in wantedGUIDs from plugins...
-//    wantedGUIDs.push_back("5CF594B0-9FED-4212-BA91-A4077CB1D1F3");
-    //wantedGUIDs.emplace_back("Linux-SENSORS-plugin");
-    //wantedGUIDs.emplace_back("Linux-SAV-plugin");
-    //wantedGUIDs.emplace_back("Linux-Beagle-Base");
-    wantedGUIDs.emplace_back("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1");
-    wantedGUIDs.emplace_back("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
-
-
-    std::vector<SU_PHandle> wantedProducts;
-    std::vector<SU_PHandle> unwantedProducts;
-
-    while(true)
-    {
-        SU_PHandle product = SU_getProductRelease(session);
-        if (product == nullptr)
-        {
-            break;
-        }
-        std::string line = SU_queryProductMetadata(product,"R_Line",0);
-        if (! in(wantedGUIDs,line) )
-        {
-            P("Removing product without wanted R_line: "<<line);
-            unwantedProducts.emplace_back(product);
-            continue;
-        }
-        std::vector<Tag> tags(getTags(product));
-        if (! hasRecommended(tags))
-        {
-            P("Removing product because it doesn't have recommended");
-            unwantedProducts.emplace_back(product);
-            continue;
-        }
-        P("Keeping wanted product "<<line);
-
-        // TODO: other conditions
-        wantedProducts.emplace_back(product);
-    }
-
-    for (auto product : unwantedProducts)
-    {
-        SU_removeProduct(product);
-    }
-
-
-    result = SU_synchronise(session);
-    if (!isSuccess(result))
-    {
-        displayLogs(session);
-        ASSERT_TRUE(isSuccess(result));
-    }
-
-    for (auto product : wantedProducts)
-    {
-        result = SU_getSynchroniseStatus(product);
-        ASSERT_TRUE(isSuccess(result));
-    }
-
-    // distribute
-    std::map<SU_PHandle, std::string> distributionPaths;
-    for (auto product : wantedProducts)
-    {
-        const char* empty = "";
-        std::string distributePath = safegetcwd()+"/distribute/" + SU_queryProductMetadata(product,"R_Line",0) + SU_queryProductMetadata(product,"VersionId",0);
-        P("Distribute to "<<distributePath);
-        SU_addDistribution(product,distributePath.c_str(),SU_AddDistributionFlag_UseDefaultHomeFolder,empty,empty);
-        distributionPaths[product] = distributePath;
-    }
-    result = SU_distribute(session,SU_DistributionFlag_AlwaysDistribute);
-    if (!isSuccess(result))
-    {
-        displayLogs(session);
-        ASSERT_TRUE(isSuccess(result));
-    }
-    for (auto product : wantedProducts)
-    {
-        result = SU_getDistributionStatus(product, distributionPaths[product].c_str());
-        ASSERT_TRUE(isSuccess(result));
-    }
-
-    // TODO: verify - versig
-    for (auto product : wantedProducts)
-    {
-        std::string distributePath = distributionPaths[product];
-        // fork
-        // exec versig
-    }
-
-
-    // TODO: install
-    for (auto product : wantedProducts)
-    {
-        std::string distributePath = distributionPaths[product];
-        result = SU_getDistributionStatus(product, distributePath.c_str());
-        if (result == SU_Result_OK)
-        {
-            std::string installsh = distributePath+"/installdummy.sh"; // prevent install.sh running until we want to
-            std::string command = std::string("bash ") + installsh;
-            P("Running "<<command);
-            system(command.c_str());
-            // fork
-            // exec install.sh
-        }
-    }
-
-    return 0;
-}
-
-int main_entry()
-{
-    SULInit init;
-    SULSession session;
-    if (session.m_session == nullptr)
-    {
-        return 10;
-    }
-    return run(session.m_session);
 }

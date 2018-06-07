@@ -4,5 +4,5 @@
 #include "SulDownloader.h"
 int main()
 {
-    return main_entry();
+    return SulDownloader::main_entry();
 }
