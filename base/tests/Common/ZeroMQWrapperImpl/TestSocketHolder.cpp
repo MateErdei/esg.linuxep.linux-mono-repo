@@ -37,4 +37,16 @@ namespace
         socket.reset(socket2);
         ASSERT_EQ(socket.skt(),socket2);
     }
+
+    TEST(TestSocketHolder, TestInternalCreation) // NOLINT
+    {
+
+        Common::ZeroMQWrapperImpl::ContextHolder holder;
+        Common::ZeroMQWrapperImpl::SocketHolder socket(holder, ZMQ_REP);
+        ASSERT_NE(socket.skt(), nullptr);
+
+        void* socket2 = zmq_socket(holder.ctx(), ZMQ_REP);
+        socket.reset(socket2);
+        ASSERT_EQ(socket.skt(),socket2);
+    }
 }

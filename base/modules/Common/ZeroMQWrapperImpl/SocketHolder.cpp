@@ -7,8 +7,8 @@
 #include <zmq.h>
 
 Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(void *zmq_socket)
+    : m_socket(zmq_socket)
 {
-    m_socket = zmq_socket;
 }
 
 Common::ZeroMQWrapperImpl::SocketHolder::~SocketHolder()
@@ -31,4 +31,14 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void *zmq_socket)
         zmq_close(m_socket);
     }
     m_socket = zmq_socket;
+}
+
+Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl::ContextHolder &context, const int type)
+    : m_socket(nullptr)
+{
+    m_socket = zmq_socket(context.ctx(), type);
+    if (m_socket == nullptr)
+    {
+        // throw exception?
+    }
 }

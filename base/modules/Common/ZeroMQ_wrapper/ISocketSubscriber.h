@@ -5,15 +5,17 @@
 #ifndef EVEREST_BASE_ISOCKETSUBSCRIBER_H
 #define EVEREST_BASE_ISOCKETSUBSCRIBER_H
 
+#include "IReadable.h"
+#include "ISocketSetup.h"
 
 namespace Common
 {
     namespace ZeroMQ_wrapper
     {
-        class ISocketSubscriber
+        class ISocketSubscriber : public virtual IReadable, public virtual ISocketSetup
         {
         public:
-            virtual ~ISocketSubscriber() = default;
+            virtual void subscribeTo(const std::string& subject) = 0;
         };
     }
 }

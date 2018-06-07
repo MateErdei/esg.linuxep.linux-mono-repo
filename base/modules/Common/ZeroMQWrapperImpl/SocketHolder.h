@@ -5,6 +5,7 @@
 #ifndef EVEREST_BASE_SOCKETHOLDER_H
 #define EVEREST_BASE_SOCKETHOLDER_H
 
+#include "ContextHolder.h"
 
 namespace Common
 {
@@ -13,7 +14,8 @@ namespace Common
         class SocketHolder final
         {
         public:
-            SocketHolder(void* zmq_socket = nullptr);
+            explicit SocketHolder(void* zmq_socket = nullptr);
+            explicit SocketHolder(ContextHolder& context, int type);
             ~SocketHolder();
             void* skt();
             void reset(void* zmq_socket = nullptr);

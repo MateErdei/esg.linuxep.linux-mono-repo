@@ -5,14 +5,16 @@
 #ifndef EVEREST_BASE_ISOCKETREQUESTER_H
 #define EVEREST_BASE_ISOCKETREQUESTER_H
 
+#include "IReadWrite.h"
+#include "ISocketSetup.h"
+
 namespace Common
 {
     namespace ZeroMQ_wrapper
     {
-        class ISocketRequester
+        class ISocketRequester : public virtual IReadWrite, public virtual ISocketSetup
         {
         public:
-            virtual ~ISocketRequester() = default;
         };
     }
 }

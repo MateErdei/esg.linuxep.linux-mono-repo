@@ -5,14 +5,16 @@
 #ifndef EVEREST_BASE_ISOCKETPUBLISHER_H
 #define EVEREST_BASE_ISOCKETPUBLISHER_H
 
+#include "IWritable.h"
+#include "ISocketSetup.h"
+
 namespace Common
 {
     namespace ZeroMQ_wrapper
     {
-        class ISocketPublisher
+        class ISocketPublisher : public virtual IWritable, public virtual ISocketSetup
         {
         public:
-            virtual ~ISocketPublisher() = default;
         };
     }
 }

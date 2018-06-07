@@ -5,14 +5,16 @@
 #ifndef EVEREST_BASE_ISOCKETREPLIER_H
 #define EVEREST_BASE_ISOCKETREPLIER_H
 
+#include "ISocketSetup.h"
+#include "IReadWrite.h"
+
 namespace Common
 {
     namespace ZeroMQ_wrapper
     {
-        class ISocketReplier
+        class ISocketReplier : public virtual IReadWrite, public virtual ISocketSetup
         {
         public:
-            virtual ~ISocketReplier() = default;
         };
     }
 }
