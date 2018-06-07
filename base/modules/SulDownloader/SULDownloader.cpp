@@ -98,8 +98,9 @@ namespace SulDownloader
         // load input string (json) into the configuration data
         // run runSULDownloader
         // and serialize teh DownloadReport into json and give the error code/or success
-        std::vector<std::string> urls = {"notused"};
-        ConfigurationData configurationData(urls);
+        std::vector<std::string> urls = {"http://ostia.eng.sophos/latest/Virt-vShieldBoken", "http://ostia.eng.sophos/latest/Virt-vShield" };
+
+        ConfigurationData configurationData(urls, Credentials("administrator", "password"));
         configurationData.verifySettingsAreValid();
         auto report = runSULDownloader(configurationData);
         return {0,""};

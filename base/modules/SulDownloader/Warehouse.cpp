@@ -67,13 +67,16 @@ namespace SulDownloader
             SU_setUserAgent(warehouse->session(), "SULDownloader");
 
             warehouse->setConnectionSetup(connectionSetup);
+
             if ( warehouse->hasError())
             {
+                SULUtils::displayLogs(warehouse->session());
                 continue;
             }
 
             if (!SULUtils::isSuccess(SU_readRemoteMetadata(warehouse->session())))
             {
+                SULUtils::displayLogs(warehouse->session());
                 LOGSUPPORT("Failed to connect to warehouse\n" << warehouse->m_connectionSetup->toString());
                 continue;
             }
