@@ -46,13 +46,17 @@ namespace SulDownloader
     {
         std::string certificatePath = configurationData.getCertificatePath();
         std::string localRepository = configurationData.getLocalRepository();
-        ::mkdir(localRepository.c_str(), 0700);//FIXME
+
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
         for ( auto & connectionSetup : candidates)
         {
             auto warehouse = std::unique_ptr<Warehouse>(new Warehouse(true));
+            if ( warehouse->hasError())
+            {
+                continue;
+            }
             SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_verbose);
             //SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_important);
             LOGSUPPORT("Certificate path: " << certificatePath);
@@ -190,7 +194,7 @@ namespace SulDownloader
         {
             std::string distributePath = "/tmp/distribute/" + product.distributionFolderName();
             LOGSUPPORT("Distribution path: " << distributePath);
-            product.setDistributePath(distributePath);
+            product.setDistributePath(distributePath) ;
         }
 
         if(!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
@@ -220,12 +224,7 @@ namespace SulDownloader
         m_error.SulCode = Error::NoSulError;
         if ( m_session)
         {
-            auto result = SU_getLastError(session());
-            if ( !SULUtils::isSuccess(result) )
-            {
-                m_error.SulCode = result;
-                m_error.SulError = SulGetErrorDetails(session());
-            }
+            m_error.fetchSulError(session());
         }
     }
 
@@ -276,13 +275,18 @@ namespace SulDownloader
 
     Warehouse::Warehouse(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
     {
+        m_state = State::Initialized;
         if ( createSession )
         {
             m_session.reset(new SULSession());
+            if ( m_session->m_session == nullptr)
+            {
+                setError("Failed to Initialize Sul");
+            }
         }
-        m_state = State::Initialized;
 
-    }        SU_Handle session();
+
+    }
 
     SU_Handle Warehouse::session()
     {
@@ -294,4 +298,7 @@ namespace SulDownloader
         m_products.clear();
         m_session.reset();
     }
+
+
+
 }

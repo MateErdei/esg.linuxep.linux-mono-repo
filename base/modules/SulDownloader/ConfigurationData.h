@@ -38,12 +38,15 @@ namespace SulDownloader
         std::string getCertificatePath() const ;
         std::string getLocalRepository() const;
 
+        bool verifySettingsAreValid();
+        bool isVerified() const;
     private:
+        enum class State{Initialized, Verified, FailedVerified};
         Credentials m_credentials;
         std::vector<std::string> m_sophosUpdateUrls;
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_proxy;
-
+        State m_state;
 
     };
 }

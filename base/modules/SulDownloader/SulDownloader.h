@@ -7,6 +7,6 @@
 
 namespace SulDownloader
 {
-    int main_entry();
+    int main_entry(int argc, char *argv[]);
 }
 #endif //EVEREST_SULDOWNLOADER_H

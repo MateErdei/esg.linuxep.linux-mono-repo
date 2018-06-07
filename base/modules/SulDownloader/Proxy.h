@@ -23,8 +23,9 @@ namespace SulDownloader
         bool empty() const;
 
     private:
-        Credentials m_credentials;
+
         std::string m_url;
+        Credentials m_credentials;
     };
 }
 

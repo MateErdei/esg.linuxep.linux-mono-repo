@@ -7,6 +7,7 @@
 
 #include "ConnectionSelector.h"
 #include "ConfigurationData.h"
+#include "SULUtils.h"
 #include "SULRaii.h"
 #include "Tag.h"
 #include "Warehouse.h"
@@ -15,14 +16,6 @@ namespace SulDownloader
 {
     class Product;
     class ProductSelection;
-
-    struct Error{
-        constexpr static int NoSulError = 90;
-        Error(){}
-        std::string Description;
-        std::string SulError;
-        int SulCode=0;
-    };
 
     class Warehouse
     {
@@ -41,8 +34,6 @@ namespace SulDownloader
         void synchronize( ProductSelection & );
         void distribute();
         std::vector<Product> & getProducts();
-
-
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 

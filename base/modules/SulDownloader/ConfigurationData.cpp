@@ -8,6 +8,17 @@
 #include "ConfigurationData.h"
 #include "SulDownloaderException.h"
 
+namespace
+{
+    bool dirExist( const std::string & path);
+    bool fileExist( const std::string & path );
+    bool createDir( const std::string & path );// ::mkdir(localRepository.c_str(), 0700);//FIXME
+    std::string joinPath( const std::string & parentPath, const std::string & childPath);
+}
+
+
+
+
 namespace SulDownloader
 {
 
@@ -16,6 +27,7 @@ namespace SulDownloader
     : m_credentials(credentials)
     , m_localUpdateCacheUrls(updateCache)
     , m_proxy(proxy)
+    , m_state(State::Initialized)
     {
         setSophosUpdateUrls(sophosLocationURL);
     }
@@ -76,5 +88,39 @@ namespace SulDownloader
     std::string ConfigurationData::getCertificatePath() const
     {
         return  "/home/pair/dev_certificates";
+    }
+
+    bool ConfigurationData::verifySettingsAreValid()
+    {
+        m_state = State::FailedVerified;
+//
+//        // localRepository should either exist or be created
+//        std::string localRepository = getLocalRepository();
+//        if ( !dirExist(localRepository) && !createDir(localRepository))
+//        {
+//            return false;
+//
+//        }
+//
+//        // certificate path should exist and contain the root.crt and ps_rootca.crt
+//        std::string certificatePath = getCertificatePath();
+//        if ( !dirExist(certificatePath) ||
+//             !fileExist( joinPath(certificatePath, "root.crt")) ||
+//             !fileExist( joinPath(certificatePath, "ps_rootca.crt"))
+//           )
+//        {
+//            return false;
+//        }
+
+
+        m_state = State::Verified;
+        return false;
+
+
+    }
+
+    bool ConfigurationData::isVerified() const
+    {
+        return m_state == State::Verified;
     }
 }

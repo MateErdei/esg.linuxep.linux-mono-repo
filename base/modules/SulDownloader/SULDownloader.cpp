@@ -20,9 +20,7 @@ extern "C" {
 #include "ProductSelection.h"
 #include "Product.h"
 
-#define P(x) std::cerr << x << std::endl
-
-
+#include <cassert>
 namespace
 {
     bool hasError( const std::vector<SulDownloader::Product> & products )
@@ -42,37 +40,9 @@ namespace SulDownloader
 {
 
 
-
-
-    static bool isSuccess(SU_Result result)
-    {
-        return result == SU_Result_OK
-               || result == SU_Result_nullSuccess
-               || result == SU_Result_notAttempted;
-    }
-
-    static void displayLogs(SU_Handle ses)
-    {
-        P("LastError:" << SU_getLastError(ses));
-        P("Error:" << SU_getErrorDetails(ses));
-        const char *log;
-        while (true)
-        {
-            log = SU_getLogEntry(ses);
-            if (log == 0)
-            {
-                break;
-            }
-            P("Log:" << log);
-        }
-    }
-
-
-
-
     DownloadReport runSULDownloader( ConfigurationData & configurationData)
     {
-
+        assert( configurationData.isVerified());
         std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
 
         if ( warehouse->hasError())
@@ -123,15 +93,35 @@ namespace SulDownloader
 
     }
 
-    int run_entry()
+    std::tuple<int, std::string> configAndRunDownloader( const std::string & )
     {
+        // load input string (json) into the configuration data
+        // run runSULDownloader
+        // and serialize teh DownloadReport into json and give the error code/or success
         std::vector<std::string> urls = {"notused"};
-        ConfigurationData configdata(urls);
+        ConfigurationData configurationData(urls);
+        configurationData.verifySettingsAreValid();
+        auto report = runSULDownloader(configurationData);
+        return {0,""};
+    };
 
-        auto downloadReport = runSULDownloader(configdata);
 
-        return 0;
+    int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath )
+    {
+        // read the file
+        // check can create the output
+        // run configAndRunDownloader
+        // return error code.
+        auto result = configAndRunDownloader("");
+        return std::get<0>(result);
     }
+
+    int main_entry( int argc, char * argv[])
+    {
+        SULInit init;
+        return fileEntriesAndRunDownloader("","");
+    }
+
 
 
 /*
@@ -188,22 +178,22 @@ Selection GetSelectionFilter( settings )
 #define ASSERT_TRUE(_b)       do {if (!(_b)) {std::cerr << #_b << " is False at " << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << std::endl;throw AssertionFail(1);}} while(0)
 #define ASSERT_NE(_v, _e) do {if (  (_v) == (_e) ) {std::cerr << #_v << "(" << _v << ") == " << #_e << "(" << _e << ")" << __FILE__ << ":" << __LINE__ << std::endl;throw std::runtime_error("Assertion failure");}} while(0)
 
-    static std::string safegetcwd()
-    {
-        char path[MAXPATHLEN];
-        char *res = getcwd(path, MAXPATHLEN);
-        ASSERT_NE(res, 0);
-        return res;
-    }
+//    static std::string safegetcwd()
+//    {
+//        char path[MAXPATHLEN];
+//        char *res = getcwd(path, MAXPATHLEN);
+//        ASSERT_NE(res, 0);
+//        return res;
+//    }
 
-    static const char *LOCAL_REPOSITORY = "tmp/warehouse";
-    static const char *LOCAL_LCD = "tmp/installset";
+    //static const char *LOCAL_REPOSITORY = "tmp/warehouse";
+    //static const char *LOCAL_LCD = "tmp/installset";
 
-    template<class T>
-    static bool in(const std::vector<T> &hay, const T &needle)
-    {
-        return std::find(hay.begin(), hay.end(), needle) != hay.end();
-    }
+//    template<class T>
+//    static bool in(const std::vector<T> &hay, const T &needle)
+//    {
+//        return std::find(hay.begin(), hay.end(), needle) != hay.end();
+//    }
 
 //def getTags(product):
 //"""
@@ -434,16 +424,4 @@ Selection GetSelectionFilter( settings )
 //        return 0;
 //    }
 
-    int main_entry()
-    {
-        SULInit init;
-        return run_entry();
-
-//        SULSession session;
-//        if (session.m_session == nullptr)
-//        {
-//            return 10;
-//        }
-//        return run(session.m_session);
-    }
 }

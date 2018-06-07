@@ -91,15 +91,6 @@ namespace  SulDownloader
 
     }
 
-    bool SULUtils::LogOnFailure(SU_Handle ses, SU_Result result)
-    {
-        if (!isSuccess(result))
-        {
-            displayLogs(ses);
-            return true;
-        }
-        return false;
-    }
 
     std::vector<std::string> SULUtils::SulLogs(SU_Handle ses)
     {
@@ -115,6 +106,20 @@ namespace  SulDownloader
 
         }
         return logs;
+    }
+
+    void Error::fetchSulError(SU_Handle session)
+    {
+        if ( session == nullptr)
+        {
+            return;
+        }
+        auto result = SU_getLastError(session);
+        if ( !SULUtils::isSuccess(result) )
+        {
+            SulCode = result;
+            SulError = SulGetErrorDetails(session);
+        }
     }
 
 }
