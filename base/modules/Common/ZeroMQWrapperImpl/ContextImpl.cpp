@@ -4,6 +4,7 @@
 
 #include "ContextImpl.h"
 #include "SocketRequesterImpl.h"
+#include "SocketReplierImpl.h"
 
 #include <Common/ZeroMQ_wrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQ_wrapper/ISocketPublisher.h>
@@ -32,7 +33,9 @@ Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()
 
 Common::ZeroMQ_wrapper::ISocketReplierPtr ContextImpl::getReplier()
 {
-    return Common::ZeroMQ_wrapper::ISocketReplierPtr();
+    return Common::ZeroMQ_wrapper::ISocketReplierPtr(
+            new SocketReplierImpl(m_context)
+            );
 }
 
 std::unique_ptr<Common::ZeroMQ_wrapper::IContext> Common::ZeroMQ_wrapper::createContext()
