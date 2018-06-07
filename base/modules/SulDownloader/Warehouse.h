@@ -16,6 +16,14 @@ namespace SulDownloader
     class Product;
     class ProductSelection;
 
+    struct Error{
+        constexpr static int NoSulError = 90;
+        Error(){}
+        std::string Description;
+        std::string SulError;
+        int SulCode=0;
+    };
+
     class Warehouse
     {
     public:
@@ -29,7 +37,7 @@ namespace SulDownloader
         ~Warehouse();
 
         bool hasError() const;
-        const std::string& getError() const;
+        Error getError() const;
         void synchronize( ProductSelection & );
         void distribute();
         std::vector<Product> & getProducts();
@@ -43,7 +51,7 @@ namespace SulDownloader
         explicit  Warehouse( bool createSession  );
 
         SU_Handle session();
-        std::string m_error;
+        Error m_error;
         std::vector<Product> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<ConnectionSetup> m_connectionSetup;

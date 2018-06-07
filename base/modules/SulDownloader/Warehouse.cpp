@@ -18,7 +18,7 @@ namespace
 {
     static std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
     {
-        std::vector<SulDownloader::Tag> tags;e
+        std::vector<SulDownloader::Tag> tags;
         int index = 0;
 
         while (true)
@@ -86,10 +86,10 @@ namespace SulDownloader
 
     bool Warehouse::hasError() const
     {
-        return !m_error.empty();
+        return !m_error.Description.empty();
     }
 
-    const std::string &Warehouse::getError() const
+    Error Warehouse::getError() const
     {
         return m_error;
     }
@@ -159,7 +159,7 @@ namespace SulDownloader
         if(!SULUtils::isSuccess(SU_synchronise(session())))
         {
             LOGERROR("Failed to synchronise warehouse");
-            setError("Failed to Sync warehouse"); // FIXME need to know error code to send to central
+            setError("Failed to Sync warehouse");
         }
 
         SULUtils::displayLogs(session());
@@ -196,7 +196,7 @@ namespace SulDownloader
         if(!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
         {
             LOGERROR("Failed to distribute products");
-            setError("Failed to distribute products"); //FIXME get error code from sul distribute to go to central
+            setError("Failed to distribute products");
         }
 
 
@@ -216,7 +216,17 @@ namespace SulDownloader
     {
         m_state = State::Failure;
 
-        m_error = error;
+        m_error.Description = error;
+        m_error.SulCode = Error::NoSulError;
+        if ( m_session)
+        {
+            auto result = SU_getLastError(session());
+            if ( !SULUtils::isSuccess(result) )
+            {
+                m_error.SulCode = result;
+                m_error.SulError = SulGetErrorDetails(session());
+            }
+        }
     }
 
     void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup)
@@ -244,7 +254,7 @@ namespace SulDownloader
                            connectionSetup.getProxy().getCredentials().getPassword().c_str())))
         {
             LOGERROR("Failed to add Update source: " << updateSource);
-            setError("Failed to add Update source"); //FIXME code to central
+            setError("Failed to add Update source");
             return;
         }
 
@@ -264,7 +274,7 @@ namespace SulDownloader
 
     }
 
-    Warehouse::Warehouse(bool createSession ) : m_session()
+    Warehouse::Warehouse(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
     {
         if ( createSession )
         {
@@ -272,7 +282,7 @@ namespace SulDownloader
         }
         m_state = State::Initialized;
 
-    }
+    }        SU_Handle session();
 
     SU_Handle Warehouse::session()
     {
