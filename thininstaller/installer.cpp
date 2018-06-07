@@ -199,7 +199,7 @@ static std::vector<std::string> splitString(std::string string_to_split, std::st
 
     while (string_to_split != "")
     {
-        auto delim_pos = string_to_split.find(delim);
+        std::size_t delim_pos = string_to_split.find(delim);
         if (delim_pos != std::string::npos)
         {
             std::string stripped_section = string_to_split.substr(0, delim_pos);
@@ -487,12 +487,12 @@ int main(int argc, char ** argv)
         }
 
         std::string val = buf;
-        auto equals_pos = val.find("=");
+        std::size_t equals_pos = val.find("=");
         if (equals_pos != std::string::npos)
         {
             std::string argname = val.substr(0, equals_pos);
             std::string argvalue = val.substr(equals_pos+1, std::string::npos);
-            auto newline_pos = argvalue.find("\n");
+            std::size_t newline_pos = argvalue.find("\n");
             if (newline_pos != std::string::npos)
             {
                  argvalue = argvalue.substr(0, newline_pos);
