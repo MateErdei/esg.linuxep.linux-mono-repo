@@ -8,6 +8,8 @@
 #include "IReadWrite.h"
 #include "ISocketSetup.h"
 
+#include <memory>
+
 namespace Common
 {
     namespace ZeroMQ_wrapper
@@ -16,6 +18,8 @@ namespace Common
         {
         public:
         };
+
+        using ISocketRequesterPtr = std::unique_ptr<ISocketRequester>;
     }
 }
 

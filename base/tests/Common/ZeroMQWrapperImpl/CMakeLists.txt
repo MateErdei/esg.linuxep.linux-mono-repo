@@ -8,6 +8,6 @@ function(addTest TEST)
     add_test(NAME ${TEST} COMMAND ${TEST})
 endfunction()
 
-foreach(TEST TestContextHolder TestSocketHolder TestContextImpl)
+foreach(TEST TestContextHolder TestSocketHolder TestContextImpl TestSocketRequesterImpl)
     addTest(${TEST})
 endforeach()
