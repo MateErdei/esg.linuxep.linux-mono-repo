@@ -5,10 +5,9 @@
 #include "ContextImpl.h"
 #include "SocketRequesterImpl.h"
 #include "SocketReplierImpl.h"
+#include "SocketPublisherImpl.h"
 
 #include <Common/ZeroMQ_wrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQ_wrapper/ISocketPublisher.h>
-#include <Common/ZeroMQ_wrapper/ISocketReplier.h>
 
 #include <zmq.h>
 
@@ -21,7 +20,9 @@ Common::ZeroMQ_wrapper::ISocketSubscriberPtr ContextImpl::getSubscriber()
 
 Common::ZeroMQ_wrapper::ISocketPublisherPtr ContextImpl::getPublisher()
 {
-    return Common::ZeroMQ_wrapper::ISocketPublisherPtr();
+    return Common::ZeroMQ_wrapper::ISocketPublisherPtr(
+            new SocketPublisherImpl(m_context)
+            );
 }
 
 Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()
