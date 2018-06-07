@@ -28,6 +28,8 @@ namespace Common
             virtual std::unique_ptr<ISocketRequester>   getRequester(const std::string& address) = 0;
             virtual std::unique_ptr<ISocketReplier>     getReplier(const std::string& address) = 0;
         };
+
+        extern std::unique_ptr<IContext> createContext();
     }
 }
 

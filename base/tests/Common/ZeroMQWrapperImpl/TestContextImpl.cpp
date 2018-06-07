@@ -14,4 +14,10 @@ namespace
         std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context
                 (new Common::ZeroMQWrapperImpl::ContextImpl());
     }
+
+    TEST(TestContextImpl, Factory) // NOLINT
+    {
+        std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context = Common::ZeroMQ_wrapper::createContext();
+        ASSERT_NE(context,nullptr);
+    }
 }
