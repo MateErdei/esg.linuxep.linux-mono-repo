@@ -14,14 +14,14 @@
 
 using namespace Common::ZeroMQWrapperImpl;
 
-std::unique_ptr<Common::ZeroMQ_wrapper::ISocketSubscriber> ContextImpl::getSubscriber()
+Common::ZeroMQ_wrapper::ISocketSubscriberPtr ContextImpl::getSubscriber()
 {
-    return std::unique_ptr<ZeroMQ_wrapper::ISocketSubscriber>();
+    return Common::ZeroMQ_wrapper::ISocketSubscriberPtr();
 }
 
-std::unique_ptr<Common::ZeroMQ_wrapper::ISocketPublisher> ContextImpl::getPublisher()
+Common::ZeroMQ_wrapper::ISocketPublisherPtr ContextImpl::getPublisher()
 {
-    return std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher>();
+    return Common::ZeroMQ_wrapper::ISocketPublisherPtr();
 }
 
 Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()

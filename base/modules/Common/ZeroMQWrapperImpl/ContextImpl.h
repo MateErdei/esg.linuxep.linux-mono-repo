@@ -19,9 +19,9 @@ namespace Common
             ContextImpl() = default;
             ~ContextImpl() override = default;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketSubscriber> getSubscriber() override;
+            Common::ZeroMQ_wrapper::ISocketSubscriberPtr getSubscriber() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher> getPublisher() override;
+            Common::ZeroMQ_wrapper::ISocketPublisherPtr getPublisher() override;
 
             Common::ZeroMQ_wrapper::ISocketRequesterPtr getRequester() override;
 
