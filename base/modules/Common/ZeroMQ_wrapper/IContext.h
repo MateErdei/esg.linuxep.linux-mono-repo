@@ -5,6 +5,7 @@
 #ifndef EVEREST_BASE_COMMON__ZEROMQ_WRAPPER_ICONTEXT_H
 #define EVEREST_BASE_COMMON__ZEROMQ_WRAPPER_ICONTEXT_H
 
+#include "ISocketRequesterPtr.h"
 
 #include <memory>
 #include <string>
@@ -15,7 +16,6 @@ namespace Common
     {
         class ISocketSubscriber;
         class ISocketPublisher;
-        class ISocketRequester;
         class ISocketReplier;
 
         class IContext
@@ -25,7 +25,7 @@ namespace Common
 
             virtual std::unique_ptr<ISocketSubscriber> getSubscriber() = 0;
             virtual std::unique_ptr<ISocketPublisher> getPublisher() = 0;
-            virtual std::unique_ptr<ISocketRequester> getRequester() = 0;
+            virtual ISocketRequesterPtr getRequester() = 0;
             virtual std::unique_ptr<ISocketReplier> getReplier() = 0;
         };
 

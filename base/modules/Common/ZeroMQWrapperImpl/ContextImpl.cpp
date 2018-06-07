@@ -23,9 +23,9 @@ std::unique_ptr<Common::ZeroMQ_wrapper::ISocketPublisher> ContextImpl::getPublis
     return std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher>();
 }
 
-std::unique_ptr<Common::ZeroMQ_wrapper::ISocketRequester> ContextImpl::getRequester()
+Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()
 {
-    return std::unique_ptr<ZeroMQ_wrapper::ISocketRequester>(
+    return Common::ZeroMQ_wrapper::ISocketRequesterPtr(
             new SocketRequesterImpl(m_context)
             );
 }

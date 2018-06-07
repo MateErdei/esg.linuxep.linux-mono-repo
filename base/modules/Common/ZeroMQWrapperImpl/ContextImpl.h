@@ -23,7 +23,7 @@ namespace Common
 
             std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher> getPublisher() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketRequester> getRequester() override;
+            Common::ZeroMQ_wrapper::ISocketRequesterPtr getRequester() override;
 
             std::unique_ptr<ZeroMQ_wrapper::ISocketReplier> getReplier() override;
 
