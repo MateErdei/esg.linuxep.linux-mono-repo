@@ -5,7 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include "SUL.h"
-#include "curl.h"
+
+#include <curl/curl.h> // Because #include "curl.h" does not work.
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,14 +14,11 @@
 #include <unistd.h>
 #include <assert.h>
 
-static SU_PHandle g_Product = 0;
+static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
-#ifdef LINUX32
-static const char * g_Guid = "084077D4-01CA-4FBC-93A0-54FBB35B0D27";
-#else
-static const char * g_Guid = "8F2D7B2E-3715-4964-9428-DBDBB69C4800";
-#endif
+// TODO Add GUID for base warehouse files
+static const char * g_Guid = "<TODO>";
 
 #define BIGBUF 81920
 
@@ -32,22 +30,22 @@ static std::string g_sul_credentials = "";
 class ServerAddress
 {
     private:
-        std::string address;
-        int priority;
+        std::string m_address;
+        int m_priority;
     public:
         std::string getAddress() const
         {
-            return address;
+            return m_address;
         }
 
         int getPriority() const
         {
-            return priority;
+            return m_priority;
         }
 
     ServerAddress (std::string address, int priority):
-        address(address),
-        priority(priority)
+        m_address(address),
+        m_priority(priority)
         {}
 };
 
@@ -79,15 +77,13 @@ static bool canConnectToCloud(const std::string& proxy = "")
         printf("Checking we can connect to Sophos Central (at %s via %s)...\n", g_mcs_url.c_str(), proxy.c_str());
     }
 
-    CURL *curl;
     CURLcode res;
     bool ret = false;
-
     g_buf[0] = 0;
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    curl = curl_easy_init();
+    CURL *curl = curl_easy_init();
     if(curl)
     {
         curl_easy_setopt(curl, CURLOPT_URL, g_mcs_url.c_str());
@@ -135,8 +131,7 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
 {
     for (auto & proxy : proxies)
     {
-        std::string proxyAddress = proxy.getAddress();
-        if (canConnectToCloud(proxyAddress))
+        if (canConnectToCloud(proxy.getAddress()))
         {
             return true;
         }
@@ -201,7 +196,7 @@ static std::vector<std::string> splitString(std::string string_to_split, std::st
 
     while (string_to_split != "")
     {
-        int delim_pos = string_to_split.find(delim);
+        auto delim_pos = string_to_split.find(delim);
         if (delim_pos != std::string::npos)
         {
             std::string stripped_section = string_to_split.substr(0, delim_pos);
@@ -489,12 +484,12 @@ int main(int argc, char ** argv)
         }
 
         std::string val = buf;
-        int equals_pos = val.find("=");
+        auto equals_pos = val.find("=");
         if (equals_pos != std::string::npos)
         {
             std::string argname = val.substr(0, equals_pos);
             std::string argvalue = val.substr(equals_pos+1, std::string::npos);
-            int newline_pos = argvalue.find("\n");
+            auto newline_pos = argvalue.find("\n");
             if (newline_pos != std::string::npos)
             {
                  argvalue = argvalue.substr(0, newline_pos);
