@@ -30,9 +30,9 @@ Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()
             );
 }
 
-std::unique_ptr<Common::ZeroMQ_wrapper::ISocketReplier> ContextImpl::getReplier()
+Common::ZeroMQ_wrapper::ISocketReplierPtr ContextImpl::getReplier()
 {
-    return std::unique_ptr<ZeroMQ_wrapper::ISocketReplier>();
+    return Common::ZeroMQ_wrapper::ISocketReplierPtr();
 }
 
 std::unique_ptr<Common::ZeroMQ_wrapper::IContext> Common::ZeroMQ_wrapper::createContext()

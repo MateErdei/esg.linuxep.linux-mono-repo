@@ -25,7 +25,7 @@ namespace Common
 
             Common::ZeroMQ_wrapper::ISocketRequesterPtr getRequester() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketReplier> getReplier() override;
+            Common::ZeroMQ_wrapper::ISocketReplierPtr getReplier() override;
 
         private:
             ContextHolder m_context;
