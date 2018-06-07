@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include "SUL.h"
@@ -12,7 +13,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <assert.h>
+#include <cassert>
 
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
@@ -24,8 +25,8 @@ static const char * g_Guid = "<TODO>";
 
 static char g_buf[BIGBUF];
 static int g_bufptr = 0;
-static std::string g_mcs_url = "";
-static std::string g_sul_credentials = "";
+static std::string g_mcs_url;
+static std::string g_sul_credentials;
 
 class ServerAddress
 {
@@ -43,16 +44,18 @@ class ServerAddress
             return m_priority;
         }
 
-    ServerAddress (std::string address, int priority):
-        m_address(address),
-        m_priority(priority)
-        {}
+    ServerAddress (std::string address, int priority);
 };
+
+ServerAddress::ServerAddress(std::string address, int priority) :
+        m_address(std::move(address)),
+        m_priority(priority)
+{}
 
 static size_t function_pt(void *ptr, size_t size, size_t nmemb, void *stream)
 {
         char * dptr = (char *)ptr;
-        int siz = size*nmemb;
+        int siz = static_cast<int>(size * nmemb);
         if (g_bufptr+siz >= BIGBUF)
         {
              fprintf(stderr, "ERROR: Response from CURL is larger than buffer\n");
@@ -454,16 +457,16 @@ int main(int argc, char ** argv)
 {
     g_DebugMode = getenv("DEBUG_THIN_INSTALLER");
 
-    std::string arg_filename=argv[1];
     if (argc < 2) {
         fprintf(stderr, "Expecting a filename as an argument but none supplied\n");
         return 40;
-    } else {
-        if (g_DebugMode)
-        {
-            printf("Filename = [%s]\n",arg_filename.c_str());
-        }
     }
+    std::string arg_filename=argv[1];
+    if (g_DebugMode)
+    {
+        printf("Filename = [%s]\n",arg_filename.c_str());
+    }
+
 
     FILE * f = fopen(arg_filename.c_str(), "r");
     if (!f)
