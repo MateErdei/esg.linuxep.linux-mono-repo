@@ -5,6 +5,8 @@
 #ifndef EVEREST_BASE_ISOCKETSETUP_H
 #define EVEREST_BASE_ISOCKETSETUP_H
 
+#include <string>
+
 namespace Common
 {
     namespace ZeroMQ_wrapper

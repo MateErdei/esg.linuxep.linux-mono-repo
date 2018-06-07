@@ -23,10 +23,10 @@ namespace Common
         public:
             virtual ~IContext() = default;
 
-            virtual std::unique_ptr<ISocketSubscriber>  getSubscriber(const std::string& address) = 0;
-            virtual std::unique_ptr<ISocketPublisher>   getPublisher(const std::string& address) = 0;
-            virtual std::unique_ptr<ISocketRequester>   getRequester(const std::string& address) = 0;
-            virtual std::unique_ptr<ISocketReplier>     getReplier(const std::string& address) = 0;
+            virtual std::unique_ptr<ISocketSubscriber> getSubscriber() = 0;
+            virtual std::unique_ptr<ISocketPublisher> getPublisher() = 0;
+            virtual std::unique_ptr<ISocketRequester> getRequester() = 0;
+            virtual std::unique_ptr<ISocketReplier> getReplier() = 0;
         };
 
         extern std::unique_ptr<IContext> createContext();

@@ -19,13 +19,13 @@ namespace Common
             ContextImpl() = default;
             ~ContextImpl() override = default;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketSubscriber> getSubscriber(const std::string &address) override;
+            std::unique_ptr<ZeroMQ_wrapper::ISocketSubscriber> getSubscriber() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher> getPublisher(const std::string &address) override;
+            std::unique_ptr<ZeroMQ_wrapper::ISocketPublisher> getPublisher() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketRequester> getRequester(const std::string &address) override;
+            std::unique_ptr<ZeroMQ_wrapper::ISocketRequester> getRequester() override;
 
-            std::unique_ptr<ZeroMQ_wrapper::ISocketReplier> getReplier(const std::string &address) override;
+            std::unique_ptr<ZeroMQ_wrapper::ISocketReplier> getReplier() override;
 
         private:
             ContextHolder m_context;
