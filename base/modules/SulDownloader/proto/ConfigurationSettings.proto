@@ -3,6 +3,8 @@ syntax = "proto2";
 package SulDownloaderProto;
 
 
+
+
 message ConfigurationSettings
 {
     repeated string SophosURLs = 1;
@@ -22,4 +24,9 @@ message ConfigurationSettings
     optional ProxyT Proxy = 4;
     optional string CertificatePath = 5;
     optional string LocalRepositoryPath = 6;
+
+    optional string Primary = 7;
+    repeated string FullNames = 8;
+    repeated string PrefixNames = 9;
+
 }

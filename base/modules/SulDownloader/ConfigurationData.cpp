@@ -8,6 +8,8 @@
 #include "ConfigurationData.h"
 #include "SulDownloaderException.h"
 
+
+
 namespace
 {
 //    bool dirExist( const std::string & path);
@@ -102,6 +104,25 @@ namespace SulDownloader
     bool ConfigurationData::verifySettingsAreValid()
     {
         m_state = State::FailedVerified;
+
+        // Must have, primary product, warehouse credentials, update location
+
+        if(m_sophosUpdateUrls.size() == 0)
+        {
+            return false;
+        }
+
+        if(m_productSelection.size() == 0)
+        {
+            return false;
+        }
+
+        // productselection should already be ordered with primary being the first one.
+        if(m_productSelection[0].Name.empty() || m_productSelection[0].Prefix == true || m_productSelection[0].Primary == false)
+        {
+            return false;
+        }
+
 //
 //        // localRepository should either exist or be created
 //        std::string localRepository = getLocalRepository();
@@ -131,5 +152,15 @@ namespace SulDownloader
     bool ConfigurationData::isVerified() const
     {
         return m_state == State::Verified;
+    }
+
+    void ConfigurationData::addProductSelection(const ProductGUID &productGUID)
+    {
+        m_productSelection.push_back(productGUID);
+    }
+
+    const std::vector<ProductGUID> ConfigurationData::getProductSelection() const
+    {
+        return m_productSelection;
     }
 }

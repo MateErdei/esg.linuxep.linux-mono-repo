@@ -14,6 +14,14 @@
 namespace SulDownloader
 {
 
+
+    struct ProductGUID
+    {
+        std::string Name;
+        bool Primary;
+        bool Prefix;
+    };
+
     class ConfigurationData
     {
     public:
@@ -39,9 +47,13 @@ namespace SulDownloader
         void setLocalRepository(const std::string & localRepository);
         std::string getCertificatePath() const ;
         std::string getLocalRepository() const;
+        void addProductSelection(const ProductGUID &productGUID);
+        const std::vector<ProductGUID> getProductSelection() const;
+
 
         bool verifySettingsAreValid();
         bool isVerified() const;
+
     private:
         enum class State{Initialized, Verified, FailedVerified};
         Credentials m_credentials;
@@ -51,6 +63,7 @@ namespace SulDownloader
         State m_state;
         std::string m_localRepository;
         std::string m_certificatePath;
+        std::vector<ProductGUID> m_productSelection;
 
     };
 }

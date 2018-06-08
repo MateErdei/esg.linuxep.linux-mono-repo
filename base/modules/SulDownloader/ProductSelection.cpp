@@ -63,11 +63,26 @@ namespace SulDownloader
     }
 
 
-    ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData &)
+    ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData & configurationData)
     {
         ProductSelection productSelection;
-        productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new RecommendedProductSelector("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1", RecommendedProductSelector::UseFullName)));
-        productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new RecommendedProductSelector("FD6C1066-E190-4F44-AD0E-F107F36D9D40", RecommendedProductSelector::UseFullName)));
+
+        for(auto product : configurationData.getProductSelection())
+        {
+            RecommendedProductSelector::NamePrefix namePrefix;
+
+            if(product.Prefix)
+            {
+                namePrefix = RecommendedProductSelector::UseNameAsPrefix;
+            }
+            else
+            {
+                namePrefix = RecommendedProductSelector::UseFullName;
+            }
+
+            productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new RecommendedProductSelector(product.Name, namePrefix)));
+        }
+
         return productSelection;
     }
 }

@@ -123,6 +123,29 @@ namespace SulDownloader
         ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
         configurationData.setCertificatePath("/home/pair/dev_certificates");
         configurationData.setLocalRepository("/tmp/warehouse");
+        ProductGUID primaryProductGUID;
+        primaryProductGUID.Name = settings.primary();
+        primaryProductGUID.Primary = true;
+        primaryProductGUID.Prefix = false;
+        configurationData.addProductSelection(primaryProductGUID);
+
+        for(auto product : settings.fullnames())
+        {
+            ProductGUID productGUID;
+            productGUID.Name = product;
+            configurationData.addProductSelection(primaryProductGUID);
+        }
+
+        for(auto product : settings.prefixnames())
+        {
+            ProductGUID productGUID;
+            productGUID.Name = product;
+            productGUID.Prefix = true;
+            configurationData.addProductSelection(productGUID);
+        }
+
+        configurationData.setCertificatePath(settings.certificatepath());
+
         return configurationData;
     }
 
@@ -158,7 +181,15 @@ namespace SulDownloader
    "username": "",
    "password": ""
   }
- }
+ },
+ "certificatePath": "/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates",
+ "primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
+ "fullNames": [
+  "A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1"
+ ],
+ "prefixNames": [
+  "A845A8B5"
+ ]
 })";
 
         // read the file
@@ -183,6 +214,10 @@ namespace SulDownloader
         settings.mutable_proxy()->set_url("noproxy:");
         settings.mutable_proxy()->mutable_credential()->set_username("");
         settings.mutable_proxy()->mutable_credential()->set_password("");
+        settings.set_primary("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+        settings.add_fullnames("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1");
+        settings.add_prefixnames("A845A8B5");
+        settings.set_certificatepath("/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates");
 
 
         std::string json_output;
@@ -199,6 +234,8 @@ namespace SulDownloader
     int main_entry( int argc, char * argv[])
     {
         SULInit init;
+
+        //create_fake_json_settings();
         return fileEntriesAndRunDownloader("","");
 
     }
