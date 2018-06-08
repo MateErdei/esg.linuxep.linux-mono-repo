@@ -10,10 +10,10 @@
 
 namespace
 {
-    bool dirExist( const std::string & path);
-    bool fileExist( const std::string & path );
-    bool createDir( const std::string & path );// ::mkdir(localRepository.c_str(), 0700);//FIXME
-    std::string joinPath( const std::string & parentPath, const std::string & childPath);
+//    bool dirExist( const std::string & path);
+//    bool fileExist( const std::string & path );
+//    bool createDir( const std::string & path );// ::mkdir(localRepository.c_str(), 0700);//FIXME
+//    std::string joinPath( const std::string & parentPath, const std::string & childPath);
 }
 
 
@@ -79,15 +79,24 @@ namespace SulDownloader
 
     std::string ConfigurationData::getLocalRepository() const
     {
-        char path[MAXPATHLEN];
-        char *res = ::getcwd(path, MAXPATHLEN);
-        assert( res != 0);
-        return std::string(res) + "/tmp/warehouse";
+
+        return m_localRepository;
+
     }
 
     std::string ConfigurationData::getCertificatePath() const
     {
-        return  "/home/pair/dev_certificates";
+        return  m_certificatePath;
+    }
+
+    void ConfigurationData::setCertificatePath(const std::string &  certificatePath)
+    {
+        m_certificatePath = certificatePath;
+    }
+
+    void ConfigurationData::setLocalRepository(const std::string & localRepository)
+    {
+        m_localRepository = localRepository;
     }
 
     bool ConfigurationData::verifySettingsAreValid()

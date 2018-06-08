@@ -1,3 +1,4 @@
+include(proto/CMakeLists.txt)
 add_library(SulDownloader SHARED
         SULDownloader.cpp
         SulDownloader.h
@@ -24,7 +25,14 @@ add_library(SulDownloader SHARED
         ProductSelection.h
         Tag.h
         DownloadReport.cpp
-        DownloadReport.h SULUtils.cpp SULUtils.h Logger.cpp Logger.h)
+        DownloadReport.h
+        SULUtils.cpp
+        SULUtils.h
+        Logger.cpp
+        Logger.h
+        ${CONFIG_SETTINGS_PROTO_SRC}
+        ${CONFIG_SETTINGS_PROTO_H}
+        )
 #
 #/redist/binaries/linux10/input/SUL
 set( REDIST /redist )
@@ -40,6 +48,6 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 
-target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY})
+target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES})
 
 include_directories(BEFORE ${SUL_INPUT}/include)

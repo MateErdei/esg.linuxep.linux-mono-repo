@@ -35,6 +35,8 @@ namespace SulDownloader
         const Proxy &getProxy() const;
 
         void setProxy(const Proxy &proxy);
+        void setCertificatePath(const std::string &  certificatePath);
+        void setLocalRepository(const std::string & localRepository);
         std::string getCertificatePath() const ;
         std::string getLocalRepository() const;
 
@@ -47,6 +49,8 @@ namespace SulDownloader
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_proxy;
         State m_state;
+        std::string m_localRepository;
+        std::string m_certificatePath;
 
     };
 }

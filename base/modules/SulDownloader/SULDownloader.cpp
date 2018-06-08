@@ -19,8 +19,12 @@ extern "C" {
 #include "Warehouse.h"
 #include "ProductSelection.h"
 #include "Product.h"
-
+#include "ConfigurationSettings.pb.h"
+#include "SulDownloaderException.h"
 #include <cassert>
+
+#include <google/protobuf/util/json_util.h>
+
 namespace
 {
     bool hasError( const std::vector<SulDownloader::Product> & products )
@@ -93,14 +97,41 @@ namespace SulDownloader
 
     }
 
-    std::tuple<int, std::string> configAndRunDownloader( const std::string & )
+    ConfigurationData fromJsonSettings( const std::string & settingsString )
     {
+        using namespace google::protobuf::util;
+        using SulDownloaderProto::ConfigurationSettings;
+
+        ConfigurationSettings settings;
+        auto status = JsonStringToMessage(settingsString, &settings );
+        if ( !status.ok())
+        {
+            std::cout << "Failed to process jason message";
+            throw SulDownloaderException( "Failed to process json message");
+        }
+
         // load input string (json) into the configuration data
         // run runSULDownloader
         // and serialize teh DownloadReport into json and give the error code/or success
-        std::vector<std::string> urls = {"http://ostia.eng.sophos/latest/Virt-vShieldBoken", "http://ostia.eng.sophos/latest/Virt-vShield" };
+        auto sUrls = settings.sophosurls();
+        std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls) );
+        sUrls = settings.updatecache();
+        std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls) );
+        Credentials credential( settings.credential().username(), settings.credential().password());
+        Proxy proxy( settings.proxy().url(), Credentials(settings.proxy().credential().username(), settings.proxy().credential().password()));
 
-        ConfigurationData configurationData(urls, Credentials("administrator", "password"));
+        ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
+        configurationData.setCertificatePath("/home/pair/dev_certificates");
+        configurationData.setLocalRepository("/tmp/warehouse");
+        return configurationData;
+    }
+
+
+    std::tuple<int, std::string> configAndRunDownloader( const std::string & settingsString)
+    {
+
+
+        ConfigurationData configurationData = fromJsonSettings( settingsString);
         configurationData.verifySettingsAreValid();
         auto report = runSULDownloader(configurationData);
         return {0,""};
@@ -109,18 +140,67 @@ namespace SulDownloader
 
     int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath )
     {
+
+        std::string settingsString = R"({
+ "sophosURLs": [
+  "http://ostia.eng.sophos/latest/Virt-vShield"
+ ],
+ "updateCache": [
+  "http://ostia.eng.sophos/latest/Virt-vShieldBroken"
+ ],
+ "credential": {
+  "username": "administrator",
+  "password": "password"
+ },
+ "proxy": {
+  "url": "noproxy:",
+  "credential": {
+   "username": "",
+   "password": ""
+  }
+ }
+})";
+
         // read the file
         // check can create the output
         // run configAndRunDownloader
         // return error code.
-        auto result = configAndRunDownloader("");
+        auto result = configAndRunDownloader(settingsString);
         return std::get<0>(result);
+    }
+
+    void create_fake_json_settings()
+    {
+        using namespace google::protobuf::util;
+        using SulDownloaderProto::ConfigurationSettings;
+        ConfigurationSettings settings;
+        Credentials credentials;
+
+        settings.add_sophosurls("http://ostia.eng.sophos/latest/Virt-vShield");
+        settings.add_updatecache("http://ostia.eng.sophos/latest/Virt-vShieldBroken");
+        settings.mutable_credential()->set_username("administrator");
+        settings.mutable_credential()->set_password("password");
+        settings.mutable_proxy()->set_url("noproxy:");
+        settings.mutable_proxy()->mutable_credential()->set_username("");
+        settings.mutable_proxy()->mutable_credential()->set_password("");
+
+
+        std::string json_output;
+        JsonOptions options;
+        options.add_whitespace = true;
+        auto status = MessageToJsonString(settings, &json_output,options );
+        if ( !status.ok())
+            std::cerr << status.ToString() << std::endl;
+
+        std::cout << "Json serialized: " << json_output << std::endl;
+
     }
 
     int main_entry( int argc, char * argv[])
     {
         SULInit init;
         return fileEntriesAndRunDownloader("","");
+
     }
 
 
