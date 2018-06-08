@@ -8,7 +8,7 @@
 
 #include "SocketImpl.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 
 #include <zmq.h>
 
@@ -17,7 +17,7 @@ namespace Common
     namespace ZeroMQWrapperImpl
     {
         class SocketSubscriberImpl : public SocketImpl,
-            virtual public Common::ZeroMQ_wrapper::ISocketSubscriber
+            virtual public Common::ZeroMQWrapper::ISocketSubscriber
         {
         public:
             explicit SocketSubscriberImpl(ContextHolder& context)

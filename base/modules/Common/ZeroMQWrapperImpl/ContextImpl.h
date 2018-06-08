@@ -7,25 +7,25 @@
 
 #include "ContextHolder.h"
 
-#include <Common/ZeroMQ_wrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IContext.h>
 
 namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
-        class ContextImpl : public virtual Common::ZeroMQ_wrapper::IContext
+        class ContextImpl : public virtual Common::ZeroMQWrapper::IContext
         {
         public:
             ContextImpl() = default;
             ~ContextImpl() override = default;
 
-            Common::ZeroMQ_wrapper::ISocketSubscriberPtr getSubscriber() override;
+            Common::ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() override;
 
-            Common::ZeroMQ_wrapper::ISocketPublisherPtr getPublisher() override;
+            Common::ZeroMQWrapper::ISocketPublisherPtr getPublisher() override;
 
-            Common::ZeroMQ_wrapper::ISocketRequesterPtr getRequester() override;
+            Common::ZeroMQWrapper::ISocketRequesterPtr getRequester() override;
 
-            Common::ZeroMQ_wrapper::ISocketReplierPtr getReplier() override;
+            Common::ZeroMQWrapper::ISocketReplierPtr getReplier() override;
 
         private:
             ContextHolder m_context;

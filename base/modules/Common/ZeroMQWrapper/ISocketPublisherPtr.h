@@ -10,7 +10,7 @@
 
 namespace Common
 {
-    namespace ZeroMQ_wrapper
+    namespace ZeroMQWrapper
     {
         class ISocketPublisher;
         using ISocketPublisherPtr = std::unique_ptr<ISocketPublisher>;

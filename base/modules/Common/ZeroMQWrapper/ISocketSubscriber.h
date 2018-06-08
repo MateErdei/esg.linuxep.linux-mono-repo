@@ -10,7 +10,7 @@
 
 namespace Common
 {
-    namespace ZeroMQ_wrapper
+    namespace ZeroMQWrapper
     {
         class ISocketSubscriber : public virtual IReadable, public virtual ISocketSetup
         {

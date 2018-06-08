@@ -8,41 +8,41 @@
 #include "SocketPublisherImpl.h"
 #include "SocketSubscriberImpl.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 
 #include <zmq.h>
 
 using namespace Common::ZeroMQWrapperImpl;
 
-Common::ZeroMQ_wrapper::ISocketSubscriberPtr ContextImpl::getSubscriber()
+Common::ZeroMQWrapper::ISocketSubscriberPtr ContextImpl::getSubscriber()
 {
-    return Common::ZeroMQ_wrapper::ISocketSubscriberPtr(
+    return Common::ZeroMQWrapper::ISocketSubscriberPtr(
             new SocketSubscriberImpl(m_context)
             );
 }
 
-Common::ZeroMQ_wrapper::ISocketPublisherPtr ContextImpl::getPublisher()
+Common::ZeroMQWrapper::ISocketPublisherPtr ContextImpl::getPublisher()
 {
-    return Common::ZeroMQ_wrapper::ISocketPublisherPtr(
+    return Common::ZeroMQWrapper::ISocketPublisherPtr(
             new SocketPublisherImpl(m_context)
             );
 }
 
-Common::ZeroMQ_wrapper::ISocketRequesterPtr ContextImpl::getRequester()
+Common::ZeroMQWrapper::ISocketRequesterPtr ContextImpl::getRequester()
 {
-    return Common::ZeroMQ_wrapper::ISocketRequesterPtr(
+    return Common::ZeroMQWrapper::ISocketRequesterPtr(
             new SocketRequesterImpl(m_context)
             );
 }
 
-Common::ZeroMQ_wrapper::ISocketReplierPtr ContextImpl::getReplier()
+Common::ZeroMQWrapper::ISocketReplierPtr ContextImpl::getReplier()
 {
-    return Common::ZeroMQ_wrapper::ISocketReplierPtr(
+    return Common::ZeroMQWrapper::ISocketReplierPtr(
             new SocketReplierImpl(m_context)
             );
 }
 
-std::unique_ptr<Common::ZeroMQ_wrapper::IContext> Common::ZeroMQ_wrapper::createContext()
+std::unique_ptr<Common::ZeroMQWrapper::IContext> Common::ZeroMQWrapper::createContext()
 {
-    return std::unique_ptr<Common::ZeroMQ_wrapper::IContext>(new ContextImpl());
+    return std::unique_ptr<Common::ZeroMQWrapper::IContext>(new ContextImpl());
 }

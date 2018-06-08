@@ -6,20 +6,20 @@
 
 #include <gtest/gtest.h>
 
-#include <Common/ZeroMQ_wrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQ_wrapper/ISocketPublisher.h>
-#include <Common/ZeroMQ_wrapper/IContext.h>
-#include <Common/ZeroMQ_wrapper/IContextPtr.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IContextPtr.h>
 
 #include <thread>
 
-using Common::ZeroMQ_wrapper::ISocketSubscriberPtr;
+using Common::ZeroMQWrapper::ISocketSubscriberPtr;
 
 namespace
 {
     TEST(TestSocketSubscriberImpl, creation) // NOLINT
     {
-        Common::ZeroMQ_wrapper::IContextPtr context = Common::ZeroMQ_wrapper::createContext();
+        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         EXPECT_NE(socket.get(), nullptr);
@@ -27,7 +27,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, listen) // NOLINT
     {
-        Common::ZeroMQ_wrapper::IContextPtr context = Common::ZeroMQ_wrapper::createContext();
+        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);
@@ -38,7 +38,7 @@ namespace
     class SenderThread
     {
     public:
-        explicit SenderThread(Common::ZeroMQ_wrapper::IContext& context);
+        explicit SenderThread(Common::ZeroMQWrapper::IContext& context);
         ~SenderThread() {
             m_stopThread = true;
             if (m_thread.joinable())
@@ -48,13 +48,13 @@ namespace
         }
         void start();
     private:
-        Common::ZeroMQ_wrapper::IContext& m_context;
+        Common::ZeroMQWrapper::IContext& m_context;
         std::thread m_thread;
         bool m_stopThread;
         void run();
     };
 
-    SenderThread::SenderThread(Common::ZeroMQ_wrapper::IContext &context)
+    SenderThread::SenderThread(Common::ZeroMQWrapper::IContext &context)
         : m_context(context),
           m_thread(),
           m_stopThread(false)
@@ -82,7 +82,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, comms) // NOLINT
     {
-        Common::ZeroMQ_wrapper::IContextPtr context = Common::ZeroMQ_wrapper::createContext();
+        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);

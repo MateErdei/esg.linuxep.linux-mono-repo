@@ -1,19 +1,19 @@
 add_library(zeromqwrapperimpl ContextImpl.cpp ContextImpl.h ContextHolder.cpp ContextHolder.h SocketHolder.cpp SocketHolder.h
-        ../ZeroMQ_wrapper/IContext.h
-        ../ZeroMQ_wrapper/IHasFD.h
-        ../ZeroMQ_wrapper/IReadable.h
-        ../ZeroMQ_wrapper/IReadWrite.h
-        ../ZeroMQ_wrapper/ISocketPublisher.h
-        ../ZeroMQ_wrapper/ISocketReplier.h
-        ../ZeroMQ_wrapper/ISocketRequester.h
-        ../ZeroMQ_wrapper/ISocketSetup.h
-        ../ZeroMQ_wrapper/ISocketSubscriber.h
-        ../ZeroMQ_wrapper/IWritable.h
+        ../ZeroMQWrapper/IContext.h
+        ../ZeroMQWrapper/IHasFD.h
+        ../ZeroMQWrapper/IReadable.h
+        ../ZeroMQWrapper/IReadWrite.h
+        ../ZeroMQWrapper/ISocketPublisher.h
+        ../ZeroMQWrapper/ISocketReplier.h
+        ../ZeroMQWrapper/ISocketRequester.h
+        ../ZeroMQWrapper/ISocketSetup.h
+        ../ZeroMQWrapper/ISocketSubscriber.h
+        ../ZeroMQWrapper/IWritable.h
         SocketRequesterImpl.cpp SocketRequesterImpl.h
         SocketImpl.cpp SocketImpl.h
         SocketReplierImpl.cpp SocketReplierImpl.h
         SocketUtil.cpp SocketUtil.h
         SocketPublisherImpl.cpp SocketPublisherImpl.h
-        SocketSubscriberImpl.cpp SocketSubscriberImpl.h ../ZeroMQ_wrapper/IContextPtr.h)
+        SocketSubscriberImpl.cpp SocketSubscriberImpl.h ../ZeroMQWrapper/IContextPtr.h ../ZeroMQWrapper/IIPCException.h ZeroMQWrapperException.cpp ZeroMQWrapperException.h)
 target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} )
 

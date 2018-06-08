@@ -9,7 +9,7 @@
 
 namespace Common
 {
-    namespace ZeroMQ_wrapper
+    namespace ZeroMQWrapper
     {
         class IContext;
         using IContextPtr = std::unique_ptr<IContext>;

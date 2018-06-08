@@ -7,18 +7,18 @@
 
 #include "SocketHolder.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketSetup.h>
+#include <Common/ZeroMQWrapper/ISocketSetup.h>
 
 #include <string>
-#include <Common/ZeroMQ_wrapper/IHasFD.h>
+#include <Common/ZeroMQWrapper/IHasFD.h>
 
 namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
         class SocketImpl :
-            public virtual Common::ZeroMQ_wrapper::ISocketSetup,
-            public virtual Common::ZeroMQ_wrapper::IHasFD
+            public virtual Common::ZeroMQWrapper::ISocketSetup,
+            public virtual Common::ZeroMQWrapper::IHasFD
         {
         public:
             int fd() override;

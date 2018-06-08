@@ -6,16 +6,16 @@
 
 #include <gtest/gtest.h>
 
-#include <Common/ZeroMQ_wrapper/ISocketPublisher.h>
-#include <Common/ZeroMQ_wrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <Common/ZeroMQWrapper/IContext.h>
 
-using Common::ZeroMQ_wrapper::ISocketPublisherPtr;
+using Common::ZeroMQWrapper::ISocketPublisherPtr;
 
 namespace
 {
     TEST(TestSocketPublisherImpl, creation) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context = Common::ZeroMQ_wrapper::createContext();
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketPublisherPtr socket = context->getPublisher();
         EXPECT_NE(socket.get(), nullptr);

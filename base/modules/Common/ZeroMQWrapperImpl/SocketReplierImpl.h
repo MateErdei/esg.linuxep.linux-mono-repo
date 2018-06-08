@@ -7,7 +7,7 @@
 
 #include "SocketImpl.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
 
 namespace Common
 {
@@ -15,7 +15,7 @@ namespace Common
     {
         class SocketReplierImpl :
                 public SocketImpl,
-                virtual public Common::ZeroMQ_wrapper::ISocketReplier
+                virtual public Common::ZeroMQWrapper::ISocketReplier
         {
         public:
             explicit SocketReplierImpl(ContextHolder& context);

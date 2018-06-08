@@ -3,12 +3,17 @@
 //
 
 #include "ContextHolder.h"
+#include "ZeroMQWrapperException.h"
 
 #include <zmq.h>
 
 Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
 {
     m_context = zmq_ctx_new();
+    if (m_context == nullptr)
+    {
+        throw ZeroMQWrapperException("Unable to construct ZMQ Context");
+    }
 }
 
 Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()

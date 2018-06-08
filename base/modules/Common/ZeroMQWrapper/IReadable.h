@@ -12,7 +12,7 @@
 
 namespace Common
 {
-    namespace ZeroMQ_wrapper
+    namespace ZeroMQWrapper
     {
         class IReadable : public virtual IHasFD
         {

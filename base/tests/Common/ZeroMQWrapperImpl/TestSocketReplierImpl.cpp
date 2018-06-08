@@ -5,19 +5,19 @@
 
 #include <gtest/gtest.h>
 
-#include <Common/ZeroMQ_wrapper/ISocketReplier.h>
-#include <Common/ZeroMQ_wrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
 
 #include <Common/ZeroMQWrapperImpl/ContextImpl.h>
 #include <sys/socket.h>
 
-using Common::ZeroMQ_wrapper::ISocketReplierPtr;
+using Common::ZeroMQWrapper::ISocketReplierPtr;
 
 namespace
 {
     TEST(SocketReplierImpl, creation) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context = Common::ZeroMQ_wrapper::createContext();
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketReplierPtr socket = context->getReplier();
         EXPECT_NE(socket.get(),nullptr);
@@ -25,7 +25,7 @@ namespace
 
     TEST(SocketReplierImpl, listen) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context = Common::ZeroMQ_wrapper::createContext();
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         auto socket = context->getReplier();
         EXPECT_NE(socket.get(),nullptr);
@@ -34,7 +34,7 @@ namespace
 
     TEST(SocketReplierImpl, transfer) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQ_wrapper::IContext> context = Common::ZeroMQ_wrapper::createContext();
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         auto replier = context->getReplier();
         auto requester = context->getRequester();

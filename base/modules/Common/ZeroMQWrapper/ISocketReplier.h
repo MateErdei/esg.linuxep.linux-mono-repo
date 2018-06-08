@@ -10,7 +10,7 @@
 
 namespace Common
 {
-    namespace ZeroMQ_wrapper
+    namespace ZeroMQWrapper
     {
         class ISocketReplier : public virtual IReadWrite, public virtual ISocketSetup
         {

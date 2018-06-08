@@ -7,13 +7,13 @@
 
 #include "SocketImpl.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
 
 namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
-        class SocketRequesterImpl : public SocketImpl, public virtual Common::ZeroMQ_wrapper::ISocketRequester
+        class SocketRequesterImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketRequester
         {
         public:
             explicit SocketRequesterImpl(ContextHolder& context);

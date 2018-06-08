@@ -8,7 +8,7 @@
 
 #include "SocketImpl.h"
 
-#include <Common/ZeroMQ_wrapper/ISocketPublisher.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
 
 namespace Common
 {
@@ -16,7 +16,7 @@ namespace Common
     {
         class SocketPublisherImpl :
                 public SocketImpl,
-                public virtual Common::ZeroMQ_wrapper::ISocketPublisher
+                public virtual Common::ZeroMQWrapper::ISocketPublisher
         {
         public:
             explicit SocketPublisherImpl(ContextHolder& context);
