@@ -14,6 +14,6 @@ add_library(zeromqwrapperimpl ContextImpl.cpp ContextImpl.h ContextHolder.cpp Co
         SocketReplierImpl.cpp SocketReplierImpl.h
         SocketUtil.cpp SocketUtil.h
         SocketPublisherImpl.cpp SocketPublisherImpl.h
-        SocketSubscriberImpl.cpp SocketSubscriberImpl.h)
+        SocketSubscriberImpl.cpp SocketSubscriberImpl.h ../ZeroMQ_wrapper/IContextPtr.h)
 target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} )
 

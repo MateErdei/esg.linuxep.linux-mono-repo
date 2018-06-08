@@ -2,24 +2,21 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_COMMON__ZEROMQ_WRAPPER_ICONTEXT_H
-#define EVEREST_BASE_COMMON__ZEROMQ_WRAPPER_ICONTEXT_H
+#ifndef EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXT_H
+#define EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXT_H
 
 #include "ISocketPublisherPtr.h"
 #include "ISocketRequesterPtr.h"
 #include "ISocketReplierPtr.h"
 #include "ISocketSubscriberPtr.h"
 
-#include <memory>
 #include <string>
+#include "IContextPtr.h"
 
 namespace Common
 {
     namespace ZeroMQ_wrapper
     {
-        class ISocketSubscriber;
-        class ISocketPublisher;
-        class ISocketReplier;
 
         class IContext
         {
@@ -32,9 +29,9 @@ namespace Common
             virtual ISocketReplierPtr getReplier() = 0;
         };
 
-        extern std::unique_ptr<IContext> createContext();
+        extern IContextPtr createContext();
     }
 }
 
 
-#endif //EVEREST_BASE_COMMON__ZEROMQ_WRAPPER_ICONTEXT_H
+#endif //EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXT_H
