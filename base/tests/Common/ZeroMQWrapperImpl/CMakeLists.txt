@@ -13,6 +13,7 @@ foreach(TEST TestContextHolder
              TestContextImpl
              TestSocketRequesterImpl
              TestSocketReplierImpl
-             TestSocketPublisherImpl)
+             TestSocketPublisherImpl
+             TestSocketSubscriberImpl)
     addTest(${TEST})
 endforeach()
