@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+
 #include "Logger.h"
 
 
@@ -43,6 +44,38 @@ namespace
         SU_Handle m_session;
 
     };
+
+    SulDownloader::WarehouseStatus fromSulCode( SU_Result sulCode)
+    {
+        switch (sulCode)
+        {
+            case SU_Result_OK:
+            case SU_Result_continue:
+                return SulDownloader::WarehouseStatus::SUCCESS;
+            case SU_Result_proxyAuthenticationFailure:
+            case SU_Result_credentialsInvalid:
+                return SulDownloader::WarehouseStatus::CONNECTIONERROR;
+            case SU_Result_cancelled:
+            case SU_Result_corruptData:
+            case SU_Result_sourceOutOfDate:
+                return SulDownloader::WarehouseStatus::DOWNLOADFAILED;
+            case SU_Result_productNotFound:
+            case SU_Result_productMissing:
+            case SU_Result_noPackages:
+            case SU_Result_fixedVersionMissing:
+                return SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING;
+            case SU_Result_invalid:
+            case SU_Result_notSupported:
+            case SU_Result_unspecifiedFailure:
+            case SU_Result_notAttempted:
+            case SU_Result_noMemory:
+            case SU_Result_failed:
+            case SU_Result_nullSuccess:
+            default:
+                return SulDownloader::WarehouseStatus::UNSPECIFIED;
+        }
+    }
+
 }
 
 namespace  SulDownloader
@@ -69,6 +102,7 @@ namespace  SulDownloader
         SulStringResource s( SU_queryDistributionFileData(session, index, attribute.c_str()), session);
         return s.str();
     }
+
 
     bool SULUtils::isSuccess(SU_Result result)
     {
@@ -108,19 +142,22 @@ namespace  SulDownloader
         return logs;
     }
 
-    void Error::fetchSulError(SU_Handle session)
+    std::pair<WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session)
     {
+        std::pair<WarehouseStatus, std::string> sulStatus(WarehouseStatus::UNSPECIFIED, "");
         if ( session == nullptr)
         {
-            return;
+            return sulStatus;
         }
         auto result = SU_getLastError(session);
         if ( !SULUtils::isSuccess(result) )
         {
-            SulCode = result;
-            SulError = SulGetErrorDetails(session);
+            sulStatus.first = fromSulCode(result);
+            sulStatus.second = SulGetErrorDetails(session);
         }
+        return sulStatus;
     }
+
 
 }
 

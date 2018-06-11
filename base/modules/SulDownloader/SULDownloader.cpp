@@ -26,7 +26,7 @@ extern "C" {
 #include <cassert>
 
 #include <google/protobuf/util/json_util.h>
-
+#include "Logger.h"
 namespace
 {
     bool hasError( const std::vector<SulDownloader::Product> & products )
@@ -40,6 +40,21 @@ namespace
         }
         return false;
     }
+
+    std::string protoBuf2Json( google::protobuf::Message & message)
+    {
+        using namespace google::protobuf::util;
+        std::string json_output;
+        JsonOptions options;
+        options.add_whitespace = true;
+        auto status = MessageToJsonString(message, &json_output,options );
+        if ( !status.ok())
+        {
+            throw SulDownloader::SulDownloaderException(status.ToString());
+        }
+        return json_output;
+    }
+
 }
 
 namespace SulDownloader
@@ -49,8 +64,10 @@ namespace SulDownloader
     DownloadReport runSULDownloader( ConfigurationData & configurationData)
     {
         assert( configurationData.isVerified());
-        std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
         TimeTracker timeTracker;
+        timeTracker.setStartTime( TimeTracker::getCurrTime());
+        std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
+
         if ( warehouse->hasError())
         {
             return DownloadReport::Report(*warehouse, timeTracker);
@@ -59,6 +76,7 @@ namespace SulDownloader
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
 
         warehouse->synchronize(productSelection);
+        timeTracker.setSyncTime( TimeTracker::getCurrTime());
 
         if ( warehouse->hasError())
         {
@@ -92,6 +110,7 @@ namespace SulDownloader
             product.install();
         }
 
+        timeTracker.setFinishedTime( TimeTracker::getCurrTime());
         if ( hasError(products))
         {
             return DownloadReport::Report(products, timeTracker);
@@ -158,6 +177,23 @@ namespace SulDownloader
     SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report)
     {
         SulDownloaderProto::DownloadStatusReport protoReport;
+        protoReport.set_starttime(report.startTime());
+        protoReport.set_finishtime(report.finishedTime());
+        protoReport.set_synctime(report.syncTime());
+
+        protoReport.set_status( toString( report.getStatus()));
+        protoReport.set_description(report.getDescription());
+        protoReport.set_sulerror(report.sulError());
+
+        for ( auto & product : report.products())
+        {
+            SulDownloaderProto::ProductStatusReport * productReport = protoReport.add_products();
+            productReport->set_productname( product.name);
+            productReport->set_rigidname( product.rigidName);
+            productReport->set_downloadversion( product.downloadedVersion);
+            productReport->set_installedversion( product.installedVersion);
+        }
+
         return protoReport;
     }
 
@@ -168,7 +204,9 @@ namespace SulDownloader
         ConfigurationData configurationData = fromJsonSettings( settingsString);
         configurationData.verifySettingsAreValid();
         auto report = runSULDownloader(configurationData);
-        return {0,""};
+        auto protoReport = fromReport(report);
+        std::string json = protoBuf2Json(protoReport);
+        return {report.exitCode() , json };
     };
 
 
@@ -183,7 +221,7 @@ namespace SulDownloader
   "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
  ],
  "credential": {
-  "username": "administrator",
+  "username": "administrator-core",
   "password": "password"
  },
  "proxy": {
@@ -208,12 +246,12 @@ namespace SulDownloader
         // run configAndRunDownloader
         // return error code.
         auto result = configAndRunDownloader(settingsString);
+        LOGSUPPORT(std::get<1>(result));
         return std::get<0>(result);
     }
 
     void create_fake_json_settings()
     {
-        using namespace google::protobuf::util;
         using SulDownloaderProto::ConfigurationSettings;
         ConfigurationSettings settings;
         Credentials credentials;
@@ -231,12 +269,7 @@ namespace SulDownloader
         settings.set_certificatepath("/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates");
 
 
-        std::string json_output;
-        JsonOptions options;
-        options.add_whitespace = true;
-        auto status = MessageToJsonString(settings, &json_output,options );
-        if ( !status.ok())
-            std::cerr << status.ToString() << std::endl;
+        std::string json_output = protoBuf2Json( settings );
 
         std::cout << "Json serialized: " << json_output << std::endl;
 

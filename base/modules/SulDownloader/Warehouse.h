@@ -11,7 +11,7 @@
 #include "SULRaii.h"
 #include "Tag.h"
 #include "Warehouse.h"
-
+#include "WarehouseError.h"
 namespace SulDownloader
 {
     class Product;
@@ -30,10 +30,12 @@ namespace SulDownloader
         ~Warehouse();
 
         bool hasError() const;
-        Error getError() const;
+        WarehouseError getError() const;
         void synchronize( ProductSelection & );
         void distribute();
         std::vector<Product> & getProducts();
+        const std::vector<Product> & getProducts() const;
+
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 
@@ -43,7 +45,7 @@ namespace SulDownloader
         explicit  Warehouse( bool createSession  );
 
         SU_Handle session();
-        Error m_error;
+        WarehouseError m_error;
         std::vector<Product> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<ConnectionSetup> m_connectionSetup;

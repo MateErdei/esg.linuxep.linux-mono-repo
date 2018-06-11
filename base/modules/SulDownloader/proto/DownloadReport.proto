@@ -7,22 +7,20 @@ message ProductStatusReport
 {
     optional string RigidName = 1;
     optional string ProductName = 2;
-    optional string InstalledVerion = 3;
-    optional string DownloadVerions = 4;
+    optional string InstalledVersion = 3;
+    optional string DownloadVersion = 4;
 }
 
 
 
 message DownloadStatusReport
 {
-
-
    optional string StartTime = 1;
    optional string FinishTime = 2;
    optional string SyncTime = 3;
-   optional string InstallTime = 4;
-
-   repeated ProductStatusReport Products = 5;
-
+   optional string Status =4;
+   optional string SulError = 5;
+   optional string Description = 6;
+   repeated ProductStatusReport Products = 7;
 
 }

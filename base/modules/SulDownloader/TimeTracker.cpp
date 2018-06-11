@@ -6,24 +6,19 @@
 
 namespace SulDownloader
 {
-    std::time_t TimeTracker::startTime() const
+    std::string TimeTracker::startTime() const
     {
-        return m_startTime;
+        return fromTime(m_startTime);
     }
 
-    std::time_t TimeTracker::finishedTime() const
+    std::string TimeTracker::finishedTime() const
     {
-        return m_finishedTime;
+        return fromTime(m_finishedTime);
     }
 
-    std::time_t TimeTracker::syncTime() const
+    std::string TimeTracker::syncTime() const
     {
-        return m_syncTime;
-    }
-
-    std::time_t TimeTracker::installTime() const
-    {
-        return m_installTime;
+        return fromTime(m_syncTime);
     }
 
     void TimeTracker::setStartTime(time_t m_startTime)
@@ -41,8 +36,18 @@ namespace SulDownloader
         TimeTracker::m_syncTime = m_syncTime;
     }
 
-    void TimeTracker::setInstallTime(time_t m_installTime)
+    std::time_t TimeTracker::getCurrTime()
     {
-        TimeTracker::m_installTime = m_installTime;
+        return std::time(nullptr);
     }
+    std::string TimeTracker::fromTime(std::time_t time_) const
+    {
+        if ( time_ == -1 )
+        {
+            return "";
+        }
+
+        return std::asctime(std::localtime(&time_)); //FIXME:  expected format 20121125 161343
+    }
+
 }

@@ -6,20 +6,18 @@
 #define EVEREST_BASE_TIMETRACKER_H
 
 #include <ctime>
-
+#include <string>
 namespace SulDownloader
 {
     class TimeTracker
     {
     public:
-        static std::time_t getCurrTime() const;
-        std::time_t startTime() const;
+        static std::time_t getCurrTime() ;
+        std::string startTime() const;
 
-        std::time_t finishedTime() const;
+        std::string finishedTime() const;
 
-        std::time_t syncTime() const;
-
-        std::time_t installTime() const;
+        std::string syncTime() const;
 
         void setStartTime(time_t m_startTime);
 
@@ -27,13 +25,11 @@ namespace SulDownloader
 
         void setSyncTime(time_t m_syncTime);
 
-        void setInstallTime(time_t m_installTime);
-
     private:
-        std::time_t m_startTime;
-        std::time_t m_finishedTime;
-        std::time_t m_syncTime;
-        std::time_t m_installTime;
+        std::string fromTime(std::time_t) const;
+        std::time_t m_startTime = -1;
+        std::time_t m_finishedTime = -1;
+        std::time_t m_syncTime = -1;
 
     };
 }

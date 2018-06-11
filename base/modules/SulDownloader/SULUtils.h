@@ -9,7 +9,7 @@ extern "C" {
 }
 #include <string>
 #include <vector>
-
+#include "WarehouseError.h"
 
 
 namespace SulDownloader
@@ -20,15 +20,7 @@ namespace SulDownloader
     std::string SulQueryProductMetadata( SU_PHandle product, const std::string & attribute, SU_Int index);
     std::string SulQueryDistributionFileData( SU_Handle session, SU_Int index, const std::string & attribute );
 
-    struct Error{
-        constexpr static int NoSulError = 90;
-        Error(){}
-        void fetchSulError( SU_Handle session);
-
-        std::string Description;
-        std::string SulError;
-        int SulCode=0;
-    };
+    std::pair<WarehouseStatus, std::string > getSulCodeAndDescription( SU_Handle session);
 
     class SULUtils
     {

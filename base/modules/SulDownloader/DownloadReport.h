@@ -9,6 +9,7 @@
 #include <vector>
 #include <ctime>
 #include <string>
+#include "WarehouseError.h"
 namespace SulDownloader
 {
     class Warehouse;
@@ -27,25 +28,32 @@ namespace SulDownloader
     {
         DownloadReport();
     public:
-        enum class Status{ SUCCESS, INSTALLFAILLED, DOWNLOADFAILED, RESTARTNEEDED, CONNECTIONERROR, PACKAGESOURCEMISSING };
         static DownloadReport Report( const Warehouse & , const TimeTracker & timeTracker);
         static DownloadReport Report(const std::vector<Product> &, const TimeTracker &  timeTracker);
 
-        Status getStatus() const;
+        WarehouseStatus getStatus() const;
         std::string getDescription() const;
-        std::time_t startTime() const;
-        std::time_t finishedTime() const;
-        std::time_t syncTime() const;
-        std::time_t installTime() const;
+        std::string sulError() const;
+        const std::string &startTime() const;
+        const std::string &finishedTime() const;
+        const std::string &syncTime() const;
         std::vector<ProductReport> products() const;
 
+        int exitCode();
+
     private:
-        Status m_status;
-        std::string m_descrtipion;
-        std::time_t m_startTime;
-        std::time_t m_finishedTime;
-        std::time_t m_sync_time;
-        std::time_t m_installTime;
+        WarehouseStatus  m_status;
+        std::string m_description;
+        std::string m_sulError;
+        std::string m_startTime;
+        std::string m_finishedTime;
+        std::string m_sync_time;
+
+        std::vector<ProductReport> m_productReport;
+
+        void setProductsInfo(const std::vector<Product> &products);
+        void setError( const WarehouseError & error);
+        void setTimings( const TimeTracker & );
     };
 
 }

@@ -7,7 +7,7 @@
 
 #include "ProductInformation.h"
 #include "SULUtils.h"
-
+#include "WarehouseError.h"
 namespace SulDownloader
 {
     class Product
@@ -19,14 +19,15 @@ namespace SulDownloader
         void install();
         bool hasError() const;
         void setError( const std::string & );
-        Error getError() const;
+        WarehouseError getError() const;
         std::string distributionFolderName();
         bool setDistributePath(const std::string & distributePath);
         void verifyDistributionStatus();
+        ProductInformation getProductInformation();
 
     private :
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
-        Error m_error;
+        WarehouseError m_error;
         ProductInformation m_productInformation;
         std::string m_distributePath;
     };

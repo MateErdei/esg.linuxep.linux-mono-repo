@@ -34,7 +34,7 @@ add_library(SulDownloader SHARED
         ${CONFIG_SETTINGS_PROTO_H}
         ${DOWNLOADER_REPORT_PROTO_SRC}
         ${DOWNLOADER_REPORT_PROTO_H}
-        TimeTracker.cpp TimeTracker.h)
+        TimeTracker.cpp TimeTracker.h WarehouseError.cpp WarehouseError.h)
 
 #
 #/redist/binaries/linux10/input/SUL

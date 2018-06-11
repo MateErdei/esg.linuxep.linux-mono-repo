@@ -38,6 +38,22 @@ namespace
         }
         return tags;
     }
+
+    bool hasError( const std::vector<SulDownloader::Product> & products)
+    {
+        if (products.empty())
+        {
+            return false;
+        }
+        for ( const auto & product : products)
+        {
+            if (product.hasError())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 namespace SulDownloader
@@ -85,10 +101,10 @@ namespace SulDownloader
 
     bool Warehouse::hasError() const
     {
-        return !m_error.Description.empty();
+        return !m_error.Description.empty() || ::hasError(m_products);
     }
 
-    Error Warehouse::getError() const
+    WarehouseError Warehouse::getError() const
     {
         return m_error;
     }
@@ -124,9 +140,7 @@ namespace SulDownloader
             productInformation.setPHandle(product);
 
             productInformation.setBaseVersion(baseVersion);
-
-            m_products.emplace_back(productInformation);
-
+            productInformationList.push_back(productInformation);
         }
 
 
@@ -211,15 +225,21 @@ namespace SulDownloader
         return m_products;
     }
 
+    const std::vector<Product> &Warehouse::getProducts() const
+    {
+        return m_products;
+    }
+
+
     void Warehouse::setError(const std::string & error)
     {
         m_state = State::Failure;
 
         m_error.Description = error;
-        m_error.SulCode = Error::NoSulError;
+        m_error.status = WarehouseStatus::UNSPECIFIED;
         if ( m_session)
         {
-            m_error.fetchSulError(session());
+            std::tie( m_error.status, m_error.SulError) = getSulCodeAndDescription(session());
         }
     }
 

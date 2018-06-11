@@ -3,6 +3,7 @@
 //
 
 #include <cassert>
+#include <tuple>
 #include "Product.h"
 #include "SULUtils.h"
 
@@ -39,10 +40,10 @@ namespace SulDownloader
         //assert(m_state != State::HasError);
         m_state = State::HasError;
         m_error.Description = error;
-        m_error.fetchSulError( SU_getSession(m_productInformation.getPHandle()));
+        std::tie(m_error.status, m_error.SulError) = getSulCodeAndDescription(SU_getSession(m_productInformation.getPHandle()));
     }
 
-    Error Product::getError() const
+    WarehouseError Product::getError() const
     {
         return m_error;
     }
@@ -54,6 +55,7 @@ namespace SulDownloader
 
     bool Product::setDistributePath(const std::string &distributePath)
     {
+        m_state = State::Distributed;
         const char *empty = "";
         m_distributePath = distributePath;
         if ( !SULUtils::isSuccess(SU_addDistribution(m_productInformation.getPHandle(), m_distributePath.c_str(),
@@ -69,13 +71,18 @@ namespace SulDownloader
 
     void Product::verifyDistributionStatus()
     {
-        assert( m_state == State::Initialized);
-        m_state = State::Distributed;
+        assert( m_state == State::Distributed);
         if (! SULUtils::isSuccess(SU_getDistributionStatus(m_productInformation.getPHandle(), m_distributePath.c_str())))
         {
             SULUtils::displayLogs(SU_getSession(m_productInformation.getPHandle()));
             setError(std::string("Product distribution failed: ") + m_productInformation.getName()); //FIXME: get sul code to central
         }
+    }
+
+
+    ProductInformation Product::getProductInformation()
+    {
+        return m_productInformation;
     }
 
 }
