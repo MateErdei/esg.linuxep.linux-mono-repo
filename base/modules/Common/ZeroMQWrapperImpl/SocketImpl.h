@@ -23,9 +23,6 @@ namespace Common
         public:
             int fd() override;
 
-            void setNonBlocking() override;
-
-        public:
             explicit SocketImpl(ContextHolder& context, int type);
 
             void setTimeout(int timeoutMs) override;

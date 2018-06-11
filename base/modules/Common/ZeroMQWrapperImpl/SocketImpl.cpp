@@ -58,8 +58,3 @@ int SocketImpl::fd()
     }
     return -1;
 }
-
-void SocketImpl::setNonBlocking()
-{
-}
-

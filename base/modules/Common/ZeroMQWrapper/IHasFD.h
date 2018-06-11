@@ -14,7 +14,6 @@ namespace Common
         public:
             virtual ~IHasFD() = default;
             virtual int fd() = 0;
-            virtual void setNonBlocking() = 0;
         };
     }
 }
