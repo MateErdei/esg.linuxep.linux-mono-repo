@@ -1,0 +1,36 @@
+pipeline {
+    agent none
+    stages {
+        stage('Builds') {
+            parallel {
+                stage('Build on Ubuntu') {
+                    agent { 
+                        label 'ubuntu1804'
+                    }
+                    steps {
+                        checkout scm
+                        sh 'mkdir -p build && cd build && cmake .. && make'
+                    }
+                }
+                stage('Build on CentOS') {
+                    agent {
+                        label 'centos7'
+                    }
+                    steps {
+                        checkout scm
+                        sh 'mkdir -p build && cd build && cmake .. && make'
+                    }
+                }
+                stage('Build on Redhat') {
+                    agent {
+                        label 'rhel7'
+                    }
+                    steps {
+                        checkout scm
+                        sh 'mkdir -p build && cd build && cmake .. && make'
+                    }
+                }
+            }
+        }
+    }
+}
