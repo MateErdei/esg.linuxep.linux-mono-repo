@@ -17,7 +17,9 @@ namespace Common
         class IReadable : public virtual IHasFD
         {
         public:
-            virtual std::vector<std::string> read() = 0;
+            using data_t = std::vector<std::string>;
+
+            virtual data_t read() = 0;
         };
     }
 }

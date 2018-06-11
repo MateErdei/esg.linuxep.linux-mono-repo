@@ -19,7 +19,7 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(Common::Zer
     int64_t more;
     size_t more_size = sizeof(more);
     do {
-        /* Create an empty ØMQ message to hold the message part */
+        // Create an empty ØMQ message to hold the message part
         zmq_msg_t part;
         int rc = zmq_msg_init(&part);
         if (rc != 0)
@@ -39,7 +39,7 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(Common::Zer
             res.emplace_back(reinterpret_cast<char*>(contents),static_cast<std::string::size_type>(rc));
         }
 
-        /* Determine if more message parts are to follow */
+        // Determine if more message parts are to follow
         rc = zmq_getsockopt (socket, ZMQ_RCVMORE, &more, &more_size);
         if (rc != 0)
         {

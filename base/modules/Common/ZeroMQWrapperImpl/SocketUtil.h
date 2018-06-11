@@ -18,11 +18,24 @@ namespace Common
         class SocketUtil
         {
         public:
+            /**
+             * Delete the default constructor to force this to be a static class
+             */
             SocketUtil() = delete;
 
-            static std::vector<std::string> read(SocketHolder&);
+            using data_t = std::vector<std::string>;
 
-            static void write(SocketHolder&, const std::vector<std::string> &data);
+            /**
+             * Read a multi-part message from a socket.
+             * @return A vector with the message
+             */
+            static data_t read(SocketHolder&);
+
+            /**
+             * Send a multi-part message to a socket
+             * @param data The multi-part message to send.
+             */
+            static void write(SocketHolder&, const data_t& data);
         };
     }
 }

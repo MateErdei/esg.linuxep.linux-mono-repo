@@ -17,10 +17,11 @@ namespace Common
         class IWritable : public virtual IHasFD
         {
         public:
+            using data_t = std::vector<std::string>;
             /**
              * Write a multi-part message from data
              */
-            virtual void write(const std::vector<std::string>& data) = 0;
+            virtual void write(const data_t& data) = 0;
         };
     }
 }
