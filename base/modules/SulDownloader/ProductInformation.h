@@ -8,10 +8,6 @@
 #include <string>
 #include <vector>
 
-extern "C" {
-#include <SUL.h>
-}
-
 #include "Tag.h"
 
 namespace SulDownloader
@@ -23,12 +19,6 @@ namespace SulDownloader
         const std::string& getName() const;
         void setName(const std::string& name);
         void setTags(std::vector<Tag> tags);
-        void setPHandle( SU_PHandle productHandle);
-        SU_PHandle  getPHandle();
-        //<PU_handle>
-        //        tags,
-        //        version,
-        ///...
         bool hasTag(const std::string & releaseTag) const ;
 
         std::string getBaseVersion() const;
@@ -37,7 +27,6 @@ namespace SulDownloader
 
     private:
         std::vector<Tag> m_tags;
-        SU_PHandle m_productHandle;
         std::string m_name;
         std::string m_version;
 

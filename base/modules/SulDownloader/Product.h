@@ -6,7 +6,6 @@
 #define SULDOWNLOADER_PRODUCTS_H
 
 #include "ProductInformation.h"
-#include "SULUtils.h"
 #include "WarehouseError.h"
 namespace SulDownloader
 {
@@ -18,13 +17,14 @@ namespace SulDownloader
 
         void install();
         bool hasError() const;
-        void setError( const std::string & );
+        //void setError( const std::string & );
+        void setError( WarehouseError error);
         WarehouseError getError() const;
         std::string distributionFolderName();
-        bool setDistributePath(const std::string & distributePath);
-        void verifyDistributionStatus();
+        void setDistributePath(const std::string & distributePath);
+        std::string distributePath() const;
         ProductInformation getProductInformation();
-
+        std::string getName() const;
     private :
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
         WarehouseError m_error;

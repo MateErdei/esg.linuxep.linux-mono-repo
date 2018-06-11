@@ -2,16 +2,13 @@
 // Created by pair on 06/06/18.
 //
 
-extern "C" {
-#include <SUL.h>
-}
-
 #include <sys/stat.h>
 #include "Warehouse.h"
 #include "Product.h"
 #include "Tag.h"
 #include "ProductSelection.h"
 #include "SULUtils.h"
+#include "SULRaii.h"
 #include "Logger.h"
 #include <cassert>
 
@@ -39,7 +36,7 @@ namespace
         return tags;
     }
 
-    bool hasError( const std::vector<SulDownloader::Product> & products)
+    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::Product>> & products)
     {
         if (products.empty())
         {
@@ -47,7 +44,7 @@ namespace
         }
         for ( const auto & product : products)
         {
-            if (product.hasError())
+            if (product.second.hasError())
             {
                 return true;
             }
@@ -115,7 +112,7 @@ namespace SulDownloader
         assert( m_state == State::Connected);
         m_state = State::Synchronized;
 
-        std::vector<ProductInformation> productInformationList;
+        std::vector<std::pair<SU_PHandle, ProductInformation>> productInformationList;
 
         // create the ProductInformation for all the entries in the warehouse
         while (true)
@@ -137,34 +134,32 @@ namespace SulDownloader
 
             productInformation.setTags(tags);
 
-            productInformation.setPHandle(product);
-
             productInformation.setVersion(baseVersion);
-            productInformationList.push_back(productInformation);
+            productInformationList.emplace_back(product, productInformation);
         }
 
 
-        std::vector<ProductInformation> selectedProducts;
-        std::vector<ProductInformation> unwantedProducts;
-        for ( auto & productInformation : productInformationList)
+        std::vector<std::pair<SU_PHandle, ProductInformation>> selectedProducts;
+        std::vector<std::pair<SU_PHandle, ProductInformation>> unwantedProducts;
+        for ( auto & productPair : productInformationList)
         {
-            if ( selection.keepProduct(productInformation))
+            if ( selection.keepProduct(productPair.second))
             {
-                LOGSUPPORT("Product will be downloaded: " << productInformation.getName());
-                selectedProducts.push_back(productInformation);
+                LOGSUPPORT("Product will be downloaded: " << productPair.second.getName());
+                selectedProducts.push_back(productPair);
             }
             else
             {
-                unwantedProducts.push_back(productInformation);
+                unwantedProducts.push_back(productPair);
             }
         }
 
-        for ( auto & productInformation : unwantedProducts)
+        for ( auto & productPair : unwantedProducts)
         {
-            if(!SULUtils::isSuccess(SU_removeProduct(productInformation.getPHandle())))
+            if(!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
             {
                 SULUtils::displayLogs(session());
-                LOGERROR("Failed to remove product: " << productInformation.getName());
+                LOGERROR("Failed to remove product: " << productPair.second.getName());
             }
         }
 
@@ -178,8 +173,13 @@ namespace SulDownloader
 
         SULUtils::displayLogs(session());
 
+        std::vector<ProductInformation> selectedProdInfo;
+        for( auto pInfoPair : selectedProducts)
+        {
+            selectedProdInfo.push_back(pInfoPair.second);
+        }
 
-        std::vector<std::string> missingProducts = selection.missingProduct(selectedProducts);
+        std::vector<std::string> missingProducts = selection.missingProduct(selectedProdInfo);
         if ( !missingProducts.empty())
         {
             for( const auto & missing: missingProducts)
@@ -194,16 +194,15 @@ namespace SulDownloader
 
 
         m_products.clear();
-        for (auto & product : selectedProducts)
+        for (auto & productPair : selectedProducts)
         {
 
-            if(!SULUtils::isSuccess(SU_getSynchroniseStatus(product.getPHandle())))
+            if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
-                LOGERROR("Failed to synchronise product: " << product.getName());
+                LOGERROR("Failed to synchronise product: " << productPair.second.getName());
             }
 
-            m_products.push_back(Product(product));
-
+            m_products.emplace_back(productPair.first, Product(productPair.second));
         }
     }
 
@@ -213,11 +212,12 @@ namespace SulDownloader
         assert( m_state == State::Synchronized);
         m_state = State::Distributed;
 
-        for ( auto & product : getProducts())
+        for ( auto & productPair : m_products)
         {
+            auto  & product = productPair.second;
             std::string distributePath = "/tmp/distribute/" + product.distributionFolderName();
             LOGSUPPORT("Distribution path: " << distributePath);
-            product.setDistributePath(distributePath) ;
+            distributeProduct(productPair, distributePath);
         }
 
         if(!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
@@ -227,21 +227,45 @@ namespace SulDownloader
         }
 
 
-        for (auto product : getProducts())
+        for (auto & product : m_products)
         {
-            product.verifyDistributionStatus();
+            verifyDistributeProduct(product);
         }
     }
 
-    std::vector<Product> &Warehouse::getProducts()
+    void Warehouse::distributeProduct(std::pair<SU_PHandle, Product> &productPair, const std::string &distributePath)
     {
-        assert( m_state == State::Synchronized || m_state == State::Distributed);
-        return m_products;
+        productPair.second.setDistributePath(distributePath) ;
+        const char *empty = "";
+        if ( !SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(),
+                                                     SU_AddDistributionFlag_UseDefaultHomeFolder, empty,
+                                                     empty)))
+        {
+            productPair.second.setError( fetchSulError( "Failed to set distribution path"));
+
+        }
+
     }
 
-    const std::vector<Product> &Warehouse::getProducts() const
+    void Warehouse::verifyDistributeProduct(std::pair<SU_PHandle, Product> &productPair)
     {
-        return m_products;
+        std::string distributePath = productPair.second.distributePath();
+        if (! SULUtils::isSuccess(SU_getDistributionStatus(productPair.first,  distributePath.c_str())))
+        {
+            SULUtils::displayLogs(session());
+            productPair.second.setError( fetchSulError( std::string("Product distribution failed: ") + productPair.second.getName()));
+        }
+    }
+
+
+    std::vector<Product> Warehouse::getProducts() const
+    {
+        std::vector<Product> products;
+        for ( auto & productPair : m_products)
+        {
+            products.push_back(productPair.second);
+        }
+        return products;
     }
 
 
@@ -250,13 +274,22 @@ namespace SulDownloader
         SULUtils::displayLogs(session());
         m_state = State::Failure;
 
-        m_error.Description = error;
-        m_error.status = WarehouseStatus::UNSPECIFIED;
-        if ( m_session)
-        {
-            std::tie( m_error.status, m_error.SulError) = getSulCodeAndDescription(session());
-        }
+        m_error = fetchSulError(error);
     }
+
+    WarehouseError Warehouse::fetchSulError( const std::string &description) const
+    {
+        WarehouseError error;
+        error.Description = description;
+        error.status = WarehouseStatus::UNSPECIFIED;
+        if ( session())
+        {
+            std::tie( error.status, error.SulError) = getSulCodeAndDescription(session());
+        }
+        return error;
+
+    }
+
 
     void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData)
     {
@@ -355,7 +388,7 @@ namespace SulDownloader
 
     }
 
-    SU_Handle Warehouse::session()
+    SU_Handle Warehouse::session() const
     {
         return m_session->m_session;
     }
@@ -376,6 +409,7 @@ namespace SulDownloader
         }
 
     }
+
 
 
 }

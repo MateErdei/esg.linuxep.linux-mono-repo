@@ -4,18 +4,20 @@
 
 #ifndef EVEREST_WAREHOUSE_H
 #define EVEREST_WAREHOUSE_H
-
+extern "C" {
+#include <SUL.h>
+}
 #include "ConnectionSelector.h"
 #include "ConfigurationData.h"
-#include "SULUtils.h"
-#include "SULRaii.h"
 #include "Tag.h"
-#include "Warehouse.h"
 #include "WarehouseError.h"
+#include <memory>
+
 namespace SulDownloader
 {
     class Product;
     class ProductSelection;
+    class SULSession;
 
     class Warehouse
     {
@@ -33,8 +35,7 @@ namespace SulDownloader
         WarehouseError getError() const;
         void synchronize( ProductSelection & );
         void distribute();
-        std::vector<Product> & getProducts();
-        const std::vector<Product> & getProducts() const;
+        std::vector<Product> getProducts() const;
 
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
@@ -44,9 +45,14 @@ namespace SulDownloader
         int  logLevel( ConfigurationData::LogLevel );
         explicit  Warehouse( bool createSession  );
 
-        SU_Handle session();
+        void distributeProduct( std::pair<SU_PHandle, Product> & productPair, const  std::string & distributePath );
+        void verifyDistributeProduct( std::pair<SU_PHandle, Product> & productPair);
+
+        WarehouseError fetchSulError(const std::string & description ) const;
+
+        SU_Handle session() const;
         WarehouseError m_error;
-        std::vector<Product> m_products;
+        std::vector<std::pair<SU_PHandle, Product>> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<ConnectionSetup> m_connectionSetup;
     };

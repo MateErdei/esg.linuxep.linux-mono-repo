@@ -2,9 +2,6 @@
 // Created by pair on 26/04/18.
 //
 
-extern "C" {
-#include <SUL.h>
-}
 #include <iostream>
 #include <sys/param.h>
 #include <unistd.h>
@@ -91,7 +88,7 @@ namespace SulDownloader
         }
 
 
-        auto & products = warehouse->getProducts();
+        auto products = warehouse->getProducts();
 
 
         for( auto & product: products)

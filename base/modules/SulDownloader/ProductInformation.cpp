@@ -22,15 +22,6 @@ namespace SulDownloader
         m_tags = tags;
     }
 
-    void ProductInformation::setPHandle(SU_PHandle productHandle)
-    {
-        m_productHandle = productHandle;
-    }
-
-    SU_PHandle ProductInformation::getPHandle()
-    {
-        return m_productHandle;
-    }
 
     bool ProductInformation::hasTag(const std::string & releaseTag) const
     {

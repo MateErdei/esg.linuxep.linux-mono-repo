@@ -5,7 +5,7 @@
 #include <cassert>
 #include <tuple>
 #include "Product.h"
-#include "SULUtils.h"
+
 
 namespace SulDownloader
 {
@@ -35,13 +35,20 @@ namespace SulDownloader
         return !m_error.Description.empty();
     }
 
-    void Product::setError(const std::string &error)
+//    void Product::setError(const std::string &error)
+//    {
+//        m_state = State::HasError;
+//        m_error.Description = error;
+//        m_error.status = UNSPECIFIED;
+//        m_error.SulError = "";
+//    }
+
+    void Product::setError(WarehouseError error)
     {
-        //assert(m_state != State::HasError);
         m_state = State::HasError;
-        m_error.Description = error;
-        std::tie(m_error.status, m_error.SulError) = getSulCodeAndDescription(SU_getSession(m_productInformation.getPHandle()));
+        m_error = error;
     }
+
 
     WarehouseError Product::getError() const
     {
@@ -53,36 +60,26 @@ namespace SulDownloader
         return m_productInformation.getName() + m_productInformation.getVersion();
     }
 
-    bool Product::setDistributePath(const std::string &distributePath)
+    void Product::setDistributePath(const std::string &distributePath)
     {
         m_state = State::Distributed;
-        const char *empty = "";
         m_distributePath = distributePath;
-        if ( !SULUtils::isSuccess(SU_addDistribution(m_productInformation.getPHandle(), m_distributePath.c_str(),
-                           SU_AddDistributionFlag_UseDefaultHomeFolder, empty,
-                           empty)))
-        {
-            setError( "Failed to set distribution path");
-
-            return false;
-        }
-        return true;
     }
-
-    void Product::verifyDistributionStatus()
-    {
-        assert( m_state == State::Distributed);
-        if (! SULUtils::isSuccess(SU_getDistributionStatus(m_productInformation.getPHandle(), m_distributePath.c_str())))
-        {
-            SULUtils::displayLogs(SU_getSession(m_productInformation.getPHandle()));
-            setError(std::string("Product distribution failed: ") + m_productInformation.getName()); //FIXME: get sul code to central
-        }
-    }
-
 
     ProductInformation Product::getProductInformation()
     {
         return m_productInformation;
     }
+
+    std::string Product::distributePath() const
+    {
+        return m_distributePath;
+    }
+
+    std::string Product::getName() const
+    {
+        return m_productInformation.getName();
+    }
+
 
 }
