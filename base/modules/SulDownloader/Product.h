@@ -25,11 +25,14 @@ namespace SulDownloader
         std::string distributePath() const;
         ProductInformation getProductInformation();
         std::string getName() const;
+        bool productHasChanged() const;
+        void setProductHasChanged( bool  );
     private :
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
         WarehouseError m_error;
         ProductInformation m_productInformation;
         std::string m_distributePath;
+        bool m_productHasChanged;
     };
 }
 

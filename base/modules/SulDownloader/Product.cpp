@@ -5,13 +5,14 @@
 #include <cassert>
 #include <tuple>
 #include "Product.h"
+#include "Logger.h"
 
 
 namespace SulDownloader
 {
     //enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
     Product::Product(ProductInformation productInformation)
-            : m_state(State::Initialized), m_error(), m_productInformation(productInformation), m_distributePath()
+            : m_state(State::Initialized), m_error(), m_productInformation(productInformation), m_distributePath(), m_productHasChanged(false)
     {
 
     }
@@ -28,6 +29,7 @@ namespace SulDownloader
     {
         assert( m_state == State::Verified);
         m_state = State::Installed;
+        LOGINFO("Installing product: " << m_productInformation.getName() << " version: " << m_productInformation.getVersion());
     }
 
     bool Product::hasError() const
@@ -79,6 +81,16 @@ namespace SulDownloader
     std::string Product::getName() const
     {
         return m_productInformation.getName();
+    }
+
+    bool Product::productHasChanged() const
+    {
+        return m_productHasChanged;
+    }
+
+    void Product::setProductHasChanged(bool productHasChanged)
+    {
+        m_productHasChanged = productHasChanged;
     }
 
 

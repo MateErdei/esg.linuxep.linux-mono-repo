@@ -104,7 +104,10 @@ namespace SulDownloader
 
         for( auto & product: products)
         {
-            product.install();
+            if (product.productHasChanged())
+            {
+                product.install();
+            }
         }
 
         timeTracker.setFinishedTime( TimeTracker::getCurrTime());
@@ -236,13 +239,13 @@ namespace SulDownloader
  },
  "certificatePath": "/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates",
  "releaseTag": "RECOMMENDED",
- "baseVersion": "10",
+ "baseVersion": "9",
  "primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
  "fullNames": [
-  "A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1"
+  "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
  ],
  "prefixNames": [
-  "A845A8B5"
+  "1CD8A803"
  ]
 })";
 

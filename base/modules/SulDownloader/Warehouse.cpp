@@ -250,10 +250,16 @@ namespace SulDownloader
     void Warehouse::verifyDistributeProduct(std::pair<SU_PHandle, Product> &productPair)
     {
         std::string distributePath = productPair.second.distributePath();
-        if (! SULUtils::isSuccess(SU_getDistributionStatus(productPair.first,  distributePath.c_str())))
+        auto result = SU_getDistributionStatus(productPair.first,  distributePath.c_str());
+        LOGDEBUG("DISTRIBUTE status" << result);
+        if (! SULUtils::isSuccess(result))
         {
             SULUtils::displayLogs(session());
             productPair.second.setError( fetchSulError( std::string("Product distribution failed: ") + productPair.second.getName()));
+        }
+        else
+        {
+            productPair.second.setProductHasChanged( result == SU_Result_OK );
         }
     }
 
