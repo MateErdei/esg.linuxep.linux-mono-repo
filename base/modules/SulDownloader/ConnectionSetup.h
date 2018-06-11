@@ -17,7 +17,7 @@ namespace SulDownloader
 
     public:
         explicit  ConnectionSetup ( const std::string updateLocationURL,Credentials credentials = Credentials(), bool isCacheUpdate = false
-                , Proxy proxy = Proxy());
+                , Proxy proxy = Proxy(), bool useHTTPS = true);
 
         const Credentials &getCredentials() const;
 
@@ -34,12 +34,14 @@ namespace SulDownloader
         std::string toString() const;
 
         bool isCacheUpdate() const;
+        bool useHTTPS() const;
 
     private:
         std::string m_updateLocationURL;
         Credentials m_credentials;
         bool m_isUpdateCache;
         Proxy m_proxy;
+        bool m_useHTTPS;
 
 
     };

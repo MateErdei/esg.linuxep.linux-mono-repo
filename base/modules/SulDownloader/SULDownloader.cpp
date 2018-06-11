@@ -166,10 +166,10 @@ namespace SulDownloader
 
         std::string settingsString = R"({
  "sophosURLs": [
-  "http://ostia.eng.sophos/latest/Virt-vShield"
+  "https://ostia.eng.sophos/latest/Virt-vShield"
  ],
  "updateCache": [
-  "http://ostia.eng.sophos/latest/Virt-vShieldBroken"
+  "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
  ],
  "credential": {
   "username": "administrator",

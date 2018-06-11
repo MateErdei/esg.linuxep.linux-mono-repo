@@ -10,10 +10,11 @@ namespace SulDownloader
 {
 
     ConnectionSetup::ConnectionSetup(const std::string updateLocationURL, Credentials credentials, bool isCacheUpdate,
-                                     Proxy proxy)
+                                     Proxy proxy, bool useHTTPS)
     : m_credentials(credentials)
     , m_isUpdateCache(isCacheUpdate)
     , m_proxy(proxy)
+    , m_useHTTPS(useHTTPS)
     {
         setUpdateLocationURL(updateLocationURL);
     }
@@ -78,6 +79,10 @@ namespace SulDownloader
     const std::string &ConnectionSetup::getUpdateLocationURL() const
     {
         return m_updateLocationURL;
+    }
+
+    bool ConnectionSetup::useHTTPS() const {
+        return m_useHTTPS;
     }
 
 }

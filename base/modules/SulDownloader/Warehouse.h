@@ -38,7 +38,8 @@ namespace SulDownloader
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 
         void setError( const std::string & );
-        void setConnectionSetup( const ConnectionSetup & connectionSetup);
+        void setConnectionSetup( const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData);
+        int  logLevel( ConfigurationData::LogLevel );
         explicit  Warehouse( bool createSession  );
 
         SU_Handle session();

@@ -163,4 +163,12 @@ namespace SulDownloader
     {
         return m_productSelection;
     }
+
+    std::string ConfigurationData::getSSLCertificatePath() const {
+        return  "/etc/ssl/certs";
+    }
+
+    ConfigurationData::LogLevel ConfigurationData::getLogLevel() const {
+        return LogLevel::VERBOSE;
+    }
 }

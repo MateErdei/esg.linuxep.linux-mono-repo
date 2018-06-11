@@ -23,7 +23,13 @@ namespace SulDownloader
 
         for(auto url : configurationData.getLocalUpdateCacheUrls())
         {
-            candidates.emplace_back(url, configurationData.getCredentials(), true, configurationData.getProxy());
+            candidates.emplace_back(url, configurationData.getCredentials(), true, configurationData.getProxy()); //with https
+        }
+
+
+        for(auto url : configurationData.getLocalUpdateCacheUrls())
+        {
+            candidates.emplace_back(url, configurationData.getCredentials(), true, configurationData.getProxy(), false); //without
         }
 
         for(auto url : configurationData.getSophosUpdateUrls())

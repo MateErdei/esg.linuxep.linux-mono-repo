@@ -25,7 +25,7 @@ namespace SulDownloader
     class ConfigurationData
     {
     public:
-
+        enum class LogLevel{NORMAL, VERBOSE};
         explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  Credentials credentials = Credentials(), const std::vector<std::string> & updateCache = std::vector<std::string>(), Proxy proxy = Proxy());
 
         const Credentials &getCredentials() const;
@@ -49,6 +49,9 @@ namespace SulDownloader
         std::string getLocalRepository() const;
         void addProductSelection(const ProductGUID &productGUID);
         const std::vector<ProductGUID> getProductSelection() const;
+
+        std::string getSSLCertificatePath() const;
+        LogLevel getLogLevel() const;
 
 
         bool verifySettingsAreValid();

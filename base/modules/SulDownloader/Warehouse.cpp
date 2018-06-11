@@ -14,6 +14,7 @@ extern "C" {
 #include "SULUtils.h"
 #include "Logger.h"
 #include <cassert>
+
 namespace
 {
     static std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
@@ -44,8 +45,6 @@ namespace SulDownloader
 
     std::unique_ptr<Warehouse> Warehouse::FetchConnectedWarehouse(const ConfigurationData &configurationData)
     {
-        std::string certificatePath = configurationData.getCertificatePath();
-        std::string localRepository = configurationData.getLocalRepository();
 
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
@@ -57,16 +56,9 @@ namespace SulDownloader
             {
                 continue;
             }
-            SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_verbose);
-            //SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_important);
-            LOGSUPPORT("Certificate path: " << certificatePath);
-            SU_setCertificatePath(warehouse->session(), certificatePath.c_str());
 
-            LOGSUPPORT("Warehouse local repository: " << localRepository);
-            SU_setLocalRepository(warehouse->session(), localRepository.c_str());
-            SU_setUserAgent(warehouse->session(), "SULDownloader");
 
-            warehouse->setConnectionSetup(connectionSetup);
+            warehouse->setConnectionSetup(connectionSetup, configurationData);
 
             if ( warehouse->hasError())
             {
@@ -231,18 +223,57 @@ namespace SulDownloader
         }
     }
 
-    void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup)
+    void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData)
     {
         assert( m_state == State::Initialized);
 
         m_connectionSetup = std::unique_ptr<ConnectionSetup>(new ConnectionSetup(connectionSetup));
+
+        // general settings
+        std::string certificatePath = configurationData.getCertificatePath();
+        std::string localRepository = configurationData.getLocalRepository();
+
+        SU_setLoggingLevel(session(), logLevel( configurationData.getLogLevel()));
+        //SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_important);
+        LOGSUPPORT("Certificate path: " << certificatePath);
+        SU_setCertificatePath(session(), certificatePath.c_str());
+
+        LOGSUPPORT("Warehouse local repository: " << localRepository);
+        SU_setLocalRepository(session(), localRepository.c_str());
+        SU_setUserAgent(session(), "SULDownloader");
+
+        bool https = connectionSetup.useHTTPS(); // default will always download over https.
+
+        if(!SULUtils::isSuccess(SU_setUseHttps(session(), https)))
+        {
+            setError("Failed to enable use HTTPS updating");
+            return;
+        }
+
+        if (https)
+        {
+            std::string ssl_cert_path( configurationData.getSSLCertificatePath());
+
+            if(!SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
+            {
+                setError("Failed to set ssl certificate path");
+                return;
+            }
+
+            if(!SULUtils::isSuccess(SU_setUseSophosCertStore(session(), true)))
+            {
+                setError("Failed to set Use Sophos certificate store");
+                return;
+            }
+        }
 
 
         auto & updateLocation =  connectionSetup.getUpdateLocationURL();
         if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
         {
             LOGSUPPORT ("Adding Sophos update location failed: " << updateLocation);
-            setError("invalid location"); //
+            setError("invalid location");
+            return;
         }
 
         std::string updateSource("SOPHOS");
@@ -264,16 +295,14 @@ namespace SulDownloader
         {
             std::string cacheURL = connectionSetup.getUpdateLocationURL();
             for (std::string externalURL : {"d1.sophosupd.com/update",
-                                             "d1.sophosupd.net/update",
-                                             "d2.sophosupd.com/update",
-                                             "d2.sophosupd.net/update",
-                                             "d3.sophosupd.com/update",
-                                             "d3.sophosupd.net/update"})
-            {
+                                            "d1.sophosupd.net/update",
+                                            "d2.sophosupd.com/update",
+                                            "d2.sophosupd.net/update",
+                                            "d3.sophosupd.com/update",
+                                            "d3.sophosupd.net/update"}) {
                 SU_addRedirect(session(), externalURL.c_str(), cacheURL.c_str());
             }
         }
-
     }
 
     Warehouse::Warehouse(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
@@ -302,6 +331,16 @@ namespace SulDownloader
         m_session.reset();
     }
 
+    int Warehouse::logLevel(ConfigurationData::LogLevel logLevel) {
+        switch (logLevel)
+        {
+            case ConfigurationData::LogLevel::VERBOSE:
+                return SU_LoggingLevel_verbose;
+            default:
+                return SU_LoggingLevel_normal;
+        }
+
+    }
 
 
 }
