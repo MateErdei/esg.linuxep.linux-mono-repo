@@ -16,6 +16,7 @@ namespace SulDownloader
     {
     public:
         virtual bool keepProduct ( const ProductInformation & ) const =0;
+        virtual std::string targetProductName() const = 0;
         virtual ~ISingleProductSelector() = default;
     };
 
@@ -24,6 +25,7 @@ namespace SulDownloader
     public:
         enum NamePrefix{UseFullName, UseNameAsPrefix};
         ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
+        std::string targetProductName() const override ;
         bool keepProduct ( const ProductInformation & ) const override ;
         virtual ~ProductSelector() = default;
     private:
@@ -40,8 +42,11 @@ namespace SulDownloader
         static ProductSelection CreateProductSelection( const ConfigurationData & );
         void appendSelector(std::unique_ptr<ISingleProductSelector> );
         bool keepProduct ( const ProductInformation & ) const;
+        std::vector<std::string> missingProduct( const std::vector<ProductInformation> & downloadedProducts) const;
     private:
         std::vector<std::unique_ptr<ISingleProductSelector>> m_selection;
+        bool selectAtLeastOneProduct(ISingleProductSelector &selector,
+                                     const std::vector<ProductInformation> &downloadedProducts) const;
     };
 
 

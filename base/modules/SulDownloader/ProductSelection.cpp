@@ -39,13 +39,18 @@ namespace SulDownloader
             return false;
         }
 
-        LOGDEBUG("Product: baseversion = " << productInformation.getBaseVersion() << " selector baseversion: " << m_baseVersion );
+
         if (productInformation.getBaseVersion().compare(m_baseVersion) == 0)
         {
             return true;
         }
 
         return false;
+    }
+
+    std::string ProductSelector::targetProductName() const
+    {
+        return m_productName;
     }
 
 
@@ -94,5 +99,35 @@ namespace SulDownloader
         }
 
         return productSelection;
+    }
+
+    // if a ISingleProductSelector does not return keepThis for any of the downloadedProducts, that selector has not been applied
+    // and it refers to missing product.
+    std::vector<std::string>
+    ProductSelection::missingProduct(const std::vector<ProductInformation> &downloadedProducts) const
+    {
+        std::vector<std::string> missingProducts;
+        for ( auto & selector : m_selection)
+        {
+            if ( !selectAtLeastOneProduct(*selector, downloadedProducts))
+            {
+                missingProducts.push_back(selector->targetProductName());
+            }
+        }
+
+        return missingProducts;
+    }
+
+    bool ProductSelection::selectAtLeastOneProduct(ISingleProductSelector &selector,
+                                                   const std::vector<ProductInformation> &downloadedProducts) const
+    {
+        for( auto & productInfo : downloadedProducts)
+        {
+            if ( selector.keepProduct(productInfo))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

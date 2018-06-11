@@ -173,9 +173,23 @@ namespace SulDownloader
         {
             LOGERROR("Failed to synchronise warehouse");
             setError("Failed to Sync warehouse");
+            return;
         }
 
         SULUtils::displayLogs(session());
+
+
+        std::vector<std::string> missingProducts = selection.missingProduct(selectedProducts);
+        if ( !missingProducts.empty())
+        {
+            for( const auto & missing: missingProducts)
+            {
+                LOGSUPPORT("Product missing from warehouse: " << missing);
+            }
+            setError("Missing product from warehouse");
+            m_error.status = WarehouseStatus::PACKAGESOURCEMISSING;
+            return;
+        }
 
 
 
@@ -233,6 +247,7 @@ namespace SulDownloader
 
     void Warehouse::setError(const std::string & error)
     {
+        SULUtils::displayLogs(session());
         m_state = State::Failure;
 
         m_error.Description = error;
