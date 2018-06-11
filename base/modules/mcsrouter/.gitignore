@@ -1,0 +1,16 @@
+Makefile
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+mcsrouter.zip
+*.pyc
+etc/
+var/
+log/
+policy/
+status/
+event/
+rms/
+tmp/
+action/
