@@ -25,7 +25,7 @@ namespace Common
             {}
 
             /**
-             * Read an subscribed event from the socket
+             * Read a subscribed event from the socket
              * @return
              */
             std::vector<std::string> read() override;

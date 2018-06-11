@@ -22,8 +22,6 @@ namespace Common
 
             void write(const std::vector<std::string> &data) override;
 
-        public:
-
         };
     }
 }
