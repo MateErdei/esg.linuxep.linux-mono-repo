@@ -3,7 +3,7 @@
 //
 
 #include "ProductInformation.h"
-
+#include <cassert>
 namespace SulDownloader
 {
 
@@ -32,11 +32,11 @@ namespace SulDownloader
         return m_productHandle;
     }
 
-    bool ProductInformation::hasRecommended() const
+    bool ProductInformation::hasTag(const std::string & releaseTag) const
     {
         for (auto &tag : m_tags)
         {
-            if (tag.tag == "RECOMMENDED")
+            if (tag.tag.compare(releaseTag) == 0)
             {
                 return true;
             }
@@ -44,13 +44,20 @@ namespace SulDownloader
         return false;
     }
 
-    const std::string &ProductInformation::getBaseVersion() const
+    void ProductInformation::setVersion(const std::string &version)
     {
-        return m_baseVersion;
+        m_version = version;
     }
 
-    void ProductInformation::setBaseVersion(const std::string &baseVersion)
+    std::string ProductInformation::getBaseVersion() const
     {
-        m_baseVersion = baseVersion;
+        auto pos = m_version.find('.');
+        assert( pos != std::string::npos);
+        return std::string( m_version.begin(), m_version.begin()+pos);
+    }
+
+    const std::string &ProductInformation::getVersion() const
+    {
+        return m_version;
     }
 }

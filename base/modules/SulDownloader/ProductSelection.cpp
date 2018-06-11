@@ -4,12 +4,16 @@
 
 #include "ProductSelection.h"
 #include "SulDownloaderException.h"
+#include "Logger.h"
+
 namespace SulDownloader
 {
 
-    RecommendedProductSelector::RecommendedProductSelector(const std::string &productName, NamePrefix productNamePrefix)
+    ProductSelector::ProductSelector(const std::string &productName, NamePrefix productNamePrefix, const std::string &releaseTag, const std::string &baseVersion)
     : m_productName( productName)
     , m_NamePrefix (productNamePrefix)
+    , m_releaseTag(releaseTag)
+    , m_baseVersion(baseVersion)
 
     {
         if ( m_productName.empty())
@@ -18,7 +22,7 @@ namespace SulDownloader
         }
     }
 
-    bool RecommendedProductSelector::keepProduct(const ProductInformation & productInformation) const
+    bool ProductSelector::keepProduct(const ProductInformation & productInformation) const
     {
         auto pos = productInformation.getName().find(m_productName);
         if ( pos != 0)
@@ -30,7 +34,13 @@ namespace SulDownloader
             return false;
         }
 
-        if ( productInformation.hasRecommended())
+        if ( !productInformation.hasTag( m_releaseTag))
+        {
+            return false;
+        }
+
+        LOGDEBUG("Product: baseversion = " << productInformation.getBaseVersion() << " selector baseversion: " << m_baseVersion );
+        if (productInformation.getBaseVersion().compare(m_baseVersion) == 0)
         {
             return true;
         }
@@ -69,18 +79,18 @@ namespace SulDownloader
 
         for(auto product : configurationData.getProductSelection())
         {
-            RecommendedProductSelector::NamePrefix namePrefix;
+            ProductSelector::NamePrefix namePrefix;
 
             if(product.Prefix)
             {
-                namePrefix = RecommendedProductSelector::UseNameAsPrefix;
+                namePrefix = ProductSelector::UseNameAsPrefix;
             }
             else
             {
-                namePrefix = RecommendedProductSelector::UseFullName;
+                namePrefix = ProductSelector::UseFullName;
             }
 
-            productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new RecommendedProductSelector(product.Name, namePrefix)));
+            productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new ProductSelector(product.Name, namePrefix, product.releaseTag, product.baseVersion)));
         }
 
         return productSelection;

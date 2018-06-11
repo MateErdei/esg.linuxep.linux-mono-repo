@@ -50,7 +50,7 @@ namespace SulDownloader
 
     std::string Product::distributionFolderName()
     {
-        return m_productInformation.getName() + m_productInformation.getBaseVersion();
+        return m_productInformation.getName() + m_productInformation.getVersion();
     }
 
     bool Product::setDistributePath(const std::string &distributePath)

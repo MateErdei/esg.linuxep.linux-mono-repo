@@ -20,6 +20,8 @@ namespace SulDownloader
         std::string Name;
         bool Primary;
         bool Prefix;
+        std::string releaseTag;
+        std::string baseVersion;
     };
 
     class ConfigurationData

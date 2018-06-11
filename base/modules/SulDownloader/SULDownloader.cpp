@@ -151,13 +151,17 @@ namespace SulDownloader
         primaryProductGUID.Name = settings.primary();
         primaryProductGUID.Primary = true;
         primaryProductGUID.Prefix = false;
+        primaryProductGUID.releaseTag = settings.releasetag();
+        primaryProductGUID.baseVersion = settings.baseversion();
         configurationData.addProductSelection(primaryProductGUID);
 
         for(auto product : settings.fullnames())
         {
             ProductGUID productGUID;
             productGUID.Name = product;
-            configurationData.addProductSelection(primaryProductGUID);
+            productGUID.releaseTag = settings.releasetag();
+            productGUID.baseVersion = settings.baseversion();
+            configurationData.addProductSelection(productGUID);
         }
 
         for(auto product : settings.prefixnames())
@@ -165,6 +169,8 @@ namespace SulDownloader
             ProductGUID productGUID;
             productGUID.Name = product;
             productGUID.Prefix = true;
+            productGUID.releaseTag = settings.releasetag();
+            productGUID.baseVersion = settings.baseversion();
             configurationData.addProductSelection(productGUID);
         }
 
@@ -221,7 +227,7 @@ namespace SulDownloader
   "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
  ],
  "credential": {
-  "username": "administrator-core",
+  "username": "administrator",
   "password": "password"
  },
  "proxy": {
@@ -232,6 +238,8 @@ namespace SulDownloader
   }
  },
  "certificatePath": "/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates",
+ "releaseTag": "RECOMMENDED",
+ "baseVersion": "10",
  "primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
  "fullNames": [
   "A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1"
@@ -263,6 +271,8 @@ namespace SulDownloader
         settings.mutable_proxy()->set_url("noproxy:");
         settings.mutable_proxy()->mutable_credential()->set_username("");
         settings.mutable_proxy()->mutable_credential()->set_password("");
+        settings.set_baseversion("10");
+        settings.set_releasetag("RECOMMENDED");
         settings.set_primary("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
         settings.add_fullnames("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1");
         settings.add_prefixnames("A845A8B5");
@@ -280,6 +290,7 @@ namespace SulDownloader
         SULInit init;
 
         //create_fake_json_settings();
+        //return 0;
         return fileEntriesAndRunDownloader("","");
 
     }

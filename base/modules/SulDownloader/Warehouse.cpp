@@ -139,7 +139,7 @@ namespace SulDownloader
 
             productInformation.setPHandle(product);
 
-            productInformation.setBaseVersion(baseVersion);
+            productInformation.setVersion(baseVersion);
             productInformationList.push_back(productInformation);
         }
 

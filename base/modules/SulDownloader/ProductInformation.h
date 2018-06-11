@@ -29,25 +29,17 @@ namespace SulDownloader
         //        tags,
         //        version,
         ///...
-       bool hasRecommended() const ;
+        bool hasTag(const std::string & releaseTag) const ;
 
-//    bool hasTag(string);
-//
-//    string name();
-//
-//    string fullversion();
-
-    private:
-        SU_PHandle m_productHandle;
-        std::string m_name;
-        std::string m_baseVersion;
-    public:
-        const std::string &getBaseVersion() const;
-
-        void setBaseVersion(const std::string &baseVersion);
+        std::string getBaseVersion() const;
+        const std::string& getVersion() const;
+        void setVersion(const std::string &version);
 
     private:
         std::vector<Tag> m_tags;
+        SU_PHandle m_productHandle;
+        std::string m_name;
+        std::string m_version;
 
 
 

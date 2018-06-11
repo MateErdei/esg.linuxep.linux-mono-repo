@@ -19,16 +19,18 @@ namespace SulDownloader
         virtual ~ISingleProductSelector() = default;
     };
 
-    class RecommendedProductSelector : public ISingleProductSelector
+    class ProductSelector : public ISingleProductSelector
     {
     public:
         enum NamePrefix{UseFullName, UseNameAsPrefix};
-        RecommendedProductSelector( const std::string & productPrefix , NamePrefix namePrefix);
+        ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
         bool keepProduct ( const ProductInformation & ) const override ;
-        virtual ~RecommendedProductSelector() = default;
+        virtual ~ProductSelector() = default;
     private:
         std::string m_productName;
         NamePrefix m_NamePrefix;
+        std::string m_releaseTag;
+        std::string m_baseVersion;
     };
 
     class ProductSelection
