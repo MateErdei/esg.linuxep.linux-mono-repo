@@ -5,8 +5,10 @@ pipeline {
             parallel {
                 stage('Build on Ubuntu') {
                     agent { 
-                        label 'ubuntu1804'
-                        customWorkspace "EverestBase/${BRANCH_NAME}"
+                        node {
+                            label 'ubuntu1804'
+                            customWorkspace "EverestBase/${BRANCH_NAME}"
+                        }
                     }
                     steps {
                         checkout scm
@@ -15,8 +17,10 @@ pipeline {
                 }
                 stage('Build on CentOS') {
                     agent {
-                        label 'centos7'
-                        customWorkspace "EverestBase/${BRANCH_NAME}"
+                        node {
+                            label 'centos7'
+                            customWorkspace "EverestBase/${BRANCH_NAME}"
+                        }
                     }
                     steps {
                         checkout scm
@@ -25,8 +29,10 @@ pipeline {
                 }
                 stage('Build on Redhat') {
                     agent {
-                        label 'rhel7'
-                        customWorkspace "EverestBase/${BRANCH_NAME}"
+                        node {
+                            label 'rhel7'
+                            customWorkspace "EverestBase/${BRANCH_NAME}"
+                        }
                     }
                     steps {
                         checkout scm
