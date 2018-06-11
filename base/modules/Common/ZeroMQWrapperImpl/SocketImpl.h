@@ -30,6 +30,11 @@ namespace Common
             void connect(const std::string &address) override;
 
             void listen(const std::string &address) override;
+
+            void* skt()
+            {
+                return m_socket.skt();
+            }
         protected:
             SocketHolder m_socket;
         };

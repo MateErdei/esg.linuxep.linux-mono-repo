@@ -14,6 +14,8 @@ foreach(TEST TestContextHolder
              TestSocketRequesterImpl
              TestSocketReplierImpl
              TestSocketPublisherImpl
-             TestSocketSubscriberImpl)
+             TestSocketSubscriberImpl
+             TestPollerImpl
+        )
     addTest(${TEST})
 endforeach()

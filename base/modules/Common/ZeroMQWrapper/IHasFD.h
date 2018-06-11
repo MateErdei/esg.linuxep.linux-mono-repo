@@ -5,6 +5,8 @@
 #ifndef EVEREST_BASE_IHASFD_H
 #define EVEREST_BASE_IHASFD_H
 
+#include <memory>
+
 namespace Common
 {
     namespace ZeroMQWrapper
@@ -15,6 +17,8 @@ namespace Common
             virtual ~IHasFD() = default;
             virtual int fd() = 0;
         };
+
+        using IHasFDPtr = std::unique_ptr<IHasFD>;
     }
 }
 
