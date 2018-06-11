@@ -5,11 +5,16 @@
 
 #include <gtest/gtest.h>
 
+#include <Common/Exceptions/Print.h>
+
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 
 #include <Common/ZeroMQWrapperImpl/ContextImpl.h>
 #include <sys/socket.h>
+#include <chrono>
+#include <thread>
 
 using Common::ZeroMQWrapper::ISocketReplierPtr;
 
@@ -40,13 +45,26 @@ namespace
         auto requester = context->getRequester();
         EXPECT_NE(replier.get(),nullptr);
         replier->listen("inproc://transferTest");
+//        std::this_thread::sleep_for( std::chrono::milliseconds(100) );
         requester->connect("inproc://transferTest");
 
         using data_t = std::vector<std::string>;
 
         data_t input{"FOO","BAR"};
-        requester->write(input);
+        while (true)
+        {
+            try
+            {
+                requester->write(input);
+                break;
+            }
+            catch( const Common::ZeroMQWrapper::IIPCTimeoutException& e)
+            {
+                PRINT("Ignoring timeout sending request");
+            }
 
+            std::this_thread::sleep_for( std::chrono::milliseconds(1000) );
+        }
         data_t output = replier->read();
 
         EXPECT_EQ(input,output);

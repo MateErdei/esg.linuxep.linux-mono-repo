@@ -5,18 +5,18 @@
 #ifndef EVEREST_BASE_IIPCEXCEPTION_H
 #define EVEREST_BASE_IIPCEXCEPTION_H
 
-#include <exception>
-#include <stdexcept>
+#include <Common/Exceptions/IException.h>
 
 namespace Common
 {
     namespace ZeroMQWrapper
     {
-        class IIPCException : public std::runtime_error
+        class IIPCException
+            : public Common::Exceptions::IException
         {
         public:
             explicit IIPCException(const std::string& what)
-                    : std::runtime_error(what)
+                    : Common::Exceptions::IException(what)
             {}
         };
     }

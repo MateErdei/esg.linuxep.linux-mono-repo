@@ -3,6 +3,7 @@
 //
 
 #include "SocketHolder.h"
+#include "ZeroMQWrapperException.h"
 
 #include <zmq.h>
 
@@ -39,6 +40,6 @@ Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl:
     m_socket = zmq_socket(context.ctx(), type);
     if (m_socket == nullptr)
     {
-        // throw exception?
+        throw ZeroMQWrapperException("Failed to create socket");
     }
 }

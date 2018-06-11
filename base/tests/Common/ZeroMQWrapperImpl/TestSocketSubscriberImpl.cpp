@@ -6,10 +6,13 @@
 
 #include <gtest/gtest.h>
 
+#include <Common/Exceptions/Print.h>
+
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/IContextPtr.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 
 #include <thread>
 
@@ -75,7 +78,15 @@ namespace
 
         while (!m_stopThread)
         {
-            sender->write({"FOOBAR", "DATA"});
+            try
+            {
+                sender->write({"FOOBAR", "DATA"});
+            }
+            catch (const Common::ZeroMQWrapper::IIPCException& e)
+            {
+                PRINT("Failed to send subscription data: "<< e.what());
+            }
+
             std::this_thread::sleep_for( std::chrono::milliseconds(10) );
         }
     }
