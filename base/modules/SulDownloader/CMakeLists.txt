@@ -32,7 +32,10 @@ add_library(SulDownloader SHARED
         Logger.h
         ${CONFIG_SETTINGS_PROTO_SRC}
         ${CONFIG_SETTINGS_PROTO_H}
-        )
+        ${DOWNLOADER_REPORT_PROTO_SRC}
+        ${DOWNLOADER_REPORT_PROTO_H}
+        TimeTracker.cpp TimeTracker.h)
+
 #
 #/redist/binaries/linux10/input/SUL
 set( REDIST /redist )

@@ -20,7 +20,9 @@ extern "C" {
 #include "ProductSelection.h"
 #include "Product.h"
 #include "ConfigurationSettings.pb.h"
+#include "DownloadReport.pb.h"
 #include "SulDownloaderException.h"
+#include "TimeTracker.h"
 #include <cassert>
 
 #include <google/protobuf/util/json_util.h>
@@ -48,28 +50,31 @@ namespace SulDownloader
     {
         assert( configurationData.isVerified());
         std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
-
+        TimeTracker timeTracker;
         if ( warehouse->hasError())
-            return DownloadReport::Report(*warehouse);
-
+        {
+            return DownloadReport::Report(*warehouse, timeTracker);
+        }
 
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
 
         warehouse->synchronize(productSelection);
 
-        auto & products = warehouse->getProducts();
-
-        if ( hasError(products))
+        if ( warehouse->hasError())
         {
-            return DownloadReport::Report(products);
+            return DownloadReport::Report(*warehouse, timeTracker);
         }
 
         warehouse->distribute();
 
-        if ( hasError(products))
+        if ( warehouse->hasError())
         {
-            return DownloadReport::Report(products);
+            return DownloadReport::Report(*warehouse, timeTracker);
         }
+
+
+        auto & products = warehouse->getProducts();
+
 
         for( auto & product: products)
         {
@@ -78,7 +83,7 @@ namespace SulDownloader
 
         if ( hasError(products))
         {
-            return DownloadReport::Report(products);
+            return DownloadReport::Report(products, timeTracker);
         }
 
 
@@ -89,11 +94,11 @@ namespace SulDownloader
 
         if ( hasError(products))
         {
-            return DownloadReport::Report(products);
+            return DownloadReport::Report(products, timeTracker);
         }
 
 
-        return DownloadReport::Report(products);
+        return DownloadReport::Report(products, timeTracker);
 
     }
 
@@ -149,6 +154,12 @@ namespace SulDownloader
         return configurationData;
     }
 
+
+    SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report)
+    {
+        SulDownloaderProto::DownloadStatusReport protoReport;
+        return protoReport;
+    }
 
     std::tuple<int, std::string> configAndRunDownloader( const std::string & settingsString)
     {
