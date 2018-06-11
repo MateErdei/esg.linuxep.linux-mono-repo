@@ -17,7 +17,14 @@ namespace Common
             virtual ~ISocketSetup() = default;
             /**
              * Set the socket receive and send timeout
-             * @param timeoutMs
+             *
+             * For ZeroMQ implementation see See http://api.zeromq.org/3-0:zmq-setsockopt ZMQ_RCVTIMEO and ZMQ_SNDTIMEO
+             *
+             * timeoutMs can be -1 to disable timeouts.
+             *
+             * Default: -1
+             *
+             * @param timeoutMs Milliseconds to wait to receive or send messages on the socket, or -1 to wait forever.
              */
             virtual void setTimeout(int timeoutMs) = 0;
 
