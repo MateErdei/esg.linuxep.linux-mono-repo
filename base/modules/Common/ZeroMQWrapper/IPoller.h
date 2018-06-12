@@ -29,7 +29,7 @@ namespace Common
 
             /**
              * Wait to see if any of the provided sockets or FD is ready to action.
-             * @param timeoutMs, 0 to return immediately, -1 to wait forever, otherwise Milli-seonds to wait
+             * @param timeoutMs, 0 to return immediately, -1 to wait forever, otherwise milliseconds to wait
              * @return Vector of BORROWED IHasFD pointers that are ready to action
              */
             virtual poll_result_t poll(long timeoutMs) = 0;
