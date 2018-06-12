@@ -351,13 +351,13 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
         return 46;
     }
 
-    while (true)
-    {
+    SU_PHandle product;
+    do {
         if (g_DebugMode)
         {
             printf("Getting next product\n");
         }
-        SU_PHandle product = SU_getProductRelease(session);
+        product = SU_getProductRelease(session);
         if (product)
         {
             if (g_DebugMode)
@@ -372,24 +372,22 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
                 queryProductMetadata(product, "ReleaseTagsTag");
                 printf("\n");
             }
-             if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
-             {
+            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
+            {
                 g_Product = product;
-             }
-             else
-             {
+            }
+            else
+            {
                 ret = SU_removeProduct(product);
                 RETURN_IF_ERROR("SU_removeProduct", ret);
-             }
+            }
         }
-        else
-        {
-             if (g_DebugMode)
-             {
-                printf("Out of products\n");
-             }
-             break;
-        }
+    }
+    while(product);
+
+    if (g_DebugMode)
+    {
+        printf("Out of products\n");
     }
 
     if (!g_Product)
