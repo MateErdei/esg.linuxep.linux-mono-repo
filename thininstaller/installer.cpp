@@ -1,19 +1,17 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <string>
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include "SUL.h"
-
-#include <curl/curl.h> // Because #include "curl.h" does not work.
-
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <cassert>
+
+#include "SUL.h"
+
+#include <curl/curl.h> // Because #include "curl.h" does not work.
 
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
@@ -52,26 +50,24 @@ ServerAddress::ServerAddress(std::string address, int priority) :
         m_priority(priority)
 {}
 
-static size_t function_pt(void *ptr, size_t size, size_t nmemb, void *stream)
+static size_t function_pt(char *ptr, size_t size, size_t nmemb, void *stream)
 {
-        char * dptr = (char *)ptr;
-        int siz = static_cast<int>(size * nmemb);
-        if (g_bufptr+siz >= BIGBUF)
-        {
-             fprintf(stderr, "ERROR: Response from CURL is larger than buffer\n");
-             g_buf[g_bufptr] = 0;
-             return 0;
-        }
-
-        memcpy(&g_buf[g_bufptr], dptr, siz);
-        g_bufptr += siz;
-        g_buf[g_bufptr] = 0;
-        return size*nmemb;
+    size_t sizeOfData = size * nmemb;
+    if (g_bufptr + sizeOfData >= BIGBUF)
+    {
+         fprintf(stderr, "ERROR: Response from CURL is larger than buffer\n");
+         g_buf[g_bufptr] = 0;
+         return 0;
+    }
+    memcpy(&g_buf[g_bufptr], ptr, sizeOfData);
+    g_bufptr += sizeOfData;
+    g_buf[g_bufptr] = 0;
+    return sizeOfData;
 }
 
 static bool canConnectToCloud(const std::string& proxy = "")
 {
-    if (proxy == "")
+    if (proxy.empty())
     {
         printf("Checking we can connect to Sophos Central (at %s)...\n", g_mcs_url.c_str());
     }
@@ -154,9 +150,11 @@ static void writeSignedFile(const char* cred)
     path += cred;
     int fd = ::open(path.c_str(),O_CREAT|O_WRONLY|O_TRUNC,0600);
     assert (fd >= 0);
-    int ret = ::write(fd,"true",4);
-    assert (ret > 0);
-    ret = ::close(fd);
+
+    ssize_t retSize = ::write(fd,"true",4);
+    assert (retSize > 0);
+
+    int ret = ::close(fd);
     assert (ret == 0);
 }
 
@@ -197,7 +195,7 @@ static std::vector<std::string> splitString(std::string string_to_split, std::st
 {
     std::vector<std::string> split_strings = std::vector<std::string>();
 
-    while (string_to_split != "")
+    while (!string_to_split.empty())
     {
         std::size_t delim_pos = string_to_split.find(delim);
         if (delim_pos != std::string::npos)
@@ -217,7 +215,7 @@ static std::vector<std::string> splitString(std::string string_to_split, std::st
 }
 
 // The argument deliminated_addresses should be in the format hostname1:port1,priority1,id1;hostname2:port2,priority2,id2...
-static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string deliminated_addresses)
+static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string &deliminated_addresses)
 {
     std::vector<ServerAddress> proxies;
     std::vector<std::string> proxyStrings = splitString(deliminated_addresses, ";");
@@ -232,7 +230,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
         // Note, we ignore the Message Relay ID
         std::string address = addressAndPriority[0];
         std::string priorityString = addressAndPriority[1];
-        int priority = 1;
+        int priority;
         try
         {
             priority = std::stoi(priorityString);
@@ -257,7 +255,8 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
     SU_init();
     SU_Result ret;
     SU_Handle session = SU_beginSession();
-    if (session == NULL)
+
+    if (session == nullptr)
     {
         fprintf(stderr, "Failed to init SUL session\n");
         return 45;
@@ -455,7 +454,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 
 int main(int argc, char ** argv)
 {
-    g_DebugMode = getenv("DEBUG_THIN_INSTALLER");
+    g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
 
     if (argc < 2) {
         fprintf(stderr, "Expecting a filename as an argument but none supplied\n");
@@ -481,18 +480,18 @@ int main(int argc, char ** argv)
     while (!feof(f))
     {
         char buf[4096];
-        if (fgets(buf, 4096, f) == NULL)
+        if (fgets(buf, 4096, f) == nullptr)
         {
             break;
         }
 
         std::string val = buf;
-        std::size_t equals_pos = val.find("=");
+        std::size_t equals_pos = val.find('=');
         if (equals_pos != std::string::npos)
         {
             std::string argname = val.substr(0, equals_pos);
             std::string argvalue = val.substr(equals_pos+1, std::string::npos);
-            std::size_t newline_pos = argvalue.find("\n");
+            std::size_t newline_pos = argvalue.find('\n');
             if (newline_pos != std::string::npos)
             {
                  argvalue = argvalue.substr(0, newline_pos);
@@ -518,13 +517,13 @@ int main(int argc, char ** argv)
     }
     fclose(f);
 
-    if (g_mcs_url == "")
+    if (g_mcs_url.empty())
     {
             fprintf(stderr, "Didn't find mcs url in credentials file\n");
             return 42;
     }
 
-    if (g_sul_credentials == "")
+    if (g_sul_credentials.empty())
     {
             fprintf(stderr, "Didn't find update credentials in credentials file\n");
             return 43;
