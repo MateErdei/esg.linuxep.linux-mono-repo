@@ -5,6 +5,21 @@ umask 077
 args="$*"
 echo "Installing Sophos Anti-Virus for Linux with arguments: [$args]"
 
+EXITCODE_SUCCESS=0
+EXITCODE_NOT_LINUX=1
+EXITCODE_NOT_ROOT=2
+EXITCODE_NO_CENTRAL=3
+EXITCODE_NOT_ENOUGH_MEM=4
+EXITCODE_NOT_ENOUGH_SPACE=5
+EXITCODE_FAILED_REGISTER=6
+EXITCODE_ALREADY_INSTALLED=7
+EXITCODE_SAV_INSTALLED=8
+EXITCODE_NOT_64_BIT=9
+EXITCODE_DOWNLOAD_FAILED=10
+
+INSTALL_LOCATION="/opt/sophos-sspl"
+PROXY_CREDENTIALS=
+
 cleanupAndExit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
@@ -44,8 +59,6 @@ if [ $(id -u) -ne 0 ]; then
     cleanupAndExit 2
 fi
 
-INSTALL_LOCATION=/opt/sophos-av
-PROXY_CREDENTIALS=
 # Handle arguments
 for i in "$@"
 do
@@ -65,7 +78,7 @@ do
 done
 
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
-    echo "Overriding sophos credentials with $OVERRIDE_SOPHOS_CREDS"
+    echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
 
 handleInstallerErrorcodes()
@@ -74,17 +87,17 @@ handleInstallerErrorcodes()
     if [ $errcode -eq 44 ]
     then
         echo "Cannot connect to Sophos Central." >&2
-        cleanupAndExit 3
+        cleanupAndExit $EXITCODE_NO_CENTRAL
     elif [ $errcode -eq 0 ]
     then
         echo "Finished downloading base installer."
     else
         echo "Failed to download the base installer! (Error code = $errcode)" >&2
-        cleanupAndExit 10
+        cleanupAndExit $EXITCODE_DOWNLOAD_FAILED
     fi
 }
 
-check_free()
+checkFreeStorage()
 {
     local path=$1
     local space=$2
@@ -101,7 +114,20 @@ check_free()
         return 0
     fi
     echo "Not enough space in $mountpoint to install Sophos Anti-Virus for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
-    cleanupAndExit 5
+    cleanupAndExit EXITCODE_NOT_ENOUGH_SPACE
+}
+
+checkTotalMem()
+{
+    local neededMem = $1
+    local totalMem = $(grep MemTotal /proc/meminfo | awk '{print $2}')
+
+    if [ $totalMem -gt $neededMem ]
+    then
+        return 0
+    fi
+    echo "This machine does not meet product requirements. The product requires at least 1GB of RAM."
+    cleanupAndExit $EXITCODE_NOT_ENOUGH_MEM
 }
 
 
@@ -146,76 +172,6 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-# For Message Relays: Min SAV version 9.14.2, Min SLS version 10.3.2
-support_message_relays()
-{
-    if [ -f "${INSTDIR}/engine/savShortVersion" ] ; then
-        INSTALLED_VERSION=$(cat ${INSTDIR}/engine/savShortVersion)
-        if is_version_same_or_after $INSTALLED_VERSION "9.14.2" "10.3.2"; then
-            return 0
-        fi
-    fi
-    echo "Current install does not support Message Relays"
-    return 1
-}
-
-is_version_same_or_after()
-{
-    # This function assumes that SLS version is always higher than SAV version.
-    INSTALLED_VERSION=$1
-    COMPARE_SAV_VERSION=$2
-    COMPARE_SLS_VERSION=$3
-
-    IFS='.' read -r INSTALLED_VERSION_1 INSTALLED_VERSION_2 INSTALLED_VERSION_3 << EOM
-$INSTALLED_VERSION
-EOM
-
-    IFS='.' read -r COMPARE_SAV_VERSION_1 COMPARE_SAV_VERSION_2 COMPARE_SAV_VERSION_3 << EOM
-$COMPARE_SAV_VERSION
-EOM
-
-    IFS='.' read -r COMPARE_SLS_VERSION_1 COMPARE_SLS_VERSION_2 COMPARE_SLS_VERSION_3 << EOM
-$COMPARE_SLS_VERSION
-EOM
-
-    if [ $INSTALLED_VERSION_1 -gt $COMPARE_SLS_VERSION_1 ] ; then
-        return 0
-    elif [ $INSTALLED_VERSION_1 -lt $COMPARE_SAV_VERSION_1 ] ; then
-        return 1
-    fi
-
-    # Check SAV version
-    if [ $INSTALLED_VERSION_1 -eq $COMPARE_SAV_VERSION_1  ] ; then
-        if [ $INSTALLED_VERSION_2 -lt $COMPARE_SAV_VERSION_2  ] ; then
-            return 1
-        elif [ $INSTALLED_VERSION_2 -gt $COMPARE_SAV_VERSION_2  ] ; then
-            return 0
-        else
-            if [ $INSTALLED_VERSION_3 -ge $COMPARE_SAV_VERSION_3  ] ; then
-                return 0
-            else
-                return 1
-            fi
-        fi
-    fi
-
-    # Check SLS version
-    if [ $INSTALLED_VERSION_1 -eq $COMPARE_SLS_VERSION_1 ] ; then
-        if [ $INSTALLED_VERSION_2 -lt $COMPARE_SLS_VERSION_2 ] ; then
-            return 1
-        elif [ $INSTALLED_VERSION_2 -gt $COMPARE_SLS_VERSION_2 ] ; then
-            return 0
-        else
-            if [ $INSTALLED_VERSION_3 -ge $COMPARE_SLS_VERSION_3 ] ; then
-                return 0
-            else
-                return 1
-            fi
-        fi
-    fi
-    return 1
-}
-
 if [ -z "$TMPDIR" ] ; then
     TMPDIR=/tmp
     export TMPDIR
@@ -251,14 +207,16 @@ tail -n+$ARCHIVE $0 > $SOPHOS_TEMP_DIRECTORY/installer.tar.gz
 
 cd $SOPHOS_TEMP_DIRECTORY
 
-INSTDIR=`readlink /usr/local/bin/sweep | sed 's/bin\/savscan//g'`
-if [ "$INSTDIR" != "" ] && [ -d $INSTDIR ]
+
+# Check if SAV is installed. todo we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
+SAV_INSTDIR=`readlink /usr/local/bin/sweep | sed 's/bin\/savscan//g'`
+if [ "$SAV_INSTDIR" != "" ] && [ -d $SAV_INSTDIR ]
 then
-    echo "Found an existing installation of SAV in $INSTDIR"
-else
-    INSTDIR="/opt/sophos-av"
+    echo "Found an existing installation of SAV in $SAV_INSTDIR. This product cannot be run alongside Sophos Anti-Virus"
+    cleanupAndExit $EXITCODE_SAV_INSTALLED
 fi
 
+# Read cloud token from credentials file.
 if [ -z "$OVERRIDE_CLOUD_TOKEN" ]
 then
     CLOUD_TOKEN=$(grep 'TOKEN=' credentials.txt | sed 's/TOKEN=//')
@@ -266,6 +224,7 @@ else
     CLOUD_TOKEN=$OVERRIDE_CLOUD_TOKEN
 fi
 
+# Read cloud URL from credentials file.
 if [ -z "$OVERRIDE_CLOUD_URL" ]
 then
     CLOUD_URL=$(grep 'URL=' credentials.txt | sed 's/URL=//')
@@ -273,6 +232,7 @@ else
     CLOUD_URL=$OVERRIDE_CLOUD_URL
 fi
 
+# Read possible Message Relays from credentials file.
 MESSAGE_RELAYS=$(grep 'MESSAGE_RELAYS=' credentials.txt | sed 's/MESSAGE_RELAYS=//')
 if [ -n "$MESSAGE_RELAYS" ]
 then
@@ -280,63 +240,68 @@ then
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
 
+# Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
 if [ -n "$UPDATE_CACHES" ]
 then
     echo "Update Caches: $UPDATE_CACHES"
 fi
 
-# Check if there is already an installation.
-if [ -d $INSTDIR ]
+# Check if there is already an installation. Re-register if there is.
+if [ -d $INSTALL_LOCATION ]
 then
-    if [ -f "${INSTDIR}/engine/registerMCS" ]
+    if [ -f "${INSTALL_LOCATION}/base/registerCentral" ]
     then
-        echo "Attempting to register existing installation with Sophos Central"
-
-        if ! support_message_relays ; then
-            MESSAGE_RELAYS=""
-        fi
+        echo "Attempting to re-register existing installation with Sophos Central"
 
         echo "Cloud token is [$CLOUD_TOKEN], Cloud URL is [$CLOUD_URL]"
-        ${INSTDIR}/engine/registerMCS $CLOUD_TOKEN $CLOUD_URL $MESSAGE_RELAYS
+        ${INSTALL_LOCATION}/base/registerCentral $CLOUD_TOKEN $CLOUD_URL $MESSAGE_RELAYS
 
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to register with Sophos Central - error $?" >&2
-            cleanupAndExit 6
+            cleanupAndExit $EXITCODE_FAILED_REGISTER
         fi
 
-        cleanupAndExit 0
+        cleanupAndExit $EXITCODE_SUCCESS
     elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
     then
-        echo "Please uninstall SAV before using this installer" >&2
-        cleanupAndExit 7
+        echo "Please uninstall SSPL before using this installer." >&2
+        cleanupAndExit $EXITCODE_ALREADY_INSTALLED
     fi
 fi
 
-check_free $INSTALL_LOCATION 1024
+# Check there is enough disk space
+checkFreeStorage $INSTALL_LOCATION 1024
+
+# Check there is enough RAM
+checkTotalMem 1024
 
 tar -zxf installer.tar.gz || failure 11 "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure 12 "ERROR: Failed to delete packed thin installer: $?"
 
 export LD_LIBRARY_PATH=installer/bin64:installer/bin32
 
+#todo what do these need changing to?
+# Make necessary directories
 mkdir distribute
 mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
 
+# Check machine architecture (only support 64 bit)
 MACHINE_TYPE=`uname -m`
 if [ $MACHINE_TYPE = "x86_64" ]; then
-    BIN=installer/bin64
+    BIN="installer/bin64"
 else
-    BIN=installer/bin32
+    echo "This product can only be installed on a 64bit system."
+    cleanupAndExit $EXITCODE_NOT_64_BIT
 fi
 
 echo "Downloading base installer"
 $BIN/installer credentials.txt
 handleInstallerErrorcodes $?
 
-## Verify manifest.dat
+# Verify manifest.dat
 CERT=installer/rootca.crt
 [ -n $OVERRIDE_SOPHOS_CERTS ] && CERT=$OVERRIDE_SOPHOS_CERTS/rootca.crt
 [ -f $CERT ] || CERT=installer/rootca.crt
@@ -400,10 +365,6 @@ inst_ret=$?
 if [ $inst_ret -ne 0 ] && [ $inst_ret -ne 4 ]
 then
     failure 10 "ERROR: Installer returned $inst_ret (see above messages)"
-fi
-
-if ! support_message_relays ; then
-    MESSAGE_RELAYS=""
 fi
 
 $INSTALL_LOCATION/engine/registerMCS $CLOUD_TOKEN $CLOUD_URL $MESSAGE_RELAYS
