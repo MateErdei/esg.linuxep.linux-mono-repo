@@ -138,7 +138,7 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     return canConnectToCloud();
 }
 
-static void query_a_thing(SU_PHandle product, const char * the_thing)
+static void queryProductMetadata(SU_PHandle product, const char *the_thing)
 {
     SU_String thing = SU_queryProductMetadata(product, the_thing, 0);
     printf("%s: [%s]\n", the_thing, thing ? thing : "<null>");
@@ -191,27 +191,27 @@ static bool errorLog(const char * what, SU_Result ret, SU_Handle session)
         return sulerror; \
     }
 
-static std::vector<std::string> splitString(std::string string_to_split, std::string delim)
+static std::vector<std::string> splitString(std::string string_to_split, const std::string &delim)
 {
-    std::vector<std::string> split_strings = std::vector<std::string>();
+    std::vector<std::string> splitStrings = std::vector<std::string>();
 
     while (!string_to_split.empty())
     {
-        std::size_t delim_pos = string_to_split.find(delim);
-        if (delim_pos != std::string::npos)
+        std::size_t delimPos = string_to_split.find(delim);
+        if (delimPos != std::string::npos)
         {
-            std::string stripped_section = string_to_split.substr(0, delim_pos);
-            string_to_split = string_to_split.substr(delim_pos+1);
-            split_strings.push_back(stripped_section);
+            std::string stripped_section = string_to_split.substr(0, delimPos);
+            string_to_split = string_to_split.substr(delimPos+1);
+            splitStrings.push_back(stripped_section);
         }
         else
         {
-            split_strings.push_back(string_to_split);
+            splitStrings.push_back(string_to_split);
             break;
         }
     }
 
-    return split_strings;
+    return splitStrings;
 }
 
 // The argument deliminated_addresses should be in the format hostname1:port1,priority1,id1;hostname2:port2,priority2,id2...
@@ -227,6 +227,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
             fprintf(stderr, "Malformed proxy,priority,id: %s\n", proxyString.c_str());
             continue;
         }
+
         // Note, we ignore the Message Relay ID
         std::string address = addressAndPriority[0];
         std::string priorityString = addressAndPriority[1];
@@ -300,28 +301,28 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
 
     if (https)
     {
-        char * certsToUse = (char *)"installer/sdds_https_rootca.crt";
+        auto * certsToUse = const_cast<char *>("installer/sdds_https_rootca.crt");
         if (updateCache)
         {
-            certsToUse = (char *)"installer/uc_certs.crt";
+            certsToUse = const_cast<char *>("installer/uc_certs.crt");
         }
-        char * ssl_certs = getenv("OVERRIDE_SSL_SOPHOS_CERTS");
-        ssl_certs = ssl_certs ? ssl_certs : certsToUse;
+        char * sslCerts = getenv("OVERRIDE_SSL_SOPHOS_CERTS");
+        sslCerts = sslCerts ? sslCerts : certsToUse;
 
-        ret = SU_setSslCertificatePath(session, ssl_certs);
+        ret = SU_setSslCertificatePath(session, sslCerts);
         RETURN_IF_ERROR("setSslCertificatePath", ret);
 
         ret = SU_setUseSophosCertStore(session, true);
         RETURN_IF_ERROR("setUseSophosCertStore", ret);
     }
 
-    char * certs_dir = getenv("OVERRIDE_SOPHOS_CERTS");
-    certs_dir = certs_dir ? certs_dir : (char *)"installer";
+    char * certsDir = getenv("OVERRIDE_SOPHOS_CERTS");
+    certsDir = certsDir ? certsDir : (char *)"installer";
 
     char * creds = getenv("OVERRIDE_SOPHOS_CREDS");
-    creds = creds ? creds : (char *)g_sul_credentials.c_str();
+    creds = creds ? creds : const_cast<char *>(g_sul_credentials.c_str());
 
-    // write signed file
+    // Write signed file
     writeSignedFile(creds);
 
     if (g_DebugMode)
@@ -332,13 +333,13 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
     ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, 0,0,0);
     RETURN_IF_ERROR("addUpdateSource", ret);
 
-    ret = SU_setCertificatePath(session, certs_dir);
+    ret = SU_setCertificatePath(session, certsDir);
     RETURN_IF_ERROR("setCertificatePath", ret);
 
     if (g_DebugMode)
     {
         fprintf(stderr, "Listing warehouse with creds [%s] at [%s] with certs dir [%s] via [%s]\n",
-                creds, location.c_str(), certs_dir, https ? "HTTPS" : "HTTP");
+                creds, location.c_str(), certsDir, https ? "HTTPS" : "HTTP");
     }
 
     ret = SU_readRemoteMetadata(session);
@@ -361,14 +362,14 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
         {
             if (g_DebugMode)
             {
-                query_a_thing(product,"Line");
-                query_a_thing(product,"Major");
-                query_a_thing(product,"Minor");
-                query_a_thing(product,"Name");
-                query_a_thing(product,"VersionId");
-                query_a_thing(product,"DefaultHomeFolder");
-                query_a_thing(product,"Platforms");
-                query_a_thing(product,"ReleaseTagsTag");
+                queryProductMetadata(product, "Line");
+                queryProductMetadata(product, "Major");
+                queryProductMetadata(product, "Minor");
+                queryProductMetadata(product, "Name");
+                queryProductMetadata(product, "VersionId");
+                queryProductMetadata(product, "DefaultHomeFolder");
+                queryProductMetadata(product, "Platforms");
+                queryProductMetadata(product, "ReleaseTagsTag");
                 printf("\n");
             }
              if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
