@@ -1,3 +1,3 @@
-add_subdirectory(Threads)
 add_subdirectory(ZeroMQWrapper)
 add_subdirectory(ZeroMQWrapperImpl)
+add_subdirectory(ProcessImpl)

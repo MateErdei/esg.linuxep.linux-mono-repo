@@ -1,0 +1,6 @@
+add_executable(ProcessImplTests TestProcessImpl.cpp)
+target_include_directories(ProcessImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
+target_include_directories(ProcessImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_link_libraries(ProcessImplTests gtest gtest_main)
+target_link_libraries(ProcessImplTests processimpl)
+add_test(NAME ProcessImplTests COMMAND ProcessImplTests)
