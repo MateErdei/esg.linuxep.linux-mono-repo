@@ -20,7 +20,7 @@ EXITCODE_DOWNLOAD_FAILED=10
 INSTALL_LOCATION="/opt/sophos-sspl"
 PROXY_CREDENTIALS=
 
-cleanupAndExit()
+cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
     exit $1
@@ -31,10 +31,10 @@ failure()
     code=$1
     shift
     echo "$@" >&2
-    cleanupAndExit $code
+    cleanup_and_exit $code
 }
 
-createSymlinks()
+create_symlinks()
 {
     for baselib in `ls`
     do
@@ -51,12 +51,12 @@ createSymlinks()
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
     echo "This installer only runs on Linux." >&2
-    cleanupAndExit 1
+    cleanup_and_exit 1
 fi
 
 if [ $(id -u) -ne 0 ]; then
     echo "Please run this installer as root." >&2
-    cleanupAndExit 2
+    cleanup_and_exit 2
 fi
 
 # Handle arguments
@@ -81,23 +81,23 @@ done
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
 
-handleInstallerErrorcodes()
+handle_installer_errorcodes()
 {
     errcode=$1
     if [ $errcode -eq 44 ]
     then
         echo "Cannot connect to Sophos Central." >&2
-        cleanupAndExit $EXITCODE_NO_CENTRAL
+        cleanup_and_exit $EXITCODE_NO_CENTRAL
     elif [ $errcode -eq 0 ]
     then
         echo "Finished downloading base installer."
     else
         echo "Failed to download the base installer! (Error code = $errcode)" >&2
-        cleanupAndExit $EXITCODE_DOWNLOAD_FAILED
+        cleanup_and_exit $EXITCODE_DOWNLOAD_FAILED
     fi
 }
 
-checkFreeStorage()
+check_free_storage()
 {
     local path=$1
     local space=$2
@@ -114,10 +114,10 @@ checkFreeStorage()
         return 0
     fi
     echo "Not enough space in $mountpoint to install Sophos Anti-Virus for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
-    cleanupAndExit EXITCODE_NOT_ENOUGH_SPACE
+    cleanup_and_exit EXITCODE_NOT_ENOUGH_SPACE
 }
 
-checkTotalMem()
+check_total_mem()
 {
     local neededMem = $1
     local totalMem = $(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -127,7 +127,7 @@ checkTotalMem()
         return 0
     fi
     echo "This machine does not meet product requirements. The product requires at least 1GB of RAM."
-    cleanupAndExit $EXITCODE_NOT_ENOUGH_MEM
+    cleanup_and_exit $EXITCODE_NOT_ENOUGH_MEM
 }
 
 
@@ -213,7 +213,7 @@ SAV_INSTDIR=`readlink /usr/local/bin/sweep | sed 's/bin\/savscan//g'`
 if [ "$SAV_INSTDIR" != "" ] && [ -d $SAV_INSTDIR ]
 then
     echo "Found an existing installation of SAV in $SAV_INSTDIR. This product cannot be run alongside Sophos Anti-Virus"
-    cleanupAndExit $EXITCODE_SAV_INSTALLED
+    cleanup_and_exit $EXITCODE_SAV_INSTALLED
 fi
 
 # Read cloud token from credentials file.
@@ -259,22 +259,22 @@ then
 
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to register with Sophos Central - error $?" >&2
-            cleanupAndExit $EXITCODE_FAILED_REGISTER
+            cleanup_and_exit $EXITCODE_FAILED_REGISTER
         fi
 
-        cleanupAndExit $EXITCODE_SUCCESS
+        cleanup_and_exit $EXITCODE_SUCCESS
     elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
     then
         echo "Please uninstall SSPL before using this installer." >&2
-        cleanupAndExit $EXITCODE_ALREADY_INSTALLED
+        cleanup_and_exit $EXITCODE_ALREADY_INSTALLED
     fi
 fi
 
 # Check there is enough disk space
-checkFreeStorage $INSTALL_LOCATION 1024
+check_free_storage $INSTALL_LOCATION 1024
 
 # Check there is enough RAM
-checkTotalMem 1024
+check_total_mem 1024
 
 tar -zxf installer.tar.gz || failure 11 "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure 12 "ERROR: Failed to delete packed thin installer: $?"
@@ -294,12 +294,12 @@ if [ $MACHINE_TYPE = "x86_64" ]; then
     BIN="installer/bin64"
 else
     echo "This product can only be installed on a 64bit system."
-    cleanupAndExit $EXITCODE_NOT_64_BIT
+    cleanup_and_exit $EXITCODE_NOT_64_BIT
 fi
 
 echo "Downloading base installer"
 $BIN/installer credentials.txt
-handleInstallerErrorcodes $?
+handle_installer_errorcodes $?
 
 # Verify manifest.dat
 CERT=installer/rootca.crt
@@ -356,7 +356,7 @@ then
 else
     cd lib32
 fi
-createSymlinks
+create_symlinks
 cd ..
 
 echo "Running base installer (this may take some time)"
@@ -374,5 +374,5 @@ then
     failure 11 "ERROR: Failed to register with Sophos Central - error $ret"
 fi
 
-cleanupAndExit $inst_ret
+cleanup_and_exit $inst_ret
 __MIDDLE_BIT__
