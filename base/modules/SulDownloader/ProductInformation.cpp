@@ -6,6 +6,15 @@
 #include <cassert>
 namespace SulDownloader
 {
+    const std::string &ProductInformation::getLine() const
+    {
+        return m_line;
+    }
+
+    void ProductInformation::setLine(const std::string &line)
+    {
+        m_line = line;
+    }
 
     const std::string &ProductInformation::getName() const
     {
@@ -51,4 +60,6 @@ namespace SulDownloader
     {
         return m_version;
     }
+
+
 }

@@ -16,6 +16,8 @@ namespace SulDownloader
     class ProductInformation
     {
     public:
+        const std::string& getLine() const;
+        void setLine(const std::string& line);
         const std::string& getName() const;
         void setName(const std::string& name);
         void setTags(std::vector<Tag> tags);
@@ -27,6 +29,7 @@ namespace SulDownloader
 
     private:
         std::vector<Tag> m_tags;
+        std::string m_line;
         std::string m_name;
         std::string m_version;
 

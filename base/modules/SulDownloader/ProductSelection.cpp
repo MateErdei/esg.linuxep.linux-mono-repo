@@ -24,12 +24,12 @@ namespace SulDownloader
 
     bool ProductSelector::keepProduct(const ProductInformation & productInformation) const
     {
-        auto pos = productInformation.getName().find(m_productName);
+        auto pos = productInformation.getLine().find(m_productName);
         if ( pos != 0)
         {
             return false;
         }
-        if (m_NamePrefix == NamePrefix::UseFullName && m_productName.compare(productInformation.getName()) != 0)
+        if (m_NamePrefix == NamePrefix::UseFullName && m_productName.compare(productInformation.getLine()) != 0)
         {
             return false;
         }

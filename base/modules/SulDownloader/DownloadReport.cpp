@@ -87,7 +87,7 @@ namespace SulDownloader
         {
             ProductReport report;
             auto info = product.getProductInformation();
-            report.rigidName = info.getName();
+            report.rigidName = info.getLine();
             report.name = info.getName(); // TODO need to store actual product name.
             report.downloadedVersion = info.getBaseVersion(); // TODO should be actual version
             report.installedVersion = info.getBaseVersion(); // TODO should be actual installed version

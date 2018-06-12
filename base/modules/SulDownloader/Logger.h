@@ -14,7 +14,7 @@ namespace SulDownloader
     };
 }
 
-#define LOGDEBUG(x) std::cout << __FILE__ << __LINE__ << x << '\n'
+#define LOGDEBUG(x) std::cout <<  x << '\n'
 #define LOGINFO(x) std::cout << x << '\n'
 #define LOGSUPPORT(x) std::cout << x << '\n'
 #define LOGWARN(x) std::cerr << x << '\n'

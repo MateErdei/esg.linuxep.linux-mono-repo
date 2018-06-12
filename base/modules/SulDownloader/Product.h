@@ -24,6 +24,7 @@ namespace SulDownloader
         void setDistributePath(const std::string & distributePath);
         std::string distributePath() const;
         ProductInformation getProductInformation();
+        std::string getLine() const;
         std::string getName() const;
         bool productHasChanged() const;
         void setProductHasChanged( bool  );

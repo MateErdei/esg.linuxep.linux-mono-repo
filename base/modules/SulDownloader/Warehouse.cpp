@@ -51,6 +51,28 @@ namespace
         }
         return false;
     }
+
+    void displayProductTags(SU_PHandle product, const std::vector<std::string> & attributes)
+    {
+        LOGDEBUG("\nNew Product");
+        for( auto & attribute : attributes)
+        {
+            LOGDEBUG("Tag: " << attribute << " value: " << SulDownloader::SulQueryProductMetadata(product, attribute, 0));
+        }
+        LOGDEBUG("\n");
+    }
+
+
+    void displayProductTags( SU_PHandle product)
+    {
+        displayProductTags(product, {"Line", "VersionId", "Name",
+                                     "PublicationTime", "DefaultHomeFolder", "Features",
+                                     "Roles", "TargetTypes", "ReleaseTagsBaseVersion",
+                                     "ReleaseTags", "Platforms", "Lifestage",
+                                     "SAVLine", "ResubscriptionsLine", "Resubscriptions",
+                                     "ResubscriptionsVersion"});
+    }
+
 }
 
 namespace SulDownloader
@@ -124,17 +146,22 @@ namespace SulDownloader
             {
                 break;
             }
-
+#ifndef NDEBUG
+            displayProductTags(product);
+#endif
             ProductInformation productInformation;
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
+            std::string name = SulQueryProductMetadata(product, "Name", 0);
             std::string baseVersion = SulQueryProductMetadata(product, "VersionId", 0);
+
             std::vector<Tag> tags(getTags(product));
-            productInformation.setName(line);
 
+            productInformation.setLine(line);
+            productInformation.setName(name);
             productInformation.setTags(tags);
-
             productInformation.setVersion(baseVersion);
+
             productInformationList.emplace_back(product, productInformation);
         }
 
@@ -145,7 +172,7 @@ namespace SulDownloader
         {
             if ( selection.keepProduct(productPair.second))
             {
-                LOGSUPPORT("Product will be downloaded: " << productPair.second.getName());
+                LOGSUPPORT("Product will be downloaded: " << productPair.second.getLine());
                 selectedProducts.push_back(productPair);
             }
             else
@@ -159,7 +186,7 @@ namespace SulDownloader
             if(!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
             {
                 SULUtils::displayLogs(session());
-                LOGERROR("Failed to remove product: " << productPair.second.getName());
+                LOGERROR("Failed to remove product: " << productPair.second.getLine());
             }
         }
 
@@ -199,7 +226,7 @@ namespace SulDownloader
 
             if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
-                LOGERROR("Failed to synchronise product: " << productPair.second.getName());
+                LOGERROR("Failed to synchronise product: " << productPair.second.getLine());
             }
 
             m_products.emplace_back(productPair.first, Product(productPair.second));
@@ -255,7 +282,7 @@ namespace SulDownloader
         if (! SULUtils::isSuccess(result))
         {
             SULUtils::displayLogs(session());
-            productPair.second.setError( fetchSulError( std::string("Product distribution failed: ") + productPair.second.getName()));
+            productPair.second.setError( fetchSulError( std::string("Product distribution failed: ") + productPair.second.getLine()));
         }
         else
         {

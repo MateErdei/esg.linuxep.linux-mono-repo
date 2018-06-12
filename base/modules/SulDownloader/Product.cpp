@@ -29,7 +29,7 @@ namespace SulDownloader
     {
         assert( m_state == State::Verified);
         m_state = State::Installed;
-        LOGINFO("Installing product: " << m_productInformation.getName() << " version: " << m_productInformation.getVersion());
+        LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
     }
 
     bool Product::hasError() const
@@ -59,7 +59,7 @@ namespace SulDownloader
 
     std::string Product::distributionFolderName()
     {
-        return m_productInformation.getName() + m_productInformation.getVersion();
+        return m_productInformation.getLine() + m_productInformation.getVersion();
     }
 
     void Product::setDistributePath(const std::string &distributePath)
@@ -76,6 +76,11 @@ namespace SulDownloader
     std::string Product::distributePath() const
     {
         return m_distributePath;
+    }
+
+    std::string Product::getLine() const
+    {
+        return m_productInformation.getLine();
     }
 
     std::string Product::getName() const
