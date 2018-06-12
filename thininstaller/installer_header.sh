@@ -107,11 +107,6 @@ check_total_mem()
 #
 sophos_mktempdir()
 {
-    # On HP-UX mktemps just outputs a suitable file name
-    if [ "$PLATFORM" != "hpux" ]; then
-        _mktemp=`which mktemp 2>/dev/null`
-    fi
-
     if [ -x "${_mktemp}" ] ; then
         # mktemp exists - use it
         _tmpdirTemplate="$TMPDIR/$1_XXXXXXX"
@@ -210,8 +205,7 @@ tail -n+$ARCHIVE $0 > $SOPHOS_TEMP_DIRECTORY/installer.tar.gz
 
 cd $SOPHOS_TEMP_DIRECTORY
 
-
-# Check if SAV is installed. todo we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
+# Check if SAV is installed. TODO we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
 SAV_INSTDIR=`readlink /usr/local/bin/sweep | sed 's/bin\/savscan//g'`
 if [ "$SAV_INSTDIR" != "" ] && [ -d $SAV_INSTDIR ]
 then
@@ -253,6 +247,7 @@ fi
 # Check if there is already an installation. Re-register if there is.
 if [ -d $INSTALL_LOCATION ]
 then
+   # TODO check the directory structure is correct below
     if [ -f "${INSTALL_LOCATION}/base/registerCentral" ]
     then
         echo "Attempting to re-register existing installation with Sophos Central"
