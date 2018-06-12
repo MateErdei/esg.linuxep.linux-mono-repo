@@ -92,12 +92,12 @@ static bool canConnectToCloud(const std::string& proxy = "")
 
         curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
         char* proxycreds = getenv("PROXY_CREDENTIALS");
-        if (proxycreds != NULL)
+        if (proxycreds != nullptr)
         {
             curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxycreds);
         }
 
-        if (proxy != "")
+        if (!proxy.empty())
         {
             curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
         }
