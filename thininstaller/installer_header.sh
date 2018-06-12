@@ -48,38 +48,6 @@ create_symlinks()
     done
 }
 
-uname -a | grep -i Linux >/dev/null
-if [ $? -eq 1 ] ; then
-    echo "This installer only runs on Linux." >&2
-    cleanup_and_exit 1
-fi
-
-if [ $(id -u) -ne 0 ]; then
-    echo "Please run this installer as root." >&2
-    cleanup_and_exit 2
-fi
-
-# Handle arguments
-for i in "$@"
-do
-    case $i in
-        --update-source-creds=*)
-            export OVERRIDE_SOPHOS_CREDS="${i#*=}"
-            shift
-        ;;
-        --instdir=*)
-            export INSTALL_LOCATION="${i#*=}"
-            shift
-        ;;
-        --proxy-credentials=*)
-            export PROXY_CREDENTIALS="${i#*=}"
-        ;;
-    esac
-done
-
-[ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
-    echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
-}
 
 handle_installer_errorcodes()
 {
@@ -170,6 +138,39 @@ sophos_mktempdir()
     fi
 
     echo ${_tmpdir}
+}
+
+uname -a | grep -i Linux >/dev/null
+if [ $? -eq 1 ] ; then
+    echo "This installer only runs on Linux." >&2
+    cleanup_and_exit 1
+fi
+
+if [ $(id -u) -ne 0 ]; then
+    echo "Please run this installer as root." >&2
+    cleanup_and_exit 2
+fi
+
+# Handle arguments
+for i in "$@"
+do
+    case $i in
+        --update-source-creds=*)
+            export OVERRIDE_SOPHOS_CREDS="${i#*=}"
+            shift
+        ;;
+        --instdir=*)
+            export INSTALL_LOCATION="${i#*=}"
+            shift
+        ;;
+        --proxy-credentials=*)
+            export PROXY_CREDENTIALS="${i#*=}"
+        ;;
+    esac
+done
+
+[ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
+    echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
 
 if [ -z "$TMPDIR" ] ; then
