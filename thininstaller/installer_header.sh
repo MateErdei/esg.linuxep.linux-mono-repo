@@ -140,12 +140,14 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
+# Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
     echo "This installer only runs on Linux." >&2
     cleanup_and_exit 1
 fi
 
+# Check running as root
 if [ $(id -u) -ne 0 ]; then
     echo "Please run this installer as root." >&2
     cleanup_and_exit 2
