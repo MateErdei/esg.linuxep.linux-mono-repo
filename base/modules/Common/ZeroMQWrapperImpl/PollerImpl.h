@@ -22,7 +22,8 @@ namespace Common
             : public virtual ZeroMQWrapper::IPoller
         {
         public:
-            std::vector<ZeroMQWrapper::IHasFD*> poll(long timeoutMs) override;
+            ZeroMQWrapper::IPoller::poll_result_t poll(long timeoutMs);
+            ZeroMQWrapper::IPoller::poll_result_t poll(const std::chrono::milliseconds& timeout) override;
 
             void addEntry(ZeroMQWrapper::IHasFD &entry, PollDirection directionMask) override;
 

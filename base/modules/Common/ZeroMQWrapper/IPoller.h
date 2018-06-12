@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <vector>
+#include <chrono>
 
 namespace Common
 {
@@ -28,11 +29,12 @@ namespace Common
             using poll_result_t = std::vector<IHasFD*>;
 
             /**
+             *
              * Wait to see if any of the provided sockets or FD is ready to action.
-             * @param timeoutMs, 0 to return immediately, -1 to wait forever, otherwise milliseconds to wait
+             * @param timeout, 0 to return immediately, -1 to wait forever, otherwise the timeout
              * @return Vector of BORROWED IHasFD pointers that are ready to action
              */
-            virtual poll_result_t poll(long timeoutMs) = 0;
+            virtual poll_result_t poll(const std::chrono::milliseconds& timeout) = 0;
 
             /**
              * Add a socket to the poller.

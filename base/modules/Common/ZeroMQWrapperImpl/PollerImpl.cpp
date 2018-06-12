@@ -86,6 +86,12 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
     return results;
 }
 
+
+Common::ZeroMQWrapper::IPoller::poll_result_t PollerImpl::poll(const std::chrono::milliseconds& timeout)
+{
+    return poll(timeout.count());
+}
+
 void Common::ZeroMQWrapperImpl::PollerImpl::addEntry(Common::ZeroMQWrapper::IHasFD &entry, PollDirection directionMask)
 {
     PollEntry pollentry{&entry,directionMask};
