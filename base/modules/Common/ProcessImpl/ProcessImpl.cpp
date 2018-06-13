@@ -18,9 +18,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <algorithm>
 #include <condition_variable>
-
+#include <cstring>
+#define LOGERROR(x) std::cerr << x << '\n';
 namespace
 {
+    // ensure child process do not keep filedescriptors that is only for the parent.
     void closeFileDescriptors(std::vector<int> keepFds)
     {
         int fd;
@@ -41,8 +43,6 @@ namespace
     }
 
 }
-
-
 
 
 class FileDescriptorHolder
@@ -66,8 +66,8 @@ public:
 
 
 
-int p_exec(std::string path,  std::vector<std::string> arguments,
-         std::vector<Common::Process::EnvironmentPair> extraEnvironment)
+int executeProcess(std::string path, std::vector<std::string> arguments,
+                   std::vector<Common::Process::EnvironmentPair> extraEnvironment)
 {
     std::vector<char*> argc;
     // const_cast is needed because execvp prototype wants an
@@ -178,6 +178,10 @@ namespace ProcessImpl
 
     };
 
+
+    // Pipe has a limited capacity (see man 7 pipe : Pipe Capacity)
+    // This class allows the pipe buffer to be cleared to ensure that child process is never blocked trying
+    // to write to stdout or stderr.
     class StdPipeThread
     {
     private:
@@ -220,21 +224,23 @@ namespace ProcessImpl
 
         std::string output()
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
+            hasFinished();
             return m_stdoutStream.str();
         }
         bool hasFinished()
         {
+            // use lock in order to ensure ::run has finished. Hence, child process finished.
             std::unique_lock<std::mutex> lock(m_mutex);
             return true;
         }
-
 
     private:
         void run()
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             {
+                // unblock start (waiting on m_ensureThreadStarted
+                // this make subsequent calls to hasFinished safe from race-condition.
                 std::unique_lock<std::mutex> templock(m_threadStarted);
                 m_ensureThreadStarted.notify_all();
             }
@@ -245,7 +251,14 @@ namespace ProcessImpl
                 size_t nread = read(input.fileDescriptor(), buffer, 100);
                 if ( nread == 0 )
                 {
+                    // this happens when the file descriptor is closed (on child exit)
+                    // hence also means process finished.
                     return;
+                }
+                if ( nread == -1 )
+                {
+                    int err = errno;
+                    LOGERROR( ::strerror(err));
                 }
                 buffer[nread] = '\0';
                 m_stdoutStream << buffer;
@@ -280,7 +293,9 @@ namespace ProcessImpl
         }
         for ( int i = 0; i< attempts + 1; i++ )
         {
-
+            // looping through attempts + 1 and skipping first sleep
+            // ensure we do all the attempts
+            // but do not sleep when it is not needed ( process already finished)
             if( i!= 0)
             {
                 std::this_thread::sleep_for(period);
@@ -296,6 +311,9 @@ namespace ProcessImpl
                 {
                     m_exitcode = WEXITSTATUS(status);
                 }
+                // this happens when child was either killed, coredump.
+                // meaning that it is finished, but WIFEXITED does not return true.
+                m_exitcode = -1;
 
                 return Process::ProcessStatus::FINISHED;
             }
@@ -348,10 +366,11 @@ namespace ProcessImpl
                     perror("Dup stderr error");
                     exit(errno);
                 }
+                // close the read pipe as child is supposed to be only for writing (stderr,stdout)
                 m_pipe->closeRead();
 
                 {
-                    int ret = p_exec( path, arguments, extraEnvironment);
+                    int ret = executeProcess(path, arguments, extraEnvironment);
                     // if reaches this point, execv failed
                     // for normal execution, execv never returns.
                     exit(ret);
@@ -359,6 +378,8 @@ namespace ProcessImpl
                 break;
 
             default:
+                // parent
+                // close the write pipe as parent wants to read what the child writes to stdout, stderr
                 m_pipe->closeWrite();
                 m_pid = child;
 
@@ -385,10 +406,12 @@ namespace ProcessImpl
                         // get the exit code
                         wait(Process::milli(i), 1);
                         if ( m_exitcode != std::numeric_limits<int>::max())
+                        {
                             break;
+                        }
                     }
                 }
-                // either call wait, or if m_exit code already populated, return it.
+
                 return m_exitcode;
             }
         }
