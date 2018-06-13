@@ -15,6 +15,8 @@
 #include <signal.h>
 #include <iostream>
 #include <algorithm>
+#include <condition_variable>
+
 namespace
 {
     void closeFileDescriptors(std::vector<int> keepFds)
@@ -77,17 +79,23 @@ int p_exec(std::string path,  std::vector<std::string> arguments,
 
     if (extraEnvironment.size() > 0)
     {
+        std::vector<std::string> auxEnv;
+        for (auto const& env : extraEnvironment)
+        {
+            auxEnv.emplace_back(env.first + "=" + env.second);
+        }
+
         std::vector<char*> environmentc;
         // const_cast is needed because execvp prototype wants an
         // array of char*, not const char*.
-        for (auto const& env : extraEnvironment)
+        for (auto const& env : auxEnv)
         {
-            environmentc.emplace_back(const_cast<char *>(env.first.c_str()));
-            environmentc.emplace_back(const_cast<char *>(env.second.c_str()));
+            environmentc.emplace_back(const_cast<char *>(env.c_str()));
         }
         // NULL terminate
         environmentc.push_back(nullptr);
-        return execve(path.c_str(), argc.data(), environmentc.data());
+
+        return execvpe(path.c_str(), argc.data(), environmentc.data());
     }
 
     return execv(path.c_str(), argc.data());
@@ -176,13 +184,15 @@ namespace ProcessImpl
         int m_fileDescriptor;
         std::stringstream m_stdoutStream;
         std::mutex m_mutex;
-
+        std::mutex m_threadStarted;
+        std::condition_variable m_ensureThreadStarted;
     public:
         explicit StdPipeThread(int fileDescriptor)
                 : m_thread()
                 , m_stopThread(false)
                 , m_fileDescriptor(fileDescriptor)
                 , m_mutex()
+                , m_ensureThreadStarted()
         {
 
         }
@@ -201,20 +211,31 @@ namespace ProcessImpl
         }
         void start()
         {
+            std::unique_lock<std::mutex> lock(m_threadStarted);
             m_thread = std::thread(&StdPipeThread::run,this);
+            m_ensureThreadStarted.wait(lock);
         }
 
         std::string output()
         {
-            std::lock_guard<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(m_mutex);
             return m_stdoutStream.str();
+        }
+        bool hasFinished()
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            return true;
         }
 
 
     private:
         void run()
         {
-            std::lock_guard<std::mutex> lock(m_mutex);
+            std::unique_lock<std::mutex> lock(m_mutex);
+            {
+                std::unique_lock<std::mutex> templock(m_threadStarted);
+                m_ensureThreadStarted.notify_all();
+            }
             FileDescriptorHolder input( m_fileDescriptor);
             char buffer[101];
             while (!m_stopThread)
@@ -224,7 +245,7 @@ namespace ProcessImpl
                 {
                     return;
                 }
-                buffer[nread+1] = '\0';
+                buffer[nread] = '\0';
                 m_stdoutStream << buffer;
             }
         }
@@ -234,7 +255,7 @@ namespace ProcessImpl
 
 
 
-    ProcessImpl::ProcessImpl(): m_exitcode(0)
+    ProcessImpl::ProcessImpl(): m_exitcode(std::numeric_limits<int>::max())
     {
 
     }
@@ -251,7 +272,7 @@ namespace ProcessImpl
     Process::ProcessStatus ProcessImpl::wait(Process::Milliseconds period, int attempts)
     {
         assert( attempts>0);
-        if ( m_exitcode!= 0)
+        if ( m_exitcode != std::numeric_limits<int>::max())
         {
             return Process::ProcessStatus::FINISHED;
         }
@@ -284,6 +305,15 @@ namespace ProcessImpl
     void ProcessImpl::exec(const std::string &path, const std::vector<std::string> &arguments,
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
     {
+        for(auto & env : extraEnvironment)
+        {
+            // make sure all environment variables are valid.
+            if(env.first.empty())
+            {
+                throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second);
+            }
+        }
+
         m_pipe.reset( new PipeHolder());
 
         pid_t child = fork();
@@ -322,8 +352,7 @@ namespace ProcessImpl
                     int ret = p_exec( path, arguments, extraEnvironment);
                     // if reaches this point, execv failed
                     // for normal execution, execv never returns.
-                    m_exitcode = ret;
-                    exit(m_exitcode);
+                    exit(ret);
                 }
                 break;
 
@@ -343,7 +372,25 @@ namespace ProcessImpl
 
     int ProcessImpl::exitCode()
     {
-        return m_exitcode;
+        if ( m_pipeThread)
+        {
+            if ( m_pipeThread->hasFinished())
+            {
+                if ( m_exitcode == std::numeric_limits<int>::max())
+                {
+                    for ( int i = 0; i<10; i++)
+                    {
+                        // get the exit code
+                        wait(Process::milli(i), 1);
+                        if ( m_exitcode != std::numeric_limits<int>::max())
+                            break;
+                    }
+                }
+                // either call wait, or if m_exit code already populated, return it.
+                return m_exitcode;
+            }
+        }
+        throw Process::IProcessException( "Exit Code can be called only after exec.");
     }
 
     std::string ProcessImpl::output()
@@ -352,7 +399,7 @@ namespace ProcessImpl
         {
             return m_pipeThread->output();
         }
-        return std::string();
+        throw Process::IProcessException( "Output can be called only after exec.");
     }
 
     void ProcessImpl::kill()
