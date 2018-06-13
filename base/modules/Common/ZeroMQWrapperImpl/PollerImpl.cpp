@@ -42,7 +42,6 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
         }
         else
         {
-//            PRINT("Using 0MQ socket directly");
             items[i].socket = socket->skt();
             items[i].fd = -1;
         }

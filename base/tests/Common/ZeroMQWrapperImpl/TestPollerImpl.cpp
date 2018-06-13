@@ -59,12 +59,14 @@ namespace
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(),nullptr);
 
-        auto result = poller->poll(std::chrono::milliseconds(10)); // 10 ms
+        auto result = poller->poll(Common::ZeroMQWrapper::ms(10)); // 10 ms
         EXPECT_EQ(result.size(),0);
     }
 
     TEST(TestPollerImpl, REPSocketNotified) // NOLINT
     {
+        using Common::ZeroMQWrapper::ms;
+
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(),nullptr);
 
@@ -86,7 +88,7 @@ namespace
         poller->addEntry(*replier,Common::ZeroMQWrapper::IPoller::POLLIN);
         poller->addEntry(*requester,Common::ZeroMQWrapper::IPoller::POLLIN);
 
-        auto result = poller->poll(std::chrono::milliseconds(10));
+        auto result = poller->poll(ms(10));
 
         EXPECT_EQ(result.size(),1);
         EXPECT_EQ(result.at(0),replier.get());
@@ -97,7 +99,7 @@ namespace
         data_t input2{"RES"};
         replier->write(input2);
 
-        result = poller->poll(std::chrono::milliseconds(10));
+        result = poller->poll(ms(10));
 
         EXPECT_EQ(result.size(),1);
         EXPECT_EQ(result.at(0),requester.get());

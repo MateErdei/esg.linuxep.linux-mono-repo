@@ -15,6 +15,9 @@ namespace Common
 {
     namespace ZeroMQWrapper
     {
+        using milliseconds = std::chrono::milliseconds;
+        inline milliseconds ms(unsigned int v) { return milliseconds(v); }
+
         class IPoller
         {
         public:
@@ -32,7 +35,7 @@ namespace Common
              *
              * Wait to see if any of the provided sockets or FD is ready to action.
              * @param timeout, 0 to return immediately, -1 to wait forever, otherwise the timeout
-             * @return Vector of BORROWED IHasFD pointers that are ready to action
+             * @return Vector of BORROWED IHasFD pointers that are ready to action, or an empty vector for timeout
              */
             virtual poll_result_t poll(const std::chrono::milliseconds& timeout) = 0;
 
