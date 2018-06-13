@@ -1,4 +1,5 @@
-add_library(zeromqwrapperimpl ContextImpl.cpp ContextImpl.h ContextHolder.cpp ContextHolder.h SocketHolder.cpp SocketHolder.h
+add_library(zeromqwrapperimpl SHARED
+        ContextImpl.cpp ContextImpl.h ContextHolder.cpp ContextHolder.h SocketHolder.cpp SocketHolder.h
         ../ZeroMQWrapper/IContext.h
         ../ZeroMQWrapper/IHasFD.h
         ../ZeroMQWrapper/IReadable.h
