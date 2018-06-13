@@ -1,0 +1,6 @@
+add_executable(FileSystemImplTests TestFileSystemImpl.cpp)
+target_include_directories(FileSystemImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
+target_include_directories(FileSystemImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_link_libraries(FileSystemImplTests gtest gtest_main)
+target_link_libraries(FileSystemImplTests filesystemimpl)
+add_test(NAME FileSystemImplTests COMMAND FileSystemImplTests)

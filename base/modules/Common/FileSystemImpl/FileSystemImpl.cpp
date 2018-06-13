@@ -55,7 +55,7 @@ namespace Common
             {
                 return path;
             }
-            return Path(path.begin()+pos, path.end());
+            return Path(path.begin() + pos  + 1, path.end());
         }
 
         bool FileSystemImpl::exists(const Path &path) const

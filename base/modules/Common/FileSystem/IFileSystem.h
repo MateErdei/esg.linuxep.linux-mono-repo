@@ -17,6 +17,7 @@ namespace Common
     {
         class IFileSystem
         {
+        public:
             virtual Path join(const Path& path1, const Path & path2)const = 0;
 
             virtual std::string basename(const Path & path ) const = 0;
