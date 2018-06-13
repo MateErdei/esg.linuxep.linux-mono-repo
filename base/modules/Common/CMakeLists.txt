@@ -1,3 +1,4 @@
 add_subdirectory(ZeroMQWrapper)
 add_subdirectory(ZeroMQWrapperImpl)
 add_subdirectory(ProcessImpl)
+add_subdirectory(FileSystemImpl)
