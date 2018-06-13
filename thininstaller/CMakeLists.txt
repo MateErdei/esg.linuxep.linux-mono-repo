@@ -40,8 +40,12 @@ set(CURL_LIBRARY -L${CURL_LIBRARY_DIR}  -lcurl)
 #Include dirs
 include_directories(BEFORE  ${SUL_INPUT}/include ${CURL_INPUT}/include64)
 
+set(CMAKE_INSTALL_RPATH "garbage/lib")
+
 # Set flags
-set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
+set(LIBRARY_LOCATIONS \$ORIGIN/../libs/boost/lib64:\$ORIGIN/../libs/curl/lib64:\$ORIGIN/../libs/expat/lib64:\$ORIGIN/../libs/openssl/lib64:\$ORIGIN/../libs/SUL/lib64:\$ORIGIN/../libs/zlib/lib64)
+
+set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath=${LIBRARY_LOCATIONS},-rpath-link,${SUL_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 add_executable(thininstaller
