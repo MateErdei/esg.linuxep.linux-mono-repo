@@ -36,6 +36,19 @@ namespace Common
              * @param data The multi-part message to send.
              */
             static void write(SocketHolder&, const data_t& data);
+
+            /**
+             * Do a bind from a socket to an address, to listen for connections.
+             * @param address
+             */
+            static void listen(SocketHolder& socket, const std::string& address);
+
+            /**
+             * Set the timeouts (both send and receive for a 0MQ socket.
+             * @param socket
+             * @param timeoutMs
+             */
+            static void setTimeout(SocketHolder& socket, int timeoutMs);
         };
     }
 }

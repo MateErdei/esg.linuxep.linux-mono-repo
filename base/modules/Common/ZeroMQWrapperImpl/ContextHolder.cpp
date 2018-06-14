@@ -18,10 +18,19 @@ Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
 
 Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()
 {
-    zmq_ctx_destroy(m_context);
+    reset();
 }
 
 void *Common::ZeroMQWrapperImpl::ContextHolder::ctx()
 {
     return m_context;
+}
+
+void Common::ZeroMQWrapperImpl::ContextHolder::reset()
+{
+    if (m_context != nullptr)
+    {
+        zmq_ctx_destroy(m_context);
+        m_context = nullptr;
+    }
 }

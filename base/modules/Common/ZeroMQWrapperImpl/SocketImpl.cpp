@@ -7,6 +7,7 @@
 #include <cassert>
 #include "SocketImpl.h"
 #include "ZeroMQWrapperException.h"
+#include "SocketUtil.h"
 
 using namespace Common::ZeroMQWrapperImpl;
 
@@ -17,16 +18,7 @@ Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::Con
 
 void Common::ZeroMQWrapperImpl::SocketImpl::setTimeout(int timeoutMs)
 {
-    int rc = zmq_setsockopt(m_socket.skt(),ZMQ_RCVTIMEO,&timeoutMs, sizeof(timeoutMs));
-    if (rc != 0)
-    {
-        throw ZeroMQWrapperException("Failed to set timeout for receiving");
-    }
-    rc = zmq_setsockopt(m_socket.skt(),ZMQ_SNDTIMEO,&timeoutMs, sizeof(timeoutMs));
-    if (rc != 0)
-    {
-        throw ZeroMQWrapperException("Failed to set timeout for sending");
-    }
+    SocketUtil::setTimeout(m_socket,timeoutMs);
 }
 
 void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string &address)
@@ -40,11 +32,7 @@ void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string &address)
 
 void Common::ZeroMQWrapperImpl::SocketImpl::listen(const std::string &address)
 {
-    int rc = zmq_bind(m_socket.skt(), address.c_str());
-    if (rc != 0)
-    {
-        throw ZeroMQWrapperException(std::string("Failed to bind to ")+address);
-    }
+    SocketUtil::listen(m_socket,address);
 }
 
 int SocketImpl::fd()

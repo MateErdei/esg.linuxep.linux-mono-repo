@@ -87,3 +87,27 @@ void Common::ZeroMQWrapperImpl::SocketUtil::write(Common::ZeroMQWrapperImpl::Soc
         throw ZeroMQWrapperException(ost.str());
     }
 }
+
+void Common::ZeroMQWrapperImpl::SocketUtil::listen(Common::ZeroMQWrapperImpl::SocketHolder &socket,
+                                                   const std::string &address)
+{
+    int rc = zmq_bind(socket.skt(), address.c_str());
+    if (rc != 0)
+    {
+        throw ZeroMQWrapperException(std::string("Failed to bind to ")+address);
+    }
+}
+
+void Common::ZeroMQWrapperImpl::SocketUtil::setTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs)
+{
+    int rc = zmq_setsockopt(socket.skt(),ZMQ_RCVTIMEO,&timeoutMs, sizeof(timeoutMs));
+    if (rc != 0)
+    {
+        throw ZeroMQWrapperException("Failed to set timeout for receiving");
+    }
+    rc = zmq_setsockopt(socket.skt(),ZMQ_SNDTIMEO,&timeoutMs, sizeof(timeoutMs));
+    if (rc != 0)
+    {
+        throw ZeroMQWrapperException("Failed to set timeout for sending");
+    }
+}

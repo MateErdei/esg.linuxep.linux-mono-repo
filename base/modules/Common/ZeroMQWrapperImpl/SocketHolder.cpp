@@ -6,6 +6,7 @@
 #include "ZeroMQWrapperException.h"
 
 #include <zmq.h>
+#include <cassert>
 
 Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(void *zmq_socket)
     : m_socket(zmq_socket)
@@ -37,6 +38,7 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void *zmq_socket)
 Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl::ContextHolder &context, const int type)
     : m_socket(nullptr)
 {
+    assert(context.ctx() != nullptr);
     m_socket = zmq_socket(context.ctx(), type);
     if (m_socket == nullptr)
     {

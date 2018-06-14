@@ -100,9 +100,6 @@ namespace
         socket->listen("inproc://transferTest");
         socket->subscribeTo("FOOBAR");
 
-        auto sender = context->getPublisher();
-        ASSERT_NE(sender.get(),nullptr);
-
         // Start sender thread - since we need to wait for subscription to propagate
         SenderThread thread(*context);
         thread.start();

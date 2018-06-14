@@ -16,6 +16,7 @@ namespace Common
             ContextHolder();
             ~ContextHolder();
             void* ctx();
+            void reset();
         private:
             void* m_context;
         };
