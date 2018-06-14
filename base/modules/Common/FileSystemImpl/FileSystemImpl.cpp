@@ -12,8 +12,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <dirent.h>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 
-
+#define LOGSUPPORT(x) std::cout << x << "\n";
 namespace Common
 {
     namespace FileSystem
@@ -43,7 +44,7 @@ namespace Common
 
             if(path1.back() == '/' && path2.front() == '/' )
             {
-                return path1 + '/' + std::string( path2.begin()+1, path2.end());
+                return path1 + std::string( path2.begin()+1, path2.end());
             }
         }
 
@@ -105,6 +106,11 @@ namespace Common
 
         std::string FileSystemImpl::readFile(const Path &path) const
         {
+            if(isDirectory(path))
+            {
+                throw IFileSystemException("Error, Failed to read file: '" + path + "', is a directory");
+            }
+
             std::ifstream inFileStream(path);
 
             if (!inFileStream.good())
@@ -112,10 +118,18 @@ namespace Common
                 throw IFileSystemException("Error, Failed to read file: '" + path + "', file does not exist");
             }
 
-            std::string content((std::istreambuf_iterator<char>(inFileStream)),
-                                std::istreambuf_iterator<char>());
+            try
+            {
+                std::string content((std::istreambuf_iterator<char>(inFileStream)),
+                        std::istreambuf_iterator<char>());
+                return content;
+            }
+            catch( std::system_error & ex)
+            {
+                LOGSUPPORT(ex.what());
+                throw IFileSystemException(std::string("Error, Failed to read from file '") + path + "'");
+            }
 
-            return content;
         }
 
         void FileSystemImpl::writeFile(const Path &path, const std::string &content)
