@@ -1,3 +1,5 @@
 add_library(threads SHARED
         NotifyPipe.cpp
-        NotifyPipe.h)
+        NotifyPipe.h
+        AbstractThread.h
+        AbstractThread.cpp)

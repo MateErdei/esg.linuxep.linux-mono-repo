@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <condition_variable>
 #include <cstring>
+#include "Common/Threads/AbstractThread.h"
 #define LOGERROR(x) std::cerr << x << '\n';
 namespace
 {
@@ -65,45 +66,86 @@ public:
 };
 
 
-
-int executeProcess(std::string path, std::vector<std::string> arguments,
-                   std::vector<Common::Process::EnvironmentPair> extraEnvironment)
+/**
+ * execve expects argc and envp to be given as char**.
+ * This class allows the expected pointers to be passed to the execve without needing to handle
+ * allocations and deallocations internally. It uses vector to handle all the allocations correctly.
+ * It is safe do to so as execve will anyway put the arguments and enviroment variables in a 'safe place'
+ * before changing the image of the process.
+ */
+class ArgcAndEnv
 {
-    std::vector<char*> argc;
-    // const_cast is needed because execvp prototype wants an
-    // array of char*, not const char*.
-    argc.emplace_back(const_cast<char*>(path.c_str()));
-    for (auto const& arg : arguments)
-        argc.emplace_back(const_cast<char*>(arg.c_str()));
-    // NULL terminate
-    argc.push_back(nullptr);
-
-
-    if (extraEnvironment.size() > 0)
+    class ArgcAdaptor
     {
-        std::vector<std::string> auxEnv;
-        for (auto const& env : extraEnvironment)
+    public:
+        ArgcAdaptor(){};
+        void setArgs( std::vector<std::string> arguments, std::string path = std::string() )
         {
-            auxEnv.emplace_back(env.first + "=" + env.second);
-        }
+            m_arguments.clear();
+            if (!path.empty())
+            {
+                m_arguments.push_back(path);
+            }
+            for( auto & arg: arguments)
+            {
+                m_arguments.push_back(arg);
+            }
 
-        std::vector<char*> environmentc;
-        // const_cast is needed because execvp prototype wants an
-        // array of char*, not const char*.
-        for (auto const& env : auxEnv)
+            // const_cast is needed because execvp prototype wants an
+            // array of char*, not const char*.
+            for (auto const& arg : m_arguments)
+            {
+                m_argcAdaptor.emplace_back(const_cast<char *>(arg.c_str()));
+            }
+            // NULL terminate
+            m_argcAdaptor.push_back(nullptr);
+
+        }
+        char** argcpointer()
         {
-            environmentc.emplace_back(const_cast<char *>(env.c_str()));
+            if ( m_argcAdaptor.empty())
+                return nullptr;
+            return m_argcAdaptor.data();
         }
-        // NULL terminate
-        environmentc.push_back(nullptr);
-
-        return execvpe(path.c_str(), argc.data(), environmentc.data());
+    private:
+        std::vector<std::string> m_arguments;
+        std::vector<char * > m_argcAdaptor;
+    };
+    ArgcAdaptor m_argc;
+    ArgcAdaptor m_env;
+    std::string m_path;
+public:
+    ArgcAndEnv(std::string path, std::vector<std::string> arguments,
+               std::vector<Common::Process::EnvironmentPair> extraEnvironment)
+    {
+        m_path = path;
+        std::vector<std::string> envArguments;
+        for(auto & env : extraEnvironment)
+        {
+            // make sure all environment variables are valid.
+            if(env.first.empty())
+            {
+                throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second);
+            }
+            envArguments.push_back(env.first + '=' + env.second);
+        }
+        m_argc.setArgs(arguments, path);
+        m_env.setArgs(envArguments);
     }
+    char ** argc()
+    {
+        m_argc.argcpointer();
+    }
+    char ** envp()
+    {
+        m_env.argcpointer();
+    }
+    char * path()
+    {
+        return const_cast<char *>( m_path.data());
 
-    return execv(path.c_str(), argc.data());
-
-}
-
+    }
+};
 
 std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
 {
@@ -182,44 +224,22 @@ namespace ProcessImpl
     // Pipe has a limited capacity (see man 7 pipe : Pipe Capacity)
     // This class allows the pipe buffer to be cleared to ensure that child process is never blocked trying
     // to write to stdout or stderr.
-    class StdPipeThread
+    class StdPipeThread : public Common::Threads::AbstractThread
     {
     private:
-        std::thread m_thread;
-        bool m_stopThread;
         int m_fileDescriptor;
         std::stringstream m_stdoutStream;
         std::mutex m_mutex;
-        std::mutex m_threadStarted;
-        std::condition_variable m_ensureThreadStarted;
     public:
-        explicit StdPipeThread(int fileDescriptor)
-                : m_thread()
-                , m_stopThread(false)
+        explicit StdPipeThread(int fileDescriptor) :
+                Common::Threads::AbstractThread()
                 , m_fileDescriptor(fileDescriptor)
                 , m_mutex()
-                , m_ensureThreadStarted()
         {
 
-        }
-        void setStop( )
-        {
-            m_stopThread = true;
         }
         ~StdPipeThread()
         {
-
-            m_stopThread = true;
-            if (m_thread.joinable())
-            {
-                m_thread.join();
-            }
-        }
-        void start()
-        {
-            std::unique_lock<std::mutex> lock(m_threadStarted);
-            m_thread = std::thread(&StdPipeThread::run,this);
-            m_ensureThreadStarted.wait(lock);
         }
 
         std::string output()
@@ -235,18 +255,15 @@ namespace ProcessImpl
         }
 
     private:
-        void run()
+        void run() override
         {
             std::unique_lock<std::mutex> lock(m_mutex);
-            {
-                // unblock start (waiting on m_ensureThreadStarted
-                // this make subsequent calls to hasFinished safe from race-condition.
-                std::unique_lock<std::mutex> templock(m_threadStarted);
-                m_ensureThreadStarted.notify_all();
-            }
+
+            announceThreadStarted();
+
             FileDescriptorHolder input( m_fileDescriptor);
             char buffer[101];
-            while (!m_stopThread)
+            while (! stopRequested())
             {
                 size_t nread = read(input.fileDescriptor(), buffer, 100);
                 if ( nread == 0 )
@@ -277,11 +294,6 @@ namespace ProcessImpl
 
     ProcessImpl::~ProcessImpl()
     {
-        if( m_pipeThread)
-        {
-            m_pipeThread->setStop();
-        }
-
     }
 
     Process::ProcessStatus ProcessImpl::wait(Process::Milliseconds period, int attempts)
@@ -306,14 +318,20 @@ namespace ProcessImpl
 
             if (ret != 0)
             {
-                m_pipeThread->setStop();
+                std::cout << "status " << status << " return: " << ret << std::endl;
+                m_pipeThread->requestStop();
+
+
                 if (WIFEXITED(status))
                 {
                     m_exitcode = WEXITSTATUS(status);
                 }
-                // this happens when child was either killed, coredump.
-                // meaning that it is finished, but WIFEXITED does not return true.
-                m_exitcode = -1;
+                else
+                {
+                    // this happens when child was either killed, coredump.
+                    // meaning that it is finished, but WIFEXITED does not return true.
+                    m_exitcode = -1;
+                }
 
                 return Process::ProcessStatus::FINISHED;
             }
@@ -325,19 +343,13 @@ namespace ProcessImpl
     void ProcessImpl::exec(const std::string &path, const std::vector<std::string> &arguments,
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
     {
-        for(auto & env : extraEnvironment)
-        {
-            // make sure all environment variables are valid.
-            if(env.first.empty())
-            {
-                throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second);
-            }
-        }
+
+        ArgcAndEnv argcAndEnv(path, arguments, extraEnvironment);
 
         m_pipe.reset( new PipeHolder());
 
         pid_t child = fork();
-
+        int ret = 0;
         switch(child)
         {
             case -1:
@@ -356,25 +368,21 @@ namespace ProcessImpl
                 // redirect stdout
                 if (dup2(m_pipe->writeFd(), STDOUT_FILENO) == -1)
                 {
-                    perror("Dup stdout error");
-                    exit(errno);
+                    _exit(errno);
                 }
 
                 // redirect stderr
                 if (dup2(m_pipe->writeFd(), STDERR_FILENO) == -1)
                 {
-                    perror("Dup stderr error");
-                    exit(errno);
+                    _exit(errno);
                 }
                 // close the read pipe as child is supposed to be only for writing (stderr,stdout)
                 m_pipe->closeRead();
-
-                {
-                    int ret = executeProcess(path, arguments, extraEnvironment);
+                ret = execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
                     // if reaches this point, execv failed
                     // for normal execution, execv never returns.
-                    exit(ret);
-                }
+                _exit(ret);
+
                 break;
 
             default:
@@ -386,7 +394,6 @@ namespace ProcessImpl
 
                 m_pipeThread.reset( new StdPipeThread(m_pipe->readFd()));
                 m_pipeThread->start();
-
                 return;
 
         }
