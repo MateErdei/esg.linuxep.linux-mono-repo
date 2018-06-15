@@ -14,6 +14,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
+    /**
+     * Holds enough information to setup a SUL connection to the Warehouse.
+     */
     class ConnectionSetup
     {
 

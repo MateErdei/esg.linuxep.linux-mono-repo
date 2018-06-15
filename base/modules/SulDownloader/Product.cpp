@@ -23,6 +23,7 @@ namespace SulDownloader
     {
         assert(m_state == State::Distributed);
         m_state = State::Verified;
+        // TODO: implement verify LINUXEP-6112
         return false;
     }
 
@@ -31,6 +32,7 @@ namespace SulDownloader
     {
         assert( m_state == State::Verified);
         m_state = State::Installed;
+        // TODO: implement install
         LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
     }
 
@@ -39,13 +41,6 @@ namespace SulDownloader
         return !m_error.Description.empty();
     }
 
-//    void Product::setError(const std::string &error)
-//    {
-//        m_state = State::HasError;
-//        m_error.Description = error;
-//        m_error.status = UNSPECIFIED;
-//        m_error.SulError = "";
-//    }
 
     void Product::setError(WarehouseError error)
     {

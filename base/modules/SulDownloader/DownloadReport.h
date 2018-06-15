@@ -29,6 +29,17 @@ namespace SulDownloader
         std::string installedVersion;
     };
 
+    /**
+     * DownloadReport holds the relevant information about an attempt to run SULDownloader.
+     * It will eventually be serialized to json via the SulDownloaderProto::DownloadStatusReport.
+     *
+     * Its intention is to provide the relevant information necessary to report Central as specified in the
+     * following urls:
+     * https://wiki.sophos.net/display/SophosCloud/EMP%3A+status-alc
+     * https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
+     *
+     * Hence, it contains information about the installed entries as well as failures reasons.
+     */
     class DownloadReport
     {
         DownloadReport();

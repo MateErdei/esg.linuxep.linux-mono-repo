@@ -11,6 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 namespace SulDownloader
 {
+    /**
+     * Keep track of important time events required by ALC status.
+     * https://wiki.sophos.net/display/SophosCloud/EMP%3A+status-alc
+     * Proposed Changes for 2018-Q2
+     */
     class TimeTracker
     {
     public:

@@ -15,6 +15,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
+    /**
+     * Product meatadata from the warehouse.
+     */
     class ProductInformation
     {
     public:

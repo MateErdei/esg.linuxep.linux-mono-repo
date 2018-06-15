@@ -11,6 +11,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "WarehouseError.h"
 namespace SulDownloader
 {
+    /**
+     * Refer to Downloaded product from the warehouse.
+     * It created by the Warehouse, which also is responsible to set its DistributePath.
+     *
+     * After being fully configured by the Warehouse, it must:
+     *   - verify: versig verification
+     *   - intall: run the product installer.
+     *
+     * Design decision: Similar to the warehouse, Product mark the errors internally to
+     * enable DownloadReport to create its report.
+     */
     class Product
     {
     public:

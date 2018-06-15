@@ -37,6 +37,29 @@ namespace SulDownloader
         std::string m_baseVersion;
     };
 
+// FIXME: change ProductSelection to:
+// This will provide 2 benefits: fix current bug that the Primary product is not guaranteed to be installed first.
+//                               simplifies the code to keep track of missing Products in the warehouse.
+//    struct Selection
+//    {
+//        std::vector<int> selected;
+//        std::vector<int> selected;
+//        std::vector<std::string> missing;
+//    };
+//    class ProductSelection1
+//    {
+//        ProductSelection1();
+//    public:
+//        static ProductSelection1 CreateProductSelection( const ConfigurationData & );
+//        void appendSelector(std::unique_ptr<ISingleProductSelector> );
+//        Selection selectProducts( const std::vector<ProductInformation> & warehouseProducts);
+//    };
+
+    /**
+     * ProductSelection is responsible to define the products that must be downloaded from the warehouse as well as report
+     * if any required product can not be found in the warehouse.
+     */
+
     class ProductSelection
     {
         ProductSelection();

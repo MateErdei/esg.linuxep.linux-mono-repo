@@ -20,8 +20,6 @@ namespace SulDownloader
         // TODO: get sohposurl from sophos_alias.txt
         std::vector<ConnectionSetup> candidates;
 
-        // sort update cache
-
 
         for(auto url : configurationData.getLocalUpdateCacheUrls())
         {
@@ -38,6 +36,8 @@ namespace SulDownloader
         {
             candidates.emplace_back(url, configurationData.getCredentials(), false, configurationData.getProxy());
         }
+
+        // TODO: sort to improve chances of using the best candidates first. LINUXEP-6117
 
         return candidates;
     }

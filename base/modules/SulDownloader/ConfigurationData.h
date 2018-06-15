@@ -32,6 +32,8 @@ namespace SulDownloader
      *  - Information about the products to download
      *  - Config for log verbosity.
      *
+     *  It will be mainly configured from the ConfigurationSettings serialized json.
+     *
      */
     class ConfigurationData
     {
