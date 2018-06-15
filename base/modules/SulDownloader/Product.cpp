@@ -8,6 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tuple>
 #include "Product.h"
 #include "Logger.h"
+#include "IFileSystem.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
 
 
 namespace SulDownloader
@@ -28,12 +31,44 @@ namespace SulDownloader
     }
 
 
-    void Product::install()
+    void Product::install(const std::vector<std::string> & installArgs)
     {
         assert( m_state == State::Verified);
         m_state = State::Installed;
-        // TODO: implement install
-        LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
+
+        auto fileSystem = ::Common::FileSystem::createFileSystem();
+
+        std::string installShFile = fileSystem->join(m_distributePath, "install.shbroken");
+        installShFile = "/tmp/installfail.sh";
+        if(fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
+        {
+
+            LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
+
+            auto process = ::Common::Process::createProcess();
+            int exitCode =0;
+            try
+            {
+                process->exec(installShFile, installArgs);
+                auto output = process->output();
+                LOGINFO(output);
+                exitCode = process->exitCode();
+            }
+            catch ( Common::Process::IProcessException & ex)
+            {
+                LOGERROR(ex.what());
+                exitCode = -1;
+            }
+            if ( exitCode!= 0 )
+            {
+                LOGSUPPORT("Install exit code: " << exitCode);
+                WarehouseError error;
+                error.Description = std::string( "Product ") + getLine() + " failed to install";
+                error.status = WarehouseStatus::INSTALLFAILED;
+                setError(error);
+            }
+        }
+//TODO set error for invalid install path. 
     }
 
     bool Product::hasError() const
@@ -94,6 +129,28 @@ namespace SulDownloader
     {
         m_productHasChanged = productHasChanged;
     }
+
+    std::string Product::getPostUpdateInstalledVersion() const
+    {
+        return m_postUpdateInstalledVersion;
+    }
+
+    void Product::setPostUpdateInstalledVersion(const std::string &postUpdateInstalledVersion)
+    {
+        m_postUpdateInstalledVersion = postUpdateInstalledVersion;
+    }
+
+    std::string Product::getPreUpdateInstalledVersion() const
+    {
+        return m_preUpdateInstalledVersion;
+    }
+
+    void Product::setPreUpdateInstalledVersion(const std::string &preUpdateInstalledVersion)
+    {
+        m_preUpdateInstalledVersion = preUpdateInstalledVersion;
+    }
+
+
 
 
 }

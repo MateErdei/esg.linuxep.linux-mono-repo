@@ -237,8 +237,26 @@ namespace SulDownloader
             configurationData.addProductSelection(productGUID);
         }
 
+        std::vector<std::string> installArgs;
+        for(auto & arg : settings.installarguments())
+        {
+            installArgs.push_back(arg);
+        }
+
+        configurationData.setInstallArguments(installArgs);
+
         configurationData.setCertificatePath(settings.certificatepath());
 
         return configurationData;
+    }
+
+    std::vector<std::string> ConfigurationData::getInstallArguments() const
+    {
+        return m_installArguments;
+    }
+
+    void ConfigurationData::setInstallArguments(const std::vector<std::string> &installArguments)
+    {
+        m_installArguments = installArguments;
     }
 }

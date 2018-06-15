@@ -98,7 +98,11 @@ namespace SulDownloader
         {
             if (product.productHasChanged())
             {
-                product.install();
+                product.install(configurationData.getInstallArguments());
+            }
+            else
+            {
+                LOGINFO("Product line: '" << product.getLine() << "' is up to date.");
             }
         }
 
@@ -156,7 +160,7 @@ namespace SulDownloader
         }
 
         auto result = configAndRunDownloader(settingsString);
-        LOGSUPPORT(std::get<1>(result));
+        // LOGSUPPORT(std::get<1>(result)); // put back in for dev if required
 
         fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), fileSystem->currentWorkingDirectory());
 

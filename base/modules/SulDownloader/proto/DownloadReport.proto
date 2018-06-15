@@ -9,6 +9,8 @@ message ProductStatusReport
     optional string ProductName = 2;
     optional string InstalledVersion = 3;
     optional string DownloadVersion = 4;
+    optional bool Upgraded = 5; // true if the product was upgraded in this run.
+    optional string ErrorDescription = 7;
 }
 
 
@@ -20,7 +22,7 @@ message DownloadStatusReport
    optional string SyncTime = 3;
    optional string Status =4;
    optional string SulError = 5;
-   optional string Description = 6;
+   optional string ErrorDescription = 6;
    repeated ProductStatusReport Products = 7;
 
 }

@@ -37,9 +37,6 @@ namespace SulDownloader
         std::string m_line;
         std::string m_name;
         std::string m_version;
-
-
-
     };
 
 }

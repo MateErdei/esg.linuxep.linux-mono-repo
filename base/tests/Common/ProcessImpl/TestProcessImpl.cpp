@@ -113,6 +113,7 @@ namespace
         auto process = createProcess();
         process->exec( "/bin/command_does_not_exists", {"fake_argument"});
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
+        EXPECT_EQ( process->output(), "not");
         EXPECT_EQ( process->exitCode(), 255);
     }
 

@@ -66,6 +66,8 @@ namespace SulDownloader
         std::string getSSLCertificatePath() const;
         LogLevel getLogLevel() const;
 
+        std::vector<std::string> getInstallArguments() const;
+        void setInstallArguments(const std::vector<std::string> & installArguments);
 
         bool verifySettingsAreValid();
         bool isVerified() const;
@@ -82,6 +84,7 @@ namespace SulDownloader
         std::string m_localRepository;
         std::string m_certificatePath;
         std::vector<ProductGUID> m_productSelection;
+        std::vector<std::string> m_installArguments;
 
     };
 }

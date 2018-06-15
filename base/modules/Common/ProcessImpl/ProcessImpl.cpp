@@ -318,7 +318,6 @@ namespace ProcessImpl
 
             if (ret != 0)
             {
-                std::cout << "status " << status << " return: " << ret << std::endl;
                 m_pipeThread->requestStop();
 
 

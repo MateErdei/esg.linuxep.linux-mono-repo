@@ -30,5 +30,7 @@ message ConfigurationSettings
     optional string Primary = 9;
     repeated string FullNames = 10;
     repeated string PrefixNames = 11;
+    repeated string InstallArguments = 12;
+
 
 }

@@ -46,7 +46,7 @@ namespace SulDownloader
         {
             if ( product.hasError())
             {
-                report.setError(product.getError());
+                report.setError("Update failed");
             }
         }
         report.setProductsInfo(products);
@@ -106,9 +106,11 @@ namespace SulDownloader
             ProductReport report;
             auto info = product.getProductInformation();
             report.rigidName = info.getLine();
-            report.name = info.getName(); // TODO need to store actual product name.
-            report.downloadedVersion = info.getBaseVersion(); // TODO should be actual version
-            report.installedVersion = info.getBaseVersion(); // TODO should be actual installed version
+            report.name = info.getName();
+            report.downloadedVersion = info.getVersion();
+            report.installedVersion = product.getPostUpdateInstalledVersion();
+            auto wError = product.getError();
+            report.errorDescription = wError.Description;
             m_productReport.push_back(report);
         }
 
@@ -148,7 +150,7 @@ namespace SulDownloader
         protoReport.set_synctime(report.syncTime());
 
         protoReport.set_status( toString( report.getStatus()));
-        protoReport.set_description(report.getDescription());
+        protoReport.set_errordescription(report.getDescription());
         protoReport.set_sulerror(report.sulError());
 
         for ( auto & product : report.products())
@@ -158,6 +160,7 @@ namespace SulDownloader
             productReport->set_rigidname( product.rigidName);
             productReport->set_downloadversion( product.downloadedVersion);
             productReport->set_installedversion( product.installedVersion);
+            productReport->set_errordescription( product.errorDescription);
         }
 
         return protoReport;

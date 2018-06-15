@@ -28,7 +28,7 @@ namespace SulDownloader
         explicit Product(  ProductInformation  );
         bool verify();
 
-        void install();
+        void install(const std::vector<std::string> & installArgs);
         bool hasError() const;
         //void setError( const std::string & );
         void setError( WarehouseError error);
@@ -41,12 +41,22 @@ namespace SulDownloader
         std::string getName() const;
         bool productHasChanged() const;
         void setProductHasChanged( bool  );
+        std::string getPostUpdateInstalledVersion() const;
+        std::string getPreUpdateInstalledVersion() const ;
+        void setPreUpdateInstalledVersion(const std::string & preUpdateInstalledVersion);
+        void setPostUpdateInstalledVersion(const std::string & postUpdateInstalledVersion);
+
+
     private :
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
         WarehouseError m_error;
         ProductInformation m_productInformation;
         std::string m_distributePath;
         bool m_productHasChanged;
+
+        std::string m_postUpdateInstalledVersion;
+        std::string m_preUpdateInstalledVersion;
+
     };
 }
 

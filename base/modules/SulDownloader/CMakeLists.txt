@@ -53,6 +53,6 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 
-target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl)
+target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads)
 
 include_directories(BEFORE ${SUL_INPUT}/include)

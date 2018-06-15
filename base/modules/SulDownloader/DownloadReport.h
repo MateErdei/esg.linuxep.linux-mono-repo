@@ -27,6 +27,7 @@ namespace SulDownloader
         std::string rigidName;
         std::string downloadedVersion;
         std::string installedVersion;
+        std::string errorDescription;
     };
 
     /**
