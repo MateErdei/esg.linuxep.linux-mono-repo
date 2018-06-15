@@ -23,19 +23,21 @@ namespace Common
 
             std::string basename(const Path & path ) const override;
 
+            std::string dirName(const Path & path) const override;
+
             bool exists(const Path &path) const override;
 
             bool isDirectory(const Path & path) const  override;
 
             Path currentWorkingDirectory() const override;
 
-            void moveFile(const Path &sourcePath, const Path &destPath) override;
+            void moveFile(const Path &sourcePath, const Path &destPath) const override;
 
             std::string readFile(const Path &path) const override;
 
-            void writeFile(const Path &path, const std::string &content) override;
+            void writeFile(const Path &path, const std::string &content) const override;
 
-            void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) override;
+            void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const override;
         };
     }
 }

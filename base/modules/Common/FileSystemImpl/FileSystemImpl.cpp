@@ -16,6 +16,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n";
+
+std::unique_ptr<Common::FileSystem::IFileSystem> Common::FileSystem::createFileSystem()
+{
+    return Common::FileSystem::IFileSystemPtr(new Common::FileSystem::FileSystemImpl());
+}
+
 namespace Common
 {
     namespace FileSystem
@@ -60,6 +66,30 @@ namespace Common
             return path.substr(pos + 1);
         }
 
+        std::string FileSystemImpl::dirName(const Path & path) const
+        {
+            std::string tempPath;
+            if(path.back() == '/')
+            {
+                tempPath = std::string(path.begin(), path.end() -1);
+            }
+            else
+            {
+                tempPath = path;
+            }
+
+            size_t pos = tempPath.rfind('/');
+
+            if (pos == Path::npos)
+            {
+                return ""; // no parent directory
+            }
+
+            int endPos = path.length() - pos;
+
+            return Path(path.begin(), (path.end() - endPos));
+        }
+
         bool FileSystemImpl::exists(const Path &path) const
         {
             struct stat statbuf;
@@ -93,7 +123,7 @@ namespace Common
             return currentWorkingDirectory;
         }
 
-        void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath)
+        void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath) const
         {
             if(::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
@@ -132,7 +162,7 @@ namespace Common
 
         }
 
-        void FileSystemImpl::writeFile(const Path &path, const std::string &content)
+        void FileSystemImpl::writeFile(const Path &path, const std::string &content) const
         {
             std::ofstream outFileStream(path.c_str(), std::ios::out);
 
@@ -150,7 +180,7 @@ namespace Common
 
         }
 
-        void FileSystemImpl::writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir)
+        void FileSystemImpl::writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const
         {
             if(!isDirectory(tempDir))
             {

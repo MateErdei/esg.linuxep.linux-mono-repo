@@ -172,5 +172,21 @@ namespace
         ::remove(filePath.c_str());
     }
 
+    TEST_F( FileSystemImplTest, dirNameReturnsCorrectMatchingValue)
+    {
+        std::vector<std::pair<std::string, std::string>> values = {
+                {"/tmp/tmpfile.txt", "/tmp" },
+                {"/tmp/tmpfile/", "/tmp" },
+                {"/tmp/tmp1/tmp2/tmp3/tmpfile.txt", "/tmp/tmp1/tmp2/tmp3" },
+                {"/tmp", ""},
+                {"tmp", ""},
+                {"",""}
+        };
+        for ( auto & pair: values)
+        {
+            EXPECT_EQ(m_fileSystem->dirName(pair.first), pair.second);
+        }
+    }
+
 }
 
