@@ -81,7 +81,7 @@ def createDirs(INST):
     for path in paths:
         if path == "var":
             safeMkdir(os.path.join(INST,path,"cache","mcs_fragmented_policies"))
-            safeMkdir(os.path.join(INST,path,"lock-sophos"))
+            safeMkdir(os.path.join(INST,path,"lock-sophosspl"))
         elif path == "logs": 
             safeMkdir(os.path.join(INST,path,"base", "sophosspl"))
         elif path == "etc":
