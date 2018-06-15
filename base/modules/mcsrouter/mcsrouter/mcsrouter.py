@@ -32,7 +32,7 @@ class PidFile(object):
                 raise
 
     def __init__(self, installDir):
-        self.__m_pidfilePath = os.path.join(installDir,"var","lock-sophosav","mcsrouter.pid")
+        self.__m_pidfilePath = os.path.join(installDir,"var","lock-sophosspl","mcsrouter.pid")
         self.__safemakedirs(os.path.dirname(self.__m_pidfilePath))
         if os.path.isfile(self.__m_pidfilePath):
             logger.warning("Previous mcsrouter not shutdown cleanly")
@@ -149,7 +149,7 @@ class SophosLogging(object):
         ## Configure directly
         loglevelStr = config.getDefault("LOGLEVEL",LOG_LEVEL_DEFAULT).upper()
         loglevel = getattr(logging, loglevelStr, logging.INFO)
-        logfile = config.getDefault("LOGFILE",os.path.join(installDir,"log","sophosav","mcsrouter.log"))
+        logfile = config.getDefault("LOGFILE",os.path.join(installDir,"logs", "base","sophosspl","mcsrouter.log"))
 
         rootLogger = logging.getLogger()
         rootLogger.setLevel(loglevel)
@@ -167,7 +167,7 @@ class SophosLogging(object):
             rootLogger.addHandler(streamHandler)
 
         envelopeFile = config.getDefault("ENVELOPE_LOG",
-            os.path.join(installDir,"log","sophosav","mcs_envelope.log"))
+            os.path.join(installDir,"logs","base","sophosspl","mcs_envelope.log"))
 
         envelopeLogger = logging.getLogger("ENVELOPES")
         envelopeLogger.propagate = False

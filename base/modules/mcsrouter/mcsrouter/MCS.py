@@ -107,8 +107,8 @@ class MCS(object):
         self.__m_comms = None
         config.setDefault("MCSURL","https://mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep")
         fixedConfig = utils.Config.Config(filename=os.path.join(installDir,"etc","mcs.config"),parentConfig=config)
-        self.__m_policy_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosav","mcs_policy.config"),parentConfig=fixedConfig)
-        self.__m_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosav","mcs.config"),parentConfig=self.__m_policy_config)
+        self.__m_policy_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosspl","mcs_policy.config"),parentConfig=fixedConfig)
+        self.__m_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosspl","mcs.config"),parentConfig=self.__m_policy_config)
         config = self.__m_config
 
         self.__m_installDir = installDir

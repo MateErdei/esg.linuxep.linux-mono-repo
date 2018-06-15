@@ -41,7 +41,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         return "mcsPolicy.xml"
 
     def __policyPath(self):
-        return os.path.join(self.__m_installDir,"rms",self.policyBaseName())
+        return os.path.join(self.__m_installDir,"policy",self.policyBaseName())
 
     def __savePolicy(self, policyXml=None, path=None):
         if policyXml is None:

@@ -60,7 +60,7 @@ def setupLogging():
 
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
 
-    logfile = os.path.join(INST,"log","registerCentral.log")
+    logfile = os.path.join(INST, "logs", "base", "registerCentral.log")
 
     fileHandler = logging.handlers.RotatingFileHandler(logfile,maxBytes=1024*1024,backupCount=5)
     fileHandler.setFormatter(formatter)
@@ -77,13 +77,15 @@ def setupLogging():
     rootLogger.addHandler(streamHandler)
 
 def createDirs(INST):
-    paths = ["var", "event", "status", "tmp", "etc", "log", "rms", "policy", "action"]
+    paths = ["var", "event", "status", "tmp", "etc", "logs", "policy", "action"]
     for path in paths:
         if path == "var":
             safeMkdir(os.path.join(INST,path,"cache","mcs_fragmented_policies"))
-            safeMkdir(os.path.join(INST,path,"lock-sophosav"))
-        elif path in ["log", "etc"]:
-            safeMkdir(os.path.join(INST,path,"sophosav"))
+            safeMkdir(os.path.join(INST,path,"lock-sophos"))
+        elif path == "logs": 
+            safeMkdir(os.path.join(INST,path,"base", "sophosspl"))
+        elif path == "etc":
+            safeMkdir(os.path.join(INST,path, "sophosspl"))
         else:
             safeMkdir(os.path.join(INST, path))
 
@@ -130,18 +132,18 @@ def setSavConfig(arguments):
 
 def cleanup():
     rootConfig = os.path.join(INST,"etc","mcs.config")
-    sophosavConfig = os.path.join(INST,"etc","sophosav","mcs.config")
+    sophosavConfig = os.path.join(INST,"etc","sophosspl","mcs.config") 
     for configFile in [rootConfig, sophosavConfig]:
         try:
             os.unlink(configFile)
         except OSError:
             pass
 
-    rmsfile = os.path.join(INST,"rms","sophos.config")
-    rmsEnabled = os.path.isfile(rmsfile)
+    policyFile = os.path.join(INST,"policy","sophos.config")
+    policyEnabled = os.path.isfile(policyFile)
 
     #~ serviceController = getServiceController()
-    #~ if rmsEnabled:
+    #~ if policyEnabled:
         #~ ## restart RMS
         #~ print("Failed to register with Sophos Central: restarting RMS")
         #~ serviceController.enableAndStart("sav-rms")
@@ -200,8 +202,8 @@ def register(config, INST, logger):
     return ret
 
 def removeMCSPolicy():
-    safeDelete(os.path.join(INST,"etc","sophosav","mcs_policy.config"))
-    safeDelete(os.path.join(INST,"rms","mcsPolicy.xml"))
+    safeDelete(os.path.join(INST,"etc","sophosspl","mcs_policy.config"))
+    safeDelete(os.path.join(INST,"policy","mcsPolicy.xml"))
 
 def getUID(uidText):
     """
@@ -249,7 +251,7 @@ def addOptionsToPolicy(relays, proxy_credentials):
     if relays is None and proxy_credentials is None:
         return
 
-    policy_config_path = os.path.join(INST,"etc","sophosav","mcs_policy.config")
+    policy_config_path = os.path.join(INST,"etc","sophosspl","mcs_policy.config")
     policy_config = utils.Config.Config(policy_config_path)
 
     if relays is not None:
@@ -273,15 +275,15 @@ def addOptionsToPolicy(relays, proxy_credentials):
 
 
     policy_config.save()
-    os.chown(policy_config_path, getUID("sophosav"), getGID("sophosav"))
+    os.chown(policy_config_path, getUID("sophosspl"), getGID("sophosspl"))
     os.chmod(policy_config_path, 0o600)
 
 
 def removeConsoleConfiguration():
-    safeDelete(os.path.join(INST,"rms","avPolicy.xml"))
-    safeDelete(os.path.join(INST,"rms","updatePolicy.xml"))
-    safeDelete(os.path.join(INST,"rms","heartbeatPolicy.xml"))
-    safeDelete(os.path.join(INST,"rms","mtdPolicy.xml"))
+    safeDelete(os.path.join(INST,"policy","avPolicy.xml"))
+    safeDelete(os.path.join(INST,"policy","updatePolicy.xml"))
+    safeDelete(os.path.join(INST,"policy","heartbeatPolicy.xml"))
+    safeDelete(os.path.join(INST,"policy","mtdPolicy.xml"))
 
 def innerMain(argv):
     usage = "Usage: %prog <MCS-Token> <MCS-URL> | %prog [options]"
@@ -339,7 +341,7 @@ def innerMain(argv):
     elif options.reregister:
         ## Need to get the URL and Token from the policy file, in case they have been
         ## updated by Central
-        policy_config = utils.Config.Config(os.path.join(INST,"etc","sophosav","mcs_policy.config"),config)
+        policy_config = utils.Config.Config(os.path.join(INST, "etc", "sophosspl", "mcs_policy.config"),config)
         try:
             token = policy_config.get("MCSToken")
             url = policy_config.get("MCSURL")
@@ -349,7 +351,7 @@ def innerMain(argv):
 
     elif options.deregister:
         print("Deregistering from Sophos Central")
-        clientconfig = utils.Config.Config(os.path.join(INST,"etc","sophosav","mcs.config"))
+        clientconfig = utils.Config.Config(os.path.join(INST, "etc", "sophosspl", "mcs.config"))
         clientconfig.set("MCSID", "reregister")
         clientconfig.set("MCSPassword", "")
         clientconfig.save()
@@ -372,10 +374,10 @@ def innerMain(argv):
             config.save()
 
             ## cleanup RMS files
-            safeDelete(os.path.join(INST,"rms","sophos.config"))
+            safeDelete(os.path.join(INST,"policy","sophos.config"))
 
             ## cleanup last reported update event
-            safeDelete(os.path.join(INST, "var", "run", "sophosav", "update.last_event"))
+            safeDelete(os.path.join(INST, "var", "run", "sophosspl", "update.last_event"))
 
             ## cleanup console config layers
             if not options.reregister:
