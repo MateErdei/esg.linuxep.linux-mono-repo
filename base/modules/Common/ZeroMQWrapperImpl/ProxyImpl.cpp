@@ -31,10 +31,6 @@ Common::ZeroMQWrapperImpl::ProxyImpl::~ProxyImpl()
 {
     // Will stop the thread eventually
     stop();
-    if (m_thread.joinable())
-    {
-        m_thread.join();
-    }
 }
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::start()
@@ -50,6 +46,10 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
 {
     m_context.reset();
     // Wait for thread to exit
+    if (m_thread.joinable())
+    {
+        m_thread.join();
+    }
 }
 
 void ProxyImpl::announceThreadStarted()

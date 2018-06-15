@@ -42,7 +42,7 @@ namespace
     class SenderThread
     {
     public:
-        explicit SenderThread(Common::ZeroMQWrapper::ISocketPublisher& socket, std::string frontendAddress);
+        explicit SenderThread(Common::ZeroMQWrapper::ISocketPublisher& socket, std::string frontendAddress, Common::ZeroMQWrapper::ISocketPublisher::data_t message);
 
         ~SenderThread()
         {
@@ -64,15 +64,17 @@ namespace
         std::thread m_thread;
         bool m_stopThread;
         const std::string m_frontendAddress;
+        Common::ZeroMQWrapper::ISocketPublisher::data_t m_message;
 
         void run();
     };
 
-    SenderThread::SenderThread(Common::ZeroMQWrapper::ISocketPublisher& socket, std::string frontendAddress)
+    SenderThread::SenderThread(Common::ZeroMQWrapper::ISocketPublisher& socket, std::string frontendAddress, Common::ZeroMQWrapper::ISocketPublisher::data_t message)
             : m_socket(socket),
               m_thread(),
               m_stopThread(false),
-              m_frontendAddress(std::move(frontendAddress))
+              m_frontendAddress(std::move(frontendAddress)),
+              m_message(std::move(message))
     {
     }
 
@@ -85,7 +87,7 @@ namespace
     {
         auto sender = &m_socket;
 
-        sender->setTimeout(1000);
+        sender->setTimeout(2000);
 
         // Start sender thread - since we need to wait for subscription to propagate
         sender->connect(m_frontendAddress);
@@ -94,14 +96,14 @@ namespace
         {
             try
             {
-                sender->write({"FOOBAR", "DATA"});
+                sender->write(m_message);
             }
             catch (const Common::ZeroMQWrapper::IIPCException &e)
             {
                 PRINT("Failed to send subscription data: " << e.what());
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
     }
 }
@@ -132,12 +134,12 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
             );
 
     ASSERT_NE(socket.get(), nullptr);
-    socket->setTimeout(1000);
+    socket->setTimeout(2000);
     socket->connect(backend);
     socket->subscribeTo("FOOBAR");
 
     // Start sender thread - since we need to wait for subscription to propagate
-    SenderThread thread(*publisher,frontend);
+    SenderThread thread(*publisher,frontend,{"FOOBAR", "DATA"});
     thread.start();
 
     auto data = socket->read();
@@ -152,4 +154,159 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
 
     proxy->stop();
     proxy.reset();
+}
+
+
+TEST(TestProxyImpl, 2subscribers) // NOLINT
+{
+
+    // Need to share the context to use inproc addresses
+
+    const std::string frontend="inproc://frontend";
+    const std::string backend="inproc://backend";
+    IProxyPtr proxy = createProxy(frontend,backend);
+    ASSERT_NE(proxy.get(),nullptr);
+
+    proxy->start();
+
+    auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
+    ASSERT_NE(proxyImpl,nullptr);
+
+    Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
+
+    // Directly creating to share the same context
+    Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
+            new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder)
+    );
+
+    Common::ZeroMQWrapper::ISocketSubscriberPtr socket1(
+            new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(contextHolder)
+    );
+    ASSERT_NE(socket1.get(), nullptr);
+    socket1->setTimeout(2000);
+    socket1->connect(backend);
+    socket1->subscribeTo("FOOBAR");
+
+
+    Common::ZeroMQWrapper::ISocketSubscriberPtr socket2(
+            new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(contextHolder)
+    );
+    ASSERT_NE(socket2.get(), nullptr);
+    socket2->setTimeout(2000);
+    socket2->connect(backend);
+    socket2->subscribeTo("FOOBAR");
+
+    // Start sender thread - since we need to wait for subscription to propagate
+    SenderThread thread(*publisher,frontend,{"FOOBAR", "DATA"});
+    thread.start();
+
+    auto data = socket1->read();
+
+    EXPECT_EQ(data.at(0),"FOOBAR");
+    EXPECT_EQ(data.at(1),"DATA");
+
+    socket1.reset();
+
+    data = socket2->read();
+
+    EXPECT_EQ(data.at(0),"FOOBAR");
+    EXPECT_EQ(data.at(1),"DATA");
+
+    socket2.reset();
+
+    thread.stop();
+    publisher.reset();
+
+    proxy->stop();
+    proxy.reset();
+}
+
+/**
+ * Disabled this test because it regularly aborts or produces size 3 vectors.
+ * More investigation required, since it isn't limited to inproc sockets.
+ */
+TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
+{
+    // Need to share the context to use inproc addresses
+
+//    const std::string frontend="inproc://frontend";
+    const std::string frontend="ipc:///tmp/frontend";
+    ::unlink("/tmp/frontend");
+//    const std::string backend="inproc://backend";
+    const std::string backend="ipc:///tmp/backend";
+    ::unlink("/tmp/backend");
+    IProxyPtr proxy = createProxy(frontend,backend);
+    ASSERT_NE(proxy.get(),nullptr);
+
+    proxy->start();
+
+    auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
+    ASSERT_NE(proxyImpl,nullptr);
+
+    Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
+
+    // Directly creating to share the same context
+    Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
+            new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder)
+    );
+
+    Common::ZeroMQWrapper::ISocketSubscriberPtr socket(
+            new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(contextHolder)
+    );
+
+    ASSERT_NE(socket.get(), nullptr);
+    socket->setTimeout(2000);
+    socket->connect(backend);
+    socket->subscribeTo("FOOBAR");
+
+    // Start sender thread - since we need to wait for subscription to propagate
+    SenderThread thread1(*publisher,frontend,{"FOOBAR", "DATA"});
+    thread1.start();
+    bool thread1Sent = false;
+
+    // Start sender thread - since we need to wait for subscription to propagate
+    SenderThread thread2(*publisher,frontend,{"FOOBAR", "OTHER"});
+    thread2.start();
+    bool thread2Sent = false;
+
+    int count = 50;
+
+    while (!thread1Sent || !thread2Sent || count == 0)
+    {
+        auto data = socket->read();
+
+        EXPECT_EQ(data.at(0), "FOOBAR");
+        std::string v = data.at(1);
+        if (v == "DATA")
+        {
+            thread1Sent = true;
+        } else if (v == "OTHER")
+        {
+            thread2Sent = true;
+        } else
+        {
+            PRINT("Unexpected value of data.at(1): "<<v<<" @ "<<data.size()<<" @ "<<count);
+            if (data.size() == 3 || v == "FOOBAR")
+            {
+                PRINT("Got a vector of FOOBAR,FOOBAR,"<<data.at(2));
+            }
+            else
+            {
+                EXPECT_TRUE(v == "DATA" || v == "OTHER");
+            }
+        }
+        count -= 1;
+    }
+
+    socket.reset();
+
+    thread1.stop();
+    thread2.stop();
+    publisher.reset();
+
+    proxy->stop();
+    proxy.reset();
+
+    EXPECT_TRUE(thread1Sent);
+    EXPECT_TRUE(thread2Sent);
 }
