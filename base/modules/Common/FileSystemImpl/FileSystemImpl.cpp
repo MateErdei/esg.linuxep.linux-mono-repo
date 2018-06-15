@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <sys/stat.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n";
 namespace Common
@@ -44,7 +45,7 @@ namespace Common
 
             if(path1.back() == '/' && path2.front() == '/' )
             {
-                return path1 + std::string( path2.begin()+1, path2.end());
+                return path1 + path2.substr(1);
             }
         }
 
@@ -56,26 +57,25 @@ namespace Common
             {
                 return path;
             }
-            return Path(path.begin() + pos  + 1, path.end());
+            return path.substr(pos + 1);
         }
 
         bool FileSystemImpl::exists(const Path &path) const
         {
-            std::ifstream fileStream(path);
-            return fileStream.good();
+            struct stat statbuf;
+            int ret = stat(path.c_str(), &statbuf);
+            return ret == 0;
         }
 
         bool FileSystemImpl::isDirectory(const Path & path) const
         {
-            // if valid directory a pointer to the directory stream will be returned.
-            auto * dir = ::opendir(path.c_str());
-            if(dir != nullptr)
-            {
-                closedir(dir);
-                return true;
+            struct stat statbuf;
+            int ret = stat(path.c_str(), &statbuf);
+            if ( ret != 0)
+            {   // if it does not exists, it is not a directory
+                return false;
             }
-
-            return false;
+            return S_ISDIR(statbuf.st_mode);
         }
 
         Path FileSystemImpl::currentWorkingDirectory() const

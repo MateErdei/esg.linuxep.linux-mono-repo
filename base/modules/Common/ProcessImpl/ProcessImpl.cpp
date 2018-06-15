@@ -24,7 +24,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
     // ensure child process do not keep filedescriptors that is only for the parent.
-    void closeFileDescriptors(std::vector<int> keepFds)
+    void closeFileDescriptors(const std::vector<int> & keepFds)
     {
         int fd;
 
@@ -347,6 +347,7 @@ namespace ProcessImpl
         ArgcAndEnv argcAndEnv(path, arguments, extraEnvironment);
 
         m_pipe.reset( new PipeHolder());
+        std::vector<int> fileDescriptorsToPreserveAfterFork({m_pipe->writeFd()});
 
         pid_t child = fork();
         int ret = 0;
@@ -362,7 +363,7 @@ namespace ProcessImpl
             //child
             case 0:
 
-                closeFileDescriptors({m_pipe->writeFd()});
+                closeFileDescriptors(fileDescriptorsToPreserveAfterFork);
 
 
                 // redirect stdout
