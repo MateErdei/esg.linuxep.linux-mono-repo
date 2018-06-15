@@ -165,32 +165,28 @@ namespace SulDownloader
 
             productInformationList.emplace_back(product, productInformation);
         }
-
-
-        std::vector<std::pair<SU_PHandle, ProductInformation>> selectedProducts;
-        std::vector<std::pair<SU_PHandle, ProductInformation>> unwantedProducts;
-        for ( auto & productPair : productInformationList)
+        std::vector<ProductInformation> productMetadataList;
+        for( auto pInfoPair : productInformationList)
         {
-            if ( selection.keepProduct(productPair.second))
-            {
-                LOGSUPPORT("Product will be downloaded: " << productPair.second.getLine());
-                selectedProducts.push_back(productPair);
-            }
-            else
-            {
-                unwantedProducts.push_back(productPair);
-            }
+            productMetadataList.push_back(pInfoPair.second);
         }
 
-        for ( auto & productPair : unwantedProducts)
+        SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);
+
+        for ( int index : selectedIndexes.selected)
         {
+            LOGSUPPORT("Product will be downloaded: " << productMetadataList[index].getLine());
+        }
+
+        for (  int index : selectedIndexes.notselected)
+        {
+            auto & productPair = productInformationList[index];
             if(!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
             {
                 SULUtils::displayLogs(session());
                 LOGERROR("Failed to remove product: " << productPair.second.getLine());
             }
         }
-
 
         if(!SULUtils::isSuccess(SU_synchronise(session())))
         {
@@ -201,13 +197,7 @@ namespace SulDownloader
 
         SULUtils::displayLogs(session());
 
-        std::vector<ProductInformation> selectedProdInfo;
-        for( auto pInfoPair : selectedProducts)
-        {
-            selectedProdInfo.push_back(pInfoPair.second);
-        }
-
-        std::vector<std::string> missingProducts = selection.missingProduct(selectedProdInfo);
+        std::vector<std::string> missingProducts = selectedIndexes.missing;
         if ( !missingProducts.empty())
         {
             for( const auto & missing: missingProducts)
@@ -219,12 +209,10 @@ namespace SulDownloader
             return;
         }
 
-
-
         m_products.clear();
-        for (auto & productPair : selectedProducts)
+        for (int index : selectedIndexes.selected)
         {
-
+            auto & productPair = productInformationList[index];
             if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
                 LOGERROR("Failed to synchronise product: " << productPair.second.getLine());

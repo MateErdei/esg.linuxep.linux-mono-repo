@@ -4,9 +4,59 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <cassert>
 #include "ProductSelection.h"
 #include "SulDownloaderException.h"
 #include "Logger.h"
+
+namespace
+{
+    /**
+     * Stable: preserve the order that index are added
+     * Set: value garantees no duplication
+     * Index: Meant for index of arrays hence valid values are 0->Capacity-1
+     */
+    class StableSetIndex
+    {
+        std::vector<bool> m_trackIndexes;
+        std::vector<size_t> m_indexes;
+    public:
+        StableSetIndex( int capacity ): m_trackIndexes(capacity,false), m_indexes()
+        {
+
+        }
+
+        bool hasIndex( size_t index ) const
+        {
+            assert( index < m_trackIndexes.size());
+            return m_trackIndexes[index];
+        }
+
+        void addIndex(size_t index)
+        {
+            if ( ! hasIndex(index))
+            {
+                m_trackIndexes[index ] = true;
+                m_indexes.push_back(index);
+            }
+        }
+        void addIndexes( const std::vector<size_t> & values)
+        {
+            for (size_t value: values)
+            {
+                addIndex(value);
+            }
+        }
+
+        const std::vector<size_t>& values() const
+        {
+            return m_indexes;
+        }
+    };
+
+
+
+}
 
 namespace SulDownloader
 {
@@ -67,19 +117,6 @@ namespace SulDownloader
     }
 
 
-    bool ProductSelection::keepProduct(const ProductInformation & productInformation) const
-    {
-        for( auto & selector : m_selection)
-        {
-            if( selector->keepProduct(productInformation))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData & configurationData)
     {
         ProductSelection productSelection;
@@ -103,33 +140,48 @@ namespace SulDownloader
         return productSelection;
     }
 
-    // if a ISingleProductSelector does not return keepThis for any of the downloadedProducts, that selector has not been applied
-    // and it refers to missing product.
-    std::vector<std::string>
-    ProductSelection::missingProduct(const std::vector<ProductInformation> &downloadedProducts) const
+    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductInformation> &warehouseProducts)
     {
-        std::vector<std::string> missingProducts;
+        SelectedResultsIndexes selection;
+        StableSetIndex selectedProductsIndex(warehouseProducts.size());
+
         for ( auto & selector : m_selection)
         {
-            if ( !selectAtLeastOneProduct(*selector, downloadedProducts))
+            auto selectedIndexes = selectedProducts(*selector, warehouseProducts);
+            if ( selectedIndexes.empty())
             {
-                missingProducts.push_back(selector->targetProductName());
+                selection.missing.push_back(selector->targetProductName());
+            }
+            else
+            {
+                selectedProductsIndex.addIndexes(selectedIndexes);
             }
         }
 
-        return missingProducts;
+        selection.selected = selectedProductsIndex.values();
+
+        for ( size_t i =0 ; i < warehouseProducts.size(); i++)
+        {
+            if ( !selectedProductsIndex.hasIndex(i))
+            {
+                selection.notselected.push_back(i);
+            }
+        }
+
+        return selection;
     }
 
-    bool ProductSelection::selectAtLeastOneProduct(ISingleProductSelector &selector,
-                                                   const std::vector<ProductInformation> &downloadedProducts) const
+    std::vector<size_t> ProductSelection::selectedProducts(ISingleProductSelector & selector,
+                                                        const std::vector<ProductInformation> &warehouseProducts)
     {
-        for( auto & productInfo : downloadedProducts)
+        StableSetIndex set(warehouseProducts.size());
+        for ( size_t i = 0 ; i< warehouseProducts.size(); i++)
         {
-            if ( selector.keepProduct(productInfo))
+            if( selector.keepProduct(warehouseProducts[i]))
             {
-                return true;
+                set.addIndex(i);
             }
         }
-        return false;
+        return set.values();
     }
 }
