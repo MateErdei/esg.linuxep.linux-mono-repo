@@ -1,11 +1,16 @@
-//
-// Created by pair on 06/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "DownloadReport.h"
 #include "Warehouse.h"
 #include "Product.h"
 #include "TimeTracker.h"
+#include "MessageUtility.h"
+
+
 namespace SulDownloader
 {
 
@@ -47,6 +52,19 @@ namespace SulDownloader
         report.setProductsInfo(products);
         return report;
     }
+
+    DownloadReport DownloadReport::Report(const std::string &errorDescription)
+    {
+        DownloadReport report;
+        TimeTracker tt;
+        tt.setStartTime(TimeTracker::getCurrTime());
+        report.setTimings(tt);
+        report.m_description = errorDescription;
+        report.m_status = WarehouseStatus::UNSPECIFIED;
+        return report;
+    }
+
+
 
     WarehouseStatus DownloadReport::getStatus() const
     {
@@ -115,10 +133,43 @@ namespace SulDownloader
         m_sulError = error.SulError;
     }
 
-    int DownloadReport::exitCode()
+    int DownloadReport::exitCode() const
     {
         return static_cast<int>( m_status);
     }
+
+
+    // add one return the json content directly.
+    SulDownloaderProto::DownloadStatusReport DownloadReport::fromReport( const DownloadReport & report)
+    {
+        SulDownloaderProto::DownloadStatusReport protoReport;
+        protoReport.set_starttime(report.startTime());
+        protoReport.set_finishtime(report.finishedTime());
+        protoReport.set_synctime(report.syncTime());
+
+        protoReport.set_status( toString( report.getStatus()));
+        protoReport.set_description(report.getDescription());
+        protoReport.set_sulerror(report.sulError());
+
+        for ( auto & product : report.products())
+        {
+            SulDownloaderProto::ProductStatusReport * productReport = protoReport.add_products();
+            productReport->set_productname( product.name);
+            productReport->set_rigidname( product.rigidName);
+            productReport->set_downloadversion( product.downloadedVersion);
+            productReport->set_installedversion( product.installedVersion);
+        }
+
+        return protoReport;
+    }
+
+    std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport &report)
+    {
+            auto protoReport = DownloadReport::fromReport(report);
+            std::string json = MessageUtility::protoBuf2Json(protoReport);
+            return {report.exitCode() , json };
+    }
+
 
 
 }

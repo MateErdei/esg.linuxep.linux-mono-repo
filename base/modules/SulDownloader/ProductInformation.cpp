@@ -1,7 +1,8 @@
-//
-// Created by pair on 05/06/18.
-//
+/******************************************************************************************************
 
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "ProductInformation.h"
 #include <cassert>
 namespace SulDownloader

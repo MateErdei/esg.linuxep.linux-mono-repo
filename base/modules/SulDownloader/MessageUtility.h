@@ -4,24 +4,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_TAG_H
-#define EVEREST_TAG_H
+#ifndef EVEREST_BASE_MESSAGEUTILITY_H
+#define EVEREST_BASE_MESSAGEUTILITY_H
 
 #include <string>
+#include <google/protobuf/util/json_util.h>
 
 namespace SulDownloader
 {
-    struct Tag
-    {
-        Tag(const std::string &t, const std::string &b, const std::string &l)
-                : tag(t), baseversion(b), label(l)
-        {
-        }
 
-        std::string tag;
-        std::string baseversion;
-        std::string label;
+    class MessageUtility
+    {
+    public:
+        static std::string protoBuf2Json( google::protobuf::Message & message);
     };
+
 }
 
-#endif //EVEREST_TAG_H
+#endif //EVEREST_BASE_MESSAGEUTILITY_H

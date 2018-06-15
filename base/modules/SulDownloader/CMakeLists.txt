@@ -30,6 +30,8 @@ add_library(SulDownloader SHARED
         SULUtils.h
         Logger.cpp
         Logger.h
+        MessageUtility.cpp
+        MessageUtility.h
         ${CONFIG_SETTINGS_PROTO_SRC}
         ${CONFIG_SETTINGS_PROTO_H}
         ${DOWNLOADER_REPORT_PROTO_SRC}
@@ -51,6 +53,6 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 
-target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES})
+target_link_libraries(SulDownloader PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl)
 
 include_directories(BEFORE ${SUL_INPUT}/include)

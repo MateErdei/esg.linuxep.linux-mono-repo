@@ -1,7 +1,8 @@
-//
-// Created by pair on 06/06/18.
-//
+/******************************************************************************************************
 
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #ifndef EVEREST_DOWNLOADREPORT_H
 #define EVEREST_DOWNLOADREPORT_H
 
@@ -10,6 +11,10 @@
 #include <ctime>
 #include <string>
 #include "WarehouseError.h"
+
+
+#include "DownloadReport.pb.h"
+
 namespace SulDownloader
 {
     class Warehouse;
@@ -30,6 +35,9 @@ namespace SulDownloader
     public:
         static DownloadReport Report( const Warehouse & , const TimeTracker & timeTracker);
         static DownloadReport Report(const std::vector<Product> &, const TimeTracker &  timeTracker);
+        static DownloadReport Report(const std::string & errorDescription);
+        static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport & report);
+        static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);
 
         WarehouseStatus getStatus() const;
         std::string getDescription() const;
@@ -39,7 +47,7 @@ namespace SulDownloader
         const std::string &syncTime() const;
         std::vector<ProductReport> products() const;
 
-        int exitCode();
+        int exitCode() const;
 
     private:
         WarehouseStatus  m_status;

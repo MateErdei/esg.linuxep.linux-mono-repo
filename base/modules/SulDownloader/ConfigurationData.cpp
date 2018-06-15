@@ -1,24 +1,21 @@
-//
-// Created by pair on 05/06/18.
-//
+/******************************************************************************************************
 
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include <iostream>
 #include <sys/param.h>
 #include <unistd.h>
 #include <cassert>
 #include "ConfigurationData.h"
 #include "SulDownloaderException.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Logger.h"
 
-
-
-namespace
-{
-//    bool dirExist( const std::string & path);
-//    bool fileExist( const std::string & path );
-//    bool createDir( const std::string & path );// ::mkdir(localRepository.c_str(), 0700);//FIXME
-//    std::string joinPath( const std::string & parentPath, const std::string & childPath);
-}
-
-
+#include <google/protobuf/util/json_util.h>
+#include <ConfigurationSettings.pb.h>
+#include <sys/stat.h>
 
 
 namespace SulDownloader
@@ -103,48 +100,60 @@ namespace SulDownloader
 
     bool ConfigurationData::verifySettingsAreValid()
     {
+        using namespace Common::FileSystem;
+
         m_state = State::FailedVerified;
 
         // Must have, primary product, warehouse credentials, update location
 
         if(m_sophosUpdateUrls.size() == 0)
         {
+            LOGERROR( "Invalid Settings: No warehouse urls provided.");
             return false;
         }
 
         if(m_productSelection.size() == 0)
         {
+            LOGERROR( "Invalid Settings: No product selection.");
             return false;
         }
 
         // productselection should already be ordered with primary being the first one.
         if(m_productSelection[0].Name.empty() || m_productSelection[0].Prefix == true || m_productSelection[0].Primary == false)
         {
+            LOGERROR( "Invalid Settings: No primary product provided.");
             return false;
         }
 
-//
-//        // localRepository should either exist or be created
-//        std::string localRepository = getLocalRepository();
-//        if ( !dirExist(localRepository) && !createDir(localRepository))
-//        {
-//            return false;
-//
-//        }
-//
-//        // certificate path should exist and contain the root.crt and ps_rootca.crt
-//        std::string certificatePath = getCertificatePath();
-//        if ( !dirExist(certificatePath) ||
-//             !fileExist( joinPath(certificatePath, "root.crt")) ||
-//             !fileExist( joinPath(certificatePath, "ps_rootca.crt"))
-//           )
-//        {
-//            return false;
-//        }
+        auto fileSystem = createFileSystem();
+
+        // localRepository should either exist or be created
+        std::string localRepository = getLocalRepository();
+        if (!fileSystem->isDirectory(localRepository))
+        {
+            // TODO Check if using correct mode.
+            if(mkdir(localRepository.c_str(), 0700) != 0)
+            {
+                LOGERROR( "Invalid Settings: Local repository path can not be created: " << localRepository);
+                return false;
+            }
+        }
+
+        // certificate path should exist and contain the root.crt and ps_rootca.crt
+        std::string certificatePath = getCertificatePath();
+        if ( !fileSystem->exists(certificatePath) ||
+             !fileSystem->exists(fileSystem->join(certificatePath, "rootca.crt")) ||
+             !fileSystem->exists(fileSystem->join(certificatePath, "ps_rootca.crt"))
+           )
+        {
+            LOGSUPPORT( "Certificate Path: " << certificatePath );
+            LOGERROR( "Invalid Settings: Certificate path does not contain required files.");
+            return false;
+        }
 
 
         m_state = State::Verified;
-        return false;
+        return true;
 
 
     }
@@ -170,5 +179,66 @@ namespace SulDownloader
 
     ConfigurationData::LogLevel ConfigurationData::getLogLevel() const {
         return LogLevel::VERBOSE;
+    }
+
+
+    // remember in the end to call configurationdata.verify();
+    ConfigurationData ConfigurationData::fromJsonSettings( const std::string & settingsString )
+    {
+        using namespace google::protobuf::util;
+        using SulDownloaderProto::ConfigurationSettings;
+
+        ConfigurationSettings settings;
+        auto status = JsonStringToMessage(settingsString, &settings );
+        if ( !status.ok())
+        {
+            std::cout << "Failed to process jason message";
+            throw SulDownloaderException( "Failed to process json message");
+        }
+
+        // load input string (json) into the configuration data
+        // run runSULDownloader
+        // and serialize teh DownloadReport into json and give the error code/or success
+        auto sUrls = settings.sophosurls();
+        std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls) );
+        sUrls = settings.updatecache();
+        std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls) );
+        Credentials credential( settings.credential().username(), settings.credential().password());
+        Proxy proxy( settings.proxy().url(), Credentials(settings.proxy().credential().username(), settings.proxy().credential().password()));
+
+        ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
+        // FIXME: must come from the ConfigurationSettings.
+        configurationData.setCertificatePath("/home/pair/dev_certificates");
+        configurationData.setLocalRepository("/tmp/warehouse");
+        ProductGUID primaryProductGUID;
+        primaryProductGUID.Name = settings.primary();
+        primaryProductGUID.Primary = true;
+        primaryProductGUID.Prefix = false;
+        primaryProductGUID.releaseTag = settings.releasetag();
+        primaryProductGUID.baseVersion = settings.baseversion();
+        configurationData.addProductSelection(primaryProductGUID);
+
+        for(auto product : settings.fullnames())
+        {
+            ProductGUID productGUID;
+            productGUID.Name = product;
+            productGUID.releaseTag = settings.releasetag();
+            productGUID.baseVersion = settings.baseversion();
+            configurationData.addProductSelection(productGUID);
+        }
+
+        for(auto product : settings.prefixnames())
+        {
+            ProductGUID productGUID;
+            productGUID.Name = product;
+            productGUID.Prefix = true;
+            productGUID.releaseTag = settings.releasetag();
+            productGUID.baseVersion = settings.baseversion();
+            configurationData.addProductSelection(productGUID);
+        }
+
+        configurationData.setCertificatePath(settings.certificatepath());
+
+        return configurationData;
     }
 }

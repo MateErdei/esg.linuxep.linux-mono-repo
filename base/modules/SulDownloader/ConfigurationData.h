@@ -1,6 +1,8 @@
-//
-// Created by pair on 05/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef SULDOWNLOADER_CONFIGURATIONDATA_H
 #define SULDOWNLOADER_CONFIGURATIONDATA_H
@@ -24,6 +26,13 @@ namespace SulDownloader
         std::string baseVersion;
     };
 
+    /**
+     * Holds all the settings that SulDownloader needs to run which includes:
+     *  - Information about connection
+     *  - Information about the products to download
+     *  - Config for log verbosity.
+     *
+     */
     class ConfigurationData
     {
     public:
@@ -58,6 +67,8 @@ namespace SulDownloader
 
         bool verifySettingsAreValid();
         bool isVerified() const;
+
+        static ConfigurationData fromJsonSettings( const std::string & settingsString );
 
     private:
         enum class State{Initialized, Verified, FailedVerified};

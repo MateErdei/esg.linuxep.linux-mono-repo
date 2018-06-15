@@ -1,6 +1,8 @@
-//
-// Created by pair on 11/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_WAREHOUSEERROR_H
 #define EVEREST_BASE_WAREHOUSEERROR_H

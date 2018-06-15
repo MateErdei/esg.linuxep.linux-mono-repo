@@ -1,6 +1,8 @@
-//
-// Created by pair on 06/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_SULDOWNLOADEREXCEPTIONS_H
 #define EVEREST_SULDOWNLOADEREXCEPTIONS_H
