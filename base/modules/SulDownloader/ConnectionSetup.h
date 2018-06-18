@@ -21,8 +21,8 @@ namespace SulDownloader
     {
 
     public:
-        explicit  ConnectionSetup ( const std::string updateLocationURL,Credentials credentials = Credentials(), bool isCacheUpdate = false
-                , Proxy proxy = Proxy());
+        explicit  ConnectionSetup ( const std::string & updateLocationURL, const Credentials & credentials = Credentials(), bool isCacheUpdate = false
+                , const Proxy&  proxy = Proxy());
 
         const Credentials &getCredentials() const;
 

@@ -39,7 +39,8 @@ namespace SulDownloader
     {
     public:
         enum class LogLevel{NORMAL, VERBOSE};
-        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  Credentials credentials = Credentials(), const std::vector<std::string> & updateCache = std::vector<std::string>(), Proxy proxy = Proxy());
+        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  const Credentials& credentials = Credentials(),
+                const std::vector<std::string> & updateCache = std::vector<std::string>(), const Proxy& proxy = Proxy());
 
         const Credentials &getCredentials() const;
 
@@ -74,16 +75,16 @@ namespace SulDownloader
         std::string getLocalWarehouseRepository() const;
         std::string getLocalDistributionRepository() const;
 
-        std::string getCertificatePath() const ;
-        std::string getUpdateCacheSslCertificatePath() const;
+        const std::string& getCertificatePath() const ;
+        const std::string& getUpdateCacheSslCertificatePath() const;
 
         void addProductSelection(const ProductGUID &productGUID);
-        const std::vector<ProductGUID> getProductSelection() const;
+        const std::vector<ProductGUID> & getProductSelection() const;
 
-        std::string getSystemSslCertificatePath() const;
+        const std::string& getSystemSslCertificatePath() const;
         LogLevel getLogLevel() const;
 
-        std::vector<std::string> getInstallArguments() const;
+        const std::vector<std::string> & getInstallArguments() const;
         void setInstallArguments(const std::vector<std::string> & installArguments);
 //TODO document what are the verifications that are performed.
         bool verifySettingsAreValid();

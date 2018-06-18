@@ -72,7 +72,7 @@ namespace SulDownloader
         return m_status;
     }
 
-    std::string DownloadReport::getDescription() const
+    const std::string& DownloadReport::getDescription() const
     {
         return m_description;
     }
@@ -93,7 +93,7 @@ namespace SulDownloader
     }
 
 
-    std::vector<ProductReport> DownloadReport::products() const
+    const std::vector<ProductReport>& DownloadReport::products() const
     {
         return m_productReport;
     }
@@ -124,7 +124,7 @@ namespace SulDownloader
         m_finishedTime = timeTracker.finishedTime();
     }
 
-    std::string DownloadReport::sulError() const
+    const std::string& DownloadReport::sulError() const
     {
         return m_sulError;
     }

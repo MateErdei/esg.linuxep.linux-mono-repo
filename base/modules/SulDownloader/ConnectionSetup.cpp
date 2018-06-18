@@ -11,10 +11,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    ConnectionSetup::ConnectionSetup(const std::string updateLocationURL,
-                                     Credentials credentials,
+    ConnectionSetup::ConnectionSetup(const std::string& updateLocationURL,
+                                     const Credentials& credentials,
                                      bool isCacheUpdate,
-                                     Proxy proxy)
+                                     const Proxy&  proxy)
     : m_credentials(credentials)
     , m_isUpdateCache(isCacheUpdate)
     , m_proxy(proxy)

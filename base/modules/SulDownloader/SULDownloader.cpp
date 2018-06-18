@@ -47,7 +47,7 @@ namespace
 
 namespace SulDownloader
 {
-    DownloadReport runSULDownloader( ConfigurationData & configurationData)
+    DownloadReport runSULDownloader( const ConfigurationData & configurationData)
     {
         SULInit init;
         assert( configurationData.isVerified());

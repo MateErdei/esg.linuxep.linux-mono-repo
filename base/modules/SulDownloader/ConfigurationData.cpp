@@ -31,8 +31,8 @@ namespace
 namespace SulDownloader
 {
 
-    ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, Credentials credentials,
-                                         const std::vector<std::string> &updateCache, Proxy proxy)
+    ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, const Credentials &credentials,
+                                         const std::vector<std::string> &updateCache, const Proxy & proxy)
     : m_credentials(credentials)
     , m_localUpdateCacheUrls(updateCache)
     , m_proxy(proxy)
@@ -86,17 +86,17 @@ namespace SulDownloader
         m_proxy = proxy;
     }
 
-    std::string ConfigurationData::getCertificatePath() const
+    const std::string& ConfigurationData::getCertificatePath() const
     {
         return  m_certificatePath;
     }
 
-    std::string ConfigurationData::getUpdateCacheSslCertificatePath() const
+    const std::string& ConfigurationData::getUpdateCacheSslCertificatePath() const
     {
         return m_updateCacheSslCertificatePath;
     }
 
-    std::string ConfigurationData::getSystemSslCertificatePath() const
+    const std::string& ConfigurationData::getSystemSslCertificatePath() const
     {
         return m_systemSslCertificatePath;
     }
@@ -244,7 +244,7 @@ namespace SulDownloader
         m_productSelection.push_back(productGUID);
     }
 
-    const std::vector<ProductGUID> ConfigurationData::getProductSelection() const
+    const std::vector<ProductGUID>& ConfigurationData::getProductSelection() const
     {
         return m_productSelection;
     }
@@ -327,7 +327,7 @@ namespace SulDownloader
         return configurationData;
     }
 
-    std::vector<std::string> ConfigurationData::getInstallArguments() const
+    const std::vector<std::string> & ConfigurationData::getInstallArguments() const
     {
         return m_installArguments;
     }

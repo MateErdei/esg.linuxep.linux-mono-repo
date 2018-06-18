@@ -30,7 +30,7 @@ namespace SulDownloader
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
-    DownloadReport runSULDownloader( ConfigurationData & configurationData);
+    DownloadReport runSULDownloader( const ConfigurationData & configurationData);
 
 
     /**

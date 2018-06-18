@@ -27,7 +27,7 @@ namespace SulDownloader
         m_name = name;
     }
 
-    void ProductMetadata::setTags(std::vector<Tag> tags)
+    void ProductMetadata::setTags(const std::vector<Tag>& tags)
     {
         m_tags = tags;
     }
@@ -67,7 +67,7 @@ namespace SulDownloader
         m_defaultHomeFolder = defaultHomeFolder;
     }
 
-    std::string ProductMetadata::getDefaultHomePath() const
+    const std::string& ProductMetadata::getDefaultHomePath() const
     {
         return m_defaultHomeFolder;
     }

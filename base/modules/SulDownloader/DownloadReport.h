@@ -52,12 +52,12 @@ namespace SulDownloader
         static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);
 
         WarehouseStatus getStatus() const;
-        std::string getDescription() const;
-        std::string sulError() const;
+        const std::string& getDescription() const;
+        const std::string& sulError() const;
         const std::string &startTime() const;
         const std::string &finishedTime() const;
         const std::string &syncTime() const;
-        std::vector<ProductReport> products() const;
+        const std::vector<ProductReport>& products() const;
 
         int exitCode() const;
 

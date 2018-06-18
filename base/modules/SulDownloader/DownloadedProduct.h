@@ -26,23 +26,89 @@ namespace SulDownloader
     {
     public:
         explicit DownloadedProduct(  const ProductMetadata&  );
-        bool verify();
 
+        /**
+         * Perform a versig verification.
+         * @note If the verification fails, internal error will be set and can be checked by hasError.
+         * @pre ::setDistributePath called first and ::hasError return false.
+         */
+        void verify();
+        /**
+         * Run the installer that should be in ::distributePath() + /install.sh.
+         * Passing the installArgs to the installer
+         *
+         * @param installArgs
+         *
+         * @note If the installer fails, the internal error will be set. It can be checked with the hasError.
+         * @pre ::verify called first and ::hasError return false.
+         */
         void install(const std::vector<std::string> & installArgs);
+
+        /**
+         *
+         * @return true if any error was set for the DownloadedProduct
+         */
         bool hasError() const;
-        //void setError( const std::string & );
+        /**
+         * Set description of a failure related to the DownloadedProduct. This is used either internaly when
+         * ::verify and ::install is called. But can also be called by the WarehoureRepository to signal error in distributing
+         * the product.
+         *
+         * @param error Description of the Failure related to the product.
+         */
         void setError( WarehouseError error);
         WarehouseError getError() const;
-        std::string distributionFolderName();
+
+        /**
+         * The Distribute path is the local directory where the product files and the installer is found.
+         * Install uses this path in order to work out the expected installer path and execute it.
+         *
+         * This method is to be used by the WarehouseRepository and must be executed before ::verify or ::install.
+         *
+         * @param distributePath path to the local directory where the product is to be found to run the installer.
+         */
         void setDistributePath(const std::string & distributePath);
-        std::string distributePath() const;
+        /**
+         *
+         * @return The path configured by setDistributePath.
+         */
+        const std::string& distributePath() const;
+
+        /**
+         *
+         * @return The ProductMetadata associated with the current DownloadedProduct.
+         */
         const ProductMetadata & getProductMetadata() const;
-        std::string getLine() const;
-        std::string getName() const;
+        /**
+         * Auxiliar method to return the product line. It is equivalent to: getProductMetadata().getLine()
+         * @return Product Line
+         */
+        const std::string& getLine() const;
+        /**
+         * Auxiliar method to return the folder name. It is equivalent to: getProductMetadata().getDefaultHomePath()
+         * @return Product Line
+         */
+        const std::string& distributionFolderName();
+        /**
+         *
+         * @return Flag configured by ::setProductHasChanged
+         */
         bool productHasChanged() const;
-        void setProductHasChanged( bool  );
-        std::string getPostUpdateInstalledVersion() const;
-        std::string getPreUpdateInstalledVersion() const ;
+        /**
+         * Set by the WarehouseRepository to signal that at the distribution the WarehouseRepository found that there are
+         * updates for the downloaded product.
+         *
+         * Internally nothing is processed. The flag is just kept and returned on productHasChanged.
+         *
+         * This is intended to be used to check if install must be executed or not during an product update.
+         *
+         * @param hasChanged True if there are changes. False otherwise.
+         */
+        void setProductHasChanged( bool hasChanged );
+
+        //FIXME: implement the report on installed versions LINUXEP-6124
+        const std::string& getPostUpdateInstalledVersion() const;
+        const std::string& getPreUpdateInstalledVersion() const ;
         void setPreUpdateInstalledVersion(const std::string & preUpdateInstalledVersion);
         void setPostUpdateInstalledVersion(const std::string & postUpdateInstalledVersion);
 

@@ -57,10 +57,10 @@ namespace SulDownloader
     public:
         static ProductSelection CreateProductSelection( const ConfigurationData & );
         void appendSelector(std::unique_ptr<ISingleProductSelector> );
-        SelectedResultsIndexes selectProducts( const std::vector<ProductMetadata> & warehouseProducts);
+        SelectedResultsIndexes selectProducts( const std::vector<ProductMetadata> & warehouseProducts) const;
     private:
         std::vector<std::unique_ptr<ISingleProductSelector>> m_selection;
-        std::vector<size_t> selectedProducts( ISingleProductSelector & , const std::vector<ProductMetadata> & warehouseProducts );
+        std::vector<size_t> selectedProducts( const ISingleProductSelector & , const std::vector<ProductMetadata> & warehouseProducts ) const;
     };
 
 

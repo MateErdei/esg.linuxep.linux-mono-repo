@@ -22,12 +22,11 @@ namespace SulDownloader
 
     }
 
-    bool DownloadedProduct::verify()
+    void DownloadedProduct::verify()
     {
         assert(m_state == State::Distributed);
         m_state = State::Verified;
         // TODO: implement verify LINUXEP-6112
-        return false;
     }
 
 
@@ -103,7 +102,7 @@ namespace SulDownloader
         return m_error;
     }
 
-    std::string DownloadedProduct::distributionFolderName()
+    const std::string& DownloadedProduct::distributionFolderName()
     {
         return m_productMetadata.getDefaultHomePath();
     }
@@ -119,19 +118,14 @@ namespace SulDownloader
         return m_productMetadata;
     }
 
-    std::string DownloadedProduct::distributePath() const
+    const std::string& DownloadedProduct::distributePath() const
     {
         return m_distributePath;
     }
 
-    std::string DownloadedProduct::getLine() const
+    const std::string&  DownloadedProduct::getLine() const
     {
         return m_productMetadata.getLine();
-    }
-
-    std::string DownloadedProduct::getName() const
-    {
-        return m_productMetadata.getName();
     }
 
     bool DownloadedProduct::productHasChanged() const
@@ -144,7 +138,7 @@ namespace SulDownloader
         m_productHasChanged = productHasChanged;
     }
 
-    std::string DownloadedProduct::getPostUpdateInstalledVersion() const
+    const std::string& DownloadedProduct::getPostUpdateInstalledVersion() const
     {
         return m_postUpdateInstalledVersion;
     }
@@ -154,7 +148,7 @@ namespace SulDownloader
         m_postUpdateInstalledVersion = postUpdateInstalledVersion;
     }
 
-    std::string DownloadedProduct::getPreUpdateInstalledVersion() const
+    const std::string& DownloadedProduct::getPreUpdateInstalledVersion() const
     {
         return m_preUpdateInstalledVersion;
     }

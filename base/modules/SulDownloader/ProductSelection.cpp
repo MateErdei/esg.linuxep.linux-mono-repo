@@ -140,7 +140,7 @@ namespace SulDownloader
         return productSelection;
     }
 
-    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata> &warehouseProducts)
+    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata> &warehouseProducts) const
     {
         SelectedResultsIndexes selection;
         StableSetIndex selectedProductsIndex(warehouseProducts.size());
@@ -171,8 +171,8 @@ namespace SulDownloader
         return selection;
     }
 
-    std::vector<size_t> ProductSelection::selectedProducts(ISingleProductSelector & selector,
-                                                        const std::vector<ProductMetadata> &warehouseProducts)
+    std::vector<size_t> ProductSelection::selectedProducts(const ISingleProductSelector & selector,
+                                                        const std::vector<ProductMetadata> &warehouseProducts) const
     {
         StableSetIndex set(warehouseProducts.size());
         for ( size_t i = 0 ; i< warehouseProducts.size(); i++)

@@ -41,10 +41,10 @@ namespace SulDownloader
 
         return candidates;
     }
-
-    void ConnectionSelector::setLastSuccessfullConnection(const ConnectionSetup & /*connectionSetup*/,
-                                                          const ConfigurationData & /*configurationData*/)
-    {
-
-    }
+//
+//    void ConnectionSelector::setLastSuccessfullConnection(const ConnectionSetup & /*connectionSetup*/,
+//                                                          const ConfigurationData & /*configurationData*/)
+//    {
+//
+//    }
 }

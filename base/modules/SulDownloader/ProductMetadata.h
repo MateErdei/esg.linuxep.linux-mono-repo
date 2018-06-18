@@ -25,14 +25,14 @@ namespace SulDownloader
         void setLine(const std::string& line);
         const std::string& getName() const;
         void setName(const std::string& name);
-        void setTags(std::vector<Tag> tags);
+        void setTags(const std::vector<Tag>& tags);
         bool hasTag(const std::string & releaseTag) const ;
 
         std::string getBaseVersion() const;
         const std::string& getVersion() const;
         void setVersion(const std::string &version);
         void setDefaultHomePath(const std::string & defaultHomeFolder);
-        std::string getDefaultHomePath() const;
+        const std::string& getDefaultHomePath() const;
 
     private:
         std::vector<Tag> m_tags;
