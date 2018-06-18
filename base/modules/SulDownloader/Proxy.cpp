@@ -29,7 +29,7 @@ namespace SulDownloader
 
     bool Proxy::empty() const
     {
-        return m_url.empty();
+        return m_url.empty() || m_url == "noproxy:";
     }
 
 

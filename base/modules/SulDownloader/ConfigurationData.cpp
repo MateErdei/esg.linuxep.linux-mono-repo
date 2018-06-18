@@ -16,7 +16,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <google/protobuf/util/json_util.h>
 #include <ConfigurationSettings.pb.h>
 #include <sys/stat.h>
-
+namespace
+{
+    bool hasEnvironmentProxy()
+    {
+        return (secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr);
+    }
+}
 
 namespace SulDownloader
 {
@@ -259,5 +265,23 @@ namespace SulDownloader
     void ConfigurationData::setInstallArguments(const std::vector<std::string> &installArguments)
     {
         m_installArguments = installArguments;
+    }
+
+    std::vector<Proxy> ConfigurationData::proxiesList() const
+    {
+        std::vector<Proxy> options;
+        if ( m_proxy.empty())
+        {
+            if ( hasEnvironmentProxy())
+            {
+                options.push_back( Proxy("environment:"));
+            }
+            options.push_back(m_proxy);
+        }
+        else
+        {
+            options.push_back(m_proxy);
+        }
+        return options;
     }
 }

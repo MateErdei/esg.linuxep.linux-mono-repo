@@ -25,7 +25,7 @@ namespace SulDownloader
         std::string releaseTag;
         std::string baseVersion;
     };
-//TODO improve documentation of ConfigurationData 
+//TODO improve documentation of ConfigurationData
     /**
      * Holds all the settings that SulDownloader needs to run which includes:
      *  - Information about connection
@@ -56,6 +56,16 @@ namespace SulDownloader
         const Proxy &getProxy() const;
 
         void setProxy(const Proxy &proxy);
+
+        /**
+         * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
+         * Hence, there will be either:
+         *  - 1 proxy to try: configured proxy
+         *  - 2 proxies: environment and no proxy
+         * @return list of proxies to try to connection.
+         */
+        std::vector<Proxy> proxiesList() const;
+
         void setCertificatePath(const std::string &  certificatePath);
         void setLocalRepository(const std::string & localRepository);
         std::string getCertificatePath() const ;

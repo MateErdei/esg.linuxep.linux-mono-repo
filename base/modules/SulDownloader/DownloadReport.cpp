@@ -46,7 +46,8 @@ namespace SulDownloader
         {
             if ( product.hasError())
             {
-                report.setError("Update failed");
+                report.m_description = "Update failed";
+                report.m_status = WarehouseStatus::INSTALLFAILED;
             }
         }
         report.setProductsInfo(products);
