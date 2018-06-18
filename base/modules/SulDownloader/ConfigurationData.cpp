@@ -171,18 +171,28 @@ namespace SulDownloader
 
         auto fileSystem = createFileSystem();
 
-        // localRepository should either exist or be created
+        std::string installationRootPath = getInstallationRootPath();
+        if (!fileSystem->isDirectory(installationRootPath))
+        {
+            LOGERROR( "Invalid Settings: installation root path does not exist or is not a directory: " << installationRootPath);
+            return false;
+        }
+
+
         std::string localWarehouseRepository = getLocalWarehouseRepository();
         if (!fileSystem->isDirectory(localWarehouseRepository))
         {
-            // TODO Check if using correct mode.
-            // FIXME: remove creation of directory in the verifySettingsAreValid.
-            if(mkdir(localWarehouseRepository.c_str(), 0700) != 0)
-            {
-                LOGERROR( "Invalid Settings: Local repository path can not be created: " << localWarehouseRepository);
-                return false;
-            }
+            LOGERROR( "Invalid Settings: Local warehouse repository does not exist or is not a directory: " << localWarehouseRepository);
+            return false;
         }
+
+        std::string localDistributionRepository = getLocalDistributionRepository();
+        if (!fileSystem->isDirectory(localDistributionRepository))
+        {
+            LOGERROR( "Invalid Settings: Local distribution repository does not exist or is not a directory: " << localDistributionRepository);
+            return false;
+        }
+
 
         // certificate path should exist and contain the root.crt and ps_rootca.crt
         std::string certificatePath = getCertificatePath();
@@ -195,12 +205,33 @@ namespace SulDownloader
             LOGERROR( "Invalid Settings: Certificate path does not contain required files.");
             return false;
         }
-        //TODO there are more settings to verify, for example, sophosurl must be valid kind of urls.
+
+        std::string systemSslCertificatePath = getSystemSslCertificatePath();
+        if (!fileSystem->isDirectory(systemSslCertificatePath))
+        {
+            LOGERROR( "Invalid Settings: system ssl certificate path does not exist or is not a directory: " << systemSslCertificatePath);
+            return false;
+        }
+
+        std::string updateCacheSslCertificatePath = getUpdateCacheSslCertificatePath();
+
+        if(updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
+        {
+            LOGERROR( "Invalid Settings: Update cache ssl certificate path cannot be empty when using update caches.");
+            return false;
+        }
+        else if(!updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
+        {
+            if (!fileSystem->isDirectory(updateCacheSslCertificatePath))
+            {
+                LOGERROR( "Invalid Settings: Local distribution repository does not exist or is not a directory: " << updateCacheSslCertificatePath);
+                return false;
+            }
+
+        }
 
         m_state = State::Verified;
         return true;
-
-
     }
 
     bool ConfigurationData::isVerified() const

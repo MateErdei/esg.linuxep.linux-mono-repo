@@ -49,7 +49,10 @@ namespace SulDownloader
             return "";
         }
 
-        return std::asctime(std::localtime(&time_)); //FIXME:  expected format 20121125 161343
+        char formattedTime[16];
+        strftime(formattedTime, 16, "%Y%m%d %H%M%S", std::localtime(&time_));
+
+        return formattedTime;
     }
 
 }
