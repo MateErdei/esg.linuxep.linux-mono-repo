@@ -38,9 +38,10 @@ namespace SulDownloader
 
         auto fileSystem = ::Common::FileSystem::createFileSystem();
 
-        std::string installShFile = fileSystem->join(m_distributePath, "install.shbroken");
-        installShFile = "/tmp/installfail.sh";
-        if(fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
+        std::string installShFile = fileSystem->join(m_distributePath, "install.sh");
+        installShFile = "/tmp/fakeinstall.sh"; // TODO: remove this line
+
+        if(fileSystem->isExecutable(installShFile) && !fileSystem->isDirectory(installShFile) )
         {
 
             LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
@@ -61,15 +62,27 @@ namespace SulDownloader
             }
             if ( exitCode!= 0 )
             {
+                LOGERROR("Installation failed");
                 LOGSUPPORT("Install exit code: " << exitCode);
                 WarehouseError error;
                 error.Description = std::string( "Product ") + getLine() + " failed to install";
                 error.status = WarehouseStatus::INSTALLFAILED;
                 setError(error);
             }
-            //TODO report the installation success.
+            else
+            {
+                LOGINFO("Product installed: " << m_productInformation.getLine());
+            }
         }
-//TODO set error for invalid install path. 
+        else
+        {
+            LOGERROR("Invalid installer path: " << installShFile);
+            WarehouseError error;
+            error.Description = "Invalid installer";
+            error.status = WarehouseStatus::INSTALLFAILED;
+            setError(error);
+
+        }
     }
 
     bool DownloadedProduct::hasError() const

@@ -48,6 +48,13 @@ namespace Common
             virtual bool exists(const Path &path) const = 0;
 
             /**
+             * Checks the current process can execute the path
+             * @param path to check
+             * @return true, if file is executable otherwise false
+             */
+            virtual bool isExecutable(const Path &path) const = 0;
+
+            /**
              * Checks to see if the given path is a directory.
              * @param path to check
              * @return true, if path directory exists, false otherwise

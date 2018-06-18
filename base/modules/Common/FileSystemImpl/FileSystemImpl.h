@@ -27,6 +27,8 @@ namespace Common
 
             bool exists(const Path &path) const override;
 
+            bool isExecutable(const Path &path) const override;
+
             bool isDirectory(const Path & path) const  override;
 
             Path currentWorkingDirectory() const override;

@@ -188,5 +188,20 @@ namespace
         }
     }
 
+    TEST_F( FileSystemImplTest, isExecutableReturnTrueForExecutables)
+    {
+        EXPECT_TRUE( m_fileSystem->isExecutable("/bin/bash"));
+    }
+
+    TEST_F( FileSystemImplTest, isExecutableReturnFalseForNonExecutables)
+    {
+        EXPECT_FALSE( m_fileSystem->isExecutable("/etc/passwd"));
+    }
+
+    TEST_F( FileSystemImplTest, isExecutableReturnFalseForNonExistingFiles)
+    {
+        EXPECT_FALSE( m_fileSystem->isExecutable("/tmp/thisfiledoesnotexist"));
+    }
+
 }
 

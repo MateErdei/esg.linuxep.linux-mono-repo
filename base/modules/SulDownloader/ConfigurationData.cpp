@@ -234,7 +234,8 @@ namespace SulDownloader
         auto status = JsonStringToMessage(settingsString, &settings );
         if ( !status.ok())
         {
-            std::cout << "Failed to process jason message";
+            LOGERROR("Failed to process input settings");
+            LOGSUPPORT(status.ToString());
             throw SulDownloaderException( "Failed to process json message");
         }
 

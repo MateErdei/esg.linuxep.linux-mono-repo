@@ -203,5 +203,16 @@ namespace Common
                 throw;
             }
         }
+
+        bool FileSystemImpl::isExecutable(const Path &path) const
+        {
+            struct stat statbuf;
+            int ret = stat(path.c_str(), &statbuf);
+            if ( ret != 0)
+            {   // if it does not exists, it is not executable
+                return false;
+            }
+            return S_IXUSR & statbuf.st_mode;
+        }
     }
 }
