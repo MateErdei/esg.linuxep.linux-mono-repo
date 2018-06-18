@@ -21,7 +21,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ConfigurationData.h"
 #include "Warehouse.h"
 #include "ProductSelection.h"
-#include "Product.h"
+#include "DownloadedProduct.h"
 #include "ConfigurationSettings.pb.h"
 #include "DownloadReport.pb.h"
 #include "SulDownloaderException.h"
@@ -32,7 +32,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 namespace
 {
-    bool hasError( const std::vector<SulDownloader::Product> & products )
+    bool hasError( const std::vector<SulDownloader::DownloadedProduct> & products )
     {
         for( const auto & product: products)
         {
@@ -102,7 +102,7 @@ namespace SulDownloader
             }
             else
             {
-                LOGINFO("Product line: '" << product.getLine() << "' is up to date.");
+                LOGINFO("Downloaded Product line: '" << product.getLine() << "' is up to date.");
             }
         }
 

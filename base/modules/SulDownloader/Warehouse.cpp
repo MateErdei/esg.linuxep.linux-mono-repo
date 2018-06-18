@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <sys/stat.h>
 #include "Warehouse.h"
-#include "Product.h"
+#include "DownloadedProduct.h"
 #include "Tag.h"
 #include "ProductSelection.h"
 #include "SULUtils.h"
@@ -37,7 +37,7 @@ namespace
         return tags;
     }
 
-    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::Product>> & products)
+    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::DownloadedProduct>> & products)
     {
         if (products.empty())
         {
@@ -218,7 +218,7 @@ namespace SulDownloader
                 LOGERROR("Failed to synchronise product: " << productPair.second.getLine());
             }
 
-            m_products.emplace_back(productPair.first, Product(productPair.second));
+            m_products.emplace_back(productPair.first, DownloadedProduct(productPair.second));
         }
     }
 
@@ -249,7 +249,7 @@ namespace SulDownloader
         }
     }
 
-    void Warehouse::distributeProduct(std::pair<SU_PHandle, Product> &productPair, const std::string &distributePath)
+    void Warehouse::distributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair, const std::string &distributePath)
     {
         productPair.second.setDistributePath(distributePath) ;
         const char *empty = "";
@@ -263,7 +263,7 @@ namespace SulDownloader
 
     }
 
-    void Warehouse::verifyDistributeProduct(std::pair<SU_PHandle, Product> &productPair)
+    void Warehouse::verifyDistributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair)
     {
         std::string distributePath = productPair.second.distributePath();
         auto result = SU_getDistributionStatus(productPair.first,  distributePath.c_str());
@@ -280,9 +280,9 @@ namespace SulDownloader
     }
 
 
-    std::vector<Product> Warehouse::getProducts() const
+    std::vector<DownloadedProduct> Warehouse::getProducts() const
     {
-        std::vector<Product> products;
+        std::vector<DownloadedProduct> products;
         for ( auto & productPair : m_products)
         {
             products.push_back(productPair.second);

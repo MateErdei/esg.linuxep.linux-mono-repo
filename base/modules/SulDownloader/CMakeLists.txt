@@ -2,8 +2,8 @@ include(proto/CMakeLists.txt)
 add_library(SulDownloader SHARED
         SULDownloader.cpp
         SulDownloader.h
-        Product.cpp
-        Product.h
+        DownloadedProduct.cpp
+        DownloadedProduct.h
         ConfigurationData.cpp
         ConfigurationData.h
         ConnectionSetup.cpp

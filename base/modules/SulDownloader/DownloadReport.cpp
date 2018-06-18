@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "DownloadReport.h"
 #include "Warehouse.h"
-#include "Product.h"
+#include "DownloadedProduct.h"
 #include "TimeTracker.h"
 #include "MessageUtility.h"
 
@@ -36,7 +36,7 @@ namespace SulDownloader
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::vector<Product> & products, const TimeTracker &timeTracker)
+    DownloadReport DownloadReport::Report(const std::vector<DownloadedProduct> & products, const TimeTracker &timeTracker)
     {
         DownloadReport report;
         report.setTimings(timeTracker);
@@ -97,7 +97,7 @@ namespace SulDownloader
         return m_productReport;
     }
 
-    void DownloadReport::setProductsInfo(const std::vector<Product> &products)
+    void DownloadReport::setProductsInfo(const std::vector<DownloadedProduct> &products)
     {
 
         m_productReport.clear();

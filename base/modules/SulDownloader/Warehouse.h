@@ -17,7 +17,7 @@ extern "C" {
 
 namespace SulDownloader
 {
-    class Product;
+    class DownloadedProduct;
     class ProductSelection;
     class SULSession;
 
@@ -84,14 +84,22 @@ namespace SulDownloader
         /**
          * Configure sul to download/synchronize the selection of products
          *
+         * Based on the list of products available in the warehouses, this method will configure SUL to download only
+         * the prooducts selected by ::productSelection. It will eventually execute SU_synchronise which will ensure
+         * that all the packages that need to be downloaded are fetched and placed in the local repository.
+         *
          * @param productSelection: is responsible to define which are the products to be downloaded.
          */
         void synchronize( ProductSelection & productSelection);
 
         /**
          * Extract the file content from the local warehouse repository and create real product file structure required.
+         * SUL works with 2 local repositories. The first one, (cache repository) allows SUL to synchronize with the
+         * remote repositories. The second one, which SUL calls the distribution path, is used to synchronize inside the
+         * machine and allows SUL to verify what has changed since the previous update.
          *
-         *
+         * Distribute eventually executes SU_distribute to allow SUL to verify which products have changed since the last
+         * update.
          */
         void distribute();
 
@@ -103,7 +111,7 @@ namespace SulDownloader
          *
          * @return list of products
          */
-        std::vector<Product> getProducts() const;
+        std::vector<DownloadedProduct> getProducts() const;
 
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
@@ -113,14 +121,14 @@ namespace SulDownloader
         int  logLevel( ConfigurationData::LogLevel );
         explicit  Warehouse( bool createSession  );
 
-        void distributeProduct( std::pair<SU_PHandle, Product> & productPair, const  std::string & distributePath );
-        void verifyDistributeProduct( std::pair<SU_PHandle, Product> & productPair);
+        void distributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair, const  std::string & distributePath );
+        void verifyDistributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair);
 
         WarehouseError fetchSulError(const std::string & description ) const;
 
         SU_Handle session() const;
         WarehouseError m_error;
-        std::vector<std::pair<SU_PHandle, Product>> m_products;
+        std::vector<std::pair<SU_PHandle, DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<ConnectionSetup> m_connectionSetup;
     };

@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <tuple>
-#include "Product.h"
+#include "DownloadedProduct.h"
 #include "Logger.h"
 #include "IFileSystem.h"
 #include "Common/Process/IProcess.h"
@@ -16,13 +16,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
     //enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
-    Product::Product(ProductInformation productInformation)
+    DownloadedProduct::DownloadedProduct(ProductInformation productInformation)
             : m_state(State::Initialized), m_error(), m_productInformation(productInformation), m_distributePath(), m_productHasChanged(false)
     {
 
     }
 
-    bool Product::verify()
+    bool DownloadedProduct::verify()
     {
         assert(m_state == State::Distributed);
         m_state = State::Verified;
@@ -31,7 +31,7 @@ namespace SulDownloader
     }
 
 
-    void Product::install(const std::vector<std::string> & installArgs)
+    void DownloadedProduct::install(const std::vector<std::string> & installArgs)
     {
         assert( m_state == State::Verified);
         m_state = State::Installed;
@@ -71,81 +71,81 @@ namespace SulDownloader
 //TODO set error for invalid install path. 
     }
 
-    bool Product::hasError() const
+    bool DownloadedProduct::hasError() const
     {
         return !m_error.Description.empty();
     }
 
 
-    void Product::setError(WarehouseError error)
+    void DownloadedProduct::setError(WarehouseError error)
     {
         m_state = State::HasError;
         m_error = error;
     }
 
 
-    WarehouseError Product::getError() const
+    WarehouseError DownloadedProduct::getError() const
     {
         return m_error;
     }
 
-    std::string Product::distributionFolderName()
+    std::string DownloadedProduct::distributionFolderName()
     {
         return m_productInformation.getLine() + m_productInformation.getVersion();
     }
 
-    void Product::setDistributePath(const std::string &distributePath)
+    void DownloadedProduct::setDistributePath(const std::string &distributePath)
     {
         m_state = State::Distributed;
         m_distributePath = distributePath;
     }
 
-    ProductInformation Product::getProductInformation()
+    ProductInformation DownloadedProduct::getProductInformation()
     {
         return m_productInformation;
     }
 
-    std::string Product::distributePath() const
+    std::string DownloadedProduct::distributePath() const
     {
         return m_distributePath;
     }
 
-    std::string Product::getLine() const
+    std::string DownloadedProduct::getLine() const
     {
         return m_productInformation.getLine();
     }
 
-    std::string Product::getName() const
+    std::string DownloadedProduct::getName() const
     {
         return m_productInformation.getName();
     }
 
-    bool Product::productHasChanged() const
+    bool DownloadedProduct::productHasChanged() const
     {
         return m_productHasChanged;
     }
 
-    void Product::setProductHasChanged(bool productHasChanged)
+    void DownloadedProduct::setProductHasChanged(bool productHasChanged)
     {
         m_productHasChanged = productHasChanged;
     }
 
-    std::string Product::getPostUpdateInstalledVersion() const
+    std::string DownloadedProduct::getPostUpdateInstalledVersion() const
     {
         return m_postUpdateInstalledVersion;
     }
 
-    void Product::setPostUpdateInstalledVersion(const std::string &postUpdateInstalledVersion)
+    void DownloadedProduct::setPostUpdateInstalledVersion(const std::string &postUpdateInstalledVersion)
     {
         m_postUpdateInstalledVersion = postUpdateInstalledVersion;
     }
 
-    std::string Product::getPreUpdateInstalledVersion() const
+    std::string DownloadedProduct::getPreUpdateInstalledVersion() const
     {
         return m_preUpdateInstalledVersion;
     }
 
-    void Product::setPreUpdateInstalledVersion(const std::string &preUpdateInstalledVersion)
+    void DownloadedProduct::setPreUpdateInstalledVersion(const std::string &preUpdateInstalledVersion)
     {
         m_preUpdateInstalledVersion = preUpdateInstalledVersion;
     }

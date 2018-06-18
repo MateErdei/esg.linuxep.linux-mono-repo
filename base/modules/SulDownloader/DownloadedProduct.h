@@ -17,15 +17,15 @@ namespace SulDownloader
      *
      * After being fully configured by the Warehouse, it must:
      *   - verify: versig verification
-     *   - intall: run the product installer.
+     *   - install: run the product installer.
      *
      * Design decision: Similar to the warehouse, Product mark the errors internally to
      * enable DownloadReport to create its report.
      */
-    class Product
+    class DownloadedProduct
     {
     public:
-        explicit Product(  ProductInformation  );
+        explicit DownloadedProduct(  ProductInformation  );
         bool verify();
 
         void install(const std::vector<std::string> & installArgs);
