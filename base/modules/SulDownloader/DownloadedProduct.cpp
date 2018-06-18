@@ -16,8 +16,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
     //enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
-    DownloadedProduct::DownloadedProduct(ProductInformation productInformation)
-            : m_state(State::Initialized), m_error(), m_productInformation(productInformation), m_distributePath(), m_productHasChanged(false)
+    DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation)
+            : m_state(State::Initialized), m_error(), m_productMetadata(productInformation), m_distributePath(), m_productHasChanged(false)
     {
 
     }
@@ -44,7 +44,7 @@ namespace SulDownloader
         if(fileSystem->isExecutable(installShFile) && !fileSystem->isDirectory(installShFile) )
         {
 
-            LOGINFO("Installing product: " << m_productInformation.getLine() << " version: " << m_productInformation.getVersion());
+            LOGINFO("Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
 
             auto process = ::Common::Process::createProcess();
             int exitCode =0;
@@ -71,7 +71,7 @@ namespace SulDownloader
             }
             else
             {
-                LOGINFO("Product installed: " << m_productInformation.getLine());
+                LOGINFO("Product installed: " << m_productMetadata.getLine());
             }
         }
         else
@@ -105,7 +105,7 @@ namespace SulDownloader
 
     std::string DownloadedProduct::distributionFolderName()
     {
-        return m_productInformation.getDefaultHomePath();
+        return m_productMetadata.getDefaultHomePath();
     }
 
     void DownloadedProduct::setDistributePath(const std::string &distributePath)
@@ -114,9 +114,9 @@ namespace SulDownloader
         m_distributePath = distributePath;
     }
 
-    ProductInformation DownloadedProduct::getProductInformation()
+    const ProductMetadata & DownloadedProduct::getProductMetadata() const
     {
-        return m_productInformation;
+        return m_productMetadata;
     }
 
     std::string DownloadedProduct::distributePath() const
@@ -126,12 +126,12 @@ namespace SulDownloader
 
     std::string DownloadedProduct::getLine() const
     {
-        return m_productInformation.getLine();
+        return m_productMetadata.getLine();
     }
 
     std::string DownloadedProduct::getName() const
     {
-        return m_productInformation.getName();
+        return m_productMetadata.getName();
     }
 
     bool DownloadedProduct::productHasChanged() const

@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_PRODUCTSELECTION_H
 #define EVEREST_PRODUCTSELECTION_H
 
-#include "ProductInformation.h"
+#include "ProductMetadata.h"
 #include "ConfigurationData.h"
 #include <memory>
 #include <vector>
@@ -17,7 +17,7 @@ namespace SulDownloader
     class ISingleProductSelector
     {
     public:
-        virtual bool keepProduct ( const ProductInformation & ) const =0;
+        virtual bool keepProduct ( const ProductMetadata & ) const =0;
         virtual std::string targetProductName() const = 0;
         virtual ~ISingleProductSelector() = default;
     };
@@ -28,7 +28,7 @@ namespace SulDownloader
         enum NamePrefix{UseFullName, UseNameAsPrefix};
         ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
         std::string targetProductName() const override ;
-        bool keepProduct ( const ProductInformation & ) const override ;
+        bool keepProduct ( const ProductMetadata & ) const override ;
         virtual ~ProductSelector() = default;
     private:
         std::string m_productName;
@@ -57,10 +57,10 @@ namespace SulDownloader
     public:
         static ProductSelection CreateProductSelection( const ConfigurationData & );
         void appendSelector(std::unique_ptr<ISingleProductSelector> );
-        SelectedResultsIndexes selectProducts( const std::vector<ProductInformation> & warehouseProducts);
+        SelectedResultsIndexes selectProducts( const std::vector<ProductMetadata> & warehouseProducts);
     private:
         std::vector<std::unique_ptr<ISingleProductSelector>> m_selection;
-        std::vector<size_t> selectedProducts( ISingleProductSelector & , const std::vector<ProductInformation> & warehouseProducts );
+        std::vector<size_t> selectedProducts( ISingleProductSelector & , const std::vector<ProductMetadata> & warehouseProducts );
     };
 
 

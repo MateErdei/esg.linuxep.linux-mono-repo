@@ -141,9 +141,9 @@ namespace SulDownloader
         assert( m_state == State::Connected);
         m_state = State::Synchronized;
 
-        std::vector<std::pair<SU_PHandle, ProductInformation>> productInformationList;
+        std::vector<std::pair<SU_PHandle, ProductMetadata>> productInformationList;
 
-        // create the ProductInformation for all the entries in the warehouse
+        // create the ProductMetadata for all the entries in the warehouse
         while (true)
         {
 
@@ -156,7 +156,7 @@ namespace SulDownloader
 #ifndef NDEBUG
             displayProductTags(product);
 #endif
-            ProductInformation productInformation;
+            ProductMetadata productInformation;
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
             std::string name = SulQueryProductMetadata(product, "Name", 0);
@@ -172,7 +172,7 @@ namespace SulDownloader
 
             productInformationList.emplace_back(product, productInformation);
         }
-        std::vector<ProductInformation> productMetadataList;
+        std::vector<ProductMetadata> productMetadataList;
         for( auto pInfoPair : productInformationList)
         {
             productMetadataList.push_back(pInfoPair.second);

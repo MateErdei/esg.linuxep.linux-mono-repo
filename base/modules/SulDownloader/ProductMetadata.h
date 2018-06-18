@@ -18,7 +18,7 @@ namespace SulDownloader
     /**
      * Product meatadata from the warehouse.
      */
-    class ProductInformation
+    class ProductMetadata
     {
     public:
         const std::string& getLine() const;

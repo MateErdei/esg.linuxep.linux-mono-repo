@@ -35,8 +35,8 @@ namespace SulDownloader
      *     - distribute and check status.
      *
      * Design Decision: set internal error state (not throw). This is to allow the creation of DownloadReport
-     * from all the information kept in the Warehouse object. This imply that aftet the main methods: FetchConnectedWarehouse,
-     * synchonize and distribute is called, the ::hasError must be checked and no further operation is allowed.
+     * from all the information kept in the Warehouse object. This imply that after the main methods: FetchConnectedWarehouse,
+     * synchronize and distribute is called, the ::hasError must be checked and no further operation is allowed.
      *
      * The order for the methods to be called: Fetch, Synchronize and Distribute is enforced internally with asserts.
      * It also enforces that no main method is called after internal error is set.

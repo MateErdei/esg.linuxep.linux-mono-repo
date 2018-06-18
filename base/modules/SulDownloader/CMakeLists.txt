@@ -8,8 +8,8 @@ add_library(SulDownloader SHARED
         ConfigurationData.h
         ConnectionSetup.cpp
         ConnectionSetup.h
-        ProductInformation.cpp
-        ProductInformation.h
+        ProductMetadata.cpp
+        ProductMetadata.h
         Credentials.cpp
         Credentials.h
         Proxy.cpp

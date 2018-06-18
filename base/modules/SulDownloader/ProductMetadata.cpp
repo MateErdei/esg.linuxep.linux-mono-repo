@@ -3,37 +3,37 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "ProductInformation.h"
+#include "ProductMetadata.h"
 #include <cassert>
 namespace SulDownloader
 {
-    const std::string &ProductInformation::getLine() const
+    const std::string &ProductMetadata::getLine() const
     {
         return m_line;
     }
 
-    void ProductInformation::setLine(const std::string &line)
+    void ProductMetadata::setLine(const std::string &line)
     {
         m_line = line;
     }
 
-    const std::string &ProductInformation::getName() const
+    const std::string &ProductMetadata::getName() const
     {
         return m_name;
     }
 
-    void ProductInformation::setName(const std::string & name)
+    void ProductMetadata::setName(const std::string & name)
     {
         m_name = name;
     }
 
-    void ProductInformation::setTags(std::vector<Tag> tags)
+    void ProductMetadata::setTags(std::vector<Tag> tags)
     {
         m_tags = tags;
     }
 
 
-    bool ProductInformation::hasTag(const std::string & releaseTag) const
+    bool ProductMetadata::hasTag(const std::string & releaseTag) const
     {
         for (auto &tag : m_tags)
         {
@@ -45,29 +45,29 @@ namespace SulDownloader
         return false;
     }
 
-    void ProductInformation::setVersion(const std::string &version)
+    void ProductMetadata::setVersion(const std::string &version)
     {
         m_version = version;
     }
 
-    std::string ProductInformation::getBaseVersion() const
+    std::string ProductMetadata::getBaseVersion() const
     {
         auto pos = m_version.find('.');
         assert( pos != std::string::npos);
         return std::string( m_version.begin(), m_version.begin()+pos);
     }
 
-    const std::string &ProductInformation::getVersion() const
+    const std::string &ProductMetadata::getVersion() const
     {
         return m_version;
     }
 
-    void ProductInformation::setDefaultHomePath(const std::string &defaultHomeFolder)
+    void ProductMetadata::setDefaultHomePath(const std::string &defaultHomeFolder)
     {
         m_defaultHomeFolder = defaultHomeFolder;
     }
 
-    std::string ProductInformation::getDefaultHomePath() const
+    std::string ProductMetadata::getDefaultHomePath() const
     {
         return m_defaultHomeFolder;
     }

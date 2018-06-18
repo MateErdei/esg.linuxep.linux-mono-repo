@@ -4,10 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef SULDOWNLOADER_PRODUCTS_H
-#define SULDOWNLOADER_PRODUCTS_H
+#ifndef SULDOWNLOADER_DOWNLOADEDPRODUCTS_H
+#define SULDOWNLOADER_DOWNLOADEDPRODUCTS_H
 
-#include "ProductInformation.h"
+#include "ProductMetadata.h"
 #include "WarehouseError.h"
 namespace SulDownloader
 {
@@ -25,7 +25,7 @@ namespace SulDownloader
     class DownloadedProduct
     {
     public:
-        explicit DownloadedProduct(  ProductInformation  );
+        explicit DownloadedProduct(  const ProductMetadata&  );
         bool verify();
 
         void install(const std::vector<std::string> & installArgs);
@@ -36,7 +36,7 @@ namespace SulDownloader
         std::string distributionFolderName();
         void setDistributePath(const std::string & distributePath);
         std::string distributePath() const;
-        ProductInformation getProductInformation();
+        const ProductMetadata & getProductMetadata() const;
         std::string getLine() const;
         std::string getName() const;
         bool productHasChanged() const;
@@ -50,7 +50,7 @@ namespace SulDownloader
     private :
         enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
         WarehouseError m_error;
-        ProductInformation m_productInformation;
+        ProductMetadata m_productMetadata;
         std::string m_distributePath;
         bool m_productHasChanged;
 
@@ -60,4 +60,4 @@ namespace SulDownloader
     };
 }
 
-#endif //SULDOWNLOADER_PRODUCTS_H
+#endif //SULDOWNLOADER_DOWNLOADEDPRODUCTS_H

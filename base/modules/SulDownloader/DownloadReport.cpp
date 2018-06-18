@@ -105,7 +105,7 @@ namespace SulDownloader
         for (auto product : products)
         {
             ProductReport report;
-            auto info = product.getProductInformation();
+            auto info = product.getProductMetadata();
             report.rigidName = info.getLine();
             report.name = info.getName();
             report.downloadedVersion = info.getVersion();

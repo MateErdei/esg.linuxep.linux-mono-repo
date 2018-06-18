@@ -74,7 +74,7 @@ namespace SulDownloader
         }
     }
 
-    bool ProductSelector::keepProduct(const ProductInformation & productInformation) const
+    bool ProductSelector::keepProduct(const ProductMetadata & productInformation) const
     {
         auto pos = productInformation.getLine().find(m_productName);
         if ( pos != 0)
@@ -140,7 +140,7 @@ namespace SulDownloader
         return productSelection;
     }
 
-    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductInformation> &warehouseProducts)
+    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata> &warehouseProducts)
     {
         SelectedResultsIndexes selection;
         StableSetIndex selectedProductsIndex(warehouseProducts.size());
@@ -172,7 +172,7 @@ namespace SulDownloader
     }
 
     std::vector<size_t> ProductSelection::selectedProducts(ISingleProductSelector & selector,
-                                                        const std::vector<ProductInformation> &warehouseProducts)
+                                                        const std::vector<ProductMetadata> &warehouseProducts)
     {
         StableSetIndex set(warehouseProducts.size());
         for ( size_t i = 0 ; i< warehouseProducts.size(); i++)
