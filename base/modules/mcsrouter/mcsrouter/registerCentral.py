@@ -191,7 +191,7 @@ def register(config, INST, logger):
 
 def removeMCSPolicy():
     safeDelete(os.path.join(INST,"etc","sophosspl","mcs_policy.config"))
-    safeDelete(os.path.join(INST,"policy","MCS_policy.xml"))
+    safeDelete(os.path.join(INST,"policy","MCS-25_policy.xml"))
 
 def getUID(uidText):
     """

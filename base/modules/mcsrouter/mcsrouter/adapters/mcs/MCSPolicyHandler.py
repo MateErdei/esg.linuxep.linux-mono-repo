@@ -38,7 +38,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         return "MCS"
 
     def policyBaseName(self):
-        return "MCS_policy.xml"
+        return "MCS-25_policy.xml"
 
     def __policyPath(self):
         return os.path.join(self.__m_installDir,"policy",self.policyBaseName())
