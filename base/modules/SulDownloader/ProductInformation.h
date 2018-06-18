@@ -31,12 +31,15 @@ namespace SulDownloader
         std::string getBaseVersion() const;
         const std::string& getVersion() const;
         void setVersion(const std::string &version);
+        void setDefaultHomePath(const std::string & defaultHomeFolder);
+        std::string getDefaultHomePath() const;
 
     private:
         std::vector<Tag> m_tags;
         std::string m_line;
         std::string m_name;
         std::string m_version;
+        std::string m_defaultHomeFolder;
     };
 
 }

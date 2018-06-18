@@ -126,11 +126,16 @@ namespace SulDownloader
 
         WarehouseError fetchSulError(const std::string & description ) const;
 
+        std::string getRootDistributionPath() const;
+        void setRootDistributionPath(const std::string &rootDistributionPath);
+
         SU_Handle session() const;
         WarehouseError m_error;
         std::vector<std::pair<SU_PHandle, DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<ConnectionSetup> m_connectionSetup;
+        std::string m_rootDistributionPath;
+
     };
 }
 

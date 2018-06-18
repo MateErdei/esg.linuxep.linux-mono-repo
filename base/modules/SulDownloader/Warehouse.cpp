@@ -4,6 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <sys/stat.h>
+#include <cassert>
+
 #include "Warehouse.h"
 #include "DownloadedProduct.h"
 #include "Tag.h"
@@ -11,7 +13,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULUtils.h"
 #include "SULRaii.h"
 #include "Logger.h"
-#include <cassert>
+
+#include "Common/FileSystem/IFileSystem.h"
 
 namespace
 {
@@ -81,7 +84,6 @@ namespace SulDownloader
 
     std::unique_ptr<Warehouse> Warehouse::FetchConnectedWarehouse(const ConfigurationData &configurationData)
     {
-
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
@@ -92,7 +94,6 @@ namespace SulDownloader
             {
                 continue;
             }
-
 
             warehouse->setConnectionSetup(connectionSetup, configurationData);
 
@@ -111,6 +112,11 @@ namespace SulDownloader
             // for verbose it will list the entries in the warehouse
             SULUtils::displayLogs(warehouse->session());
             warehouse->m_state = State::Connected;
+
+            // store values from configuration data for later use.
+            warehouse->setRootDistributionPath(configurationData.getLocalDistributionRepository());
+
+
             return warehouse;
         }
 
@@ -155,13 +161,14 @@ namespace SulDownloader
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
             std::string name = SulQueryProductMetadata(product, "Name", 0);
             std::string baseVersion = SulQueryProductMetadata(product, "VersionId", 0);
-
+            std::string defaultHomePath = SulQueryProductMetadata(product, "DefaultHomeFolder", 0);
             std::vector<Tag> tags(getTags(product));
 
             productInformation.setLine(line);
             productInformation.setName(name);
             productInformation.setTags(tags);
             productInformation.setVersion(baseVersion);
+            productInformation.setDefaultHomePath(defaultHomePath);
 
             productInformationList.emplace_back(product, productInformation);
         }
@@ -228,11 +235,15 @@ namespace SulDownloader
         assert( m_state == State::Synchronized);
         m_state = State::Distributed;
 
+        using namespace Common::FileSystem;
+        auto fileSystem = createFileSystem();
+
         for ( auto & productPair : m_products)
         {
             auto  & product = productPair.second;
-            //FIXME: set the correct path to the distribution.
-            std::string distributePath = "/tmp/distribute/" + product.distributionFolderName();
+
+            std::string distributePath = fileSystem->join(getRootDistributionPath(), product.distributionFolderName());
+
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
         }
@@ -328,15 +339,15 @@ namespace SulDownloader
 
         // general settings
         std::string certificatePath = configurationData.getCertificatePath();
-        std::string localRepository = configurationData.getLocalRepository();
+        std::string localWarehouseRepository = configurationData.getLocalWarehouseRepository();
 
         SU_setLoggingLevel(session(), logLevel( configurationData.getLogLevel()));
 
         LOGSUPPORT("Certificate path: " << certificatePath);
         SU_setCertificatePath(session(), certificatePath.c_str());
 
-        LOGSUPPORT("Warehouse local repository: " << localRepository);
-        SU_setLocalRepository(session(), localRepository.c_str());
+        LOGSUPPORT("Warehouse local repository: " << localWarehouseRepository);
+        SU_setLocalRepository(session(), localWarehouseRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
 
         if(!SULUtils::isSuccess(SU_setUseHttps(session(), true)))
@@ -366,8 +377,6 @@ namespace SulDownloader
             setError("Failed to set Use Sophos certificate store");
             return;
         }
-
-
 
         auto & updateLocation =  connectionSetup.getUpdateLocationURL();
         if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
@@ -444,6 +453,15 @@ namespace SulDownloader
 
     }
 
+    std::string Warehouse::getRootDistributionPath() const
+    {
+        return m_rootDistributionPath;
+    }
+
+    void Warehouse::setRootDistributionPath(const std::string &rootDistributionPath)
+    {
+        m_rootDistributionPath = rootDistributionPath;
+    }
 
 
 }

@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <google/protobuf/util/json_util.h>
 #include <ConfigurationSettings.pb.h>
 #include <sys/stat.h>
+
 namespace
 {
     bool hasEnvironmentProxy()
@@ -85,13 +86,6 @@ namespace SulDownloader
         m_proxy = proxy;
     }
 
-    std::string ConfigurationData::getLocalRepository() const
-    {
-
-        return m_localRepository;
-
-    }
-
     std::string ConfigurationData::getCertificatePath() const
     {
         return  m_certificatePath;
@@ -122,9 +116,30 @@ namespace SulDownloader
         m_systemSslCertificatePath = certificatePath;
     }
 
-    void ConfigurationData::setLocalRepository(const std::string & localRepository)
+    void ConfigurationData::setInstallationRootPath(const std::string & installationRootPath)
     {
-        m_localRepository = localRepository;
+        m_installationRootPath = installationRootPath;
+    }
+
+    std::string ConfigurationData::getInstallationRootPath() const
+    {
+        return m_installationRootPath;
+    }
+
+    std::string ConfigurationData::getLocalWarehouseRepository() const
+    {
+        using namespace Common::FileSystem;
+        auto fileSystem = createFileSystem();
+
+        return fileSystem->join(getInstallationRootPath(), "update/cache/PrimaryWarehouse");
+    }
+
+    std::string ConfigurationData::getLocalDistributionRepository() const
+    {
+        using namespace Common::FileSystem;
+        auto fileSystem = createFileSystem();
+
+        return fileSystem->join(getInstallationRootPath(), "update/cache/Primary");
     }
 
     bool ConfigurationData::verifySettingsAreValid()
@@ -157,14 +172,14 @@ namespace SulDownloader
         auto fileSystem = createFileSystem();
 
         // localRepository should either exist or be created
-        std::string localRepository = getLocalRepository();
-        if (!fileSystem->isDirectory(localRepository))
+        std::string localWarehouseRepository = getLocalWarehouseRepository();
+        if (!fileSystem->isDirectory(localWarehouseRepository))
         {
             // TODO Check if using correct mode.
             // FIXME: remove creation of directory in the verifySettingsAreValid.
-            if(mkdir(localRepository.c_str(), 0700) != 0)
+            if(mkdir(localWarehouseRepository.c_str(), 0700) != 0)
             {
-                LOGERROR( "Invalid Settings: Local repository path can not be created: " << localRepository);
+                LOGERROR( "Invalid Settings: Local repository path can not be created: " << localWarehouseRepository);
                 return false;
             }
         }
@@ -234,9 +249,11 @@ namespace SulDownloader
         Proxy proxy( settings.proxy().url(), Credentials(settings.proxy().credential().username(), settings.proxy().credential().password()));
 
         ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
-        // FIXME: must come from the ConfigurationSettings.
-        configurationData.setCertificatePath("/home/pair/dev_certificates");
-        configurationData.setLocalRepository("/tmp/warehouse");
+
+        configurationData.setCertificatePath(settings.certificatepath());
+        configurationData.setInstallationRootPath(settings.installationrootpath());
+
+
         ProductGUID primaryProductGUID;
         primaryProductGUID.Name = settings.primary();
         primaryProductGUID.Primary = true;

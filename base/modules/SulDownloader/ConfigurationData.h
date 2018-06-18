@@ -69,11 +69,14 @@ namespace SulDownloader
         void setCertificatePath(const std::string &  certificatePath);
         void setUpdateCacheSslCertificatePath(const std::string &  certificatePath);
         void setSystemSslCertificatePath(const std::string &  certificatePath);
-        void setLocalRepository(const std::string & localRepository);
+        void setInstallationRootPath(const std::string &installationRootPath);
+        std::string getInstallationRootPath() const;
+        std::string getLocalWarehouseRepository() const;
+        std::string getLocalDistributionRepository() const;
+
         std::string getCertificatePath() const ;
         std::string getUpdateCacheSslCertificatePath() const;
 
-        std::string getLocalRepository() const;
         void addProductSelection(const ProductGUID &productGUID);
         const std::vector<ProductGUID> getProductSelection() const;
 
@@ -95,7 +98,7 @@ namespace SulDownloader
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_proxy;
         State m_state;
-        std::string m_localRepository;
+        std::string m_installationRootPath;
         std::string m_certificatePath;
         std::string m_systemSslCertificatePath;
         std::string m_updateCacheSslCertificatePath;

@@ -92,7 +92,7 @@ namespace SulDownloader
 
     std::string DownloadedProduct::distributionFolderName()
     {
-        return m_productInformation.getLine() + m_productInformation.getVersion();
+        return m_productInformation.getDefaultHomePath();
     }
 
     void DownloadedProduct::setDistributePath(const std::string &distributePath)

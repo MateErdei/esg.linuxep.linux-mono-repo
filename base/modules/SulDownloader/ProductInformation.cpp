@@ -62,5 +62,15 @@ namespace SulDownloader
         return m_version;
     }
 
+    void ProductInformation::setDefaultHomePath(const std::string &defaultHomeFolder)
+    {
+        m_defaultHomeFolder = defaultHomeFolder;
+    }
+
+    std::string ProductInformation::getDefaultHomePath() const
+    {
+        return m_defaultHomeFolder;
+    }
+
 
 }

@@ -23,7 +23,7 @@ message ConfigurationSettings
     optional CredentialT Credential = 3;
     optional ProxyT Proxy = 4;
     optional string CertificatePath = 5;
-    optional string LocalRepositoryPath = 6;
+    optional string InstallationRootPath = 6;
     optional string SystemSslPath = 7;
     optional string CacheUpdateSslPath = 8;
 
