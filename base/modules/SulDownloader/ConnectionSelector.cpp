@@ -13,7 +13,6 @@ namespace SulDownloader
 
     std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const ConfigurationData &configurationData)
     {
-        // TODO: get sohposurl from sophos_alias.txt
         std::vector<ConnectionSetup> candidates;
 
 

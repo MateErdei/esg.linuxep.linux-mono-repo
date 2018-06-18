@@ -150,13 +150,13 @@ namespace SulDownloader
 
         // Must have, primary product, warehouse credentials, update location
 
-        if(m_sophosUpdateUrls.size() == 0)
+        if(m_sophosUpdateUrls.empty())
         {
             LOGERROR( "Invalid Settings: No warehouse urls provided.");
             return false;
         }
 
-        if(m_productSelection.size() == 0)
+        if(m_productSelection.empty())
         {
             LOGERROR( "Invalid Settings: No product selection.");
             return false;
@@ -255,7 +255,6 @@ namespace SulDownloader
     }
 
 
-    // remember in the end to call configurationdata.verify();
     ConfigurationData ConfigurationData::fromJsonSettings( const std::string & settingsString )
     {
         using namespace google::protobuf::util;

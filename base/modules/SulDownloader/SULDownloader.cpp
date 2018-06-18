@@ -96,7 +96,7 @@ namespace SulDownloader
         // try to install all products and report error for those that failed (if any)
         for( auto & product: products)
         {
-            if (true || product.productHasChanged())
+            if (product.productHasChanged())
             {
                 product.install(configurationData.getInstallArguments());
             }
