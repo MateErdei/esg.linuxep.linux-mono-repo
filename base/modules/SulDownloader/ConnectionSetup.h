@@ -22,7 +22,7 @@ namespace SulDownloader
 
     public:
         explicit  ConnectionSetup ( const std::string updateLocationURL,Credentials credentials = Credentials(), bool isCacheUpdate = false
-                , Proxy proxy = Proxy(), bool useHTTPS = true);
+                , Proxy proxy = Proxy());
 
         const Credentials &getCredentials() const;
 
@@ -39,14 +39,12 @@ namespace SulDownloader
         std::string toString() const;
 
         bool isCacheUpdate() const;
-        bool useHTTPS() const;
-        //FIXME remove support for use HTTPS. SULDownloader to support only https.
+
     private:
         std::string m_updateLocationURL;
         Credentials m_credentials;
         bool m_isUpdateCache;
         Proxy m_proxy;
-        bool m_useHTTPS;
 
 
     };

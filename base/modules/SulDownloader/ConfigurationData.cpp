@@ -20,7 +20,10 @@ namespace
 {
     bool hasEnvironmentProxy()
     {
-        return (secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr);
+        return (secure_getenv("https_proxy") != nullptr ||
+                secure_getenv("HTTPS_PROXY") != nullptr ||
+                secure_getenv("http_proxy") != nullptr ||
+                secure_getenv("HTTP_PROXY") != nullptr);
     }
 }
 
@@ -94,9 +97,29 @@ namespace SulDownloader
         return  m_certificatePath;
     }
 
+    std::string ConfigurationData::getUpdateCacheSslCertificatePath() const
+    {
+        return m_updateCacheSslCertificatePath;
+    }
+
+    std::string ConfigurationData::getSystemSslCertificatePath() const
+    {
+        return m_systemSslCertificatePath;
+    }
+
     void ConfigurationData::setCertificatePath(const std::string &  certificatePath)
     {
         m_certificatePath = certificatePath;
+    }
+
+    void ConfigurationData::setUpdateCacheSslCertificatePath(const std::string &  certificatePath)
+    {
+        m_updateCacheSslCertificatePath = certificatePath;
+    }
+
+    void ConfigurationData::setSystemSslCertificatePath(const std::string &  certificatePath)
+    {
+        m_systemSslCertificatePath = certificatePath;
     }
 
     void ConfigurationData::setLocalRepository(const std::string & localRepository)
@@ -180,11 +203,8 @@ namespace SulDownloader
         return m_productSelection;
     }
 
-    std::string ConfigurationData::getSSLCertificatePath() const {
-        return  "/etc/ssl/certs";
-    }
-
-    ConfigurationData::LogLevel ConfigurationData::getLogLevel() const {
+    ConfigurationData::LogLevel ConfigurationData::getLogLevel() const
+    {
         return LogLevel::VERBOSE;
     }
 
@@ -253,7 +273,8 @@ namespace SulDownloader
         configurationData.setInstallArguments(installArgs);
 
         configurationData.setCertificatePath(settings.certificatepath());
-
+        configurationData.setSystemSslCertificatePath(settings.systemsslpath());
+        configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
         return configurationData;
     }
 
@@ -284,4 +305,5 @@ namespace SulDownloader
         }
         return options;
     }
+
 }

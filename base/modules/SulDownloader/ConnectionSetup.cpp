@@ -11,12 +11,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    ConnectionSetup::ConnectionSetup(const std::string updateLocationURL, Credentials credentials, bool isCacheUpdate,
-                                     Proxy proxy, bool useHTTPS)
+    ConnectionSetup::ConnectionSetup(const std::string updateLocationURL,
+                                     Credentials credentials,
+                                     bool isCacheUpdate,
+                                     Proxy proxy)
     : m_credentials(credentials)
     , m_isUpdateCache(isCacheUpdate)
     , m_proxy(proxy)
-    , m_useHTTPS(useHTTPS)
     {
         setUpdateLocationURL(updateLocationURL);
     }
@@ -81,10 +82,6 @@ namespace SulDownloader
     const std::string &ConnectionSetup::getUpdateLocationURL() const
     {
         return m_updateLocationURL;
-    }
-
-    bool ConnectionSetup::useHTTPS() const {
-        return m_useHTTPS;
     }
 
 }

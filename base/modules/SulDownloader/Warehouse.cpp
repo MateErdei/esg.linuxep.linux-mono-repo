@@ -296,7 +296,11 @@ namespace SulDownloader
 
     void Warehouse::setError(const std::string & error)
     {
-        SULUtils::displayLogs(session());
+        if ( m_session)
+        {
+            SULUtils::displayLogs(session());
+        }
+
         m_state = State::Failure;
 
         m_error = fetchSulError(error);
@@ -307,7 +311,7 @@ namespace SulDownloader
         WarehouseError error;
         error.Description = description;
         error.status = WarehouseStatus::UNSPECIFIED;
-        if ( session())
+        if ( m_session )
         {
             std::tie( error.status, error.SulError) = getSulCodeAndDescription(session());
         }
@@ -335,31 +339,34 @@ namespace SulDownloader
         SU_setLocalRepository(session(), localRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
 
-        //FIXME: requirement to support only https
-        bool https = connectionSetup.useHTTPS(); // default will always download over https.
-
-        if(!SULUtils::isSuccess(SU_setUseHttps(session(), https)))
+        if(!SULUtils::isSuccess(SU_setUseHttps(session(), true)))
         {
             setError("Failed to enable use HTTPS updating");
             return;
         }
 
-        if (https)
+        std::string ssl_cert_path;
+
+        if(connectionSetup.isCacheUpdate())
         {
-            std::string ssl_cert_path( configurationData.getSSLCertificatePath());
-
-            if(!SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
-            {
-                setError("Failed to set ssl certificate path");
-                return;
-            }
-
-            if(!SULUtils::isSuccess(SU_setUseSophosCertStore(session(), true)))
-            {
-                setError("Failed to set Use Sophos certificate store");
-                return;
-            }
+            ssl_cert_path = configurationData.getUpdateCacheSslCertificatePath();
         }
+        else
+        {
+            ssl_cert_path = configurationData.getSystemSslCertificatePath();
+        }
+        if(!SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
+        {
+            setError("Failed to set ssl certificate path");
+            return;
+        }
+
+        if(!SULUtils::isSuccess(SU_setUseSophosCertStore(session(), true)))
+        {
+            setError("Failed to set Use Sophos certificate store");
+            return;
+        }
+
 
 
         auto & updateLocation =  connectionSetup.getUpdateLocationURL();
@@ -416,6 +423,7 @@ namespace SulDownloader
 
     SU_Handle Warehouse::session() const
     {
+        assert( m_session );
         return m_session->m_session;
     }
 

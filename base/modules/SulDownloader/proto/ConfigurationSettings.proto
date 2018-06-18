@@ -24,13 +24,15 @@ message ConfigurationSettings
     optional ProxyT Proxy = 4;
     optional string CertificatePath = 5;
     optional string LocalRepositoryPath = 6;
+    optional string SystemSslPath = 7;
+    optional string CacheUpdateSslPath = 8;
 
-    optional string ReleaseTag = 7 [default="RECOMMENDED"];
-    optional string BaseVersion = 8;
-    optional string Primary = 9;
-    repeated string FullNames = 10;
-    repeated string PrefixNames = 11;
-    repeated string InstallArguments = 12;
+    optional string ReleaseTag = 9 [default="RECOMMENDED"];
+    optional string BaseVersion = 10;
+    optional string Primary = 11;
+    repeated string FullNames = 12;
+    repeated string PrefixNames = 13;
+    repeated string InstallArguments = 14;
 
 
 }
