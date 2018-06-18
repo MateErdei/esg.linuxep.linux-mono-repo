@@ -1,7 +1,7 @@
 message("directory : " ${PROJECT_BINARY_DIR}/modules/SulDownloader)
-add_executable(SulDownloaderApp main.cpp)
-add_dependencies(SulDownloaderApp SulDownloader)
-target_include_directories(SulDownloaderApp  PUBLIC ${PROJECT_SOURCE_DIR}/modules/SulDownloader)
+add_executable(SulDownloader main.cpp)
+add_dependencies(SulDownloader suldownloaderimpl)
+target_include_directories(SulDownloader  PUBLIC ${PROJECT_SOURCE_DIR}/modules/SulDownloader)
 
 #/redist/binaries/linux10/input/SUL
 set( REDIST /redist )
@@ -14,4 +14,4 @@ set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64 )
 
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
-target_link_libraries(SulDownloaderApp  SulDownloader)
+target_link_libraries(SulDownloader  suldownloaderimpl)
