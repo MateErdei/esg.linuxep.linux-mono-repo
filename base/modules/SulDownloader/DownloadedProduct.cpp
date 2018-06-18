@@ -67,6 +67,7 @@ namespace SulDownloader
                 error.status = WarehouseStatus::INSTALLFAILED;
                 setError(error);
             }
+            //TODO report the installation success.
         }
 //TODO set error for invalid install path. 
     }

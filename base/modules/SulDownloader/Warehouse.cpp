@@ -231,6 +231,7 @@ namespace SulDownloader
         for ( auto & productPair : m_products)
         {
             auto  & product = productPair.second;
+            //FIXME: set the correct path to the distribution.
             std::string distributePath = "/tmp/distribute/" + product.distributionFolderName();
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
@@ -247,6 +248,7 @@ namespace SulDownloader
         {
             verifyDistributeProduct(product);
         }
+        SULUtils::displayLogs(session());
     }
 
     void Warehouse::distributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair, const std::string &distributePath)
@@ -257,6 +259,7 @@ namespace SulDownloader
                                                      SU_AddDistributionFlag_UseDefaultHomeFolder, empty,
                                                      empty)))
         {
+            SULUtils::displayLogs(session());
             productPair.second.setError( fetchSulError( "Failed to set distribution path"));
 
         }
@@ -324,7 +327,7 @@ namespace SulDownloader
         std::string localRepository = configurationData.getLocalRepository();
 
         SU_setLoggingLevel(session(), logLevel( configurationData.getLogLevel()));
-        //SU_setLoggingLevel(warehouse->session(), SU_LoggingLevel_important);
+
         LOGSUPPORT("Certificate path: " << certificatePath);
         SU_setCertificatePath(session(), certificatePath.c_str());
 
@@ -332,6 +335,7 @@ namespace SulDownloader
         SU_setLocalRepository(session(), localRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
 
+        //FIXME: requirement to support only https
         bool https = connectionSetup.useHTTPS(); // default will always download over https.
 
         if(!SULUtils::isSuccess(SU_setUseHttps(session(), https)))

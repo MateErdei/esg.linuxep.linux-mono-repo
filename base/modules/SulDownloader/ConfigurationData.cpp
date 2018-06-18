@@ -132,6 +132,7 @@ namespace SulDownloader
         if (!fileSystem->isDirectory(localRepository))
         {
             // TODO Check if using correct mode.
+            // FIXME: remove creation of directory in the verifySettingsAreValid.
             if(mkdir(localRepository.c_str(), 0700) != 0)
             {
                 LOGERROR( "Invalid Settings: Local repository path can not be created: " << localRepository);
@@ -150,7 +151,7 @@ namespace SulDownloader
             LOGERROR( "Invalid Settings: Certificate path does not contain required files.");
             return false;
         }
-
+        //TODO there are more settings to verify, for example, sophosurl must be valid kind of urls.
 
         m_state = State::Verified;
         return true;

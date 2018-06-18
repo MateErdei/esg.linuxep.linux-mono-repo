@@ -20,7 +20,6 @@ namespace SulDownloader
     std::string SulGetErrorDetails( SU_Handle session );
     std::string SulGetLogEntry( SU_Handle session);
     std::string SulQueryProductMetadata( SU_PHandle product, const std::string & attribute, SU_Int index);
-    std::string SulQueryDistributionFileData( SU_Handle session, SU_Int index, const std::string & attribute );
 
     std::pair<WarehouseStatus, std::string > getSulCodeAndDescription( SU_Handle session);
 

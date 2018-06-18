@@ -25,7 +25,7 @@ namespace SulDownloader
         std::string releaseTag;
         std::string baseVersion;
     };
-
+//TODO improve documentation of ConfigurationData 
     /**
      * Holds all the settings that SulDownloader needs to run which includes:
      *  - Information about connection
@@ -68,7 +68,7 @@ namespace SulDownloader
 
         std::vector<std::string> getInstallArguments() const;
         void setInstallArguments(const std::vector<std::string> & installArguments);
-
+//TODO document what are the verifications that are performed.
         bool verifySettingsAreValid();
         bool isVerified() const;
 

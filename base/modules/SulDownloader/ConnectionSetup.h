@@ -40,7 +40,7 @@ namespace SulDownloader
 
         bool isCacheUpdate() const;
         bool useHTTPS() const;
-
+        //FIXME remove support for use HTTPS. SULDownloader to support only https.
     private:
         std::string m_updateLocationURL;
         Credentials m_credentials;

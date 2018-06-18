@@ -99,12 +99,6 @@ namespace  SulDownloader
         return s.str();
 
     }
-    std::string SulQueryDistributionFileData( SU_Handle session, SU_Int index, const std::string & attribute )
-    {
-        SulStringResource s( SU_queryDistributionFileData(session, index, attribute.c_str()), session);
-        return s.str();
-    }
-
 
     bool SULUtils::isSuccess(SU_Result result)
     {
@@ -117,12 +111,12 @@ namespace  SulDownloader
     {
         if ( !isSuccess(SU_getLastError(ses)))
         {
-            LOGERROR("Error:" << SulGetErrorDetails(ses));
+            LOGERROR("Error: " << SulGetErrorDetails(ses));
         }
 
         for ( auto & log : SulLogs(ses))
         {
-            LOGSUPPORT("Log:" << log);
+            LOGINFO(log);
         }
 
     }

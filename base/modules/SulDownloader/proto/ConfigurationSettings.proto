@@ -3,7 +3,7 @@ syntax = "proto2";
 package SulDownloaderProto;
 
 
-
+//FIXME: add information about the purpose of these entries.
 
 message ConfigurationSettings
 {
