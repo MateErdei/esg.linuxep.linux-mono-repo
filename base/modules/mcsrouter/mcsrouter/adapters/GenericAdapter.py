@@ -44,8 +44,9 @@ class GenericAdapter(AdapterBase.AdapterBase):
             logger.info("%s Policy didn't contain one compliance node"%self.__m_appid)
             policyName = "%s_policy.xml"%(self.__m_appid)
 
-        policypath = os.path.join(self.__m_installdir, "policy", policyName)
-        open(policypath, "w").write(policy)
+        policyPath = os.path.join(self.__m_installdir, "policy", policyName)
+        policyPathTmp = os.path.join(self.__m_installdir, "tmp", policyName)
+        utils.AtomicWrite.atomic_write(policyPath, policyPathTmp, policy)
 
         return []
 
@@ -57,9 +58,11 @@ class GenericAdapter(AdapterBase.AdapterBase):
             timestamp = command.get(u"creationTime")
         except KeyError:
             timestamp = utils.Timestamp.timestamp()
-
-        actionpath = os.path.join(self.__m_installdir,"action","%s_action_%s.xml"%(self.__m_appid, timestamp))
-        open(actionpath, "w").write(body)
+        
+        actionName = "%s_action_%s.xml"%(self.__m_appid, timestamp)
+        actionPath = os.path.join(self.__m_installdir,"action", actionName)
+        actionPathTmp = os.path.join(self.__m_installdir, "tmp", actionName)
+        utils.AtomicWrite.atomic_write(actionPath, actionPathTmp, body)
 
         return []
 
@@ -96,3 +99,4 @@ class GenericAdapter(AdapterBase.AdapterBase):
                 return self.__processAction(command)
         finally:
             command.complete()
+

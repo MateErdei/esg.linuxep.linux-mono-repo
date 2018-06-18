@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import utils.XmlHelper
+import utils.AtomicWrite
 import adapters.base.PolicyHandlerBase
 
 class MCSPolicyHandlerException(Exception):
@@ -49,12 +50,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         assert policyXml is not None
         if path is None:
             path = self.__policyPath()
-        open(path,"wb").write(policyXml)
-
-    def __saveTmpPolicy(self):
-        self.__savePolicy(
-            path = os.path.join(self.__m_installDir,"tmp",self.policyBaseName())
-            )
+        utils.AtomicWrite.atomic_write(path, os.path.join(self.__m_installDir,"tmp", self.policyBaseName()), policyXml)
 
     def __loadPolicy(self):
         path = self.__policyPath()
@@ -297,7 +293,6 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         Process a new policy
         """
         self.__m_policyXml = policyXml
-        self.__saveTmpPolicy()
         self.__tryApplyPolicy("new",True)
 
     def getPolicyInfo(self):
