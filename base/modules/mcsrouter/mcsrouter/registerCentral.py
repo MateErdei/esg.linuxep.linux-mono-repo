@@ -77,7 +77,7 @@ def setupLogging():
     rootLogger.addHandler(streamHandler)
 
 def createDirs(INST):
-    paths = ["var", "event", "status", "tmp", "etc", "logs", "policy", "action"]
+    paths = ["action", "etc", "event", "logs", "policy", "status", "tmp", "var"]
     for path in paths:
         if path == "var":
             safeMkdir(os.path.join(INST,path,"cache","mcs_fragmented_policies"))
@@ -139,18 +139,6 @@ def cleanup():
         except OSError:
             pass
 
-    policyFile = os.path.join(INST,"policy","sophos.config")
-    policyEnabled = os.path.isfile(policyFile)
-
-    #~ serviceController = getServiceController()
-    #~ if policyEnabled:
-        #~ ## restart RMS
-        #~ print("Failed to register with Sophos Central: restarting RMS")
-        #~ serviceController.enableAndStart("sav-rms")
-    #~ else:
-        #~ ## Ensure mcsrouter won't start on reboot
-        #~ serviceController.disableAndStop("sav-rms")
-
 def safeDelete(path):
     try:
         os.unlink(path)
@@ -203,7 +191,7 @@ def register(config, INST, logger):
 
 def removeMCSPolicy():
     safeDelete(os.path.join(INST,"etc","sophosspl","mcs_policy.config"))
-    safeDelete(os.path.join(INST,"policy","mcsPolicy.xml"))
+    safeDelete(os.path.join(INST,"policy","MCS_policy.xml"))
 
 def getUID(uidText):
     """
@@ -280,10 +268,11 @@ def addOptionsToPolicy(relays, proxy_credentials):
 
 
 def removeConsoleConfiguration():
-    safeDelete(os.path.join(INST,"policy","avPolicy.xml"))
-    safeDelete(os.path.join(INST,"policy","updatePolicy.xml"))
-    safeDelete(os.path.join(INST,"policy","heartbeatPolicy.xml"))
-    safeDelete(os.path.join(INST,"policy","mtdPolicy.xml"))
+    policy_dir = os.path.join(INST,"policy");
+    for policy_file in os.listdir(policy_dir) :
+        file_path = os.path.join(INST,"policy", policy_file)
+        if os.path.isfile(file_path):
+            safeDelete(file_path)
 
 def innerMain(argv):
     usage = "Usage: %prog <MCS-Token> <MCS-URL> | %prog [options]"
