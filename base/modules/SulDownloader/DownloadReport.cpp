@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "DownloadReport.h"
-#include "Warehouse.h"
+#include "WarehouseRepository.h"
 #include "DownloadedProduct.h"
 #include "TimeTracker.h"
 #include "MessageUtility.h"
@@ -19,7 +19,7 @@ namespace SulDownloader
 
     }
 
-    DownloadReport DownloadReport::Report(const Warehouse & warehouse, const TimeTracker &timeTracker)
+    DownloadReport DownloadReport::Report(const WarehouseRepository & warehouse, const TimeTracker &timeTracker)
     {
         DownloadReport report;
         report.setTimings(timeTracker);

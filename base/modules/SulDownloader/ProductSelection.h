@@ -47,8 +47,8 @@ namespace SulDownloader
 
 
     /**
-     * ProductSelection is responsible to define the products that must be downloaded from the warehouse as well as report
-     * if any required product can not be found in the warehouse.
+     * ProductSelection is responsible to define the products that must be downloaded from the WarehouseRepository as well as report
+     * if any required product can not be found in the remote warehouse repository.
      */
 
     class ProductSelection

@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULRaii.h"
 #include "DownloadReport.h"
 #include "ConfigurationData.h"
-#include "Warehouse.h"
+#include "WarehouseRepository.h"
 #include "ProductSelection.h"
 #include "DownloadedProduct.h"
 #include "ConfigurationSettings.pb.h"
@@ -55,32 +55,32 @@ namespace SulDownloader
         timeTracker.setStartTime( TimeTracker::getCurrTime());
 
         // connect and read metadata
-        std::unique_ptr<Warehouse> warehouse = Warehouse::FetchConnectedWarehouse(configurationData);
+        std::unique_ptr<WarehouseRepository> warehouseRepository = WarehouseRepository::FetchConnectedWarehouse(configurationData);
 
-        if ( warehouse->hasError())
+        if ( warehouseRepository->hasError())
         {
-            return DownloadReport::Report(*warehouse, timeTracker);
+            return DownloadReport::Report(*warehouseRepository, timeTracker);
         }
 
         // apply product selection and download the needed products
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
-        warehouse->synchronize(productSelection);
+        warehouseRepository->synchronize(productSelection);
         timeTracker.setSyncTime( TimeTracker::getCurrTime());
 
-        if ( warehouse->hasError())
+        if ( warehouseRepository->hasError())
         {
-            return DownloadReport::Report(*warehouse, timeTracker);
+            return DownloadReport::Report(*warehouseRepository, timeTracker);
         }
 
-        warehouse->distribute();
+        warehouseRepository->distribute();
 
-        if ( warehouse->hasError())
+        if ( warehouseRepository->hasError())
         {
-            return DownloadReport::Report(*warehouse, timeTracker);
+            return DownloadReport::Report(*warehouseRepository, timeTracker);
         }
 
 
-        auto products = warehouse->getProducts();
+        auto products = warehouseRepository->getProducts();
 
         for( auto & product: products)
         {
@@ -96,7 +96,7 @@ namespace SulDownloader
         // try to install all products and report error for those that failed (if any)
         for( auto & product: products)
         {
-            if (product.productHasChanged())
+            if (true || product.productHasChanged())
             {
                 product.install(configurationData.getInstallArguments());
             }

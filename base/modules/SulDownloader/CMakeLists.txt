@@ -19,8 +19,8 @@ add_library(SulDownloader SHARED
         SulDownloaderException.cpp
         ConnectionSelector.cpp
         ConnectionSelector.h
-        Warehouse.cpp
-        Warehouse.h
+        WarehouseRepository.cpp
+        WarehouseRepository.h
         ProductSelection.cpp
         ProductSelection.h
         Tag.h

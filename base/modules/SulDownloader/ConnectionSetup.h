@@ -15,7 +15,7 @@ namespace SulDownloader
 {
 
     /**
-     * Holds enough information to setup a SUL connection to the Warehouse.
+     * Holds enough information to setup a SUL connection required by the WarehouseRepository.
      */
     class ConnectionSetup
     {

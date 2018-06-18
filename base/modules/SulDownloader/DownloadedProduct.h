@@ -12,14 +12,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
     /**
-     * Refer to Downloaded product from the warehouse.
-     * It is created by the Warehouse, which also is responsible to set its DistributePath.
+     * Refer to Downloaded product from the WarehouseRepository.
+     * It is created by the WarehouseRepository, which also is responsible to set its DistributePath.
      *
-     * After being fully configured by the Warehouse, it must:
+     * After being fully configured by the WarehouseRepository, it must:
      *   - verify: versig verification
      *   - install: run the product installer.
      *
-     * Design decision: Similar to the warehouse, DownloadedProduct mark the errors internally to
+     * Design decision: Similar to the WarehouseRepository, DownloadedProduct mark the errors internally to
      * enable DownloadReport to create its report.
      */
     class DownloadedProduct

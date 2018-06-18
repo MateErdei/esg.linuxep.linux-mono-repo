@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_WAREHOUSE_H
-#define EVEREST_WAREHOUSE_H
+#ifndef EVEREST_WAREHOUSEREPOSITORY_H
+#define EVEREST_WAREHOUSEREPOSITORY_H
 extern "C" {
 #include <SUL.h>
 }
@@ -26,7 +26,7 @@ namespace SulDownloader
      *
      * The common procedure is to :
      *   - FetchConnectedWarehouse which
-     *     - connect to warehouse
+     *     - connect to the remote warehouse repository
      *     - download the metadata
      *   - synchronize:
      *     - remove the unwanted products
@@ -35,7 +35,7 @@ namespace SulDownloader
      *     - distribute and check status.
      *
      * Design Decision: set internal error state (not throw). This is to allow the creation of DownloadReport
-     * from all the information kept in the Warehouse object. This imply that after the main methods: FetchConnectedWarehouse,
+     * from all the information kept in the WarehouseRepository object. This imply that after the main methods: FetchConnectedWarehouse,
      * synchronize and distribute is called, the ::hasError must be checked and no further operation is allowed.
      *
      * The order for the methods to be called: Fetch, Synchronize and Distribute is enforced internally with asserts.
@@ -43,37 +43,37 @@ namespace SulDownloader
      *
      *
      */
-    class Warehouse
+    class WarehouseRepository
     {
     public:
         /**
-         * Using the information in the configuration data object, remote warehouse connections will be attempted
-         * Upon a successful connection, the metadata will be fetched from the Warehouse and
-         * a pointer to that warehouse will be returned.
+         * Using the information in the configuration data object, connections to remote warehouse repositories will be attempted
+         * Upon a successful connection, the metadata will be fetched from the remote Warehouse and
+         * a configured WarehouseRepository will be returned.
          *
-         * If no connection can be stablished ( for all the possible options of connection) a pointer to the warehouse
+         * If no connection can be stablished ( for all the possible options of connection) a pointer to the WarehouseRepository
          * will be returned with ::hasError returning true. (This is to allow DownloadReport to be created).
          *
-         * @param configurationData containing required parameters for SUL to perform warehouse download
-         * @return pointer to successfully connected warehouse
+         * @param configurationData containing required parameters for SUL to perform a download from a warehouse repository
+         * @return pointer to successfully connected WarehouseRepository
          */
-        static std::unique_ptr<Warehouse> FetchConnectedWarehouse( const ConfigurationData & configurationData );
+        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse( const ConfigurationData & configurationData );
 
-        Warehouse() = delete;
-        Warehouse( const Warehouse & ) = delete;
-        Warehouse &operator = (const Warehouse & ) = delete;
-        Warehouse& operator = (Warehouse && ) = default;
-        Warehouse( Warehouse&& ) = default;
-        ~Warehouse();
+        WarehouseRepository() = delete;
+        WarehouseRepository( const WarehouseRepository & ) = delete;
+        WarehouseRepository &operator = (const WarehouseRepository & ) = delete;
+        WarehouseRepository& operator = (WarehouseRepository && ) = default;
+        WarehouseRepository( WarehouseRepository&& ) = default;
+        ~WarehouseRepository();
 
         /**
-         * Used to check if the warehouse reported an error
-         * @return true, if warehouse has error, false otherwise
+         * Used to check if the WarehouseRepository reported an error
+         * @return true, if WarehouseRepository has error, false otherwise
          */
         bool hasError() const;
 
         /**
-         * Gets the warehouse error information.
+         * Gets the WarehouseRepository error information.
          *
          * Mainly used by DownloadReport to create its report.
          *
@@ -84,7 +84,7 @@ namespace SulDownloader
         /**
          * Configure sul to download/synchronize the selection of products
          *
-         * Based on the list of products available in the warehouses, this method will configure SUL to download only
+         * Based on the list of products available in the warehouse repositories, this method will configure SUL to download only
          * the prooducts selected by ::productSelection. It will eventually execute SU_synchronise which will ensure
          * that all the packages that need to be downloaded are fetched and placed in the local repository.
          *
@@ -96,7 +96,7 @@ namespace SulDownloader
          * Extract the file content from the local warehouse repository and create real product file structure required.
          * SUL works with 2 local repositories. The first one, (cache repository) allows SUL to synchronize with the
          * remote repositories. The second one, which SUL calls the distribution path, is used to synchronize inside the
-         * machine and allows SUL to verify what has changed since the previous update.
+         * machine and allows SUL to check if there are local changes since the previous update.
          *
          * Distribute eventually executes SU_distribute to allow SUL to verify which products have changed since the last
          * update.
@@ -119,7 +119,7 @@ namespace SulDownloader
         void setError( const std::string & );
         void setConnectionSetup( const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData);
         int  logLevel( ConfigurationData::LogLevel );
-        explicit  Warehouse( bool createSession  );
+        explicit  WarehouseRepository( bool createSession  );
 
         void distributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair, const  std::string & distributePath );
         void verifyDistributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair);
@@ -141,4 +141,4 @@ namespace SulDownloader
 
 
 
-#endif //EVEREST_WAREHOUSE_H
+#endif //EVEREST_WAREHOUSEREPOSITORY_H

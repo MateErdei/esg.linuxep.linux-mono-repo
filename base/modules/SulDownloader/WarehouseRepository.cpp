@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 #include <cassert>
 
-#include "Warehouse.h"
+#include "WarehouseRepository.h"
 #include "DownloadedProduct.h"
 #include "Tag.h"
 #include "ProductSelection.h"
@@ -82,14 +82,14 @@ namespace
 namespace SulDownloader
 {
 
-    std::unique_ptr<Warehouse> Warehouse::FetchConnectedWarehouse(const ConfigurationData &configurationData)
+    std::unique_ptr<WarehouseRepository> WarehouseRepository::FetchConnectedWarehouse(const ConfigurationData &configurationData)
     {
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
         for ( auto & connectionSetup : candidates)
         {
-            auto warehouse = std::unique_ptr<Warehouse>(new Warehouse(true));
+            auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
             if ( warehouse->hasError())
             {
                 continue;
@@ -120,23 +120,23 @@ namespace SulDownloader
             return warehouse;
         }
 
-        auto warehouse_empty = std::unique_ptr<Warehouse>(new Warehouse(false));
+        auto warehouse_empty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouse_empty->setError("Failed to connect to warehouse");
         return warehouse_empty;
     }
 
-    bool Warehouse::hasError() const
+    bool WarehouseRepository::hasError() const
     {
         return !m_error.Description.empty() || ::hasError(m_products);
     }
 
-    WarehouseError Warehouse::getError() const
+    WarehouseError WarehouseRepository::getError() const
     {
         return m_error;
     }
 
 
-    void Warehouse::synchronize(ProductSelection & selection)
+    void WarehouseRepository::synchronize(ProductSelection & selection)
     {
         assert( m_state == State::Connected);
         m_state = State::Synchronized;
@@ -230,7 +230,7 @@ namespace SulDownloader
     }
 
 
-    void Warehouse::distribute()
+    void WarehouseRepository::distribute()
     {
         assert( m_state == State::Synchronized);
         m_state = State::Distributed;
@@ -262,7 +262,7 @@ namespace SulDownloader
         SULUtils::displayLogs(session());
     }
 
-    void Warehouse::distributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair, const std::string &distributePath)
+    void WarehouseRepository::distributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair, const std::string &distributePath)
     {
         productPair.second.setDistributePath(distributePath) ;
         const char *empty = "";
@@ -277,7 +277,7 @@ namespace SulDownloader
 
     }
 
-    void Warehouse::verifyDistributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair)
+    void WarehouseRepository::verifyDistributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair)
     {
         std::string distributePath = productPair.second.distributePath();
         auto result = SU_getDistributionStatus(productPair.first,  distributePath.c_str());
@@ -294,7 +294,7 @@ namespace SulDownloader
     }
 
 
-    std::vector<DownloadedProduct> Warehouse::getProducts() const
+    std::vector<DownloadedProduct> WarehouseRepository::getProducts() const
     {
         std::vector<DownloadedProduct> products;
         for ( auto & productPair : m_products)
@@ -305,7 +305,7 @@ namespace SulDownloader
     }
 
 
-    void Warehouse::setError(const std::string & error)
+    void WarehouseRepository::setError(const std::string & error)
     {
         if ( m_session)
         {
@@ -317,7 +317,7 @@ namespace SulDownloader
         m_error = fetchSulError(error);
     }
 
-    WarehouseError Warehouse::fetchSulError( const std::string &description) const
+    WarehouseError WarehouseRepository::fetchSulError( const std::string &description) const
     {
         WarehouseError error;
         error.Description = description;
@@ -331,7 +331,7 @@ namespace SulDownloader
     }
 
 
-    void Warehouse::setConnectionSetup(const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData)
+    void WarehouseRepository::setConnectionSetup(const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData)
     {
         assert( m_state == State::Initialized);
 
@@ -346,7 +346,7 @@ namespace SulDownloader
         LOGSUPPORT("Certificate path: " << certificatePath);
         SU_setCertificatePath(session(), certificatePath.c_str());
 
-        LOGSUPPORT("Warehouse local repository: " << localWarehouseRepository);
+        LOGSUPPORT("WarehouseRepository local repository: " << localWarehouseRepository);
         SU_setLocalRepository(session(), localWarehouseRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
 
@@ -415,7 +415,7 @@ namespace SulDownloader
         }
     }
 
-    Warehouse::Warehouse(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
+    WarehouseRepository::WarehouseRepository(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
     {
         m_state = State::Initialized;
         if ( createSession )
@@ -430,19 +430,19 @@ namespace SulDownloader
 
     }
 
-    SU_Handle Warehouse::session() const
+    SU_Handle WarehouseRepository::session() const
     {
         assert( m_session );
         return m_session->m_session;
     }
 
-    Warehouse::~Warehouse()
+    WarehouseRepository::~WarehouseRepository()
     {
         m_products.clear();
         m_session.reset();
     }
 
-    int Warehouse::logLevel(ConfigurationData::LogLevel logLevel) {
+    int WarehouseRepository::logLevel(ConfigurationData::LogLevel logLevel) {
         switch (logLevel)
         {
             case ConfigurationData::LogLevel::VERBOSE:
@@ -453,12 +453,12 @@ namespace SulDownloader
 
     }
 
-    std::string Warehouse::getRootDistributionPath() const
+    std::string WarehouseRepository::getRootDistributionPath() const
     {
         return m_rootDistributionPath;
     }
 
-    void Warehouse::setRootDistributionPath(const std::string &rootDistributionPath)
+    void WarehouseRepository::setRootDistributionPath(const std::string &rootDistributionPath)
     {
         m_rootDistributionPath = rootDistributionPath;
     }

@@ -15,13 +15,13 @@ namespace SulDownloader
     /**
      * Executes the core functionality of SULDownloader.
      *
-     *  - Fetch a ::Warehouse.
+     *  - Fetch a remote ::WarehouseRepository.
      *  - Synchronize it by selecting the products.
      *  - Distribute the products to local paths.
      *  - Verify the products are correctly signed.
      *  - Install the products
      *
-     *  Produces the ::DownloadReport which contains the necessary information to keep track of the Warehouse and Managed products.
+     *  Produces the ::DownloadReport which contains the necessary information to keep track of the WarehouseRepository and Managed products.
      *
      *
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
