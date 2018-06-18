@@ -15,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "SulDownloaderException.h"
 
 namespace
 {
@@ -423,7 +424,7 @@ namespace SulDownloader
             m_session.reset(new SULSession());
             if ( m_session->m_session == nullptr)
             {
-                setError("Failed to Initialize Sul");
+                throw SulDownloaderException("Failed to Initialize Sul");
             }
         }
 
@@ -432,7 +433,7 @@ namespace SulDownloader
 
     SU_Handle WarehouseRepository::session() const
     {
-        assert( m_session );
+        assert( m_session && m_session->m_session != nullptr );
         return m_session->m_session;
     }
 
