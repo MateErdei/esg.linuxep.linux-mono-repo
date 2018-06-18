@@ -38,7 +38,6 @@ namespace SulDownloader
         auto fileSystem = ::Common::FileSystem::createFileSystem();
 
         std::string installShFile = fileSystem->join(m_distributePath, "install.sh");
-        installShFile = "/tmp/fakeinstall.sh"; // TODO: remove this line
 
         if(fileSystem->isExecutable(installShFile) && !fileSystem->isDirectory(installShFile) )
         {
