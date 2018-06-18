@@ -22,7 +22,7 @@ namespace SulDownloader
         virtual ~ISingleProductSelector() = default;
     };
 
-    class ProductSelector : public ISingleProductSelector
+    class ProductSelector : public virtual ISingleProductSelector
     {
     public:
         enum NamePrefix{UseFullName, UseNameAsPrefix};
