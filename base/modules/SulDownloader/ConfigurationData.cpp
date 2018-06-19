@@ -152,7 +152,31 @@ namespace SulDownloader
 
         if(m_sophosUpdateUrls.empty())
         {
-            LOGERROR( "Invalid Settings: No warehouse urls provided.");
+            LOGERROR( "Invalid Settings: No sophos update urls provided.");
+            return false;
+        }
+        else
+        {
+            for(auto & value : m_sophosUpdateUrls)
+            {
+                if(value.empty())
+                {
+                    LOGERROR("Invalid Settings: Sophos update url provided cannot be an empty string.");
+                    return false;
+                }
+            }
+        }
+
+        if(m_credentials.getUsername().empty())
+        {
+            LOGERROR( "Invalid Settings: Credential 'username' cannot be empty string.");
+            return false;
+        }
+
+
+        if(m_credentials.getPassword().empty())
+        {
+            LOGERROR( "Invalid Settings: Credential 'password' cannot be empty string.");
             return false;
         }
 
@@ -161,6 +185,36 @@ namespace SulDownloader
             LOGERROR( "Invalid Settings: No product selection.");
             return false;
         }
+        else
+        {
+            for(auto & value : m_productSelection)
+            {
+                if(value.releaseTag.empty())
+                {
+                    LOGERROR( "Invalid Settings: ReleaseTag cannot be an empty string");
+                    return false;
+                }
+
+                if(value.baseVersion.empty())
+                {
+                    LOGERROR( "Invalid Settings: Base version cannot be an empty string");
+                    return false;
+                }
+
+                if(value.Name.empty() && value.Prefix == false)
+                {
+                    LOGERROR( "Invalid Settings: Full product name cannot be an empty string");
+                    return false;
+                }
+
+                if(value.Name.empty() && value.Prefix == true)
+                {
+                    LOGERROR( "Invalid Settings: Prefix product name cannot be an empty string");
+                    return false;
+                }
+            }
+        }
+
 
         // productselection should already be ordered with primary being the first one.
         if(m_productSelection[0].Name.empty() || m_productSelection[0].Prefix == true || m_productSelection[0].Primary == false)
@@ -229,6 +283,31 @@ namespace SulDownloader
             }
 
         }
+
+        if(!m_localUpdateCacheUrls.empty())
+        {
+            for(auto & value : m_localUpdateCacheUrls)
+            {
+                if (value.empty())
+                {
+                    LOGERROR( "Invalid Settings: Update cache url cannot be an empty string");
+                    return false;
+                }
+            }
+        }
+
+        if(!m_installArguments.empty())
+        {
+            for (auto & value : m_installArguments)
+            {
+                if (value.empty())
+                {
+                    LOGERROR( "Invalid Settings: install argument cannot be an empty string");
+                    return false;
+                }
+            }
+        }
+
 
         m_state = State::Verified;
         return true;
