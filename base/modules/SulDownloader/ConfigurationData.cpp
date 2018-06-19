@@ -271,7 +271,7 @@ namespace SulDownloader
 
         // load input string (json) into the configuration data
         // run runSULDownloader
-        // and serialize teh DownloadReport into json and give the error code/or success
+        // and serialize the DownloadReport into json and give the error code/or success
         auto sUrls = settings.sophosurls();
         std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls) );
         sUrls = settings.updatecache();
@@ -312,11 +312,8 @@ namespace SulDownloader
             configurationData.addProductSelection(productGUID);
         }
 
-        std::vector<std::string> installArgs;
-        for(auto & arg : settings.installarguments())
-        {
-            installArgs.push_back(arg);
-        }
+        std::vector<std::string> installArgs(std::begin(settings.installarguments()),
+                                             std::end(settings.installarguments()));
 
         configurationData.setInstallArguments(installArgs);
 
@@ -326,7 +323,7 @@ namespace SulDownloader
         return configurationData;
     }
 
-    const std::vector<std::string> & ConfigurationData::getInstallArguments() const
+    const std::vector<std::string>& ConfigurationData::getInstallArguments() const
     {
         return m_installArguments;
     }
@@ -339,18 +336,12 @@ namespace SulDownloader
     std::vector<Proxy> ConfigurationData::proxiesList() const
     {
         std::vector<Proxy> options;
-        if ( m_proxy.empty())
+        if ( m_proxy.empty() && hasEnvironmentProxy())
         {
-            if ( hasEnvironmentProxy())
-            {
-                options.push_back( Proxy("environment:"));
-            }
-            options.push_back(m_proxy);
+            options.push_back(Proxy("environment:"));
         }
-        else
-        {
-            options.push_back(m_proxy);
-        }
+
+        options.push_back(m_proxy);
         return options;
     }
 

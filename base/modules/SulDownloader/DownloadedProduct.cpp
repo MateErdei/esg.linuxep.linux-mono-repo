@@ -15,7 +15,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-    //enum class State{ Initialized, Distributed, Verified, Installed, HasError} m_state;
     DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation)
             : m_state(State::Initialized), m_error(), m_productMetadata(productInformation), m_distributePath(), m_productHasChanged(false)
     {

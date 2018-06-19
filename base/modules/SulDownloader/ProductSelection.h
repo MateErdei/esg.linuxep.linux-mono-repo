@@ -53,7 +53,7 @@ namespace SulDownloader
 
     class ProductSelection
     {
-        ProductSelection();
+        ProductSelection() = default;
     public:
         static ProductSelection CreateProductSelection( const ConfigurationData & );
         void appendSelector(std::unique_ptr<ISingleProductSelector> );

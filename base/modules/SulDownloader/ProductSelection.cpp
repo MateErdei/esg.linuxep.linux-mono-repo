@@ -13,7 +13,7 @@ namespace
 {
     /**
      * Stable: preserve the order that index are added
-     * Set: value garantees no duplication
+     * Set: value guarantees no duplication
      * Index: Meant for index of arrays hence valid values are 0->Capacity-1
      */
     class StableSetIndex
@@ -76,12 +76,13 @@ namespace SulDownloader
 
     bool ProductSelector::keepProduct(const ProductMetadata & productInformation) const
     {
-        auto pos = productInformation.getLine().find(m_productName);
+        size_t pos = productInformation.getLine().find(m_productName);
         if ( pos != 0)
         {
+            // m_productname is not a prefix of productInformation.getLine()
             return false;
         }
-        if (m_NamePrefix == NamePrefix::UseFullName && m_productName.compare(productInformation.getLine()) != 0)
+        if (m_NamePrefix == NamePrefix::UseFullName && m_productName != productInformation.getLine())
         {
             return false;
         }
@@ -92,7 +93,7 @@ namespace SulDownloader
         }
 
 
-        if (productInformation.getBaseVersion().compare(m_baseVersion) == 0)
+        if (productInformation.getBaseVersion() == m_baseVersion)
         {
             return true;
         }
@@ -105,11 +106,6 @@ namespace SulDownloader
         return m_productName;
     }
 
-
-    ProductSelection::ProductSelection()
-    {
-
-    }
 
     void ProductSelection::appendSelector(std::unique_ptr<ISingleProductSelector> productSelector)
     {
@@ -160,7 +156,7 @@ namespace SulDownloader
 
         selection.selected = selectedProductsIndex.values();
 
-        for ( size_t i =0 ; i < warehouseProducts.size(); i++)
+        for ( size_t i =0 ; i < warehouseProducts.size(); ++i)
         {
             if ( !selectedProductsIndex.hasIndex(i))
             {
@@ -175,7 +171,7 @@ namespace SulDownloader
                                                         const std::vector<ProductMetadata> &warehouseProducts) const
     {
         StableSetIndex set(warehouseProducts.size());
-        for ( size_t i = 0 ; i< warehouseProducts.size(); i++)
+        for ( size_t i = 0 ; i< warehouseProducts.size(); ++i)
         {
             if( selector.keepProduct(warehouseProducts[i]))
             {

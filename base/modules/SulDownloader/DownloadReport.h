@@ -53,13 +53,13 @@ namespace SulDownloader
 
         WarehouseStatus getStatus() const;
         const std::string& getDescription() const;
-        const std::string& sulError() const;
-        const std::string &startTime() const;
-        const std::string &finishedTime() const;
-        const std::string &syncTime() const;
-        const std::vector<ProductReport>& products() const;
+        const std::string& getSulError() const;
+        const std::string &getStartTime() const;
+        const std::string &getFinishedTime() const;
+        const std::string &getSyncTime() const;
+        const std::vector<ProductReport>& getProducts() const;
 
-        int exitCode() const;
+        int getExitCode() const;
 
     private:
         WarehouseStatus  m_status;

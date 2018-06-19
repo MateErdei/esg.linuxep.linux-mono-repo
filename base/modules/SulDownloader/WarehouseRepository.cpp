@@ -43,10 +43,7 @@ namespace
 
     bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::DownloadedProduct>> & products)
     {
-        if (products.empty())
-        {
-            return false;
-        }
+
         for ( const auto & product : products)
         {
             if (product.second.hasError())
@@ -121,9 +118,9 @@ namespace SulDownloader
             return warehouse;
         }
 
-        auto warehouse_empty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
-        warehouse_empty->setError("Failed to connect to warehouse");
-        return warehouse_empty;
+        auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
+        warehouseEmpty->setError("Failed to connect to warehouse");
+        return warehouseEmpty;
     }
 
     bool WarehouseRepository::hasError() const

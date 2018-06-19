@@ -19,6 +19,8 @@ namespace SulDownloader{
         {
             m_session = SU_beginSession();
         }
+        SULSession(const SULSession& ) = delete;
+        SULSession& operator=(const SULSession& ) = delete;
 
         ~SULSession()
         {
@@ -34,6 +36,9 @@ namespace SulDownloader{
     class SULInit
     {
     public:
+        SULInit(const SULInit& ) = delete;
+        SULInit& operator=(const SULInit& ) = delete;
+
         SULInit()
         {
             SU_init();

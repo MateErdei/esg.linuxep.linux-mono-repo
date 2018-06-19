@@ -77,23 +77,23 @@ namespace SulDownloader
         return m_description;
     }
 
-    const std::string &DownloadReport::startTime() const
+    const std::string &DownloadReport::getStartTime() const
     {
         return m_startTime;
     }
 
-    const std::string &DownloadReport::finishedTime() const
+    const std::string &DownloadReport::getFinishedTime() const
     {
         return m_finishedTime;
     }
 
-    const std::string &DownloadReport::syncTime() const
+    const std::string &DownloadReport::getSyncTime() const
     {
         return m_sync_time;
     }
 
 
-    const std::vector<ProductReport>& DownloadReport::products() const
+    const std::vector<ProductReport>& DownloadReport::getProducts() const
     {
         return m_productReport;
     }
@@ -124,7 +124,7 @@ namespace SulDownloader
         m_finishedTime = timeTracker.finishedTime();
     }
 
-    const std::string& DownloadReport::sulError() const
+    const std::string& DownloadReport::getSulError() const
     {
         return m_sulError;
     }
@@ -136,7 +136,7 @@ namespace SulDownloader
         m_sulError = error.SulError;
     }
 
-    int DownloadReport::exitCode() const
+    int DownloadReport::getExitCode() const
     {
         return static_cast<int>( m_status);
     }
@@ -146,15 +146,15 @@ namespace SulDownloader
     SulDownloaderProto::DownloadStatusReport DownloadReport::fromReport( const DownloadReport & report)
     {
         SulDownloaderProto::DownloadStatusReport protoReport;
-        protoReport.set_starttime(report.startTime());
-        protoReport.set_finishtime(report.finishedTime());
-        protoReport.set_synctime(report.syncTime());
+        protoReport.set_starttime(report.getStartTime());
+        protoReport.set_finishtime(report.getFinishedTime());
+        protoReport.set_synctime(report.getSyncTime());
 
         protoReport.set_status( toString( report.getStatus()));
         protoReport.set_errordescription(report.getDescription());
-        protoReport.set_sulerror(report.sulError());
+        protoReport.set_sulerror(report.getSulError());
 
-        for ( auto & product : report.products())
+        for ( auto & product : report.getProducts())
         {
             SulDownloaderProto::ProductStatusReport * productReport = protoReport.add_products();
             productReport->set_productname( product.name);
@@ -171,7 +171,7 @@ namespace SulDownloader
     {
             auto protoReport = DownloadReport::fromReport(report);
             std::string json = MessageUtility::protoBuf2Json(protoReport);
-            return {report.exitCode() , json };
+            return {report.getExitCode() , json };
     }
 
 

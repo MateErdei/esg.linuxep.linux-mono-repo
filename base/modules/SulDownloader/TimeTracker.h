@@ -33,6 +33,13 @@ namespace SulDownloader
         void setSyncTime(time_t m_syncTime);
 
     private:
+        /**
+         * Return timestamp formated as required by Timestamp Event
+         * https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
+         *
+         * YYYYMMDD HHMMSS
+         * @return timestamp formated as required above.
+         */
         std::string fromTime(std::time_t) const;
         std::time_t m_startTime = -1;
         std::time_t m_finishedTime = -1;

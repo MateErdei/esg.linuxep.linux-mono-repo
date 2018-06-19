@@ -16,8 +16,8 @@ namespace Common
         class FileSystemImpl : public IFileSystem
         {
         public:
-            FileSystemImpl();
-            ~FileSystemImpl();
+            FileSystemImpl() = default;
+            ~FileSystemImpl() = default;
 
             Path join(const Path& path1, const Path & path2)const override;
 

@@ -13,7 +13,7 @@ namespace SulDownloader
             : m_username( username )
             , m_password( password)
     {
-        if( m_password != "" && m_username == "" )
+        if( !m_password.empty() && m_username.empty() )
         {
             throw SulDownloaderException( "Invalid credentials");
         }

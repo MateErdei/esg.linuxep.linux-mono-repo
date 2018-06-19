@@ -26,15 +26,6 @@ namespace Common
 {
     namespace FileSystem
     {
-        FileSystemImpl::FileSystemImpl()
-        {
-
-        }
-
-        FileSystemImpl::~FileSystemImpl()
-        {
-
-        }
 
         Path FileSystemImpl::join(const Path& path1, const Path & path2) const
         {
