@@ -99,4 +99,3 @@ class GenericAdapter(AdapterBase.AdapterBase):
                 return self.__processAction(command)
         finally:
             command.complete()
-
