@@ -254,6 +254,15 @@ def createConfiguration(installDir, argv):
         elif arg == "no-daemon":
             config.set("DAEMON","0")
     return config
+    
+def clearTmpDirectory(installDir):
+    tempDir = os.path.join(installDir, "tmp")
+    if os.path.exists(tempDir):
+        for files in os.listdir(tempDir):
+            try:
+                os.unlink(files)
+            except:
+                pass
 
 def main(argv):
     installDir = os.environ.get("INST",None)
@@ -262,6 +271,7 @@ def main(argv):
         arg0 = sys.argv[0]
         scriptDir = os.path.dirname(os.path.realpath(arg0))
         installDir = os.path.abspath(os.path.join(scriptDir, ".."))
+    clearTmpDirectory(installDir)
     os.umask(0o177)
     config = createConfiguration(installDir, argv)
 
