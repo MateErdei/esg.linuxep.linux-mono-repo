@@ -8,6 +8,6 @@ def atomic_write(path, tmp_path, data):
         with open(tmp_path, "w") as f:
             f.write(data)
         os.rename(tmp_path, path)
-    except e:
+    except (OSError, IOError) as e:
         logging.error("Atomic write failed with message: {}".format(e))
 

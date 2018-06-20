@@ -261,7 +261,7 @@ def clearTmpDirectory(installDir):
         for files in os.listdir(tempDir):
             try:
                 os.unlink(files)
-            except:
+            except (OSError, IOError):
                 pass
 
 def main(argv):
