@@ -22,7 +22,7 @@
 #include "SulDownloader/SulDownloader.h"
 #include "Common/ProcessImpl/ArgcAndEnv.h"
 #include "TestWarehouseHelper.h"
-
+#include "SulDownloader/SulDownloaderException.h"
 using SulDownloaderProto::ConfigurationSettings;
 
 class SULDownloaderTest : public ::testing::Test
@@ -195,4 +195,31 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReport)
     std::string content = m_tempDir->fileContent("output.json");
     EXPECT_THAT( content, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)));
 
+}
+
+// the other execution paths were covered in main_entry_* tests.
+TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
+{
+    m_tempDir->createFile("input.json", jsonSettings(defaultSettings()));
+
+    EXPECT_THROW(SulDownloader::fileEntriesAndRunDownloader(
+            m_tempDir->absPath("input.json"), m_tempDir->absPath("path/that/cannot/be/created/output.json")),
+            SulDownloader::SulDownloaderException);
+}
+
+// configAndRunDownloader
+TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError)
+{
+    std::string reportContent;
+    int exitCode =0;
+    auto settings = defaultSettings();
+    settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
+    std::string settingsString = jsonSettings(settings);
+
+    std::tie(exitCode,reportContent) = SulDownloader::configAndRunDownloader(settingsString);
+
+    EXPECT_NE(exitCode, 0 );
+    EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS))));
+    EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
+    //FIXME: the log will contain the reason for the settings failure. Add this when log is available.
 }
