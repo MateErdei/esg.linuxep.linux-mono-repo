@@ -13,3 +13,8 @@ void SulDownloader::TestWarehouseHelper::replaceWarehouseCreator(
 {
     SulDownloader::WarehouseRepositoryFactory::instance().replaceCreator(creator);
 }
+
+void SulDownloader::TestWarehouseHelper::restoreWarehouseFactory()
+{   SulDownloader::WarehouseRepositoryFactory::instance().restoreCreator();
+
+}

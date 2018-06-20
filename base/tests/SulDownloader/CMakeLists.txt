@@ -4,11 +4,13 @@ add_executable(SulDownloaderTests
         TestWarehouseHelper.h
         MockWarehouseRepositoryTest.cpp
         MockWarehouseRepository.h
-        )
+        SulDownloaderTests.cpp)
+
+target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/modules/SulDownloader")
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
-target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl threads)
+target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES} )
 add_test(NAME SulDownloaderTests COMMAND SulDownloaderTests)
 
 #/redist/binaries/linux10/input/SUL

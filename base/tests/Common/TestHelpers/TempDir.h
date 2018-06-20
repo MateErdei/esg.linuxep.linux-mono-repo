@@ -92,6 +92,20 @@ namespace Tests
          */
         void createFile( const std::string& relativePath, const std::string& content) const;
 
+        /**
+         * Helper class. Equivalent to:
+         *
+         * @code
+         * std::string absPath = tempDir.absPath(relativePath);
+         * auto fileSystem = createFileSystem();
+         * return fileSystem->readFile(absPath);
+         * @endcode
+         *
+         * @param relativePath path to the file to read relative to the temporary directory.
+         * @return Content of the file pointed to relativePath
+         * @throws IFileSystemException if the file can not be read.
+         */
+        std::string fileContent( const std::string & relativePath) const;
 
     private:
         static std::vector<std::string> pathParts( const std::string & relativePath);

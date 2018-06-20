@@ -131,5 +131,11 @@ namespace Tests
         return parts;
     }
 
+    std::string TempDir::fileContent(const std::string &relativePath) const
+    {
+        return m_fileSystem->readFile(absPath(relativePath));
+
+    }
+
 
 }

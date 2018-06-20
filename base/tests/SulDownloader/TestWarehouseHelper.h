@@ -18,7 +18,7 @@ namespace SulDownloader
     {
     public:
         void replaceWarehouseCreator( std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData&)> creator);
-
+        void restoreWarehouseFactory();
     };
 
 }

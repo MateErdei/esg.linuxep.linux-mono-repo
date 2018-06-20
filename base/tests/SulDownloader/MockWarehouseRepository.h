@@ -8,6 +8,9 @@
 #define EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
 
 #include "SulDownloader/IWarehouseRepository.h"
+#include "SulDownloader/WarehouseError.h"
+#include "SulDownloader/DownloadedProduct.h"
+#include "SulDownloader/ProductSelection.h"
 using namespace ::testing;
 using namespace SulDownloader;
 

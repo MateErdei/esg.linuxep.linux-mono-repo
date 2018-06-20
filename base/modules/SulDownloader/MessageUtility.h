@@ -8,15 +8,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_MESSAGEUTILITY_H
 
 #include <string>
-#include <google/protobuf/util/json_util.h>
 
+namespace google
+{
+    namespace protobuf
+    {
+        class Message;
+    }
+}
 namespace SulDownloader
 {
 
     class MessageUtility
     {
     public:
-        static std::string protoBuf2Json( google::protobuf::Message & message);
+        static std::string protoBuf2Json( const google::protobuf::Message & message);
     };
 
 }
