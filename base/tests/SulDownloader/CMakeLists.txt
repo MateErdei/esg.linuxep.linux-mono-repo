@@ -1,7 +1,13 @@
-add_executable(SulDownloaderTests TestProductMetadata.cpp TestConfigurationData.cpp)
+add_executable(SulDownloaderTests
+        TestConfigurationData.cpp
+        TestWarehouseHelper.cpp
+        TestWarehouseHelper.h
+        MockWarehouseRepositoryTest.cpp
+        MockWarehouseRepository.h
+        )
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
-target_link_libraries(SulDownloaderTests gtest gtest_main)
+target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl threads)
 add_test(NAME SulDownloaderTests COMMAND SulDownloaderTests)
 

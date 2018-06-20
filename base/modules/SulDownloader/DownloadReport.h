@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-    class WarehouseRepository;
+    class IWarehouseRepository;
     class DownloadedProduct;
     class TimeTracker;
 
@@ -45,7 +45,7 @@ namespace SulDownloader
     {
         DownloadReport();
     public:
-        static DownloadReport Report( const WarehouseRepository & , const TimeTracker & timeTracker);
+        static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
         static DownloadReport Report(const std::vector<DownloadedProduct> &, const TimeTracker &  timeTracker);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport & report);

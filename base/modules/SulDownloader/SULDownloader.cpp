@@ -28,7 +28,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TimeTracker.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "MessageUtility.h"
-
+#include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 namespace
 {
@@ -55,7 +55,7 @@ namespace SulDownloader
         timeTracker.setStartTime( TimeTracker::getCurrTime());
 
         // connect and read metadata
-        std::unique_ptr<WarehouseRepository> warehouseRepository = WarehouseRepository::FetchConnectedWarehouse(configurationData);
+        auto warehouseRepository = WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
 
         if ( warehouseRepository->hasError())
         {

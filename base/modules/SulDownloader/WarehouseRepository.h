@@ -13,6 +13,7 @@ extern "C" {
 #include "ConfigurationData.h"
 #include "Tag.h"
 #include "WarehouseError.h"
+#include "IWarehouseRepository.h"
 #include <memory>
 
 namespace SulDownloader
@@ -43,7 +44,7 @@ namespace SulDownloader
      *
      *
      */
-    class WarehouseRepository
+    class WarehouseRepository : public virtual IWarehouseRepository
     {
     public:
         /**
@@ -70,7 +71,7 @@ namespace SulDownloader
          * Used to check if the WarehouseRepository reported an error
          * @return true, if WarehouseRepository has error, false otherwise
          */
-        bool hasError() const;
+        bool hasError() const override ;
 
         /**
          * Gets the WarehouseRepository error information.
@@ -79,7 +80,7 @@ namespace SulDownloader
          *
          * @return struct containing the error description, sul error and status
          */
-        WarehouseError getError() const;
+        WarehouseError getError() const override ;
 
         /**
          * Configure sul to download/synchronize the selection of products
@@ -90,7 +91,7 @@ namespace SulDownloader
          *
          * @param productSelection: is responsible to define which are the products to be downloaded.
          */
-        void synchronize( ProductSelection & productSelection);
+        void synchronize( ProductSelection & productSelection) override ;
 
         /**
          * Extract the file content from the local warehouse repository and create real product file structure required.
@@ -101,7 +102,7 @@ namespace SulDownloader
          * Distribute eventually executes SU_distribute to allow SUL to verify which products have changed since the last
          * update.
          */
-        void distribute();
+        void distribute() override ;
 
         /**
          * Gets the list of products synchronized and downloaded.
@@ -111,7 +112,7 @@ namespace SulDownloader
          *
          * @return list of products
          */
-        std::vector<DownloadedProduct> getProducts() const;
+        std::vector<DownloadedProduct> getProducts() const override ;
 
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
@@ -137,6 +138,8 @@ namespace SulDownloader
         std::string m_rootDistributionPath;
 
     };
+
+
 }
 
 
