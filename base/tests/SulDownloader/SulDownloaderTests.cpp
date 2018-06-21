@@ -23,7 +23,15 @@
 #include "Common/ProcessImpl/ArgcAndEnv.h"
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/SulDownloaderException.h"
+#include "SulDownloader/DownloadReport.h"
 using SulDownloaderProto::ConfigurationSettings;
+
+struct SimplifiedDownloadReport
+{
+    SulDownloader::WarehouseStatus Status;
+    std::string Description;
+    std::vector<SulDownloader::ProductReport> Products;
+};
 
 class SULDownloaderTest : public ::testing::Test
 {
@@ -116,7 +124,7 @@ public:
         base.setTags({{"RECOMMENDED","10", "Base-label"}});
 
         SulDownloader::ProductMetadata plugin;
-        plugin.setDefaultHomePath("everest-plugin");
+        plugin.setDefaultHomePath("everest-plugin-a");
         plugin.setLine("Everest-Plugins-A");
         plugin.setName("Everest-Plugins-A-Product");
         plugin.setVersion("10.3.5");
@@ -127,6 +135,21 @@ public:
 
     }
 
+    std::vector<SulDownloader::ProductReport> defaultProductReports()
+    {
+        SulDownloader::ProductReport base;
+        base.name = "Everest-Base-Product";
+        base.rigidName = "Everest-Base";
+        base.downloadedVersion = "10.2.3";
+        base.installedVersion = base.downloadedVersion;
+        SulDownloader::ProductReport plugin;
+        plugin.name = "Everest-Plugins-A-Product";
+        plugin.rigidName = "Everest-Plugins-A";
+        plugin.downloadedVersion = "10.3.5";
+        plugin.installedVersion = plugin.downloadedVersion;
+        return std::vector<SulDownloader::ProductReport>{base,plugin};
+
+    }
 
 
     MockWarehouseRepository & warehouseMocked()
@@ -140,6 +163,56 @@ public:
         return *m_mockptr;
     }
 
+    ::testing::AssertionResult downloadReportSimilar( const char* m_expr,
+                                                      const char* n_expr,
+                                                      const SimplifiedDownloadReport & expected,
+                                                      const SulDownloader::DownloadReport & resulted)
+    {
+        std::stringstream s;
+        s<< m_expr << " and " << n_expr << " failed: ";
+
+        if ( expected.Status != resulted.getStatus())
+        {
+            return ::testing::AssertionFailure() << s.str() << " status differ: \n expected: "
+                                                 <<  SulDownloader::toString(expected.Status)
+                                                 << "\n result: " <<  SulDownloader::toString(resulted.getStatus());
+        }
+        if( expected.Description != resulted.getDescription())
+        {
+            return ::testing::AssertionFailure() << s.str() << " Description differ: \n expected: "
+                                                 <<  expected.Description
+                                                 << "\n result: " <<  resulted.getDescription();
+        }
+
+        std::string expectedProductsSerialized = productsToString(expected.Products);
+        std::string resultedProductsSerialized = productsToString(resulted.getProducts());
+        if ( expectedProductsSerialized != resultedProductsSerialized)
+        {
+            return ::testing::AssertionFailure() << s.str() << " Different products. \n expected: "
+                                                 <<  expectedProductsSerialized
+                                                 << "\n result: " << resultedProductsSerialized;
+        }
+
+        return ::testing::AssertionSuccess();
+    }
+
+    std::string productsToString(const std::vector<SulDownloader::ProductReport> & productsReport)
+    {
+        std::stringstream stream;
+        for( auto & productReport : productsReport)
+        {
+            stream << "name: " << productReport.name
+                   << ", version: " << productReport.downloadedVersion
+                   << ", error: " << productReport.errorDescription
+                   << '\n';
+        }
+        std::string serialized = stream.str();
+        if ( serialized.empty())
+        {
+            return "{empty}";
+        }
+        return serialized;
+    }
 
 
 
@@ -223,3 +296,206 @@ TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError)
     EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
     //FIXME: the log will contain the reason for the settings failure. Add this when log is available.
 }
+
+// runSULDownloader
+TEST_F( SULDownloaderTest, runSULDownloader_onFailureToConnect)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+    SulDownloader::WarehouseError wError;
+    wError.Description = "Error description";
+    wError.status = SulDownloader::WarehouseStatus::CONNECTIONERROR;
+    std::string statusError = SulDownloader::toString(wError.status);
+    std::vector<SulDownloader::DownloadedProduct> emptyProducts;
+
+    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+
+}
+
+
+TEST_F( SULDownloaderTest, runSULDownloader_onSynchronizationFailure)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+    SulDownloader::WarehouseError wError;
+    wError.Description = "Error description";
+    wError.status = SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING;
+    std::string statusError = SulDownloader::toString(wError.status);
+    std::vector<SulDownloader::DownloadedProduct> emptyProducts;
+
+    EXPECT_CALL(mock, hasError()).WillOnce(Return(false)) // connection
+                                 .WillOnce(Return(true)) // synchronization
+                                 .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+
+}
+
+/**
+ * Simulate the error in distributing only one of the products
+ */
+TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+    SulDownloader::WarehouseError wError;
+    wError.Description = "Error description";
+    // FIXME: distribution failure go to installfailed?
+    wError.status = SulDownloader::WarehouseStatus::INSTALLFAILED;
+    std::string statusError = SulDownloader::toString(wError.status);
+    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+
+    SulDownloader::WarehouseError productError;
+    productError.Description = "Product Error description";
+    productError.status = SulDownloader::WarehouseStatus::INSTALLFAILED;
+
+    products[0].setError(productError);
+
+    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    productReports[0].errorDescription = productError.Description;
+    productReports[0].installedVersion = "";
+
+
+    EXPECT_CALL(mock, hasError()).WillOnce(Return(false)) // connection
+                                 .WillOnce(Return(false)) // synchronization
+                                 .WillOnce(Return(true)) // distribute
+                                 .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,productReports};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+}
+
+TEST_F( SULDownloaderTest, runSULDownloader_onNoUpdateNeeded)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+
+    for ( auto & product : products)
+    {
+        product.setProductHasChanged(false);
+    }
+
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+}
+
+/**
+ * Simulate error in installing base successfully but fail to install plugin
+ */
+TEST_F( SULDownloaderTest, runSULDownloader_onPluginInstallationFailure)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+
+    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+
+    for ( auto & product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    m_tempDir->createFile("update/cache/Primary/everest/install.sh", R"(#! /bin/bash
+echo "installing base"
+exit 0; )");
+    m_tempDir->createFile("update/cache/Primary/everest-plugin-a/install.sh", R"(#! /bin/bash
+echo "installing plugin"
+echo "simulate failure"
+exit 5; )");
+    m_tempDir->makeExecutable("update/cache/Primary/everest/install.sh" );
+    m_tempDir->makeExecutable("update/cache/Primary/everest-plugin-a/install.sh" );
+
+
+    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    productReports[1].errorDescription = "Product Everest-Plugins-A failed to install";
+    productReports[1].installedVersion = "";
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
+                                                    "Update failed",productReports};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+}
+
+
+/**
+ * Simulate successful full update
+ *
+ */
+TEST_F( SULDownloaderTest, runSULDownloader_onFullUpdate)
+{
+    MockWarehouseRepository & mock = warehouseMocked();
+
+    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+
+    for ( auto & product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    m_tempDir->createFile("update/cache/Primary/everest/install.sh", R"(#! /bin/bash
+echo "installing base"
+exit 0; )");
+    m_tempDir->createFile("update/cache/Primary/everest-plugin-a/install.sh", R"(#! /bin/bash
+echo "installing plugin"
+exit 0; )");
+    m_tempDir->makeExecutable("update/cache/Primary/everest/install.sh" );
+    m_tempDir->makeExecutable("update/cache/Primary/everest-plugin-a/install.sh" );
+
+
+    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS,
+                                                    "",productReports};
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
+}
+

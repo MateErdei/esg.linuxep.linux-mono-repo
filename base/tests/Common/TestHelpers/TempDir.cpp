@@ -9,7 +9,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include <cstring>
 #include <sys/stat.h>
-
+#include <cassert>
 namespace Tests
 {
 
@@ -134,6 +134,19 @@ namespace Tests
     std::string TempDir::fileContent(const std::string &relativePath) const
     {
         return m_fileSystem->readFile(absPath(relativePath));
+
+    }
+
+    void TempDir::makeExecutable(const std::string &relativePath) const
+    {
+        std::string path = absPath(relativePath);
+        assert( m_fileSystem->exists(path));
+        if ( chmod(path.c_str(), 0700) != 0)
+        {
+            int errn = errno;
+            std::string error_cause = ::strerror(errn);
+            throw Common::FileSystem::IFileSystemException("Failed to make path executable: "+ path  + ". Cause: " + error_cause);
+        }
 
     }
 

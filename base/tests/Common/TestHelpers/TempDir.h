@@ -107,6 +107,13 @@ namespace Tests
          */
         std::string fileContent( const std::string & relativePath) const;
 
+        /**
+         * Auxiliary function to change the chmod of a file to enable execution.
+         * It will make the file chmod 0700.
+         * @param relativePath
+         */
+        void makeExecutable( const std::string & relativePath) const;
+
     private:
         static std::vector<std::string> pathParts( const std::string & relativePath);
         std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;

@@ -197,6 +197,7 @@ namespace SulDownloader
         {
             LOGERROR("Failed to synchronise warehouse");
             setError("Failed to Sync warehouse");
+            //FIXME: setError and m_error.status = DownloadError
             return;
         }
 
@@ -221,6 +222,7 @@ namespace SulDownloader
             if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
                 LOGERROR("Failed to synchronise product: " << productPair.second.getLine());
+                //FIXME: setError and m_error.status = DownloadError
             }
 
             m_products.emplace_back(productPair.first, DownloadedProduct(productPair.second));
@@ -250,6 +252,7 @@ namespace SulDownloader
         {
             LOGERROR("Failed to distribute products");
             setError("Failed to distribute products");
+            // FIXME: check that the distribute status is correct
         }
 
 
