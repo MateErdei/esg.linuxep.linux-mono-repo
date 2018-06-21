@@ -37,6 +37,7 @@ namespace SulDownloader
     , m_localUpdateCacheUrls(updateCache)
     , m_proxy(proxy)
     , m_state(State::Initialized)
+    , m_logLevel( LogLevel::NORMAL)
     {
         setSophosUpdateUrls(sophosLocationURL);
     }
@@ -330,7 +331,12 @@ namespace SulDownloader
 
     ConfigurationData::LogLevel ConfigurationData::getLogLevel() const
     {
-        return LogLevel::VERBOSE;
+        return m_logLevel;
+    }
+
+    void ConfigurationData::setLogLevel(ConfigurationData::LogLevel level)
+    {
+        m_logLevel = level;
     }
 
 
@@ -399,6 +405,9 @@ namespace SulDownloader
         configurationData.setCertificatePath(settings.certificatepath());
         configurationData.setSystemSslCertificatePath(settings.systemsslpath());
         configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
+        LogLevel level = ( settings.loglevel() ==
+                ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL) ? LogLevel::NORMAL : LogLevel::VERBOSE;
+        configurationData.setLogLevel(level);
         return configurationData;
     }
 
@@ -423,5 +432,6 @@ namespace SulDownloader
         options.push_back(m_proxy);
         return options;
     }
+
 
 }

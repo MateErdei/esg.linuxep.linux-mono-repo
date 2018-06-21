@@ -499,3 +499,40 @@ exit 0; )");
     EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
 }
 
+TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
+{
+    testing::internal::CaptureStdout();
+    testing::internal::CaptureStderr();
+    auto settings = defaultSettings();
+    settings.clear_sophosurls();
+    settings.clear_cacheupdatesslpath();
+    settings.add_sophosurls("http://localhost/latest/donotexits");
+    settings.set_loglevel( ConfigurationSettings::VERBOSE);
+    ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
+    auto downloadReport = SulDownloader::runSULDownloader(configurationData);
+    std::string output = testing::internal::GetCapturedStdout();
+    std::string errStd = testing::internal::GetCapturedStderr();
+    ASSERT_THAT( output, ::testing::HasSubstr("Proxy used was"));
+    ASSERT_THAT( errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
+}
+
+TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityNORMAL)
+{
+    testing::internal::CaptureStdout();
+    testing::internal::CaptureStderr();
+    auto settings = defaultSettings();
+    settings.clear_sophosurls();
+    settings.clear_cacheupdatesslpath();
+    settings.add_sophosurls("http://localhost/latest/donotexits");
+    settings.set_loglevel( ConfigurationSettings::NORMAL);
+    ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
+    auto downloadReport = SulDownloader::runSULDownloader(configurationData);
+    std::string output = testing::internal::GetCapturedStdout();
+    std::string errStd = testing::internal::GetCapturedStderr();
+    ASSERT_THAT( output, ::testing::Not( ::testing::HasSubstr("Proxy used was")));
+    ASSERT_THAT( errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
+}
+
+

@@ -33,6 +33,11 @@ message ConfigurationSettings
     repeated string FullNames = 12;
     repeated string PrefixNames = 13;
     repeated string InstallArguments = 14;
-
+    enum LogLevelOption
+    {
+       NORMAL = 0;
+       VERBOSE = 1;
+    }
+    optional LogLevelOption LogLevel = 15 [default=NORMAL];
 
 }

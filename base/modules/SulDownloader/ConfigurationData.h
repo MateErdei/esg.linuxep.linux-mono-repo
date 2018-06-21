@@ -185,6 +185,12 @@ namespace SulDownloader
          */
         LogLevel getLogLevel() const;
 
+        /**
+         * Set the default log level.
+         * @param level
+         */
+        void setLogLevel( LogLevel level);
+
 
         /**
          * Gets the list of arguments that need to be passed to all product install.sh scripts.
@@ -241,6 +247,7 @@ namespace SulDownloader
         std::string m_updateCacheSslCertificatePath;
         std::vector<ProductGUID> m_productSelection;
         std::vector<std::string> m_installArguments;
+        LogLevel m_logLevel;
 
     };
 }

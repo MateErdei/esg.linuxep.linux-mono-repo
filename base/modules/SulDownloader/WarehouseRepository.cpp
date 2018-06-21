@@ -117,7 +117,7 @@ namespace SulDownloader
 
             return warehouse;
         }
-
+        LOGERROR("Failed to connect to the warehouse");
         auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouseEmpty->setError("Failed to connect to warehouse");
         return warehouseEmpty;
@@ -449,7 +449,7 @@ namespace SulDownloader
             case ConfigurationData::LogLevel::VERBOSE:
                 return SU_LoggingLevel_verbose;
             default:
-                return SU_LoggingLevel_normal;
+                return SU_LoggingLevel_important;
         }
 
     }
