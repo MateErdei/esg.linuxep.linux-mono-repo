@@ -4,7 +4,8 @@ add_executable(SulDownloaderTests
         TestWarehouseHelper.h
         MockWarehouseRepositoryTest.cpp
         MockWarehouseRepository.h
-        SulDownloaderTests.cpp)
+        SulDownloaderTests.cpp
+        TestDownloadReport.cpp)
 
 target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")

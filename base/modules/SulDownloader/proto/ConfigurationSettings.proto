@@ -7,37 +7,32 @@ package SulDownloaderProto;
 
 message ConfigurationSettings
 {
-    repeated string SophosURLs = 1;
-    repeated string UpdateCache = 2;
+    repeated string sophosURLs = 1;
+    repeated string updateCache = 2;
     message CredentialT
     {
-        optional string Username = 1;
-        optional string Password = 2;
+        optional string username = 1;
+        optional string password = 2;
     }
     message ProxyT
     {
         optional string url = 1;
-        optional CredentialT Credential = 2;
+        optional CredentialT credential = 2;
     }
 
-    optional CredentialT Credential = 3;
-    optional ProxyT Proxy = 4;
-    optional string CertificatePath = 5;
-    optional string InstallationRootPath = 6;
-    optional string SystemSslPath = 7;
-    optional string CacheUpdateSslPath = 8;
+    optional CredentialT credential = 3;
+    optional ProxyT proxy = 4;
+    optional string certificatePath = 5;
+    optional string installationRootPath = 6;
+    optional string systemSslPath = 7;
+    optional string cacheUpdateSslPath = 8;
 
-    optional string ReleaseTag = 9 [default="RECOMMENDED"];
-    optional string BaseVersion = 10;
-    optional string Primary = 11;
-    repeated string FullNames = 12;
-    repeated string PrefixNames = 13;
-    repeated string InstallArguments = 14;
-    enum LogLevelOption
-    {
-       NORMAL = 0;
-       VERBOSE = 1;
-    }
-    optional LogLevelOption LogLevel = 15 [default=NORMAL];
+    optional string releaseTag = 9 [default="RECOMMENDED"];
+    optional string baseVersion = 10;
+    optional string primary = 11;
+    repeated string fullNames = 12;
+    repeated string prefixNames = 13;
+    repeated string installArguments = 14;
+
 
 }

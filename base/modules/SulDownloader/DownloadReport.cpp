@@ -26,13 +26,14 @@ namespace SulDownloader
         if ( warehouse.hasError())
         {
             report.setError(warehouse.getError());
+            report.m_status = WarehouseStatus::DOWNLOADFAILED;
         }
         else
         {
             report.m_status = WarehouseStatus::SUCCESS;
             report.m_description = "";
         }
-        report.setProductsInfo(warehouse.getProducts());
+        report.m_status = report.setProductsInfo(warehouse.getProducts(), report.m_status);
         return report;
     }
 
@@ -42,6 +43,13 @@ namespace SulDownloader
         report.setTimings(timeTracker);
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
+
+        if(products.size() == 0)
+        {
+            // empty list means no products should have been downloaded.
+            report.m_status = WarehouseStatus::DOWNLOADFAILED;
+        }
+
         for( const auto & product: products)
         {
             if ( product.hasError())
@@ -50,7 +58,9 @@ namespace SulDownloader
                 report.m_status = WarehouseStatus::INSTALLFAILED;
             }
         }
-        report.setProductsInfo(products);
+
+        report.m_status = report.setProductsInfo(products, report.m_status);
+
         return report;
     }
 
@@ -98,7 +108,7 @@ namespace SulDownloader
         return m_productReport;
     }
 
-    void DownloadReport::setProductsInfo(const std::vector<DownloadedProduct> &products)
+    WarehouseStatus DownloadReport::setProductsInfo(const std::vector<DownloadedProduct> &products, WarehouseStatus status)
     {
 
         m_productReport.clear();
@@ -113,7 +123,15 @@ namespace SulDownloader
             auto wError = product.getError();
             report.errorDescription = wError.Description;
             m_productReport.push_back(report);
+
+            // ensure that an error status is reported
+            if(report.downloadedVersion != report.installedVersion && status == WarehouseStatus::SUCCESS)
+            {
+                status = WarehouseStatus::INSTALLFAILED;
+            }
         }
+
+        return status;
 
     }
 

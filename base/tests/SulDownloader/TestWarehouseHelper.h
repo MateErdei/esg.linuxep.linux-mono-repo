@@ -10,7 +10,7 @@
 #include "SulDownloader/ConfigurationData.h"
 
 #include <memory>
-
+#include <functional>
 
 namespace SulDownloader
 {

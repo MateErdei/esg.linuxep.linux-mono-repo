@@ -48,7 +48,7 @@ namespace SulDownloader
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
         static DownloadReport Report(const std::vector<DownloadedProduct> &, const TimeTracker &  timeTracker);
         static DownloadReport Report(const std::string & errorDescription);
-        static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport & report);
+        static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
         static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);
 
         WarehouseStatus getStatus() const;
@@ -71,7 +71,7 @@ namespace SulDownloader
 
         std::vector<ProductReport> m_productReport;
 
-        void setProductsInfo(const std::vector<DownloadedProduct> &products);
+        WarehouseStatus setProductsInfo(const std::vector<DownloadedProduct> &products, WarehouseStatus status);
         void setError( const WarehouseError & error);
         void setTimings( const TimeTracker & );
     };

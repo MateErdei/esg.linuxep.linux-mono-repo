@@ -11,6 +11,7 @@
 #include "IWarehouseRepository.h"
 #include "ConfigurationData.h"
 #include <memory>
+#include <functional>
 namespace SulDownloader
 {
 

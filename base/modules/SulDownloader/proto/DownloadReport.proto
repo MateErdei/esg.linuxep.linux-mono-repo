@@ -5,24 +5,24 @@ package SulDownloaderProto;
 
 message ProductStatusReport
 {
-    optional string RigidName = 1;
-    optional string ProductName = 2;
-    optional string InstalledVersion = 3;
-    optional string DownloadVersion = 4;
-    optional bool Upgraded = 5; // true if the product was upgraded in this run.
-    optional string ErrorDescription = 7;
+    optional string rigidName = 1;
+    optional string productName = 2;
+    optional string installedVersion = 3;
+    optional string downloadVersion = 4;
+    optional bool upgraded = 5; // true if the product was upgraded in this run.
+    optional string errorDescription = 7;
 }
 
 //FIXME: add information about the purpose of these entries.
 
 message DownloadStatusReport
 {
-   optional string StartTime = 1;
-   optional string FinishTime = 2;
-   optional string SyncTime = 3;
-   optional string Status =4;
-   optional string SulError = 5;
-   optional string ErrorDescription = 6;
-   repeated ProductStatusReport Products = 7;
+   optional string startTime = 1;
+   optional string finishTime = 2;
+   optional string syncTime = 3;
+   optional string status =4;
+   optional string sulError = 5;
+   optional string errorDescription = 6;
+   repeated ProductStatusReport products = 7;
 
 }

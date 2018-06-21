@@ -108,6 +108,7 @@ public:
         for( auto & metadata: defaultMetadata())
         {
             SulDownloader::DownloadedProduct product(metadata);
+            product.setPostUpdateInstalledVersion(metadata.getVersion());
             product.setDistributePath(m_tempDir->absPath(std::string("update/cache/Primary/") + metadata.getDefaultHomePath()));
             products.push_back(product);
         }
