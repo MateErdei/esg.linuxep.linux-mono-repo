@@ -104,8 +104,8 @@ namespace Tests
     std::vector<std::string> TempDir::pathParts(const std::string &relativePath)
     {
         std::vector<std::string> parts;
-        int p_pos = 0;
-        int c_pos = 0;
+        size_t p_pos = 0;
+        size_t c_pos = 0;
         while( c_pos < relativePath.size())
         {
             std::string dirname;

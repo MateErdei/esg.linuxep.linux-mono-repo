@@ -160,6 +160,51 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_TRUE(configurationData.isVerified());
 }
 
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData )
+{
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_TRUE(configurationData.isVerified());
+
+    EXPECT_STREQ(configurationData.getSophosUpdateUrls()[0].c_str(), "https://ostia.eng.sophos/latest/Virt-vShield");
+    EXPECT_STREQ(configurationData.getLocalUpdateCacheUrls()[0].c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+
+    EXPECT_STREQ(configurationData.getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(configurationData.getCredentials().getPassword().c_str(), "password");
+
+    EXPECT_STREQ(configurationData.getProxy().getUrl().c_str(), "noproxy:");
+    EXPECT_STREQ(configurationData.getProxy().getCredentials().getUsername().c_str(), "");
+    EXPECT_STREQ(configurationData.getProxy().getCredentials().getPassword().c_str(), "");
+
+    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+    EXPECT_TRUE(configurationData.getProductSelection()[0].Primary);
+    EXPECT_FALSE(configurationData.getProductSelection()[0].Prefix);
+    EXPECT_STREQ(configurationData.getProductSelection()[0].releaseTag.c_str(), "RECOMMENDED");
+    EXPECT_STREQ(configurationData.getProductSelection()[0].baseVersion.c_str(), "9");
+
+    EXPECT_STREQ(configurationData.getProductSelection()[1].Name.c_str(), "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
+    EXPECT_FALSE(configurationData.getProductSelection()[1].Primary);
+    EXPECT_FALSE(configurationData.getProductSelection()[1].Prefix);
+    EXPECT_STREQ(configurationData.getProductSelection()[1].releaseTag.c_str(), "RECOMMENDED");
+    EXPECT_STREQ(configurationData.getProductSelection()[1].baseVersion.c_str(), "9");
+
+    EXPECT_STREQ(configurationData.getProductSelection()[2].Name.c_str(), "1CD8A803");
+    EXPECT_FALSE(configurationData.getProductSelection()[2].Primary);
+    EXPECT_TRUE(configurationData.getProductSelection()[2].Prefix);
+    EXPECT_STREQ(configurationData.getProductSelection()[2].releaseTag.c_str(), "RECOMMENDED");
+    EXPECT_STREQ(configurationData.getProductSelection()[2].baseVersion.c_str(), "9");
+
+    EXPECT_STREQ(configurationData.getSystemSslCertificatePath().c_str(), m_absSystemSslPath.c_str());
+    EXPECT_STREQ(configurationData.getInstallationRootPath().c_str(), m_absInstallationPath.c_str());
+    EXPECT_STREQ(configurationData.getUpdateCacheSslCertificatePath().c_str(), m_absCacheUpdatePath.c_str());
+
+    EXPECT_STREQ(configurationData.getInstallArguments()[0].c_str(), "--install-dir");
+    EXPECT_STREQ(configurationData.getInstallArguments()[1].c_str(), "/opt/sophos-av");
+
+}
+
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject )
 {
 

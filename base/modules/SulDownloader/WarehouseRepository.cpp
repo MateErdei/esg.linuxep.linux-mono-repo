@@ -252,13 +252,17 @@ namespace SulDownloader
         {
             LOGERROR("Failed to distribute products");
             setError("Failed to distribute products");
-            // FIXME: check that the distribute status is correct
+            m_error.status = WarehouseStatus ::DOWNLOADFAILED;
         }
 
 
         for (auto & product : m_products)
         {
             verifyDistributeProduct(product);
+            if (product.second.hasError())
+            {
+                m_error.status = WarehouseStatus ::DOWNLOADFAILED;
+            }
         }
         SULUtils::displayLogs(session());
     }
@@ -313,9 +317,9 @@ namespace SulDownloader
             SULUtils::displayLogs(session());
         }
 
-        m_state = State::Failure;
-
         m_error = fetchSulError(error);
+
+        m_state = State::Failure;
     }
 
     WarehouseError WarehouseRepository::fetchSulError( const std::string &description) const
@@ -427,8 +431,6 @@ namespace SulDownloader
                 throw SulDownloaderException("Failed to Initialize Sul");
             }
         }
-
-
     }
 
     SU_Handle WarehouseRepository::session() const

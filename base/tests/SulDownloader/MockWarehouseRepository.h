@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #ifndef EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
 #define EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
 

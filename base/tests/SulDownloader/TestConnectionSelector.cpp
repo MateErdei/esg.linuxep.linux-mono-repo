@@ -186,3 +186,44 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidat
     EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShield");
     EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
 }
+
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable)
+{
+
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": ""
+                                }
+                               },)";
+
+    std::string newString = "";
+    setenv( "HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+
+    // connectionCandidates should be ordered. With cache updates first.
+    EXPECT_EQ(connectionCandidates.size(), 4);
+
+    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "environment:" );
+
+    EXPECT_TRUE(connectionCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+    EXPECT_TRUE(connectionCandidates[1].getProxy().empty() );
+
+    EXPECT_EQ(connectionCandidates[2].getProxy().getUrl(), "environment:" );
+    EXPECT_TRUE(connectionCandidates[3].getProxy().empty() );
+
+    unsetenv("HTTPS_PROXY");
+
+}

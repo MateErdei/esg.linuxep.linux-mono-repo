@@ -189,7 +189,7 @@ namespace ProcessImpl
             char buffer[101];
             while (! stopRequested())
             {
-                size_t nread = read(input.fileDescriptor(), buffer, 100);
+                int nread = read(input.fileDescriptor(), buffer, 100);
                 if ( nread == 0 )
                 {
                     // this happens when the file descriptor is closed (on child exit)

@@ -26,7 +26,6 @@ namespace SulDownloader
         if ( warehouse.hasError())
         {
             report.setError(warehouse.getError());
-            report.m_status = WarehouseStatus::DOWNLOADFAILED;
         }
         else
         {

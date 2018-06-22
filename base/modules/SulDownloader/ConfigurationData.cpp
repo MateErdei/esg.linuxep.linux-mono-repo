@@ -262,9 +262,9 @@ namespace SulDownloader
         }
 
         std::string systemSslCertificatePath = getSystemSslCertificatePath();
-        if (!fileSystem->isDirectory(systemSslCertificatePath))
+        if (!fileSystem->exists(systemSslCertificatePath))
         {
-            LOGERROR( "Invalid Settings: system ssl certificate path does not exist or is not a directory: " << systemSslCertificatePath);
+            LOGERROR( "Invalid Settings: system ssl certificate path does not exist: " << systemSslCertificatePath);
             return false;
         }
 
@@ -277,9 +277,9 @@ namespace SulDownloader
         }
         else if(!updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
         {
-            if (!fileSystem->isDirectory(updateCacheSslCertificatePath))
+            if (!fileSystem->exists(updateCacheSslCertificatePath))
             {
-                LOGERROR( "Invalid Settings: Local distribution repository does not exist or is not a directory: " << updateCacheSslCertificatePath);
+                LOGERROR( "Invalid Settings: Local distribution repository does not exist : " << updateCacheSslCertificatePath);
                 return false;
             }
 
@@ -382,6 +382,8 @@ namespace SulDownloader
         {
             ProductGUID productGUID;
             productGUID.Name = product;
+            productGUID.Primary = false;
+            productGUID.Prefix = false;
             productGUID.releaseTag = settings.releasetag();
             productGUID.baseVersion = settings.baseversion();
             configurationData.addProductSelection(productGUID);
@@ -391,6 +393,7 @@ namespace SulDownloader
         {
             ProductGUID productGUID;
             productGUID.Name = product;
+            productGUID.Primary = false;
             productGUID.Prefix = true;
             productGUID.releaseTag = settings.releasetag();
             productGUID.baseVersion = settings.baseversion();

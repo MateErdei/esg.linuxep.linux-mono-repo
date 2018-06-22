@@ -237,6 +237,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     std::string errorString = "Some Error";
     WarehouseError error;
     error.Description = errorString;
+    error.status = WarehouseStatus::DOWNLOADFAILED;
 
     auto metadata = createTestProductMetaData();
 
@@ -392,6 +393,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
 
     WarehouseError error;
     error.Description = errorString;
+    error.status = WarehouseStatus::DOWNLOADFAILED;
 
     auto metadata = createTestProductMetaData();
     SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);

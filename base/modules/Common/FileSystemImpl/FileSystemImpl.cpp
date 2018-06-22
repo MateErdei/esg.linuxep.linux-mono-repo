@@ -34,8 +34,7 @@ namespace Common
                 return path1 + '/' + path2;
             }
 
-            if( (path1.back() != '/' && path2.front() == '/' )
-                || path1.back() == '/' && path2.front() != '/' )
+            if( (path1.back() != '/' && path2.front() == '/' ) || (path1.back() == '/' && path2.front() != '/')  )
             {
                 return path1 + path2;
             }
@@ -44,6 +43,8 @@ namespace Common
             {
                 return path1 + path2.substr(1);
             }
+
+            return "";
         }
 
         std::string FileSystemImpl::basename(const Path & path ) const

@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 /**
 * Component tests to SULDownloader mocking out WarehouseRepository
 */
@@ -222,15 +222,17 @@ protected:
     MockWarehouseRepository * m_mockptr = nullptr;
 };
 
-TEST_F( SULDownloaderTest, defaultSettingsIsValid )
+TEST_F( SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue )
 {
     SulDownloader::ConfigurationData confData = configData( defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE( confData.isVerified());
 }
 
-TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsQuitExecution)
+TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
 {
+    int expectedErrorCode = -2;
+
     char ** argsNotUsed = nullptr;
     EXPECT_EQ( SulDownloader::main_entry(2, argsNotUsed), -1);
     EXPECT_EQ( SulDownloader::main_entry(1, argsNotUsed), -1);
@@ -242,10 +244,11 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsQuitExecution)
     m_tempDir->createFile("input.json", jsonSettings(defaultSettings()));
     // directory can not be replaced by file
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {m_tempDir->absPath("input.json"), m_tempDir->absPath("etc")}, {});
-    EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), -2);
+
+    EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
-TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReport)
+TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
     MockWarehouseRepository & mock = warehouseMocked();
 
@@ -282,7 +285,7 @@ TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputF
 }
 
 // configAndRunDownloader
-TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError)
+TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
 {
     std::string reportContent;
     int exitCode =0;
@@ -295,11 +298,27 @@ TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError)
     EXPECT_NE(exitCode, 0 );
     EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS))));
     EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
-    //FIXME: the log will contain the reason for the settings failure. Add this when log is available.
 }
 
+//TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportErrorAndLogExpectedErrorInformation)
+//{
+//    std::string reportContent;
+//    int exitCode =0;
+//    auto settings = defaultSettings();
+//    settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
+//    std::string settingsString = jsonSettings(settings);
+//
+//    std::tie(exitCode,reportContent) = SulDownloader::configAndRunDownloader(settingsString);
+//
+//    EXPECT_NE(exitCode, 0 );
+//    EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS))));
+//    EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
+//    //Add additional checks for log details.
+//}
+
+
 // runSULDownloader
-TEST_F( SULDownloaderTest, runSULDownloader_onFailureToConnect)
+TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
@@ -318,11 +337,10 @@ TEST_F( SULDownloaderTest, runSULDownloader_onFailureToConnect)
     configurationData.verifySettingsAreValid();
 
     EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
-
 }
 
 
-TEST_F( SULDownloaderTest, runSULDownloader_onSynchronizationFailure)
+TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
@@ -355,14 +373,13 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
     wError.Description = "Error description";
-    // FIXME: distribution failure go to installfailed?
-    wError.status = SulDownloader::WarehouseStatus::INSTALLFAILED;
+    wError.status = SulDownloader::WarehouseStatus::DOWNLOADFAILED;
     std::string statusError = SulDownloader::toString(wError.status);
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
 
     SulDownloader::WarehouseError productError;
     productError.Description = "Product Error description";
-    productError.status = SulDownloader::WarehouseStatus::INSTALLFAILED;
+    productError.status = SulDownloader::WarehouseStatus::DOWNLOADFAILED;
 
     products[0].setError(productError);
 
@@ -388,7 +405,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
     EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
 }
 
-TEST_F( SULDownloaderTest, runSULDownloader_onNoUpdateNeeded)
+TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     MockWarehouseRepository & mock = warehouseMocked();
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
@@ -416,7 +433,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onNoUpdateNeeded)
 /**
  * Simulate error in installing base successfully but fail to install plugin
  */
-TEST_F( SULDownloaderTest, runSULDownloader_onPluginInstallationFailure)
+TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
     MockWarehouseRepository & mock = warehouseMocked();
 
@@ -462,7 +479,7 @@ exit 5; )");
  * Simulate successful full update
  *
  */
-TEST_F( SULDownloaderTest, runSULDownloader_onFullUpdate)
+TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
     MockWarehouseRepository & mock = warehouseMocked();
 
