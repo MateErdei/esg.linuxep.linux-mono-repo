@@ -34,5 +34,11 @@ message ConfigurationSettings
     repeated string prefixNames = 13;
     repeated string installArguments = 14;
 
+    enum LogLevelOption
+    {
+       NORMAL = 0;
+       VERBOSE = 1;
+    }
+    optional LogLevelOption logLevel = 15 [default=NORMAL];
 
 }
