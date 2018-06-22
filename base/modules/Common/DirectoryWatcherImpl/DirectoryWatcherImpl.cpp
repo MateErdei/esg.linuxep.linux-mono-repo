@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <thread>
 #include <cassert>
+#include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
 #include "Common/ZeroMQWrapper/IPoller.h"
 
 #include "DirectoryWatcherImpl.h"
@@ -24,8 +25,7 @@ namespace DirectoryWatcher
         m_inotifyFd = inotify_init();
         if (m_inotifyFd == -1)
         {
-            std::cerr << "inotify_init failed" << std::endl;
-            //Throw exception!
+            throw IDirectoryWatcherException("Inotify init failed.");
         }
     }
 
@@ -40,8 +40,7 @@ namespace DirectoryWatcher
         int watch = inotify_add_watch(m_inotifyFd, path.c_str(), IN_MOVED_TO);  //Only interested in files moved to the folder
         if (watch == -1)
         {
-            std::cerr << "inotify_add_watch failed" << std::endl;
-
+            throw IDirectoryWatcherException("Failed to add a watch to inotify. Path: "+path);
         }
 
         DirectoryWatcherPair pair;
@@ -101,25 +100,4 @@ namespace DirectoryWatcher
         }
     }
 }
-}
-
-void blah(const std::string s)
-{
-    std::cout << s << " With blah1" << std::endl;
-}
-
-void blah2(const std::string s)
-{
-    std::cout << s << " With blah2" << std::endl;
-}
-
-int main(int argc, char* argv[])
-{
-    Common::DirectoryWatcher::DirectoryWatcher test;
-    test.addWatch("/tmp/test/", blah);
-    test.addWatch("/tmp/test2", blah2);
-    test.start();
-    std::cout << "Started fine" << std::endl;
-    usleep(20000000);
-    test.requestStop();
 }

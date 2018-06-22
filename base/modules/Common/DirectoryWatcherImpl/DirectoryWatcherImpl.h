@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_DIRECTORYWATCHER_H
 
 #include <string>
-#include <deque>
 #include <map>
 #include "Common/Threads/AbstractThread.h"
+#include "IDirectoryWatcher.h"
 
 struct DirectoryWatcherPair
 {
@@ -22,12 +22,13 @@ namespace Common
 {
     namespace DirectoryWatcher
     {
-        class DirectoryWatcher : public Common::Threads::AbstractThread
+        class DirectoryWatcher :  public virtual IDirectoryWatcher
         {
         public:
             DirectoryWatcher();
             ~DirectoryWatcher() override;
-            void addWatch(std::string path, std::function<void(const std::string)> callbackFunction);
+            void addWatch(std::string path, std::function<void(const std::string)> callbackFunction) override;
+
         private:
             void run() override;
 

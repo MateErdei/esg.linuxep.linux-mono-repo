@@ -1,29 +1,24 @@
-//
-// Created by pair on 22/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_IDIRECTORYWATCHER_H
 #define EVEREST_BASE_IDIRECTORYWATCHER_H
 
 #include <string>
-#include <deque>
-#include <map>
 #include "Common/Threads/AbstractThread.h"
-
-struct DirectoryWatcherPair
-{
-    std::string directoryPath;
-    std::function<void(std::string)> callback;
-};
 
 namespace Common
 {
     namespace DirectoryWatcher
     {
-        class IDirectoryWatcher
+        class IDirectoryWatcher : public Common::Threads::AbstractThread
         {
         public:
-            virtual IDirectoryWatcher() = default;
+            virtual ~IDirectoryWatcher() = default;
+            virtual void addWatch(std::string path, std::function<void(const std::string)> callbackFunction) = 0;
         };
     }
 }
