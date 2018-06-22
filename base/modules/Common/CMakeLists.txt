@@ -1,5 +1,6 @@
+add_subdirectory(Threads)
 add_subdirectory(ZeroMQWrapper)
 add_subdirectory(ZeroMQWrapperImpl)
 add_subdirectory(ProcessImpl)
 add_subdirectory(FileSystemImpl)
-add_subdirectory(ReactorImpl)
+add_subdirectory(DirectoryWatcherImpl)
