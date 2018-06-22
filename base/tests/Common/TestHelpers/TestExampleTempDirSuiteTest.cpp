@@ -33,7 +33,7 @@ TEST_F( ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_1)
 
 TEST_F( ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_2)
 {
-    testRunned != 0x02;
+    testRunned |= 0x02;
     auto fileSystem = Common::FileSystem::FileSystemImpl();
     ASSERT_TRUE( fileSystem.isDirectory(tempDir->dirPath()));
     tempDir->createFile("test2.txt", "content");
