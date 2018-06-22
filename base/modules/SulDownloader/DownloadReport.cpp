@@ -171,7 +171,7 @@ namespace SulDownloader
     {
             auto protoReport = DownloadReport::fromReport(report);
             std::string json = MessageUtility::protoBuf2Json(protoReport);
-            return {report.getExitCode() , json };
+            return std::tuple<int, std::string>(report.getExitCode() , json );
     }
 
 
