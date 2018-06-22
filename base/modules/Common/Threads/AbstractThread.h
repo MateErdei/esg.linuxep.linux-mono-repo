@@ -40,9 +40,6 @@ namespace Common
              * information by querying the ::stopRequested method.
              */
             void requestStop();
-
-            void join();
-
         protected:
             /**
              * Check if the thread was requested to stop. To be used in implementation of ::run.
@@ -56,6 +53,7 @@ namespace Common
              * the ::start method.
              */
             void announceThreadStarted();
+        private:
             /**
              * The function that will be running in the separate thread.
              * Implementation of the ::run should be in the following pattern:
@@ -73,14 +71,11 @@ namespace Common
              */
             virtual void run() = 0;
 
-
-            NotifyPipe m_notifyPipe;
-        private:
             std::mutex m_threadStarted;
             std::condition_variable m_ensureThreadStarted;
             std::thread m_thread;
-
-
+        protected:
+            NotifyPipe m_notifyPipe;
         };
     }
 }
