@@ -55,7 +55,7 @@ bool g_bSilent = true;	//Silent by default
 
 static void Output
 (
-	string Msg	//[i] Message
+	const string& Msg	//[i] Message
 )
 //Output message if not in silent mode.
 	//NB: Output in English. Use for debug only.
@@ -76,8 +76,16 @@ struct Arguments
     bool checkInstall;
     bool requireAllManifestFilesPresentOnDisk;
     bool requireAllDiskFilesPresentInManifest;
-};
 
+    Arguments()
+            :
+            fixDate(true),
+            checkInstall(false),
+            requireAllManifestFilesPresentOnDisk(false),
+            requireAllDiskFilesPresentInManifest(false)
+    {
+    }
+};
 
 static bool ReadArgs
 (
@@ -92,32 +100,23 @@ static bool ReadArgs
 	bool bGoodArgs = false;
 
 	//Initialise
-	args.SignedFilepath = "";
-	args.CertsFilepath = "";
-	args.CRLFilepath = "";
-	args.DataDirpath = "";
-	args.fixDate = true;
-	args.checkInstall = false;
-	args.requireAllManifestFilesPresentOnDisk = false;
-	args.requireAllDiskFilesPresentInManifest = false;
-
 	//Assign argument values
     for(int i=1; i<argc; i++)
     {
         string arg = argv[i];
-        if( (arg.compare(0,2,"-c") == 0) && args.CertsFilepath.size() == 0 )
+        if( (arg.compare(0,2,"-c") == 0) && args.CertsFilepath.empty() )
         {
             args.CertsFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-d") == 0) && args.DataDirpath.size() == 0 )
+        else if( (arg.compare(0,2,"-d") == 0) && args.DataDirpath.empty() )
         {
             args.DataDirpath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-f") == 0) && args.SignedFilepath.size() == 0 )
+        else if( (arg.compare(0,2,"-f") == 0) && args.SignedFilepath.empty() )
         {
             args.SignedFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-r") == 0) && args.CRLFilepath.size() == 0 )
+        else if( (arg.compare(0,2,"-r") == 0) && args.CRLFilepath.empty() )
         {
             args.CRLFilepath = arg.substr(2);
         }
@@ -135,7 +134,7 @@ static bool ReadArgs
         }
     }
 
-    if( (args.SignedFilepath.size() > 0) && (args.CertsFilepath.size() > 0) )
+    if( !args.SignedFilepath.empty() && !args.CertsFilepath.empty() )
     {
         bGoodArgs = true;
     }
@@ -162,7 +161,7 @@ static bool ReadArgs
 }
 
 
-int main
+int versig_main
 (
 	int argc,		//[i] Count of arguments
 	char* argv[]	//[i] Array of argument values
@@ -207,7 +206,7 @@ int main
 		}
 
 		//Validate data files against contents of manifest
-		if(DataDirpath.size() > 0)
+		if(! DataDirpath.empty() )
 		{
 			bOK = MF.DataCheck(DataDirpath);
 			if( !bOK )

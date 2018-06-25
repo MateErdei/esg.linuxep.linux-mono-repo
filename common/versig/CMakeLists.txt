@@ -16,7 +16,7 @@ set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${OPENSSL_LIBRARY_DIR} )
 
 include_directories(BEFORE ${OPENSSL_DIR}/include64)
 
-add_executable(versig
+add_library(versig_lib
         CertificateTracker.cpp
         CertificateTracker.h
         crypto_utils.cpp
@@ -35,6 +35,9 @@ add_executable(versig
         signed_file.h
         verify_exceptions.cpp
         verify_exceptions.h
-        versig.cpp)
+        versig.cpp
+        versig.h)
 
-target_link_libraries(versig PUBLIC -L${OPENSSL_LIBRARY_DIR} ssl crypto )
+add_executable(versig versig_main.cpp versig.h)
+
+target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
