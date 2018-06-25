@@ -18,8 +18,10 @@ namespace Common
         {
         public:
             virtual ~IReactor() = default;
-            virtual void registerListener( Common::ZeroMQWrapper::IReadable* , ICallbackListener * ) = 0;
+            virtual void addListener(Common::ZeroMQWrapper::IReadable *, ICallbackListener *) = 0;
             virtual void armShutdownListener(IShutdownListener *) = 0;
+            virtual void start() = 0;
+            virtual void stop() = 0;
         };
     }
 }

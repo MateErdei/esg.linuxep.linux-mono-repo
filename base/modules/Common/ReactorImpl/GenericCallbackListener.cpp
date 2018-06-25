@@ -10,9 +10,14 @@ namespace Common
 {
     namespace Reactor
     {
-        void GenericCallbackListener::process(std::vector<std::string>)
+        void GenericCallbackListener::process(std::vector<std::string> data)
         {
+            m_callback(data);
+        }
 
+        GenericCallbackListener::GenericCallbackListener(GenericCallbackListener::CallbackFunction callback)
+        {
+            m_callback = callback;
         }
     }
 }

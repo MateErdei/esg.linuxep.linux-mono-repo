@@ -69,11 +69,14 @@ namespace Common
              * @endcode
              */
             virtual void run() = 0;
+
+
+            NotifyPipe m_notifyPipe;
         private:
             std::mutex m_threadStarted;
             std::condition_variable m_ensureThreadStarted;
             std::thread m_thread;
-            NotifyPipe m_notifyPipe;
+
 
         };
     }

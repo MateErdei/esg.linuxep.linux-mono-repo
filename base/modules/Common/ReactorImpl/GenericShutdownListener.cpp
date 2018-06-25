@@ -13,7 +13,12 @@ namespace Common
 
         void GenericShutdownListener::notifyShutdownRequested()
         {
+            m_callback();
+        }
 
+        GenericShutdownListener::GenericShutdownListener(std::function<void()> callback)
+        {
+            m_callback = callback;
         }
     }
 }
