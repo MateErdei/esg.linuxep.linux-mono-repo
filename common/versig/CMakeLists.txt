@@ -5,6 +5,17 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(.)
 
+set( REDIST /redist )
+set( BINARIES_DIR ${REDIST}/binaries )
+set( INPUT ${BINARIES_DIR}/linux10/input )
+set( OPENSSL_DIR ${INPUT}/openssl )
+
+set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
+
+set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${OPENSSL_LIBRARY_DIR} )
+
+include_directories(BEFORE ${OPENSSL_DIR}/include64)
+
 add_executable(versig
         CertificateTracker.cpp
         CertificateTracker.h
@@ -25,3 +36,5 @@ add_executable(versig
         verify_exceptions.cpp
         verify_exceptions.h
         versig.cpp)
+
+target_link_libraries(versig PUBLIC -L${OPENSSL_LIBRARY_DIR} ssl crypto )
