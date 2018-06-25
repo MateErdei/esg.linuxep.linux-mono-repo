@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gtest/gtest_pred_impl.h"
+#include <gtest/gtest.h>
+#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/ConnectionSelector.h"
 #include "SulDownloader/ConfigurationData.h"
@@ -30,11 +30,6 @@ public:
     std::string m_absCacheUpdatePath;
 
     std::unique_ptr<Tests::TempDir> m_tempDir;
-
-    ~ConnectionSelectorTest()
-    {
-        m_tempDir.reset(nullptr);
-    }
 
     void SetUp() override
     {
@@ -71,10 +66,10 @@ public:
     {
         std::string jsonString = R"({
                                "sophosURLs": [
-                               "https://ostia.eng.sophos/latest/Virt-vShield"
+                               "https://sophosupdate.sophos.com/latest/warehouse"
                                ],
                                "updateCache": [
-                               "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
+                               "https://cache.sophos.com/latest/warehouse"
                                ],
                                "credential": {
                                "username": "administrator",
@@ -127,7 +122,7 @@ public:
 };
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidatesWithValidData)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidData)
 {
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -140,20 +135,20 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidat
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShield");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
 
 
 }
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidatesWithValidDataNoProxyInfo)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfo)
 {
 
     std::string oldString = R"("proxy": {
@@ -177,18 +172,18 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidat
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShield");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
 }
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable)
 {
 
     std::string oldString = R"("proxy": {
@@ -207,23 +202,72 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnVallidCandidat
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
 
     // connectionCandidates should be ordered. With cache updates first.
-    EXPECT_EQ(connectionCandidates.size(), 4);
+    EXPECT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
-    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "environment:" );
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[0].getProxy().empty() );
 
-    EXPECT_TRUE(connectionCandidates[1].isCacheUpdate());
+    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
-    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
-    EXPECT_TRUE(connectionCandidates[1].getProxy().empty() );
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "environment:" );
 
-    EXPECT_EQ(connectionCandidates[2].getProxy().getUrl(), "environment:" );
-    EXPECT_TRUE(connectionCandidates[3].getProxy().empty() );
+    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[2].getProxy().empty() );
 
     unsetenv("HTTPS_PROXY");
+
+}
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySet)
+{
+
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": ""
+                                }
+                               },)";
+
+    std::string newString = R"("proxy": {
+                               "url": "http://testproxy.com",
+                               "credential": {
+                               "username": "testproxyusername",
+                               "password": "testproxypassword"
+                                }
+                               },)";
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+
+    // connectionCandidates should be ordered. With cache updates first.
+    ASSERT_EQ(connectionCandidates.size(), 2);
+
+    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[0].getProxy().getUrl().empty() );
+    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getPassword().c_str(), "testproxypassword");
+
+
+    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com" );
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getPassword().c_str(), "testproxypassword");
 
 }

@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gtest/gtest_pred_impl.h"
+#include <gtest/gtest.h>
+#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/ConfigurationData.h"
 #include "SulDownloader/SulDownloaderException.h"
@@ -30,12 +30,7 @@ public:
 
     std::unique_ptr<Tests::TempDir> m_tempDir;
 
-    ~ConfigurationDataTest()
-    {
-        m_tempDir.reset(nullptr);
-    }
-
-    void SetUp() override
+     void SetUp() override
     {
         m_installRootRelPath = "tmp/sophos-av";
         m_certificateRelPath ="tmp/dev_certificates";
@@ -70,10 +65,10 @@ public:
     {
         std::string jsonString = R"({
                                "sophosURLs": [
-                               "https://ostia.eng.sophos/latest/Virt-vShield"
+                               "https://sophosupdate.sophos.com/latest/warehouse"
                                ],
                                "updateCache": [
-                               "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
+                               "https://cache.sophos.com/latest/warehouse"
                                ],
                                "credential": {
                                "username": "administrator",
@@ -168,8 +163,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 
     EXPECT_TRUE(configurationData.isVerified());
 
-    EXPECT_STREQ(configurationData.getSophosUpdateUrls()[0].c_str(), "https://ostia.eng.sophos/latest/Virt-vShield");
-    EXPECT_STREQ(configurationData.getLocalUpdateCacheUrls()[0].c_str(), "https://ostia.eng.sophos/latest/Virt-vShieldBroken");
+    EXPECT_STREQ(configurationData.getSophosUpdateUrls()[0].c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_STREQ(configurationData.getLocalUpdateCacheUrls()[0].c_str(), "https://cache.sophos.com/latest/warehouse");
 
     EXPECT_STREQ(configurationData.getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(configurationData.getCredentials().getPassword().c_str(), "password");
@@ -208,7 +203,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject )
 {
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"("https://ostia.eng.sophos/latest/Virt-vShieldBroken")", ""));
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"("https://cache.sophos.com/latest/warehouse")", ""));
 
     configurationData.verifySettingsAreValid();
 
@@ -217,7 +212,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShould
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation )
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"(https://ostia.eng.sophos/latest/Virt-vShieldBroken)", ""));
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"(https://cache.sophos.com/latest/warehouse)", ""));
 
     configurationData.verifySettingsAreValid();
 
@@ -229,7 +224,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldT
 {
     try
     {
-        ConfigurationData::fromJsonSettings(createJsonString("""https://ostia.eng.sophos/latest/Virt-vShield""", ""));
+        ConfigurationData::fromJsonSettings(createJsonString("""https://sophosupdate.sophos.com/latest/warehouse""", ""));
     }
     catch(SulDownloaderException &e)
     {
@@ -240,7 +235,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldT
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation )
 {
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("https://ostia.eng.sophos/latest/Virt-vShield", ""));
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("https://sophosupdate.sophos.com/latest/warehouse", ""));
 
     configurationData.verifySettingsAreValid();
 

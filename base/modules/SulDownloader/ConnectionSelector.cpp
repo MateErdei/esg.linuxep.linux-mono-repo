@@ -18,14 +18,23 @@ namespace SulDownloader
 
         std::vector<Proxy> proxies = configurationData.proxiesList();
 
-        for( auto & proxy: proxies)
+        // Requirement: With update cache no proxy url must be given but the credentials are still necessary.
+        // if the proxy is set then, then we only pass the credentials data for the proxy to the update cache proxy settings.
+        // If no credentials are required for proxy then empty strings are passed  - this is ok.
+        Proxy proxyForUpdateCache("",proxies[0].getCredentials());
+
+        for(auto url : configurationData.getLocalUpdateCacheUrls())
         {
-            for(auto url : configurationData.getLocalUpdateCacheUrls())
-            {
-                candidates.emplace_back(url, configurationData.getCredentials(), true, proxy );
-            }
+            candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache );
         }
 
+
+        for( auto & proxy: proxies)
+        {
+            // Update cache only pass the credentials not the url.
+
+            Proxy cachedProxy("", proxy.getCredentials());
+        }
 
         for( auto & proxy: proxies)
         {
@@ -33,7 +42,6 @@ namespace SulDownloader
             {
                 candidates.emplace_back(url, configurationData.getCredentials(), false, proxy);
             }
-
         }
 
         // TODO: sort to improve chances of using the best candidates first. LINUXEP-6117

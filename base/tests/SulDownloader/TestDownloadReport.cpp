@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest_pred_impl.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/DownloadReport.h"
 #include "SulDownloader/SulDownloaderException.h"

@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
-#include "gtest/gtest.h"
-#include "gtest/gtest_pred_impl.h"
+#include <gtest/gtest.h>
+#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/ProductSelection.h"
 #include "SulDownloader/ConfigurationData.h"
@@ -32,11 +32,6 @@ public:
     std::string m_absCacheUpdatePath;
 
     std::unique_ptr<Tests::TempDir> m_tempDir;
-
-    ~ProductSelectionTest()
-    {
-        m_tempDir.reset(nullptr);
-    }
 
     void SetUp() override
     {
@@ -73,10 +68,10 @@ public:
     {
         std::string jsonString = R"({
                                "sophosURLs": [
-                               "https://ostia.eng.sophos/latest/Virt-vShield"
+                               "https://sophosupdate.sophos.com/latest/warehouse"
                                ],
                                "updateCache": [
-                               "https://ostia.eng.sophos/latest/Virt-vShieldBroken"
+                               "https://cache.sophos.com/latest/warehouse"
                                ],
                                "credential": {
                                "username": "administrator",
