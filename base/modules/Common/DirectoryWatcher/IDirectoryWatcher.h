@@ -10,15 +10,34 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include "Common/Threads/AbstractThread.h"
 
+
 namespace Common
 {
     namespace DirectoryWatcher
     {
-        class IDirectoryWatcher : public Common::Threads::AbstractThread
+        class IDirectoryWatcherListener
         {
         public:
-            virtual ~IDirectoryWatcher() = default;
-            virtual void addWatch(std::string path, std::function<void(const std::string)> callbackFunction) = 0;
+            virtual std::string getPath() const = 0;
+            virtual void fileAdded(std::string const &) = 0;
+            virtual void watcherClosed() = 0;
+        };
+
+
+        class IDirectoryWatcher
+        {
+        public:
+            virtual void addListener(IDirectoryWatcherListener &) = 0;
+            virtual void removeListener(IDirectoryWatcherListener &) = 0;
+            virtual void startWatch() = 0;
+            virtual void endWatch() = 0;
+        };
+
+        class IiNotifyWrapper
+        {
+        public:
+            virtual int init() = 0;
+            virtual int add_watch(int __fd, const char *__name, uint32_t __mask) = 0;
         };
     }
 }

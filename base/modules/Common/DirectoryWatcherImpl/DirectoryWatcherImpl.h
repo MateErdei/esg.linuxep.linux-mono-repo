@@ -9,34 +9,46 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <map>
+#include <memory>
 #include "Common/Threads/AbstractThread.h"
 #include "IDirectoryWatcher.h"
 
-struct DirectoryWatcherPair
-{
-    std::string directoryPath;
-    std::function<void(std::string)> callback;
-};
 
 namespace Common
 {
     namespace DirectoryWatcher
     {
-        class DirectoryWatcher :  public virtual IDirectoryWatcher
+        class iNotifyWrapper : public virtual IiNotifyWrapper
         {
         public:
-            DirectoryWatcher();
+            iNotifyWrapper() = default;
+            int init() override;
+            int add_watch(int __fd, const char *__name, uint32_t __mask) override;
+        };
+
+        class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threads::AbstractThread
+        {
+        public:
+            explicit DirectoryWatcher(std::shared_ptr<IiNotifyWrapper> iNotifyWrapperPtr = std::make_shared<iNotifyWrapper>());
             ~DirectoryWatcher() override;
-            void addWatch(std::string path, std::function<void(const std::string)> callbackFunction) override;
+            void addListener(IDirectoryWatcherListener &watcherListener) override;
+            void removeListener(IDirectoryWatcherListener &watcherListener) override;
+            void startWatch() override;
+            void endWatch() override;
 
         private:
             void run() override;
 
             bool m_watcherRunning;
             int m_inotifyFd;
-            std::map<int, DirectoryWatcherPair> m_callbackMap;
+            std::map<int, IDirectoryWatcherListener*> m_listenerMap;
+            std::shared_ptr<IiNotifyWrapper> m_iNotifyWrapperPtr;
         };
+
+
     }
 }
 
 #endif //EVEREST_BASE_DIRECTORYWATCHER_H
+
+
