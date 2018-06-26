@@ -21,13 +21,9 @@ namespace DirectoryWatcher
     {
     public:
         iNotifyWrapper() = default;
-
         int init() override;
-
         int addWatch(int __fd, const char *__name, uint32_t __mask) override;
-
         int removeWatch(int __fd, int __wd) override;
-
         ssize_t read(int __fd, void *__buf, size_t __nbytes) override;
     };
 

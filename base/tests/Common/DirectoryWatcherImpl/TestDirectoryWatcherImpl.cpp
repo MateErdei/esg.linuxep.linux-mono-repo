@@ -26,9 +26,9 @@ public:
         return m_Path;
     }
 
-    void fileMoved(std::string const & fileName) override
+    void fileMoved(const std::string & filename) override
     {
-        m_File = fileName;
+        m_File = filename;
     }
 
     void watcherActive(bool active) override

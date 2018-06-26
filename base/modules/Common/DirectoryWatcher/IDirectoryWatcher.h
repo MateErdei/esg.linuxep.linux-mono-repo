@@ -29,7 +29,7 @@ namespace DirectoryWatcher
          * of the name of a file moved into the directory that the listener
          * is listening to.
          */
-        virtual void fileMoved(std::string const &) = 0;
+        virtual void fileMoved(const std::string & filename) = 0;
         /**
          * Directory watcher informs the listener through this method
          * if the directory is being actively watched.
