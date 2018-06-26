@@ -21,8 +21,7 @@ namespace DirectoryWatcher
         virtual ~IDirectoryWatcherListener() = default;
         /**
          * @return Used by Directory watcher to specify the path that
-         * the listener is interested in. It is suggested
-         * that this returns a member variable of the listener
+         * the listener is interested in.
          */
         virtual std::string getPath() const = 0;
         /**
