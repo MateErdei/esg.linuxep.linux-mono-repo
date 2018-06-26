@@ -12,6 +12,13 @@ pipeline {
                     }
                     steps {
                         checkout scm
+                        mkdir build && cd build && cmake .. && make
+                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                    }
+                    post {
+                      always {
+                        junit "build/CTestResults.xml"
+                      }
                     }
                 }
                 stage('Build on CentOS') {
@@ -23,6 +30,13 @@ pipeline {
                     }
                     steps {
                         checkout scm
+                        mkdir build && cd build && cmake .. && make
+                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                    }
+                    post {
+                      always {
+                        junit "build/CTestResults.xml"
+                      }
                     }
                 }
                 stage('Build on Redhat') {
@@ -34,6 +48,13 @@ pipeline {
                     }
                     steps {
                         checkout scm
+                        mkdir build && cd build && cmake .. && make
+                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                    }
+                    post {
+                      always {
+                        junit "build/CTestResults.xml"
+                      }
                     }
                 }
             }
