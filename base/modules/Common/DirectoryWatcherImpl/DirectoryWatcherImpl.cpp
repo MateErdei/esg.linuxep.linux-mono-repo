@@ -60,7 +60,8 @@ namespace DirectoryWatcher
 
     void DirectoryWatcher::addListener(IDirectoryWatcherListener &watcherListener)
     {
-        int watch = m_iNotifyWrapperPtr->addWatch(m_inotifyFd,  watcherListener.getPath().c_str(), IN_MOVED_TO);  //Only interested in files moved to the folder
+        std::string path = watcherListener.getPath();
+        int watch = m_iNotifyWrapperPtr->addWatch(m_inotifyFd,  path.c_str(), IN_MOVED_TO);  //Only interested in files moved to the folder
         if (watch == -1)
         {
             throw IDirectoryWatcherException("Failed to add a Listener to Directory Watcher. Path: " + watcherListener.getPath());
