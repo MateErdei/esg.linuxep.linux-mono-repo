@@ -78,27 +78,27 @@ namespace DirectoryWatcher
         virtual int init() = 0;
         /**
          * Add an iNotify like watch to the specified file descriptor
-         * @param __fd - file descriptor
-         * @param __name - directory being watched
-         * @param __mask - contains bits that describe the event that is being watched
+         * @param fd - file descriptor
+         * @param name - directory being watched
+         * @param mask - contains bits that describe the event that is being watched
          * @return watch descriptor
          */
-        virtual int addWatch(int __fd, const char *__name, uint32_t __mask) = 0;
+        virtual int addWatch(int fd, const char *name, uint32_t mask) = 0;
         /**
          * Removes a watch on a specific watch descriptor (as returned by add_watch)
-         * @param __fd - file descriptor
-         * @param __wd - watch descriptor
+         * @param fd - file descriptor
+         * @param wd - watch descriptor
          * @return  removed watch descriptor
          */
-        virtual int removeWatch(int __fd, int __wd) = 0;
+        virtual int removeWatch(int fd, int wd) = 0;
         /**
          * Performs a read on the given file descriptor
-         * @param __fd - File descriptor
-         * @param __buf - Buffer being read into
-         * @param __nbytes - Number of bytes requested
+         * @param fd - File descriptor
+         * @param buf - Buffer being read into
+         * @param nbytes - Number of bytes requested
          * @return  - Number of bytes read
          */
-        virtual ssize_t read(int __fd, void *__buf, size_t __nbytes) = 0;
+        virtual ssize_t read(int fd, void *buf, size_t nbytes) = 0;
     };
 }
 }

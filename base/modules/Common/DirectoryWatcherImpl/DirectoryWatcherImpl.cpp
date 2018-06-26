@@ -25,19 +25,19 @@ namespace DirectoryWatcher
         return ::inotify_init();
     }
 
-    int iNotifyWrapper::addWatch(int __fd, const char *__name, uint32_t __mask)
+    int iNotifyWrapper::addWatch(int fd, const char *name, uint32_t mask)
     {
-        return ::inotify_add_watch(__fd,  __name, __mask);
+        return ::inotify_add_watch(fd,  name, mask);
     }
 
-    int iNotifyWrapper::removeWatch(int __fd, int __wd)
+    int iNotifyWrapper::removeWatch(int fd, int wd)
     {
-        return ::inotify_rm_watch(__fd, __wd);
+        return ::inotify_rm_watch(fd, wd);
     }
 
-    ssize_t iNotifyWrapper::read(int __fd, void *__buf, size_t __nbytes)
+    ssize_t iNotifyWrapper::read(int fd, void *buf, size_t nbytes)
     {
-        return ::read(__fd, __buf, __nbytes);
+        return ::read(fd, buf, nbytes);
     }
 
     DirectoryWatcher::DirectoryWatcher(std::shared_ptr<IiNotifyWrapper> iNotifyWrapperPtr) :

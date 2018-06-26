@@ -22,9 +22,9 @@ namespace DirectoryWatcher
     public:
         iNotifyWrapper() = default;
         int init() override;
-        int addWatch(int __fd, const char *__name, uint32_t __mask) override;
-        int removeWatch(int __fd, int __wd) override;
-        ssize_t read(int __fd, void *__buf, size_t __nbytes) override;
+        int addWatch(int fd, const char *name, uint32_t mask) override;
+        int removeWatch(int fd, int wd) override;
+        ssize_t read(int fd, void *buf, size_t nbytes) override;
     };
 
     class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threads::AbstractThread
