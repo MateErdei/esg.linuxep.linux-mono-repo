@@ -111,7 +111,8 @@ namespace DirectoryWatcher
         {
             char buf[4096];
             const struct inotify_event *event;
-            std::vector<Common::ZeroMQWrapper::IHasFD *> resultPtr = poller->poll(std::chrono::milliseconds(-1));
+            poller->poll(std::chrono::milliseconds(-1));
+            //Only two file descriptors being polled and the notify pipe is only used for stopping thread
             if (stopRequested())
             {
                 // notifyPipe has been written. Exit the thread.
