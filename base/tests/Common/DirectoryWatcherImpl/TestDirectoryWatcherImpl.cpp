@@ -69,10 +69,10 @@ public:
     DirectoryWatcherTests()
     : m_Listener1("/tmp/test"), m_Listener2("/tmp/test2")
     {
-        m_MockiNotifyWrapper = std::make_shared<StrictMock<MockiNotifyWrapper>>();
+        m_MockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
         pipe(m_pipe_fd);
         EXPECT_CALL(*m_MockiNotifyWrapper, init()).WillOnce(Return(m_pipe_fd[0]));
-        m_DirectoryWatcher = std::make_shared<DirectoryWatcher>(m_MockiNotifyWrapper);
+        m_DirectoryWatcher = std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::unique_ptr<IiNotifyWrapper>(m_MockiNotifyWrapper)));
     }
 
     ~DirectoryWatcherTests() override
@@ -81,8 +81,8 @@ public:
         m_DirectoryWatcher.reset();  //Watcher must be deleted before the listeners
     }
 
-    std::shared_ptr<StrictMock<MockiNotifyWrapper>> m_MockiNotifyWrapper;
-    std::shared_ptr<IDirectoryWatcher> m_DirectoryWatcher;
+    StrictMock<MockiNotifyWrapper>* m_MockiNotifyWrapper;
+    std::unique_ptr<IDirectoryWatcher> m_DirectoryWatcher;
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;
@@ -91,8 +91,9 @@ public:
 
 TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT
 {
-    EXPECT_CALL(*m_MockiNotifyWrapper, init()).WillOnce(Return(-1));
-    EXPECT_THROW(std::make_shared<DirectoryWatcher>(m_MockiNotifyWrapper), IDirectoryWatcherException);
+    auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
+    EXPECT_CALL(*mockiNotifyWrapper, init()).WillOnce(Return(-1));
+    EXPECT_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper)), IDirectoryWatcherException);
 }
 
 TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
@@ -100,10 +101,11 @@ TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
     int local_pipe[2];
     pipe(local_pipe);
     {
-        EXPECT_CALL(*m_MockiNotifyWrapper, init()).WillOnce(Return(local_pipe[0]));
-        EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(m_MockiNotifyWrapper));
+        auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
+        EXPECT_CALL(*mockiNotifyWrapper, init()).WillOnce(Return(local_pipe[0]));
+        EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper)));
     }
-    close(local_pipe[0]);
+    close(local_pipe[1]);
 }
 
 TEST_F(DirectoryWatcherTests, failAddListenerBeforeWatch) // NOLINT

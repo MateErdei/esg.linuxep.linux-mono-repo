@@ -63,7 +63,7 @@ namespace DirectoryWatcher
     class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threads::AbstractThread
     {
     public:
-        explicit DirectoryWatcher(std::shared_ptr<IiNotifyWrapper> iNotifyWrapperPtr = std::make_shared<iNotifyWrapper>());
+        explicit DirectoryWatcher(std::unique_ptr<IiNotifyWrapper> iNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>(new iNotifyWrapper()));
         ~DirectoryWatcher() override;
         void addListener(IDirectoryWatcherListener &watcherListener) override;
         void removeListener(IDirectoryWatcherListener &watcherListener) override;

@@ -40,7 +40,7 @@ namespace DirectoryWatcher
         return ::read(fd, buf, nbytes);
     }
 
-    DirectoryWatcher::DirectoryWatcher(std::shared_ptr<IiNotifyWrapper> iNotifyWrapperPtr) :
+    DirectoryWatcher::DirectoryWatcher(std::unique_ptr<IiNotifyWrapper> iNotifyWrapperPtr) :
     m_iNotifyWrapperPtr(std::move(iNotifyWrapperPtr))
     {
         m_watcherRunning = false;
