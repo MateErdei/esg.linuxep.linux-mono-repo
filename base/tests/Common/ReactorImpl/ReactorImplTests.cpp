@@ -65,7 +65,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
     using ::testing::Invoke;
     MockCallBackListener mockCallBackListener;
 
-    ReactorImpl reactor;
+    auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
     std::vector<std::string> processData = {{"hello"}};
 
@@ -75,14 +75,14 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
             Invoke([&sync](std::vector<std::string>){sync.notify(); return Common::Reactor::ProcessInstruction::CONTINUE;})
     );
 
-    reactor.addListener(&readableFd, &mockCallBackListener);
+    reactor->addListener(&readableFd, &mockCallBackListener);
 
-    reactor.start();
+    reactor->start();
 
     m_pipe->write("hello");
 
     sync.waitfor();
-    reactor.stop();
+    reactor->stop();
 }
 
 TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
@@ -135,32 +135,32 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 
 TEST_F( ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow)
 {
-    ReactorImpl reactor;
+    auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor.stop());
+    EXPECT_NO_THROW(reactor->stop());
 }
 
 TEST_F( ReactorImplTest, CallingStartStopWithNoListenersDoesNotThrow)
 {
-    ReactorImpl reactor;
+    auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor.start());
-    EXPECT_NO_THROW(reactor.stop());
+    EXPECT_NO_THROW(reactor->start());
+    EXPECT_NO_THROW(reactor->stop());
 }
 
 TEST_F( ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow)
 {
     MockCallBackListener mockCallBackListener;
 
-    ReactorImpl reactor;
+    auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
 
-    reactor.addListener(&readableFd, &mockCallBackListener);
+    reactor->addListener(&readableFd, &mockCallBackListener);
 
-    EXPECT_NO_THROW(reactor.stop());
+    EXPECT_NO_THROW(reactor->stop());
 }
 
 
@@ -176,7 +176,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     });
     MockCallBackListener mockCallBackListener;
 
-    ReactorImpl reactor;
+    auto reactor = Common::Reactor::createReactor();
     std::unique_ptr<PipeForTests> m_pipeWhichThrows = std::unique_ptr<PipeForTests>(new PipeForTests());
     ReadableFd readableFdThatThrows(m_pipeWhichThrows->readFd(), false);
     ReadableFd readableFd(m_pipe->readFd(), false);
@@ -189,15 +189,32 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
             Invoke([&sync](std::vector<std::string>){sync.notify(); return Common::Reactor::ProcessInstruction::CONTINUE;})
     );
 
-    reactor.addListener(&readableFdThatThrows, &callBackListenerThatThrows);
-    reactor.addListener(&readableFd, &mockCallBackListener);
+    reactor->addListener(&readableFdThatThrows, &callBackListenerThatThrows);
+    reactor->addListener(&readableFd, &mockCallBackListener);
 
-    reactor.start();
+    reactor->start();
 
     m_pipeWhichThrows->write("hello");
     m_pipe->write("hello");
 
     sync.waitfor();
     ASSERT_TRUE(callbackExecuted);
-    reactor.stop();
+    reactor->stop();
 }
+#ifndef NDEBUG
+/**
+ * Test fucntion can only be called in debug mode.
+ */
+TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert )
+{
+    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+
+    MockCallBackListener mockCallBackListener;
+
+    auto reactor = Common::Reactor::createReactor();
+    ReadableFd readableFd(m_pipe->readFd(), false);
+
+    EXPECT_DEATH({reactor->start();reactor->addListener(&readableFd, &mockCallBackListener);}, "");
+}
+#endif
+

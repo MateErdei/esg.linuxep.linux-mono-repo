@@ -15,6 +15,10 @@ namespace Common
         {
         public:
             virtual ~IShutdownListener() = default;
+
+            /**
+             * Used to inform the listener that a shutdown request was made.  Which is usually a linux signal sent to the process.
+             */
             virtual void notifyShutdownRequested() = 0;
         };
     }

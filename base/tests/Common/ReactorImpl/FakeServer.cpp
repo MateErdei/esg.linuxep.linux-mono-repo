@@ -8,7 +8,7 @@
 #include "Common/ReactorImpl/ReactorImpl.h"
 FakeServer::FakeServer(const std::string &socketAddress, bool captureSignals)
     : m_socketAddress(socketAddress),
-      m_reactor(std::unique_ptr<Common::Reactor::IReactor>(new Common::Reactor::ReactorImpl())),
+      m_reactor(Common::Reactor::createReactor()),
       m_captureSignals(captureSignals)
 {
 }

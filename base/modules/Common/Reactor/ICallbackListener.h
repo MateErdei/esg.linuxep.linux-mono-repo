@@ -19,7 +19,16 @@ namespace Common
         {
         public:
             virtual ~ICallbackListener() = default;
-            virtual ProcessInstruction process(std::vector<std::string> ) = 0;
+
+            /**
+             * Provides required implementation for how the data request should be processed.
+             * Method will be invoked in the Reactor thread run method for all ICallbackListener implementations.
+             * When Listener is added to the Reactor, and invoked.
+             *
+             * @param request, vector of strings which is the strings returned by IReadable::read
+             * @return enum ProcessInstruction, either CONTINUE or QUIT
+             */
+            virtual ProcessInstruction process(std::vector<std::string> request) = 0;
         };
 
 

@@ -35,8 +35,8 @@ namespace Common
     namespace Reactor
     {
 
-        ReactorThreadImpl::ReactorThreadImpl() :
-                m_shutdownListener(nullptr)
+        ReactorThreadImpl::ReactorThreadImpl()
+                : m_shutdownListener(nullptr)
         {
 
         }
@@ -50,7 +50,6 @@ namespace Common
             }
 
         }
-
 
         void ReactorThreadImpl::addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback)
         {
@@ -143,27 +142,36 @@ namespace Common
 
                     }
                 }
-
             }
+        }
+
+        std::unique_ptr<Common::Reactor::IReactor>  createReactor()
+        {
+            return Common::Reactor::IReactorPtr(new Common::Reactor::ReactorImpl());
         }
 
         void ReactorImpl::addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback)
         {
+            assert(m_ReactorState == ReactorState::Ready);
             m_reactorthread->addListener(readable, callback);
         }
 
         void ReactorImpl::armShutdownListener(IShutdownListener * shutdownListener)
         {
+            assert(m_ReactorState == ReactorState::Ready);
             m_reactorthread->setShutdownListener(shutdownListener);
         }
 
         void ReactorImpl::start()
         {
+            assert(m_ReactorState == ReactorState::Ready);
+            m_ReactorState = ReactorState::Started;
             m_reactorthread->start();
         }
 
         void ReactorImpl::stop()
         {
+            m_ReactorState = ReactorState::Stopped;
             m_reactorthread->requestStop();
             // wait for the thread to stop
             m_reactorthread.reset();
@@ -171,11 +179,13 @@ namespace Common
 
         ReactorImpl::ReactorImpl()
         {
+            m_ReactorState = ReactorState::Ready;
             m_reactorthread = std::unique_ptr<ReactorThreadImpl>(new ReactorThreadImpl());
         }
 
         void ReactorImpl::join()
         {
+            m_ReactorState = ReactorState::Ready;
             m_reactorthread->join();
         }
     }

@@ -46,15 +46,17 @@ namespace Common
         class ReactorImpl : public virtual IReactor
         {
         public:
-            enum ReactorSate {Stopped, Started};
              ReactorImpl();
-             void addListener(Common::ZeroMQWrapper::IReadable *, ICallbackListener *) override;
-             void armShutdownListener(IShutdownListener *) override;
+             void addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback) override;
+             void armShutdownListener(IShutdownListener * shutdownListener) override;
              void start() override;
              void stop() override;
              void join() override;
         private:
+            enum ReactorState {Stopped, Started, Ready};
             std::unique_ptr<ReactorThreadImpl> m_reactorthread;
+            ReactorState m_ReactorState;
+
         };
     }
 }
