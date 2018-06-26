@@ -12,8 +12,8 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        mkdir build && cd build && cmake .. && make
-                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                        sh 'mkdir build && cd build && cmake .. && make'
+                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
@@ -30,8 +30,8 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        mkdir build && cd build && cmake .. && make
-                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                        sh 'mkdir build && cd build && cmake .. && make'
+                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
@@ -48,8 +48,8 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        mkdir build && cd build && cmake .. && make
-                        ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml
+                        sh 'mkdir build && cd build && cmake .. && make'
+                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
