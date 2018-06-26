@@ -54,7 +54,7 @@ namespace DirectoryWatcher
     DirectoryWatcher::~DirectoryWatcher()
     {
         requestStop();
-        while (m_watcherRunning);  //Wait until thread closes
+        join();
         close(m_inotifyFd);
     }
 

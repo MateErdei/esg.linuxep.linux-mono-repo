@@ -40,6 +40,14 @@ namespace Common
             m_notifyPipe.notify();
         }
 
+        void AbstractThread::join()
+        {
+            if (m_thread.joinable())
+            {
+                m_thread.join();
+            }
+        }
+
         bool AbstractThread::stopRequested()
         {
             return m_notifyPipe.notified();
