@@ -12,7 +12,6 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        sh 'mkdir -p build && cd build && cmake .. && make'
                     }
                 }
                 stage('Build on CentOS') {
@@ -24,7 +23,6 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        sh 'mkdir -p build && cd build && cmake .. && make'
                     }
                 }
                 stage('Build on Redhat') {
@@ -36,7 +34,6 @@ pipeline {
                     }
                     steps {
                         checkout scm
-                        sh 'mkdir -p build && cd build && cmake .. && make'
                     }
                 }
             }
