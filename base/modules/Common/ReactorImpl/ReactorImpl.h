@@ -39,16 +39,20 @@ namespace Common
             std::vector<ReaderListener> m_callbacListeners;
             IShutdownListener *m_shutdownListener;
 
+
         };
 
 
-        class ReactorImpl : public IReactor
+        class ReactorImpl : public virtual IReactor
         {
         public:
+            enum ReactorSate {Stopped, Started};
+             ReactorImpl();
              void addListener(Common::ZeroMQWrapper::IReadable *, ICallbackListener *) override;
              void armShutdownListener(IShutdownListener *) override;
              void start() override;
              void stop() override;
+             void join() override;
         private:
             std::unique_ptr<ReactorThreadImpl> m_reactorthread;
         };

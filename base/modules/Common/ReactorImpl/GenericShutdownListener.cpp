@@ -18,7 +18,15 @@ namespace Common
 
         GenericShutdownListener::GenericShutdownListener(std::function<void()> callback)
         {
-            m_callback = callback;
+            if( callback)
+            {
+                m_callback = callback;
+            }
+            else
+            {
+                m_callback = [](){};
+            }
+
         }
     }
 }

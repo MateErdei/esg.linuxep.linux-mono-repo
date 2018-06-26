@@ -13,13 +13,17 @@ namespace Common
     namespace Reactor
     {
 
-        ReadableFd::ReadableFd(int fd) : m_fd(fd)
+        ReadableFd::ReadableFd(int fd, bool closeOnDestructor) : m_fd(fd), m_closeOnDestructor(closeOnDestructor)
         {
         }
 
         ReadableFd::~ReadableFd()
         {
-            close();
+            if ( m_closeOnDestructor)
+            {
+                close();
+            }
+
         }
 
         std::vector<std::string> ReadableFd::read()
@@ -51,7 +55,7 @@ namespace Common
 
         int ReadableFd::fd()
         {
-            return 0;
+            return m_fd;
         }
 
         void ReadableFd::close()

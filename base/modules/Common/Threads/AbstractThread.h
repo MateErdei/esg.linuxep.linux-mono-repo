@@ -40,6 +40,9 @@ namespace Common
              * information by querying the ::stopRequested method.
              */
             void requestStop();
+
+            void join();
+
         protected:
             /**
              * Check if the thread was requested to stop. To be used in implementation of ::run.

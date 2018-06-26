@@ -12,7 +12,7 @@ namespace Common
         class ReadableFd: virtual public Common::ZeroMQWrapper::IReadable
         {
         public:
-            ReadableFd( int fd );
+            ReadableFd( int fd , bool closeOnDestructor);
             ~ReadableFd();
 
             std::vector<std::string> read() override ;
@@ -22,6 +22,7 @@ namespace Common
 
         private:
             int m_fd;
+            bool m_closeOnDestructor;
         };
     }
 }

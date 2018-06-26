@@ -14,12 +14,12 @@ namespace Common
 {
     namespace Reactor
     {
-
+        enum class ProcessInstruction{ CONTINUE, QUIT};
         class ICallbackListener
         {
         public:
             virtual ~ICallbackListener() = default;
-            virtual void process(std::vector<std::string> ) = 0;
+            virtual ProcessInstruction process(std::vector<std::string> ) = 0;
         };
 
 

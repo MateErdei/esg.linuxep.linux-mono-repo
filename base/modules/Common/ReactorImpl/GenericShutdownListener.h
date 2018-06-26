@@ -14,7 +14,7 @@ namespace Common
 {
     namespace Reactor
     {
-        class GenericShutdownListener : public IShutdownListener
+        class GenericShutdownListener : public virtual IShutdownListener
         {
         public:
             explicit GenericShutdownListener( std::function<void()> callback);
