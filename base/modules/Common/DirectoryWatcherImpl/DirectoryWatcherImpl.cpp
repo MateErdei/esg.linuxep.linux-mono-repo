@@ -10,10 +10,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/inotify.h>
 #include <unistd.h>
 #include <thread>
-#include <cassert>
-#include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
+#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 
+#include "Logger.h"
 #include "DirectoryWatcherImpl.h"
 
 namespace Common
@@ -25,11 +25,20 @@ namespace DirectoryWatcher
         return ::inotify_init();
     }
 
-    int iNotifyWrapper::add_watch(int __fd, const char *__name, uint32_t __mask)
+    int iNotifyWrapper::addWatch(int __fd, const char *__name, uint32_t __mask)
     {
         return ::inotify_add_watch(__fd,  __name, __mask);
     }
 
+    int iNotifyWrapper::removeWatch(int __fd, int __wd)
+    {
+        return ::inotify_rm_watch(__fd, __wd);
+    }
+
+    ssize_t iNotifyWrapper::read(int __fd, void *__buf, size_t __nbytes)
+    {
+        return ::read(__fd, __buf, __nbytes);
+    }
 
     DirectoryWatcher::DirectoryWatcher(std::shared_ptr<IiNotifyWrapper> iNotifyWrapperPtr) :
     m_iNotifyWrapperPtr(std::move(iNotifyWrapperPtr))
@@ -38,25 +47,26 @@ namespace DirectoryWatcher
         m_inotifyFd = m_iNotifyWrapperPtr->init();
         if (m_inotifyFd == -1)
         {
-            throw IDirectoryWatcherException("Inotify init failed.");
+            throw IDirectoryWatcherException("iNotify init failed.");
         }
     }
 
     DirectoryWatcher::~DirectoryWatcher()
     {
-        endWatch();
+        requestStop();
+        while (m_watcherRunning);  //Wait until thread closes
         close(m_inotifyFd);
     }
 
     void DirectoryWatcher::addListener(IDirectoryWatcherListener &watcherListener)
     {
-        assert(!m_watcherRunning);
-        int watch = m_iNotifyWrapperPtr->add_watch(m_inotifyFd,  watcherListener.getPath().c_str(), IN_MOVED_TO);  //Only interested in files moved to the folder
+        int watch = m_iNotifyWrapperPtr->addWatch(m_inotifyFd,  watcherListener.getPath().c_str(), IN_MOVED_TO);  //Only interested in files moved to the folder
         if (watch == -1)
         {
-            throw IDirectoryWatcherException("Failed to add a watch to inotify. Path: " + watcherListener.getPath());
+            throw IDirectoryWatcherException("Failed to add a Listener to Directory Watcher. Path: " + watcherListener.getPath());
         }
         m_listenerMap.emplace(watch, &watcherListener);
+        watcherListener.watcherActive(m_watcherRunning);
     }
 
     void DirectoryWatcher::removeListener(IDirectoryWatcherListener &watcherListener)
@@ -64,30 +74,32 @@ namespace DirectoryWatcher
         auto delIter = std::find_if(m_listenerMap.begin(), m_listenerMap.end(), [&watcherListener](const std::pair<int, const IDirectoryWatcherListener*> & pair) { return pair.second == &watcherListener;});
         if (delIter != m_listenerMap.end())
         {
+            m_iNotifyWrapperPtr->removeWatch(m_inotifyFd, delIter->first);
             m_listenerMap.erase(delIter);
         }
         else
         {
-            std::cerr << "Can't remove Listener to path " <<  watcherListener.getPath() << std::endl;
+            throw IDirectoryWatcherException("Failed to remove a Listener from the Directory Watcher. Path: " + watcherListener.getPath());
         }
+        watcherListener.watcherActive(false);
     }
 
     void DirectoryWatcher::startWatch()
     {
-        start();
-    }
-
-    void DirectoryWatcher::endWatch()
-    {
-        requestStop();
-        while (m_watcherRunning);  //Wait until thread closes
+        if (!m_watcherRunning)
+        {
+            start();
+        }
     }
 
     void DirectoryWatcher::run()
     {
         announceThreadStarted();
-        assert(!m_listenerMap.empty());
         m_watcherRunning = true;
+        for (auto & iter : m_listenerMap)
+        {
+            iter.second->watcherActive(m_watcherRunning);
+        }
         // Setup poller with the inotify file descriptor and a notify pipe so we are able to quit the thread.
         Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         Common::ZeroMQWrapper::IHasFDPtr iNotifyFD = poller->addEntry(m_inotifyFd, Common::ZeroMQWrapper::IPoller::POLLIN);
@@ -107,10 +119,10 @@ namespace DirectoryWatcher
             else
             {
                 // the inotify fd has an event
-                ssize_t len = read(m_inotifyFd, buf, sizeof(buf));
+                ssize_t len = m_iNotifyWrapperPtr->read(m_inotifyFd, buf, sizeof(buf));
                 if (len == -1)
                 {
-                    std::cerr << "iNotify read failed with error " << errno << ": Stopping DirectoryWatcher" << std::endl;
+                    LOGERROR("iNotify read failed with error " << errno << ": Stopping DirectoryWatcher");
                     exit = true;
                 }
                 else
@@ -124,7 +136,7 @@ namespace DirectoryWatcher
                             auto listenerMapIter= m_listenerMap.find(event->wd);
                             if (listenerMapIter != m_listenerMap.end())
                             {
-                                listenerMapIter->second->fileAdded(event->name);
+                                listenerMapIter->second->fileMoved(event->name);
                             }
                         }
                     }
@@ -133,12 +145,9 @@ namespace DirectoryWatcher
         }
         for (auto & iter : m_listenerMap)
         {
-            iter.second->watcherClosed();
-            std::cout << "Delete in thread" << std::endl;
+            removeListener((*iter.second));
         }
-        m_listenerMap.clear();
         m_watcherRunning = false;
     }
 }
 }
-
