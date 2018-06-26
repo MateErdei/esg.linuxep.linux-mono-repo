@@ -13,7 +13,8 @@ pipeline {
                     steps {
                         checkout scm
                         sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                        sh 'cd build && ctest -V -T test || echo ""'
+                        sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
@@ -31,7 +32,8 @@ pipeline {
                     steps {
                         checkout scm
                         sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                        sh 'cd build && ctest -V -T test || echo ""'
+                        sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
@@ -49,7 +51,8 @@ pipeline {
                     steps {
                         checkout scm
                         sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                        sh 'ctest -V -T test && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                        sh 'cd build && ctest -V -T test || echo ""'
+                        sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
                       always {
