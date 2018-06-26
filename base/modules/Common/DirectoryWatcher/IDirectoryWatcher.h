@@ -48,6 +48,9 @@ namespace DirectoryWatcher
         /**
          * Add a listener to the directory watcher.
          * Call watcherActive(true) on listener if the watch is active.
+         * The caller is responsible for ensuring a listener is:
+         *  - removed from the watcher before it is deleted.
+         *  - still in memory when the directory watcher is destroyed.
          */
         virtual void addListener(IDirectoryWatcherListener &) = 0;
         /**
