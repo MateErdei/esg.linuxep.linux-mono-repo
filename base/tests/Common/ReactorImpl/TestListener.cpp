@@ -11,7 +11,7 @@ TestListener::TestListener(std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier
 }
 
 
-Common::Reactor::ProcessInstruction TestListener::process(std::vector<std::string> processData)
+void TestListener::process(std::vector<std::string> processData)
 {
     std::string & command = processData[0];
     if(command == "echo")
@@ -31,14 +31,12 @@ Common::Reactor::ProcessInstruction TestListener::process(std::vector<std::strin
     else if (command == "quit")
     {
         m_socketReplier->write(std::vector<std::string>{command});
-        return Common::Reactor::ProcessInstruction::QUIT;
+        throw Common::Reactor::StopReactorRequest();
     }
     else
     {
         m_socketReplier->write(std::vector<std::string>{command,"Command not supported"});
 
     }
-
-    return Common::Reactor::ProcessInstruction::CONTINUE;
 
 }

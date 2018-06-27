@@ -14,7 +14,15 @@ namespace Common
 {
     namespace Reactor
     {
-        enum class ProcessInstruction{ CONTINUE, QUIT};
+        /**
+         *  Class to inform Reactor that it should stop. It is to be called from the process.
+         *  This is mainly intended, if a reactor is to be used as a server and to allow a command to quit reactor.
+         */
+        class StopReactorRequest
+        {
+
+        };
+
         class ICallbackListener
         {
         public:
@@ -26,9 +34,9 @@ namespace Common
              * When Listener is added to the Reactor, and invoked.
              *
              * @param request, vector of strings which is the strings returned by IReadable::read
-             * @return enum ProcessInstruction, either CONTINUE or QUIT
+             * @note The CallbackListener can instruct the IReactor to stop by throwing a StopReactorRequest when the process is called.
              */
-            virtual ProcessInstruction process(std::vector<std::string> request) = 0;
+            virtual void process(std::vector<std::string> request) = 0;
         };
 
 

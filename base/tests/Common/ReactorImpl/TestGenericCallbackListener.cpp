@@ -34,10 +34,9 @@ public:
 };
 
 
-ProcessInstruction pureCallBackFunction(std::vector<std::string> data)
+void pureCallBackFunction(std::vector<std::string> data)
 {
     callbackCalled = 1;
-    return ProcessInstruction::CONTINUE;
 }
 
 TEST_F(TestGenericCallbackListener, callbackAsPureFunction)
@@ -54,7 +53,7 @@ TEST_F(TestGenericCallbackListener, callbackAsClassMethod)
     m_callbackData.clear();
     std::vector<std::string> data = {"arg1","arg2"};
     // member function must be annotated with lambda to bind to the instance.
-    GenericCallbackListener listener([this](std::vector<std::string> d){this->callback(d); return ProcessInstruction::CONTINUE; });
+    GenericCallbackListener listener([this](std::vector<std::string> d){this->callback(d);});
     listener.process(data);
     ASSERT_EQ(m_callbackData, data);
 }

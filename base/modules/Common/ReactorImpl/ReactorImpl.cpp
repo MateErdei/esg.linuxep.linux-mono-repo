@@ -102,8 +102,8 @@ namespace Common
             //LOGDEBUG("add pipe call back");
             auto stopRequestedFD = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
-            ProcessInstruction groupInstruction = ProcessInstruction::CONTINUE;
-            while ( !stopRequested() && groupInstruction == ProcessInstruction::CONTINUE)
+            bool callBackRequestedStop = false;
+            while ( !stopRequested() && !callBackRequestedStop)
             {
                 auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(-1));
 
@@ -127,12 +127,11 @@ namespace Common
                             std::vector<std::string> request = ireader.reader->read();
                             try
                             {
-                                ProcessInstruction instruction =  ireader.listener->process(request);
-
-                                if ( instruction == ProcessInstruction::QUIT)
-                                {
-                                    groupInstruction = ProcessInstruction::QUIT;
-                                }
+                                ireader.listener->process(request);
+                            }
+                            catch ( StopReactorRequest & )
+                            {
+                                callBackRequestedStop = true;
                             }
                             catch ( std::exception & ex)
                             {

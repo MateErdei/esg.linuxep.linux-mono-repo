@@ -15,7 +15,7 @@ using namespace Common::Reactor;
 class MockCallBackListener: public ICallbackListener
 {
 public:
-    MOCK_METHOD1( process, ProcessInstruction (std::vector<std::string>));
+    MOCK_METHOD1( process, void (std::vector<std::string>));
 };
 
 #endif //EVEREST_BASE_MOCKCALLBACKLISTENER_H

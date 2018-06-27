@@ -72,7 +72,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
     SyncTest sync;
 
     EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&sync](std::vector<std::string>){sync.notify(); return Common::Reactor::ProcessInstruction::CONTINUE;})
+            Invoke([&sync](std::vector<std::string>){sync.notify(); })
     );
 
     reactor->addListener(&readableFd, &mockCallBackListener);
@@ -186,7 +186,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
 
 
     EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&sync](std::vector<std::string>){sync.notify(); return Common::Reactor::ProcessInstruction::CONTINUE;})
+            Invoke([&sync](std::vector<std::string>){sync.notify();})
     );
 
     reactor->addListener(&readableFdThatThrows, &callBackListenerThatThrows);

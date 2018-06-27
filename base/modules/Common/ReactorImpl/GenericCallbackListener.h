@@ -20,7 +20,7 @@ namespace Common
         public:
             using CallbackFunction = std::function<void(std::vector<std::string>)>;
             explicit GenericCallbackListener(CallbackFunction callback);
-            ProcessInstruction process(std::vector<std::string> data ) override;
+            void process(std::vector<std::string> data ) override;
         private:
             CallbackFunction m_callback;
         };
