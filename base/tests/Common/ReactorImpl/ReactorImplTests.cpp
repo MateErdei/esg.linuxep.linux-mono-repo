@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
 #include "MockCallBackListener.h"
+#include "MockShutdownListener.h"
 #include "PipeForTests.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
@@ -19,6 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "FakeClient.h"
 #include "Common/Process/IProcess.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "TempDir.h"
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
