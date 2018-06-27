@@ -37,7 +37,7 @@ namespace DirectoryWatcher
          * Removes a watch on a specific watch descriptor (as returned by add_watch)
          * @param fd - file descriptor
          * @param wd - watch descriptor
-         * @return  removed watch descriptor
+         * @return  0 on success
          */
         virtual int removeWatch(int fd, int wd) = 0;
         /**

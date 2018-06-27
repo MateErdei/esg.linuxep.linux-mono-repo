@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "TestHelpers/TempDir.h"
 #include "MockiNotifyWrapper.h"
 
 using namespace Common::DirectoryWatcher;
@@ -132,7 +134,7 @@ TEST_F(DirectoryWatcherTests, succeedRemoveListenerBeforeWatch) // NOLINT
 {
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));
     EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1));
 }
 
@@ -145,7 +147,7 @@ TEST_F(DirectoryWatcherTests, succeedRemoveListenerDuringWatch) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
     EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1));
 }
@@ -167,7 +169,7 @@ TEST_F(DirectoryWatcherTests, succeedAddListenerDuringWatch) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(1));  //Called by destructor
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));  //Called by destructor
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
 }
 
@@ -178,14 +180,14 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     std::string listener2PathString =  m_Listener2.getPath();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener1PathString.c_str(), _)).WillOnce(Return(1));
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener2PathString.c_str(), _)).WillOnce(Return(2));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(1));  //Called by destructor
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(2));  //Called by destructor
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));  //Called by destructor
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2));
-    MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, uint32_t(std::strlen("TestFile123.txt") + 1), "TestFile123.txt"};
+    MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, 16, "TestFile1.txt"};
     write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
-    MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, uint32_t(std::strlen("TestFile321.txt") + 1), "TestFile321.txt"};
+    MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, 16, "TestFile2.txt"};
     write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
     int retries = 0;
     while(!(m_Listener1.hasData() && m_Listener2.hasData()) && retries <1000) {
@@ -194,8 +196,8 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     }
     std::string file1 = m_Listener1.popFile();
     std::string file2 = m_Listener2.popFile();
-    ASSERT_EQ(file1, "TestFile123.txt");
-    ASSERT_EQ(file2, "TestFile321.txt");
+    ASSERT_EQ(file1, "TestFile1.txt");
+    ASSERT_EQ(file2, "TestFile2.txt");
 }
 
 TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
@@ -206,15 +208,15 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     std::string listener2PathString =  m_Listener2.getPath();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener1PathString.c_str(), _)).WillOnce(Return(1));
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener2PathString.c_str(), _)).WillOnce(Return(2));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(2));
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));
+    EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));
     int errCode = 7;
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillOnce(Invoke([&errCode](int, void*, size_t){errno = errCode; return -1;}));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2));
     write(m_pipe_fd[1], "1", sizeof("1"));
     int retries = 0;
-    while(m_Listener1.m_Active && m_Listener2.m_Active && retries <1000) {
+    while((m_Listener1.m_Active || m_Listener2.m_Active) && retries <1000) {
         retries ++;
         usleep(1000);
     }
@@ -225,3 +227,90 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     errStream << "iNotify read failed with error " << errCode << ": Stopping DirectoryWatcher" << std::endl;
     EXPECT_EQ(stdErr, errStream.str());
 }
+
+class RealiNotifyDirectoryWatcherTests : public ::testing::Test
+{
+public:
+    RealiNotifyDirectoryWatcherTests()
+    : m_Filename1("blah123456789012345678901234567890"), m_Filename2("123456789012345")
+    {
+        m_TempDir1Ptr = Tests::TempDir::makeTempDir("temp1");
+        m_TempDir2Ptr = Tests::TempDir::makeTempDir("temp2");
+        m_Listener1Ptr = std::unique_ptr<DirectoryWatcherListener>( new DirectoryWatcherListener(m_TempDir1Ptr->dirPath()));
+        m_Listener2Ptr = std::unique_ptr<DirectoryWatcherListener>( new DirectoryWatcherListener(m_TempDir2Ptr->dirPath()));
+        m_WatcherPtr = std::unique_ptr<DirectoryWatcher>( new DirectoryWatcher());
+        m_WatcherPtr->addListener((*m_Listener1Ptr));
+        m_WatcherPtr->addListener((*m_Listener2Ptr));
+        m_WatcherPtr->startWatch();
+        m_TempDir1Ptr->createFile(m_Filename1, "blah1");
+        m_TempDir2Ptr->createFile(m_Filename2, "blah2");
+    }
+
+    ~RealiNotifyDirectoryWatcherTests() override
+    {
+        m_WatcherPtr.reset();
+    }
+
+
+    std::unique_ptr<Tests::TempDir> m_TempDir1Ptr, m_TempDir2Ptr;
+    std::unique_ptr<DirectoryWatcherListener> m_Listener1Ptr, m_Listener2Ptr;
+    std::unique_ptr<DirectoryWatcher> m_WatcherPtr;
+    std::string m_Filename1, m_Filename2;
+    Common::FileSystem::FileSystemImpl m_FileSystem;
+};
+
+
+TEST_F(RealiNotifyDirectoryWatcherTests, FileCreationDoesNotTriggerEvent)
+{
+    usleep(1000);
+    //File creation shouldn't trigger an event
+    EXPECT_EQ("", m_Listener1Ptr->popFile());
+    EXPECT_EQ("", m_Listener2Ptr->popFile());
+}
+
+TEST_F(RealiNotifyDirectoryWatcherTests, MoveFilesBetweenDirectoriesTriggersEvents)
+{
+    m_FileSystem.moveFile(m_FileSystem.join(m_TempDir1Ptr->dirPath(), m_Filename1),
+                        m_FileSystem.join(m_TempDir2Ptr->dirPath(), m_Filename1));
+    m_FileSystem.moveFile(m_FileSystem.join(m_TempDir2Ptr->dirPath(), m_Filename2),
+                        m_FileSystem.join(m_TempDir1Ptr->dirPath(), m_Filename2));
+    int retries = 0;
+    while (!(m_Listener1Ptr->hasData() && m_Listener2Ptr->hasData()) && retries < 1000)
+    {
+        retries++;
+        usleep(1000);
+    }
+    //File move should trigger an event
+    EXPECT_EQ(m_Filename2, m_Listener1Ptr->popFile());
+    EXPECT_EQ(m_Filename1, m_Listener2Ptr->popFile());
+}
+
+TEST_F(RealiNotifyDirectoryWatcherTests, DeleteListenerAndMoveFilesOnlyTriggersEventOnRemainingListener)
+{
+    m_WatcherPtr->removeListener((*m_Listener2Ptr));
+    m_FileSystem.moveFile(m_FileSystem.join(m_TempDir1Ptr->dirPath(), m_Filename1),
+                        m_FileSystem.join(m_TempDir2Ptr->dirPath(), m_Filename1));
+    m_FileSystem.moveFile(m_FileSystem.join(m_TempDir2Ptr->dirPath(), m_Filename1),
+                        m_FileSystem.join(m_TempDir1Ptr->dirPath(), m_Filename1));
+    int retries = 0;
+    while(!m_Listener1Ptr->hasData() && retries <1000) {
+        retries ++;
+        usleep(1000);
+    }
+    //File move should trigger an event
+    EXPECT_EQ(m_Filename1, m_Listener1Ptr->popFile());
+    EXPECT_EQ("", m_Listener2Ptr->popFile());
+}
+
+TEST_F(RealiNotifyDirectoryWatcherTests, DeleteFilesDoesNotTriggerEvent)
+{
+    remove(m_FileSystem.join(m_TempDir2Ptr->dirPath(), m_Filename1).c_str());
+    remove(m_FileSystem.join(m_TempDir1Ptr->dirPath(), m_Filename2).c_str());
+    usleep(1000);
+    //File remove shouldn't trigger an event
+    EXPECT_EQ("", m_Listener1Ptr->popFile());
+    EXPECT_EQ("", m_Listener2Ptr->popFile());
+}
+
+
+

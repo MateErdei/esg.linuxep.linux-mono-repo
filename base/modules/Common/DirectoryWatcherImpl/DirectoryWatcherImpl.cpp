@@ -77,7 +77,8 @@ namespace DirectoryWatcher
         auto delIter = std::find_if(m_listenerMap.begin(), m_listenerMap.end(), [&watcherListener](const std::pair<int, const IDirectoryWatcherListener*> & pair) { return pair.second == &watcherListener;});
         if (delIter != m_listenerMap.end())
         {
-            m_iNotifyWrapperPtr->removeWatch(m_inotifyFd, delIter->first);
+            int watchDescRemoved = m_iNotifyWrapperPtr->removeWatch(m_inotifyFd, delIter->first);
+            assert(watchDescRemoved == 0);
             m_listenerMap.erase(delIter);
         }
         else
@@ -140,10 +141,11 @@ namespace DirectoryWatcher
                     for (char *ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len)
                     {
                         event = (const struct inotify_event *) ptr;
-                        assert(event->len == std::strlen(event->name)+1);
-                        assert(event->mask == IN_MOVED_TO);
                         if (event->len)
                         {
+                            //event->name is null terminated and allocated in chunks of 16 bytes by iNotify
+                            assert(event->len == ((std::strlen(event->name)/16)+1)*16);
+                            assert(event->mask == IN_MOVED_TO);
                             auto listenerMapIter= m_listenerMap.find(event->wd);
                             if (listenerMapIter != m_listenerMap.end())
                             {
