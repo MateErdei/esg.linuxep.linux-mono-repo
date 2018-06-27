@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <sys/inotify.h>
+#include <cstring>
 #include "gmock/gmock.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
@@ -60,7 +61,7 @@ struct MockInotifyEvent {
     uint32_t cookie;   /* Unique cookie associating related
                                      events (for rename(2)) */
     uint32_t len;      /* Size of name field */
-    char     name[20];   /* Optional null-terminated name */
+    char     name[16];   /* Optional null-terminated name */
 };
 
 class DirectoryWatcherTests : public ::testing::Test
@@ -173,22 +174,17 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2));
-    m_MockiNotifyEvent.wd = 1;
-    m_MockiNotifyEvent.cookie = 1;
-    m_MockiNotifyEvent.mask = IN_MOVED_TO;
-    strcpy(m_MockiNotifyEvent.name, "TestFile.txt");
-    m_MockiNotifyEvent.len = 20;
-    write(m_pipe_fd[1], &m_MockiNotifyEvent, sizeof(struct MockInotifyEvent));
-    m_MockiNotifyEvent.wd = 2;
-    strcpy(m_MockiNotifyEvent.name, "TestFileAlso.txt");
-    write(m_pipe_fd[1], &m_MockiNotifyEvent, sizeof(struct MockInotifyEvent));
+    MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, uint32_t(std::strlen("TestFile123.txt") + 1), "TestFile123.txt"};
+    write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
+    MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, uint32_t(std::strlen("TestFile321.txt") + 1), "TestFile321.txt"};
+    write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
     int retries = 0;
     while(!m_Listener1.hasData() && !m_Listener2.hasData() && retries <1000) {
         retries ++;
         usleep(1000);
     }
-    ASSERT_EQ(m_Listener1.popFile(), "TestFile.txt");
-    ASSERT_EQ(m_Listener2.popFile(), "TestFileAlso.txt");
+    ASSERT_EQ(m_Listener1.popFile(), "TestFile123.txt");
+    ASSERT_EQ(m_Listener2.popFile(), "TestFile321.txt");
 }
 
 TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT

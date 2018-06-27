@@ -5,11 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <algorithm>
+#include <cassert>
+#include <cstring>
 #include <iostream>
-
 #include <sys/inotify.h>
-#include <unistd.h>
 #include <thread>
+#include <unistd.h>
+
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 
@@ -109,7 +111,12 @@ namespace DirectoryWatcher
         bool exit = false;
         while (!exit)
         {
-            char buf[4096];
+            char buf[4096] __attribute__ ((aligned(__alignof__(struct inotify_event))));
+            /* Some systems cannot read integer variables if they are not
+            properly aligned. On other systems, incorrect alignment may
+            decrease performance. Hence, the buffer used for reading from
+            the inotify file descriptor should have the same alignment as
+            struct inotify_event. */;
             const struct inotify_event *event;
             poller->poll(std::chrono::milliseconds(-1));
             //Only two file descriptors being polled and the notify pipe is only used for stopping thread
@@ -132,7 +139,8 @@ namespace DirectoryWatcher
                     for (char *ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len)
                     {
                         event = (const struct inotify_event *) ptr;
-
+                        assert(event->len == std::strlen(event->name)+1);
+                        assert(event->mask == IN_MOVED_TO);
                         if (event->len)
                         {
                             auto listenerMapIter= m_listenerMap.find(event->wd);
