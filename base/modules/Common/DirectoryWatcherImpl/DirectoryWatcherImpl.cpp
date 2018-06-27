@@ -97,12 +97,12 @@ namespace DirectoryWatcher
 
     void DirectoryWatcher::run()
     {
-        announceThreadStarted();
         m_watcherRunning = true;
         for (auto & iter : m_listenerMap)
         {
             iter.second->watcherActive(m_watcherRunning);
         }
+        announceThreadStarted();
         // Setup poller with the inotify file descriptor and a notify pipe so we are able to quit the thread.
         Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         Common::ZeroMQWrapper::IHasFDPtr iNotifyFD = poller->addEntry(m_inotifyFd, Common::ZeroMQWrapper::IPoller::POLLIN);
@@ -118,14 +118,15 @@ namespace DirectoryWatcher
             the inotify file descriptor should have the same alignment as
             struct inotify_event. */;
             const struct inotify_event *event;
-            poller->poll(std::chrono::milliseconds(-1));
+            auto entries = poller->poll(std::chrono::milliseconds(-1));
             //Only two file descriptors being polled and the notify pipe is only used for stopping thread
+
             if (stopRequested())
             {
                 // notifyPipe has been written. Exit the thread.
                 exit = true;
             }
-            else
+            else if (!entries.empty())
             {
                 // the inotify fd has an event
                 ssize_t len = m_iNotifyWrapperPtr->read(m_inotifyFd, buf, sizeof(buf));
@@ -155,8 +156,10 @@ namespace DirectoryWatcher
         }
         for (auto & iter : m_listenerMap)
         {
-            removeListener((*iter.second));
+            m_iNotifyWrapperPtr->removeWatch(m_inotifyFd, iter.first);
+            iter.second->watcherActive(false);
         }
+        m_listenerMap.clear();
         m_watcherRunning = false;
     }
 }

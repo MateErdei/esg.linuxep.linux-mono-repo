@@ -19,7 +19,7 @@ class DirectoryWatcherListener: public Common::DirectoryWatcher::IDirectoryWatch
 {
 public:
     explicit DirectoryWatcherListener(const std::string &path)
-            : m_Path(path), m_File(""), m_Active(false)
+            : m_Path(path), m_File(""), m_Active(false), m_HasData(false)
     {}
 
     std::string getPath() const override
@@ -29,7 +29,9 @@ public:
 
     void fileMoved(const std::string & filename) override
     {
+        std::lock_guard<std::mutex> guard(m_FilenameMutex);
         m_File = filename;
+        m_HasData = true;
     }
 
     void watcherActive(bool active) override
@@ -39,13 +41,15 @@ public:
 
     bool hasData()
     {
-        return (!m_File.empty());
+        return m_HasData;
     }
 
     std::string popFile()
     {
+        std::lock_guard<std::mutex> guard(m_FilenameMutex);
         std::string data = m_File;
         m_File.clear();
+        m_HasData = false;
         return data;
     }
 
@@ -53,6 +57,8 @@ public:
     std::string m_Path;
     std::string m_File;
     bool m_Active;
+    bool m_HasData;
+    std::mutex m_FilenameMutex;
 };
 
 struct MockInotifyEvent {
@@ -71,7 +77,8 @@ public:
     : m_Listener1("/tmp/test"), m_Listener2("/tmp/test2")
     {
         m_MockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
-        pipe(m_pipe_fd);
+        int r = pipe(m_pipe_fd);
+        assert(r==0);
         EXPECT_CALL(*m_MockiNotifyWrapper, init()).WillOnce(Return(m_pipe_fd[0]));
         m_DirectoryWatcher = std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::unique_ptr<IiNotifyWrapper>(m_MockiNotifyWrapper)));
     }
@@ -121,7 +128,7 @@ TEST_F(DirectoryWatcherTests, succeedAddListenerBeforeWatch) // NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
 }
 
-TEST_F(DirectoryWatcherTests, succeedRemoveListenerBefore_Watch) // NOLINT
+TEST_F(DirectoryWatcherTests, succeedRemoveListenerBeforeWatch) // NOLINT
 {
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
@@ -167,8 +174,10 @@ TEST_F(DirectoryWatcherTests, succeedAddListenerDuringWatch) // NOLINT
 TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, m_Listener1.getPath().c_str(), _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, m_Listener2.getPath().c_str(), _)).WillOnce(Return(2));
+    std::string listener1PathString =  m_Listener1.getPath();
+    std::string listener2PathString =  m_Listener2.getPath();
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener1PathString.c_str(), _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener2PathString.c_str(), _)).WillOnce(Return(2));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(1));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(2));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
@@ -179,20 +188,24 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, uint32_t(std::strlen("TestFile321.txt") + 1), "TestFile321.txt"};
     write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
     int retries = 0;
-    while(!m_Listener1.hasData() && !m_Listener2.hasData() && retries <1000) {
+    while(!(m_Listener1.hasData() && m_Listener2.hasData()) && retries <1000) {
         retries ++;
         usleep(1000);
     }
-    ASSERT_EQ(m_Listener1.popFile(), "TestFile123.txt");
-    ASSERT_EQ(m_Listener2.popFile(), "TestFile321.txt");
+    std::string file1 = m_Listener1.popFile();
+    std::string file2 = m_Listener2.popFile();
+    ASSERT_EQ(file1, "TestFile123.txt");
+    ASSERT_EQ(file2, "TestFile321.txt");
 }
 
 TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
     internal::CaptureStderr();
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, m_Listener1.getPath().c_str(), _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, m_Listener2.getPath().c_str(), _)).WillOnce(Return(2));
+    std::string listener1PathString =  m_Listener1.getPath();
+    std::string listener2PathString =  m_Listener2.getPath();
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener1PathString.c_str(), _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener2PathString.c_str(), _)).WillOnce(Return(2));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(1));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(2));
     int errCode = 7;
