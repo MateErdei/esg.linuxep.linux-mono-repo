@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include "Common/ReactorImpl/GenericShutdownListener.h"
 using namespace Common::Reactor;
-
+using namespace Common::ReactorImpl;
 namespace
 {
     int callbackCalled = 0;
@@ -20,7 +20,8 @@ public:
     std::string m_callbackString;
     void SetUp() override
     {
-
+        m_callbackString = "";
+        callbackCalled = 0;
     }
     void TearDown() override
     {
@@ -41,7 +42,7 @@ void pureCallBackFunction()
 
 TEST_F(TestGenericShutdownListener, callbackAsPureFunction)
 {
-    callbackCalled = 0;
+
     GenericShutdownListener listener(pureCallBackFunction);
     listener.notifyShutdownRequested();
     ASSERT_EQ(callbackCalled, 1);
@@ -49,7 +50,6 @@ TEST_F(TestGenericShutdownListener, callbackAsPureFunction)
 
 TEST_F(TestGenericShutdownListener, callbackAsClassMethod)
 {
-    m_callbackString = "";
     // member function must be annotated with lambda to bind to the instance.
     GenericShutdownListener listener([this](){this->callback();});
     listener.notifyShutdownRequested();

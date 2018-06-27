@@ -7,7 +7,7 @@
 #include "Common/ZeroMQWrapper/IReadable.h"
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
         class ReadableFd: virtual public Common::ZeroMQWrapper::IReadable
         {
@@ -15,7 +15,7 @@ namespace Common
             ReadableFd( int fd , bool closeOnDestructor);
             ~ReadableFd();
 
-            std::vector<std::string> read() override ;
+            Common::ZeroMQWrapper::IReadable::data_t read() override ;
             int fd() override ;
             void close();
             void release();

@@ -10,7 +10,7 @@
 #define LOGERROR(x) std::cerr << x << '\n'
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
 
         ReadableFd::ReadableFd(int fd, bool closeOnDestructor) : m_fd(fd), m_closeOnDestructor(closeOnDestructor)
@@ -26,7 +26,7 @@ namespace Common
 
         }
 
-        std::vector<std::string> ReadableFd::read()
+        Common::ZeroMQWrapper::IReadable::data_t ReadableFd::read()
         {
 
             std::string currvalue;
@@ -48,7 +48,7 @@ namespace Common
                     break;
                 }
             }
-            std::vector<std::string> data;
+            Common::ZeroMQWrapper::IReadable::data_t data;
             data.emplace_back(currvalue);
             return data;
         }
@@ -70,6 +70,7 @@ namespace Common
         void ReadableFd::release()
         {
             m_fd = -1;
+            m_closeOnDestructor = false;
         }
     }
 }

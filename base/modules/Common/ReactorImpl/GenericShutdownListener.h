@@ -12,9 +12,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ICallbackListener.h"
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
-        class GenericShutdownListener : public virtual IShutdownListener
+    class GenericShutdownListener : public virtual Reactor::IShutdownListener
         {
         public:
             explicit GenericShutdownListener( std::function<void()> callback);

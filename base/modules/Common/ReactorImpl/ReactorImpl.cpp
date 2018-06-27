@@ -32,9 +32,9 @@ namespace
 
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
-
+        using namespace Common::Reactor;
         ReactorThreadImpl::ReactorThreadImpl()
                 : m_shutdownListener(nullptr)
         {
@@ -43,7 +43,7 @@ namespace Common
 
         ReactorThreadImpl::~ReactorThreadImpl()
         {
-            m_callbacListeners.clear();
+            m_callbackListeners.clear();
             if ( signalPipe )
             {
                 signalPipe.reset(nullptr);
@@ -57,7 +57,7 @@ namespace Common
             entry.reader = readable;
             entry.listener = callback;
             //LOGDEBUG("add listeners: " << entry.reader->fd());
-            m_callbacListeners.push_back(entry);
+            m_callbackListeners.push_back(entry);
         };
 
 
@@ -77,7 +77,7 @@ namespace Common
 
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-            for ( auto & readList : m_callbacListeners)
+            for ( auto & readList : m_callbackListeners)
             {
                 //LOGDEBUG("add call back: " << readList.reader->fd());
                 poller->addEntry(*(readList.reader), Common::ZeroMQWrapper::IPoller::POLLIN);
@@ -107,29 +107,28 @@ namespace Common
             {
                 auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(-1));
 
+                //LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
+                if ( m_shutdownListener &&  signalPipe && signalPipe->notified())
+                {
+
+                    m_shutdownListener->notifyShutdownRequested();
+                    return;
+                }
+
                 for( auto & hasFd : filedescriptors )
                 {
 
-                    //LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
-                    if ( m_shutdownListener &&  signalPipe && signalPipe->notified())
-                    {
-
-                        m_shutdownListener->notifyShutdownRequested();
-                        return;
-                    }
-
-
-                    for( auto & ireader : m_callbacListeners)
+                    for( auto & ireader : m_callbackListeners)
                     {
                         //LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
                         if ( hasFd->fd() == ireader.reader->fd())
                         {
-                            std::vector<std::string> request = ireader.reader->read();
+                            Common::ZeroMQWrapper::IReadable::data_t request = ireader.reader->read();
                             try
                             {
                                 ireader.listener->process(request);
                             }
-                            catch ( StopReactorRequest & )
+                            catch ( StopReactorRequestException & )
                             {
                                 callBackRequestedStop = true;
                             }
@@ -144,10 +143,6 @@ namespace Common
             }
         }
 
-        std::unique_ptr<Common::Reactor::IReactor>  createReactor()
-        {
-            return Common::Reactor::IReactorPtr(new Common::Reactor::ReactorImpl());
-        }
 
         void ReactorImpl::addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback)
         {
@@ -188,4 +183,8 @@ namespace Common
             m_reactorthread->join();
         }
     }
+}
+std::unique_ptr<Common::Reactor::IReactor>  Common::Reactor::createReactor()
+{
+    return Common::Reactor::IReactorPtr(new Common::ReactorImpl::ReactorImpl());
 }

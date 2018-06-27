@@ -23,8 +23,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TempDir.h"
 
 using namespace Common::Reactor;
-
-class SyncTest
+using data_t = Common::ZeroMQWrapper::IReadable::data_t;
+using namespace Common::ReactorImpl;
+class ExecutionBarrier
 {
     std::mutex mutex;
     std::condition_variable m_waitCondition;
@@ -67,12 +68,12 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
-    std::vector<std::string> processData = {{"hello"}};
+    data_t processData = {{"hello"}};
 
-    SyncTest sync;
+    ExecutionBarrier executionBarrier;
 
     EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&sync](std::vector<std::string>){sync.notify(); })
+            Invoke([&executionBarrier](data_t){executionBarrier.notify(); })
     );
 
     reactor->addListener(&readableFd, &mockCallBackListener);
@@ -81,9 +82,12 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 
     m_pipe->write("hello");
 
-    sync.waitfor();
+    executionBarrier.waitfor();
     reactor->stop();
 }
+/**
+ * Reactor is tested indirectly via the use of the Fake server to give more real world results.
+ */
 
 TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 {
@@ -96,14 +100,14 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 
     fakeServer.run(*context);
 
-    std::vector<std::string> requestData{"echo", "arg1", "arg2"};
+    data_t requestData{"echo", "arg1", "arg2"};
     EXPECT_EQ(fakeClient.requestReply(requestData), requestData );
 
-    std::vector<std::string> requestData2{"concat", "arg1", "arg2"};
-    std::vector<std::string> expectedRequestData2{"concat", "arg1arg2"};
+    data_t requestData2{"concat", "arg1", "arg2"};
+    data_t expectedRequestData2{"concat", "arg1arg2"};
     EXPECT_EQ(fakeClient.requestReply(requestData2), expectedRequestData2);
 
-    std::vector<std::string> requestData3{"quit"};
+    data_t requestData3{"quit"};
     EXPECT_EQ(fakeClient.requestReply(requestData3), requestData3 );
 
     // throws if fake server has stopped.
@@ -112,11 +116,13 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 
 TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 {
-    std::string socketAddress = "ipc:///tmp/TestFakeServerSignalHandlerCommandsRespondCorrectly.ipc";
+    std::string socketAddress = "ipc:///tmp/TestFakeServerSignalHandlerCommandsRespondCorrectly";
+    socketAddress += getpid(); // ensure the path does not conflict with the same test running in another process.
+
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::createFileSystem();
     std::string fakeServerPath = fileSystem->join(fileSystem->currentWorkingDirectory(), "FakeServerRunner");
-    std::vector<std::string> args{socketAddress};
+    data_t args{socketAddress};
     process->exec(fakeServerPath, args);
 
 
@@ -124,7 +130,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 
     FakeClient fakeClient(*context, socketAddress, -1);
 
-    std::vector<std::string> requestData{"echo", "arg1", "arg2"};
+    data_t requestData{"echo", "arg1", "arg2"};
     EXPECT_EQ(fakeClient.requestReply(requestData), requestData );
 
 
@@ -170,7 +176,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     bool callbackExecuted = false;
 
 
-    GenericCallbackListener callBackListenerThatThrows([&callbackExecuted](std::vector<std::string>){
+    GenericCallbackListener callBackListenerThatThrows([&callbackExecuted](data_t){
         callbackExecuted = true;
         throw std::runtime_error("Test Error");
     });
@@ -180,13 +186,13 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     std::unique_ptr<PipeForTests> m_pipeWhichThrows = std::unique_ptr<PipeForTests>(new PipeForTests());
     ReadableFd readableFdThatThrows(m_pipeWhichThrows->readFd(), false);
     ReadableFd readableFd(m_pipe->readFd(), false);
-    std::vector<std::string> processData = {{"hello"}};
+    data_t processData = {{"hello"}};
 
-    SyncTest sync;
+    ExecutionBarrier sync;
 
 
     EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&sync](std::vector<std::string>){sync.notify();})
+            Invoke([&sync](data_t){sync.notify();})
     );
 
     reactor->addListener(&readableFdThatThrows, &callBackListenerThatThrows);

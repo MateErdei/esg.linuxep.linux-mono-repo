@@ -4,14 +4,14 @@
 
 #include <sstream>
 #include "TestListener.h"
-
+using data_t = Common::ZeroMQWrapper::IReadable::data_t;
 TestListener::TestListener(std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier)
     : m_socketReplier(std::move(socketReplier))
 {
 }
 
 
-void TestListener::process(std::vector<std::string> processData)
+void TestListener::process(Common::ZeroMQWrapper::IReadable::data_t processData)
 {
     std::string & command = processData[0];
     if(command == "echo")
@@ -26,16 +26,16 @@ void TestListener::process(std::vector<std::string> processData)
             ss << processData[i];
         }
 
-        m_socketReplier->write(std::vector<std::string>{command, ss.str()});
+        m_socketReplier->write(data_t{command, ss.str()});
     }
     else if (command == "quit")
     {
-        m_socketReplier->write(std::vector<std::string>{command});
-        throw Common::Reactor::StopReactorRequest();
+        m_socketReplier->write(data_t{command});
+        throw Common::Reactor::StopReactorRequestException();
     }
     else
     {
-        m_socketReplier->write(std::vector<std::string>{command,"Command not supported"});
+        m_socketReplier->write(data_t{command,"Command not supported"});
 
     }
 

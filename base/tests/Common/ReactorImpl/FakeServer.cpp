@@ -24,7 +24,7 @@ void FakeServer::run(Common::ZeroMQWrapper::IContext& iContext)
 
     if( m_captureSignals)
     {
-        m_shutdownListener = std::unique_ptr<Common::Reactor::IShutdownListener>( new Common::Reactor::GenericShutdownListener([](){}));
+        m_shutdownListener = std::unique_ptr<Common::Reactor::IShutdownListener>( new Common::ReactorImpl::GenericShutdownListener([](){}));
         m_reactor->armShutdownListener(m_shutdownListener.get());
     }
 

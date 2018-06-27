@@ -15,13 +15,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
 
         struct ReaderListener
         {
             Common::ZeroMQWrapper::IReadable* reader;
-            ICallbackListener * listener;
+            Reactor::ICallbackListener * listener;
         };
 
 
@@ -31,24 +31,24 @@ namespace Common
             ReactorThreadImpl();
             ~ReactorThreadImpl();
 
-            void addListener(Common::ZeroMQWrapper::IReadable *, ICallbackListener *);
-            void setShutdownListener(IShutdownListener*);
+            void addListener(Common::ZeroMQWrapper::IReadable *, Reactor::ICallbackListener *);
+            void setShutdownListener(Reactor::IShutdownListener*);
 
         private:
             void run() override ;
-            std::vector<ReaderListener> m_callbacListeners;
-            IShutdownListener *m_shutdownListener;
+            std::vector<ReaderListener> m_callbackListeners;
+            Reactor::IShutdownListener *m_shutdownListener;
 
 
         };
 
 
-        class ReactorImpl : public virtual IReactor
+        class ReactorImpl : public virtual Reactor::IReactor
         {
         public:
              ReactorImpl();
-             void addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback) override;
-             void armShutdownListener(IShutdownListener * shutdownListener) override;
+             void addListener(Common::ZeroMQWrapper::IReadable * readable, Reactor::ICallbackListener * callback) override;
+             void armShutdownListener(Reactor::IShutdownListener * shutdownListener) override;
              void start() override;
              void stop() override;
              void join() override;

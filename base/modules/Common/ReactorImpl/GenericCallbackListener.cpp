@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
-        void GenericCallbackListener::process(std::vector<std::string> data)
+        void GenericCallbackListener::process(Common::ZeroMQWrapper::IReadable::data_t data)
         {
             m_callback(data);
         }
@@ -23,7 +23,7 @@ namespace Common
             }
             else
             {
-                m_callback = [](std::vector<std::string> ){};
+                m_callback = [](Common::ZeroMQWrapper::IReadable::data_t ){};
             }
         }
     }

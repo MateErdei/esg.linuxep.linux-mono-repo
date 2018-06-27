@@ -32,8 +32,8 @@ namespace Common
              * addListener used to add an implemented ICallbackListener listener object to the reactor.
              * Listeners can only be added before start is called.
              *
-             * @param readable, pointer to readable (usually related to ZeroMQ socket)
-             * @param callback, pointer implemented callbackListener that will be added to reactor.
+             * @param BORROWED readable, pointer to readable (usually related to ZeroMQ socket)
+             * @param BORROWED callback, pointer implemented callbackListener that will be added to reactor.
              *        The call back will be executed when there is data available to be processed.
              *
              * @note It is the client responsibility to ensure readable and callback do not go out of scope during
@@ -52,7 +52,7 @@ namespace Common
              * @note: If armShutdownListener is never called, no signal handler will be defined, and the process will
              *        just terminate 'abruptly' when those signals are received. (or will be handled by a different signal handler)
              *
-             * @param shutdownListener
+             * @param BORROWED shutdownListener
              */
             virtual void armShutdownListener(IShutdownListener * shutdownListener) = 0;
 

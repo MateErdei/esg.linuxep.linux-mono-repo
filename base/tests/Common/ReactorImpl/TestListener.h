@@ -13,7 +13,7 @@ class TestListener : public Common::Reactor::ICallbackListener
 public:
     TestListener(std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> socketReplier);
 
-    void process(std::vector<std::string> ) override;
+    void process(Common::ZeroMQWrapper::IReadable::data_t ) override;
 private:
     std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier> m_socketReplier;
 };

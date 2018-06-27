@@ -13,14 +13,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <functional>
 namespace Common
 {
-    namespace Reactor
+    namespace ReactorImpl
     {
-        class GenericCallbackListener : public virtual ICallbackListener
+        class GenericCallbackListener : public virtual Reactor::ICallbackListener
         {
         public:
-            using CallbackFunction = std::function<void(std::vector<std::string>)>;
+            using CallbackFunction = std::function<void(Common::ZeroMQWrapper::IReadable::data_t)>;
             explicit GenericCallbackListener(CallbackFunction callback);
-            void process(std::vector<std::string> data ) override;
+            void process(Common::ZeroMQWrapper::IReadable::data_t data ) override;
         private:
             CallbackFunction m_callback;
         };

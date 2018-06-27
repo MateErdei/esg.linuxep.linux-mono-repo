@@ -7,7 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 using namespace Common::Reactor;
-
+using namespace Common::ReactorImpl;
+using data_t = Common::ZeroMQWrapper::IReadable::data_t;
 namespace
 {
     int callbackCalled = 0;
@@ -16,7 +17,8 @@ namespace
 class TestGenericCallbackListener : public ::testing::Test
 {
 public:
-    std::vector<std::string> m_callbackData;
+
+    data_t m_callbackData;
     void SetUp() override
     {
 
@@ -26,7 +28,7 @@ public:
 
     }
 
-    void callback(std::vector<std::string> data)
+    void callback(data_t data)
     {
         m_callbackData = data;
     }
@@ -34,14 +36,14 @@ public:
 };
 
 
-void pureCallBackFunction(std::vector<std::string> data)
+void pureCallBackFunction(data_t data)
 {
     callbackCalled = 1;
 }
 
 TEST_F(TestGenericCallbackListener, callbackAsPureFunction)
 {
-    std::vector<std::string> data = {"arg1","arg2"};
+    data_t data = {"arg1","arg2"};
     callbackCalled = 0;
     GenericCallbackListener listener(pureCallBackFunction);
     listener.process(data);
@@ -51,9 +53,9 @@ TEST_F(TestGenericCallbackListener, callbackAsPureFunction)
 TEST_F(TestGenericCallbackListener, callbackAsClassMethod)
 {
     m_callbackData.clear();
-    std::vector<std::string> data = {"arg1","arg2"};
+    data_t data = {"arg1","arg2"};
     // member function must be annotated with lambda to bind to the instance.
-    GenericCallbackListener listener([this](std::vector<std::string> d){this->callback(d);});
+    GenericCallbackListener listener([this](data_t d){this->callback(d);});
     listener.process(data);
     ASSERT_EQ(m_callbackData, data);
 }
@@ -61,7 +63,7 @@ TEST_F(TestGenericCallbackListener, callbackAsClassMethod)
 TEST_F(TestGenericCallbackListener, callbackAsNullptr)
 {
     GenericCallbackListener listener(nullptr);
-    std::vector<std::string> data = {"arg1","arg2"};
+    data_t data = {"arg1","arg2"};
     listener.process(data);
 
 }

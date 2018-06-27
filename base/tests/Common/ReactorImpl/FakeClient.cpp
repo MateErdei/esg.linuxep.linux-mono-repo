@@ -18,7 +18,7 @@ FakeClient::FakeClient(Common::ZeroMQWrapper::IContext &iContext, const std::str
     m_socketRequester->connect(address);
 }
 
-std::vector<std::string> FakeClient::requestReply(const std::vector<std::string> &request)
+Common::ZeroMQWrapper::IReadable::data_t FakeClient::requestReply(const Common::ZeroMQWrapper::IReadable::data_t &request)
 {
     m_socketRequester->write(request);
     return m_socketRequester->read();
