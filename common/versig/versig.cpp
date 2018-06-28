@@ -36,6 +36,7 @@
 #include "manifest_file.h"
 #include "verify_exceptions.h"
 #include <sstream>
+#include <cassert>
 
 using namespace VerificationTool;
 using namespace verify_exceptions;
@@ -89,6 +90,7 @@ struct Arguments
 
 static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 {
+    assert(!argv.empty());
 //Read and process the command-line arguments
 //Return true if a valid set of arguments found
 //Else return false
@@ -305,10 +307,12 @@ int versig_main
 {
     std::vector<std::string> argvv;
 
-    for(int i=1; i<argc; i++)
+    assert(argc>=1);
+    for(int i=0; i<argc; i++)
     {
         argvv.emplace_back(argv[i]);
     }
 
+    assert(!argvv.empty());
     return versig_main(argvv);
 }
