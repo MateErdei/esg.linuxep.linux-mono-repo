@@ -350,7 +350,8 @@ namespace SulDownloader
 
         LOGSUPPORT("Certificate path: " << certificatePath);
         SU_setCertificatePath(session(), certificatePath.c_str());
-
+        SU_setRequireSHA384(session(), true);
+        
         LOGSUPPORT("WarehouseRepository local repository: " << localWarehouseRepository);
         SU_setLocalRepository(session(), localWarehouseRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
