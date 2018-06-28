@@ -17,9 +17,12 @@ pipeline {
                         sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
-                      always {
-                        junit "build/CTestResults.xml"
-                      }
+                        always {
+                            step(xunit(
+                                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+                                tools: [ CTest(pattern: 'build/CTestResults.xml') ])
+                                )
+                        }
                     }
                 }
                 stage('Build on CentOS') {
@@ -36,9 +39,12 @@ pipeline {
                         sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
-                      always {
-                        junit "build/CTestResults.xml"
-                      }
+                        always {
+                            step(xunit(
+                                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+                                tools: [ CTest(pattern: 'build/CTestResults.xml') ])
+                                )
+                        }
                     }
                 }
                 stage('Build on Redhat') {
@@ -55,9 +61,12 @@ pipeline {
                         sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
                     }
                     post {
-                      always {
-                        junit "build/CTestResults.xml"
-                      }
+                        always {
+                            step(xunit(
+                                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+                                tools: [ CTest(pattern: 'build/CTestResults.xml') ])
+                                )
+                        }
                     }
                 }
             }

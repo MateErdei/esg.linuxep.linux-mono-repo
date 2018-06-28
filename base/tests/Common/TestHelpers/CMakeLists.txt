@@ -1,3 +1,4 @@
+include(GoogleTest)
 add_library(testhelpers SHARED
         TempDir.h
         TempDir.cpp
@@ -12,4 +13,4 @@ target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC "${gtest_SOURCE_
 target_include_directories(TestHelpersTest BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${PROJECT_SOURCE_DIR}/modules)
 target_link_libraries(TestHelpersTest gtest gtest_main)
 target_link_libraries(TestHelpersTest filesystemimpl testhelpers)
-add_test(NAME TestHelpersTest COMMAND TestHelpersTest)
+gtest_discover_tests(TestHelpersTest)

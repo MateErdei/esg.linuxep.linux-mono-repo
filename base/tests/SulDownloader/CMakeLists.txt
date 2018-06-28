@@ -1,3 +1,4 @@
+include(GoogleTest)
 add_executable(SulDownloaderTests
         TestConfigurationData.cpp
         TestWarehouseHelper.cpp
@@ -14,7 +15,7 @@ target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOUR
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/modules/SulDownloader")
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES} )
-add_test(NAME SulDownloaderTests COMMAND SulDownloaderTests)
+gtest_discover_tests(SulDownloaderTests)
 
 #/redist/binaries/linux10/input/SUL
 set( REDIST /redist )

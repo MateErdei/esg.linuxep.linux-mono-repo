@@ -1,4 +1,4 @@
-
+include(GoogleTest)
 add_executable(TestZeroMQWrapperImpl
         TestZeroMQWrapperImpl.cpp
         TestContextHolder.cpp
@@ -16,4 +16,4 @@ target_include_directories(TestZeroMQWrapperImpl SYSTEM BEFORE PUBLIC "${gtest_S
 target_include_directories(TestZeroMQWrapperImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}")
 target_link_libraries(TestZeroMQWrapperImpl gtest gtest_main)
 target_link_libraries(TestZeroMQWrapperImpl zeromqwrapperimpl)
-add_test(NAME TestZeroMQWrapperImpl COMMAND TestZeroMQWrapperImpl)
+gtest_discover_tests(TestZeroMQWrapperImpl)
