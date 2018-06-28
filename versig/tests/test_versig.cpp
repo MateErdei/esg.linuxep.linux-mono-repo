@@ -9,11 +9,36 @@
 
 #include "versig.h"
 
+#define TESTS "../tests"
+
 namespace
 {
+    class StringHolder
+    {
+    public:
+        explicit StringHolder(const char* orig)
+        {
+            m_value = strdup(orig);
+        }
+
+        ~StringHolder()
+        {
+            free(m_value);
+        }
+
+        char* get()
+        {
+            return m_value;
+        }
+
+        char* m_value;
+    };
+
     TEST(versig_test, no_args) // NOLINT
     {
-        std::unique_ptr<char> name(strdup("versig_test"));
+
+        StringHolder name(strdup("versig_test"));
+        ASSERT_NE(name.get(),nullptr);
         char *argv[] = {name.get(), nullptr};
         int argc = sizeof(argv) / sizeof(char*) - 1;
         int ret = versig_main(argc, argv);
@@ -22,9 +47,22 @@ namespace
 
     TEST(versig_test, test_valid) // NOLINT
     {
-        std::vector<std::string> argv{"versig_test", "-c../tests/cert_files/rootca.crt.valid" ,"-f../tests/data_files/manifest.dat.valid"};
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.valid"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,0);
+    }
+
+    TEST(versig_test, test_data_files) // NOLINT
+    {
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid" ,
+                                      "-f" TESTS "/data_files/manifest.dat.valid",
+                                      "-d" TESTS "/data_files/data_good"};
         int ret = versig_main(argv);
         EXPECT_EQ(ret,0);
     }
 }
+
 
