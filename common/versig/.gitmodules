@@ -1,0 +1,3 @@
+[submodule "tests/googletest"]
+	path = common/versig/tests/googletest
+	url = ssh://git@stash.sophos.net:7999/linuxep/3rdparty-googletest.git

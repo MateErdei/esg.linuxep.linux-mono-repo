@@ -41,3 +41,15 @@ add_library(versig_lib
 add_executable(versig versig_main.cpp versig.h)
 
 target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
+
+add_subdirectory(tests/googletest)
+
+add_executable(versig_test
+        tests/test_versig.cpp
+        versig.h)
+target_link_libraries(versig_test PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto gtest gtest_main)
+
+target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
+target_include_directories(versig_test BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+
+add_test(versig_test versig_test)
