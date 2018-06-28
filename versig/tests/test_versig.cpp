@@ -102,6 +102,16 @@ namespace
         EXPECT_EQ(ret,4);
     }
 
+    TEST(versig_test, empty_valid_manifest) // NOLINT
+    {
+
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.empty_valid",
+                                      "-f" TESTS "/data_files/manifest.dat.empty_valid"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,0);
+    }
+
 
 }
 
