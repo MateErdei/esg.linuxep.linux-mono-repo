@@ -77,7 +77,7 @@ class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threa
         bool m_watcherRunning;
         int m_inotifyFd;
         std::map<int, IDirectoryWatcherListener*> m_listenerMap;
-        std::shared_ptr<IiNotifyWrapper> m_iNotifyWrapperPtr;
+        std::unique_ptr<IiNotifyWrapper> m_iNotifyWrapperPtr;
     };
 }
 }
