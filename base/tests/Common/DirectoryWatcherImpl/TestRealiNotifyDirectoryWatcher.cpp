@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TestHelpers/TempDir.h"
 #include "DummyDirectoryWatcherListener.h"
 
-using namespace Common::DirectoryWatcher;
+using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;
 
 class RealiNotifyDirectoryWatcherTests : public ::testing::Test

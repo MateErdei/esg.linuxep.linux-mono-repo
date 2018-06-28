@@ -13,9 +13,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/Threads/AbstractThread.h"
 #include "IDirectoryWatcher.h"
 
+using namespace Common::DirectoryWatcher;
+
 namespace Common
 {
-namespace DirectoryWatcher
+namespace DirectoryWatcherImpl
 {
     class IiNotifyWrapper
     {
@@ -60,7 +62,7 @@ namespace DirectoryWatcher
         ssize_t read(int fd, void *buf, size_t nbytes) override;
     };
 
-    class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threads::AbstractThread
+class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threads::AbstractThread
     {
     public:
         explicit DirectoryWatcher(std::unique_ptr<IiNotifyWrapper> iNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>(new iNotifyWrapper()));

@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-namespace DirectoryWatcher
+namespace DirectoryWatcherImpl
 {
     int iNotifyWrapper::init()
     {

@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace ::testing;
 
-class MockiNotifyWrapper : public Common::DirectoryWatcher::IiNotifyWrapper
+class MockiNotifyWrapper : public Common::DirectoryWatcherImpl::IiNotifyWrapper
 {
 public:
     MOCK_METHOD0(init, int(void));

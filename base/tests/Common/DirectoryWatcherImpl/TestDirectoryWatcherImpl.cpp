@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockiNotifyWrapper.h"
 #include "DummyDirectoryWatcherListener.h"
 
-using namespace Common::DirectoryWatcher;
+using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;
 
 struct MockInotifyEvent {
