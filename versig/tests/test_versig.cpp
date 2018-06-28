@@ -81,6 +81,17 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret,4);
     }
+
+    TEST(versig_test, bad_data_file) // NOLINT
+    {
+
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid" ,
+                                      "-f" TESTS "/data_files/manifest.dat.valid",
+                                      "-d" TESTS "/data_files/data_bad"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,5);
+    }
 }
 
 
