@@ -63,6 +63,15 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret,0);
     }
+
+    TEST(versig_test, bad_file_signature) // NOLINT
+    {
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.badsig"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,6);
+    }
 }
 
 
