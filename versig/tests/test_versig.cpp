@@ -72,6 +72,15 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret,6);
     }
+
+    TEST(versig_test, bad_certificate_in_manifest) // NOLINT
+    {
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.badcert1"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,4);
+    }
 }
 
 
