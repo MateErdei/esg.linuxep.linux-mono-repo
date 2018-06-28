@@ -7,6 +7,7 @@
 #ifndef VERSIG_VERSIG_H
 #define VERSIG_VERSIG_H
 
+int versig_main(const std::vector<std::string>& argv);
 
 int versig_main(
     int argc,		//[i] Count of arguments
