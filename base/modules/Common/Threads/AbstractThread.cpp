@@ -60,10 +60,5 @@ namespace Common
             std::unique_lock<std::mutex> templock(m_threadStarted);
             m_ensureThreadStarted.notify_all();
         }
-
-        void AbstractThread::join()
-        {
-            m_thread.join();
-        }
     }
 }
