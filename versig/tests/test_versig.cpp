@@ -112,7 +112,14 @@ namespace
         EXPECT_EQ(ret,0);
     }
 
+    TEST(versig_test, spaces_in_filename) // NOLINT
+    {
 
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid" ,
+                                      "-f" TESTS "/data_files/manifest.dat.spaces",
+                                      "-d" TESTS "/data_files/data_spaces"};
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,0);
+    }
 }
-
-
