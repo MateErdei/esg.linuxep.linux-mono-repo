@@ -1,7 +1,7 @@
 pipeline {
     agent none
     environment {
-            LD_LIBRARY_PATH = '$LD_LIBRARY_PATH:/redist/binaries/linux10/input/SUL/lib64:/redist/binaries/linux10/input/boost/lib64'
+            LD_LIBRARY_PATH='/redist/binaries/linux10/input/openssl/lib64:/redist/binaries/linux10/input/SUL/lib64:/redist/binaries/linux10/input/boost/lib64:/usr/local/lib64:$LD_LIBRARY_PATH'
      }
     stages {
         stage('Builds') {
@@ -14,7 +14,7 @@ pipeline {
                         }
                     }
                     steps {
-                        withEnv(['PATH+CMAKE=/redist/binaries/everest/cmake/bin']){
+                        withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
@@ -39,7 +39,7 @@ pipeline {
                         }
                     }
                     steps {
-                        withEnv(['PATH+CMAKE=/redist/binaries/everest/cmake/bin']){
+                        withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
@@ -64,7 +64,7 @@ pipeline {
                         }
                     }
                     steps {
-                        withEnv(['PATH+CMAKE=/redist/binaries/everest/cmake/bin']){
+                        withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
