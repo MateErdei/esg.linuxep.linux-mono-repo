@@ -112,7 +112,7 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
     EXPECT_THROW(fakeClient.requestReply(requestData), Common::ZeroMQWrapperImpl::ZeroMQWrapperException);
 }
 
-TEST_F(ReactorImplTest, DISABLED_TestFakeServerSignalHandlerCommandsRespondCorrectly)
+TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 {
     std::string socketAddress = "ipc:///tmp/TestFakeServerSignalHandlerCommandsRespondCorrectly";
     socketAddress += getpid(); // ensure the path does not conflict with the same test running in another process.
