@@ -18,13 +18,13 @@ pipeline {
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60 || echo ""'
-                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
-                            sh 'sed -i "s_/tests/_/Ubuntu/_g" build/CTestResults.xml'
+                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
                         }
                     }
                     post {
                         always {
+                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                            sh 'sed -i "s_/tests/_/Ubuntu/_g" build/CTestResults.xml'
                             xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
                         }
                     }
@@ -41,13 +41,14 @@ pipeline {
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60 || echo ""'
-                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
-                            sh 'sed -i "s_/tests/_/CentOS/_g" build/CTestResults.xml'
+                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
+
                         }
                     }
                     post {
                         always {
+                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                            sh 'sed -i "s_/tests/_/CentOS/_g" build/CTestResults.xml'
                             xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
                         }
                     }
@@ -64,13 +65,14 @@ pipeline {
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
-                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60 || echo ""'
-                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
-                            sh 'sed -i "s_/tests/_/RHEL/_g" build/CTestResults.xml'
+                            sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
+
                         }
                     }
                     post {
                         always {
+                            sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                            sh 'sed -i "s_/tests/_/RHEL/_g" build/CTestResults.xml'
                             xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
                         }
                     }
