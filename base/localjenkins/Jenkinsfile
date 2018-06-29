@@ -1,6 +1,7 @@
 pipeline {
     agent none
     environment {
+            // Set library path, as build machines need new GCC, SUL, Boost and openssl.
             LD_LIBRARY_PATH='/redist/binaries/linux10/input/openssl/lib64:/redist/binaries/linux10/input/SUL/lib64:/redist/binaries/linux10/input/boost/lib64:/usr/local/lib64:$LD_LIBRARY_PATH'
      }
     stages {
@@ -10,6 +11,7 @@ pipeline {
                     agent {
                         node {
                             label 'ubuntu1804'
+                            // Custom Workspace needed to system tests know where to look for base
                             customWorkspace "EverestBase/${BRANCH_NAME}"
                         }
                     }
@@ -18,13 +20,16 @@ pipeline {
                             checkout scm
                             sh 'rm -rf /tmp/temp*'
                             sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
+                            // Timeout applies to each individual test. Stops hanging tests from hanging the build.
                             sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
                         }
                     }
                     post {
                         always {
                             sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+                            // Change the top level "tests" directory to the OS name, so that you browse results by OS in Jenkins
                             sh 'sed -i "s_/tests/_/Ubuntu/_g" build/CTestResults.xml'
+                            // Thresholds will not pick up tests that have timed out unfortunately.
                             xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
                         }
                     }
