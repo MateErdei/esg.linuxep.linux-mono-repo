@@ -70,7 +70,7 @@ namespace
     {
         std::string path1("/tmp/");
         std::string path2("/tempfile.txt");
-        std::string expectedValue("/tmp/tempfile.txt");
+        std::string expectedValue("/tmp/failthetest.txt");
         EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
     }
 
