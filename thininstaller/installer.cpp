@@ -17,7 +17,7 @@ static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
 // TODO Add GUID for base warehouse files
-static const char * g_Guid = "<TODO>";
+static const char * g_Guid = "SSPL-RIGIDNAME";
 
 #define BIGBUF 81920
 
@@ -148,10 +148,10 @@ static void writeSignedFile(const char* cred)
 {
     std::string path="./warehouse/catalogue/signed-";
     path += cred;
-    int fd = ::open(path.c_str(),O_CREAT|O_WRONLY|O_TRUNC,0600);
+    int fd = ::open(path.c_str(), O_CREAT|O_WRONLY|O_TRUNC, 0600);
     assert (fd >= 0);
 
-    ssize_t retSize = ::write(fd,"true",4);
+    ssize_t retSize = ::write(fd, "true", 4);
     assert (retSize > 0);
 
     int ret = ::close(fd);
@@ -253,6 +253,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
 
 static int downloadInstaller(std::string location, bool https, bool updateCache)
 {
+    //Todo tidy this up to make it only https
     SU_init();
     SU_Result ret;
     SU_Handle session = SU_beginSession();
@@ -347,29 +348,29 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
 
     if (isSULError(ret))
     {
-        fprintf(stderr, "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n", location.c_str(), ret, SU_getErrorDetails(session));
+        fprintf(stderr, "\nFailed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n", location.c_str(), ret, SU_getErrorDetails(session));
         return 46;
     }
 
-    SU_PHandle product;
-    do {
+    while (true)
+    {
         if (g_DebugMode)
         {
             printf("Getting next product\n");
         }
-        product = SU_getProductRelease(session);
+        SU_PHandle product = SU_getProductRelease(session);
         if (product)
         {
             if (g_DebugMode)
             {
-                queryProductMetadata(product, "Line");
-                queryProductMetadata(product, "Major");
-                queryProductMetadata(product, "Minor");
-                queryProductMetadata(product, "Name");
-                queryProductMetadata(product, "VersionId");
-                queryProductMetadata(product, "DefaultHomeFolder");
-                queryProductMetadata(product, "Platforms");
-                queryProductMetadata(product, "ReleaseTagsTag");
+                queryProductMetadata(product,"Line");
+                queryProductMetadata(product,"Major");
+                queryProductMetadata(product,"Minor");
+                queryProductMetadata(product,"Name");
+                queryProductMetadata(product,"VersionId");
+                queryProductMetadata(product,"DefaultHomeFolder");
+                queryProductMetadata(product,"Platforms");
+                queryProductMetadata(product,"ReleaseTagsTag");
                 printf("\n");
             }
             if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
@@ -382,13 +383,57 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
                 RETURN_IF_ERROR("SU_removeProduct", ret);
             }
         }
+        else
+        {
+            if (g_DebugMode)
+            {
+                printf("Out of products\n");
+            }
+            break;
+        }
     }
-    while(product);
 
-    if (g_DebugMode)
-    {
-        printf("Out of products\n");
-    }
+// todo, either fix this and use it or just delete it and use the while true above.
+//    SU_PHandle product;
+//    do {
+//        if (g_DebugMode)
+//        {
+//            printf("Getting next product\n");
+//        }
+//        product = SU_getProductRelease(session);
+//        if (product)
+//        {
+//            if (g_DebugMode)
+//            {
+//                queryProductMetadata(product, "Line");
+//                queryProductMetadata(product, "Major");
+//                queryProductMetadata(product, "Minor");
+//                queryProductMetadata(product, "Name");
+//                queryProductMetadata(product, "VersionId");
+//                queryProductMetadata(product, "DefaultHomeFolder");
+//                queryProductMetadata(product, "Platforms");
+//                queryProductMetadata(product, "ReleaseTagsTag");
+//                printf("\n");
+//            }
+//            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
+//            {
+//                g_Product = product;
+//            }
+//            else
+//            {
+//                ret = SU_removeProduct(product);
+//                RETURN_IF_ERROR("SU_removeProduct", ret);
+//            }
+//        }
+//    }
+//    while(product);
+//
+//    if (g_DebugMode)
+//    {
+//        printf("Out of products\n");
+//    }
+
+
 
     if (!g_Product)
     {
@@ -442,13 +487,8 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
         }
     }
 
-    // Go direct, preferring https
-    ret = downloadInstaller(sophosLocation, true, false);
-    if (ret == 0)
-    {
-        return ret;
-    }
-    return downloadInstaller(sophosLocation, false, false);
+    // Go direct, always https
+    return downloadInstaller(sophosLocation, true, false);
 }
 
 int main(int argc, char ** argv)
