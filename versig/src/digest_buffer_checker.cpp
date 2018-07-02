@@ -9,7 +9,7 @@
 #include "crypto_utils.h"
 #include "verify_exceptions.h"
 #include <sstream>
-#include <assert.h>
+#include <cassert>
 
 namespace VerificationTool {
 

@@ -9,8 +9,8 @@
 #include "verify_exceptions.h"
 
 #include <sstream>
-#include <assert.h>
-#include <time.h>
+#include <cassert>
+#include <ctime>
 
 #include <fstream>
 #include <stdexcept>
