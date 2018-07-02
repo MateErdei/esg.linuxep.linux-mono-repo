@@ -52,16 +52,16 @@ create_symlinks()
 handle_installer_errorcodes()
 {
     errcode=$1
-    if [ $errcode -eq 44 ]
+    if [ ${errcode} -eq 44 ]
     then
         echo "Cannot connect to Sophos Central." >&2
-        cleanup_and_exit $EXITCODE_NO_CENTRAL
-    elif [ $errcode -eq 0 ]
+        cleanup_and_exit ${EXITCODE_NO_CENTRAL}
+    elif [ ${errcode} -eq 0 ]
     then
         echo "Finished downloading base installer."
     else
         echo "Failed to download the base installer! (Error code = $errcode)" >&2
-        cleanup_and_exit $EXITCODE_DOWNLOAD_FAILED
+        cleanup_and_exit ${EXITCODE_DOWNLOAD_FAILED}
     fi
 }
 
@@ -71,8 +71,8 @@ check_free_storage()
     local space=$2
 
     local install_path=${INSTALL_LOCATION%/*}
-    local free=$(df -kP $install_path | sed -e "1d" | awk '{print $4}')
-    local mountpoint=$(df -kP $install_path | sed -e "1d" | awk '{print $6}')
+    local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
+    local mountpoint=$(df -kP ${install_path} | sed -e "1d" | awk '{print $6}')
 
     local free_mb
     free_mb=$(( free / 1024 ))
@@ -87,8 +87,8 @@ check_free_storage()
 
 check_total_mem()
 {
-    local neededMem = $1
-    local totalMem = $(grep MemTotal /proc/meminfo | awk '{print $2}')
+    local neededMem=$1
+    local totalMem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
     if [ $totalMem -gt $neededMem ]
     then
@@ -289,7 +289,7 @@ mkdir warehouse/catalogue
 # Check machine architecture (only support 64 bit)
 MACHINE_TYPE=`uname -m`
 if [ $MACHINE_TYPE = "x86_64" ]; then
-    BIN="installer/bin64"
+    BIN="installer/bin"
 else
     echo "This product can only be installed on a 64bit system."
     cleanup_and_exit $EXITCODE_NOT_64_BIT
