@@ -7,6 +7,8 @@
 
 #include <include/gtest/gtest.h>
 
+#include "SophosCppStandard.h"
+
 extern int versig_main(const std::vector<std::string>& argv);
 
 extern int versig_main(
@@ -43,8 +45,8 @@ namespace
     {
 
         StringHolder name(strdup("versig_test"));
-        ASSERT_NE(name.get(),nullptr);
-        char *argv[] = {name.get(), nullptr};
+        ASSERT_NE(name.get(),NULLPTR);
+        char *argv[] = {name.get(), NULLPTR};
         int argc = sizeof(argv) / sizeof(char*) - 1;
         int ret = versig_main(argc, argv);
         EXPECT_EQ(ret,2);

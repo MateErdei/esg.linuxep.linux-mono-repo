@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(versig)
 
+if (NOT DEFINED CMAKE_CXX_STANDARD)
 set(CMAKE_CXX_STANDARD 11)
+endif (NOT DEFINED CMAKE_CXX_STANDARD)
 
 include_directories(.)
 
@@ -51,6 +53,6 @@ add_executable(versig_test
 target_link_libraries(versig_test PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto gtest gtest_main)
 
 target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
-target_include_directories(versig_test BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_include_directories(versig_test BEFORE PUBLIC "${gtest_SOURCE_DIR}" src)
 
 add_test(versig_test versig_test)
