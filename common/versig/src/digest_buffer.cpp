@@ -7,9 +7,11 @@
 #include "digest_buffer.h"
 #include "iostr_utils.h"
 #include "verify_exceptions.h"
-namespace VerificationTool {
 
-using namespace std;
+namespace VerificationTool
+{
+
+    using namespace std;
 
 // signed text file format / grammar
 //
@@ -52,52 +54,57 @@ using namespace std;
 //
 
 
-istream& operator>>(istream &in, digest_file_buffer &v) {
-	string body;
-	string signature;
-	string certificate;
+    istream &operator>>(istream &in, digest_file_buffer &v)
+    {
+        string body;
+        string signature;
+        string certificate;
 
-	in >> noskipws;
+        in >> noskipws;
 
-	// look for the signature header
-	in >> get_upto(body, "\n-----BEGIN SIGNATURE-----\n")
-	   >> match_base64(signature)
-	   >> expect("-----END SIGNATURE-----\n");
+        // look for the signature header
+        in >> get_upto(body, "\n-----BEGIN SIGNATURE-----\n")
+           >> match_base64(signature)
+           >> expect("-----END SIGNATURE-----\n");
 
-	if (0==signature.length())
-	{
-		// No signature
-		throw verify_exceptions::ve_missingsig();
-	}
+        if (0 == signature.length())
+        {
+            // No signature
+            throw verify_exceptions::ve_missingsig();
+        }
 
-	// directly after the signature we expect one or more certificates
-	string cert_header = "-----BEGIN CERTIFICATE-----\n";
-	string cert_footer = "-----END CERTIFICATE-----\n";
+        // directly after the signature we expect one or more certificates
+        string cert_header = "-----BEGIN CERTIFICATE-----\n";
+        string cert_footer = "-----END CERTIFICATE-----\n";
 
-	in >> expect(cert_header) >> match_base64(certificate) >> expect(cert_footer);
+        in >> expect(cert_header) >> match_base64(certificate) >> expect(cert_footer);
 
-	if (0==certificate.length())
-	{
-		// No signing certificate
-		throw verify_exceptions::ve_badcert();
-	}
+        if (0 == certificate.length())
+        {
+            // No signing certificate
+            throw verify_exceptions::ve_badcert();
+        }
 
-	list<string> cert_chain;
-	while (in.peek() == '-') {
-		string cert;
-		in >> expect(cert_header) >> match_base64(cert) >> expect(cert_footer);
-		cert_chain.push_front(cert_header + cert + cert_footer);
-	}
-	in >> expect_eof;
+        list<string> cert_chain;
+        while (in.peek() == '-')
+        {
+            string cert;
+            in >> expect(cert_header) >> match_base64(cert) >> expect(cert_footer);
+            std::ostringstream ost;
+            ost << cert_header << cert << cert_footer;
+            cert_chain.push_front(ost.str());
+        }
+        in >> expect_eof;
 
-	if (in) {
-		v._file_buf    = body + '\n';
-		v._signature   = signature;
-		v._certificate = cert_header + certificate + cert_footer;
-		v._cert_chain  = cert_chain;
-	}
+        if (in)
+        {
+            v._file_buf = body + "\n";
+            v._signature = signature;
+            v._certificate = cert_header + certificate + cert_footer;
+            v._cert_chain = cert_chain;
+        }
 
-	return in;
-}
+        return in;
+    }
 
 } // namespace VerificationTool

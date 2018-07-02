@@ -13,14 +13,6 @@
 
 #include "SophosCppStandard.h"
 
-#if 03 == CPPSTD
-#define STDMOVE(x) (x)
-#define NOEXCEPT throw()
-#else
-#define STDMOVE(x) std::move(x)
-#define NOEXCEPT noexcept
-#endif
-
 
 namespace VerificationTool
 {
