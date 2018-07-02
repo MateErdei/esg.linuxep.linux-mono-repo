@@ -21,6 +21,11 @@ void Common::ZeroMQWrapperImpl::SocketImpl::setTimeout(int timeoutMs)
     SocketUtil::setTimeout(m_socket,timeoutMs);
 }
 
+void Common::ZeroMQWrapperImpl::SocketImpl::setConnectionTimeout(int timeoutMs)
+{
+    SocketUtil::setConnectionTimeout(m_socket,timeoutMs);
+}
+
 void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string &address)
 {
     int rc = zmq_connect(m_socket.skt(), address.c_str());

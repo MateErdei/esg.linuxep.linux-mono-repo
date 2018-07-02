@@ -27,6 +27,8 @@ namespace Common
 
             void setTimeout(int timeoutMs) override;
 
+            void setConnectionTimeout(int timeoutMs) override;
+
             void connect(const std::string &address) override;
 
             void listen(const std::string &address) override;

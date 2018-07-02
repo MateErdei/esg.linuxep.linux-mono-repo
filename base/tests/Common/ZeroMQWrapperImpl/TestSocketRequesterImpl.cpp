@@ -8,6 +8,7 @@
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 
 #include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 
 using Common::ZeroMQWrapper::ISocketRequesterPtr;
 
@@ -29,4 +30,16 @@ namespace
         EXPECT_NE(socket.get(),nullptr);
         socket->listen("inproc://ListenTest");
     }
+
+    TEST(TestSocketRequesterImpl, connectionTimeout) // NOLINT
+    {
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        ASSERT_NE(context.get(),nullptr);
+        ISocketRequesterPtr socket = context->getRequester();
+        socket->setConnectionTimeout(200);
+        socket->connect( "ipc:///tmp/no_one_listening.ipc");
+        socket->write({"cmd", "arg"});
+        EXPECT_THROW(socket->read(), Common::ZeroMQWrapperImpl::ZeroMQWrapperException);
+    }
+
 }

@@ -111,3 +111,23 @@ void Common::ZeroMQWrapperImpl::SocketUtil::setTimeout(Common::ZeroMQWrapperImpl
         throw ZeroMQWrapperException("Failed to set timeout for sending");
     }
 }
+
+void Common::ZeroMQWrapperImpl::SocketUtil::setConnectionTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs)
+{
+    int rc = zmq_setsockopt(socket.skt(),ZMQ_LINGER,&timeoutMs, sizeof(timeoutMs));
+    if (rc != 0)
+    {
+        throw ZeroMQWrapperException("Failed to set connection timeout");
+    }
+    int currTimeout;
+    size_t timeoutExpectedSize = sizeof( currTimeout);
+    if(zmq_getsockopt(socket.skt(), ZMQ_RCVTIMEO, &currTimeout, &timeoutExpectedSize ) != 0 )
+    {
+        throw ZeroMQWrapperException("Failed to retrieve current timeout");
+    };
+    if( currTimeout == -1 )
+    {
+        setTimeout(socket, timeoutMs);
+    }
+
+}

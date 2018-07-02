@@ -74,6 +74,14 @@ namespace
         EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
     }
 
+    TEST_F(FileSystemImplTest, joinWithDotSlashReturnsExpectedPath)
+    {
+        std::string path1("/tmp/");
+        std::string path2("./tempfile.txt");
+        std::string expectedValue("/tmp/tempfile.txt");
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }    
+
     TEST_F(FileSystemImplTest, existReturnsTrueWhenFileExists)
     {
       EXPECT_TRUE(m_fileSystem->exists("/etc/passwd"));

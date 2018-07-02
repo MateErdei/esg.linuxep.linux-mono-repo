@@ -8,11 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <Common/ReactorImpl/ReadableFd.h>
 #include <future>
+#include "TempDir.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
 #include "MockCallBackListener.h"
-#include "MockShutdownListener.h"
 #include "PipeForTests.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "FakeClient.h"
 #include "Common/Process/IProcess.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "TempDir.h"
+#include "ReactorImplTestsPath.h"
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
@@ -72,7 +72,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 
     ExecutionBarrier executionBarrier;
 
-    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
+    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
             Invoke([&executionBarrier](data_t){executionBarrier.notify(); })
     );
 
@@ -116,12 +116,13 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 
 TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 {
-    std::string socketAddress = "ipc:///tmp/TestFakeServerSignalHandlerCommandsRespondCorrectly";
-    socketAddress += getpid(); // ensure the path does not conflict with the same test running in another process.
+    Tests::TempDir tempDir;
+
+    std::string socketAddress = std::string("ipc://") + tempDir.dirPath() + "/test.ipc";
 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::createFileSystem();
-    std::string fakeServerPath = fileSystem->join(fileSystem->currentWorkingDirectory(), "FakeServerRunner");
+    std::string fakeServerPath = fileSystem->join(ReactorImplTestsPath(), "FakeServerRunner");
     data_t args{socketAddress};
     process->exec(fakeServerPath, args);
 
@@ -138,6 +139,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 
     EXPECT_EQ(0, process->exitCode());
 }
+
 
 TEST_F( ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow)
 {
@@ -191,7 +193,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     ExecutionBarrier sync;
 
 
-    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
+    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
             Invoke([&sync](data_t){sync.notify();})
     );
 

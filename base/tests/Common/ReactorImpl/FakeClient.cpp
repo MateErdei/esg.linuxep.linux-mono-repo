@@ -12,7 +12,7 @@ FakeClient::FakeClient(Common::ZeroMQWrapper::IContext &iContext, const std::str
     m_socketRequester = iContext.getRequester();
     if ( timeout != -1)
     {
-        m_socketRequester->setTimeout(timeout);
+        m_socketRequester->setConnectionTimeout(timeout);
     }
 
     m_socketRequester->connect(address);

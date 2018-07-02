@@ -49,6 +49,13 @@ namespace Common
              * @param timeoutMs
              */
             static void setTimeout(SocketHolder& socket, int timeoutMs);
+
+            /**
+             * Set the timeout for 0MQ connections
+             * @param socket
+             * @param timeoutMs
+             */
+            static void setConnectionTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs);
         };
     }
 }

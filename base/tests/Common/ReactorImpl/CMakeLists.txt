@@ -6,10 +6,19 @@ add_executable(ReactorImplTests
                 PipeForTests.cpp
                 PipeForTests.h
                 FakeServer.cpp
-                FakeServer.h TestListener.cpp TestListener.h FakeClient.cpp FakeClient.h TestGenericShutdownListener.cpp TestGenericCallbackListener.cpp)
+                FakeServer.h
+                TestListener.cpp
+                TestListener.h
+                FakeClient.h
+                FakeClient.cpp
+                TestGenericShutdownListener.cpp
+                TestGenericCallbackListener.cpp
+                ReactorImplTestsPath.h
+                ReactorImplTestsPath.cpp
+                testrunner_main.cpp)
 target_include_directories(ReactorImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(ReactorImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ../TestHelpers)
-target_link_libraries(ReactorImplTests gtest gtest_main gmock)
+target_link_libraries(ReactorImplTests gtest gmock)
 target_link_libraries(ReactorImplTests reactorimpl threads testhelpers processimpl)
 gtest_discover_tests(ReactorImplTests)
 

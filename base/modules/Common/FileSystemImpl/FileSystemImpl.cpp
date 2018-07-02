@@ -29,19 +29,30 @@ namespace Common
 
         Path FileSystemImpl::join(const Path& path1, const Path & path2) const
         {
-            if(path1.back() != '/' && path2.front() != '/' )
+            std::string subPath2;
+
+            if(path2.find("./") == 0 )
             {
-                return path1 + '/' + path2;
+                subPath2 = path2.substr(2);
+            }
+            else
+            {
+                subPath2 = path2;
             }
 
-            if( (path1.back() != '/' && path2.front() == '/' ) || (path1.back() == '/' && path2.front() != '/')  )
+            if(path1.back() != '/' && subPath2.front() != '/' )
             {
-                return path1 + path2;
+                return path1 + '/' + subPath2;
             }
 
-            if(path1.back() == '/' && path2.front() == '/' )
+            if( (path1.back() != '/' && subPath2.front() == '/' ) || (path1.back() == '/' && subPath2.front() != '/')  )
             {
-                return path1 + path2.substr(1);
+                return path1 + subPath2;
+            }
+
+            if(path1.back() == '/' && subPath2.front() == '/' )
+            {
+                return path1 + subPath2.substr(1);
             }
 
             return "";
