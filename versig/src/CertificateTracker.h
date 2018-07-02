@@ -42,7 +42,7 @@ namespace verify_exceptions {
       vector<string>::const_iterator GetProblems(); 
       vector<string>::const_iterator GetEnd(); 
       string GetNames() { return m_CertNames; }
-      void Clear(void);
+      void Clear();
    };
 } //namespace
 #endif

@@ -41,6 +41,7 @@
 #include <vector>
 #include "signed_file.h"
 #include "CertificateTracker.h"
+#include "SophosCppStandard.h"
 
 //This next define is needed as a macro since it gets used to
 //size arrays. I'd prefer to have it as a static const, but
@@ -59,15 +60,21 @@ namespace verify_exceptions {
    // SignedFile::status_enum codes and these should be used to
    // produce a suitable, translated message to the end user.
    //
-   class ve_base {
+   class ve_base : public std::exception
+   {
    protected:
       SignedFile::status_enum m_Error;
    public:
       //Constructor from an erorr code
-      explicit ve_base(
+   explicit ve_base
+       (
          const SignedFile::status_enum ErrorCode
       ) : m_Error(ErrorCode) {}
+#if CPPSTD == 11
+      ~ve_base() override = default;
+#else
       virtual ~ve_base() {}
+#endif
 
       //Copy constructor (defined for the use of derived classes)
 //      ve_base( const ve_base& rhs ){ m_Error = rhs.m_Error; }
@@ -103,8 +110,14 @@ namespace verify_exceptions {
       // Constructor from an error code and filename
       explicit ve_file(
          const SignedFile::status_enum ErrorCode,
-         const string& Filename
-      ) : ve_base(ErrorCode), m_Filename(Filename) {}
+#if CPPSTD == 11
+                string Filename
+#else
+                const string& Filename
+#endif
+      ) : ve_base(ErrorCode),
+          m_Filename(STDMOVE(Filename))
+      {}
 
       // Copy constructor
 //      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename)
@@ -128,7 +141,6 @@ namespace verify_exceptions {
       // to be used to call the operator.
       friend ostream& operator<<(ostream &s, ve_file &vf);
 
-      virtual ~ve_file() {}
    };
 
    // This class derives from ve_base. It represents any exception
@@ -148,7 +160,7 @@ namespace verify_exceptions {
    class ve_crypt : public ve_base {
       string m_Message;
    public:
-      ve_crypt( const string& Msg ) : ve_base( SignedFile::openssl_error ), m_Message(Msg) {}
+      explicit ve_crypt( STRARG Msg ) : ve_base( SignedFile::openssl_error ), m_Message(STDMOVE(Msg)) {}
 //      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
       //ve_crypt& operator=(const ve_crypt& rhs) {
       //   ve_base::operator=(rhs);
@@ -173,7 +185,6 @@ namespace verify_exceptions {
 
       friend ostream& operator<<(ostream &s, ve_crypt &vc);
 
-      virtual ~ve_crypt() {}
    };
 
    // This exception class is thrown when a signature fails to
@@ -228,7 +239,6 @@ namespace verify_exceptions {
 
       friend ostream& operator<<(ostream &s, ve_badcert &vc);
 
-      virtual ~ve_badcert() {}
    };
 
    // This exception class is thrown when a logic error occurs.

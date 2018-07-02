@@ -21,7 +21,7 @@ using namespace verify_exceptions;
 class CertFreer {
    X509* m_Cert;
 public:
-   CertFreer( X509 *cert ) : m_Cert(cert) {}
+   explicit CertFreer( X509 *cert ) : m_Cert(cert) {}
    ~CertFreer() {
       if (m_Cert) {
           X509_free(m_Cert);
@@ -32,7 +32,7 @@ public:
 class CertListFreer {
    list<X509*>& m_List;
 public:
-   CertListFreer( list<X509*>& list ) : m_List(list) {}
+   explicit CertListFreer( list<X509*>& list ) : m_List(list) {}
    ~CertListFreer() {
       for ( list<X509*>::iterator i = m_List.begin(); i != m_List.end(); ++i ){
           X509_free(*i);
@@ -43,7 +43,7 @@ public:
 class KeyFreer {
    EVP_PKEY* m_Key;
 public:
-   KeyFreer( EVP_PKEY* key ) : m_Key(key) {}
+   explicit KeyFreer( EVP_PKEY* key ) : m_Key(key) {}
    ~KeyFreer() {
       if ( m_Key ){
           EVP_PKEY_free( m_Key );

@@ -7,6 +7,7 @@
 
 #include "crypto_utils.h"
 #include "verify_exceptions.h"
+#include "SophosCppStandard.h"
 
 #include <sstream>
 #include <cassert>
@@ -22,7 +23,7 @@ namespace VerificationToolCrypto {
 using namespace std;
 using namespace verify_exceptions;
 
-X509* X509_decode(const string &);
+//X509* X509_decode(const string &);
 string BIO_read_all(BIO *bio);
 
 // This function verifies a signature.
@@ -80,7 +81,7 @@ static string MakeErrString(X509_STORE_CTX* stor, string& CertName ){
       CertName = stor->current_cert->name;
       string::size_type start = CertName.find("CN=");
       start += 3;
-      string::size_type end = CertName.substr(start).find("/");
+      string::size_type end = CertName.substr(start).find('/');
       Error.append("; ");
       CertName = CertName.substr(start, end);
       Error.append(CertName);
@@ -102,7 +103,7 @@ static int verify_callback(int ok, X509_STORE_CTX *stor) {
    string Error;
    if (!ok){
       string CertName;
-      if ( stor != NULL ){
+      if ( stor != NULLPTR ){
          Error = MakeErrString(stor, CertName);
       } else {
          Error.append("OpenSSL store not available.");
@@ -265,7 +266,7 @@ bool verify_certificate_path(
     int result = 0; // Must be at least one root certificate
     for (;;)
     {
-        X509 *this_cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
+        X509 *this_cert = PEM_read_bio_X509(in,NULLPTR,NULLPTR,NULLPTR);
         if (!this_cert)
         {
             break;
@@ -331,7 +332,7 @@ string base64_decode(const string &data) {
 X509* X509_decode(const string &data) {
 	BIO *memfile;
 	memfile = BIO_new_mem_buf(const_cast<char *>(data.c_str()), data.length());
-	X509 *result = PEM_read_bio_X509(memfile, NULL, NULL, NULL);
+	X509 *result = PEM_read_bio_X509(memfile, NULLPTR, NULLPTR, NULLPTR);
 	//allocates an X509 or returns NULL
 	BIO_free(memfile);
 	return result;

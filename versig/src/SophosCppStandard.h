@@ -15,4 +15,16 @@
 # endif /* __cplusplus */
 #endif /* CPPSTD */
 
+#if 03 == CPPSTD
+#define STDMOVE(x) (x)
+#define NOEXCEPT throw()
+#define STRARG const std::string&
+#define NULLPTR 0
+#else
+#define STDMOVE(x) std::move(x)
+#define NOEXCEPT noexcept
+#define STRARG std::string
+#define NULLPTR nullptr
+#endif
+
 #endif //VERSIG_SOPHOSCPPSTANDARD_H

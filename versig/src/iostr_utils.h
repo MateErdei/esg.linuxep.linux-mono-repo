@@ -185,7 +185,7 @@ operator>>(istream& is, _Match_base64 f)
         if (is.peek() == '=') {
             string padding;
             is >> match(char_literal_eq, padding, 1, 2) >> expect('\n');
-            f.s += padding + '\n';
+            f.s += padding + "\n";
             break;
         };
     }
@@ -224,7 +224,7 @@ inline istream& operator>>(istream& is, _Get_upto f)
     // ie we're using lookbehind rather than lookahead.
 
     stringstream tmpbuf;
-    int f_delim_len = f.delim.length();
+    size_t f_delim_len = f.delim.length();
     char f_delim_end = f.delim[f_delim_len - 1];
     int tmpstr_len, terminator;
 
