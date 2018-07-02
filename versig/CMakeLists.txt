@@ -17,28 +17,29 @@ set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${OPENSSL_LIBRARY_DIR} )
 include_directories(BEFORE ${OPENSSL_DIR}/include64)
 
 add_library(versig_lib
-        CertificateTracker.cpp
-        CertificateTracker.h
-        crypto_utils.cpp
-        crypto_utils.h
-        digest_body.cpp
-        digest_body.h
-        digest_body_checker.cpp
-        digest_buffer.cpp
-        digest_buffer.h
-        digest_buffer_checker.cpp
-        digest_buffer_checker.h
-        iostr_utils.h
-        manifest_file.cpp
-        manifest_file.h
-        signed_file.cpp
-        signed_file.h
-        verify_exceptions.cpp
-        verify_exceptions.h
-        versig.cpp
-        versig.h SophosCppStandard.h)
+        src/CertificateTracker.cpp
+        src/CertificateTracker.h
+        src/crypto_utils.cpp
+        src/crypto_utils.h
+        src/digest_body.cpp
+        src/digest_body.h
+        src/digest_body_checker.cpp
+        src/digest_buffer.cpp
+        src/digest_buffer.h
+        src/digest_buffer_checker.cpp
+        src/digest_buffer_checker.h
+        src/iostr_utils.h
+        src/manifest_file.cpp
+        src/manifest_file.h
+        src/signed_file.cpp
+        src/signed_file.h
+        src/verify_exceptions.cpp
+        src/verify_exceptions.h
+        src/versig.cpp
+        src/versig.h
+        src/SophosCppStandard.h)
 
-add_executable(versig versig_main.cpp versig.h)
+add_executable(versig src/versig_main.cpp src/versig.h)
 
 target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
 
@@ -46,7 +47,7 @@ add_subdirectory(tests/googletest)
 
 add_executable(versig_test
         tests/test_versig.cpp
-        versig.h)
+        src/versig.h)
 target_link_libraries(versig_test PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto gtest gtest_main)
 
 target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
