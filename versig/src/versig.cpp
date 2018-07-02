@@ -35,6 +35,9 @@
 
 #include "manifest_file.h"
 #include "verify_exceptions.h"
+
+#include "SophosCppStandard.h"
+
 #include <sstream>
 #include <cassert>
 
@@ -99,8 +102,9 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 
     //Initialise
     //Assign argument values
-    for(auto& arg : argv)
+    for (std::vector<std::string>::const_iterator it=argv.begin(); it != argv.end(); ++it)
     {
+        std::string arg = *it;
         if( (arg.compare(0,2,"-c") == 0) && args.CertsFilepath.empty() )
         {
             args.CertsFilepath = arg.substr(2);
@@ -310,7 +314,11 @@ int versig_main
     assert(argc>=1);
     for(int i=0; i<argc; i++)
     {
+#if 03 == CPPSTD
+        argvv.push_back(std::string(argv[i]));
+#else
         argvv.emplace_back(argv[i]);
+#endif
     }
 
     assert(!argvv.empty());

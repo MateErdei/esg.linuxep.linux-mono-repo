@@ -73,7 +73,7 @@ namespace verify_exceptions {
 #if CPPSTD == 11
       ~ve_base() override = default;
 #else
-      virtual ~ve_base() {}
+      virtual ~ve_base() NOEXCEPT {}
 #endif
 
       //Copy constructor (defined for the use of derived classes)
@@ -96,7 +96,7 @@ namespace verify_exceptions {
       //virtual ostream& output(ostream &s) = 0;
 
       //Output the class to a stream.
-      friend ostream& operator<<(ostream &s, ve_base &vb);
+//      friend ostream& operator<<(ostream &s, ve_base &vb);
    };
 
    // This class derives from ve_base. It represents any error
@@ -118,6 +118,10 @@ namespace verify_exceptions {
       ) : ve_base(ErrorCode),
           m_Filename(STDMOVE(Filename))
       {}
+
+#if CPPSTD != 11
+       virtual ~ve_file() NOEXCEPT {}
+#endif
 
       // Copy constructor
 //      ve_file( const ve_file& rhs ) : ve_base(rhs.m_Error), m_Filename(rhs.m_Filename)
@@ -168,6 +172,10 @@ namespace verify_exceptions {
       //   return *this;
       //}
 
+#if CPPSTD != 11
+       virtual ~ve_crypt() NOEXCEPT {}
+#endif
+
       //OpenSSL errors are in an error queue from which
       //we need to pop them. Call this function until it
       //returns false. Each true return will append the
@@ -204,6 +212,10 @@ namespace verify_exceptions {
       //through a base class reference.
       //virtual ostream& output(ostream &s) { s << *this; return s; }
 
+#if CPPSTD != 11
+       virtual ~ve_badsig() NOEXCEPT {}
+#endif
+
       friend ostream& operator<<(ostream &s, ve_badsig &vc);
    };
 
@@ -229,6 +241,10 @@ namespace verify_exceptions {
          ve_base( SignedFile::bad_certificate ),
          m_BadCertNames( CertificateTracker::GetInstance().GetNames() )
       {}
+
+#if CPPSTD != 11
+       virtual ~ve_badcert() NOEXCEPT {}
+#endif
 
 //      string GetBadCertNames() { return m_BadCertNames; }
 
