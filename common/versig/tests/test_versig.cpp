@@ -7,7 +7,12 @@
 
 #include <include/gtest/gtest.h>
 
-#include "versig.h"
+extern int versig_main(const std::vector<std::string>& argv);
+
+extern int versig_main(
+        int argc,		//[i] Count of arguments
+        char* argv[]	//[i] Array of argument values
+);
 
 #define TESTS "../tests"
 
@@ -121,5 +126,17 @@ namespace
                                       "-d" TESTS "/data_files/data_spaces"};
         int ret = versig_main(argv);
         EXPECT_EQ(ret,0);
+    }
+
+    TEST(versig_test, no_sha256) // NOLINT
+    {
+
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.nosha256",
+                                      "-d" TESTS "/data_files/data_good"
+                                     };
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,0); // If we block lack of SHA256 this changes
     }
 }

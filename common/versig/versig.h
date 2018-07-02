@@ -7,6 +7,9 @@
 #ifndef VERSIG_VERSIG_H
 #define VERSIG_VERSIG_H
 
+#include <vector>
+#include <string>
+
 int versig_main(const std::vector<std::string>& argv);
 
 int versig_main(
