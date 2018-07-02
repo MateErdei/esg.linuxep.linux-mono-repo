@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <assert.h>
+#include <cassert>
 #include "verify_exceptions.h"
 
 using namespace verify_exceptions;
