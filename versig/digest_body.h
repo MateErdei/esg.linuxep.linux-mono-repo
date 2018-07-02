@@ -11,43 +11,77 @@
 #include <string>
 #include <list>
 
-namespace VerificationTool {
+#include "SophosCppStandard.h"
 
-using namespace std;
+#if 03 == CPPSTD
+#define STDMOVE(x) (x)
+#define NOEXCEPT throw()
+#else
+#define STDMOVE(x) std::move(x)
+#define NOEXCEPT noexcept
+#endif
+
+
+namespace VerificationTool
+{
+
+    using namespace std;
 
 //This class represents the informatino about a file
-class file_info {
-	string _path;		// relative path and name
-	unsigned long _size;	// size of the file in bytes
-	string _checksum;	// ansii hex representation of sha1 checksum of the file
+    class file_info
+    {
+        string _path;        // relative path and name
+        unsigned long _size;    // size of the file in bytes
+        string _checksum;    // ansii hex representation of sha1 checksum of the file
+        string _sha256; // ansi hex representation of sha256 checksum of the file, if present, or "" if not
 
-public:
-	string path() const { return _path; };
-	//unsigned long size() const { return _size; };
-	string checksum() const { return _checksum; };
+    public:
+        string path() const
+        { return _path; };
 
-	typedef enum { file_ok, file_invalid, file_missing } verify_result;
+        //unsigned long size() const { return _size; };
+        string checksum() const
+        { return _checksum; };
 
-	verify_result verify_file(const string& root_path) const;
+        string sha256() const
+        { return _sha256; };
 
-	file_info(string path, unsigned long size, string checksum): _path(path), _size(size), _checksum(checksum) {};
-};
+        void setSha256(const std::string &h)
+        {
+            _sha256 = h;
+        }
+
+        typedef enum
+        {
+            file_ok, file_invalid, file_missing
+        } verify_result;
+
+        verify_result verify_file(const string &root_path) const;
+
+        file_info(string path, unsigned long size, string checksum)
+                : _path(STDMOVE(path)), _size(size), _checksum(STDMOVE(checksum))
+        {};
+    };
 
 //This class represents the body of a digest file.
-class digest_file_body {
-private:
-	
-	list<file_info> _files;	// file info for each file
-	
-public:
-	typedef list<file_info>::const_iterator files_iter;
-		
-	// begin & end iterators for the collection of files
-	files_iter files_begin() const { return _files.begin(); };
-	files_iter files_end() const { return _files.end(); };
-	
-	friend istream& operator>>(istream &s, digest_file_body &v);
-};
+    class digest_file_body
+    {
+    private:
+
+        list<file_info> _files;    // file info for each file
+
+    public:
+        typedef list<file_info>::const_iterator files_iter;
+
+        // begin & end iterators for the collection of files
+        files_iter files_begin() const
+        { return _files.begin(); };
+
+        files_iter files_end() const
+        { return _files.end(); };
+
+        friend istream &operator>>(istream &s, digest_file_body &v);
+    };
 
 } // namespace VerificationTool
 

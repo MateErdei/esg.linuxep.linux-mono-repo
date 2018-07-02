@@ -36,7 +36,7 @@ add_library(versig_lib
         verify_exceptions.cpp
         verify_exceptions.h
         versig.cpp
-        versig.h)
+        versig.h SophosCppStandard.h)
 
 add_executable(versig versig_main.cpp versig.h)
 
