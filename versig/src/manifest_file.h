@@ -10,43 +10,46 @@
 #include "signed_file.h"
 #include "digest_body.h"
 
-namespace VerificationTool {
-
-class ManifestFile
-	:public SignedFile
+namespace VerificationTool
 {
-public:
-	typedef digest_file_body::files_iter files_iter;
 
-	ManifestFile();
-	~ManifestFile();
+    class ManifestFile
+            : public SignedFile
+    {
+    public:
+        typedef digest_file_body::files_iter files_iter;
 
-	bool ReadBody();
-	//Read body of manifest file
+        ManifestFile();
 
-	bool DataCheck
-	(
-		string DataDirpath	//[i] Path to directory containing data files.
-	);
-	//Confirm files in data-directory match contents of manifest.
+        ~ManifestFile();
 
-    /**
-     * Verify that relFilePath is included in this manifest file
-     */
-    bool CheckFilePresent(string relFilePath);
+        bool ReadBody();
+        //Read body of manifest file
 
-private:
-	digest_file_body m_DigestBody;
+        bool DataCheck
+                (
+                        string DataDirpath,    //[i] Path to directory containing data files.
+                        bool requireSHA256
+                );
+        //Confirm files in data-directory match contents of manifest.
 
-	ManifestFile::files_iter FileRecordsBegin();
-	//Return iterator identifying first file-record in ManifestFile
+        /**
+         * Verify that relFilePath is included in this manifest file
+         */
+        bool CheckFilePresent(string relFilePath);
 
-	ManifestFile::files_iter FileRecordsEnd();
-	//Return iterator identifying last file-record in ManifestFile
+    private:
+        digest_file_body m_DigestBody;
 
-	void RequireValid();
-	//Throw XXX exception if ManifestFile status IS NOT valid
-};
+        ManifestFile::files_iter FileRecordsBegin();
+        //Return iterator identifying first file-record in ManifestFile
+
+        ManifestFile::files_iter FileRecordsEnd();
+        //Return iterator identifying last file-record in ManifestFile
+
+        void RequireValid();
+        //Throw XXX exception if ManifestFile status IS NOT valid
+    };
 
 } // namespace VerificationTool
 

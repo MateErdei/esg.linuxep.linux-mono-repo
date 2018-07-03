@@ -139,7 +139,20 @@ namespace
                                       "-d" TESTS "/data_files/data_good"
                                      };
         int ret = versig_main(argv);
-        EXPECT_EQ(ret,0); // If we block lack of SHA256 this changes
+        EXPECT_EQ(ret,0);
+    }
+
+    TEST(versig_test, no_sha256_but_required) // NOLINT
+    {
+
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.nosha256",
+                                      "-d" TESTS "/data_files/data_good",
+                                      "--require-sha256"
+        };
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,5);
     }
 
     TEST(versig_test, really_long_comment) // NOLINT
