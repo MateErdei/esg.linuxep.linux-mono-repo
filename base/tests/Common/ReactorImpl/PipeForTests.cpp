@@ -27,7 +27,7 @@ PipeForTests::~PipeForTests()
 void PipeForTests::write(const std::string & data)
 {
     ssize_t nbytes = ::write( m_writeFd, data.data(), data.size());
-    assert(nbytes == data.size());
+    assert(nbytes == (ssize_t)data.size());
 }
 
 int PipeForTests::readFd()

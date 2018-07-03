@@ -116,7 +116,7 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly)
 
 TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 {
-    Tests::TempDir tempDir;
+    Tests::TempDir tempDir("/tmp");
 
     std::string socketAddress = std::string("ipc://") + tempDir.dirPath() + "/test.ipc";
 
