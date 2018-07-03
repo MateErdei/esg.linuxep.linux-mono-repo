@@ -68,7 +68,7 @@ file_info::verify_result file_info::verify_file(const string& root_path) const
 		return file_invalid;
 	}
 
-	// Check SHA256 comment
+	// Check SHA256 comment - enforce sha256 externally if required
 	if (!sha256().empty())
 	{
         file.clear();

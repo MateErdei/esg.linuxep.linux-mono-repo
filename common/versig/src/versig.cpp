@@ -80,13 +80,15 @@ struct Arguments
     bool checkInstall;
     bool requireAllManifestFilesPresentOnDisk;
     bool requireAllDiskFilesPresentInManifest;
+    bool requireSHA256;
 
     Arguments()
             :
             fixDate(true),
             checkInstall(false),
             requireAllManifestFilesPresentOnDisk(false),
-            requireAllDiskFilesPresentInManifest(false)
+            requireAllDiskFilesPresentInManifest(false),
+            requireSHA256(false)
     {
     }
 };
@@ -132,6 +134,14 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
         else if( (arg.compare(0,18,"--no-fix-date") == 0) )
         {
             args.fixDate = false;
+        }
+        else if (arg == "--require-sha256")
+        {
+            args.requireSHA256 = true;
+        }
+        else if (arg == "--no-require-sha256")
+        {
+            args.requireSHA256 = false;
         }
     }
 
@@ -197,7 +207,7 @@ static int versig_operation(const Arguments& args)
         //Validate data files against contents of manifest
         if(! DataDirpath.empty() )
         {
-            bOK = MF.DataCheck(DataDirpath);
+            bOK = MF.DataCheck(DataDirpath, args.requireSHA256);
             if( !bOK )
             {
                 Output("unable to verify one or more data files\n");
