@@ -126,7 +126,7 @@ namespace Common
                             Common::ZeroMQWrapper::IReadable::data_t request = ireader.reader->read();
                             try
                             {
-                                ireader.listener->process(request);
+                                ireader.listener->messageHandler(request);
                             }
                             catch ( StopReactorRequestException & )
                             {

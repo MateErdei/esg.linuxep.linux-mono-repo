@@ -20,7 +20,7 @@ namespace Common
         public:
             using CallbackFunction = std::function<void(Common::ZeroMQWrapper::IReadable::data_t)>;
             explicit GenericCallbackListener(CallbackFunction callback);
-            void process(Common::ZeroMQWrapper::IReadable::data_t data ) override;
+            void messageHandler(Common::ZeroMQWrapper::IReadable::data_t data ) override;
         private:
             CallbackFunction m_callback;
         };

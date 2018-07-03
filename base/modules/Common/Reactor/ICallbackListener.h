@@ -39,7 +39,7 @@ namespace Common
              * @param request, vector of strings which is the strings returned by IReadable::read
              * @note The CallbackListener can instruct the IReactor to stop by throwing a StopReactorRequest when the process is called.
              */
-            virtual void process(Common::ZeroMQWrapper::IReadable::data_t request) = 0;
+            virtual void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) = 0;
         };
 
 

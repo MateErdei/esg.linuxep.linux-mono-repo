@@ -11,7 +11,7 @@ TestListener::TestListener(std::unique_ptr<Common::ZeroMQWrapper::ISocketReplier
 }
 
 
-void TestListener::process(Common::ZeroMQWrapper::IReadable::data_t processData)
+void TestListener::messageHandler(Common::ZeroMQWrapper::IReadable::data_t processData)
 {
     std::string & command = processData[0];
     if(command == "echo")

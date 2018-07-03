@@ -10,7 +10,7 @@ namespace Common
 {
     namespace ReactorImpl
     {
-        void GenericCallbackListener::process(Common::ZeroMQWrapper::IReadable::data_t data)
+        void GenericCallbackListener::messageHandler(Common::ZeroMQWrapper::IReadable::data_t data)
         {
             m_callback(data);
         }

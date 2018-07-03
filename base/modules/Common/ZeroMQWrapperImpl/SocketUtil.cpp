@@ -57,7 +57,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::write(Common::ZeroMQWrapperImpl::Soc
     void* socket = socketHolder.skt();
     int rc;
     // Need to iterate through everything other than the last element
-    for (int i=0;i<data.size()-1;++i)
+    for (size_t i=0;i<data.size()-1;++i)
     {
         const std::string & ref = data[i];
         errno = 0;

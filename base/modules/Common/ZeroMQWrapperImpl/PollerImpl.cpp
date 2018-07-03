@@ -74,7 +74,7 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
         throw ZeroMQWrapperException("Failed to poll");
     }
 
-    for (int i=0; i<m_entries.size(); ++i)
+    for (size_t i=0; i<m_entries.size(); ++i)
     {
         // FIXME - Need to handle the case where there is an error condition present on socket specified by the fd.
         // Potentially need to remove bad fd. Note this is rarely seen. See ticket LINUXEP-6155

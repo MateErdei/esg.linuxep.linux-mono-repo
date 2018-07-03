@@ -46,7 +46,7 @@ TEST_F(TestGenericCallbackListener, callbackAsPureFunction)
     data_t data = {"arg1","arg2"};
     callbackCalled = 0;
     GenericCallbackListener listener(pureCallBackFunction);
-    listener.process(data);
+    listener.messageHandler(data);
     ASSERT_EQ(callbackCalled, 1);
 }
 
@@ -56,7 +56,7 @@ TEST_F(TestGenericCallbackListener, callbackAsClassMethod)
     data_t data = {"arg1","arg2"};
     // member function must be annotated with lambda to bind to the instance.
     GenericCallbackListener listener([this](data_t d){this->callback(d);});
-    listener.process(data);
+    listener.messageHandler(data);
     ASSERT_EQ(m_callbackData, data);
 }
 
@@ -64,6 +64,6 @@ TEST_F(TestGenericCallbackListener, callbackAsNullptr)
 {
     GenericCallbackListener listener(nullptr);
     data_t data = {"arg1","arg2"};
-    listener.process(data);
+    listener.messageHandler(data);
 
 }

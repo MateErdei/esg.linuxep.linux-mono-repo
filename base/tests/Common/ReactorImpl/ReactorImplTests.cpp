@@ -72,7 +72,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 
     ExecutionBarrier executionBarrier;
 
-    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
             Invoke([&executionBarrier](data_t){executionBarrier.notify(); })
     );
 
@@ -191,7 +191,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     ExecutionBarrier sync;
 
 
-    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
             Invoke([&sync](data_t){sync.notify();})
     );
 
