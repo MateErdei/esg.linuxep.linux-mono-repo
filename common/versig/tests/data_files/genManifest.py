@@ -19,6 +19,7 @@ def main(argv):
     manifest = argv[1]
     files = argv[2:]
     includeSHA256 = os.environ.get("SHA256", "1") == "1"
+    Signing.reallyLongComment = os.environ.get("REALLY_LONG_COMMENT","0") == "1"
 
     options = Options()
     options.sign = True
