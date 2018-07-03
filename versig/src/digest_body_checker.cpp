@@ -4,14 +4,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "digest_body.h"
+#include "crypto_utils.h"
+#include "print.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <algorithm>
-
-#include "digest_body.h"
-#include "crypto_utils.h"
-
+#include <iostream>
 
 
 namespace VerificationTool {
@@ -48,8 +49,10 @@ file_info::verify_result file_info::verify_file(const string& root_path) const
 	//Compare recorded and actual checksum
 	if (checksum().size() == VerificationToolCrypto::sha1size())
 	{
-		if (checksum() != VerificationToolCrypto::sha1sum(file))
+	    std::string actualSHA1=VerificationToolCrypto::sha1sum(file);
+		if (checksum() != actualSHA1)
 		{
+//		    PRINT("Incorrect SHA1: expected="<<checksum()<< " actual="<<actualSHA1);
 			return file_invalid;
 		}
 	}
@@ -63,6 +66,19 @@ file_info::verify_result file_info::verify_file(const string& root_path) const
 	else
 	{
 		return file_invalid;
+	}
+
+	// Check SHA256 comment
+	if (!sha256().empty())
+	{
+        file.clear();
+		file.seekg(0, file.beg);
+		std::string actualSHA256 = VerificationToolCrypto::sha256sum(file);
+//        PRINT("Checking SHA256: expected="<<sha256()<< " actual="<<actualSHA256);
+		if (sha256() != actualSHA256)
+		{
+			return file_invalid;
+		}
 	}
 
 

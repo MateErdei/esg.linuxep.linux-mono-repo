@@ -16,6 +16,7 @@ import Util
 import signinglib
 
 reallyLongComment = False
+badSHA256 = os.environ.get("BAD_SHA256", "0") == "1"
 
 class SigningException(signinglib.SigningException):
     pass
@@ -81,7 +82,7 @@ class FileInfo(object):
             length += len(data)
         f.close()
         self.m_sha1 = s.hexdigest()
-        self.m_sha256 = s.hexdigest()
+        self.m_sha256 = sha256.hexdigest()
         self.m_size = length
 
 
@@ -162,7 +163,12 @@ class SignerBase(object):
 
             d.write(b"\"%s\" %d %s\n"%(f, info.m_size, info.m_sha1))
             if includeSHA256:
-                d.write(b"#sha256 %s\n"%info.m_sha256)
+                global badSHA256
+                if badSHA256:
+                    sha256 = info.m_sha256.replace("a","b")
+                else:
+                    sha256 = info.m_sha256
+                d.write(b"#sha256 %s\n"%sha256)
             global reallyLongComment
             if reallyLongComment:
                 d.write(b"#A"*200+"\n")

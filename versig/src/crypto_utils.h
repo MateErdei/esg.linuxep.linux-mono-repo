@@ -49,6 +49,7 @@ X509* X509_decode(const string&);
 string base64_decode(const string&);
 
 string sha1sum(istream &);
+string sha256sum(istream &);
 string sha512sum(istream &);
 
 /**

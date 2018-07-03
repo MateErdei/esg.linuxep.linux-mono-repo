@@ -6,6 +6,7 @@
 
 #include "digest_body.h"
 #include "iostr_utils.h"
+#include "print.h"
 #include <limits>
 #include <cassert>
 
