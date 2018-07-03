@@ -99,7 +99,9 @@ cp -a $REDIST/expat/lib64/*.so* installer/bin64/
 cp -a $REDIST/zlib/lib64/*.so* installer/bin64/
 cp $STD_LIB/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
 cp $GCC_S_LIB/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
-cp -a $SAV_DIST/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
+
+# todo change this to be the built versig from redist
+cp -a /home/pair/git-repos-alex/versig/versig installer/bin64/
 strip installer/bin64/*
 cp *rootca* installer/
 
