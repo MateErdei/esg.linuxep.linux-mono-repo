@@ -1,0 +1,12 @@
+cmake-build-debug
+cmake-build-03
+*.pyc
+tests/data_files/tbp1.txt
+tests/data_files/tbp2.txt
+tests/data_files/tbp 2.txt
+tests/data_files/tbp3.txt
+venv
+.idea/misc.xml
+.idea/modules.xml
+.idea/versig.iml
+.idea/workspace.xml
