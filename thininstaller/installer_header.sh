@@ -340,22 +340,15 @@ cd distribute
 
 chmod u+x install.sh || failure 13 "Failed to chmod base installer: $?"
 
-if [ -f "installOptions" ]
-then
-    # Remove excess whitespace from the arguments with tr
-    echo -n " $credentials $args $update_caches $sslca --PrimaryUpdateUseHttps=True --UpdateHttpsAllowDowngradeToHttp=True" | tr -s " " >> installOptions
-else
-    failure 9 "INTERNAL ERROR: No 'installOptions' file in base installer."
-fi
-
-if [ $MACHINE_TYPE = "x86_64" ]
-then
-    cd lib64
-else
-    cd lib32
-fi
-create_symlinks
-cd ..
+# todo add this back once we know what libs we need to symlink (if any)
+#if [ $MACHINE_TYPE = "x86_64" ]
+#then
+#    cd lib64
+#else
+#    cd lib32
+#fi
+#create_symlinks
+#cd ..
 
 echo "Running base installer (this may take some time)"
 ./install.sh $installer_args
