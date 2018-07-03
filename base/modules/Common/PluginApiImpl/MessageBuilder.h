@@ -1,0 +1,67 @@
+//
+// Created by pair on 29/06/18.
+//
+
+#ifndef EVEREST_BASE_REQUESTSBUILDER_H
+#define EVEREST_BASE_REQUESTSBUILDER_H
+
+#include "Common/PluginApi/DataMessage.h"
+namespace Common
+{
+    namespace PluginApiImpl
+    {
+
+
+        struct StatusPair
+        {
+            std::string status;
+            std::string statusWithoutTimeStamp;
+        };
+
+        using DataMessage = Common::PluginApi::DataMessage;
+
+        class MessageBuilder
+        {
+        public:
+            MessageBuilder( const std::string& applicationID, const std::string &  protocolVersion);
+
+            /** Create the requests as client **/
+            DataMessage requestSendEventMessage( const std::string & eventXml) const;
+            DataMessage requestSendStatusMessage(const std::string & statusXml, const std::string & statusWithoutTimeStamp) const;
+            DataMessage requestRegisterMessage() const;
+            DataMessage requestCurrentPolicyMessage() const;
+            DataMessage requestApplyPolicyMessage(const std::string & policyContent) const;
+            DataMessage requestDoActionMessage( const std::string & actionContent) const;
+            DataMessage requestRequestPluginStatusMessage() const;
+            DataMessage requestRequestTelemetryMessage() const;
+
+
+            /** Extracting information from requests as server **/
+            std::string requestExtractEvent( const DataMessage & ) const;
+            StatusPair requestExtractStatus( const DataMessage & ) const;
+            std::string requestExtractPolicy(const DataMessage & ) const;
+            std::string requestExtractAction( const DataMessage & ) const;
+
+
+            /** Build replies as servers **/
+            DataMessage replyAckMessage( const DataMessage & ) const;
+            DataMessage replyErrorMessage( const DataMessage& , const std::string & errorDescription )  const;
+            DataMessage replyCurrentPolicy(const DataMessage & , const std::string & policyContent) const;
+            DataMessage replyTelemetry( const DataMessage &, const std::string & telemetryContent) const;
+            DataMessage replyStatus(const DataMessage&, const StatusPair &) const;
+
+
+            /** Extracting information from replies as client */
+            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
+            std::string replyExtractTelemetry( const DataMessage & ) const;
+        private:
+            DataMessage createDefaultDataMessage(Common::PluginApi::Commands command, const std::string& payload) const;
+
+
+            std::string m_applicationID;
+            std::string m_protocolVersion;
+
+        };
+    }
+}
+#endif //EVEREST_BASE_REQUESTSBUILDER_H
