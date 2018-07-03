@@ -36,7 +36,7 @@ namespace Common
             std::string m_pluginName;
             std::unique_ptr<PluginCallBackHandler> m_pluginCallbackHandler;
             std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> m_socket;
-            Common::ZeroMQWrapper::IContextPtr m_context;
+            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
 
 
     };

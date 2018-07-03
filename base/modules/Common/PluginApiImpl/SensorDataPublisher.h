@@ -18,7 +18,7 @@ namespace Common
             SensorDataPublisher(const std::string& pluginName);
             void sendData(const std::string& sensorDataCategory, const std::string& sensorData) override;
         private:
-            Common::ZeroMQWrapper::IContextPtr m_context;
+            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
             Common::ZeroMQWrapper::ISocketPublisherPtr m_socketPublisher;
 
         };

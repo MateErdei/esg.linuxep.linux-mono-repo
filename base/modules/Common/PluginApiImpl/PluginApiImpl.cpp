@@ -7,6 +7,7 @@
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "SharedSocketContext.h"
 constexpr  int SendReplyTimeout = 2000;
 
 std::unique_ptr<Common::PluginApi::IPluginApi> Common::PluginApi::IPluginApi::newPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback)
@@ -21,7 +22,7 @@ std::unique_ptr<Common::PluginApi::IPluginApi> Common::PluginApi::IPluginApi::ne
 Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName)
 : m_pluginName( pluginName), m_pluginCallbackHandler(), m_socket()
 {
-    m_context = Common::ZeroMQWrapper::createContext();
+    m_context = sharedContext();
     auto requester = m_context->getRequester();
     requester->setTimeout(SendReplyTimeout);
 

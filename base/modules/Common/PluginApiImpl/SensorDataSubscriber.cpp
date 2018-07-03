@@ -8,14 +8,14 @@
 #include "Common/PluginApi/ISensorDataCallback.h"
 #include "SensorDataSubscriber.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-
+#include "SharedSocketContext.h"
 namespace Common
 {
     namespace PluginApiImpl
     {
         SensorDataSubscriber::SensorDataSubscriber(const std::string &sensorDataCategorySubscription,
                                                    std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
-        : m_context(Common::ZeroMQWrapper::createContext())
+        : m_context(sharedContext())
         {
             m_socketSubscriber = m_context->getSubscriber();
             m_socketSubscriber->connect(Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());

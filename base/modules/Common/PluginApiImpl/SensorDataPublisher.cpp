@@ -5,6 +5,7 @@
 #include "SensorDataPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "SharedSocketContext.h"
 namespace Common
 {
     namespace PluginApiImpl
@@ -12,7 +13,7 @@ namespace Common
 
         SensorDataPublisher::SensorDataPublisher(const std::string& pluginName)
         {
-            m_context = Common::ZeroMQWrapper::createContext();
+            m_context = sharedContext();
             m_socketPublisher = m_context->getPublisher();
             m_socketPublisher->connect(ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress());
         }

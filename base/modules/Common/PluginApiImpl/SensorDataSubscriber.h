@@ -23,7 +23,7 @@ namespace Common
         private:
             void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) override ;
 
-            Common::ZeroMQWrapper::IContextPtr m_context;
+            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
             Common::ZeroMQWrapper::ISocketSubscriberPtr m_socketSubscriber;
             std::shared_ptr<Common::PluginApi::ISensorDataCallback> m_sensorDataCallback;
             std::unique_ptr<Common::Reactor::IReactor> m_reactor;
