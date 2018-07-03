@@ -141,4 +141,16 @@ namespace
         int ret = versig_main(argv);
         EXPECT_EQ(ret,0); // If we block lack of SHA256 this changes
     }
+
+    TEST(versig_test, really_long_comment) // NOLINT
+    {
+
+        std::vector<std::string> argv{"versig_test",
+                                      "-c" TESTS "/cert_files/rootca.crt.valid",
+                                      "-f" TESTS "/data_files/manifest.dat.reallyLongComment",
+                                      "-d" TESTS "/data_files/data_good"
+        };
+        int ret = versig_main(argv);
+        EXPECT_EQ(ret,0);
+    }
 }

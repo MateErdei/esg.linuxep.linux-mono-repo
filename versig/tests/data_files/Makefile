@@ -1,5 +1,7 @@
 
-manifest : manifest.dat.valid manifest.dat.spaces manifest.dat.badcert1 manifest.dat.badcert2 manifest.dat.badsig manifest.dat.nosha256
+manifest : manifest.dat.valid \
+    manifest.dat.spaces manifest.dat.badcert1 manifest.dat.badcert2 manifest.dat.badsig manifest.dat.nosha256 \
+    manifest.dat.reallyLongComment
 
 # Original manifest.dat, valid for {tbp1.txt, tbp2.txt, tbp3.txt}
 manifest.dat.valid : tbp1.txt tbp2.txt tbp3.txt
@@ -9,6 +11,11 @@ manifest.dat.valid : tbp1.txt tbp2.txt tbp3.txt
 manifest.dat.nosha256 : tbp1.txt tbp2.txt tbp3.txt
 	-chmod 600 $@
 	SHA256=0 \
+	    python genManifest.py $@ $^
+
+manifest.dat.reallyLongComment : tbp1.txt tbp2.txt tbp3.txt
+	-chmod 600 $@
+	REALLY_LONG_COMMENT=1 \
 	    python genManifest.py $@ $^
 
 # manifest.dat with {tbp1.txt, "tbp 2.txt", tbp3.txt}

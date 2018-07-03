@@ -15,6 +15,8 @@ import Util
 
 import signinglib
 
+reallyLongComment = False
+
 class SigningException(signinglib.SigningException):
     pass
 
@@ -161,6 +163,9 @@ class SignerBase(object):
             d.write(b"\"%s\" %d %s\n"%(f, info.m_size, info.m_sha1))
             if includeSHA256:
                 d.write(b"#sha256 %s\n"%info.m_sha256)
+            global reallyLongComment
+            if reallyLongComment:
+                d.write(b"#A"*200+"\n")
 
         d.close()
         ## Get signature
