@@ -123,13 +123,14 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::createFileSystem();
     std::string fakeServerPath = fileSystem->join(ReactorImplTestsPath(), "FakeServerRunner");
+    ASSERT_TRUE( fileSystem->isExecutable(fakeServerPath));
     data_t args{socketAddress};
     process->exec(fakeServerPath, args);
 
 
     auto context = Common::ZeroMQWrapper::createContext();
 
-    FakeClient fakeClient(*context, socketAddress, -1);
+    FakeClient fakeClient(*context, socketAddress, 5000);
 
     data_t requestData{"echo", "arg1", "arg2"};
     EXPECT_EQ(fakeClient.requestReply(requestData), requestData );
