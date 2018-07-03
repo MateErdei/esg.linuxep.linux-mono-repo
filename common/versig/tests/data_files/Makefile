@@ -1,7 +1,7 @@
 
 manifest : manifest.dat.valid \
     manifest.dat.spaces manifest.dat.badcert1 manifest.dat.badcert2 manifest.dat.badsig manifest.dat.nosha256 \
-    manifest.dat.reallyLongComment
+    manifest.dat.reallyLongComment manifest.dat.badSHA256
 
 # Original manifest.dat, valid for {tbp1.txt, tbp2.txt, tbp3.txt}
 manifest.dat.valid : tbp1.txt tbp2.txt tbp3.txt
@@ -18,6 +18,11 @@ manifest.dat.reallyLongComment : tbp1.txt tbp2.txt tbp3.txt
 	REALLY_LONG_COMMENT=1 \
 	    python genManifest.py $@ $^
 
+manifest.dat.badSHA256 : tbp1.txt tbp2.txt tbp3.txt
+	-chmod 600 $@
+	BAD_SHA256=1 \
+	    python genManifest.py $@ $^
+
 # manifest.dat with {tbp1.txt, "tbp 2.txt", tbp3.txt}
 manifest.dat.spaces : tbp1.txt tbp_2_with_spaces tbp3.txt
 	-chmod 600 $@
@@ -30,17 +35,17 @@ manifest.dat.badcert1 : manifest.dat.valid
 
 # Manifest.dat with bad certificate produced by modifying first byte of second certificate M -> N.
 manifest.dat.badcert2 : manifest.dat.valid
-	-chmod 600 $@
+	-[[ -f $@ ]] && chmod 600 $@
 	python corruptManifest.py $< $@ 2
 
 # Manifest.dat with bad signature produced by modifying first byte of second line k -> l.
 manifest.dat.badsig : manifest.dat.valid
-	-chmod 600 $@
+	-[[ -f $@ ]] && chmod 600 $@
 	python corruptManifest.py $< $@ S
 
 # Original tbp2.txt (has same checksum to that recorded in manifest.dat)
 tbp2.txt.valid :
-	-chmod 600 $@
+	-[[ -f $@ ]] && chmod 600 $@
 	echo "TestFile" >$@
 	echo "--------" >>$@
 	echo -n "TBP1-2" >>$@
@@ -53,11 +58,17 @@ tbp2.txt.modified :
 	echo "TBP1-x" >>$@
 
 tbp%.txt : tbp%.txt.valid
-	-chmod 600 $@
+	-[[ -f $@ ]] && chmod 600 $@
 	cp $< $@
 
 tbp_2_with_spaces : tbp2.txt.valid
 	rm -f "tbp 2.txt"
 	cp "$<" "tbp 2.txt"
 
-.PHONY : tbp_2_with_spaces manifest
+clean :
+	rm -f manifest.dat.valid \
+              manifest.dat.spaces manifest.dat.badcert1 manifest.dat.badcert2 manifest.dat.badsig manifest.dat.nosha256 \
+              manifest.dat.reallyLongComment manifest.dat.badSHA256 \
+              tbp2.txt.modified tbp2.txt.valid
+
+.PHONY : tbp_2_with_spaces manifest clean

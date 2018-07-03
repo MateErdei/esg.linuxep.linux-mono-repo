@@ -39,7 +39,7 @@ add_library(versig_lib
         src/verify_exceptions.h
         src/versig.cpp
         src/versig.h
-        src/SophosCppStandard.h)
+        src/SophosCppStandard.h src/print.h)
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 

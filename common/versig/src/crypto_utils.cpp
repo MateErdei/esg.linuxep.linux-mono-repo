@@ -8,6 +8,7 @@
 #include "crypto_utils.h"
 #include "verify_exceptions.h"
 #include "SophosCppStandard.h"
+#include "print.h"
 
 #include <sstream>
 #include <cassert>
@@ -15,8 +16,6 @@
 
 #include <fstream>
 #include <stdexcept>
-
-#define PRINT(_X) std::cerr << _X << std::endl
 
 namespace VerificationToolCrypto {
 
@@ -369,10 +368,14 @@ static bytestring sha512sum_raw(istream &in) {
     return sum_raw(in, EVP_sha512());
 }
 
+static bytestring sha256sum_raw(istream &in)
+{
+    return sum_raw(in, EVP_sha256());
+}
 
 static string hex(const bytestring &data) {
 	string result;
-	result.reserve(data.length() * 2); //prealocate double the space (since hex conversion doubles length)
+	result.reserve(data.length() * 2); //preallocate double the space (since hex conversion doubles length)
 
 	for (unsigned int n = 0; n < data.length(); ++n) {
 		const size_t HEX_BUFFER_SIZE = 3;
@@ -387,6 +390,8 @@ static string hex(const bytestring &data) {
 string sha1sum(istream &in) { return hex(sha1sum_raw(in)); }
 
 string sha512sum(istream &in) { return hex(sha512sum_raw(in)); }
+
+string sha256sum(istream &in) { return hex(sha256sum_raw(in)); }
 
 unsigned int sha1size() { return EVP_MD_size(EVP_sha1()) * 2; }
 unsigned int sha512size() { return EVP_MD_size(EVP_sha512()) * 2; }
