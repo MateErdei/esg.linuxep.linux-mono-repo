@@ -10,3 +10,8 @@ venv
 .idea/modules.xml
 .idea/versig.iml
 .idea/workspace.xml
+build64
+input
+log
+redist
+output
