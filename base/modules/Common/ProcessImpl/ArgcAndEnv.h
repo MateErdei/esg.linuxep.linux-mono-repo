@@ -8,8 +8,14 @@
 #define EVEREST_BASE_ARGCANDENV_H
 #include <vector>
 #include <string>
+#include <set>
 #include "IProcess.h"
 #include "IProcessException.h"
+#include <unistd.h>
+
+// required to obtain the current application environment variables so that they can be passed to the child process.
+extern char **environ;
+
 
 namespace Common
 {
@@ -74,6 +80,12 @@ namespace Common
                        std::vector<Common::Process::EnvironmentPair> extraEnvironment)
             {
                 m_path = path;
+                m_argc.setArgs(arguments, path);
+                if( !extraEnvironment.empty())
+                {
+                    m_env.setArgs( mergeWithEnvironmentVariables(extraEnvironment));
+                }
+
                 std::vector<std::string> envArguments;
                 for (auto &env : extraEnvironment)
                 {
@@ -85,8 +97,6 @@ namespace Common
                     }
                     envArguments.push_back(env.first + '=' + env.second);
                 }
-                m_argc.setArgs(arguments, path);
-                m_env.setArgs(envArguments);
             }
 
             char **argc()
@@ -104,6 +114,48 @@ namespace Common
                 return const_cast<char *>( m_path.data());
 
             }
+
+        private:
+
+            std::string getEnvironmentNameFromEnvP(const std::string & envpPair ) const
+            {
+                size_t pos = envpPair.find('=');
+
+                assert(pos != std::string::npos);
+
+                return envpPair.substr(0, pos );
+            }
+
+
+            std::vector<std::string> mergeWithEnvironmentVariables( const std::vector<Common::Process::EnvironmentPair> &extraEnvironment)
+            {
+                std::vector<std::string> envArguments;
+                std::set<std::string> uniqueEnvironmentNames;
+
+                for (auto &env : extraEnvironment)
+                {
+                    // make sure all environment variables are valid.
+                    if (env.first.empty())
+                    {
+                        throw Common::Process::IProcessException("Environment name cannot be empty: '' = " + env.second
+                        );
+                    }
+                    envArguments.push_back(env.first + '=' + env.second);
+                    uniqueEnvironmentNames.insert(env.first);
+                }
+
+                for(char**env = environ; *env != NULL; env++)
+                {
+                    char * current = *env;
+                    std::string envName = getEnvironmentNameFromEnvP(current);
+                    if ( uniqueEnvironmentNames.find(envName) == uniqueEnvironmentNames.end())
+                    {
+                        envArguments.push_back(current);
+                    }
+                }
+                return envArguments;
+            }
+
         };
 
     }

@@ -302,7 +302,14 @@ namespace ProcessImpl
                 }
                 // close the read pipe as child is supposed to be only for writing (stderr,stdout)
                 m_pipe->closeRead();
-                ret = execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
+                if ( extraEnvironment.empty())
+                {
+                    ret = execv(argcAndEnv.path(), argcAndEnv.argc());
+                }
+                else
+                {
+                    ret = execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
+                }
                     // if reaches this point, execv failed
                     // for normal execution, execv never returns.
                 _exit(ret);
