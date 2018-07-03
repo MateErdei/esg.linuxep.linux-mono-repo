@@ -3,7 +3,7 @@
 umask 077
 
 args="$*"
-echo "Installing Sophos Anti-Virus for Linux with arguments: [$args]"
+echo "Installing Sophos Server Protection for Linux with arguments: [$args]"
 
 EXITCODE_SUCCESS=0
 EXITCODE_NOT_LINUX=1
