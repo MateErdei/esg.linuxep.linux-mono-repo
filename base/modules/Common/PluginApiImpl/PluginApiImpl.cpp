@@ -8,42 +8,30 @@
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "SharedSocketContext.h"
-constexpr  int SendReplyTimeout = 2000;
 
-std::unique_ptr<Common::PluginApi::IPluginApi> Common::PluginApi::IPluginApi::newPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback)
+Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName,
+                                                    Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
+: m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler()
 {
-    std::unique_ptr<Common::PluginApiImpl::PluginApiImpl> plugin(new Common::PluginApiImpl::PluginApiImpl(pluginName));
-    plugin->setPluginCallback(pluginCallback);
-    return  std::unique_ptr<Common::PluginApi::IPluginApi>(plugin.release());
-}
-////static std::unique_ptr<IPluginApi> newPluginAPI(const std::string& pluginName, std::shared_ptr<IPluginCallback> pluginCallback);
-
-
-Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName)
-: m_pluginName( pluginName), m_pluginCallbackHandler(), m_socket()
-{
-    m_context = sharedContext();
-    auto requester = m_context->getRequester();
-    requester->setTimeout(SendReplyTimeout);
-
-    std::string mng_address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
-
-    requester->connect(mng_address);
-
-    m_socket = std::move(requester);
 
 }
 
 void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(
-        std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback)
+        std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replier)
 {
-    std::string pluginAddress = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(m_pluginName);
-    auto replier = m_context->getReplier();
-    replier->setTimeout(SendReplyTimeout);
-    replier->listen(pluginAddress);
-    m_pluginCallbackHandler.reset(new PluginCallBackHandler(std::move(replier), pluginCallback) );
+    m_pluginCallbackHandler.reset( new PluginCallBackHandler( std::move(replier), pluginCallback) );
     m_pluginCallbackHandler->start();
 }
+
+Common::PluginApiImpl::PluginApiImpl::~PluginApiImpl()
+{
+    if( m_pluginCallbackHandler)
+    {
+        m_pluginCallbackHandler->stop();
+    }
+}
+
+
 
 void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, const std::string &eventXml) const
 {
@@ -99,3 +87,5 @@ Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getRepl
     return reply;
 
 }
+
+

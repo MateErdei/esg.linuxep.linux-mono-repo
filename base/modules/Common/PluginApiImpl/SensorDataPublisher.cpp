@@ -11,23 +11,16 @@ namespace Common
     namespace PluginApiImpl
     {
 
-        SensorDataPublisher::SensorDataPublisher(const std::string& pluginName)
-        {
-            m_context = sharedContext();
-            m_socketPublisher = m_context->getPublisher();
-            m_socketPublisher->connect(ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress());
-        }
-
-
         void SensorDataPublisher::sendData(const std::string &sensorDataCategory, const std::string &sensorData)
         {
             m_socketPublisher->write({sensorDataCategory, sensorData});
         }
+
+        SensorDataPublisher::SensorDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher)
+        : m_socketPublisher(std::move(socketPublisher))
+        {
+
+        }
     }
 
-}
-std::unique_ptr<Common::PluginApi::ISensorDataPublisher>
-        Common::PluginApi::ISensorDataPublisher::newSensorDataPublisher(const std::string &pluginName)
-{
-    return std::unique_ptr<Common::PluginApi::ISensorDataPublisher> (new Common::PluginApiImpl::SensorDataPublisher(pluginName));
 }

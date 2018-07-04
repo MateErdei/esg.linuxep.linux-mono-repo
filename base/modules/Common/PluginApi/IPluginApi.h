@@ -17,7 +17,6 @@ namespace Common
         {
         public:
             virtual ~IPluginApi() = default;
-            static std::unique_ptr<IPluginApi> newPluginAPI(const std::string& pluginName, std::shared_ptr<IPluginCallback> pluginCallback);
 
             virtual void sendEvent(const std::string& appId, const std::string& eventXml) const  = 0;
 
@@ -31,7 +30,7 @@ namespace Common
 
         };
 
-        std::string getLibraryVersion();
+        //std::string getLibraryVersion();
     }
 }
 

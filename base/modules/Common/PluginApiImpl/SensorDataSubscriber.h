@@ -17,16 +17,18 @@ namespace Common
         {
         public:
             SensorDataSubscriber(const std::string & sensorDataCategorySubscription,
-                                 std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback);
+                                 std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback,
+                                 Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber);
 
             ~SensorDataSubscriber();
+            void start() override ;
+            void stop() override ;
         private:
             void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) override ;
 
-            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
             Common::ZeroMQWrapper::ISocketSubscriberPtr m_socketSubscriber;
-            std::shared_ptr<Common::PluginApi::ISensorDataCallback> m_sensorDataCallback;
             std::unique_ptr<Common::Reactor::IReactor> m_reactor;
+            std::shared_ptr<Common::PluginApi::ISensorDataCallback> m_sensorDataCallback;
         };
     }
 }

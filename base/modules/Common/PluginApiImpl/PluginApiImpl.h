@@ -6,11 +6,11 @@
 #define EVEREST_BASE_PLUGINAPIIMPL_H
 
 
-#include <Common/ZeroMQWrapper/IContextPtr.h>
 #include "Common/PluginApi/IPluginCallback.h"
 #include "Common/PluginApi/IPluginApi.h"
 #include "PluginCallBackHandler.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
 
 namespace Common
 {
@@ -21,9 +21,10 @@ namespace Common
         {
         public:
 
-            PluginApiImpl(const std::string& pluginName);
+            PluginApiImpl(const std::string& pluginName, Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester );
+            ~PluginApiImpl();
 
-            void setPluginCallback(std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback);
+            void setPluginCallback(std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr  );
 
             void sendEvent(const std::string& appId, const std::string& eventXml) const override;
 
@@ -34,11 +35,8 @@ namespace Common
             DataMessage getReply( const DataMessage & request) const;
 
             std::string m_pluginName;
+            Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
             std::unique_ptr<PluginCallBackHandler> m_pluginCallbackHandler;
-            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> m_socket;
-            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
-
-
     };
     }
 }

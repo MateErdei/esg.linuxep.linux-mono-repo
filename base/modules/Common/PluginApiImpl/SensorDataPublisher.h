@@ -6,7 +6,7 @@
 #define EVEREST_BASE_SENSORDATAPUBLISHER_H
 
 #include "Common/PluginApi/ISensorDataPublisher.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
 
 namespace Common
 {
@@ -15,12 +15,10 @@ namespace Common
         class SensorDataPublisher : public virtual Common::PluginApi::ISensorDataPublisher
         {
         public:
-            SensorDataPublisher(const std::string& pluginName);
+            SensorDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher);
             void sendData(const std::string& sensorDataCategory, const std::string& sensorData) override;
         private:
-            std::shared_ptr<Common::ZeroMQWrapper::IContext> m_context;
             Common::ZeroMQWrapper::ISocketPublisherPtr m_socketPublisher;
-
         };
     }
 }

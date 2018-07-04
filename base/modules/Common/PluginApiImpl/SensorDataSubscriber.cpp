@@ -14,19 +14,15 @@ namespace Common
     namespace PluginApiImpl
     {
         SensorDataSubscriber::SensorDataSubscriber(const std::string &sensorDataCategorySubscription,
-                                                   std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
-        : m_context(sharedContext())
+                                                   std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback,
+                                                   Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber):
+        m_socketSubscriber(std::move(socketSubscriber)), m_reactor(Common::Reactor::createReactor()), m_sensorDataCallback(sensorDataCallback)
         {
-            m_socketSubscriber = m_context->getSubscriber();
-            m_socketSubscriber->connect(Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());
             m_socketSubscriber->subscribeTo(sensorDataCategorySubscription);
-
-            m_sensorDataCallback = sensorDataCallback;
-            m_reactor = Common::Reactor::createReactor();
             m_reactor->addListener(m_socketSubscriber.get(), this);
-            m_reactor->start();
-
         }
+
+
 
         void SensorDataSubscriber::messageHandler(Common::ZeroMQWrapper::IReadable::data_t request)
         {
@@ -37,18 +33,26 @@ namespace Common
 
         SensorDataSubscriber::~SensorDataSubscriber()
         {
-            if ( m_reactor)
-            {
-                m_reactor->stop();
-            }
+            stop();
         }
+
+        void SensorDataSubscriber::start()
+        {
+            m_reactor->start();
+        }
+
+        void SensorDataSubscriber::stop()
+        {
+            m_reactor->stop();
+        }
+
     }
 
 }
 
 
-std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> Common::PluginApi::ISensorDataSubscriber::newSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
-                                                                      std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
-{
-    return std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> (new Common::PluginApiImpl::SensorDataSubscriber(sensorDataCategorySubscription, sensorDataCallback));
-}
+//std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> Common::PluginApi::ISensorDataSubscriber::newSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
+//                                                                      std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
+//{
+//    return std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> (new Common::PluginApiImpl::SensorDataSubscriber(sensorDataCategorySubscription, sensorDataCallback));
+//}

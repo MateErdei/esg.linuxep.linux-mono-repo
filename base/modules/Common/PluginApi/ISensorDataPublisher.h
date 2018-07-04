@@ -14,7 +14,6 @@ namespace Common
         {
         public:
             virtual ~ISensorDataPublisher() = default;
-            static std::unique_ptr<ISensorDataPublisher> newSensorDataPublisher(const std::string& pluginName);
             virtual void sendData(const std::string& sensorDataCategory, const std::string& sensorData) = 0;
         };
     }
