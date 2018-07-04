@@ -47,6 +47,8 @@ namespace Common
 
             plugin->setPluginCallback(pluginCallback, std::move(replier));
 
+            plugin->registerWithManagementAgent();
+
             return std::unique_ptr<PluginApi::IPluginApi>( plugin.release());
         }
 
@@ -57,6 +59,7 @@ namespace Common
             setTimeouts(*socketPublisher);
             std::string publishAddressChannel = ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress();
             socketPublisher->connect(publishAddressChannel);
+
 
             return std::unique_ptr<PluginApi::ISensorDataPublisher>(new SensorDataPublisher(std::move(socketPublisher)));
         }

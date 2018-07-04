@@ -40,9 +40,9 @@ namespace
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
             pluginResourceManagement.setDefaultConnectTimeout(3000);
-            plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
             auto & context = pluginResourceManagement.socketContext();
             server = std::thread(std::ref(responseServer), std::ref(context));
+            plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
         }
         void TearDown() override
         {

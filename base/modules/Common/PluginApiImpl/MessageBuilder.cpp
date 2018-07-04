@@ -33,12 +33,12 @@ namespace Common
 
         DataMessage MessageBuilder::requestRegisterMessage() const
         {
-            return createDefaultDataMessage(Commands::PLUGIN_SEND_REGISTER, ""); // TODO check payload ?
+            return createDefaultDataMessage(Commands::PLUGIN_SEND_REGISTER, std::string());
         }
 
         DataMessage MessageBuilder::requestCurrentPolicyMessage() const
         {
-            return createDefaultDataMessage(Commands::PLUGIN_QUERY_CURRENT_POLICY, ""); // TODO check payload ?
+            return createDefaultDataMessage(Commands::PLUGIN_QUERY_CURRENT_POLICY, std::string());
         }
 
         DataMessage MessageBuilder::requestApplyPolicyMessage(const std::string &policyContent) const
@@ -53,12 +53,12 @@ namespace Common
 
         DataMessage MessageBuilder::requestRequestPluginStatusMessage() const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_STATUS, ""); // TODO check payload ?
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_STATUS, std::string());
         }
 
         DataMessage MessageBuilder::requestRequestTelemetryMessage() const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, ""); // TODO check payload ?
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, std::string());
         }
 
         std::string MessageBuilder::requestExtractEvent(const DataMessage & dataMessage) const
@@ -153,7 +153,10 @@ namespace Common
             dataMessage.ApplicationId = m_applicationID;
             dataMessage.Command = command;
             dataMessage.ProtocolVersion = m_protocolVersion;
-            dataMessage.payload.push_back(payload);
+            if ( !payload.empty())
+            {
+                dataMessage.payload.push_back(payload);
+            }
             return dataMessage;
         }
 

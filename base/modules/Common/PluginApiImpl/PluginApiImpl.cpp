@@ -57,8 +57,21 @@ void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId
     {
         throw Common::PluginApi::ApiException("Invalid reply for: 'Change status'");
     }
-
 }
+
+void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
+{
+    MessageBuilder messageBuilder(m_pluginName, ProtocolSerializerFactory::ProtocolVersion);
+    DataMessage message = messageBuilder.requestRegisterMessage();
+
+    DataMessage replyMessage = getReply(message);
+    if ( !messageBuilder.hasAck(replyMessage))
+    {
+        throw Common::PluginApi::ApiException("Invalid reply for: 'Registration'");
+    }
+}
+
+
 
 std::string Common::PluginApiImpl::PluginApiImpl::getPolicy(const std::string &appId) const
 {
@@ -99,5 +112,6 @@ Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getRepl
     return reply;
 
 }
+
 
 

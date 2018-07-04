@@ -32,6 +32,9 @@ namespace Common
             void changeStatus(const std::string& appId, const std::string& statusXml, const std::string& statusWithoutTimestampsXml) const override;
 
             std::string getPolicy(const std::string &appId) const override ;
+
+            void registerWithManagementAgent() const;
+
         private:
             DataMessage getReply( const DataMessage & request) const;
 

@@ -14,11 +14,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/IPluginApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include <Common/PluginApiImpl/MessageBuilder.h>
 
-
+#include <thread>
 
 namespace
 {
+
+    void handleRegistration(Common::ZeroMQWrapper::IContext & context)
+    {
+        auto replier = context.getReplier();
+        std::string address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
+        replier->listen(address );
+
+        // handle registration
+        Common::PluginApiImpl::Protocol protocol;
+        auto request = protocol.deserialize(replier->read());
+        assert( request.Command == Common::PluginApi::Commands::PLUGIN_SEND_REGISTER);
+        Common::PluginApiImpl::MessageBuilder messageBuilder( "plugin", "v1");
+        auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
+        replier->write(replyMessage);
+    }
+
     using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
     using namespace Common::PluginApiImpl;
     using namespace Common::PluginApi;
@@ -42,8 +60,10 @@ namespace
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
             pluginResourceManagement.setDefaultConnectTimeout(3000);
-            plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
+            std::thread registration(handleRegistration, std::ref(pluginResourceManagement.socketContext() ));
 
+            plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
+            registration.join();
 
         }
         void TearDown() override
@@ -174,5 +194,76 @@ namespace
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+
+        std::string telemetryData = "TelemetryData";
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(telemetryData);
+
+        EXPECT_CALL(mock(), getTelemetry()).WillOnce(Return(telemetryData));
+
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+
+        EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedAnswer, reply );
+    }
+
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetryFail)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+
+        std::string telemetryData = "TelemetryData";
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(telemetryData);
+
+        dataMessage.payload.clear();
+        dataMessage.ProtocolVersion = "invalid";
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+        EXPECT_EQ(reply.Error, "Protocol not supported");
+    }
+
+
+
+
+
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back("ACK");
+
+        EXPECT_CALL(mock(), doAction(_));
+
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+
+        EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedAnswer, reply );
+    }
+
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoActionFail)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+
+        std::string actionData = "ActionData";
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(actionData);
+
+        dataMessage.payload.clear();
+        dataMessage.ProtocolVersion = "invalid";
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+        EXPECT_EQ(reply.Error, "Protocol not supported");
+    }
+
+
+
 
 }
