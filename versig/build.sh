@@ -34,7 +34,7 @@ function build()
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
     ## which doesn't like our openssl
-    git submodule sync --recursive || exitFailure 17 "Failed to sync submodule configuration"
+    git submodule sync --recursive || exitFailure 34 "Failed to sync submodule configuration"
     GIT_SSL_NO_VERIFY=true  \
         git -c http.sslVerify=false submodule update --init --recursive || {
         sleep 1
@@ -42,7 +42,7 @@ function build()
         cat .gitmodules
         echo ".git/config:"
         cat .git/config
-        exitFailure 16 "Failed to get googletest via git"
+        exitFailure 33 "Failed to get googletest via git"
     }
 
     unpack_scaffold_gcc_make $BASE/input
@@ -86,8 +86,9 @@ function build()
     mkdir build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -DREDIST="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
+    make test || exitFailure 16 "Unit tests failed for $PRODUCT"
     cd ..
 
     ## package output
