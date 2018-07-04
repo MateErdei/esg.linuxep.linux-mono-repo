@@ -8,7 +8,7 @@
         <package name="openssllinux11" version="LINUXEP-6060-create_openssl_build/%LASTGOODCOMPONENTBUILD%/openssllinux11/1.0.2n/openssllinux11" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
-        <package name="cmake"
+        <package name="cmakelinux"
                  version="master/%LASTGOODCOMPONENTBUILD%/cmakelinux/3.11.2/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
