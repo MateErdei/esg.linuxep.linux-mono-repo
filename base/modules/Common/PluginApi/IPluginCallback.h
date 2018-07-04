@@ -14,6 +14,12 @@ namespace Common
     namespace PluginApi
     {
 
+        struct StatusInfo
+        {
+            std::string statuxXml;
+            std::string statusWithoutXml;
+        };
+
         class IPluginCallback
         {
         public:
@@ -26,7 +32,7 @@ namespace Common
 
             virtual void shutdown() = 0;
 
-            virtual void getStatus(std::string &statusXml, std::string &statusWithoutTimestampsXml) = 0;
+            virtual StatusInfo getStatus(void) = 0;
 
             virtual std::string getTelemetry() = 0;
         };

@@ -1,0 +1,178 @@
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "MockedApplicationPathManager.h"
+#include "MockedPluginApiCallback.h"
+#include "SingleManagementRequest.h"
+
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/PluginApi/IPluginApi.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+
+
+
+namespace
+{
+    using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
+    using namespace Common::PluginApiImpl;
+    using namespace Common::PluginApi;
+
+    using ::testing::NiceMock;
+    using ::testing::StrictMock;
+
+
+    class PluginApiCallbackTests : public ::testing::Test
+    {
+
+    public:
+
+        void SetUp() override
+        {
+            MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
+            MockedApplicationPathManager &mock(*mockAppManager);
+            ON_CALL(mock, getManagementAgentSocketAddress()).WillByDefault(Return("inproc://management.ipc"));
+            ON_CALL(mock, getPluginSocketAddress(_)).WillByDefault(Return("inproc://plugin.ipc"));
+            Common::ApplicationConfiguration::replaceApplicationPathManager(
+                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+            mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
+            pluginResourceManagement.setDefaultConnectTimeout(3000);
+            plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
+
+
+        }
+        void TearDown() override
+        {
+            Common::ApplicationConfiguration::restoreApplicationPathManager();
+            plugin.reset();
+
+        }
+
+        Common::PluginApi::DataMessage createDefaultMessage(Common::PluginApi::Commands command, const std::string &firstPayloadItem )
+        {
+            Common::PluginApi::DataMessage dataMessage;
+            dataMessage.Command = command;
+            dataMessage.ProtocolVersion = Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion;
+            dataMessage.ApplicationId = "plugin";
+            dataMessage.MessageId = "1";
+            if ( !firstPayloadItem.empty())
+            {
+                dataMessage.payload.push_back(firstPayloadItem);
+            }
+
+            return dataMessage;
+        }
+
+        Common::ZeroMQWrapper::IContext & context()
+        {
+            return pluginResourceManagement.socketContext();
+        }
+
+        MockedPluginApiCallback & mock()
+        {
+            MockedPluginApiCallback * mockPtr = mockPluginCallback.get();
+            return *mockPtr;
+        }
+
+        ::testing::AssertionResult dataMessageSimilar( const char* m_expr,
+                                                          const char* n_expr,
+                                                          const Common::PluginApi::DataMessage  & expected,
+                                                          const Common::PluginApi::DataMessage  & resulted)
+        {
+            std::stringstream s;
+            s<< m_expr << " and " << n_expr << " failed: ";
+
+            if( expected.ProtocolVersion != resulted.ProtocolVersion)
+            {
+                return ::testing::AssertionFailure() << s.str() << " Protocol differ: \n expected: "
+                                                     <<  expected.ProtocolVersion
+                                                     << "\n result: " <<  resulted.ProtocolVersion;
+            }
+
+            if( expected.ApplicationId != resulted.ApplicationId)
+            {
+                return ::testing::AssertionFailure() << s.str() << " Application Id differ: \n expected: "
+                                                     <<  expected.ApplicationId
+                                                     << "\n result: " <<  resulted.ApplicationId;
+            }
+
+            if( expected.MessageId != resulted.MessageId)
+            {
+                return ::testing::AssertionFailure() << s.str() << " Message Id differ: \n expected: "
+                                                     <<  expected.MessageId
+                                                     << "\n result: " <<  resulted.MessageId;
+            }
+
+            if( expected.Command != resulted.Command)
+            {
+                return ::testing::AssertionFailure() << s.str() << " command differ: \n expected: "
+                                                     <<  Common::PluginApi::SerializeCommand(expected.Command)
+                                                     << "\n result: " <<  Common::PluginApi::SerializeCommand(resulted.Command);
+            }
+
+            if( expected.Error != resulted.Error)
+            {
+                return ::testing::AssertionFailure() << s.str() << " Error message differ: \n expected: "
+                                                     <<  expected.Error
+                                                     << "\n result: " <<  resulted.Error;
+            }
+
+            if( expected.payload != resulted.payload)
+            {
+                return ::testing::AssertionFailure() << s.str() << " Payload differ: \n expected: "
+                                                     <<  PrintToString(expected.payload)
+                                                     << "\n result: " <<  PrintToString(resulted.payload);
+            }
+
+            return ::testing::AssertionSuccess();
+        }
+
+
+
+        PluginResourceManagement pluginResourceManagement;
+        SingleManagementRequest managementRequest;
+
+        std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
+        std::unique_ptr<Common::PluginApi::IPluginApi> plugin;
+
+    };
+
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
+
+        EXPECT_CALL(mock(), getStatus()).WillOnce(Return(statusInfo));
+
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+
+        EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedAnswer, reply );
+    }
+
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatusFail)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
+
+        dataMessage.payload.clear();
+        dataMessage.ProtocolVersion = "invalid";
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+        EXPECT_EQ(reply.Error, "Protocol not supported");
+    }
+
+}

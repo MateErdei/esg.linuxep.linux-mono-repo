@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <cassert>
+#include <Common/PluginApi/IPluginCallback.h>
 #include "MessageBuilder.h"
 namespace Common
 {
@@ -66,7 +67,7 @@ namespace Common
             return dataMessage.payload.at(0);
         }
 
-        StatusPair MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
+        Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             return {dataMessage.payload.at(0), dataMessage.payload.at(1)};
@@ -92,11 +93,15 @@ namespace Common
             return reply;
         }
 
-        DataMessage MessageBuilder::replyErrorMessage(const DataMessage &dataMessage, const std::string &errorDescription) const
+        DataMessage MessageBuilder::replySetErrorIfEmpty(const DataMessage &dataMessage, const std::string &errorDescription) const
         {
             DataMessage reply(dataMessage);
             reply.payload.clear();
-            reply.Error = errorDescription;
+            if ( reply.Error.empty())
+            {
+                reply.Error = errorDescription;
+            }
+
             return reply;
 
         }
@@ -119,13 +124,13 @@ namespace Common
             return reply;
         }
 
-        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const StatusPair &statusPair) const
+        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginApi::StatusInfo &statusInfo) const
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
             reply.payload.clear();
-            reply.payload.push_back(statusPair.status);
-            reply.payload.push_back(statusPair.statusWithoutTimeStamp);
+            reply.payload.push_back(statusInfo.statuxXml);
+            reply.payload.push_back(statusInfo.statusWithoutXml);
             return reply;
         }
 
@@ -150,6 +155,16 @@ namespace Common
             dataMessage.ProtocolVersion = m_protocolVersion;
             dataMessage.payload.push_back(payload);
             return dataMessage;
+        }
+
+        bool MessageBuilder::hasAck(const DataMessage &dataMessage) const
+        {
+            if(!dataMessage.payload.empty() && dataMessage.payload[0] == "ACK")
+            {
+                return true;
+            }
+
+            return false;
         }
 
     }

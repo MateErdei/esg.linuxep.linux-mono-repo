@@ -30,20 +30,13 @@ namespace Common
 
         const Common::PluginApi::DataMessage Protocol::deserialize(const data_t & data)
         {
-            Common::PluginApi::DataMessage message;
-            if ( data.size() == 0 )
+            std::string protocolversion;
+            if ( data.size() !=0 )
             {
-                message.Error = "Bad formed message";
-                return message;
+                protocolversion = data[0];
             }
 
-            auto serializer = m_protocolFactory->createProtocolSerializer(data[0]);
-
-            if(!serializer)
-            {
-                message.Error = "Protocol Not supported";
-                return message;
-            }
+            auto serializer = m_protocolFactory->createProtocolSerializer(protocolversion);
 
             return serializer->deserialize(data);
         }

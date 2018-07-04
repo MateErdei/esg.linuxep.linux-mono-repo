@@ -11,6 +11,12 @@ namespace Common
 {
     namespace PluginApiImpl
     {
+        ProtocolSerializer::ProtocolSerializer()
+        : m_supportedProtocolVersion(Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion)
+        {
+
+        }
+
         const data_t ProtocolSerializer::serialize(const Common::PluginApi::DataMessage &dataMessage)const
         {
             data_t data;
@@ -35,34 +41,61 @@ namespace Common
         const Common::PluginApi::DataMessage ProtocolSerializer::deserialize(const data_t &serializedData)
         {
             Common::PluginApi::DataMessage message;
-            if ( serializedData.size() < 5 )
+            if ( serializedData.size() < 4 )
             {
+                message = createDefaultErrorMessage();
                 message.Error = "Bad formed message";
                 return message;
             }
 
+            if(m_supportedProtocolVersion != serializedData[0])
+            {
+                message = createDefaultErrorMessage();
+                message.Error = "Protocol not supported";
+                return message;
+            }
+
+            message.ProtocolVersion = serializedData[0];
             message.ApplicationId = serializedData[1];
             message.Command = PluginApi::DeserializeCommand(serializedData[2]);
-            message.MessageId = serializedData[3];
 
-            if ( serializedData[4] == ProtocolSerializerFactory::ProtocolErrorMark)
+            if(message.Command == PluginApi::Commands::UNKNOWN)
             {
-                if ( serializedData.size() == 5)
+                message.Error = "Invalid request";
+            }
+
+            message.MessageId = serializedData[3];
+            if ( serializedData.size() > 4)
+            {
+                if ( serializedData[4] == ProtocolSerializerFactory::ProtocolErrorMark)
                 {
-                    message.Error = "Unknown error reported";
+                    if ( serializedData.size() == 5)
+                    {
+                        message.Error = "Unknown error reported";
+                    }
+                    else
+                    {
+                        message.Error = serializedData[5];
+                    }
+                    return message;
                 }
                 else
                 {
-                    message.Error = serializedData[5];
+                    message.payload = data_t( serializedData.begin()+4, serializedData.end());
                 }
-                return message;
-            }
-            else
-            {
-                message.payload = data_t( serializedData.begin()+4, serializedData.end());
             }
             return message;
         }
+
+        Common::PluginApi::DataMessage ProtocolSerializer::createDefaultErrorMessage()
+        {
+            Common::PluginApi::DataMessage dataMessage;
+            dataMessage.ProtocolVersion = m_supportedProtocolVersion;
+            dataMessage.Command = Common::PluginApi::Commands::UNKNOWN;
+
+            return dataMessage;
+        }
+
 
     }
 

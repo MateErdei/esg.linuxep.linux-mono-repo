@@ -39,7 +39,11 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
 {
     MessageBuilder messageBuilder(appId, ProtocolSerializerFactory::ProtocolVersion);
     DataMessage message = messageBuilder.requestSendEventMessage(eventXml);
-    getReply(message);
+    DataMessage replyMessage = getReply(message);
+    if ( !messageBuilder.hasAck(replyMessage))
+    {
+        throw Common::PluginApi::ApiException("Invalid reply for: 'send event'");
+    }
 }
 
 void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId, const std::string &statusXml,
@@ -47,7 +51,12 @@ void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId
 {
     MessageBuilder messageBuilder(appId, ProtocolSerializerFactory::ProtocolVersion);
     DataMessage message = messageBuilder.requestSendStatusMessage(statusXml, statusWithoutTimestampsXml);
-    getReply(message);
+
+    DataMessage replyMessage = getReply(message);
+    if ( !messageBuilder.hasAck(replyMessage))
+    {
+        throw Common::PluginApi::ApiException("Invalid reply for: 'Change status'");
+    }
 
 }
 
@@ -86,6 +95,7 @@ Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getRepl
     {
         throw Common::PluginApi::ApiException(reply.Error);
     }
+
     return reply;
 
 }

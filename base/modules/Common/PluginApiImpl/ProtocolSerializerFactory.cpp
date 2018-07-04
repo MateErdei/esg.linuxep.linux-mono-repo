@@ -24,7 +24,8 @@ namespace Common
                 return std::unique_ptr<Common::PluginApi::IProtocolSerializer>(new Common::PluginApiImpl::ProtocolSerializer());
             }
 
-            return nullptr;
+            // default ProtocolSerializer so we can correctly respond with an error in a message.
+            return std::unique_ptr<Common::PluginApi::IProtocolSerializer>(new Common::PluginApiImpl::ProtocolSerializer());
         }
 
     }

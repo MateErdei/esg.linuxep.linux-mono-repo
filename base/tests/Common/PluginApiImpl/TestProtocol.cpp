@@ -112,6 +112,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)
 
     DataMessage message = protocol.deserialize(expectedData);
 
+    EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
     EXPECT_EQ(toString(message.Command), expectedData[2]);
     EXPECT_EQ(message.MessageId, expectedData[3]);
@@ -126,6 +127,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadIsAnError)
 
     DataMessage message = protocol.deserialize(expectedData);
 
+    EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
     EXPECT_EQ(toString(message.Command), expectedData[2]);
     EXPECT_EQ(message.MessageId, expectedData[3]);
@@ -141,6 +143,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadContainsMultip
 
     DataMessage message = protocol.deserialize(expectedData);
 
+    EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
     EXPECT_EQ(toString(message.Command), expectedData[2]);
     EXPECT_EQ(message.MessageId, expectedData[3]);
@@ -171,22 +174,23 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoPayloadProvided
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "Test", "1"};
+    data_t expectedData = {"v1", "app1", "Test", "1"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
-    EXPECT_EQ(message.ApplicationId, "");
+    EXPECT_EQ(message.ProtocolVersion, "v1");
+    EXPECT_EQ(message.ApplicationId, "app1");
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
-    EXPECT_EQ(message.MessageId, "");
+    EXPECT_EQ(message.MessageId, "1");
     EXPECT_THAT(message.payload.size(), 0);
-    EXPECT_EQ(message.Error, "Bad formed message");
+    EXPECT_EQ(message.Error, "Invalid request");
 }
 
 TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProvided)
 {
     Protocol protocol;
 
-    data_t expectedData = {"vNotKnown", "1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
+    data_t expectedData = {"vNotKnown", "app1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
@@ -194,5 +198,5 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProv
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
     EXPECT_EQ(message.MessageId, "");
     EXPECT_THAT(message.payload.size(), 0);
-    EXPECT_THAT(message.Error, testing::HasSubstr("Protocol Not supported"));
+    EXPECT_THAT(message.Error, testing::HasSubstr("Protocol not supported"));
 }

@@ -19,9 +19,14 @@ namespace Common
         class ProtocolSerializer : public Common::PluginApi::IProtocolSerializer
         {
         public:
-
+            ProtocolSerializer();
             const data_t serialize(const Common::PluginApi::DataMessage &dataMessage)const override;
             const Common::PluginApi::DataMessage deserialize(const data_t &serializedData) override;
+
+        private:
+            Common::PluginApi::DataMessage createDefaultErrorMessage();
+
+            std::string m_supportedProtocolVersion;
         };
     }
 

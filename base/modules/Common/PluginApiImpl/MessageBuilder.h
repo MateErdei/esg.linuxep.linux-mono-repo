@@ -12,15 +12,7 @@ namespace Common
 {
     namespace PluginApiImpl
     {
-
-
-        struct StatusPair
-        {
-            std::string status;
-            std::string statusWithoutTimeStamp;
-        };
-
-        using DataMessage = Common::PluginApi::DataMessage;
+       using DataMessage = Common::PluginApi::DataMessage;
 
         class MessageBuilder
         {
@@ -40,22 +32,25 @@ namespace Common
 
             /** Extracting information from requests as server **/
             std::string requestExtractEvent( const DataMessage & ) const;
-            StatusPair requestExtractStatus( const DataMessage & ) const;
+            Common::PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
 
 
             /** Build replies as servers **/
             DataMessage replyAckMessage( const DataMessage & ) const;
-            DataMessage replyErrorMessage( const DataMessage& , const std::string & errorDescription )  const;
+            DataMessage replySetErrorIfEmpty( const DataMessage& , const std::string & errorDescription )  const;
             DataMessage replyCurrentPolicy(const DataMessage & , const std::string & policyContent) const;
             DataMessage replyTelemetry( const DataMessage &, const std::string & telemetryContent) const;
-            DataMessage replyStatus(const DataMessage&, const StatusPair &) const;
+            DataMessage replyStatus(const DataMessage&, const Common::PluginApi::StatusInfo &) const;
 
 
             /** Extracting information from replies as client */
             std::string replyExtractCurrentPolicy( const DataMessage & ) const;
             std::string replyExtractTelemetry( const DataMessage & ) const;
+
+            bool hasAck(const DataMessage &dataMessage) const;
+
         private:
             DataMessage createDefaultDataMessage(Common::PluginApi::Commands command, const std::string& payload) const;
 

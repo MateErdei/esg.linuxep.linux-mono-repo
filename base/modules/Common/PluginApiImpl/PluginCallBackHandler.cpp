@@ -35,20 +35,23 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::REQUEST_PLUGIN_STATUS:
                         {
-                            StatusPair statusPair;
-                            m_pluginCallback->getStatus(statusPair.status, statusPair.statusWithoutTimeStamp);
-                            return m_messageBuilder.replyStatus(request, statusPair);
+                            StatusInfo statusInfo = m_pluginCallback->getStatus();
+                            return m_messageBuilder.replyStatus(request, statusInfo);
                         }
                     case Commands::REQUEST_PLUGIN_TELEMETRY:
                         return m_messageBuilder.replyTelemetry(request, m_pluginCallback->getTelemetry());
                     default:
-                        return m_messageBuilder.replyErrorMessage(request, "Request not supported");
+                        return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");
 
                 }
             }
             catch ( Common::PluginApi::ApiException & ex)
             {
-                return m_messageBuilder.replyErrorMessage(request, ex.what());
+                return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
+            }
+            catch ( std::exception & ex)
+            {
+                return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
             }
 
         }
