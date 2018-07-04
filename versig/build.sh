@@ -29,15 +29,18 @@ function build()
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
     echo "PATH=$PATH"
-    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+    echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
 
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
     ## which doesn't like our openssl
-    git submodule update --init || {
+    git submodule sync --recursive || exitFailure 17 "Failed to sync submodule configuration"
+    git submodule update --init --recursive || {
         sleep 1
         echo ".gitmodules:"
         cat .gitmodules
+        echo ".git/config:"
+        cat .git/config
         exitFailure 16 "Failed to get googletest via git"
     }
 
@@ -59,8 +62,8 @@ function build()
     tar xzf "$CMAKE_TAR" -C "$REDIST"
     addpath "$REDIST/cmake/bin"
 
-    COMMON_LDFLAGS="${LINK_OPTIONS}"
-    COMMON_CFLAGS="${OPTIONS} ${CFLAGS} ${COMMON_LDFLAGS}"
+    COMMON_LDFLAGS="${LINK_OPTIONS:-}"
+    COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
     rm -rf ${PRODUCT}
     mkdir -p ${PRODUCT}
@@ -81,7 +84,7 @@ function build()
     rm -rf build${BITS}
     mkdir build${BITS}
     cd build${BITS}
-    [[ -n $NPROC ]] || NPROC=2
+    [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -DREDIST="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     cd ..
