@@ -39,6 +39,7 @@ namespace
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
+            pluginResourceManagement.setDefaultConnectTimeout(3000);
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
             auto & context = pluginResourceManagement.socketContext();
             server = std::thread(std::ref(responseServer), std::ref(context));
@@ -94,6 +95,69 @@ namespace
         EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
 
     }
+
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+        responseServer.setReply(dataMessage);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+    }
+
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Error = "Server rejected call";
+        responseServer.setReply(dataMessage);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+    }
+
+
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfWrongProtocol)
+    {
+        data_t invalidprotocol({"not", "valid", "protocol"});
+        responseServer.setReplyRaw(invalidprotocol);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+    }
+
+
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer)
+    {
+        responseServer.doNotReply();
+        // attention: this require PluginResrouceManager to configure the timeout of plugin.
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+    }
+
+
+
+    TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
+        responseServer.setReply(dataMessage);
+        EXPECT_NO_THROW(plugin->changeStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
+    }
+
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        dataMessage.Error = "Server rejected call";
+        responseServer.setReply(dataMessage);
+        EXPECT_THROW(plugin->getPolicy("plugin"), Common::PluginApi::ApiException);
+    }
+
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        dataMessage.payload.clear();
+        dataMessage.payload.push_back("testPolicyPayload");
+        responseServer.setReply(dataMessage);
+        EXPECT_EQ(plugin->getPolicy("plugin"), dataMessage.payload.at(0));
+    }
+
+
 
 
 }
