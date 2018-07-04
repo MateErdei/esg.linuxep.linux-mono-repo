@@ -68,6 +68,9 @@ function build()
     echo "PATH=$PATH" >${PRODUCT}/${BITS}/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${PRODUCT}/${BITS}/LD_LIBRARY_PATH
 
+    cd $BASE
+    git submodule update --init || exitFailure 16 "Failed to get googletest via git"
+
     rm -rf build${BITS}
     mkdir build${BITS}
     cd build${BITS}
