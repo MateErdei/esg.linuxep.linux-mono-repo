@@ -34,7 +34,12 @@ function build()
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
     ## which doesn't like our openssl
-    git submodule update --init || exitFailure 16 "Failed to get googletest via git"
+    git submodule update --init || {
+        sleep 1
+        echo ".gitmodules:"
+        cat .gitmodules
+        exitFailure 16 "Failed to get googletest via git"
+    }
 
     unpack_scaffold_gcc_make $BASE/input
 
