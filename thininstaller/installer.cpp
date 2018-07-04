@@ -393,48 +393,6 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
         }
     }
 
-// todo, either fix this and use it or just delete it and use the while true above.
-//    SU_PHandle product;
-//    do {
-//        if (g_DebugMode)
-//        {
-//            printf("Getting next product\n");
-//        }
-//        product = SU_getProductRelease(session);
-//        if (product)
-//        {
-//            if (g_DebugMode)
-//            {
-//                queryProductMetadata(product, "Line");
-//                queryProductMetadata(product, "Major");
-//                queryProductMetadata(product, "Minor");
-//                queryProductMetadata(product, "Name");
-//                queryProductMetadata(product, "VersionId");
-//                queryProductMetadata(product, "DefaultHomeFolder");
-//                queryProductMetadata(product, "Platforms");
-//                queryProductMetadata(product, "ReleaseTagsTag");
-//                printf("\n");
-//            }
-//            if (!strcmp(SU_queryProductMetadata(product, "Line", 0), g_Guid))
-//            {
-//                g_Product = product;
-//            }
-//            else
-//            {
-//                ret = SU_removeProduct(product);
-//                RETURN_IF_ERROR("SU_removeProduct", ret);
-//            }
-//        }
-//    }
-//    while(product);
-//
-//    if (g_DebugMode)
-//    {
-//        printf("Out of products\n");
-//    }
-
-
-
     if (!g_Product)
     {
         fprintf(stderr, "Internal error - medium installer not found\n");
