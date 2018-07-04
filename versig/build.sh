@@ -35,7 +35,8 @@ function build()
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
     ## which doesn't like our openssl
     git submodule sync --recursive || exitFailure 17 "Failed to sync submodule configuration"
-    git submodule update --init --recursive || {
+    GIT_SSL_NO_VERIFY=true  \
+        git -c http.sslVerify=false submodule update --init --recursive || {
         sleep 1
         echo ".gitmodules:"
         cat .gitmodules
