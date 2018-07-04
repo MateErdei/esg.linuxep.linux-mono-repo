@@ -348,7 +348,7 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
 
     if (isSULError(ret))
     {
-        fprintf(stderr, "\nFailed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n", location.c_str(), ret, SU_getErrorDetails(session));
+        fprintf(stderr, "Failed to connect to warehouse at %s (SUL error is [%d-%s]). Please check your firewall rules and proxy configuration.\n", location.c_str(), ret, SU_getErrorDetails(session));
         return 46;
     }
 
