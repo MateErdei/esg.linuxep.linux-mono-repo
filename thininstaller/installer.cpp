@@ -251,7 +251,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
     return proxies;
 }
 
-static int downloadInstaller(std::string location, bool https, bool updateCache)
+static int downloadInstaller(std::string location, bool updateCache)
 {
     //Todo tidy this up to make it only https
     SU_init();
@@ -282,7 +282,6 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
         }
 
         location = "https://" + location + "/sophos/customer";
-        https = true;
     }
 
     ret = SU_setLoggingLevel(session, SU_LoggingLevel_verbose);
@@ -297,25 +296,24 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
     ret = SU_addSophosLocation(session, location.c_str());
     RETURN_IF_ERROR("addsophoslocation", ret);
 
-    ret = SU_setUseHttps(session, https);
+    ret = SU_setUseHttps(session, true);
     RETURN_IF_ERROR("setUseHttps", ret);
 
-    if (https)
+
+    auto * certsToUse = const_cast<char *>("installer/sdds_https_rootca.crt");
+    if (updateCache)
     {
-        auto * certsToUse = const_cast<char *>("installer/sdds_https_rootca.crt");
-        if (updateCache)
-        {
-            certsToUse = const_cast<char *>("installer/uc_certs.crt");
-        }
-        char * sslCerts = getenv("OVERRIDE_SSL_SOPHOS_CERTS");
-        sslCerts = sslCerts ? sslCerts : certsToUse;
-
-        ret = SU_setSslCertificatePath(session, sslCerts);
-        RETURN_IF_ERROR("setSslCertificatePath", ret);
-
-        ret = SU_setUseSophosCertStore(session, true);
-        RETURN_IF_ERROR("setUseSophosCertStore", ret);
+        certsToUse = const_cast<char *>("installer/uc_certs.crt");
     }
+    char * sslCerts = getenv("OVERRIDE_SSL_SOPHOS_CERTS");
+    sslCerts = sslCerts ? sslCerts : certsToUse;
+
+    ret = SU_setSslCertificatePath(session, sslCerts);
+    RETURN_IF_ERROR("setSslCertificatePath", ret);
+
+    ret = SU_setUseSophosCertStore(session, true);
+    RETURN_IF_ERROR("setUseSophosCertStore", ret);
+
 
     char * certsDir = getenv("OVERRIDE_SOPHOS_CERTS");
     certsDir = certsDir ? certsDir : (char *)"installer";
@@ -340,7 +338,7 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
     if (g_DebugMode)
     {
         fprintf(stderr, "Listing warehouse with creds [%s] at [%s] with certs dir [%s] via [%s]\n",
-                creds, location.c_str(), certsDir, https ? "HTTPS" : "HTTP");
+                creds, location.c_str(), certsDir, "HTTPS");
     }
 
     ret = SU_readRemoteMetadata(session);
@@ -422,7 +420,6 @@ static int downloadInstaller(std::string location, bool https, bool updateCache)
     return 0;
 }
 
-
 static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& caches)
 {
     int ret = 0;
@@ -437,7 +434,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
         // Use update caches
         for (auto & cache : caches)
         {
-            ret = downloadInstaller(cache.getAddress(), true, true);
+            ret = downloadInstaller(cache.getAddress(), true);
             if (ret == 0)
             {
                 return ret;
@@ -446,7 +443,7 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
     }
 
     // Go direct, always https
-    return downloadInstaller(sophosLocation, true, false);
+    return downloadInstaller(sophosLocation, false);
 }
 
 int main(int argc, char ** argv)
