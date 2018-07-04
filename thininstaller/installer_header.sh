@@ -269,7 +269,7 @@ then
 fi
 
 # Check there is enough disk space
-check_free_storage $INSTALL_LOCATION 1024
+check_free_storage ${INSTALL_LOCATION} 1024
 
 # Check there is enough RAM
 check_total_mem 1024
