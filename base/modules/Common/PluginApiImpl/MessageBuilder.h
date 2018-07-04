@@ -35,6 +35,7 @@ namespace Common
             Common::PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
+            std::string requestExtractPluginName( const DataMessage & ) const;
 
 
             /** Build replies as servers **/
