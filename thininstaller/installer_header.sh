@@ -82,7 +82,7 @@ check_free_storage()
         return 0
     fi
     echo "Not enough space in $mountpoint to install Sophos Anti-Virus for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
-    cleanup_and_exit EXITCODE_NOT_ENOUGH_SPACE
+    cleanup_and_exit $EXITCODE_NOT_ENOUGH_SPACE
 }
 
 check_total_mem()
