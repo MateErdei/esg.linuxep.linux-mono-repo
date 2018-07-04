@@ -71,8 +71,9 @@ function build()
     rm -rf build${BITS}
     mkdir build${BITS}
     cd build${BITS}
+    [[ -n $NPROC ]] || NPROC=2
     cmake -DREDIST="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
-    make || exitFailure 15 "Failed to build $PRODUCT"
+    make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     cd ..
 
     ## package output
