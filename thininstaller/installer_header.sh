@@ -87,10 +87,10 @@ check_free_storage()
 
 check_total_mem()
 {
-    local neededMem=$1
-    local totalMem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    local neededMemKiloBytes=$1
+    local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
-    if [ $totalMem -gt $neededMem ]
+    if [ $totalMemKiloBytes -gt $neededMemKiloBytes ]
     then
         return 0
     fi
@@ -271,8 +271,8 @@ fi
 # Check there is enough disk space
 check_free_storage ${INSTALL_LOCATION} 1024
 
-# Check there is enough RAM
-check_total_mem 1024
+# Check there is enough RAM (~1GB in kB)
+check_total_mem 1000000
 
 tar -zxf installer.tar.gz || failure 11 "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure 12 "ERROR: Failed to delete packed thin installer: $?"
