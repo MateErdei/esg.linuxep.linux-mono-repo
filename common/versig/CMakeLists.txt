@@ -2,14 +2,21 @@ cmake_minimum_required(VERSION 3.5)
 project(versig)
 
 if (NOT DEFINED CMAKE_CXX_STANDARD)
-set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 11)
 endif (NOT DEFINED CMAKE_CXX_STANDARD)
 
 include_directories(.)
 
-set( REDIST /redist )
+if (NOT DEFINED REDIST)
+    set( REDIST /redist )
+endif (NOT DEFINED REDIST)
+
 set( BINARIES_DIR ${REDIST}/binaries )
-set( INPUT ${BINARIES_DIR}/linux10/input )
+
+if (NOT DEFINED INPUT)
+    set( INPUT ${BINARIES_DIR}/linux10/input )
+endif (NOT DEFINED INPUT)
+
 set( OPENSSL_DIR ${INPUT}/openssl )
 
 set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
@@ -45,6 +52,9 @@ add_executable(versig src/versig_main.cpp src/versig.h)
 
 target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
 
+include(GoogleTest)
+enable_testing()
+
 add_subdirectory(tests/googletest)
 
 add_executable(versig_test
@@ -55,4 +65,4 @@ target_link_libraries(versig_test PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl
 target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
 target_include_directories(versig_test BEFORE PUBLIC "${gtest_SOURCE_DIR}" src)
 
-add_test(versig_test versig_test)
+gtest_discover_tests(versig_test)
