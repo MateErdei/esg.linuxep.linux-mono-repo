@@ -60,21 +60,6 @@ mkdir -p "$installer_dir"
 mkdir -p "$libs_dir"
 mkdir -p "$bin_dir"
 
-#cp installer64 installer/bin64/installer || failure "Failure to copy 64 bit version!"
-#cp -a redist/SUL/lib64/*.so* installer/bin64/
-#cp -a redist/curl/lib64/*.so* installer/bin64/
-#cp -a redist/boost/lib64/*.so* installer/bin64/
-#cp -a redist/openssl/lib64/*.so* installer/bin64/
-#cp -a redist/expat/lib64/*.so* installer/bin64/
-#cp -a redist/zlib/lib64/*.so* installer/bin64/
-#cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
-#cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
-#cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
-#strip installer/bin64/*
-#cp *rootca* installer/
-
-
-
 # bin files
 cp cmake-build-release/thininstaller "$installer_binary" || failure "Failure to copy installer binary"
 # TODO change this to a redist location
