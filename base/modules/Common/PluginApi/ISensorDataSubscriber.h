@@ -13,6 +13,7 @@ namespace Common
         class ISensorDataSubscriber
         {
         public:
+            virtual  ~ISensorDataSubscriber() = default;
             static std::unique_ptr<ISensorDataSubscriber> newSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
                                                                                   std::shared_ptr<ISensorDataCallback> sensorDataCallback);
 

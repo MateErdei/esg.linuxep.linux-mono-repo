@@ -16,6 +16,7 @@ namespace Common
         class IProtocolSerializerFactory
         {
         public:
+            virtual  ~IProtocolSerializerFactory() = default;
             virtual std::unique_ptr<Common::PluginApi::IProtocolSerializer>  createProtocolSerializer(
                     const std::string &protocolVersion) = 0;
         };

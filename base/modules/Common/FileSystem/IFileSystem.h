@@ -18,6 +18,7 @@ namespace Common
         class IFileSystem
         {
         public:
+            virtual ~IFileSystem() = default;
             /**
              * Joins 2 linux paths together
              * @param path1, first part the path

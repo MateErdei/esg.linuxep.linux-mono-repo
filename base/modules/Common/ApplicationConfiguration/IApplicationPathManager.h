@@ -15,7 +15,7 @@ namespace Common
         class IApplicationPathManager
         {
         public:
-            ~IApplicationPathManager() = default;
+            virtual ~IApplicationPathManager() = default;
             virtual std::string getPluginSocketAddress(const std::string & pluginName) const = 0;
             virtual std::string getManagementAgentSocketAddress() const = 0;
             virtual std::string getWatchdogSocketAddress() const = 0;

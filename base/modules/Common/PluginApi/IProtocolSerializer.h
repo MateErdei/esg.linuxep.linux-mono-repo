@@ -20,6 +20,7 @@ namespace Common
         {
 
         public:
+            virtual ~IProtocolSerializer() = default;
             virtual const data_t serialize(const DataMessage &data)const = 0;
             virtual const DataMessage deserialize(const data_t &data) = 0;
         };

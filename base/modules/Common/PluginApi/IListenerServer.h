@@ -19,6 +19,7 @@ namespace Common
         class IListenerServer
         {
         public:
+            virtual ~IListenerServer() = default;
             virtual DataMessage process(const DataMessage & request) const = 0;
             virtual void onShutdownRequested() = 0;
             virtual void start() = 0;

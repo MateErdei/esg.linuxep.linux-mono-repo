@@ -12,6 +12,7 @@ namespace Common
         class ISensorDataCallback
         {
         public:
+            virtual ~ISensorDataCallback() = default;
             virtual void receiveData(const std::string &key, const std::string &data) = 0;
         };
     }

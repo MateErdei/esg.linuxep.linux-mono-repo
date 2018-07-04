@@ -15,7 +15,7 @@ namespace Common
         class IApplicationConfiguration
         {
         public:
-            ~IApplicationConfiguration() = default;
+            virtual ~IApplicationConfiguration() = default;
             virtual std::string getData(const std::string & key) const = 0;
         };
 

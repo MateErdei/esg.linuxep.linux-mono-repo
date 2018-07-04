@@ -15,6 +15,7 @@ namespace Common
         class IPluginCallback
         {
         public:
+            virtual ~IPluginCallback() = default;
             /// Receives the new policy and pass the text to the plugin.
             /// \param policyXml
             virtual void applyNewPolicy(const std::string &policyXml) = 0;

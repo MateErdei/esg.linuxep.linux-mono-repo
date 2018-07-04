@@ -15,6 +15,7 @@ namespace Common
         class IException : public std::runtime_error
         {
         public:
+            virtual ~IException() = default;
             explicit IException(const std::string& what)
                     : std::runtime_error(what)
             {}
