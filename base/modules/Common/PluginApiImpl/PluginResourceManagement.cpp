@@ -1,6 +1,8 @@
-//
-// Created by pair on 04/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "PluginResourceManagement.h"
 #include "PluginApiImpl.h"
@@ -86,6 +88,11 @@ namespace Common
         {
             socket.setTimeout(m_defaulTimeout);
             socket.setConnectionTimeout(m_defaultConnectTimeout);
+        }
+
+        Common::ZeroMQWrapper::IContext &PluginResourceManagement::socketContext()
+        {
+            return *m_context;
         }
     }
 }

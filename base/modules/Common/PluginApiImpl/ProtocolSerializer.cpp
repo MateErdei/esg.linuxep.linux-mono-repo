@@ -1,6 +1,8 @@
-//
-// Created by pair on 28/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ProtocolSerializer.h"
 #include "ProtocolSerializerFactory.h"

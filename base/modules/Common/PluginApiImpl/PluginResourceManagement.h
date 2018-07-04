@@ -1,6 +1,8 @@
-//
-// Created by pair on 04/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_PLUGINRESOURCEMANAGEMENT_H
 #define EVEREST_BASE_PLUGINRESOURCEMANAGEMENT_H
@@ -23,6 +25,8 @@ namespace Common
             std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> createSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
                                                                                                  std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback) override ;
 
+            /* mainly for tests */
+            Common::ZeroMQWrapper::IContext & socketContext();
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
             Common::ZeroMQWrapper::IContextPtr m_context;

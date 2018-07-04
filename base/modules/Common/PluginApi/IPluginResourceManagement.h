@@ -1,6 +1,8 @@
-//
-// Created by pair on 04/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
 #define EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H

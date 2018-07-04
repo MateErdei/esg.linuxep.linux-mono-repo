@@ -1,6 +1,8 @@
-//
-// Created by pair on 02/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "Common/PluginApi/ApiException.h"
 #include "PluginCallBackHandler.h"
