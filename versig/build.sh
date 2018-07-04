@@ -31,6 +31,11 @@ function build()
     echo "PATH=$PATH"
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
+    cd $BASE
+    ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
+    ## which doesn't like our openssl
+    git submodule update --init || exitFailure 16 "Failed to get googletest via git"
+
     unpack_scaffold_gcc_make $BASE/input
 
     OPENSSL_TAR=$BASE/input/openssl.tar
@@ -67,9 +72,6 @@ function build()
     echo "BASE=$BASE" >${PRODUCT}/${BITS}/BASE
     echo "PATH=$PATH" >${PRODUCT}/${BITS}/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${PRODUCT}/${BITS}/LD_LIBRARY_PATH
-
-    cd $BASE
-    git submodule update --init || exitFailure 16 "Failed to get googletest via git"
 
     rm -rf build${BITS}
     mkdir build${BITS}
