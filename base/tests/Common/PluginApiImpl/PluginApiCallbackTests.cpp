@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/PluginApi/IPluginApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
@@ -169,7 +168,7 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.payload.push_back(statusInfo.statusXml);
         expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
 
         EXPECT_CALL(mock(), getStatus()).WillOnce(Return(statusInfo));
@@ -186,7 +185,7 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.payload.push_back(statusInfo.statusXml);
         expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
 
         dataMessage.payload.clear();
