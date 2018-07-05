@@ -95,7 +95,7 @@ def generate_sdds_import(dist, file_objects):
     tidyXml(doc)
 
     fullVersion = os.environ.get("FULL_VERSION", "0.5.0.0")
-    rigidName = os.environ.get("RIGID_NAME", "SSPPL-BASE")
+    rigidName = os.environ.get("RIGID_NAME", "SSPL-BASE")
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
