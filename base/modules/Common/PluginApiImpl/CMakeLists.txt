@@ -1,6 +1,5 @@
 add_library(pluginapiimpl SHARED
         ../PluginApi/DataMessage.h
-        ../PluginApi/IListenerServer.h
         ../PluginApi/IProtocolSerializerFactory.h
         ../PluginApi/IProtocolSerializer.h
         ../PluginApi/IPluginApi.h

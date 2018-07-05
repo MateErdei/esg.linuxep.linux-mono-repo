@@ -7,8 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_ABSTRACTSERVER_H
 #define EVEREST_BASE_ABSTRACTSERVER_H
 
-#include "PluginApi/IListenerServer.h"
-
 #include "Protocol.h"
 
 #include "Common/ZeroMQWrapper/IReadable.h"
@@ -23,16 +21,19 @@ namespace Common
     {
         using namespace PluginApi;
 
-        class AbstractListenerServer : public IListenerServer,
-                public Common::Reactor::ICallbackListener,
-                public Common::Reactor::IShutdownListener
+        class AbstractListenerServer :
+                public virtual Common::Reactor::ICallbackListener,
+                public virtual Common::Reactor::IShutdownListener
         {
         public:
             AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite);
-            void start() override;
-            void stop() override;
-// REPLY
+            void start() ;
+            void stop() ;
+
         private:
+            virtual DataMessage process(const DataMessage & request) const = 0;
+            virtual void onShutdownRequested() = 0;
+
             void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request ) override ;
             void notifyShutdownRequested() override ;
             std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> m_ireadWrite;
