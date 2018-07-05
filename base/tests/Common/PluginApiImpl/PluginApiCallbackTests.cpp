@@ -226,11 +226,6 @@ namespace
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
 
-
-
-
-
-
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction)
     {
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
@@ -262,7 +257,34 @@ namespace
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
 
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back("ACK");
 
+        EXPECT_CALL(mock(), applyNewPolicy(_));
+
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+
+        EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedAnswer, reply );
+    }
+
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyFail)
+    {
+        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY, "");
+        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+
+        std::string policyData = "PolicyData";
+        expectedAnswer.payload.clear();
+        expectedAnswer.payload.push_back(policyData);
+
+        dataMessage.payload.clear();
+        dataMessage.ProtocolVersion = "invalid";
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+        EXPECT_EQ(reply.Error, "Protocol not supported");
+    }
 
 }

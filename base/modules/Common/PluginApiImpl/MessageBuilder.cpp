@@ -199,5 +199,11 @@ namespace Common
             return false;
         }
 
+        std::string MessageBuilder::requestExtractPluginName(const DataMessage & dataMessage) const
+        {
+            assert( dataMessage.Command == PluginApi::Commands::PLUGIN_SEND_REGISTER);
+            return dataMessage.ApplicationId;
+        }
+
     }
 }

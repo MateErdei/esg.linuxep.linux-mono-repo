@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ReactorImpl/ReadableFd.h>
 #include <future>
 #include "TempDir.h"
+#include "TestExecutionSynchronizer.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
@@ -25,23 +26,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
 using namespace Common::ReactorImpl;
-class ExecutionBarrier
-{
-    std::mutex mutex;
-    std::condition_variable m_waitCondition;
-public:
-    void waitfor()
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        m_waitCondition.wait_for(lock, std::chrono::milliseconds(500));
-    }
-    void notify()
-    {
-        std::unique_lock<std::mutex> lock(mutex);
-        m_waitCondition.notify_all();
-    }
-};
-
 
 class ReactorImplTest : public ::testing::Test
 {
@@ -70,10 +54,10 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
     ReadableFd readableFd(m_pipe->readFd(), false);
     data_t processData = {{"hello"}};
 
-    ExecutionBarrier executionBarrier;
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer;
 
-    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&executionBarrier](data_t){executionBarrier.notify(); })
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
+            Invoke([&testExecutionSynchronizer](data_t){testExecutionSynchronizer.notify(); })
     );
 
     reactor->addListener(&readableFd, &mockCallBackListener);
@@ -82,7 +66,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
 
     m_pipe->write("hello");
 
-    executionBarrier.waitfor();
+    testExecutionSynchronizer.waitfor();
     reactor->stop();
 }
 /**
@@ -191,11 +175,11 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     ReadableFd readableFd(m_pipe->readFd(), false);
     data_t processData = {{"hello"}};
 
-    ExecutionBarrier sync;
+    Tests::TestExecutionSynchronizer executionSynchronizer;
 
 
-    EXPECT_CALL(mockCallBackListener, process(processData)).WillOnce(
-            Invoke([&sync](data_t){sync.notify();})
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
+            Invoke([&executionSynchronizer](data_t){executionSynchronizer.notify();})
     );
 
     reactor->addListener(&readableFdThatThrows, &callBackListenerThatThrows);
@@ -206,7 +190,7 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     m_pipeWhichThrows->write("hello");
     m_pipe->write("hello");
 
-    sync.waitfor();
+    executionSynchronizer.waitfor();
     ASSERT_TRUE(callbackExecuted);
     reactor->stop();
 }
