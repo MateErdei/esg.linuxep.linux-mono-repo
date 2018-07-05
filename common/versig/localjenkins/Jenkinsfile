@@ -5,7 +5,7 @@ def buildAndTest()
         sh 'rm -rf /tmp/temp*'
         sh 'git submodule sync --recursive'
         sh 'git --version'
-        sh 'git -c http.sslVerify=false submodule update --init --recursive'
+        sh 'GIT_SSL_NO_VERIFY=true git -c http.sslVerify=false submodule update --init --recursive'
         sh 'mkdir -p build && cd build && cmake .. && make'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
