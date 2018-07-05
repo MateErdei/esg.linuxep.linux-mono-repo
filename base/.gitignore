@@ -5,3 +5,7 @@
 .idea/modules.xml
 .idea/workspace.backup
 .idea/workspace.xml
+.idea/shelf/
+build
+cmake-build-debug
+*.pyc
