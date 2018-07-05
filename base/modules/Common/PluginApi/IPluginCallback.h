@@ -16,7 +16,7 @@ namespace Common
 
         struct StatusInfo
         {
-            std::string statuxXml;
+            std::string statusXml;
             std::string statusWithoutXml;
         };
 

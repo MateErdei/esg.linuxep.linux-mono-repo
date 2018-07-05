@@ -129,7 +129,7 @@ namespace Common
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
             reply.payload.clear();
-            reply.payload.push_back(statusInfo.statuxXml);
+            reply.payload.push_back(statusInfo.statusXml);
             reply.payload.push_back(statusInfo.statusWithoutXml);
             return reply;
         }
@@ -144,6 +144,12 @@ namespace Common
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
             return dataMessage.payload.at(0);
+        }
+
+        Common::PluginApi::StatusInfo MessageBuilder::replyExtractStatus( const DataMessage &dataMessage ) const
+        {
+            assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
+            return {dataMessage.payload.at(0), dataMessage.payload.at(1)};
         }
 
         DataMessage
