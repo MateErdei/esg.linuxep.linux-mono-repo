@@ -1,1 +1,2 @@
+add_subdirectory(distribution)
 add_subdirectory(SulDownloader)
