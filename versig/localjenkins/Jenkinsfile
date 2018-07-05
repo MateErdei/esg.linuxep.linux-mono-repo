@@ -3,6 +3,8 @@ def buildAndTest()
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
         sh 'rm -rf /tmp/temp*'
+        sh 'git submodule sync --recursive'
+        sh 'git -c http.sslVerify=false submodule update --init --recursive'
         sh 'mkdir -p build && cd build && cmake .. && make'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
