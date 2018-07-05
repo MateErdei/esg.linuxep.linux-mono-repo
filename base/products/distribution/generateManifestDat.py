@@ -3,6 +3,8 @@
 from __future__ import absolute_import,print_function,division,unicode_literals
 
 import os
+import socket
+
 try:
     import xmlrpc.client as xmlrpc_client
 except ImportError:
@@ -53,6 +55,16 @@ class Options(object):
         self.signing_oracle = os.environ.get("SIGNING_ORACLE", "http://buildsign-m:8000")
 
 def generate_manifest(dist, file_objects):
+    options = Options()
+    signer = SigningOracleClientSigner(options, verbose=True)
+    try:
+        signer.testSigning()
+    except socket.gaierror:
+        print("Failed to contact buildsign-m - trying buildsign-m.eng.sophos")
+        options.signing_oracle = "http://buildsign-m.eng.sophos:8000"
+        signer = SigningOracleClientSigner(options, verbose=True)
+        signer.testSigning()
+
     manifest_path = os.path.join(dist, b"manifest.dat")
     output = open(manifest_path, "wb")
     for f in file_objects:
@@ -61,8 +73,6 @@ def generate_manifest(dist, file_objects):
         output.write(b'#sha256 %s\n' % f.m_sha256)
         output.write(b'#sha384 %s\n' % f.m_sha384)
 
-    options = Options()
-    signer = SigningOracleClientSigner(options, verbose=True)
     output.close()
 
     sig = signer.encodedSignatureForFile(manifest_path)
