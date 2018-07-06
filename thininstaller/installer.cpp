@@ -138,10 +138,10 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     return canConnectToCloud();
 }
 
-static void queryProductMetadata(SU_PHandle product, const char *the_thing)
+static void queryProductMetadata(SU_PHandle product, const char *attribute)
 {
-    SU_String thing = SU_queryProductMetadata(product, the_thing, 0);
-    printf("%s: [%s]\n", the_thing, thing ? thing : "<null>");
+    SU_String result = SU_queryProductMetadata(product, attribute, 0);
+    printf("%s: [%s]\n", attribute, result ? result : "<null>");
 }
 
 static void writeSignedFile(const char* cred)
@@ -329,7 +329,7 @@ static int downloadInstaller(std::string location, bool updateCache)
         printf("Creds is [%s]\n", creds);
     }
 
-    ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, 0,0,0);
+    ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, nullptr, nullptr, nullptr);
     RETURN_IF_ERROR("addUpdateSource", ret);
 
     ret = SU_setCertificatePath(session, certsDir);

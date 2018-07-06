@@ -54,5 +54,3 @@ add_executable(thininstaller
         installer.cpp)
 
 target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY})
-
-add_subdirectory(test)
