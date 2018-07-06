@@ -3,9 +3,11 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include <cassert>
 #include <Common/PluginApi/IPluginCallback.h>
 #include "MessageBuilder.h"
+
 namespace Common
 {
     namespace PluginProtocol
@@ -27,7 +29,7 @@ namespace Common
                                                              const std::string &statusWithoutTimeStamp) const
         {
             DataMessage dataMessage = createDefaultDataMessage(Commands::PLUGIN_SEND_STATUS, statusXml);
-            dataMessage.payload.push_back(statusWithoutTimeStamp);
+            dataMessage.Payload.push_back(statusWithoutTimeStamp);
             return dataMessage;
         }
 
@@ -64,39 +66,58 @@ namespace Common
         std::string MessageBuilder::requestExtractEvent(const DataMessage & dataMessage) const
         {
             assert( dataMessage.Command == Commands::PLUGIN_SEND_EVENT);
-            return dataMessage.payload.at(0);
+            return dataMessage.Payload.at(0);
         }
 
         Common::PluginProtocol::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
-            return {dataMessage.payload.at(0), dataMessage.payload.at(1)};
+            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
         }
+
+
+        std::string  MessageBuilder::requestExtractCurrentPolicy( const DataMessage &dataMessage) const
+        {
+            assert( dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
+            return requestExtractPluginName(dataMessage);
+        }
+
+        std::string MessageBuilder::requestExtractRegistration(const DataMessage &dataMessage) const
+        {
+            assert( dataMessage.Command == Commands::PLUGIN_SEND_REGISTER);
+            return requestExtractPluginName(dataMessage);
+        }
+
+        std::string MessageBuilder::requestExtractPluginName(const DataMessage &dataMessage) const
+        {
+            return dataMessage.ApplicationId;
+        }
+
 
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_APPLY_POLICY);
-            return dataMessage.payload.at(0);
+            return dataMessage.Payload.at(0);
         }
 
         std::string MessageBuilder::requestExtractAction(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_DO_ACTION);
-            return dataMessage.payload.at(0);
+            return dataMessage.Payload.at(0);
         }
 
         DataMessage MessageBuilder::replyAckMessage(const DataMessage &dataMessage) const
         {
             DataMessage reply(dataMessage);
-            reply.payload.clear();
-            reply.payload.push_back("ACK");//?
+            reply.Payload.clear();
+            reply.Payload.push_back("ACK");//?
             return reply;
         }
 
         DataMessage MessageBuilder::replySetErrorIfEmpty(const DataMessage &dataMessage, const std::string &errorDescription) const
         {
             DataMessage reply(dataMessage);
-            reply.payload.clear();
+            reply.Payload.clear();
             if ( reply.Error.empty())
             {
                 reply.Error = errorDescription;
@@ -110,8 +131,8 @@ namespace Common
         {
             assert(dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
             DataMessage reply(dataMessage);
-            reply.payload.clear();
-            reply.payload.push_back(policyContent);
+            reply.Payload.clear();
+            reply.Payload.push_back(policyContent);
             return reply;
         }
 
@@ -119,8 +140,8 @@ namespace Common
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
             DataMessage reply(dataMessage);
-            reply.payload.clear();
-            reply.payload.push_back(telemetryContent);
+            reply.Payload.clear();
+            reply.Payload.push_back(telemetryContent);
             return reply;
         }
 
@@ -128,22 +149,28 @@ namespace Common
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
-            reply.payload.clear();
-            reply.payload.push_back(statusInfo.statusXml);
-            reply.payload.push_back(statusInfo.statusWithoutXml);
+            reply.Payload.clear();
+            reply.Payload.push_back(statusInfo.statusXml);
+            reply.Payload.push_back(statusInfo.statusWithoutXml);
             return reply;
         }
 
         std::string MessageBuilder::replyExtractCurrentPolicy(const DataMessage &dataMessage) const
         {
             assert(dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
-            return dataMessage.payload.at(0);
+            return dataMessage.Payload.at(0);
         }
 
         std::string MessageBuilder::replyExtractTelemetry(const DataMessage &dataMessage) const
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
-            return dataMessage.payload.at(0);
+            return dataMessage.Payload.at(0);
+        }
+
+        Common::PluginProtocol::StatusInfo MessageBuilder::replyExtractStatus( const DataMessage &dataMessage ) const
+        {
+            assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
+            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
         }
 
         DataMessage
@@ -155,25 +182,19 @@ namespace Common
             dataMessage.ProtocolVersion = m_protocolVersion;
             if ( !payload.empty())
             {
-                dataMessage.payload.push_back(payload);
+                dataMessage.Payload.push_back(payload);
             }
             return dataMessage;
         }
 
         bool MessageBuilder::hasAck(const DataMessage &dataMessage) const
         {
-            if(!dataMessage.payload.empty() && dataMessage.payload[0] == "ACK")
+            if(!dataMessage.Payload.empty() && dataMessage.Payload[0] == "ACK")
             {
                 return true;
             }
 
             return false;
-        }
-
-        std::string MessageBuilder::requestExtractPluginName(const DataMessage & dataMessage) const
-        {
-            assert( dataMessage.Command == PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
-            return dataMessage.ApplicationId;
         }
 
     }

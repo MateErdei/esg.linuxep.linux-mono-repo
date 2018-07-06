@@ -63,7 +63,7 @@ TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage)
 
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
-    Common::PluginApi::StatusInfo statusInfo;
+    Common::PluginProtocol::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
@@ -214,7 +214,7 @@ TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
-    Common::PluginApi::StatusInfo statusInfo;
+    Common::PluginProtocol::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
@@ -245,14 +245,14 @@ TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
     DataMessage message = createDataMessage();
     message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
-    Common::PluginApi::StatusInfo expectedStatusInfo;
+    Common::PluginProtocol::StatusInfo expectedStatusInfo;
     expectedStatusInfo.statusXml = "StatusXml";
     expectedStatusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
     message.Payload.push_back(expectedStatusInfo.statusXml);
     message.Payload.push_back(expectedStatusInfo.statusWithoutXml);
 
-    Common::PluginApi::StatusInfo actualStatusInfo =  m_messageBuilder->requestExtractStatus(message);
+    Common::PluginProtocol::StatusInfo actualStatusInfo =  m_messageBuilder->requestExtractStatus(message);
 
     EXPECT_EQ( expectedStatusInfo.statusXml, actualStatusInfo.statusXml );
     EXPECT_EQ( expectedStatusInfo.statusWithoutXml, actualStatusInfo.statusWithoutXml );

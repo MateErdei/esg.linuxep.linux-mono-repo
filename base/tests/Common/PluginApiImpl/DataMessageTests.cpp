@@ -9,8 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "gmock/gmock-matchers.h"
 #include "Common/PluginProtocol/DataMessage.h"
 
-#include <string>
-
 using DataMessage = Common::PluginProtocol::DataMessage;
 
 class DataMessageTests : public ::testing::Test

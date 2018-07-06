@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/PluginApi/IPluginApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
@@ -113,7 +112,7 @@ namespace
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        Common::PluginProtocol::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
         expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
@@ -130,7 +129,7 @@ namespace
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        Common::PluginProtocol::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
         expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);

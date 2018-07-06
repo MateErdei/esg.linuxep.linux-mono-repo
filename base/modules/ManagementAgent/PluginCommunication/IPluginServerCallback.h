@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include "Common/PluginApi/IPluginCallback.h"
-#include "Common/PluginApi/DataMessage.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 namespace ManagementAgent
 {
@@ -20,7 +20,7 @@ namespace PluginCommunication
     public:
         virtual ~IPluginServerCallback() = default;
         virtual void receivedSendEvent(const std::string& appId, const std::string &eventXml) = 0;
-        virtual void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo) = 0;
+        virtual void receivedChangeStatus(const std::string& appId, const Common::PluginProtocol::StatusInfo &statusInfo) = 0;
         virtual void shutdown() = 0;
         virtual std::string receivedGetPolicy(const std::string &pluginName) = 0;
         virtual void receivedRegisterWithManagementAgent(const std::string &pluginName) = 0;

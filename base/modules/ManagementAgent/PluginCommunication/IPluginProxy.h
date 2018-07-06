@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_IPLUGINPROXY_H
 #define EVEREST_BASE_IPLUGINPROXY_H
 
-#include "Common/PluginApi/IPluginCallback.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 namespace ManagementAgent
 {
@@ -20,7 +20,7 @@ namespace PluginCommunication
 
         virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;
 
-        virtual Common::PluginApi::StatusInfo getStatus() = 0;
+        virtual Common::PluginProtocol::StatusInfo getStatus() = 0;
 
         virtual std::string getTelemetry() = 0;
 

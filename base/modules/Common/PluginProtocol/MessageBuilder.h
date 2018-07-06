@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_REQUESTSBUILDER_H
 #define EVEREST_BASE_REQUESTSBUILDER_H
 
-#include <Common/PluginApi/IPluginCallback.h>
-#include "DataMessage.h"
+#include "Common/PluginProtocol/DataMessage.h"
+
 namespace Common
 {
     namespace PluginProtocol
@@ -20,10 +20,12 @@ namespace Common
             MessageBuilder( const std::string& applicationID, const std::string &  protocolVersion);
 
             /** Create the requests as client **/
+            //Plugin
             DataMessage requestSendEventMessage( const std::string & eventXml) const;
             DataMessage requestSendStatusMessage(const std::string & statusXml, const std::string & statusWithoutTimeStamp) const;
             DataMessage requestRegisterMessage() const;
             DataMessage requestCurrentPolicyMessage() const;
+            //Management Agent
             DataMessage requestApplyPolicyMessage(const std::string & policyContent) const;
             DataMessage requestDoActionMessage( const std::string & actionContent) const;
             DataMessage requestRequestPluginStatusMessage() const;
@@ -31,24 +33,36 @@ namespace Common
 
 
             /** Extracting information from requests as server **/
+            //Management Agent
             std::string requestExtractEvent( const DataMessage & ) const;
-            Common::PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
+            StatusInfo requestExtractStatus( const DataMessage & ) const;
+            std::string requestExtractCurrentPolicy( const DataMessage &) const;
+            std::string requestExtractRegistration(const DataMessage &) const;
+            std::string requestExtractPluginName(const DataMessage &) const;
+            //Plugin
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
-            std::string requestExtractPluginName( const DataMessage & ) const;
+
+
 
 
             /** Build replies as servers **/
+            //Management Agent and Plugin
             DataMessage replyAckMessage( const DataMessage & ) const;
             DataMessage replySetErrorIfEmpty( const DataMessage& , const std::string & errorDescription )  const;
+            //Management Agent
             DataMessage replyCurrentPolicy(const DataMessage & , const std::string & policyContent) const;
+            //Plugin
             DataMessage replyTelemetry( const DataMessage &, const std::string & telemetryContent) const;
-            DataMessage replyStatus(const DataMessage&, const Common::PluginApi::StatusInfo &) const;
+            DataMessage replyStatus(const DataMessage&, const Common::PluginProtocol::StatusInfo &) const;
 
 
             /** Extracting information from replies as client */
-            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
+            //Management Agent
             std::string replyExtractTelemetry( const DataMessage & ) const;
+            Common::PluginProtocol::StatusInfo replyExtractStatus( const DataMessage & ) const;
+            //Plugin
+            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
 
             bool hasAck(const DataMessage &dataMessage) const;
 

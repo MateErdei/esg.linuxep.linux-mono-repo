@@ -72,7 +72,7 @@ namespace PluginCommunicationImpl
         }
     }
 
-    Common::PluginApi::StatusInfo PluginManager::getStatus(const std::string & pluginName)
+    Common::PluginProtocol::StatusInfo PluginManager::getStatus(const std::string & pluginName)
     {
         return getPlugin(pluginName)->getStatus();
     }

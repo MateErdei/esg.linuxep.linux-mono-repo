@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginApi/ApiException.h"
 #include "PluginCallBackHandler.h"
-#include "Common/PluginProtocol/ProtocolSerializerFactory.h"
 
 
 namespace Common
@@ -37,7 +36,7 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                         {
-                            Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus();
+                            Common::PluginProtocol::StatusInfo statusInfo = m_pluginCallback->getStatus();
                             return m_messageBuilder.replyStatus(request, statusInfo);
                         }
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY:

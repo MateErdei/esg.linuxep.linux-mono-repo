@@ -8,11 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ZeroMQWrapper/IReadWrite.h"
 #include "ZeroMQWrapper/ISocketReplier.h"
-#include "PluginApiImpl/AbstractListenerServer.h"
+#include "PluginProtocol/AbstractListenerServer.h"
 #include "IPluginServerCallback.h"
-#include "PluginApiImpl/MessageBuilder.h"
+#include "PluginProtocol/MessageBuilder.h"
 
-using namespace Common::PluginApiImpl;
+using namespace Common::PluginProtocol;
 
 namespace ManagementAgent
 {

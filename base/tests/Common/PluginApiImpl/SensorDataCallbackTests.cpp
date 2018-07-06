@@ -21,7 +21,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TestExecutionSynchronizer.h"
 #include "Common/Threads/NotifyPipe.h"
 
-#include <chrono>
 #include <thread>
 
 

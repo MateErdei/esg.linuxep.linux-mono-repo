@@ -19,7 +19,7 @@ public:
     MOCK_METHOD1(applyNewPolicy, void(const std::string &));
     MOCK_METHOD1(doAction, void(const std::string &));
     MOCK_METHOD0(shutdown, void(void));
-    MOCK_METHOD0(getStatus, Common::PluginApi::StatusInfo());
+    MOCK_METHOD0(getStatus, Common::PluginProtocol::StatusInfo());
     MOCK_METHOD0(getTelemetry, std::string(void));
 };
 #endif //EVEREST_BASE_MOCKEDPLUGINAPICALLBACK_H

@@ -26,7 +26,7 @@ namespace PluginCommunicationImpl
 
         void doAction(const std::string &appId, const std::string &actionXml) override;
 
-        Common::PluginApi::StatusInfo getStatus() override;
+        Common::PluginProtocol::StatusInfo getStatus() override;
 
         std::string getTelemetry() override;
 
@@ -36,7 +36,7 @@ namespace PluginCommunicationImpl
 
     private:
 
-        Common::PluginApiImpl::DataMessage getReply(const Common::PluginApiImpl::DataMessage &request) const;
+        Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
         std::vector<std::string> m_appIds;
     };

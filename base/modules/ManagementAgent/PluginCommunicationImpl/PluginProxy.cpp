@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IPluginCommunicationException.h"
 #include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "Common/PluginApiImpl/MessageBuilder.h"
-#include "Common/PluginApiImpl/Protocol.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/PluginProtocol/Protocol.h"
 #include "PluginProxy.h"
 #include <algorithm>
 
@@ -25,9 +25,9 @@ namespace PluginCommunicationImpl
 
     void PluginProxy::applyNewPolicy(const std::string &appId, const std::string &policyXml)
     {
-        Common::PluginApiImpl::MessageBuilder messageBuilder(appId, Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginApiImpl::DataMessage message = messageBuilder.requestApplyPolicyMessage(policyXml);
-        Common::PluginApiImpl::DataMessage replyMessage = getReply(message);
+        Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+        Common::PluginProtocol::DataMessage message = messageBuilder.requestApplyPolicyMessage(policyXml);
+        Common::PluginProtocol::DataMessage replyMessage = getReply(message);
         if ( !messageBuilder.hasAck(replyMessage))
         {
             throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'policy event'");
@@ -36,29 +36,29 @@ namespace PluginCommunicationImpl
 
     void PluginProxy::doAction(const std::string &appId, const std::string &actionXml)
     {
-        Common::PluginApiImpl::MessageBuilder messageBuilder(appId, Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginApiImpl::DataMessage message = messageBuilder.requestDoActionMessage(actionXml);
-        Common::PluginApiImpl::DataMessage replyMessage = getReply(message);
+        Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+        Common::PluginProtocol::DataMessage message = messageBuilder.requestDoActionMessage(actionXml);
+        Common::PluginProtocol::DataMessage replyMessage = getReply(message);
         if ( !messageBuilder.hasAck(replyMessage))
         {
             throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'action event'");
         }
     }
 
-    Common::PluginApi::StatusInfo PluginProxy::getStatus()
+    Common::PluginProtocol::StatusInfo PluginProxy::getStatus()
     {
-        Common::PluginApiImpl::MessageBuilder messageBuilder("Status request", Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginApiImpl::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
-        Common::PluginApiImpl::DataMessage reply = getReply(message);
+        Common::PluginProtocol::MessageBuilder messageBuilder("Status request", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+        Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
+        Common::PluginProtocol::DataMessage reply = getReply(message);
 
         return messageBuilder.replyExtractStatus(reply);
     }
 
     std::string PluginProxy::getTelemetry()
     {
-        Common::PluginApiImpl::MessageBuilder messageBuilder("Telemetry request", Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginApiImpl::DataMessage message = messageBuilder.requestRequestTelemetryMessage();
-        Common::PluginApiImpl::DataMessage reply = getReply(message);
+        Common::PluginProtocol::MessageBuilder messageBuilder("Telemetry request", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+        Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestTelemetryMessage();
+        Common::PluginProtocol::DataMessage reply = getReply(message);
 
         return messageBuilder.replyExtractTelemetry(reply);
     }
@@ -73,10 +73,10 @@ namespace PluginCommunicationImpl
         return (std::find(m_appIds.begin(), m_appIds.end(), appId) != m_appIds.end());
     }
 
-    Common::PluginApiImpl::DataMessage PluginProxy::getReply(const Common::PluginApiImpl::DataMessage &request) const
+    Common::PluginProtocol::DataMessage PluginProxy::getReply(const Common::PluginProtocol::DataMessage &request) const
     {
-        Common::PluginApiImpl::Protocol protocol;
-        Common::PluginApiImpl::DataMessage reply;
+        Common::PluginProtocol::Protocol protocol;
+        Common::PluginProtocol::DataMessage reply;
         try
         {
             m_socket->write(protocol.serialize(request));
@@ -90,8 +90,8 @@ namespace PluginCommunicationImpl
         if( reply.Command != request.Command)
         {
             throw PluginCommunication::IPluginCommunicationException(
-                    "Received reply from wrong command, expecting" + Common::PluginApi::SerializeCommand(request.Command) +
-                    ", Received: " + Common::PluginApi::SerializeCommand(request.Command));
+                    "Received reply from wrong command, expecting" + Common::PluginProtocol::SerializeCommand(request.Command) +
+                    ", Received: " + Common::PluginProtocol::SerializeCommand(request.Command));
         }
 
         if ( !reply.Error.empty())

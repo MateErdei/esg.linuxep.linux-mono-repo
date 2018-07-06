@@ -20,7 +20,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "FakeServer.h"
 #include "FakeClient.h"
 #include "Common/Process/IProcess.h"
-#include "Common/FileSystem/IFileSystem.h"
 #include "ReactorImplTestsPath.h"
 
 using namespace Common::Reactor;

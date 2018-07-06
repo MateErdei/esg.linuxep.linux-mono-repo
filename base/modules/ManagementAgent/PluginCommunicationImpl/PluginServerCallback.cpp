@@ -19,7 +19,7 @@ namespace ManagementAgent
 
         }
 
-        void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
+        void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginProtocol::StatusInfo &statusInfo)
         {
 
         }

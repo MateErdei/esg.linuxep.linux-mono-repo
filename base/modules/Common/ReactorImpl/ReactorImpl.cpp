@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include "ReactorImpl.h"
 #include "IPoller.h"
-#include "Common/Threads/NotifyPipe.h"
 
 #define LOGERROR(x) std::cerr << x << '\n'
 #define LOGDEBUG(x) std::cerr << x << '\n'

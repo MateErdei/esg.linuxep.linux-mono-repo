@@ -8,24 +8,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_IPLUGINCALLBACK_H
 
 #include <string>
+#include "PluginProtocol/DataMessage.h"
 
 namespace Common
 {
     namespace PluginApi
     {
-
-        /**
-         * Struct to enable replying to status query from Management Agent.
-         * @see IPluginApi::changeStatus
-         */
-        struct StatusInfo
-        {
-            /// Content of the status that can be sent to Sophos Cloud
-            std::string statusXml;
-            /// Representation of the status that can be used to reliably identify when it has changed.
-            /// @see IPluginApi::changeStatus
-            std::string statusWithoutXml;
-        };
 
         /**
          * The IPluginCallback is the class that developers of Plugins will implement and pass to the IPluginResourceManagement
@@ -74,7 +62,7 @@ namespace Common
              *
              * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
              */
-            virtual StatusInfo getStatus() = 0;
+            virtual PluginProtocol::StatusInfo getStatus() = 0;
 
 
             /**
