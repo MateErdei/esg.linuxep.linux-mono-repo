@@ -20,7 +20,7 @@ namespace PluginCommunicationImpl
     {
 
     public:
-        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::string &pluginName);
+        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName);
 
         void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
 

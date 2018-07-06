@@ -45,12 +45,12 @@ namespace ManagementAgent
 
         public:
 
-            void registerPlugin(std::string &pluginName) override;
-            void removePlugin(std::string pluginName) override;
+            void registerPlugin(const std::string &pluginName) override;
+            void removePlugin(const std::string &pluginName) override;
 
         private:
 
-            std::unique_ptr<PluginCommunication::IPluginProxy>& getPlugin(std::string pluginName);
+            std::unique_ptr<PluginCommunication::IPluginProxy>& getPlugin(const std::string &pluginName);
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup &socket);
 

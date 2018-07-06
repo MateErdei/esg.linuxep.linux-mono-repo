@@ -25,7 +25,7 @@ namespace ManagementAgent
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo) override;
             void shutdown() override;
             std::string receivedGetPolicy(const std::string &pluginName) override;
-            void receivedRegisterWithManagementAgent(const Common::PluginApi::RegistrationInfo &regInfo) override;
+            void receivedRegisterWithManagementAgent(const std::string &pluginName) override;
         private:
             std::shared_ptr<PluginManager> m_pluginManagerPtr;
         };

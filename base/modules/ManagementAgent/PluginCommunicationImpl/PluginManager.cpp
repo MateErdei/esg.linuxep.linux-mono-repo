@@ -87,7 +87,7 @@ namespace PluginCommunicationImpl
         getPlugin(pluginName)->setAppIds(appIds);
     }
 
-    void PluginManager::registerPlugin(std::string &pluginName)
+    void PluginManager::registerPlugin(const std::string &pluginName)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         std::string pluginSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
@@ -98,7 +98,7 @@ namespace PluginCommunicationImpl
         m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
     }
 
-    std::unique_ptr<PluginCommunication::IPluginProxy>& PluginManager::getPlugin(std::string pluginName)
+    std::unique_ptr<PluginCommunication::IPluginProxy>& PluginManager::getPlugin(const std::string &pluginName)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         if (m_RegisteredPlugins.find(pluginName) != m_RegisteredPlugins.end())
@@ -108,7 +108,7 @@ namespace PluginCommunicationImpl
         throw PluginCommunication::IPluginCommunicationException("Tried to access non-registered plugin");
     }
 
-    void PluginManager::removePlugin(std::string pluginName)
+    void PluginManager::removePlugin(const std::string &pluginName)
     {
         m_RegisteredPlugins.erase(pluginName);
     }

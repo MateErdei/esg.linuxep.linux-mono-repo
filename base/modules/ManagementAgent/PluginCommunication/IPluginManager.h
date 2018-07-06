@@ -31,8 +31,8 @@ namespace PluginCommunication
         virtual std::string getTelemetry(const std::string &pluginName) = 0;
         virtual void setAppIds(const std::string& pluginName, const std::vector<std::string> &appIds) = 0;
 
-        virtual void registerPlugin(std::string &pluginName) = 0;
-        virtual void removePlugin(std::string pluginName) = 0;
+        virtual void registerPlugin(const std::string &pluginName) = 0;
+        virtual void removePlugin(const std::string &pluginName) = 0;
     };
 }
 }

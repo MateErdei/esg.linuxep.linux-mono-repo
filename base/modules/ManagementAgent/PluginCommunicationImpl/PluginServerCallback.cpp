@@ -34,9 +34,9 @@ namespace ManagementAgent
             return std::string();
         }
 
-        void PluginServerCallback::receivedRegisterWithManagementAgent(const Common::PluginApi::RegistrationInfo &regInfo)
+        void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
         {
-            m_pluginManagerPtr->registerPlugin(regInfo);
+            m_pluginManagerPtr->registerPlugin(pluginName);
         }
     }
 }

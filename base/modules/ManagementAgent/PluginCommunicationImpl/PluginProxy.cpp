@@ -16,7 +16,7 @@ namespace ManagementAgent
 namespace PluginCommunicationImpl
 {
 
-    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::string &pluginName) :
+    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName) :
             m_socket(std::move(socketRequester))
     {
         m_appIds.push_back(pluginName);
