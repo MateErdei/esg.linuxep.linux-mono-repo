@@ -17,6 +17,7 @@ namespace Common
         {
         public:
             PluginResourceManagement();
+            PluginResourceManagement(Common::ZeroMQWrapper::IContext*);
 
             void setDefaultTimeout(int timeoutMs) override ;
             void setDefaultConnectTimeout(int timeoutMs) override ;
@@ -29,7 +30,8 @@ namespace Common
             Common::ZeroMQWrapper::IContext & getSocketContext();
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
-            Common::ZeroMQWrapper::IContextPtr m_context;
+            Common::ZeroMQWrapper::IContextPtr m_contextPtr;
+            Common::ZeroMQWrapper::IContext* m_context;
             int m_defaulTimeout;
             int m_defaultConnectTimeout;
         };

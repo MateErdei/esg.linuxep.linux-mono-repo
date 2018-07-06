@@ -4,14 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Logger.h"
 #include "ProtocolSerializer.h"
 #include "ProtocolSerializerFactory.h"
 
 #include <iostream>
 
-#define LOGERROR(x) std::cerr << x << '\n'
-#define LOGDEBUG(x) std::cerr << x << '\n'
-#define LOGSUPPORT(x) std::cerr << x << '\n'
 
 namespace Common
 {
@@ -51,7 +49,7 @@ namespace Common
             {
                 message = createDefaultErrorMessage();
                 message.Error = "Bad formed message";
-                LOGDEBUG("Protocol Serializer error: " << message.Error);
+                LOGERROR("Protocol Serializer error: " << message.Error);
                 return message;
             }
 
@@ -59,7 +57,7 @@ namespace Common
             {
                 message = createDefaultErrorMessage();
                 message.Error = "Protocol not supported";
-                LOGDEBUG("Protocol Serializer error: " << message.Error);
+                LOGERROR("Protocol Serializer error: " << message.Error);
                 return message;
             }
 
@@ -70,7 +68,7 @@ namespace Common
             if(message.Command == PluginProtocol::Commands::UNKNOWN)
             {
                 message.Error = "Invalid request";
-                LOGDEBUG("Protocol Serializer error: " << message.Error);
+                LOGERROR("Protocol Serializer error: " << message.Error);
             }
 
             message.MessageId = serializedData[3];
@@ -81,12 +79,12 @@ namespace Common
                     if ( serializedData.size() == 5)
                     {
                         message.Error = "Unknown error reported";
-                        LOGDEBUG("Protocol Serializer error: " << message.Error);
+                        LOGERROR("Protocol Serializer error: " << message.Error);
                     }
                     else
                     {
                         message.Error = serializedData[5];
-                        LOGDEBUG("Protocol Serializer message error: " << message.Error);
+                        LOGERROR("Protocol Serializer message error: " << message.Error);
                     }
                     return message;
                 }

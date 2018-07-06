@@ -8,9 +8,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include "Common/PluginApi/ISensorDataSubscriber.h"
 #include "Common/PluginApi/ISensorDataCallback.h"
+#include "Common/PluginProtocol/Logger.h"
 #include "SensorDataSubscriber.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "SharedSocketContext.h"
+
+
 namespace Common
 {
     namespace PluginApiImpl
@@ -40,11 +43,13 @@ namespace Common
 
         void SensorDataSubscriber::start()
         {
+            LOGSUPPORT("Starting SensorDataSubscriber reactor");
             m_reactor->start();
         }
 
         void SensorDataSubscriber::stop()
         {
+            LOGSUPPORT("Stopping SensorDataSubscriber reactor");
             m_reactor->stop();
         }
 

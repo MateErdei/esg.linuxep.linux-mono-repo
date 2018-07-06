@@ -19,12 +19,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
+    std::unique_ptr<Common::PluginApi::IPluginResourceManagement> Common::PluginApi::createPluginResourceManagement()
+    {
+        return std::unique_ptr<IPluginResourceManagement>(new Common::PluginApiImpl::PluginResourceManagement());
+    }
+
     namespace PluginApiImpl
     {
 
         PluginResourceManagement::PluginResourceManagement()
-        : m_context( Common::ZeroMQWrapper::createContext()), m_defaulTimeout(-1), m_defaultConnectTimeout(-1)
+        : m_contextPtr( Common::ZeroMQWrapper::createContext()), m_defaulTimeout(-1), m_defaultConnectTimeout(-1)
         {
+            m_context = m_contextPtr.get();
+        }
+        PluginResourceManagement::PluginResourceManagement(Common::ZeroMQWrapper::IContext * context)
+        : m_contextPtr(), m_context(context), m_defaulTimeout(-1), m_defaultConnectTimeout(-1)
+        {
+
         }
 
         std::unique_ptr<Common::PluginApi::IPluginApi>
@@ -97,5 +108,6 @@ namespace Common
         {
             return *m_context;
         }
+
     }
 }

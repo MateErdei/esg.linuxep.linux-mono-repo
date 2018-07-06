@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProtocolSerializer.h"
 
+#include "Logger.h"
+
 namespace Common
 {
     namespace PluginProtocol
@@ -18,6 +20,7 @@ namespace Common
         std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::createProtocolSerializer(
                 const std::string &protocolVersion)
         {
+
             // using protocol verson 1.
             if(protocolVersion == ProtocolSerializerFactory::ProtocolVersion)
             {
