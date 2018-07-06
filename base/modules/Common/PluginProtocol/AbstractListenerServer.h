@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_ABSTRACTSERVER_H
 #define EVEREST_BASE_ABSTRACTSERVER_H
 
-#include "Protocol.h"
+#include "Common/PluginProtocol/Protocol.h"
 
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/Reactor/IReactor.h"

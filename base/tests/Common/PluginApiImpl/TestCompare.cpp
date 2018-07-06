@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "TestCompare.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 
 ::testing::AssertionResult TestCompare::dataMessageSimilar(const char *m_expr,

@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <sstream>
-#include <Common/PluginApi/IProtocolSerializer.h>
+#include <Common/PluginProtocol/IProtocolSerializer.h>
 #include "Protocol.h"
 #include "ProtocolSerializerFactory.h"
 #include "ProtocolSerializer.h"

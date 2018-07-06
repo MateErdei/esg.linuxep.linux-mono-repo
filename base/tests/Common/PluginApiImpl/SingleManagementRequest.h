@@ -11,8 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "Common/ZeroMQWrapper/IReadable.h"
-#include "Common/PluginApi/DataMessage.h"
-#include "Common/PluginApiImpl/Protocol.h"
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginProtocol/Protocol.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 

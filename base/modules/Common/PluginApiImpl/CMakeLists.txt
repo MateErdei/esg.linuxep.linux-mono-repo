@@ -1,21 +1,19 @@
 add_library(pluginapiimpl SHARED
-        ../PluginApi/DataMessage.h
-        ../PluginApi/IProtocolSerializerFactory.h
-        ../PluginApi/IProtocolSerializer.h
+        ../PluginProtocol/IProtocolSerializerFactory.h
+        ../PluginProtocol/IProtocolSerializer.h
         ../PluginApi/IPluginApi.h
         ../PluginApi/ISensorDataCallback.h
-        Protocol.cpp
-        Protocol.h
-        DataMessage.cpp
-        AbstractListenerServer.cpp
-        AbstractListenerServer.h
-        ProtocolSerializerFactory.cpp
-        ProtocolSerializerFactory.h
-        ProtocolSerializer.cpp
-        ProtocolSerializer.h MessageBuilder.h
+        ../PluginProtocol/Protocol.cpp
+        ../PluginProtocol/Protocol.h
+        ../PluginProtocol/AbstractListenerServer.cpp
+        ../PluginProtocol/AbstractListenerServer.h
+        ../PluginProtocol/ProtocolSerializerFactory.cpp
+        ../PluginProtocol/ProtocolSerializerFactory.h
+        ../PluginProtocol/ProtocolSerializer.cpp
+        ../PluginProtocol/ProtocolSerializer.h ../PluginProtocol/MessageBuilder.h
         ../PluginApi/ISensorDataPublisher.h
         ../PluginApi/ISensorDataSubscriber.h
-        MessageBuilder.cpp
+        ../PluginProtocol/MessageBuilder.cpp
         PluginApiImpl.cpp
         PluginApiImpl.h
         PluginCallBackHandler.cpp
@@ -32,4 +30,4 @@ add_library(pluginapiimpl SHARED
         ../PluginApi/IPluginCallback.h)
 
 target_include_directories(pluginapiimpl PUBLIC ../PluginApi ../../Common )
-target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl )
+target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )

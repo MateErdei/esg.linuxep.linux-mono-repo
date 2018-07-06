@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProtocolSerializerFactory.h"
 
-#include "PluginApiImpl/ProtocolSerializer.h"
+#include "ProtocolSerializer.h"
 
 namespace Common
 {

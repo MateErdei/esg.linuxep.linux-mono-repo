@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include "gmock/gmock-matchers.h"
-#include "Common/PluginApi/DataMessage.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 #include <string>
 

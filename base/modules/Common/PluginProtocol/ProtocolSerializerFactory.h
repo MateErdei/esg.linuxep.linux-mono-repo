@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_PROTOCOLSERIALIZATIONFACTORY_H
 #define EVEREST_BASE_PROTOCOLSERIALIZATIONFACTORY_H
 
-#include <Common/PluginApi/IProtocolSerializer.h>
-#include "Common/PluginApi/IProtocolSerializerFactory.h"
+#include <Common/PluginProtocol/IProtocolSerializer.h>
+#include "Common/PluginProtocol/IProtocolSerializerFactory.h"
 
 
 namespace Common

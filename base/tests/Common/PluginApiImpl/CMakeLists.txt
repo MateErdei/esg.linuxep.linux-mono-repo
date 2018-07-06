@@ -16,6 +16,6 @@ target_include_directories(PluginApiImplTests SYSTEM BEFORE PUBLIC "${gtest_SOUR
 message( "check"  "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
 target_include_directories(PluginApiImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" PluginApiImpl ../TestHelpers)
 target_link_libraries(PluginApiImplTests gtest gmock gtest_main)
-target_link_libraries(PluginApiImplTests pluginapiimpl reactorimpl threads pluginapiimpl applicationconfigurationimpl testhelpers)
+target_link_libraries(PluginApiImplTests pluginapiimpl reactorimpl threads pluginprotocol applicationconfigurationimpl testhelpers)
 add_test(NAME PluginApiImplTests COMMAND PluginApiImplTests)
 add_dependencies(PluginApiImplTests gmock)

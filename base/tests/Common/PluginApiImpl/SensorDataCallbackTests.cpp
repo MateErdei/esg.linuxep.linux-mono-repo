@@ -15,8 +15,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/PluginApiImpl/MessageBuilder.h"
-#include "Common/PluginApiImpl/Protocol.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/PluginProtocol/Protocol.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "TestExecutionSynchronizer.h"
 

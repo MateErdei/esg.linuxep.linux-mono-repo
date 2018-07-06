@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "gmock/gmock.h"
 #include "gtest/gtest-printers.h"
 
-#include "Common/PluginApi/DataMessage.h"
+#include "Common/PluginProtocol/DataMessage.h"
 
 
 class TestCompare : public ::testing::Test

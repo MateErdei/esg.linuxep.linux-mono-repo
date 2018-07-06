@@ -7,9 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_PROTOCOL_H
 #define EVEREST_BASE_PROTOCOL_H
 
-#include "DataMessage.h"
-#include "Common/PluginApi/IProtocolSerializerFactory.h"
-#include "Common/PluginApiImpl/ProtocolSerializerFactory.h"
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginProtocol/IProtocolSerializerFactory.h"
+#include "ProtocolSerializerFactory.h"
 
 namespace Common
 {

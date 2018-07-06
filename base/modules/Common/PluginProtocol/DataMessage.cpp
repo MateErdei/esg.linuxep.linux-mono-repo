@@ -3,7 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "DataMessage.h"
+#include "Common/PluginProtocol/DataMessage.h"
 #include <unordered_map>
 #include <thread>
 #include <mutex>

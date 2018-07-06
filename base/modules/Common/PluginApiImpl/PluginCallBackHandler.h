@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_PLUGINCALLBACKHANDLER_H
 
 #include <Common/ZeroMQWrapper/IReadWrite.h>
-#include "AbstractListenerServer.h"
+#include "Common/PluginProtocol/AbstractListenerServer.h"
 #include "IPluginCallback.h"
-#include "MessageBuilder.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
 
 namespace Common
 {

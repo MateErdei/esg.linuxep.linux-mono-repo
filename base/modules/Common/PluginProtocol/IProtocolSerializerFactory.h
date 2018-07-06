@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <memory>
-#include "IProtocolSerializer.h"
+#include "Common/PluginProtocol/IProtocolSerializer.h"
 
 namespace Common
 {

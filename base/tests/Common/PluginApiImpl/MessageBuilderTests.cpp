@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 #include <memory>
-#include <Common/PluginApiImpl/ProtocolSerializerFactory.h>
-#include "Common/PluginApiImpl/MessageBuilder.h"
+#include <Common/PluginProtocol/ProtocolSerializerFactory.h>
+#include "Common/PluginProtocol/MessageBuilder.h"
 #include "TestCompare.h"
 
 using Common::PluginApiImpl::MessageBuilder;
