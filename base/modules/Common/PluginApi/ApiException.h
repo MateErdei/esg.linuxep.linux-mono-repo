@@ -13,6 +13,9 @@ namespace Common
 {
     namespace PluginApi
     {
+        /**
+         * Exception class to report failures when handling the api requests.
+         */
         class ApiException : public Common::Exceptions::IException
         {
         public:

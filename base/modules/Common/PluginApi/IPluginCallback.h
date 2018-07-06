@@ -14,26 +14,74 @@ namespace Common
     namespace PluginApi
     {
 
+        /**
+         * Struct to enable replying to status query from Management Agent.
+         * @see IPluginApi::changeStatus
+         */
         struct StatusInfo
         {
+            /// Content of the status that can be sent to Sophos Cloud
             std::string statusXml;
+            /// Representation of the status that can be used to reliably identify when it has changed.
+            /// @see IPluginApi::changeStatus
             std::string statusWithoutXml;
         };
 
+        /**
+         * The IPluginCallback is the class that developers of Plugins will implement and pass to the IPluginResourceManagement
+         * when creating an IPluginApi. It is related to the services that Management Agent and the product expects from
+         * any Plugin in the system.
+         *
+         * The methods defined here will be called when the respective services are required from Management Agent and
+         * the reply will be forwarded to the Management Agent via ipc channel.
+         */
         class IPluginCallback
         {
         public:
             virtual ~IPluginCallback() = default;
-            /// Receives the new policy and pass the text to the plugin.
-            /// \param policyXml
+
+            /**
+             * Require the plugin to apply a policy (Sent by Sophos Cloud via Management Agent).
+             *
+             * @param policyXml: either the policy xml content or its translation.
+             * @todo add information about 'translating xml'
+             * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new policy.
+             */
             virtual void applyNewPolicy(const std::string &policyXml) = 0;
 
+            /**
+             * Require the plugin to perform an action ( Sent by Sophos Cloud via Management Agent).
+             *
+             * @param actionXml: either the action xml content or its translation.
+             * @todo add information about 'translating xml'
+             * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested action.
+             */
             virtual void doAction(const std::string &actionXml) = 0;
 
+            /**
+             *  Method that will be called when the Plugin receives a SIGTERM or SIGINT (@see Reactor::setShutdownListener).
+             *  This gives the Plugin the opportunity to shutdown cleanly.
+             *  After this method is called, the internal thread that servers the requests will be stopped and the expectation is that
+             *  the Plugin process will stop as soon as possible.
+             *
+             */
             virtual void shutdown() = 0;
 
-            virtual StatusInfo getStatus(void) = 0;
+            /**
+             * Method that will be called when Management Agent queries about the status of the Plugin when it needs the information to send to Sophos Cloud.
+             *
+             * Plugin developer must implement this function to provide StatusInfo when requested.
+             *
+             * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
+             */
+            virtual StatusInfo getStatus() = 0;
 
+
+            /**
+             * Plugin developer must implement this function to provide the telemetry information relevant to the Plugin.
+             * This method is called when a query to telemetry is received via the ipc channel.
+             * @return The content of the telemetry to be forwarded via the ipc channel.
+             */
             virtual std::string getTelemetry() = 0;
         };
 
