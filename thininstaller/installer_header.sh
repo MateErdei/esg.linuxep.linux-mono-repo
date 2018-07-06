@@ -16,6 +16,8 @@ EXITCODE_ALREADY_INSTALLED=7
 EXITCODE_SAV_INSTALLED=8
 EXITCODE_NOT_64_BIT=9
 EXITCODE_DOWNLOAD_FAILED=10
+EXITCODE_FAILED_TO_UNPACK=11
+EXITCODE_CANNOT_MAKE_TEMP=12
 
 INSTALL_LOCATION="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -31,18 +33,18 @@ failure()
     code=$1
     shift
     echo "$@" >&2
-    cleanup_and_exit $code
+    cleanup_and_exit ${code}
 }
 
 create_symlinks()
 {
     for baselib in `ls`
     do
-        shortlib=$baselib
-        while extn=$(echo $shortlib | sed -n '/\.[0-9][0-9]*$/s/.*\(\.[0-9][0-9]*\)$/\1/p')
+        shortlib=${baselib}
+        while extn=$(echo ${shortlib} | sed -n '/\.[0-9][0-9]*$/s/.*\(\.[0-9][0-9]*\)$/\1/p')
               [ -n "$extn" ]
         do
-            shortlib=$(basename $shortlib $extn)
+            shortlib=$(basename ${shortlib} ${extn})
             ln -s "$baselib" "$shortlib" || failure 14 "Failed to create library symlinks"
         done
     done
@@ -77,12 +79,12 @@ check_free_storage()
     local free_mb
     free_mb=$(( free / 1024 ))
 
-    if [ $free_mb -gt $space ]
+    if [ ${free_mb} -gt ${space} ]
     then
         return 0
     fi
     echo "Not enough space in $mountpoint to install Sophos Anti-Virus for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
-    cleanup_and_exit $EXITCODE_NOT_ENOUGH_SPACE
+    cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
 check_total_mem()
@@ -90,14 +92,24 @@ check_total_mem()
     local neededMemKiloBytes=$1
     local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
-    if [ $totalMemKiloBytes -gt $neededMemKiloBytes ]
+    if [ ${totalMemKiloBytes} -gt ${neededMemKiloBytes} ]
     then
         return 0
     fi
     echo "This machine does not meet product requirements. The product requires at least 1GB of RAM."
-    cleanup_and_exit $EXITCODE_NOT_ENOUGH_MEM
+    cleanup_and_exit ${EXITCODE_NOT_ENOUGH_MEM}
 }
 
+check_SAV_installed()
+{
+    local path=$1
+    local sav_instdir=`readlink ${path} | sed 's/bin\/savscan//g'`
+    if [ "$sav_instdir" != "" ] && [ -d ${sav_instdir} ]
+    then
+        echo "Found an existing installation of SAV in $sav_instdir. This product cannot be run alongside Sophos Anti-Virus"
+        cleanup_and_exit ${EXITCODE_SAV_INSTALLED}
+    fi
+}
 
 #
 # Use mktemp if it is available, or try to create unique
@@ -129,23 +141,26 @@ sophos_mktempdir()
 
     if [ ! -d "${_tmpdir}" ] ; then
         echo "Could not create temporary directory" 1>&2
-        exit 1
+        exit ${EXITCODE_CANNOT_MAKE_TEMP}
     fi
 
     echo ${_tmpdir}
 }
 
+# TODO check the directory structure is correct below
+REGISTER_CENTRAL="${INSTALL_LOCATION}/base/registerCentral"
+
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
     echo "This installer only runs on Linux." >&2
-    cleanup_and_exit 1
+    cleanup_and_exit ${EXITCODE_NOT_LINUX}
 fi
 
 # Check running as root
 if [ $(id -u) -ne 0 ]; then
     echo "Please run this installer as root." >&2
-    cleanup_and_exit 2
+    cleanup_and_exit ${EXITCODE_NOT_ROOT}
 fi
 
 # Handle arguments
@@ -193,40 +208,36 @@ if [ -n "$UC_CERTS" ]
 then
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}/installer"
     UPDATE_CACHE_CERT="${SOPHOS_TEMP_DIRECTORY}/installer/uc_certs.crt"
-    MIDDLEBIT_SIZE=`expr $UC_CERTS - $MIDDLEBIT - 1`
-    UC_CERTS_SIZE=`expr $ARCHIVE - $UC_CERTS - 1`
-    tail -n+$UC_CERTS $0 | head -$UC_CERTS_SIZE  | tr -d '\r' | tr -s '\n' > $UPDATE_CACHE_CERT
+    MIDDLEBIT_SIZE=`expr ${UC_CERTS} - ${MIDDLEBIT} - 1`
+    UC_CERTS_SIZE=`expr ${ARCHIVE} - ${UC_CERTS} - 1`
+    tail -n+${UC_CERTS} $0 | head -${UC_CERTS_SIZE}  | tr -d '\r' | tr -s '\n' > ${UPDATE_CACHE_CERT}
 else
     MIDDLEBIT_SIZE=`expr $ARCHIVE - $MIDDLEBIT - 1`
 fi
 
-tail -n+$MIDDLEBIT $0 | head -$MIDDLEBIT_SIZE > $SOPHOS_TEMP_DIRECTORY/credentials.txt
-tail -n+$ARCHIVE $0 > $SOPHOS_TEMP_DIRECTORY/installer.tar.gz
+tail -n+${MIDDLEBIT} $0 | head -${MIDDLEBIT_SIZE} > ${SOPHOS_TEMP_DIRECTORY}/credentials.txt
+tail -n+${ARCHIVE} $0 > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
 
-cd $SOPHOS_TEMP_DIRECTORY
+cd ${SOPHOS_TEMP_DIRECTORY}
 
 # Check if SAV is installed. TODO we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
-SAV_INSTDIR=`readlink /usr/local/bin/sweep | sed 's/bin\/savscan//g'`
-if [ "$SAV_INSTDIR" != "" ] && [ -d $SAV_INSTDIR ]
-then
-    echo "Found an existing installation of SAV in $SAV_INSTDIR. This product cannot be run alongside Sophos Anti-Virus"
-    cleanup_and_exit $EXITCODE_SAV_INSTALLED
-fi
+check_SAV_installed '/usr/local/bin/sweep'
+check_SAV_installed '/usr/bin/sweep'
 
 # Read cloud token from credentials file.
-if [ -z "$OVERRIDE_CLOUD_TOKEN" ]
+if [ -z "${OVERRIDE_CLOUD_TOKEN}" ]
 then
     CLOUD_TOKEN=$(grep 'TOKEN=' credentials.txt | sed 's/TOKEN=//')
 else
-    CLOUD_TOKEN=$OVERRIDE_CLOUD_TOKEN
+    CLOUD_TOKEN=${OVERRIDE_CLOUD_TOKEN}
 fi
 
 # Read cloud URL from credentials file.
-if [ -z "$OVERRIDE_CLOUD_URL" ]
+if [ -z "${OVERRIDE_CLOUD_URL}" ]
 then
     CLOUD_URL=$(grep 'URL=' credentials.txt | sed 's/URL=//')
 else
-    CLOUD_URL=$OVERRIDE_CLOUD_URL
+    CLOUD_URL=${OVERRIDE_CLOUD_URL}
 fi
 
 # Read possible Message Relays from credentials file.
@@ -245,26 +256,24 @@ then
 fi
 
 # Check if there is already an installation. Re-register if there is.
-if [ -d $INSTALL_LOCATION ]
+if [ -d ${INSTALL_LOCATION} ]
 then
-   # TODO check the directory structure is correct below
-    if [ -f "${INSTALL_LOCATION}/base/registerCentral" ]
+    if [ -f "$REGISTER_CENTRAL" ]
     then
         echo "Attempting to re-register existing installation with Sophos Central"
-
         echo "Cloud token is [$CLOUD_TOKEN], Cloud URL is [$CLOUD_URL]"
-        ${INSTALL_LOCATION}/base/registerCentral $CLOUD_TOKEN $CLOUD_URL $MESSAGE_RELAYS
+        ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
 
         if [ $? -ne 0 ]; then
             echo "ERROR: Failed to register with Sophos Central - error $?" >&2
-            cleanup_and_exit $EXITCODE_FAILED_REGISTER
+            cleanup_and_exit ${EXITCODE_FAILED_REGISTER}
         fi
 
-        cleanup_and_exit $EXITCODE_SUCCESS
+        cleanup_and_exit ${EXITCODE_SUCCESS}
     elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
     then
         echo "Please uninstall SSPL before using this installer." >&2
-        cleanup_and_exit $EXITCODE_ALREADY_INSTALLED
+        cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
     fi
 fi
 
@@ -274,7 +283,7 @@ check_free_storage ${INSTALL_LOCATION} 1024
 # Check there is enough RAM (~1GB in kB)
 check_total_mem 1000000
 
-tar -zxf installer.tar.gz || failure 11 "ERROR: Failed to unpack thin installer: $?"
+tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure 12 "ERROR: Failed to delete packed thin installer: $?"
 
 export LD_LIBRARY_PATH=installer/bin64:installer/bin32
@@ -288,26 +297,26 @@ mkdir warehouse/catalogue
 
 # Check machine architecture (only support 64 bit)
 MACHINE_TYPE=`uname -m`
-if [ $MACHINE_TYPE = "x86_64" ]; then
+if [ ${MACHINE_TYPE} = "x86_64" ]; then
     BIN="installer/bin"
 else
     echo "This product can only be installed on a 64bit system."
-    cleanup_and_exit $EXITCODE_NOT_64_BIT
+    cleanup_and_exit ${EXITCODE_NOT_64_BIT}
 fi
 
 echo "Downloading base installer"
-$BIN/installer credentials.txt
+${BIN}/installer credentials.txt
 handle_installer_errorcodes $?
 
 # Verify manifest.dat
 CERT=installer/rootca.crt
-[ -n $OVERRIDE_SOPHOS_CERTS ] && CERT=$OVERRIDE_SOPHOS_CERTS/rootca.crt
-[ -f $CERT ] || CERT=installer/rootca.crt
+[ -n ${OVERRIDE_SOPHOS_CERTS} ] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca.crt
+[ -f ${CERT} ] || CERT=installer/rootca.crt
 
-$BIN/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
+${BIN}/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
     || failure 8 "ERROR: Failed to verify base installer: $?"
 
-[ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp $OVERRIDE_PROD_SOPHOS_CERTS/* distribute/update/certificates/
+[ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp ${OVERRIDE_PROD_SOPHOS_CERTS}/* distribute/update/certificates/
 
 credentials=""
 if [ -z "$OVERRIDE_SOPHOS_CREDS" ]
@@ -351,19 +360,19 @@ chmod u+x install.sh || failure 13 "Failed to chmod base installer: $?"
 #cd ..
 
 echo "Running base installer (this may take some time)"
-./install.sh $installer_args
+./install.sh ${installer_args}
 inst_ret=$?
-if [ $inst_ret -ne 0 ] && [ $inst_ret -ne 4 ]
+if [ ${inst_ret} -ne 0 ] && [ $inst_ret -ne 4 ]
 then
     failure 10 "ERROR: Installer returned $inst_ret (see above messages)"
 fi
 
-$INSTALL_LOCATION/engine/registerMCS $CLOUD_TOKEN $CLOUD_URL $MESSAGE_RELAYS
+${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
 ret=$?
-if [ $ret -ne 0 ]
+if [ ${ret} -ne 0 ]
 then
-    failure 11 "ERROR: Failed to register with Sophos Central - error $ret"
+    failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central - error $ret"
 fi
 
-cleanup_and_exit $inst_ret
+cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
