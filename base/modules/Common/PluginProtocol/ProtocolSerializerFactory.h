@@ -7,21 +7,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_PROTOCOLSERIALIZATIONFACTORY_H
 #define EVEREST_BASE_PROTOCOLSERIALIZATIONFACTORY_H
 
-#include <Common/PluginProtocol/IProtocolSerializer.h>
-#include "Common/PluginProtocol/IProtocolSerializerFactory.h"
-
+#include "Common/PluginProtocol/IProtocolSerializer.h"
+#include <memory>
 
 namespace Common
 {
     namespace PluginApiImpl
     {
-        class ProtocolSerializerFactory : public Common::PluginApi::IProtocolSerializerFactory
+        class ProtocolSerializerFactory
         {
         public:
             static const char* ProtocolErrorMark;// = "Error";
             static const char* ProtocolVersion;// = "v1";
             std::unique_ptr<Common::PluginApi::IProtocolSerializer> createProtocolSerializer(
-                    const std::string &protocolVersion) override;
+                    const std::string &protocolVersion);
         };
     }
 }

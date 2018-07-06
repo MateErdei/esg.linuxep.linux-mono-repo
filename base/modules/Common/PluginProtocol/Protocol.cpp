@@ -15,7 +15,7 @@ namespace Common
     namespace PluginApiImpl
     {
         //using DataMessage = Common::PluginApi::DataMessage;
-        Protocol::Protocol(std::unique_ptr<PluginApi::IProtocolSerializerFactory> protocolFactory)
+        Protocol::Protocol(std::unique_ptr<PluginApiImpl::ProtocolSerializerFactory> protocolFactory)
         : m_protocolFactory(std::move(protocolFactory))
         {
 
