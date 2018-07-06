@@ -64,14 +64,14 @@ TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage)
     DataMessage expectedMessage = createDataMessage();
     expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
     Common::PluginApi::StatusInfo statusInfo;
-    statusInfo.statuxXml = "StatusXml";
+    statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
-    expectedMessage.Payload.push_back(statusInfo.statuxXml);
+    expectedMessage.Payload.push_back(statusInfo.statusXml);
     expectedMessage.Payload.push_back(statusInfo.statusWithoutXml);
 
 
-    DataMessage actualMessage = m_messageBuilder->requestSendStatusMessage(statusInfo.statuxXml, statusInfo.statusWithoutXml);
+    DataMessage actualMessage = m_messageBuilder->requestSendStatusMessage(statusInfo.statusXml, statusInfo.statusWithoutXml);
 
     EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedMessage, actualMessage );
 }
@@ -215,10 +215,10 @@ TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)
     expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo statusInfo;
-    statusInfo.statuxXml = "StatusXml";
+    statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
-    expectedMessage.Payload.push_back(statusInfo.statuxXml);
+    expectedMessage.Payload.push_back(statusInfo.statusXml);
     expectedMessage.Payload.push_back(statusInfo.statusWithoutXml);
 
     DataMessage actualMessage = m_messageBuilder->replyStatus(expectedMessage, statusInfo);
@@ -246,15 +246,15 @@ TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
     message.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo expectedStatusInfo;
-    expectedStatusInfo.statuxXml = "StatusXml";
+    expectedStatusInfo.statusXml = "StatusXml";
     expectedStatusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
 
-    message.Payload.push_back(expectedStatusInfo.statuxXml);
+    message.Payload.push_back(expectedStatusInfo.statusXml);
     message.Payload.push_back(expectedStatusInfo.statusWithoutXml);
 
     Common::PluginApi::StatusInfo actualStatusInfo =  m_messageBuilder->requestExtractStatus(message);
 
-    EXPECT_EQ( expectedStatusInfo.statuxXml, actualStatusInfo.statuxXml );
+    EXPECT_EQ( expectedStatusInfo.statusXml, actualStatusInfo.statusXml );
     EXPECT_EQ( expectedStatusInfo.statusWithoutXml, actualStatusInfo.statusWithoutXml );
 }
 
