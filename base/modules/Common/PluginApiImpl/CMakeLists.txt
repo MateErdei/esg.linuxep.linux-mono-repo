@@ -1,5 +1,4 @@
 add_library(pluginapiimpl SHARED
-        ../PluginProtocol/IProtocolSerializerFactory.h
         ../PluginProtocol/IProtocolSerializer.h
         ../PluginApi/IPluginApi.h
         ../PluginApi/ISensorDataCallback.h
