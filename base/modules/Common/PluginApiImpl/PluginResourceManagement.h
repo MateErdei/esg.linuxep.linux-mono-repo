@@ -26,7 +26,7 @@ namespace Common
                                                                                                  std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback) override ;
 
             /* mainly for tests */
-            Common::ZeroMQWrapper::IContext & socketContext();
+            Common::ZeroMQWrapper::IContext & getSocketContext();
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
             Common::ZeroMQWrapper::IContextPtr m_context;

@@ -30,6 +30,9 @@ using namespace Common::PluginApi;
 
 using ::testing::NiceMock;
 using ::testing::StrictMock;
+using ::testing::Invoke;
+
+
 
 class SensorDataCallbackTests : public ::testing::Test
 {
@@ -71,7 +74,7 @@ TEST_F(SensorDataCallbackTests, SensorDataPublisher_SubscriberCanSendReceiveData
     using ::testing::Invoke;
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
 
-    EXPECT_CALL(*mockSensorDataCallback, receiveData("news", _ )).WillRepeatedly(
+    EXPECT_CALL(*mockSensorDataCallback, receiveData("news", _ )).Times(2).WillRepeatedly(
             Invoke([&testExecutionSynchronizer](const std::string &, const std::string & ){testExecutionSynchronizer.notify();})
     );
 

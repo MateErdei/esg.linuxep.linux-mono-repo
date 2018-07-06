@@ -10,11 +10,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/PluginApi/IPluginApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include <Common/PluginApiImpl/MessageBuilder.h>
+#include "Common/PluginApiImpl/MessageBuilder.h"
+#include "TestCompare.h"
 
 #include <thread>
 
@@ -36,6 +38,7 @@ namespace
         replier->write(replyMessage);
     }
 
+
     using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
     using namespace Common::PluginApiImpl;
     using namespace Common::PluginApi;
@@ -44,7 +47,7 @@ namespace
     using ::testing::StrictMock;
 
 
-    class PluginApiCallbackTests : public ::testing::Test
+    class PluginApiCallbackTests : public TestCompare
     {
 
     public:
@@ -59,7 +62,7 @@ namespace
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
             pluginResourceManagement.setDefaultConnectTimeout(3000);
-            std::thread registration(handleRegistration, std::ref(pluginResourceManagement.socketContext() ));
+            std::thread registration(handleRegistration, std::ref(pluginResourceManagement.getSocketContext() ));
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
             registration.join();
@@ -81,7 +84,7 @@ namespace
             dataMessage.MessageId = "1";
             if ( !firstPayloadItem.empty())
             {
-                dataMessage.payload.push_back(firstPayloadItem);
+                dataMessage.Payload.push_back(firstPayloadItem);
             }
 
             return dataMessage;
@@ -89,7 +92,7 @@ namespace
 
         Common::ZeroMQWrapper::IContext & context()
         {
-            return pluginResourceManagement.socketContext();
+            return pluginResourceManagement.getSocketContext();
         }
 
         MockedPluginApiCallback & mock()
@@ -97,61 +100,6 @@ namespace
             MockedPluginApiCallback * mockPtr = mockPluginCallback.get();
             return *mockPtr;
         }
-
-        ::testing::AssertionResult dataMessageSimilar( const char* m_expr,
-                                                          const char* n_expr,
-                                                          const Common::PluginApi::DataMessage  & expected,
-                                                          const Common::PluginApi::DataMessage  & resulted)
-        {
-            std::stringstream s;
-            s<< m_expr << " and " << n_expr << " failed: ";
-
-            if( expected.ProtocolVersion != resulted.ProtocolVersion)
-            {
-                return ::testing::AssertionFailure() << s.str() << " Protocol differ: \n expected: "
-                                                     <<  expected.ProtocolVersion
-                                                     << "\n result: " <<  resulted.ProtocolVersion;
-            }
-
-            if( expected.ApplicationId != resulted.ApplicationId)
-            {
-                return ::testing::AssertionFailure() << s.str() << " Application Id differ: \n expected: "
-                                                     <<  expected.ApplicationId
-                                                     << "\n result: " <<  resulted.ApplicationId;
-            }
-
-            if( expected.MessageId != resulted.MessageId)
-            {
-                return ::testing::AssertionFailure() << s.str() << " Message Id differ: \n expected: "
-                                                     <<  expected.MessageId
-                                                     << "\n result: " <<  resulted.MessageId;
-            }
-
-            if( expected.Command != resulted.Command)
-            {
-                return ::testing::AssertionFailure() << s.str() << " command differ: \n expected: "
-                                                     <<  Common::PluginApi::SerializeCommand(expected.Command)
-                                                     << "\n result: " <<  Common::PluginApi::SerializeCommand(resulted.Command);
-            }
-
-            if( expected.Error != resulted.Error)
-            {
-                return ::testing::AssertionFailure() << s.str() << " Error message differ: \n expected: "
-                                                     <<  expected.Error
-                                                     << "\n result: " <<  resulted.Error;
-            }
-
-            if( expected.payload != resulted.payload)
-            {
-                return ::testing::AssertionFailure() << s.str() << " Payload differ: \n expected: "
-                                                     <<  PrintToString(expected.payload)
-                                                     << "\n result: " <<  PrintToString(resulted.payload);
-            }
-
-            return ::testing::AssertionSuccess();
-        }
-
-
 
         PluginResourceManagement pluginResourceManagement;
         SingleManagementRequest managementRequest;
@@ -167,9 +115,9 @@ namespace
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(statusInfo.statusXml);
-        expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
 
         EXPECT_CALL(mock(), getStatus()).WillOnce(Return(statusInfo));
 
@@ -184,11 +132,11 @@ namespace
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(statusInfo.statusXml);
-        expectedAnswer.payload.push_back(statusInfo.statusWithoutXml);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(statusInfo.statuxXml);
+        expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
 
-        dataMessage.payload.clear();
+        dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.Error, "Protocol not supported");
@@ -200,8 +148,8 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
         std::string telemetryData = "TelemetryData";
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(telemetryData);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(telemetryData);
 
         EXPECT_CALL(mock(), getTelemetry()).WillOnce(Return(telemetryData));
 
@@ -217,10 +165,10 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
         std::string telemetryData = "TelemetryData";
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(telemetryData);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(telemetryData);
 
-        dataMessage.payload.clear();
+        dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.Error, "Protocol not supported");
@@ -231,8 +179,8 @@ namespace
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back("ACK");
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back("ACK");
 
         EXPECT_CALL(mock(), doAction(_));
 
@@ -248,10 +196,10 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
         std::string actionData = "ActionData";
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(actionData);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(actionData);
 
-        dataMessage.payload.clear();
+        dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.Error, "Protocol not supported");
@@ -262,8 +210,8 @@ namespace
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back("ACK");
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back("ACK");
 
         EXPECT_CALL(mock(), applyNewPolicy(_));
 
@@ -278,10 +226,10 @@ namespace
         Common::PluginApi::DataMessage expectedAnswer(dataMessage);
 
         std::string policyData = "PolicyData";
-        expectedAnswer.payload.clear();
-        expectedAnswer.payload.push_back(policyData);
+        expectedAnswer.Payload.clear();
+        expectedAnswer.Payload.push_back(policyData);
 
-        dataMessage.payload.clear();
+        dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.Error, "Protocol not supported");

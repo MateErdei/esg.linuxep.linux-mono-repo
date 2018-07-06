@@ -35,7 +35,7 @@ public:
         message.ApplicationId = "1";
         message.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
         message.MessageId = "1";
-        message.payload = {"Hello"};
+        message.Payload = {"Hello"};
 
         return message;
     }
@@ -59,7 +59,7 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataString)
     EXPECT_EQ(serializedData[1], message.ApplicationId);
     EXPECT_EQ(serializedData[2], toString(message.Command));
     EXPECT_EQ(serializedData[3], message.MessageId);
-    EXPECT_EQ(serializedData[4], message.payload[0]);
+    EXPECT_EQ(serializedData[4], message.Payload[0]);
 
 }
 
@@ -86,10 +86,10 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultiple
     Protocol protocol;
 
     DataMessage message = createDefaultMessage();
-    message.payload.push_back("World");
-    message.payload.push_back("how");
-    message.payload.push_back("are");
-    message.payload.push_back("you");
+    message.Payload.push_back("World");
+    message.Payload.push_back("how");
+    message.Payload.push_back("are");
+    message.Payload.push_back("you");
 
     data_t serializedData = protocol.serialize(message);
 
@@ -98,10 +98,10 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultiple
     EXPECT_EQ(serializedData[2], toString(message.Command));
     EXPECT_EQ(serializedData[3], message.MessageId);
 
-    // copy payload into another vector to make it easy to compare.
+    // copy Payload into another vector to make it easy to compare.
     data_t payload(serializedData.begin()+4, serializedData.end());
 
-    EXPECT_THAT(payload, message.payload);
+    EXPECT_THAT(payload, message.Payload);
 }
 
 TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)
@@ -116,7 +116,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
     EXPECT_EQ(toString(message.Command), expectedData[2]);
     EXPECT_EQ(message.MessageId, expectedData[3]);
-    EXPECT_EQ(message.payload[0], expectedData[4]);
+    EXPECT_EQ(message.Payload[0], expectedData[4]);
 }
 
 TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadIsAnError)
@@ -148,10 +148,10 @@ TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadContainsMultip
     EXPECT_EQ(toString(message.Command), expectedData[2]);
     EXPECT_EQ(message.MessageId, expectedData[3]);
 
-    // copy payload into another vector to make it easy to compare.
+    // copy Payload into another vector to make it easy to compare.
     data_t payload(expectedData.begin()+4, expectedData.end());
 
-    EXPECT_THAT(payload, message.payload);
+    EXPECT_THAT(payload, message.Payload);
 }
 
 TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)
@@ -165,7 +165,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)
     EXPECT_EQ(message.ApplicationId, "");
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
     EXPECT_EQ(message.MessageId, "");
-    EXPECT_THAT(message.payload.size(), 0);
+    EXPECT_THAT(message.Payload.size(), 0);
     EXPECT_EQ(message.Error, "Bad formed message");
 }
 
@@ -182,7 +182,7 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoPayloadProvided
     EXPECT_EQ(message.ApplicationId, "app1");
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
     EXPECT_EQ(message.MessageId, "1");
-    EXPECT_THAT(message.payload.size(), 0);
+    EXPECT_THAT(message.Payload.size(), 0);
     EXPECT_EQ(message.Error, "Invalid request");
 }
 
@@ -197,6 +197,6 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProv
     EXPECT_EQ(message.ApplicationId, "");
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
     EXPECT_EQ(message.MessageId, "");
-    EXPECT_THAT(message.payload.size(), 0);
+    EXPECT_THAT(message.Payload.size(), 0);
     EXPECT_THAT(message.Error, testing::HasSubstr("Protocol not supported"));
 }

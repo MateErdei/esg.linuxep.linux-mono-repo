@@ -32,7 +32,7 @@ namespace Common
             Commands Command;
             std::string MessageId;
             std::string Error;
-            std::vector<std::string> payload;
+            std::vector<std::string> Payload;
         };
 
         std::string SerializeCommand( Commands  command);

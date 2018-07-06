@@ -11,6 +11,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "SharedSocketContext.h"
 
+#include <iostream>
+
+#define LOGERROR(x) std::cerr << x << '\n'
+#define LOGDEBUG(x) std::cerr << x << '\n'
+#define LOGSUPPORT(x) std::cerr << x << '\n'
+
 Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
 : m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler()
@@ -42,7 +48,9 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
     DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
-        throw Common::PluginApi::ApiException("Invalid reply for: 'send event'");
+        std::string errorMessage("Invalid reply for: 'send event'");
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
     }
 }
 
@@ -55,7 +63,9 @@ void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId
     DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
-        throw Common::PluginApi::ApiException("Invalid reply for: 'Change status'");
+        std::string errorMessage("Invalid reply for: 'Change status'");
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
     }
 }
 
@@ -67,7 +77,9 @@ void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
     DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
-        throw Common::PluginApi::ApiException("Invalid reply for: 'Registration'");
+        std::string errorMessage("Invalid reply for: 'Registration'");
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
     }
 }
 
@@ -99,14 +111,17 @@ Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getRepl
 
     if( reply.Command != request.Command)
     {
-        throw ApiException(
-                "Received reply from wrong command, expecting" + Common::PluginApi::SerializeCommand(request.Command) +
-                ", Received: " + Common::PluginApi::SerializeCommand(request.Command));
+        std::string errorMessage("Received reply from wrong command, expecting" + Common::PluginApi::SerializeCommand(request.Command) +
+                                 ", Received: " + Common::PluginApi::SerializeCommand(request.Command));
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
     }
 
     if ( !reply.Error.empty())
     {
-        throw Common::PluginApi::ApiException(reply.Error);
+        std::string errorMessage("Invalid reply, error: " + reply.Error);
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
     }
 
     return reply;

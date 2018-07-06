@@ -40,7 +40,7 @@ namespace
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
             pluginResourceManagement.setDefaultConnectTimeout(3000);
-            auto & context = pluginResourceManagement.socketContext();
+            auto & context = pluginResourceManagement.getSocketContext();
             server = std::thread(std::ref(responseServer), std::ref(context));
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
         }
@@ -61,7 +61,7 @@ namespace
             dataMessage.ProtocolVersion = Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion;
             dataMessage.ApplicationId = "plugin";
             dataMessage.MessageId = "1";
-            dataMessage.payload.push_back("ACK");
+            dataMessage.Payload.push_back("ACK");
 
             return dataMessage;
         }
@@ -88,7 +88,7 @@ namespace
     {
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
 
-        dataMessage.payload.clear();
+        dataMessage.Payload.clear();
 
         responseServer.setReply(dataMessage);
 
@@ -149,10 +149,10 @@ namespace
     {
         Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
-        dataMessage.payload.clear();
-        dataMessage.payload.push_back("testPolicyPayload");
+        dataMessage.Payload.clear();
+        dataMessage.Payload.push_back("testPolicyPayload");
         responseServer.setReply(dataMessage);
-        EXPECT_EQ(plugin->getPolicy("plugin"), dataMessage.payload.at(0));
+        EXPECT_EQ(plugin->getPolicy("plugin"), dataMessage.Payload.at(0));
     }
 
 

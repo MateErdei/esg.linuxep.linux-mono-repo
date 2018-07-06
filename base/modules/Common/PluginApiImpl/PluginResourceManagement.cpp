@@ -93,7 +93,7 @@ namespace Common
             socket.setConnectionTimeout(m_defaultConnectTimeout);
         }
 
-        Common::ZeroMQWrapper::IContext &PluginResourceManagement::socketContext()
+        Common::ZeroMQWrapper::IContext &PluginResourceManagement::getSocketContext()
         {
             return *m_context;
         }
