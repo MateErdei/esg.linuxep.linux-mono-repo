@@ -1,6 +1,8 @@
-//
-// Created by pair on 05/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_IPLUGINMANAGER_H
 #define EVEREST_BASE_IPLUGINMANAGER_H
@@ -27,8 +29,9 @@ namespace PluginCommunication
         virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;
         virtual Common::PluginApi::StatusInfo getStatus(const std::string &pluginName) = 0;
         virtual std::string getTelemetry(const std::string &pluginName) = 0;
+        virtual void setAppIds(const std::string& pluginName, const std::vector<std::string> &appIds) = 0;
 
-        virtual void registerPlugin(const Common::PluginApi::RegistrationInfo &regInfo) = 0;
+        virtual void registerPlugin(std::string &pluginName) = 0;
         virtual void removePlugin(std::string pluginName) = 0;
     };
 }

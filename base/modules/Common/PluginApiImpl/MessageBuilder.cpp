@@ -3,9 +3,11 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include <cassert>
 #include <Common/PluginApi/IPluginCallback.h>
 #include "MessageBuilder.h"
+
 namespace Common
 {
     namespace PluginApiImpl
@@ -77,15 +79,20 @@ namespace Common
         std::string  MessageBuilder::requestExtractCurrentPolicy( const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
-            return dataMessage.ApplicationId; //App id contains plugin name in this case
+            return requestExtractPluginName(dataMessage);
         }
 
-        RegistrationInfo MessageBuilder::requestExtractRegistration( const DataMessage &dataMessage) const
+        std::string MessageBuilder::requestExtractRegistration(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::PLUGIN_SEND_REGISTER);
-            RegistrationInfo info = {dataMessage.ApplicationId, dataMessage.payload};
-            return info;
+            return requestExtractPluginName(dataMessage);
         }
+
+        std::string MessageBuilder::requestExtractPluginName(const DataMessage &dataMessage) const
+        {
+            return dataMessage.ApplicationId;
+        }
+
 
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
         {

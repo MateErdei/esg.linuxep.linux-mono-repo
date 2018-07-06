@@ -1,6 +1,8 @@
-//
-// Created by pair on 05/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef EVEREST_BASE_PLUGINMANAGER_H
 #define EVEREST_BASE_PLUGINMANAGER_H
@@ -39,8 +41,11 @@ namespace ManagementAgent
             void doAction(const std::string &appId, const std::string &actionXml) override;
             Common::PluginApi::StatusInfo getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
+            void setAppIds(const std::string &pluginName, const std::vector<std::string> &appIds) override;
 
-            void registerPlugin(const Common::PluginApi::RegistrationInfo &regInfo) override;
+        public:
+
+            void registerPlugin(std::string &pluginName) override;
             void removePlugin(std::string pluginName) override;
 
         private:

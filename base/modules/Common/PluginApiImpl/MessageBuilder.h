@@ -35,11 +35,12 @@ namespace Common
 
 
             /** Extracting information from requests as server **/
-            //Management
+            //Management Agent
             std::string requestExtractEvent( const DataMessage & ) const;
             PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
-            std::string requestExtractCurrentPolicy( const DataMessage &dataMessage) const;
-            PluginApi::RegistrationInfo requestExtractRegistration( const DataMessage & ) const;
+            std::string requestExtractCurrentPolicy( const DataMessage &) const;
+            std::string requestExtractRegistration(const DataMessage &) const;
+            std::string requestExtractPluginName(const DataMessage &) const;
             //Plugin
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
@@ -48,17 +49,22 @@ namespace Common
 
 
             /** Build replies as servers **/
+            //Management Agent and Plugin
             DataMessage replyAckMessage( const DataMessage & ) const;
             DataMessage replySetErrorIfEmpty( const DataMessage& , const std::string & errorDescription )  const;
+            //Management Agent
             DataMessage replyCurrentPolicy(const DataMessage & , const std::string & policyContent) const;
+            //Plugin
             DataMessage replyTelemetry( const DataMessage &, const std::string & telemetryContent) const;
             DataMessage replyStatus(const DataMessage&, const Common::PluginApi::StatusInfo &) const;
 
 
             /** Extracting information from replies as client */
-            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
+            //Management Agent
             std::string replyExtractTelemetry( const DataMessage & ) const;
             Common::PluginApi::StatusInfo replyExtractStatus( const DataMessage & ) const;
+            //Plugin
+            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
 
             bool hasAck(const DataMessage &dataMessage) const;
 

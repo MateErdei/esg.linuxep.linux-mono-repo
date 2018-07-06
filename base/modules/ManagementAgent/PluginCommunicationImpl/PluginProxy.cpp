@@ -1,6 +1,8 @@
-//
-// Created by pair on 05/07/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "IPluginCommunicationException.h"
 #include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
@@ -14,9 +16,11 @@ namespace ManagementAgent
 namespace PluginCommunicationImpl
 {
 
-    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::vector<std::string> appIds) :
-            m_socket(std::move(socketRequester)), m_AppIds(appIds)
-    {}
+    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::string &pluginName) :
+            m_socket(std::move(socketRequester))
+    {
+        m_appIds.push_back(pluginName);
+    }
 
 
     void PluginProxy::applyNewPolicy(const std::string &appId, const std::string &policyXml)
@@ -59,10 +63,14 @@ namespace PluginCommunicationImpl
         return messageBuilder.replyExtractTelemetry(reply);
     }
 
+    void PluginProxy::setAppIds(const std::vector<std::string> &appIds)
+    {
+        m_appIds = appIds;
+    }
 
     bool PluginProxy::hasAppId(const std::string &appId)
     {
-        return (std::find(m_AppIds.begin(), m_AppIds.end(), appId) != m_AppIds.end());
+        return (std::find(m_appIds.begin(), m_appIds.end(), appId) != m_appIds.end());
     }
 
     Common::PluginApiImpl::DataMessage PluginProxy::getReply(const Common::PluginApiImpl::DataMessage &request) const

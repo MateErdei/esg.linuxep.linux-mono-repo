@@ -1,7 +1,8 @@
-//
-// Created by pair on 05/07/18.
-//
+/******************************************************************************************************
 
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #ifndef EVEREST_BASE_PLUGINPROXY_H
 #define EVEREST_BASE_PLUGINPROXY_H
 
@@ -19,15 +20,17 @@ namespace PluginCommunicationImpl
     {
 
     public:
-        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::vector<std::string> appIds);
+        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::string &pluginName);
 
         void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
 
         void doAction(const std::string &appId, const std::string &actionXml) override;
 
-        Common::PluginApi::StatusInfo getStatus(void) override;
+        Common::PluginApi::StatusInfo getStatus() override;
 
         std::string getTelemetry() override;
+
+        void setAppIds(const std::vector<std::string> &appIds) override;
 
         bool hasAppId(const std::string &appId) override;
 
@@ -35,7 +38,7 @@ namespace PluginCommunicationImpl
 
         Common::PluginApiImpl::DataMessage getReply(const Common::PluginApiImpl::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
-        std::vector<std::string> m_AppIds;
+        std::vector<std::string> m_appIds;
     };
 
 }
