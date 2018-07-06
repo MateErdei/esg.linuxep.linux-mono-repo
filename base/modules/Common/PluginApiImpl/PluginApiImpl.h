@@ -36,7 +36,7 @@ namespace Common
             void registerWithManagementAgent() const;
 
         private:
-            DataMessage getReply( const DataMessage & request) const;
+            Common::PluginProtocol::DataMessage getReply( const Common::PluginProtocol::DataMessage & request) const;
 
             std::string m_pluginName;
             Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;

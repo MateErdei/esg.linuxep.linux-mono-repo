@@ -12,19 +12,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
         using data_t  = std::vector<std::string>;
 
-        class ProtocolSerializer : public Common::PluginApi::IProtocolSerializer
+        class ProtocolSerializer : public Common::PluginProtocol::IProtocolSerializer
         {
         public:
             ProtocolSerializer();
-            const data_t serialize(const Common::PluginApi::DataMessage &dataMessage)const override;
-            const Common::PluginApi::DataMessage deserialize(const data_t &serializedData) override;
+            const data_t serialize(const Common::PluginProtocol::DataMessage &dataMessage)const override;
+            const Common::PluginProtocol::DataMessage deserialize(const data_t &serializedData) override;
 
         private:
-            Common::PluginApi::DataMessage createDefaultErrorMessage();
+            Common::PluginProtocol::DataMessage createDefaultErrorMessage();
 
             std::string m_supportedProtocolVersion;
         };

@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
         AbstractListenerServer::AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite)
         : m_ireadWrite(move(ireadWrite))

@@ -26,9 +26,9 @@ class SingleResponseServer
 public:
     SingleResponseServer() = default;
     ~SingleResponseServer() = default;
-    void setReply( const Common::PluginApi::DataMessage & replyMessage)
+    void setReply( const Common::PluginProtocol::DataMessage & replyMessage)
     {
-        Common::PluginApiImpl::Protocol protocol;
+        Common::PluginProtocol::Protocol protocol;
         setReplyRaw(protocol.serialize(replyMessage));
     }
     void setReplyRaw( Common::ZeroMQWrapper::IReadable::data_t replyMessage)
@@ -47,10 +47,10 @@ public:
         replier->listen(address );
 
         // handle registration
-        Common::PluginApiImpl::Protocol protocol;
+        Common::PluginProtocol::Protocol protocol;
         auto request = protocol.deserialize(replier->read());
-        assert( request.Command == Common::PluginApi::Commands::PLUGIN_SEND_REGISTER);
-        Common::PluginApiImpl::MessageBuilder messageBuilder( "plugin", "v1");
+        assert( request.Command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+        Common::PluginProtocol::MessageBuilder messageBuilder( "plugin", "v1");
         auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
         replier->write(replyMessage);
 

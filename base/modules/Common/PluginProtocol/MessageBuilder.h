@@ -8,12 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_REQUESTSBUILDER_H
 
 #include <Common/PluginApi/IPluginCallback.h>
-#include "Common/PluginProtocol/DataMessage.h"
+#include "DataMessage.h"
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
-       using DataMessage = Common::PluginApi::DataMessage;
 
         class MessageBuilder
         {
@@ -54,7 +53,7 @@ namespace Common
             bool hasAck(const DataMessage &dataMessage) const;
 
         private:
-            DataMessage createDefaultDataMessage(Common::PluginApi::Commands command, const std::string& payload) const;
+            DataMessage createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string& payload) const;
 
 
             std::string m_applicationID;

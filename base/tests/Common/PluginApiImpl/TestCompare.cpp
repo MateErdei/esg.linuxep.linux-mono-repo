@@ -11,8 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ::testing::AssertionResult TestCompare::dataMessageSimilar(const char *m_expr,
                                               const char *n_expr,
-                                              const Common::PluginApi::DataMessage &expected,
-                                              const Common::PluginApi::DataMessage &resulted)
+                                              const Common::PluginProtocol::DataMessage &expected,
+                                              const Common::PluginProtocol::DataMessage &resulted)
 {
     std::stringstream s;
     s << m_expr << " and " << n_expr << " failed: ";
@@ -41,9 +41,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
     if (expected.Command != resulted.Command)
     {
         return ::testing::AssertionFailure() << s.str() << " command differ: \n expected: "
-                                             << Common::PluginApi::SerializeCommand(expected.Command)
+                                             << Common::PluginProtocol::SerializeCommand(expected.Command)
                                              << "\n result: "
-                                             << Common::PluginApi::SerializeCommand(resulted.Command);
+                                             << Common::PluginProtocol::SerializeCommand(resulted.Command);
     }
 
     if (expected.Error != resulted.Error)

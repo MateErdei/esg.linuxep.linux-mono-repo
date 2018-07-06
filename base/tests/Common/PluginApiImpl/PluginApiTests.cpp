@@ -54,11 +54,11 @@ namespace
             }
         }
 
-        Common::PluginApi::DataMessage createDefaultMessage()
+        Common::PluginProtocol::DataMessage createDefaultMessage()
         {
-            Common::PluginApi::DataMessage dataMessage;
-            dataMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
-            dataMessage.ProtocolVersion = Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion;
+            Common::PluginProtocol::DataMessage dataMessage;
+            dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+            dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
             dataMessage.ApplicationId = "plugin";
             dataMessage.MessageId = "1";
             dataMessage.Payload.push_back("ACK");
@@ -77,7 +77,7 @@ namespace
 
     TEST_F(PluginApiTests, pluginAPIcanSendEvent)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
         responseServer.setReply(dataMessage);
 
@@ -86,7 +86,7 @@ namespace
 
     TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutPayloadFails)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
         dataMessage.Payload.clear();
 
@@ -98,15 +98,15 @@ namespace
 
     TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
     }
 
     TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Error = "Server rejected call";
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
@@ -130,16 +130,16 @@ namespace
 
     TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
         responseServer.setReply(dataMessage);
         EXPECT_NO_THROW(plugin->changeStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
     }
 
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Error = "Server rejected call";
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->getPolicy("plugin"), Common::PluginApi::ApiException);
@@ -147,8 +147,8 @@ namespace
 
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Payload.clear();
         dataMessage.Payload.push_back("testPolicyPayload");
         responseServer.setReply(dataMessage);

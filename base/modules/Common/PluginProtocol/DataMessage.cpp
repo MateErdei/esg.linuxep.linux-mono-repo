@@ -3,16 +3,16 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "Common/PluginProtocol/DataMessage.h"
+#include "DataMessage.h"
 #include <unordered_map>
 #include <thread>
 #include <mutex>
 namespace
 {
-    using CommandMap = std::unordered_map<std::string, Common::PluginApi::Commands >;
+    using namespace Common::PluginProtocol;
+    using CommandMap = std::unordered_map<std::string, Common::PluginProtocol::Commands >;
     void setupMapString ( CommandMap & commandMap)
     {
-        using namespace Common::PluginApi;
         for ( auto command: {Commands::PLUGIN_SEND_EVENT,
                              Commands::PLUGIN_SEND_STATUS,
                              Commands::PLUGIN_SEND_REGISTER,
@@ -45,7 +45,7 @@ namespace
 
 namespace Common
 {
-    namespace PluginApi
+    namespace PluginProtocol
     {
         std::string SerializeCommand( Commands  command)
         {

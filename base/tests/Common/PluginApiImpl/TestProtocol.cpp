@@ -10,8 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginProtocol/Protocol.h"
 #include "Common/PluginProtocol/ProtocolSerializerFactory.h"
 
-using namespace Common::PluginApiImpl;
-using DataMessage = Common::PluginApi::DataMessage;
+using namespace Common::PluginProtocol;
+using DataMessage = Common::PluginProtocol::DataMessage;
 class TestProtocol : public ::testing::Test
 {
 public:
@@ -27,22 +27,22 @@ public:
     }
 
 
-    Common::PluginApi::DataMessage createDefaultMessage()
+    Common::PluginProtocol::DataMessage createDefaultMessage()
     {
         DataMessage message;
 
         message.ProtocolVersion = "v1";
         message.ApplicationId = "1";
-        message.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
+        message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
         message.MessageId = "1";
         message.Payload = {"Hello"};
 
         return message;
     }
 
-    std::string toString( Common::PluginApi::Commands command)
+    std::string toString( Common::PluginProtocol::Commands command)
     {
-        return Common::PluginApi::SerializeCommand(command); 
+        return Common::PluginProtocol::SerializeCommand(command);
     }
 
 };

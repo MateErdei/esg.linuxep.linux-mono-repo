@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MessageBuilder.h"
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
         using namespace Common::PluginApi;
         MessageBuilder::MessageBuilder(const std::string &applicationID, const std::string &protocolVersion)
@@ -67,7 +67,7 @@ namespace Common
             return dataMessage.payload.at(0);
         }
 
-        Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
+        Common::PluginProtocol::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             return {dataMessage.payload.at(0), dataMessage.payload.at(1)};
@@ -124,7 +124,7 @@ namespace Common
             return reply;
         }
 
-        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginApi::StatusInfo &statusInfo) const
+        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginProtocol::StatusInfo &statusInfo) const
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
@@ -147,7 +147,7 @@ namespace Common
         }
 
         DataMessage
-        MessageBuilder::createDefaultDataMessage(Common::PluginApi::Commands command, const std::string &payload) const
+        MessageBuilder::createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string &payload) const
         {
             DataMessage dataMessage;
             dataMessage.ApplicationId = m_applicationID;
@@ -172,7 +172,7 @@ namespace Common
 
         std::string MessageBuilder::requestExtractPluginName(const DataMessage & dataMessage) const
         {
-            assert( dataMessage.Command == PluginApi::Commands::PLUGIN_SEND_REGISTER);
+            assert( dataMessage.Command == PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
             return dataMessage.ApplicationId;
         }
 

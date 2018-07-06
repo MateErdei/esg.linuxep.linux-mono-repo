@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApi
+    namespace PluginProtocol
     {
         using data_t  = std::vector<std::string>;
 

@@ -12,14 +12,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
         class ProtocolSerializerFactory
         {
         public:
             static const char* ProtocolErrorMark;// = "Error";
             static const char* ProtocolVersion;// = "v1";
-            std::unique_ptr<Common::PluginApi::IProtocolSerializer> createProtocolSerializer(
+            std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> createProtocolSerializer(
                     const std::string &protocolVersion);
         };
     }

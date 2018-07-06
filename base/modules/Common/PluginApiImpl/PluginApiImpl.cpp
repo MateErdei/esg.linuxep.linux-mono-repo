@@ -43,9 +43,9 @@ Common::PluginApiImpl::PluginApiImpl::~PluginApiImpl()
 
 void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, const std::string &eventXml) const
 {
-    MessageBuilder messageBuilder(appId, ProtocolSerializerFactory::ProtocolVersion);
-    DataMessage message = messageBuilder.requestSendEventMessage(eventXml);
-    DataMessage replyMessage = getReply(message);
+    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+    Common::PluginProtocol::DataMessage message = messageBuilder.requestSendEventMessage(eventXml);
+    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'send event'");
@@ -57,10 +57,10 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
 void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId, const std::string &statusXml,
                                                         const std::string &statusWithoutTimestampsXml) const
 {
-    MessageBuilder messageBuilder(appId, ProtocolSerializerFactory::ProtocolVersion);
-    DataMessage message = messageBuilder.requestSendStatusMessage(statusXml, statusWithoutTimestampsXml);
+    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+    Common::PluginProtocol::DataMessage message = messageBuilder.requestSendStatusMessage(statusXml, statusWithoutTimestampsXml);
 
-    DataMessage replyMessage = getReply(message);
+    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'Change status'");
@@ -71,10 +71,10 @@ void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId
 
 void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
 {
-    MessageBuilder messageBuilder(m_pluginName, ProtocolSerializerFactory::ProtocolVersion);
-    DataMessage message = messageBuilder.requestRegisterMessage();
+    Common::PluginProtocol::MessageBuilder messageBuilder(m_pluginName, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+    Common::PluginProtocol::DataMessage message = messageBuilder.requestRegisterMessage();
 
-    DataMessage replyMessage = getReply(message);
+    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
     if ( !messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'Registration'");
@@ -87,18 +87,18 @@ void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
 
 std::string Common::PluginApiImpl::PluginApiImpl::getPolicy(const std::string &appId) const
 {
-    MessageBuilder messageBuilder(appId, ProtocolSerializerFactory::ProtocolVersion);
-    DataMessage message = messageBuilder.requestCurrentPolicyMessage();
-    DataMessage  reply = getReply(message);
+    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
+    Common::PluginProtocol::DataMessage message = messageBuilder.requestCurrentPolicyMessage();
+    Common::PluginProtocol::DataMessage  reply = getReply(message);
 
     return messageBuilder.replyExtractCurrentPolicy(reply);
 }
 
 
-Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getReply(const Common::PluginApiImpl::DataMessage &request) const
+Common::PluginProtocol::DataMessage Common::PluginApiImpl::PluginApiImpl::getReply(const Common::PluginProtocol::DataMessage &request) const
 {
-    Protocol protocol;
-    DataMessage reply;
+    Common::PluginProtocol::Protocol protocol;
+    Common::PluginProtocol::DataMessage reply;
     try
     {
         m_socket->write(protocol.serialize(request));
@@ -111,8 +111,8 @@ Common::PluginApiImpl::DataMessage Common::PluginApiImpl::PluginApiImpl::getRepl
 
     if( reply.Command != request.Command)
     {
-        std::string errorMessage("Received reply from wrong command, expecting" + Common::PluginApi::SerializeCommand(request.Command) +
-                                 ", Received: " + Common::PluginApi::SerializeCommand(request.Command));
+        std::string errorMessage("Received reply from wrong command, expecting" + Common::PluginProtocol::SerializeCommand(request.Command) +
+                                 ", Received: " + Common::PluginProtocol::SerializeCommand(request.Command));
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }

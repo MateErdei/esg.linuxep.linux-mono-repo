@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-using DataMessage = Common::PluginApi::DataMessage;
+using DataMessage = Common::PluginProtocol::DataMessage;
 
 class DataMessageTests : public ::testing::Test
 {
@@ -37,7 +37,7 @@ TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully)
     std::string errorMessage  = "errorMessage";
     std::vector<std::string> payload;
     payload.push_back("payloadItem");
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
 
     DataMessage dataMessage;
     dataMessage.ProtocolVersion = protocolVersion;
@@ -58,72 +58,72 @@ TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully)
 
 TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_EVENTCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
     std::string commandString = "SendEvent";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_STATUSCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
     std::string commandString = "SendStatus";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_REGISTERCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::PLUGIN_SEND_REGISTER;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
     std::string commandString = "Registration";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_APPLY_POLICYCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
     std::string commandString = "ApplyPolicy";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_DO_ACTIONCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
     std::string commandString = "DoAction";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_STATUSCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
     std::string commandString = "RequestStatus";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_TELEMETRYCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string commandString = "Telemetry";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandPLUGIN_QUERY_CURRENT_POLICYCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
     std::string commandString = "RequestCurrentPolicy";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
 TEST_F(DataMessageTests, DataMessageCommandUNKNOWNCanBeConvertedCorrectly)
 {
-    Common::PluginApi::Commands command = Common::PluginApi::Commands::UNKNOWN;
+    Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::UNKNOWN;
     std::string commandString = "InvalidCommand";
-    EXPECT_EQ(Common::PluginApi::SerializeCommand(command), commandString);
-    EXPECT_EQ(Common::PluginApi::DeserializeCommand(commandString), command);
+    EXPECT_EQ(Common::PluginProtocol::SerializeCommand(command), commandString);
+    EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }

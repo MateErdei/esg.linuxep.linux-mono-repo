@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApi
+    namespace PluginProtocol
     {
 
         enum class Commands{UNKNOWN,

@@ -21,9 +21,9 @@ class SingleManagementRequest
 public:
     SingleManagementRequest() = default;
     ~SingleManagementRequest() = default;
-    Common::PluginApi::DataMessage triggerRequest(Common::ZeroMQWrapper::IContext & context, const Common::PluginApi::DataMessage & requestMessage)
+    Common::PluginProtocol::DataMessage triggerRequest(Common::ZeroMQWrapper::IContext & context, const Common::PluginProtocol::DataMessage & requestMessage)
     {
-        Common::PluginApiImpl::Protocol protocol;
+        Common::PluginProtocol::Protocol protocol;
         auto rawMessage = protocol.serialize(requestMessage);
         auto rawReply = triggerRawRequest(context, rawMessage);
         return protocol.deserialize(rawReply);

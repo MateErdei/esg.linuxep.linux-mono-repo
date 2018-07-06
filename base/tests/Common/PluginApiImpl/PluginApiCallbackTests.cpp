@@ -30,10 +30,10 @@ namespace
         replier->listen(address );
 
         // handle registration
-        Common::PluginApiImpl::Protocol protocol;
+        Common::PluginProtocol::Protocol protocol;
         auto request = protocol.deserialize(replier->read());
-        assert( request.Command == Common::PluginApi::Commands::PLUGIN_SEND_REGISTER);
-        Common::PluginApiImpl::MessageBuilder messageBuilder( "plugin", "v1");
+        assert( request.Command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+        Common::PluginProtocol::MessageBuilder messageBuilder( "plugin", "v1");
         auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
         replier->write(replyMessage);
     }
@@ -74,11 +74,11 @@ namespace
 
         }
 
-        Common::PluginApi::DataMessage createDefaultMessage(Common::PluginApi::Commands command, const std::string &firstPayloadItem )
+        Common::PluginProtocol::DataMessage createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem )
         {
-            Common::PluginApi::DataMessage dataMessage;
+            Common::PluginProtocol::DataMessage dataMessage;
             dataMessage.Command = command;
-            dataMessage.ProtocolVersion = Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion;
+            dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
             dataMessage.ApplicationId = "plugin";
             dataMessage.MessageId = "1";
             if ( !firstPayloadItem.empty())
@@ -111,8 +111,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
@@ -128,8 +128,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatusFail)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
@@ -143,8 +143,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         std::string telemetryData = "TelemetryData";
         expectedAnswer.Payload.clear();
@@ -160,8 +160,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetryFail)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         std::string telemetryData = "TelemetryData";
         expectedAnswer.Payload.clear();
@@ -175,8 +175,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back("ACK");
@@ -191,8 +191,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoActionFail)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         std::string actionData = "ActionData";
         expectedAnswer.Payload.clear();
@@ -206,8 +206,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back("ACK");
@@ -221,8 +221,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyFail)
     {
-        Common::PluginApi::DataMessage dataMessage = createDefaultMessage(Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY, "");
-        Common::PluginApi::DataMessage expectedAnswer(dataMessage);
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         std::string policyData = "PolicyData";
         expectedAnswer.Payload.clear();

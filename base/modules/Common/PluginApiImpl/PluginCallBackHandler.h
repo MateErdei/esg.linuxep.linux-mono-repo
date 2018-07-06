@@ -17,7 +17,7 @@ namespace Common
 
     namespace PluginApiImpl
     {
-        class PluginCallBackHandler : public AbstractListenerServer
+        class PluginCallBackHandler : public Common::PluginProtocol::AbstractListenerServer
         {
          public:
             PluginCallBackHandler( std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
@@ -25,10 +25,10 @@ namespace Common
 
 
         private:
-            DataMessage process(const DataMessage & request) const override ;
+            Common::PluginProtocol::DataMessage process(const Common::PluginProtocol::DataMessage & request) const override ;
             void onShutdownRequested() override ;
 
-            MessageBuilder m_messageBuilder;
+            Common::PluginProtocol::MessageBuilder m_messageBuilder;
             std::shared_ptr<Common::PluginApi::IPluginCallback> m_pluginCallback;
 
         };

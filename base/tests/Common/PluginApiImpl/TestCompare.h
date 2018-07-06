@@ -20,8 +20,8 @@ class TestCompare : public ::testing::Test
 public:
     ::testing::AssertionResult dataMessageSimilar(const char *m_expr,
                                                   const char *n_expr,
-                                                  const Common::PluginApi::DataMessage &expected,
-                                                  const Common::PluginApi::DataMessage &resulted);
+                                                  const Common::PluginProtocol::DataMessage &expected,
+                                                  const Common::PluginProtocol::DataMessage &resulted);
 };
 
 

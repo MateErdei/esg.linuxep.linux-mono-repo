@@ -12,8 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginProtocol/MessageBuilder.h"
 #include "TestCompare.h"
 
-using Common::PluginApiImpl::MessageBuilder;
-using Common::PluginApiImpl::DataMessage;
+using Common::PluginProtocol::MessageBuilder;
+using Common::PluginProtocol::DataMessage;
 
 
 class MessageBuilderTests : public TestCompare
@@ -24,7 +24,7 @@ public:
     void SetUp() override
     {
         m_messageBuilder = std::unique_ptr<MessageBuilder>(
-                new MessageBuilder("testApp", Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion));
+                new MessageBuilder("testApp", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion));
     }
 
     void TearDown() override
@@ -35,7 +35,7 @@ public:
     DataMessage createDataMessage()
     {
         DataMessage dataMessage;
-        dataMessage.ProtocolVersion = Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion;
+        dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
         dataMessage.ApplicationId = "testApp";
         dataMessage.MessageId = "";
         return dataMessage;
@@ -49,7 +49,7 @@ TEST_F(MessageBuilderTests, requestSendEventMessageReturnsExpectedMessage)
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
     std::string payload = "EventXml";
     expectedMessage.Payload.push_back(payload);
 
@@ -62,7 +62,7 @@ TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage)
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_STATUS;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutXml = "StatusWithoutTimeStampXml";
@@ -81,7 +81,7 @@ TEST_F(MessageBuilderTests, requestRegisterMessageReturnsExpectedMessage)
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_REGISTER;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
 
     DataMessage actualMessage = m_messageBuilder->requestRegisterMessage();
 
@@ -92,7 +92,7 @@ TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage)
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     DataMessage actualMessage = m_messageBuilder->requestCurrentPolicyMessage();
 
@@ -102,7 +102,7 @@ TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
     std::string payload = "PolicyXml";
     expectedMessage.Payload.push_back(payload);
 
@@ -114,7 +114,7 @@ TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
     std::string payload = "ActionXml";
     expectedMessage.Payload.push_back(payload);
 
@@ -127,7 +127,7 @@ TEST_F(MessageBuilderTests, requestRequestPluginStatusMessageReturnsExpectedMess
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     DataMessage actualMessage = m_messageBuilder->requestRequestPluginStatusMessage();
 
@@ -138,7 +138,7 @@ TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     DataMessage actualMessage = m_messageBuilder->requestRequestTelemetryMessage();
 
@@ -149,7 +149,7 @@ TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage
 TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     DataMessage actualMessage = m_messageBuilder->replyAckMessage(expectedMessage);
 
@@ -161,7 +161,7 @@ TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorIsEmpty)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string errorMessage = "Something went wrong";
 
     DataMessage actualMessage = m_messageBuilder->replySetErrorIfEmpty(expectedMessage, errorMessage);
@@ -174,7 +174,7 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorI
 TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorNotEmpty)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string errorMessage = "Something went wrong";
     expectedMessage.Error = errorMessage;
 
@@ -186,7 +186,7 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorN
 TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     std::string payload = "PolicyXml";
     expectedMessage.Payload.push_back(payload);
@@ -199,7 +199,7 @@ TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     std::string payload = "TelemetryXml";
     expectedMessage.Payload.push_back(payload);
@@ -212,7 +212,7 @@ TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
@@ -229,7 +229,7 @@ TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
+    message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
 
     std::string expectedResult = "EventXml";
 
@@ -243,7 +243,7 @@ TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_STATUS;
+    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo expectedStatusInfo;
     expectedStatusInfo.statusXml = "StatusXml";
@@ -261,7 +261,7 @@ TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_APPLY_POLICY;
+    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
 
     std::string expectedResult = "PolicyXml";
 
@@ -275,7 +275,7 @@ TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_DO_ACTION;
+    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
 
     std::string expectedResult = "ActionXml";
 
@@ -289,7 +289,7 @@ TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractPluginNameReturnsExpectedMessage)
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginApi::Commands::PLUGIN_SEND_REGISTER;
+    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
 
     std::string expectedResult = "ActionXml";
 
@@ -303,7 +303,7 @@ TEST_F(MessageBuilderTests, requestExtractPluginNameReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    message.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     std::string expectedResult = "PolicyXml";
 
@@ -317,7 +317,7 @@ TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::REQUEST_PLUGIN_TELEMETRY;
+    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     std::string expectedResult = "TelemetryXml";
 
@@ -331,7 +331,7 @@ TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, hasAckReturnsTrue)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginApi::Commands::PLUGIN_SEND_EVENT;
+    message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
 
     std::string expectedResult = "ACK";
 

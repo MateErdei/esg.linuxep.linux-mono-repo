@@ -17,9 +17,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
-        using namespace PluginApi;
+        using namespace PluginProtocol;
 
         class AbstractListenerServer :
                 public virtual Common::Reactor::ICallbackListener,

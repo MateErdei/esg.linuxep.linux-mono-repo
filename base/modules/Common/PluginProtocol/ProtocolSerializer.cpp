@@ -15,20 +15,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginProtocol
     {
         ProtocolSerializer::ProtocolSerializer()
-        : m_supportedProtocolVersion(Common::PluginApiImpl::ProtocolSerializerFactory::ProtocolVersion)
+        : m_supportedProtocolVersion(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion)
         {
 
         }
 
-        const data_t ProtocolSerializer::serialize(const Common::PluginApi::DataMessage &dataMessage)const
+        const data_t ProtocolSerializer::serialize(const Common::PluginProtocol::DataMessage &dataMessage)const
         {
             data_t data;
             data.push_back(dataMessage.ProtocolVersion);
             data.push_back(dataMessage.ApplicationId);
-            data.push_back(PluginApi::SerializeCommand(dataMessage.Command));
+            data.push_back(PluginProtocol::SerializeCommand(dataMessage.Command));
             data.push_back(dataMessage.MessageId);
 
             if (dataMessage.Error.empty())
@@ -44,9 +44,9 @@ namespace Common
             return data;
         }
 
-        const Common::PluginApi::DataMessage ProtocolSerializer::deserialize(const data_t &serializedData)
+        const Common::PluginProtocol::DataMessage ProtocolSerializer::deserialize(const data_t &serializedData)
         {
-            Common::PluginApi::DataMessage message;
+            Common::PluginProtocol::DataMessage message;
             if ( serializedData.size() < 4 )
             {
                 message = createDefaultErrorMessage();
@@ -65,9 +65,9 @@ namespace Common
 
             message.ProtocolVersion = serializedData[0];
             message.ApplicationId = serializedData[1];
-            message.Command = PluginApi::DeserializeCommand(serializedData[2]);
+            message.Command = PluginProtocol::DeserializeCommand(serializedData[2]);
 
-            if(message.Command == PluginApi::Commands::UNKNOWN)
+            if(message.Command == PluginProtocol::Commands::UNKNOWN)
             {
                 message.Error = "Invalid request";
                 LOGDEBUG("Protocol Serializer error: " << message.Error);
@@ -98,11 +98,11 @@ namespace Common
             return message;
         }
 
-        Common::PluginApi::DataMessage ProtocolSerializer::createDefaultErrorMessage()
+        Common::PluginProtocol::DataMessage ProtocolSerializer::createDefaultErrorMessage()
         {
-            Common::PluginApi::DataMessage dataMessage;
+            Common::PluginProtocol::DataMessage dataMessage;
             dataMessage.ProtocolVersion = m_supportedProtocolVersion;
-            dataMessage.Command = Common::PluginApi::Commands::UNKNOWN;
+            dataMessage.Command = Common::PluginProtocol::Commands::UNKNOWN;
 
             return dataMessage;
         }
