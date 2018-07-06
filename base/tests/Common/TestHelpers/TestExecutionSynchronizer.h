@@ -24,7 +24,7 @@ namespace Tests
     public:
         explicit TestExecutionSynchronizer(int toBeNotifiedNTimes = 1);
         void notify();
-        void waitfor();
+        void waitfor(int ms = 500);
     };
 
 }

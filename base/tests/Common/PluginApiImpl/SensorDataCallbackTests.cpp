@@ -19,9 +19,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginProtocol/Protocol.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "TestExecutionSynchronizer.h"
+#include "Common/Threads/NotifyPipe.h"
 
 #include <chrono>
 #include <thread>
+
 
 
 using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
@@ -52,7 +54,6 @@ public:
         sensorDataSubscriber = pluginResourceManagement.createSensorDataSubscriber("news", mockSensorDataCallback);
         sensorDataSubscriber->start();
         sensorDataPublisher = pluginResourceManagement.createSensorDataPublisher("plugin");
-
     }
     void TearDown() override
     {
@@ -73,16 +74,33 @@ TEST_F(SensorDataCallbackTests, SensorDataPublisher_SubscriberCanSendReceiveData
 {
     using ::testing::Invoke;
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
 
-    EXPECT_CALL(*mockSensorDataCallback, receiveData("news", _ )).Times(2).WillRepeatedly(
-            Invoke([&testExecutionSynchronizer](const std::string &, const std::string & ){testExecutionSynchronizer.notify();})
+    EXPECT_CALL(*mockSensorDataCallback, receiveData("news", "ensureSubscriptionStarted")).Times(AtLeast(1)).WillRepeatedly(
+            Invoke([&notify](const std::string &, const std::string & ){notify.notify();})
     );
 
-    sensorDataPublisher->sendData("otherArgument", "willNotBeReceived");
-    sensorDataPublisher->sendData("news", "firstnews");
-    sensorDataPublisher->sendData("anyOtherKey", "willNotBeReceived");
-    sensorDataPublisher->sendData("news", "secondnews");
+    EXPECT_CALL(*mockSensorDataCallback, receiveData("newsLetter", _ )).Times(2).WillRepeatedly(
+            Invoke([&testExecutionSynchronizer](const std::string &, const std::string & ){testExecutionSynchronizer.notify();})
+    );
+    /*It is documented that the subscriber will not receive data if the publisher sends data
+     * before the subscription is in place. Hence, the test has a sync phase. In it the subscription is first ensured to be
+     * working via multiples delay to receive the first message 'ensureSubscriptionStarted'
+     */
+    int count = 0;
+    while( !notify.notified())
+    {
+        sensorDataPublisher->sendData("news", "ensureSubscriptionStarted");
+        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        count++;
+        ASSERT_TRUE(count < 10);
+    }
 
-    testExecutionSynchronizer.waitfor();
+    sensorDataPublisher->sendData("otherArgument", "willNotBeReceived");
+    sensorDataPublisher->sendData("newsLetter", "firstnews");
+    sensorDataPublisher->sendData("anyOtherKey", "willNotBeReceived");
+    sensorDataPublisher->sendData("newsLetter", "secondnews");
+
+    testExecutionSynchronizer.waitfor(3000);
 
 }

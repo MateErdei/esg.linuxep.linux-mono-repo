@@ -26,10 +26,10 @@ namespace Tests
         }
     }
 
-    void TestExecutionSynchronizer::waitfor()
+    void TestExecutionSynchronizer::waitfor(int ms)
     {
         std::unique_lock<std::mutex> lock(mutex);
-        m_waitCondition.wait_for(lock, std::chrono::milliseconds(500));
+        m_waitCondition.wait_for(lock, std::chrono::milliseconds(ms));
 
     }
 }
