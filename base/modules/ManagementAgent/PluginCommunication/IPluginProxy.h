@@ -21,6 +21,8 @@ namespace PluginCommunication
         virtual Common::PluginApi::StatusInfo getStatus(void) = 0;
 
         virtual std::string getTelemetry() = 0;
+
+        virtual bool hasAppId(const std::string &appId);
     };
 
 

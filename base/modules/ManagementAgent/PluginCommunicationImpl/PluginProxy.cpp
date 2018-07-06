@@ -7,14 +7,15 @@
 #include "Common/PluginApiImpl/MessageBuilder.h"
 #include "Common/PluginApiImpl/Protocol.h"
 #include "PluginProxy.h"
+#include <algorithm>
 
 namespace ManagementAgent
 {
 namespace PluginCommunicationImpl
 {
 
-    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester) :
-            m_socket(std::move(socketRequester))
+    PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::vector<std::string> appIds) :
+            m_socket(std::move(socketRequester)), m_AppIds(appIds)
     {}
 
 
@@ -56,6 +57,12 @@ namespace PluginCommunicationImpl
         Common::PluginApiImpl::DataMessage reply = getReply(message);
 
         return messageBuilder.replyExtractTelemetry(reply);
+    }
+
+
+    bool PluginProxy::hasAppId(const std::string &appId)
+    {
+        return (std::find(m_AppIds.begin(), m_AppIds.end(), appId) != m_AppIds.end());
     }
 
     Common::PluginApiImpl::DataMessage PluginProxy::getReply(const Common::PluginApiImpl::DataMessage &request) const

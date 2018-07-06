@@ -7,7 +7,7 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallbackHandler.cpp
         PluginManager.cpp
         PluginManager.h
-        PluginProxy.cpp PluginProxy.h ../PluginCommunication/IPluginCommunicationException.h)
-target_include_directories(plugincommunicationimpl PUBLIC  ../../../Common ../PluginCommunication)
-target_link_libraries(plugincommunicationimpl PUBLIC threads zeromqwrapperimpl pluginapiimpl)
-add_dependencies(plugincommunicationimpl zeromqwrapperimpl pluginapiimpl)
+        PluginProxy.cpp PluginProxy.h ../PluginCommunication/IPluginCommunicationException.h PluginServerCallback.cpp PluginServerCallback.h)
+target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
+target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl)
+add_dependencies(plugincommunicationimpl pluginapiimpl)

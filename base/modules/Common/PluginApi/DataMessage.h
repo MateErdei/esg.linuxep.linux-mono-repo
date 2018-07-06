@@ -25,6 +25,12 @@ namespace Common
                             REQUEST_PLUGIN_STATUS,
                             REQUEST_PLUGIN_TELEMETRY};
 
+        struct RegistrationInfo
+        {
+            std::string m_pluginName;
+            std::vector<std::string> m_appIds;
+        };
+
         struct DataMessage
         {
             std::string ProtocolVersion;

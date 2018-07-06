@@ -8,7 +8,9 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 #include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ZeroMQWrapper/IContextPtr.h"
 #include "IPluginManager.h"
 #include "IPluginProxy.h"
 #include "PluginServerCallbackHandler.h"
@@ -27,15 +29,33 @@ namespace ManagementAgent
             PluginManager();
             ~PluginManager();
 
-            void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
+            void setDefaultTimeout(int timeoutMs) override;
+            void setDefaultConnectTimeout(int timeoutMs) override;
 
-            void registerPlugin(std::string pluginName) override;
-            std::shared_ptr<PluginCommunication::IPluginProxy> getPlugin(std::string pluginName) override;
+            void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr) override;
+
+
+            void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
+            void doAction(const std::string &appId, const std::string &actionXml) override;
+            Common::PluginApi::StatusInfo getStatus(const std::string & pluginName) override;
+            std::string getTelemetry(const std::string & pluginName) override;
+
+            void registerPlugin(const Common::PluginApi::RegistrationInfo &regInfo) override;
             void removePlugin(std::string pluginName) override;
 
         private:
-            std::map<std::string, std::shared_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
+
+            std::unique_ptr<PluginCommunication::IPluginProxy>& getPlugin(std::string pluginName);
+
+            void setTimeouts(Common::ZeroMQWrapper::ISocketSetup &socket);
+
+            std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
+            Common::ZeroMQWrapper::IContextPtr m_context;
+
+            int m_defaultTimeout;
+            int m_defaultConnectTimeout;
+            std::mutex m_pluginMapMutex;
         };
 
     }

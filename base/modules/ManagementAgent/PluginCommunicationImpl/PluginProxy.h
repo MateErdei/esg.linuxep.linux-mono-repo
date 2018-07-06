@@ -19,7 +19,7 @@ namespace PluginCommunicationImpl
     {
 
     public:
-        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester);
+        PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, std::vector<std::string> appIds);
 
         void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
 
@@ -29,10 +29,13 @@ namespace PluginCommunicationImpl
 
         std::string getTelemetry() override;
 
+        bool hasAppId(const std::string &appId) override;
+
     private:
 
         Common::PluginApiImpl::DataMessage getReply(const Common::PluginApiImpl::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
+        std::vector<std::string> m_AppIds;
     };
 
 }

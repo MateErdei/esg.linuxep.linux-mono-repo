@@ -73,6 +73,20 @@ namespace Common
             return {dataMessage.payload.at(0), dataMessage.payload.at(1)};
         }
 
+
+        std::string  MessageBuilder::requestExtractCurrentPolicy( const DataMessage &dataMessage) const
+        {
+            assert( dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
+            return dataMessage.ApplicationId; //App id contains plugin name in this case
+        }
+
+        RegistrationInfo MessageBuilder::requestExtractRegistration( const DataMessage &dataMessage) const
+        {
+            assert( dataMessage.Command == Commands::PLUGIN_SEND_REGISTER);
+            RegistrationInfo info = {dataMessage.ApplicationId, dataMessage.payload};
+            return info;
+        }
+
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_APPLY_POLICY);
@@ -84,6 +98,8 @@ namespace Common
             assert( dataMessage.Command == Commands::REQUEST_PLUGIN_DO_ACTION);
             return dataMessage.payload.at(0);
         }
+
+
 
         DataMessage MessageBuilder::replyAckMessage(const DataMessage &dataMessage) const
         {

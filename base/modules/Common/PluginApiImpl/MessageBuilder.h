@@ -37,8 +37,9 @@ namespace Common
             /** Extracting information from requests as server **/
             //Management
             std::string requestExtractEvent( const DataMessage & ) const;
-            Common::PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
-            std::string requestExtractPluginName( const DataMessage & ) const;
+            PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
+            std::string requestExtractCurrentPolicy( const DataMessage &dataMessage) const;
+            PluginApi::RegistrationInfo requestExtractRegistration( const DataMessage & ) const;
             //Plugin
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
