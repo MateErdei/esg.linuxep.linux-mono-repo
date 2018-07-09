@@ -20,7 +20,7 @@ Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginNam
 }
 
 void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(
-        std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replier)
+        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replier)
 {
     m_pluginCallbackHandler.reset( new PluginCallBackHandler( std::move(replier), pluginCallback) );
     m_pluginCallbackHandler->start();
@@ -54,8 +54,8 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
     }
 }
 
-void Common::PluginApiImpl::PluginApiImpl::changeStatus(const std::string &appId, const std::string &statusXml,
-                                                        const std::string &statusWithoutTimestampsXml) const
+void Common::PluginApiImpl::PluginApiImpl::sendStatus(const std::string &appId, const std::string &statusXml,
+                                                      const std::string &statusWithoutTimestampsXml) const
 {
     LOGSUPPORT("Change status message for AppId: " << appId);
 

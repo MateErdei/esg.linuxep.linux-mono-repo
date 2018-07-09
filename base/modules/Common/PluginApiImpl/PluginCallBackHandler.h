@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ZeroMQWrapper/IReadWrite.h>
 #include "Common/PluginProtocol/AbstractListenerServer.h"
-#include "IPluginCallback.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
 
 namespace Common
@@ -21,7 +21,7 @@ namespace Common
         {
          public:
             PluginCallBackHandler( std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                                   std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback);
+                                   std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback);
 
 
         private:
@@ -29,7 +29,7 @@ namespace Common
             void onShutdownRequested() override ;
 
             Common::PluginProtocol::MessageBuilder m_messageBuilder;
-            std::shared_ptr<Common::PluginApi::IPluginCallback> m_pluginCallback;
+            std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
 
         };
     }

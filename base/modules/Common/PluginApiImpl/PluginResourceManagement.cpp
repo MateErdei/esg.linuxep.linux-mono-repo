@@ -28,19 +28,19 @@ namespace Common
     {
 
         PluginResourceManagement::PluginResourceManagement()
-        : m_contextPtr( Common::ZeroMQWrapper::createContext()), m_defaulTimeout(-1), m_defaultConnectTimeout(-1)
+        : m_contextPtr( Common::ZeroMQWrapper::createContext()), m_defaulTimeout(10000), m_defaultConnectTimeout(10000)
         {
             m_context = m_contextPtr.get();
         }
         PluginResourceManagement::PluginResourceManagement(Common::ZeroMQWrapper::IContext * context)
-        : m_contextPtr(), m_context(context), m_defaulTimeout(-1), m_defaultConnectTimeout(-1)
+        : m_contextPtr(), m_context(context), m_defaulTimeout(10000), m_defaultConnectTimeout(10000)
         {
 
         }
 
-        std::unique_ptr<Common::PluginApi::IPluginApi>
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi>
         PluginResourceManagement::createPluginAPI(const std::string &pluginName,
-                                                  std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback)
+                                                  std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)
         {
             auto requester = m_context->getRequester();
             auto replier = m_context->getReplier();
@@ -60,7 +60,7 @@ namespace Common
 
             plugin->registerWithManagementAgent();
 
-            return std::unique_ptr<PluginApi::IPluginApi>( plugin.release());
+            return std::unique_ptr<PluginApi::IBaseServiceApi>( plugin.release());
         }
 
         std::unique_ptr<Common::PluginApi::ISensorDataPublisher>

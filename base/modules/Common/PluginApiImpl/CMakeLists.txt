@@ -1,6 +1,6 @@
 add_library(pluginapiimpl SHARED
         ../PluginProtocol/IProtocolSerializer.h
-        ../PluginApi/IPluginApi.h
+        ../PluginApi/IBaseServiceApi.h
         ../PluginApi/ISensorDataCallback.h
         ../PluginProtocol/Protocol.cpp
         ../PluginProtocol/Protocol.h
@@ -26,7 +26,7 @@ add_library(pluginapiimpl SHARED
         ../PluginApi/IPluginResourceManagement.h
         PluginResourceManagement.cpp
         PluginResourceManagement.h
-        ../PluginApi/IPluginCallback.h ../PluginApi/StatusInfo.h)
+        ../PluginApi/IPluginCallbackApi.h)
 
 target_include_directories(pluginapiimpl PUBLIC ../PluginApi ../../Common )
 target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )

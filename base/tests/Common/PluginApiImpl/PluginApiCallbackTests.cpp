@@ -10,7 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
-#include "Common/PluginApi/IPluginApi.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
@@ -59,7 +60,7 @@ namespace
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
-            pluginResourceManagement.setDefaultConnectTimeout(3000);
+
             std::thread registration(handleRegistration, std::ref(pluginResourceManagement.getSocketContext() ));
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
@@ -103,7 +104,7 @@ namespace
         SingleManagementRequest managementRequest;
 
         std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
-        std::unique_ptr<Common::PluginApi::IPluginApi> plugin;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> plugin;
 
     };
 
@@ -180,7 +181,7 @@ namespace
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back("ACK");
 
-        EXPECT_CALL(mock(), doAction(_));
+        EXPECT_CALL(mock(), queueAction(_));
 
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
 

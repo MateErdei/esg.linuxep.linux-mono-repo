@@ -19,9 +19,9 @@ namespace Common
             PluginResourceManagement();
             PluginResourceManagement(Common::ZeroMQWrapper::IContext*);
 
-            void setDefaultTimeout(int timeoutMs) override ;
-            void setDefaultConnectTimeout(int timeoutMs) override ;
-            std::unique_ptr<Common::PluginApi::IPluginApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback)  override ;
+            void setDefaultTimeout(int timeoutMs) ;
+            void setDefaultConnectTimeout(int timeoutMs) ;
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
             std::unique_ptr<Common::PluginApi::ISensorDataPublisher> createSensorDataPublisher(const std::string & pluginName) override ;
             std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> createSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
                                                                                                  std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback) override ;

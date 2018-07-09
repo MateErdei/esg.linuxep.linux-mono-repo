@@ -85,7 +85,7 @@ namespace Common
             if ( m_shutdownListener )
             {
 
-                // add the shutdown listener
+                // add the onShutdown listener
                 signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>( new Common::Threads::NotifyPipe());
                 struct sigaction action;
                 action.sa_handler = s_signal_handler;

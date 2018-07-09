@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #ifndef EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
 #define EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
-#include "IPluginApi.h"
+#include "IBaseServiceApi.h"
 #include "ISensorDataPublisher.h"
 #include "ISensorDataSubscriber.h"
 
@@ -33,17 +33,6 @@ namespace Common
     {
     public:
         virtual ~IPluginResourceManagement() = default;
-        /**
-         * Define the default timeout to be set to the socket that are passed to the plugin or sensors.
-         * @param timeoutMs Pass the timeout to ISocketSetup::setTimeout.
-         */
-        virtual void setDefaultTimeout(int timeoutMs) = 0;
-        /**
-         * Define the default timeout for connection.
-         * @param timeoutMs Forward the timeout to ISocketSetup::setConnectionTimeout
-         */
-        virtual void setDefaultConnectTimeout(int timeoutMs) = 0 ;
-
 
         /**
          * Creates an instance of the IPluginApi. It set it up with two ipc channels:
@@ -57,7 +46,7 @@ namespace Common
          *
          * @note It throws if it can not successfully create and register a plugin.
          */
-        virtual std::unique_ptr<IPluginApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<IPluginCallback> pluginCallback)  = 0;
+        virtual std::unique_ptr<IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<IPluginCallbackApi> pluginCallback)  = 0;
 
 
         /**

@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "Common/PluginApi/IPluginApi.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
@@ -48,7 +48,6 @@ public:
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
         mockSensorDataCallback = std::make_shared<NiceMock<MockSensorDataCallback>>();
-        pluginResourceManagement.setDefaultConnectTimeout(3000);
 
         sensorDataSubscriber = pluginResourceManagement.createSensorDataSubscriber("news", mockSensorDataCallback);
         sensorDataSubscriber->start();

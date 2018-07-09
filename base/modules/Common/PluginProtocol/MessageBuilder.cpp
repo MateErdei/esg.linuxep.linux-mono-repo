@@ -3,11 +3,8 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-
 #include <cassert>
-#include "Common/PluginApi/IPluginCallback.h"
 #include "MessageBuilder.h"
-
 namespace Common
 {
     namespace PluginProtocol
@@ -69,30 +66,11 @@ namespace Common
             return dataMessage.Payload.at(0);
         }
 
-        Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
+        Common::PluginProtocol::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
-            assert( dataMessage.Command == Commands::PLUGIN_SEND_STATUS);
+            assert( dataMessage.Command == Commands::PLUGIN_SEND_STATUS || dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
         }
-
-
-        std::string  MessageBuilder::requestExtractCurrentPolicy( const DataMessage &dataMessage) const
-        {
-            assert( dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
-            return requestExtractPluginName(dataMessage);
-        }
-
-        std::string MessageBuilder::requestExtractRegistration(const DataMessage &dataMessage) const
-        {
-            assert( dataMessage.Command == Commands::PLUGIN_SEND_REGISTER);
-            return requestExtractPluginName(dataMessage);
-        }
-
-        std::string MessageBuilder::requestExtractPluginName(const DataMessage &dataMessage) const
-        {
-            return dataMessage.ApplicationId;
-        }
-
 
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
         {
@@ -145,7 +123,7 @@ namespace Common
             return reply;
         }
 
-        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginApi::StatusInfo &statusInfo) const
+        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginProtocol::StatusInfo &statusInfo) const
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
@@ -165,12 +143,6 @@ namespace Common
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
             return dataMessage.Payload.at(0);
-        }
-
-        Common::PluginApi::StatusInfo MessageBuilder::replyExtractStatus( const DataMessage &dataMessage ) const
-        {
-            assert( dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
-            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
         }
 
         DataMessage
@@ -195,6 +167,12 @@ namespace Common
             }
 
             return false;
+        }
+
+        std::string MessageBuilder::requestExtractPluginName(const DataMessage & dataMessage) const
+        {
+            assert( dataMessage.Command == PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+            return dataMessage.ApplicationId;
         }
 
     }

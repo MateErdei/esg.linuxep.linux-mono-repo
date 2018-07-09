@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_PLUGINAPI_H
 #define EVEREST_BASE_PLUGINAPI_H
 
-#include "IPluginCallback.h"
+#include "IPluginCallbackApi.h"
 #include "ISensorDataCallback.h"
 #include <memory>
 
@@ -38,10 +38,10 @@ namespace Common
          *  ::sendEvent and ::changeStatus and ::getPolicy require that the appId must be provide explicitly.
          *
          */
-        class IPluginApi
+        class IBaseServiceApi
         {
         public:
-            virtual ~IPluginApi() = default;
+            virtual ~IBaseServiceApi() = default;
 
             /**
              * Send an Event to Sophos Cloud via the Management Agent.
@@ -75,7 +75,8 @@ namespace Common
              * @param statusWithoutTimestampsXml A representation of status that can be used reliably to identify that status has in effect changed.
              * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
              */
-            virtual void changeStatus(const std::string& appId, const std::string& statusXml, const std::string& statusWithoutTimestampsXml) const = 0;
+            virtual void sendStatus(const std::string &appId, const std::string &statusXml,
+                                    const std::string &statusWithoutTimestampsXml) const = 0;
 
             /**
              * Query the Management Agent for the current policy to be applied to the App identified by AppId.

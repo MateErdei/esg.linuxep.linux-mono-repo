@@ -24,10 +24,10 @@ namespace Common
          * The methods defined here will be called when the respective services are required from Management Agent and
          * the reply will be forwarded to the Management Agent via ipc channel.
          */
-        class IPluginCallback
+        class IPluginCallbackApi
         {
         public:
-            virtual ~IPluginCallback() = default;
+            virtual ~IPluginCallbackApi() = default;
 
             /**
              * Require the plugin to apply a policy (Sent by Sophos Cloud via Management Agent).
@@ -45,7 +45,7 @@ namespace Common
              * @todo add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested action.
              */
-            virtual void doAction(const std::string &actionXml) = 0;
+            virtual void queueAction(const std::string &actionXml) = 0;
 
             /**
              *  Method that will be called when the Plugin receives a SIGTERM or SIGINT (@see Reactor::setShutdownListener).
@@ -54,7 +54,7 @@ namespace Common
              *  the Plugin process will stop as soon as possible.
              *
              */
-            virtual void shutdown() = 0;
+            virtual void onShutdown() = 0;
 
             /**
              * Method that will be called when Management Agent queries about the status of the Plugin when it needs the information to send to Sophos Cloud.

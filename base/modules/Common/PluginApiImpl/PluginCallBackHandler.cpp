@@ -14,7 +14,7 @@ namespace Common
     {
 
         PluginCallBackHandler::PluginCallBackHandler(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                                                     std::shared_ptr<Common::PluginApi::IPluginCallback> pluginCallback):
+                                                     std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback):
                  AbstractListenerServer(std::move(ireadWrite))
                 , m_messageBuilder("NotUsed", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion)
                 , m_pluginCallback(pluginCallback)
@@ -34,7 +34,7 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
                         LOGSUPPORT("Received new Action");
-                        m_pluginCallback->doAction(m_messageBuilder.requestExtractAction(request));
+                        m_pluginCallback->queueAction(m_messageBuilder.requestExtractAction(request));
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                         {
@@ -66,7 +66,7 @@ namespace Common
 
         void PluginCallBackHandler::onShutdownRequested()
         {
-            m_pluginCallback->shutdown();
+            m_pluginCallback->onShutdown();
             stop();
         }
     }

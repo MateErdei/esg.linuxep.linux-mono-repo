@@ -10,11 +10,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SingleResponseServer.h"
 
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/PluginApi/IPluginApi.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include <thread>
-
+#include "Common/PluginApi/ApiException.h"
 
 namespace
 {
@@ -39,7 +39,7 @@ namespace
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
-            pluginResourceManagement.setDefaultConnectTimeout(3000);
+
             auto & context = pluginResourceManagement.getSocketContext();
             server = std::thread(std::ref(responseServer), std::ref(context));
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
@@ -70,7 +70,7 @@ namespace
         SingleResponseServer responseServer;
         std::thread server;
         std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
-        std::unique_ptr<Common::PluginApi::IPluginApi> plugin;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> plugin;
 
     };
 
@@ -133,7 +133,7 @@ namespace
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->changeStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
+        EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
     }
 
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty)
@@ -155,6 +155,25 @@ namespace
         EXPECT_EQ(plugin->getPolicy("plugin"), dataMessage.Payload.at(0));
     }
 
+    TEST( PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable)
+    {
+
+        MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
+        MockedApplicationPathManager &mock(*mockAppManager);
+        ON_CALL(mock, getManagementAgentSocketAddress()).WillByDefault(Return("inproc://management.ipc"));
+        ON_CALL(mock, getPluginSocketAddress(_)).WillByDefault(Return("inproc://plugin.ipc"));
+        Common::ApplicationConfiguration::replaceApplicationPathManager(
+                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+
+        auto mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
+
+        PluginResourceManagement resourceManagement;
+        resourceManagement.setDefaultConnectTimeout(500);
+        resourceManagement.setDefaultTimeout(500); 
+        // no management instantiated
+        ASSERT_THROW(resourceManagement.createPluginAPI("plugin", mockPluginCallback), Common::PluginApi::ApiException);
+
+    }
 
 
 
