@@ -22,7 +22,6 @@ namespace PluginCommunicationImpl
         m_appIds.push_back(pluginName);
     }
 
-
     void PluginProxy::applyNewPolicy(const std::string &appId, const std::string &policyXml)
     {
         Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);

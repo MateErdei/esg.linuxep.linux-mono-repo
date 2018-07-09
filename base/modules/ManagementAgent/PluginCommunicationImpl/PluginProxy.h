@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_PLUGINPROXY_H
 
 
+#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
 #include "Common/ZeroMQWrapper/IReadWrite.h"
 #include "IPluginProxy.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
