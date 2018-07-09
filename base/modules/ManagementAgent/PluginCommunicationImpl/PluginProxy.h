@@ -26,7 +26,7 @@ namespace PluginCommunicationImpl
 
         void doAction(const std::string &appId, const std::string &actionXml) override;
 
-        Common::PluginProtocol::StatusInfo getStatus() override;
+        Common::PluginApi::StatusInfo getStatus() override;
 
         std::string getTelemetry() override;
 

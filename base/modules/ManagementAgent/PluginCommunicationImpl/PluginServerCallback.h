@@ -20,14 +20,14 @@ namespace ManagementAgent
         class PluginServerCallback : virtual public PluginCommunication::IPluginServerCallback
         {
         public:
-            PluginServerCallback(std::shared_ptr<PluginManager> pluginManagerPtr);
+            PluginServerCallback(PluginManager & pluginManagerPtr);
             void receivedSendEvent(const std::string& appId, const std::string &eventXml) override;
-            void receivedChangeStatus(const std::string& appId, const Common::PluginProtocol::StatusInfo &statusInfo) override;
+            void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo) override;
             void shutdown() override;
             std::string receivedGetPolicy(const std::string &pluginName) override;
             void receivedRegisterWithManagementAgent(const std::string &pluginName) override;
         private:
-            std::shared_ptr<PluginManager> m_pluginManagerPtr;
+            PluginManager& m_pluginManagerPtr;
         };
     }
 }

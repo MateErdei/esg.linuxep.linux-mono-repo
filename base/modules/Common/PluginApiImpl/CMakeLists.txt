@@ -26,7 +26,7 @@ add_library(pluginapiimpl SHARED
         ../PluginApi/IPluginResourceManagement.h
         PluginResourceManagement.cpp
         PluginResourceManagement.h
-        ../PluginApi/IPluginCallback.h)
+        ../PluginApi/IPluginCallback.h ../PluginApi/StatusInfo.h)
 
 target_include_directories(pluginapiimpl PUBLIC ../PluginApi ../../Common )
 target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )

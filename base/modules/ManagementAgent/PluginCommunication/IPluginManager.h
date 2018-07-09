@@ -18,7 +18,8 @@ namespace PluginCommunication
 {
     class IPluginManager
     {
-
+    public:
+        virtual ~IPluginManager() = default;
         virtual void setDefaultTimeout(int timeoutMs) = 0;
         virtual void setDefaultConnectTimeout(int timeoutMs) = 0;
 
@@ -27,7 +28,7 @@ namespace PluginCommunication
 
         virtual void applyNewPolicy(const std::string &appId, const std::string &policyXml) = 0;
         virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;
-        virtual Common::PluginProtocol::StatusInfo getStatus(const std::string &pluginName) = 0;
+        virtual Common::PluginApi::StatusInfo getStatus(const std::string &pluginName) = 0;
         virtual std::string getTelemetry(const std::string &pluginName) = 0;
         virtual void setAppIds(const std::string& pluginName, const std::vector<std::string> &appIds) = 0;
 

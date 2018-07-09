@@ -45,7 +45,7 @@ namespace PluginCommunicationImpl
         }
     }
 
-    Common::PluginProtocol::StatusInfo PluginProxy::getStatus()
+    Common::PluginApi::StatusInfo PluginProxy::getStatus()
     {
         Common::PluginProtocol::MessageBuilder messageBuilder("Status request", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
         Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();

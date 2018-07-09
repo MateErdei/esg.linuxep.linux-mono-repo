@@ -4,20 +4,28 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <thread>
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "ApplicationConfiguration/IApplicationPathManager.h"
 #include "IPluginCommunicationException.h"
 #include "PluginManager.h"
 #include "PluginProxy.h"
+#include "PluginServerCallback.h"
 
 namespace ManagementAgent
 {
 namespace PluginCommunicationImpl
 {
     PluginManager::PluginManager() :
-    m_serverCallbackHandler(), m_context(Common::ZeroMQWrapper::createContext()), m_defaultTimeout(-1), m_defaultConnectTimeout(-1)
-    {}
+            m_context(Common::ZeroMQWrapper::createContext()), m_serverCallbackHandler(), m_defaultTimeout(-1), m_defaultConnectTimeout(-1)
+    {
+        auto replier = m_context->getReplier();
+        std::string managementSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
+        replier->listen(managementSocketAdd);
+        std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
+        m_serverCallbackHandler.reset( new PluginServerCallbackHandler( std::move(replier), serverCallback));
+    }
 
     PluginManager::~PluginManager()
     {
@@ -31,6 +39,10 @@ namespace PluginCommunicationImpl
     void PluginManager::setServerCallback(
             std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback, Common::ZeroMQWrapper::ISocketReplierPtr replier)
     {
+        if( m_serverCallbackHandler)
+        {
+            m_serverCallbackHandler->stop();
+        }
         m_serverCallbackHandler.reset( new PluginServerCallbackHandler( std::move(replier), serverCallback) );
         m_serverCallbackHandler->start();
     }
@@ -72,7 +84,7 @@ namespace PluginCommunicationImpl
         }
     }
 
-    Common::PluginProtocol::StatusInfo PluginManager::getStatus(const std::string & pluginName)
+    Common::PluginApi::StatusInfo PluginManager::getStatus(const std::string & pluginName)
     {
         return getPlugin(pluginName)->getStatus();
     }

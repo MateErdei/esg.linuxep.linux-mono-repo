@@ -36,7 +36,7 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                         {
-                            Common::PluginProtocol::StatusInfo statusInfo = m_pluginCallback->getStatus();
+                            Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus();
                             return m_messageBuilder.replyStatus(request, statusInfo);
                         }
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY:

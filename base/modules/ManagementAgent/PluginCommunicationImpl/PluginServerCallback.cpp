@@ -10,7 +10,7 @@ namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        PluginServerCallback::PluginServerCallback(std::shared_ptr<PluginManager> pluginManagerPtr)
+        PluginServerCallback::PluginServerCallback(PluginManager & pluginManagerPtr)
         : m_pluginManagerPtr(pluginManagerPtr)
         {}
 
@@ -19,7 +19,7 @@ namespace ManagementAgent
 
         }
 
-        void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginProtocol::StatusInfo &statusInfo)
+        void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
         {
 
         }
@@ -36,7 +36,7 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
         {
-            m_pluginManagerPtr->registerPlugin(pluginName);
+            m_pluginManagerPtr.registerPlugin(pluginName);
         }
     }
 }

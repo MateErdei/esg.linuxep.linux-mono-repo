@@ -8,7 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_IPLUGINCALLBACK_H
 
 #include <string>
-#include "PluginProtocol/DataMessage.h"
+
+#include "StatusInfo.h"
 
 namespace Common
 {
@@ -62,7 +63,7 @@ namespace Common
              *
              * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
              */
-            virtual PluginProtocol::StatusInfo getStatus() = 0;
+            virtual PluginApi::StatusInfo getStatus() = 0;
 
 
             /**

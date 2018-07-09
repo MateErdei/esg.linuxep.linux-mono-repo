@@ -14,21 +14,6 @@ namespace Common
 {
     namespace PluginProtocol
     {
-
-        /**
-         * Struct to enable replying to status query from Management Agent.
-         * @see IPluginApi::changeStatus
-         */
-        struct StatusInfo
-        {
-            /// Content of the status that can be sent to Sophos Cloud
-            std::string statusXml;
-            /// Representation of the status that can be used to reliably identify when it has changed.
-            /// @see IPluginApi::changeStatus
-            std::string statusWithoutXml;
-        };
-
-
         enum class Commands{UNKNOWN,
                             PLUGIN_SEND_EVENT,
                             PLUGIN_SEND_STATUS,

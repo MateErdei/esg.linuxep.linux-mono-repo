@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_REQUESTSBUILDER_H
 
 #include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginApi/StatusInfo.h"
 
 namespace Common
 {
@@ -35,7 +36,7 @@ namespace Common
             /** Extracting information from requests as server **/
             //Management Agent
             std::string requestExtractEvent( const DataMessage & ) const;
-            StatusInfo requestExtractStatus( const DataMessage & ) const;
+            PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
             std::string requestExtractCurrentPolicy( const DataMessage &) const;
             std::string requestExtractRegistration(const DataMessage &) const;
             std::string requestExtractPluginName(const DataMessage &) const;
@@ -54,13 +55,13 @@ namespace Common
             DataMessage replyCurrentPolicy(const DataMessage & , const std::string & policyContent) const;
             //Plugin
             DataMessage replyTelemetry( const DataMessage &, const std::string & telemetryContent) const;
-            DataMessage replyStatus(const DataMessage&, const Common::PluginProtocol::StatusInfo &) const;
+            DataMessage replyStatus(const DataMessage&, const Common::PluginApi::StatusInfo &) const;
 
 
             /** Extracting information from replies as client */
             //Management Agent
             std::string replyExtractTelemetry( const DataMessage & ) const;
-            Common::PluginProtocol::StatusInfo replyExtractStatus( const DataMessage & ) const;
+            Common::PluginApi::StatusInfo replyExtractStatus( const DataMessage & ) const;
             //Plugin
             std::string replyExtractCurrentPolicy( const DataMessage & ) const;
 

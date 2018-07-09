@@ -50,7 +50,6 @@ namespace PluginCommunicationImpl
         {
             return m_messageBuilder.replySetErrorIfEmpty(request, ex.what());
         }
-
     }
 
     void PluginServerCallbackHandler::onShutdownRequested()

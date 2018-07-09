@@ -112,7 +112,7 @@ namespace
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginProtocol::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
         expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
@@ -129,7 +129,7 @@ namespace
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginProtocol::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
+        Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
         expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
