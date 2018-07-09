@@ -48,6 +48,11 @@ namespace ManagementAgent
             void registerPlugin(const std::string &pluginName) override;
             void removePlugin(const std::string &pluginName) override;
 
+            /**
+             * Used mainly for Tests
+             */
+            Common::ZeroMQWrapper::IContext & getSocketContext();
+
         private:
 
             std::unique_ptr<PluginCommunication::IPluginProxy>& getPlugin(const std::string &pluginName);
