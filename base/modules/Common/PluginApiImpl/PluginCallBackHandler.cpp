@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginApi/ApiException.h"
 #include "PluginCallBackHandler.h"
-#include "Common/PluginProtocol/ProtocolSerializerFactory.h"
 #include "Common/PluginProtocol/Logger.h"
 
 namespace Common

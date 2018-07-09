@@ -3,12 +3,10 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <sys/stat.h>
 #include <cassert>
 
 #include "WarehouseRepository.h"
 #include "DownloadedProduct.h"
-#include "Tag.h"
 #include "ProductSelection.h"
 #include "SULUtils.h"
 #include "SULRaii.h"
