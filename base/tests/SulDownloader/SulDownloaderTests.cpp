@@ -14,11 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "tests/Common/TestHelpers/TempDir.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "MockWarehouseRepository.h"
 #include "ConfigurationSettings.pb.h"
-#include "SulDownloader/Credentials.h"
-#include "SulDownloader/ConfigurationData.h"
 #include "SulDownloader/SulDownloader.h"
 #include "Common/ProcessImpl/ArgcAndEnv.h"
 #include "TestWarehouseHelper.h"
@@ -109,7 +106,7 @@ public:
         {
             SulDownloader::DownloadedProduct product(metadata);
             product.setPostUpdateInstalledVersion(metadata.getVersion());
-            product.setDistributePath(m_tempDir->absPath(std::string("update/cache/Primary/") + metadata.getDefaultHomePath()));
+            product.setDistributePath(m_tempDir->absPath(std::string("update/cache/Primary/")));
             products.push_back(product);
         }
         return products;

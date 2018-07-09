@@ -88,7 +88,7 @@ namespace SulDownloader
     }
 
 
-    void DownloadedProduct::setError(WarehouseError error)
+    void DownloadedProduct::setError(const WarehouseError &error)
     {
         m_state = State::HasError;
         m_error = error;

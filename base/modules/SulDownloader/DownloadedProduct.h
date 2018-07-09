@@ -56,7 +56,7 @@ namespace SulDownloader
          *
          * @param error Description of the Failure related to the product.
          */
-        void setError( WarehouseError error);
+        void setError(const WarehouseError &error);
         WarehouseError getError() const;
 
         /**
