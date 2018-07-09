@@ -13,3 +13,7 @@ add_library(reactorimpl SHARED
 
 target_include_directories(reactorimpl PUBLIC ../Reactor ../../Common ../../Common/ZeroMQWrapper )
 target_link_libraries(reactorimpl PUBLIC zeromqwrapperimpl threads)
+
+
+install(TARGETS reactorimpl
+        LIBRARY DESTINATION files/base/lib64)

@@ -20,3 +20,6 @@ add_library(zeromqwrapperimpl SHARED
 target_include_directories(zeromqwrapperimpl PUBLIC ${ZeroMQ_INCLUDE_DIR})
 target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} )
 
+
+install(TARGETS zeromqwrapperimpl
+        LIBRARY DESTINATION files/base/lib64)

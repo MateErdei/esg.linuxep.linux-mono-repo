@@ -10,7 +10,12 @@ import fileInfo
 
 def main(argv):
     dist = argv[1]
-    file_objects = fileInfo.load_file_info(dist, argv[2])
+    if len(argv) > 2:
+        distribution_list = argv[2]
+    else:
+        distribution_list = None
+
+    file_objects = fileInfo.load_file_info(dist, distribution_list)
 
     generateManifestDat.generate_manifest(dist, file_objects)
 

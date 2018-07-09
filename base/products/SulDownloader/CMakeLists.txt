@@ -15,3 +15,7 @@ set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64 )
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
 target_link_libraries(SulDownloader  suldownloaderimpl)
+
+
+install(TARGETS SulDownloader
+        DESTINATION files/base/bin)

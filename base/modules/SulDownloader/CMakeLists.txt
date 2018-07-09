@@ -62,3 +62,7 @@ set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 target_link_libraries(suldownloaderimpl PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads)
 
 include_directories(BEFORE ${SUL_INPUT}/include)
+
+
+install(TARGETS suldownloaderimpl
+        LIBRARY DESTINATION files/base/lib64)

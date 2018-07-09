@@ -17,6 +17,17 @@ def importFileList(p, dist):
         ret.append(f)
     return ret
 
+def walkDist(dist):
+    ret = []
+    for base, dirs, files in os.walk(dist):
+        for f in files:
+            f = os.path.join(base, f)
+            if f.startswith(dist):
+                f = f[len(dist)+1:]
+            ret.append(f)
+    return ret
+
+
 class FileInfo(object):
     def __init__(self, dist, path):
         self.__m_fullPath = os.path.join(dist, path)
@@ -62,7 +73,11 @@ class FileInfo(object):
 
 def load_file_info(dist, file_list_path):
 
-    file_list = importFileList(file_list_path, dist)
+    if file_list_path is not None and os.path.isfile(file_list_path):
+        file_list = importFileList(file_list_path, dist)
+    else:
+        file_list = walkDist(dist)
+
     print(file_list)
 
     ## Hash all the files
