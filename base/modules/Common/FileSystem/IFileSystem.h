@@ -96,6 +96,8 @@ namespace Common
              * @param tempDir, staging area where the file will be created before being moved to the correct place.
              */
             virtual void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const =0;
+
+            virtual void makeExecutable(const Path &path) const =0;
         };
         using IFileSystemPtr = std::unique_ptr<IFileSystem>;
         extern IFileSystemPtr createFileSystem();

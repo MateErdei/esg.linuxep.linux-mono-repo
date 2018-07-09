@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IFileSystemException.h"
 
 #include <fstream>
-#include <dirent.h>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
@@ -88,7 +87,7 @@ namespace Common
                 return ""; // no parent directory
             }
 
-            int endPos = path.length() - pos;
+            size_t endPos = path.length() - pos;
 
             return Path(path.begin(), (path.end() - endPos));
         }
@@ -123,7 +122,7 @@ namespace Common
                 throw IFileSystemException(errdesc);
             }
 
-            return currentWorkingDirectory;
+            return Path(currentWorkingDirectory);
         }
 
         void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath) const
@@ -216,6 +215,22 @@ namespace Common
                 return false;
             }
             return S_IXUSR & statbuf.st_mode;
+        }
+
+        void FileSystemImpl::makeExecutable(const Path &path) const
+        {
+            struct stat statbuf;
+            int ret = stat(path.c_str(), &statbuf);
+            if ( ret != 0)
+            {   // if it does not exist
+                throw IFileSystemException("Cannot stat: " + path);
+            }
+
+            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);
+            if ( ret != 0)
+            {
+                throw IFileSystemException("Cannot make executable: " + path);
+            }
         }
     }
 }

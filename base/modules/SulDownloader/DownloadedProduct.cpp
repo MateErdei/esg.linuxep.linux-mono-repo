@@ -36,12 +36,15 @@ namespace SulDownloader
 
         auto fileSystem = ::Common::FileSystem::createFileSystem();
 
-        std::string installShFile = fileSystem->join(m_distributePath, "install.sh");
+        std::string installShFile = fileSystem->join(distributionFolderName(), "install.sh");
+        installShFile = fileSystem->join(m_distributePath, installShFile);
 
-        if(fileSystem->isExecutable(installShFile) && !fileSystem->isDirectory(installShFile) )
+        if( fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile) )
         {
 
             LOGINFO("Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
+
+            fileSystem->makeExecutable(installShFile);
 
             auto process = ::Common::Process::createProcess();
             int exitCode =0;

@@ -238,9 +238,7 @@ namespace SulDownloader
 
         for ( auto & productPair : m_products)
         {
-            auto  & product = productPair.second;
-
-            std::string distributePath = fileSystem->join(getRootDistributionPath(), product.distributionFolderName());
+            std::string distributePath = getRootDistributionPath();
 
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
