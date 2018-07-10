@@ -243,7 +243,7 @@ TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)
 TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
+    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo expectedStatusInfo;
     expectedStatusInfo.statusXml = "StatusXml";
