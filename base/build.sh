@@ -147,6 +147,12 @@ function build()
         REDIST=$ALLEGRO_REDIST
     fi
 
+    ZIP=$(which zip 2>/dev/null)
+    [[ -x "$ZIP" ]] || {
+        echo "Installing zip"
+        sudo yum install -y zip unzip </dev/null
+    }
+
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
