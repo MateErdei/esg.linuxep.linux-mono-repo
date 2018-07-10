@@ -50,7 +50,7 @@ namespace PluginCommunicationImpl
         Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
         Common::PluginProtocol::DataMessage reply = getReply(message);
 
-        return messageBuilder.replyExtractStatus(reply);
+        return messageBuilder.requestExtractStatus(reply);
     }
 
     std::string PluginProxy::getTelemetry()

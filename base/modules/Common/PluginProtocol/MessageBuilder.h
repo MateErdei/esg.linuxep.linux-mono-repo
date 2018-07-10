@@ -7,6 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_REQUESTSBUILDER_H
 #define EVEREST_BASE_REQUESTSBUILDER_H
 
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginApi/StatusInfo.h"
+
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include "DataMessage.h"
 namespace Common
@@ -20,6 +23,7 @@ namespace Common
             MessageBuilder( const std::string& applicationID, const std::string &  protocolVersion);
 
             /** Create the requests as client **/
+            //Plugin
             DataMessage requestSendEventMessage( const std::string & eventXml) const;
             DataMessage requestSendStatusMessage(const std::string & statusXml, const std::string & statusWithoutTimeStamp) const;
             DataMessage requestRegisterMessage() const;
@@ -32,10 +36,10 @@ namespace Common
 
             /** Extracting information from requests as server **/
             std::string requestExtractEvent( const DataMessage & ) const;
-            Common::PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
+            PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
+            std::string requestExtractPluginName(const DataMessage &) const;
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
-            std::string requestExtractPluginName( const DataMessage & ) const;
 
 
             /** Build replies as servers **/
@@ -47,7 +51,7 @@ namespace Common
 
 
             /** Extracting information from replies as client */
-            std::string replyExtractCurrentPolicy( const DataMessage & ) const;
+            std::string replyExtractCurrentPolicy(const DataMessage &dataMessage) const;
             std::string replyExtractTelemetry( const DataMessage & ) const;
 
             bool hasAck(const DataMessage &dataMessage) const;

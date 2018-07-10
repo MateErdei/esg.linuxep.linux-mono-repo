@@ -27,16 +27,16 @@ namespace PluginCommunicationImpl
             switch (request.Command)
             {
                 case Commands::PLUGIN_SEND_EVENT:
-                    m_serverCallback->receivedSendEvent(request.ApplicationId, m_messageBuilder.requestExtractEvent(request)); //Need a message builder for these events
+                    m_serverCallback->receivedSendEvent(request.ApplicationId, m_messageBuilder.requestExtractEvent(request));
                     return m_messageBuilder.replyAckMessage(request);
                 case Commands::PLUGIN_SEND_STATUS:
                     m_serverCallback->receivedChangeStatus(request.ApplicationId, m_messageBuilder.requestExtractStatus(request));
                     return m_messageBuilder.replyAckMessage(request);
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
-                    policyXml = m_serverCallback->receivedGetPolicy(m_messageBuilder.requestExtractCurrentPolicy(request));
+                    policyXml = m_serverCallback->receivedGetPolicy(request.ApplicationId);
                     return m_messageBuilder.replyCurrentPolicy(request, policyXml);
                 case Commands::PLUGIN_SEND_REGISTER:
-                    m_serverCallback->receivedRegisterWithManagementAgent(m_messageBuilder.requestExtractRegistration(request));
+                    m_serverCallback->receivedRegisterWithManagementAgent(m_messageBuilder.requestExtractPluginName(request));
                     return m_messageBuilder.replyAckMessage(request);
                 default:
                     return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");

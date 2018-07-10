@@ -27,7 +27,6 @@ namespace Common
         {
         public:
             AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite);
-            virtual ~AbstractListenerServer();
             void start() ;
             void stop() ;
 

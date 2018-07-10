@@ -14,6 +14,7 @@ namespace Common
 {
     namespace PluginProtocol
     {
+
         enum class Commands{UNKNOWN,
                             PLUGIN_SEND_EVENT,
                             PLUGIN_SEND_STATUS,

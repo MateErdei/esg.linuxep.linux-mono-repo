@@ -29,7 +29,7 @@ namespace ManagementAgent
 
         }
 
-        std::string PluginServerCallback::receivedGetPolicy(const std::string &pluginName)
+        std::string PluginServerCallback::receivedGetPolicy(const std::string &appId)
         {
             return std::string();
         }

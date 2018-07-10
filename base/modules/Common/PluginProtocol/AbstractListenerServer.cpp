@@ -20,12 +20,6 @@ namespace Common
             m_reactor->addListener(m_ireadWrite.get(), this);
         }
 
-        AbstractListenerServer::~AbstractListenerServer()
-        {
-            m_reactor->stop();
-            m_ireadWrite.reset();
-        }
-
         void AbstractListenerServer::messageHandler( std::vector<std::string> data)
         {
             Protocol protocol;

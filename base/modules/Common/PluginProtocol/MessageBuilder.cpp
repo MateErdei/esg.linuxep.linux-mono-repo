@@ -66,7 +66,7 @@ namespace Common
             return dataMessage.Payload.at(0);
         }
 
-        Common::PluginProtocol::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
+        Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::PLUGIN_SEND_STATUS || dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
@@ -123,7 +123,7 @@ namespace Common
             return reply;
         }
 
-        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginProtocol::StatusInfo &statusInfo) const
+        DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginApi::StatusInfo &statusInfo) const
         {
             assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
@@ -174,6 +174,5 @@ namespace Common
             assert( dataMessage.Command == PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
             return dataMessage.ApplicationId;
         }
-
     }
 }
