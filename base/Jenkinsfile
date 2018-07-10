@@ -19,7 +19,7 @@ try{
             params.PortalId,
             "0.5.0.0",
             'sspl-base',
-            'sppl-base-build',
+            'sspl-base-build',
             'build/release-package.xml',
             'Linux Test',
             "develop",
