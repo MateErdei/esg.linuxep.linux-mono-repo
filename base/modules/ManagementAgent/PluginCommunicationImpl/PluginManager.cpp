@@ -25,6 +25,7 @@ namespace PluginCommunicationImpl
         replier->listen(managementSocketAdd);
         std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
         m_serverCallbackHandler.reset( new PluginServerCallbackHandler( std::move(replier), serverCallback));
+        m_serverCallbackHandler->start();
     }
 
     PluginManager::~PluginManager()
@@ -135,8 +136,6 @@ namespace PluginCommunicationImpl
         socket.setTimeout(m_defaultTimeout);
         socket.setConnectionTimeout(m_defaultConnectTimeout);
     }
-
-
 }
 }
 

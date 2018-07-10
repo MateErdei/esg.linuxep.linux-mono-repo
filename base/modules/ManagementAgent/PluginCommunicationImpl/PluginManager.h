@@ -36,15 +36,11 @@ namespace ManagementAgent
 
             void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr) override;
 
-
             void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
             void doAction(const std::string &appId, const std::string &actionXml) override;
             Common::PluginApi::StatusInfo getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
             void setAppIds(const std::string &pluginName, const std::vector<std::string> &appIds) override;
-
-        public:
-
             void registerPlugin(const std::string &pluginName) override;
             void removePlugin(const std::string &pluginName) override;
 

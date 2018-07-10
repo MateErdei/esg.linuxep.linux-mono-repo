@@ -1,5 +1,5 @@
 include(GoogleTest)
-add_executable(plugincommunicationimpltests TestPluginServerCallbackHandler.cpp TestPluginProxy.cpp MockPluginServerCallback.h MockSocketRequester.h)
+add_executable(plugincommunicationimpltests TestPluginServerCallbackHandler.cpp TestPluginManager.cpp TestPluginProxy.cpp MockPluginServerCallback.h MockSocketRequester.h)
 target_include_directories(plugincommunicationimpltests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(plugincommunicationimpltests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
 target_link_libraries(plugincommunicationimpltests gtest gtest_main gmock)
