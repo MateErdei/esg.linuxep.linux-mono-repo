@@ -245,7 +245,7 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
-TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
+TEST_F( SULDownloaderTest, DISABLED_main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
     MockWarehouseRepository & mock = warehouseMocked();
 
