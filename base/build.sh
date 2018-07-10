@@ -129,9 +129,9 @@ function build()
 
         ## ZeroMQ
         local ZEROMQ_TAR=$INPUT/zeromq.tar
-        if [[ -f "ZEROMQ_TAR" ]]
+        if [[ -f "$ZEROMQ_TAR" ]]
         then
-            tar xf "ZEROMQ_TAR" -C "$REDIST"
+            tar xf "$ZEROMQ_TAR" -C "$REDIST"
         elif [[ -d $ALLEGRO_REDIST ]]
         then
             ln -snf $ALLEGRO_REDIST/zeromq $REDIST/zeromq
