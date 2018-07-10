@@ -39,21 +39,6 @@ public:
     std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
     std::unique_ptr<Common::PluginApi::IPluginApi> m_pluginApi;
     std::unique_ptr<Common::PluginApi::IPluginApi> m_pluginApiTwo;
-
-    Common::PluginProtocol::DataMessage createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem)
-    {
-        Common::PluginProtocol::DataMessage dataMessage;
-        dataMessage.Command = command;
-        dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
-        dataMessage.ApplicationId = "plugin_one";
-        dataMessage.MessageId = "";
-        if (!firstPayloadItem.empty())
-        {
-            dataMessage.Payload.push_back(firstPayloadItem);
-        }
-
-        return dataMessage;
-    }
 };
 
 TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)
