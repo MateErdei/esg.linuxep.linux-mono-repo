@@ -1,0 +1,18 @@
+
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+if(EXISTS ${PROTOBUF_PROTOC_EXECUTABLE})
+    message(STATUS "Found PROTOBUF Compiler: ${PROTOBUF_PROTOC_EXECUTABLE}")
+else()
+    message(FATAL_ERROR "Could not find PROTOBUF Compiler")
+endif()
+
+PROTOBUF_GENERATE_CPP(PLUGIN_INFO_PROTO_SRC PLUGIN_INFO_PROTO_H proto/PluginInfo.proto)
+PROTOBUF_GENERATE_PYTHON(PLUGIN_INFO_PROTO_PY proto/PluginInfo.proto)
+
+
+add_custom_target(generatePluginInfoProto
+        ${CMAKE_COMMAND} -E copy_if_different
+        ${PLUGIN_INFO_PROTO_PY} ${CMAKE_CURRENT_BINARY_DIR}/
+        DEPENDS ${PLUGIN_INFO_PROTO_PY})

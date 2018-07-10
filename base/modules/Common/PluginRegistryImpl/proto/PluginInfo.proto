@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package PluginInfoProto;
+
+message PluginInfo
+{
+
+    message EnvironmentVariablesT
+    {
+        optional string name = 1;
+        optional string value = 2;
+    }
+
+    repeated string appIds = 1;
+    optional string pluginName = 2;
+    optional string xmlTranslatorPath = 4;
+    optional string executableFullPath = 5;
+    repeated string executableArguments = 6;
+    repeated EnvironmentVariablesT environmentVariables = 7;
+}
