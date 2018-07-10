@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <sys/stat.h>
 
-#define LOGSUPPORT(x) std::cout << (x) << "\n";
+#define LOGSUPPORT(x) std::cout << x << "\n";
 
 std::unique_ptr<Common::FileSystem::IFileSystem> Common::FileSystem::createFileSystem()
 {
