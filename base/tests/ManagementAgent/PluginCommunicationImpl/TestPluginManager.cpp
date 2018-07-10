@@ -37,8 +37,8 @@ public:
 
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
     std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
-    std::unique_ptr<Common::PluginApi::IPluginApi> m_pluginApi;
-    std::unique_ptr<Common::PluginApi::IPluginApi> m_pluginApiTwo;
+    std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApi;
+    std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApiTwo;
 };
 
 TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)
@@ -95,7 +95,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins)
 
 TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testaction")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(1);
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi=mgmtCommon.createPluginAPI("plugin_one", m_mockedPluginApiCallback);
@@ -106,7 +106,7 @@ TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)
 
 TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId)
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testaction")).Times(0);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(0);
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi=mgmtCommon.createPluginAPI("plugin_one", m_mockedPluginApiCallback);
@@ -117,8 +117,8 @@ TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId)
 
 TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testactionnotsent")).Times(0);
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testactionsent")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionnotsent")).Times(0);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionsent")).Times(1);
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi=mgmtCommon.createPluginAPI("plugin_one", m_mockedPluginApiCallback);
@@ -133,8 +133,8 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)
 
 TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins)
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testactionone")).Times(1);
-    EXPECT_CALL(*m_mockedPluginApiCallback, doAction("testactiontwo")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
     Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
     std::thread applyAction([&]() {
         m_pluginApi=mgmtCommon.createPluginAPI("plugin_one", m_mockedPluginApiCallback);

@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"

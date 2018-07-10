@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
+import fileInfo
+import generateManifestDat
+import generateSDDSImport
 import sys
 
-import generateSDDSImport
-import generateManifestDat
-import fileInfo
 
 def main(argv):
     dist = argv[1]

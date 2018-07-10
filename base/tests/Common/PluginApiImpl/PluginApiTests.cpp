@@ -14,7 +14,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include <thread>
-#include "Common/PluginApi/ApiException.h"
 
 namespace
 {

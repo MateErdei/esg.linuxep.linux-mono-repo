@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_IPLUGINAPISERVERCALLBACK_H
 
 #include <string>
-#include "Common/PluginApi/IPluginCallback.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
 #include "Common/PluginProtocol/DataMessage.h"
 
 namespace ManagementAgent

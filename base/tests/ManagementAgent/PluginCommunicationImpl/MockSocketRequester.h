@@ -7,11 +7,9 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "IPluginCallback.h"
 #include "ISensorDataCallback.h"
 #include <memory>
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/PluginApi/IPluginApi.h"
 
 using namespace ::testing;
 
