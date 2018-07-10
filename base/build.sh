@@ -147,7 +147,7 @@ function build()
         REDIST=$ALLEGRO_REDIST
     fi
 
-    ZIP=$(which zip 2>/dev/null)
+    ZIP=$(which zip 2>/dev/null || true)
     [[ -x "$ZIP" ]] || {
         echo "Installing zip"
         sudo yum install -y zip unzip </dev/null
