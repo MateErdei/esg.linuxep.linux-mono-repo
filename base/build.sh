@@ -61,7 +61,6 @@ function build()
         then
             rm -rf $REDIST/openssl
             tar xf "$OPENSSL_TAR" -C "$REDIST"
-            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
             ln -snf libssl.so.1 ${REDIST}/openssl/lib${BITS}/libssl.so.10
             ln -snf libcrypto.so.1 ${REDIST}/openssl/lib${BITS}/libcrypto.so.10
         elif [[ -d $ALLEGRO_REDIST ]]
@@ -71,6 +70,7 @@ function build()
         else
             exitFailure 12 "Failed to find openssl"
         fi
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
 
         local CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
         if [[ -f "$CMAKE_TAR" ]]
@@ -112,6 +112,23 @@ function build()
         else
             ln -snf $ALLEGRO_REDIST/boost $REDIST/boost
         fi
+
+        ## Google protobuf
+        local PROTOBUF_TAR=$INPUT/protobuf.tar
+        if [[ -f "PROTOBUF_TAR" ]]
+        then
+            tar xf "PROTOBUF_TAR" -C "$REDIST"
+        elif [[ -d $ALLEGRO_REDIST ]]
+        then
+            ln -snf $ALLEGRO_REDIST/protobuf $REDIST/protobuf
+        else
+            exitFailure 13 "Failed to find protobuf"
+        fi
+        addpath ${REDIST}/protobuf/install${BITS}/bin
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
+
+        ## ZeroMQ
+
     else
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
@@ -124,7 +141,7 @@ function build()
     mkdir -p build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     make test || exitFailure 16 "Unit tests failed for $PRODUCT"
     make install || exitFailure 17 "Failed to install $PRODUCT"
@@ -137,6 +154,7 @@ function build()
     echo "PATH=$PATH" >output/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
 
+    rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
 
     echo "Build completed"

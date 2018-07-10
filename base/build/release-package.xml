@@ -25,6 +25,10 @@
         <package name="boostlinux10" version="1-66-0/211773/boostlinux10" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
+        <package name="protobuflinux11" version="master/%LASTGOODCOMPONENTBUILD%/protobuflinux11/3.5.1/output" dest="input">
+            <include src="protobuf.tar" dest="."/>
+        </package>
+
     </inputs>
     <buildcommands>
         <command>

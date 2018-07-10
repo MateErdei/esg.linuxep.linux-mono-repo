@@ -4,9 +4,7 @@ project(everest_base CXX)
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 
 set(CMAKE_CXX_STANDARD 11)
-#this is necessary right now because the centos 7 default gcc does not produce __cxx11 abi strings.
-# and the cento7 gcc is building 3rdparty libraries.
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -D_GLIBCXX_USE_CXX11_ABI=0")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -D_GLIBCXX_USE_CXX11_ABI=1")
 enable_testing()
 
 find_package(PkgConfig)
@@ -45,16 +43,19 @@ set( OPENSSL_INPUT ${INPUT}/openssl )
 set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
 set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64)
 
-set(Protobuf_root /redist/binaries/everest/protobuf)
+set(Protobuf_root ${INPUT}/protobuf/install64)
 set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
 set(PROTOBUF_PROTOC_EXECUTABLE ${Protobuf_root}/bin/protoc)
 set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/lib/libprotobuf.so )
 set(Protobuf_LITE_LIBRARY  ${Protobuf_root}/lib/libprotobuf-lite.so )
 set(Protobuf_LIBRARY ${Protobuf_root}/lib/libprotobuf.so )
-set(Protobuf_VERSION "3.5.1")
-set( ENV{LD_LIBRARY_PATH} ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH}  )
+set(Protobuf_VERSION "2.6.1")
+set(Protobuf_DEBUG 1)
+set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH} )
+set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 INCLUDE(FindProtobuf)
 #FIND_PACKAGE(Protobuf REQUIRED )
+configure_file(build/protoc.sh.in protoc.sh)
 
 include_directories(modules)
 
