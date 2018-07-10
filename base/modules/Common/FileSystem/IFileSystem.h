@@ -111,8 +111,8 @@ namespace Common
               */
              virtual void copyFile(const Path &src, const Path &dest) const =0;
         };
-        using IFileSystemPtr = std::unique_ptr<IFileSystem>;
-        extern IFileSystemPtr createFileSystem();
+
+        IFileSystem * fileSystem();
 
     }
 }

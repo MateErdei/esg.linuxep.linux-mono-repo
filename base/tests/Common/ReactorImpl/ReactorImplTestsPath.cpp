@@ -17,7 +17,7 @@ void setProgramPath(std::string programPath_)
 
 std::string ReactorImplTestsPath()
 {
-    auto fileSystem = Common::FileSystem::createFileSystem();
+    auto fileSystem = Common::FileSystem::fileSystem();
     std::string fullPath;
     if ( programPath.front() == '/')
     {

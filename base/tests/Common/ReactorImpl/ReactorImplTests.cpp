@@ -104,7 +104,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
     std::string socketAddress = std::string("ipc://") + tempDir.dirPath() + "/test.ipc";
 
     auto process = Common::Process::createProcess();
-    auto fileSystem = Common::FileSystem::createFileSystem();
+    auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = fileSystem->join(ReactorImplTestsPath(), "FakeServerRunner");
     ASSERT_TRUE( fileSystem->isExecutable(fakeServerPath));
     data_t args{socketAddress};

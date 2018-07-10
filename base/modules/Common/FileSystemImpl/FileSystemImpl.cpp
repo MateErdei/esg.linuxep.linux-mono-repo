@@ -17,10 +17,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
-std::unique_ptr<Common::FileSystem::IFileSystem> Common::FileSystem::createFileSystem()
-{
-    return Common::FileSystem::IFileSystemPtr(new Common::FileSystem::FileSystemImpl());
-}
 
 namespace Common
 {
@@ -265,5 +261,33 @@ namespace Common
 
             ofs << ifs.rdbuf();
         }
+
+
     }
 }
+
+namespace
+{
+    Common::FileSystem::IFileSystemPtr& fileSystemStaticPointer()
+    {
+        static Common::FileSystem::IFileSystemPtr instance = Common::FileSystem::IFileSystemPtr(new Common::FileSystem::FileSystemImpl());
+        return instance;
+    }
+}
+
+Common::FileSystem::IFileSystem * Common::FileSystem::fileSystem()
+{
+    return fileSystemStaticPointer().get(); 
+}
+
+void Common::FileSystem::replaceFileSystem(Common::FileSystem::IFileSystemPtr pointerToReplace)
+{
+    fileSystemStaticPointer().reset(pointerToReplace.release());
+}
+
+void Common::FileSystem::restoreFileSystem()
+{
+    fileSystemStaticPointer().reset( new Common::FileSystem::FileSystemImpl());
+}
+
+

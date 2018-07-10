@@ -140,8 +140,7 @@ namespace SulDownloader
 
     int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath )
     {
-        using namespace Common::FileSystem;
-        auto fileSystem = createFileSystem();
+        auto fileSystem = Common::FileSystem::fileSystem();
 
         std::string settingsString = fileSystem->readFile(inputFilePath);
 
@@ -161,7 +160,6 @@ namespace SulDownloader
 
         auto result = configAndRunDownloader(settingsString);
         // LOGSUPPORT(std::get<1>(result)); // put back in for dev if required
-
         fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), fileSystem->currentWorkingDirectory());
 
         return std::get<0>(result);
@@ -213,6 +211,7 @@ namespace SulDownloader
         }// failed or unable to either read or to write files
         catch( std::exception & ex)
         {
+            std::string reason = ex.what();
             LOGERROR(ex.what());
             return -2;
         }

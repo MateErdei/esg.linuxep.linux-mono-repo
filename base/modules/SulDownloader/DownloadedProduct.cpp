@@ -34,7 +34,7 @@ namespace SulDownloader
         assert( m_state == State::Verified);
         m_state = State::Installed;
 
-        auto fileSystem = ::Common::FileSystem::createFileSystem();
+        auto fileSystem = ::Common::FileSystem::fileSystem();
 
         std::string installShFile = fileSystem->join(distributionFolderName(), "install.sh");
         installShFile = fileSystem->join(m_distributePath, installShFile);

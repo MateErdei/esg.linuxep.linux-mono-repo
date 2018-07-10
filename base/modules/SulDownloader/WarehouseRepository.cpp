@@ -233,8 +233,7 @@ namespace SulDownloader
         assert( m_state == State::Synchronized);
         m_state = State::Distributed;
 
-        using namespace Common::FileSystem;
-        auto fileSystem = createFileSystem();
+        auto fileSystem = Common::FileSystem::fileSystem();
 
         for ( auto & productPair : m_products)
         {

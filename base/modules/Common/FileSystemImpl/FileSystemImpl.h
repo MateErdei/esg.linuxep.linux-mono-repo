@@ -50,6 +50,11 @@ namespace Common
 
             Path join(const Path &path1, const Path &path2, const Path &path3) const override;
         };
+
+        /** To be used in tests only */
+        using IFileSystemPtr = std::unique_ptr<Common::FileSystem::IFileSystem>;
+        void replaceFileSystem(IFileSystemPtr);
+        void restoreFileSystem();
     }
 }
 

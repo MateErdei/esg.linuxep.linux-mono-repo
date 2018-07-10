@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginInfo.h"
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
-
+#include "Common/FileSystem/IFileSystem.h"
 #include <google/protobuf/util/json_util.h>
 
 namespace Common
@@ -133,7 +133,7 @@ namespace Common
             return pluginInfo;
         }
 
-        std::vector<PluginInfo> PluginInfo::loadFromDirectoryPath(const std::string &)
+        std::vector<PluginInfo> PluginInfo::loadFromDirectoryPath(const std::string & directoryPath)
         {
             //TODO
             return std::vector<PluginInfo>();
