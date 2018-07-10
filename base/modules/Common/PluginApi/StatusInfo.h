@@ -22,6 +22,7 @@ namespace PluginApi
         /// Representation of the status that can be used to reliably identify when it has changed.
         /// @see IPluginApi::changeStatus
         std::string statusWithoutXml;
+        std::string appId;
     };
 }
 }

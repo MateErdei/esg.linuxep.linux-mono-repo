@@ -49,7 +49,7 @@ namespace PluginCommunication
          * @param pluginName
          * @return Status XML
          */
-        virtual Common::PluginApi::StatusInfo getStatus(const std::string &pluginName) = 0;
+        virtual std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string &pluginName) = 0;
 
         /**
          * Request that the plugin should send telemetry

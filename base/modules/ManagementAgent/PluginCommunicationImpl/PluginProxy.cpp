@@ -44,13 +44,20 @@ namespace PluginCommunicationImpl
         }
     }
 
-    Common::PluginApi::StatusInfo PluginProxy::getStatus()
+    std::vector<Common::PluginApi::StatusInfo> PluginProxy::getStatus()
     {
-        Common::PluginProtocol::MessageBuilder messageBuilder("Status request", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
-        Common::PluginProtocol::DataMessage reply = getReply(message);
+        std::vector<Common::PluginApi::StatusInfo> statusList;
+        for (auto & appId : m_appIds)
+        {
+            Common::PluginProtocol::MessageBuilder messageBuilder(appId,
+                                                                  Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion
+            );
+            Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
+            Common::PluginProtocol::DataMessage reply = getReply(message);
+            statusList.emplace_back(messageBuilder.requestExtractStatus(reply));
+        }
 
-        return messageBuilder.requestExtractStatus(reply);
+        return statusList;
     }
 
     std::string PluginProxy::getTelemetry()

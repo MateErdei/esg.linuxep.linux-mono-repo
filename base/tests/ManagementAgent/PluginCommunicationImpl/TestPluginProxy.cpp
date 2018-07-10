@@ -63,7 +63,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand)
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)
 {
-    auto getStatusMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, std::string(), "Status request");
+    auto getStatusMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, std::string());
     auto serialisedMsg = m_Protocol.serialize(getStatusMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
             Return());
@@ -144,7 +144,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)
 TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
 {
     auto getStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
-                                            "", "Status request"
+                                            ""
     );
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "statusWithXml");
     ackMsg.Payload.emplace_back("statusWithoutXml");
@@ -153,8 +153,44 @@ TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
             Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     auto reply = m_pluginProxy->getStatus();
-    EXPECT_EQ(reply.statusXml, ackMsg.Payload[0]);
-    EXPECT_EQ(reply.statusWithoutXml, ackMsg.Payload[1]);
+    EXPECT_EQ(reply[0].statusXml, ackMsg.Payload[0]);
+    EXPECT_EQ(reply[0].statusWithoutXml, ackMsg.Payload[1]);
+}
+
+TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)
+{
+    auto getAlcStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
+                                          "", "ALC"
+    );
+    auto serialisedAlcMsg = m_Protocol.serialize(getAlcStatus);
+    auto getMcsStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
+                                          "", "MCS"
+    );
+    auto serialisedMcsMsg = m_Protocol.serialize(getMcsStatus);
+
+    auto ackAlcMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "alcStatusWithXml", "ALC");
+    ackAlcMsg.Payload.emplace_back("alcStatusWithoutXml");
+    auto ackMcsMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "mcsStatusWithXml", "ALC");
+    ackMcsMsg.Payload.emplace_back("mcsStatusWithoutXml");
+
+    std::vector<std::string> appIds;
+    appIds.emplace_back("ALC");
+    appIds.emplace_back("MCS");
+    m_pluginProxy->setAppIds(appIds);
+
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedAlcMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMcsMsg)).WillOnce(
+            Return());
+
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackAlcMsg))).RetiresOnSaturation();
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMcsMsg))).RetiresOnSaturation();
+    auto reply = m_pluginProxy->getStatus();
+    EXPECT_EQ(reply[0].statusXml, ackMcsMsg.Payload[0]);
+    EXPECT_EQ(reply[0].statusWithoutXml, ackMcsMsg.Payload[1]);
+    EXPECT_EQ(reply[1].statusXml, ackAlcMsg.Payload[0]);
+    EXPECT_EQ(reply[1].statusWithoutXml, ackAlcMsg.Payload[1]);
+
 }
 
 // Get Telemetry

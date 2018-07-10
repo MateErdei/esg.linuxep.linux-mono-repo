@@ -69,7 +69,7 @@ namespace Common
         Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
             assert( dataMessage.Command == Commands::PLUGIN_SEND_STATUS || dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
-            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1)};
+            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1), dataMessage.ApplicationId};
         }
 
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
