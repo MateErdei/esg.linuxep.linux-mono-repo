@@ -34,8 +34,6 @@ namespace ManagementAgent
             void setDefaultTimeout(int timeoutMs);
             void setDefaultConnectTimeout(int timeoutMs);
 
-            void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr) override;
-
             void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
             void doAction(const std::string &appId, const std::string &actionXml) override;
             Common::PluginApi::StatusInfo getStatus(const std::string & pluginName) override;
@@ -48,6 +46,8 @@ namespace ManagementAgent
              * Used mainly for Tests
              */
             Common::ZeroMQWrapper::IContext & getSocketContext();
+            void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
+
 
         private:
 
