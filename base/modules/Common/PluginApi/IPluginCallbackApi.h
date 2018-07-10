@@ -9,12 +9,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-#include "StatusInfo.h"
-
 namespace Common
 {
     namespace PluginApi
     {
+
+        /**
+         * Struct to enable replying to status query from Management Agent.
+         * @see IPluginApi::changeStatus
+         */
+        struct StatusInfo
+        {
+            /// Content of the status that can be sent to the Management Console
+            std::string statusXml;
+            /// Representation of the status that can be used to reliably identify when it has changed.
+            /// @see IPluginApi::changeStatus
+            std::string statusWithoutXml;
+        };
 
         /**
          * The IPluginCallback is the class that developers of Plugins will implement and pass to the IPluginResourceManagement
@@ -23,6 +34,8 @@ namespace Common
          *
          * The methods defined here will be called when the respective services are required from Management Agent and
          * the reply will be forwarded to the Management Agent via ipc channel.
+         *
+         * @attention all callback functions should aim to take no longer than 500 milliseconds to prevent performance issues.
          */
         class IPluginCallbackApi
         {
@@ -30,8 +43,9 @@ namespace Common
             virtual ~IPluginCallbackApi() = default;
 
             /**
-             * Require the plugin to apply a policy (Sent by Sophos Cloud via Management Agent).
+             * Require the plugin to apply a policy (Sent by Management Console).
              *
+             * @attention the policy may be applied at a later time after the method returns.
              * @param policyXml: either the policy xml content or its translation.
              * @todo add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new policy.
@@ -39,8 +53,9 @@ namespace Common
             virtual void applyNewPolicy(const std::string &policyXml) = 0;
 
             /**
-             * Require the plugin to perform an action ( Sent by Sophos Cloud via Management Agent).
+             * Require the plugin to perform an action ( Sent by Management Console ).
              *
+             * @attention the action request is queued to be executed at a later time after the method returns.
              * @param actionXml: either the action xml content or its translation.
              * @todo add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested action.
@@ -57,13 +72,13 @@ namespace Common
             virtual void onShutdown() = 0;
 
             /**
-             * Method that will be called when Management Agent queries about the status of the Plugin when it needs the information to send to Sophos Cloud.
+             * Method that will be called when Management Agent queries about the status of the Plugin when it needs the information to send to Management Console.
              *
              * Plugin developer must implement this function to provide StatusInfo when requested.
              *
              * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
              */
-            virtual PluginApi::StatusInfo getStatus() = 0;
+            virtual StatusInfo getStatus() = 0;
 
 
             /**
