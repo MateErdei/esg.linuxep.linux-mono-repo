@@ -115,9 +115,9 @@ function build()
 
         ## Google protobuf
         local PROTOBUF_TAR=$INPUT/protobuf.tar
-        if [[ -f "PROTOBUF_TAR" ]]
+        if [[ -f "$PROTOBUF_TAR" ]]
         then
-            tar xf "PROTOBUF_TAR" -C "$REDIST"
+            tar xf "$PROTOBUF_TAR" -C "$REDIST"
         elif [[ -d $ALLEGRO_REDIST ]]
         then
             ln -snf $ALLEGRO_REDIST/protobuf $REDIST/protobuf
@@ -128,6 +128,19 @@ function build()
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
         ## ZeroMQ
+        local ZEROMQ_TAR=$INPUT/zeromq.tar
+        if [[ -f "ZEROMQ_TAR" ]]
+        then
+            tar xf "ZEROMQ_TAR" -C "$REDIST"
+        elif [[ -d $ALLEGRO_REDIST ]]
+        then
+            ln -snf $ALLEGRO_REDIST/zeromq $REDIST/zeromq
+        else
+            exitFailure 13 "Failed to find zeromq"
+        fi
+        addpath ${REDIST}/protobuf/bin
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/lib
+
 
     else
         echo "WARNING: No input available; using system or /redist files"

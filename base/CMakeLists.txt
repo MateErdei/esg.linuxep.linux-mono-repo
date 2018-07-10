@@ -10,22 +10,6 @@ enable_testing()
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
-## use pkg-config to get hints for 0mq locations
-#pkg_check_modules(PC_ZeroMQ QUIET zmq)
-
-## load in pkg-config support
-## use the hint from above to find where 'zmq.hpp' is located
-find_path(ZeroMQ_INCLUDE_DIR
-        NAMES zmq.h
-        PATHS /redist/binaries/everest/zeromq/include
-        )
-
-## use the hint from about to find the location of libzmq
-find_library(ZeroMQ_LIBRARY
-        NAMES zmq
-        PATHS /redist/binaries/everest/zeromq/lib
-        )
-
 if(NOT DEFINED REDIST)
     set( REDIST /redist )
 endif()
@@ -40,6 +24,7 @@ set( SUL_INPUT ${INPUT}/SUL )
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
+set( ZEROMQ_INPUT ${INPUT}/zeromq )
 set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
 set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64)
 
@@ -56,6 +41,22 @@ set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 INCLUDE(FindProtobuf)
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
+
+## use pkg-config to get hints for 0mq locations
+#pkg_check_modules(PC_ZeroMQ QUIET zmq)
+
+## load in pkg-config support
+## use the hint from above to find where 'zmq.hpp' is located
+find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.h
+        PATHS ${ZEROMQ_INPUT}/include
+        )
+
+## use the hint from about to find the location of libzmq
+find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${ZEROMQ_INPUT}/lib
+        )
 
 include_directories(modules)
 

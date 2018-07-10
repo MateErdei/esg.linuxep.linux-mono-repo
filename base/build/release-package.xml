@@ -28,6 +28,9 @@
         <package name="protobuflinux11" version="master/%LASTGOODCOMPONENTBUILD%/protobuflinux11/3.5.1/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
+        <package name="zeromqlinux11" version="master/%LASTGOODCOMPONENTBUILD%/zeromqlinux/4.2.5/output" dest="input">
+            <include src="zeromq.tar" dest="."/>
+        </package>
 
     </inputs>
     <buildcommands>
