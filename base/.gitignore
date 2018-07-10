@@ -9,3 +9,7 @@
 build64
 cmake-build-debug
 *.pyc
+input
+output
+log
+redist
