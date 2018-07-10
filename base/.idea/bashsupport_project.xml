@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BashSupportProjectSettings">
+    <option name="globalVariables">
+      <set>
+        <option value="CFLAGS" />
+        <option value="LD_LIBRARY_PATH" />
+        <option value="LINK_OPTIONS" />
+        <option value="NPROC" />
+        <option value="OPTIONS" />
+      </set>
+    </option>
+  </component>
+</project>
