@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/ISensorDataCallback.h"
 #include "Common/PluginProtocol/Logger.h"
 #include "SensorDataSubscriber.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 
 namespace Common
