@@ -10,10 +10,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/PluginProtocol/Protocol.h"
-#include "Common/PluginApiImpl/SharedSocketContext.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/IContext.h"
 #include <cassert>
-#include <Common/PluginProtocol/MessageBuilder.h>
 
 /** This class is to be used for tests to facilitate the interaction with client/server of the api, allowing for
  *  single read/write operation.

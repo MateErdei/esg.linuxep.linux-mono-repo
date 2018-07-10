@@ -7,8 +7,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include "Common/PluginApi/ISensorDataSubscriber.h"
+#include "Common/PluginApi/ISensorDataCallback.h"
 #include "Common/PluginProtocol/Logger.h"
 #include "SensorDataSubscriber.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 
 namespace Common

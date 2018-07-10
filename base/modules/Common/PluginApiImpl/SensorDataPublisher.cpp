@@ -7,7 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SensorDataPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "SharedSocketContext.h"
 namespace Common
 {
     namespace PluginApiImpl

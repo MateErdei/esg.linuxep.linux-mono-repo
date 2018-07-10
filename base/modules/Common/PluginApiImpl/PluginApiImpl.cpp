@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/PluginProtocol/Logger.h"
-#include "SharedSocketContext.h"
 
 Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)

@@ -21,8 +21,6 @@ add_library(pluginapiimpl SHARED
         SensorDataPublisher.h
         SensorDataSubscriber.cpp
         SensorDataSubscriber.h
-        SharedSocketContext.cpp
-        SharedSocketContext.h
         ../PluginApi/IPluginResourceManagement.h
         PluginResourceManagement.cpp
         PluginResourceManagement.h
