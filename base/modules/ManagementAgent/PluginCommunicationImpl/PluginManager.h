@@ -31,8 +31,8 @@ namespace ManagementAgent
             PluginManager();
             ~PluginManager();
 
-            void setDefaultTimeout(int timeoutMs) override;
-            void setDefaultConnectTimeout(int timeoutMs) override;
+            void setDefaultTimeout(int timeoutMs);
+            void setDefaultConnectTimeout(int timeoutMs);
 
             void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr) override;
 

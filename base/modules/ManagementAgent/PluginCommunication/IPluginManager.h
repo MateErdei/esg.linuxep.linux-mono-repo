@@ -20,11 +20,8 @@ namespace PluginCommunication
     {
     public:
         virtual ~IPluginManager() = default;
-        virtual void setDefaultTimeout(int timeoutMs) = 0;
-        virtual void setDefaultConnectTimeout(int timeoutMs) = 0;
 
         virtual void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr) = 0;
-
 
         virtual void applyNewPolicy(const std::string &appId, const std::string &policyXml) = 0;
         virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;

@@ -18,17 +18,11 @@ namespace PluginCommunication
     {
     public:
         virtual ~IPluginProxy() = default;
-
         virtual void applyNewPolicy(const std::string &appId, const std::string &policyXml) = 0;
-
         virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;
-
         virtual Common::PluginApi::StatusInfo getStatus() = 0;
-
         virtual std::string getTelemetry() = 0;
-
         virtual void setAppIds(const std::vector<std::string> &appIds) = 0;
-
         virtual bool hasAppId(const std::string &appId) = 0;
     };
 
