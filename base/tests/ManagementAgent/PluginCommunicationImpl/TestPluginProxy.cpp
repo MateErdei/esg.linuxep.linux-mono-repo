@@ -30,12 +30,12 @@ public:
     Common::PluginProtocol::Protocol m_Protocol;
 
     Common::PluginProtocol::DataMessage
-    createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem)
+    createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem, const std::string & appId = "plugin_one")
     {
         Common::PluginProtocol::DataMessage dataMessage;
         dataMessage.Command = command;
         dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
-        dataMessage.ApplicationId = "plugin_one";
+        dataMessage.ApplicationId = appId;
         dataMessage.MessageId = "";
         if (!firstPayloadItem.empty())
         {
@@ -45,6 +45,43 @@ public:
         return dataMessage;
     }
 };
+
+// Reply error cases
+
+TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand)
+{
+    auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                                               "thisisapolicy"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "ACK");
+    auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    EXPECT_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
+
+TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)
+{
+    auto getStatusMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, std::string(), "Status request");
+    auto serialisedMsg = m_Protocol.serialize(getStatusMsg);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "ACK");
+    ackMsg.Error = "RandomError";
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    EXPECT_THROW(m_pluginProxy->getStatus(), ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
+
+TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException)
+{
+    EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(
+            Throw(std::exception()));
+    EXPECT_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
+                 ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
+
+// Apply Policy
 
 TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)
 {
@@ -59,18 +96,89 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)
     ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"));
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicyWithStdException)
+
+TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck)
 {
-    EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(
-            Throw(std::exception()));
-    EXPECT_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
-                 ManagementAgent::PluginCommunication::IPluginCommunicationException);
+    auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                                            "thisisapolicy"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "NOACK");
+    auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    EXPECT_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
+
+// Do Action
+
+TEST_F(TestPluginProxy, TestPluginProxyDoAction)
+{
+    auto doActionMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
+                                               "thisisanaction"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "ACK");
+    auto serialisedMsg = m_Protocol.serialize(doActionMsg);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    ASSERT_NO_THROW(m_pluginProxy->doAction("plugin_one", "thisisanaction"));
+}
+
+
+TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)
+{
+    auto doActionMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
+                                            "thisisanaction"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "NOACK");
+    auto serialisedMsg = m_Protocol.serialize(doActionMsg);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    EXPECT_THROW(m_pluginProxy->doAction("plugin_one", "thisisanaction"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
+
+// Get Status
+
+TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
+{
+    auto getStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
+                                            "", "Status request"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "statusWithXml");
+    ackMsg.Payload.emplace_back("statusWithoutXml");
+    auto serialisedMsg = m_Protocol.serialize(getStatus);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    auto reply = m_pluginProxy->getStatus();
+    EXPECT_EQ(reply.statusXml, ackMsg.Payload[0]);
+    EXPECT_EQ(reply.statusWithoutXml, ackMsg.Payload[1]);
+}
+
+// Get Telemetry
+
+TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)
+{
+    auto getTelemetry = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY,
+                                          "", "Telemetry request"
+    );
+    auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "Telemetry");
+    auto serialisedMsg = m_Protocol.serialize(getTelemetry);
+    EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
+            Return());
+    EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
+    auto reply = m_pluginProxy->getTelemetry();
+    EXPECT_EQ(reply, ackMsg.Payload[0]);
+}
+
+// APP IDS
 
 TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)
 {
-    std::vector<std::string> appIds;
     ASSERT_FALSE(m_pluginProxy->hasAppId("ALC"));
+    std::vector<std::string> appIds;
     appIds.emplace_back("ALC");
     appIds.emplace_back("MCS");
     m_pluginProxy->setAppIds(appIds);
@@ -79,3 +187,7 @@ TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)
     ASSERT_FALSE(m_pluginProxy->hasAppId("INVALID"));
 }
 
+TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName)
+{
+    ASSERT_TRUE(m_pluginProxy->hasAppId("plugin_one"));
+}
