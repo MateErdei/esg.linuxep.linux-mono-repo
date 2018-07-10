@@ -28,6 +28,23 @@ find_library(ZeroMQ_LIBRARY
         PATHS /redist/binaries/everest/zeromq/lib
         )
 
+if(NOT DEFINED REDIST)
+    set( REDIST /redist )
+endif()
+if(NOT DEFINED BINARIES_DIR)
+    set( BINARIES_DIR ${REDIST}/binaries )
+endif()
+if(NOT DEFINED INPUT)
+    set( INPUT ${BINARIES_DIR}/linux11/input )
+endif()
+
+set( SUL_INPUT ${INPUT}/SUL )
+set( BOOST_INPUT ${INPUT}/boost )
+set( CURL_INPUT ${INPUT}/curl )
+set( OPENSSL_INPUT ${INPUT}/openssl )
+set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
+set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64)
+
 set(Protobuf_root /redist/binaries/everest/protobuf)
 set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
 set(PROTOBUF_PROTOC_EXECUTABLE ${Protobuf_root}/bin/protoc)
@@ -40,6 +57,10 @@ INCLUDE(FindProtobuf)
 #FIND_PACKAGE(Protobuf REQUIRED )
 
 include_directories(modules)
+
+set(REL_DIST distribution)
+set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
+set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 
 add_subdirectory(modules)
 add_subdirectory(products)

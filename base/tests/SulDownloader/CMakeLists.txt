@@ -18,14 +18,6 @@ target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloade
 gtest_discover_tests(SulDownloaderTests)
 
 #/redist/binaries/linux10/input/SUL
-set( REDIST /redist )
-set( BINARIES_DIR ${REDIST}/binaries )
-set( INPUT ${BINARIES_DIR}/linux10/input )
-set( SUL_INPUT ${INPUT}/SUL )
-set( BOOST_INPUT ${INPUT}/boost )
-set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
-set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64)
-
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 

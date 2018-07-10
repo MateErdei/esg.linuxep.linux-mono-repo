@@ -6,6 +6,6 @@
 .idea/workspace.backup
 .idea/workspace.xml
 .idea/shelf/
-build
+build64
 cmake-build-debug
 *.pyc

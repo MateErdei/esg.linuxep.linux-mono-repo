@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="sspl-base" version="0.5.0.0">
+    <inputs>
+        <workingdir>sspl-base-build</workingdir>
+        <package name="gcclinux" version="master/%LASTGOODCOMPONENTBUILD%/gcclinux/8.1.0/gcclinux" dest="input">
+            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
+        </package>
+        <package name="openssllinux11" version="LINUXEP-6060-create_openssl_build/%LASTGOODCOMPONENTBUILD%/openssllinux11/1.0.2n/openssllinux11" dest="input">
+            <include src="openssl.tar" dest="."/>
+        </package>
+        <package name="cmakelinux"
+                 version="master/%LASTGOODCOMPONENTBUILD%/cmakelinux/3.11.2/cmakelinux" dest="input">
+            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
+        </package>
+        <package name="versig"
+                 version="master/%LASTGOODCOMPONENTBUILD%/versig/2.0.0/output" dest="input">
+            <include src="versig.tar" dest="."/>
+        </package>
+        <package name="curllinux10" version="7-59-0/211732/curllinux10" dest="input">
+            <include src="curl.tar" dest="."/>
+        </package>
+        <package name="sullinux10" version="1-0-0/212431/sullinux" dest="input">
+            <include src="SUL.tar" dest="."/>
+        </package>
+        <package name="boostlinux10" version="1-66-0/211773/boostlinux10" dest="input">
+            <include src="boost.tar" dest="."/>
+        </package>
+    </inputs>
+    <buildcommands>
+        <command>
+          <program>/bin/bash</program>
+          <args>./build.sh</args>
+          <workingdir>sspl-base-build</workingdir>
+        </command>
+    </buildcommands>
+    <publish>
+        <workingdir>sspl-base-build</workingdir>
+        <destdir>sspl-base</destdir>
+        <buildoutputs>
+            <output name="output" srcfolder="output"> </output>
+            <output name="build_log" srcfolder="log"> </output>
+        </buildoutputs>
+        <publishbranches>master</publishbranches>
+    </publish>
+</package>

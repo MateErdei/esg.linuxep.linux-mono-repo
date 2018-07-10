@@ -1,6 +1,36 @@
-node ('LinuxTest') {
-    stage('Build gcc'){
-        checkout scm
-        sh 'bash -x ./build.sh'
-    }
+
+library "standardPipeline@develop"
+
+properties([
+  parameters([
+    string(name: 'CommitHash', defaultValue: ''),
+    string(name: 'PortalId', defaultValue: ''),
+    string(name: 'PortalAddress', defaultValue: '')
+  ])
+])
+
+skipDefaultCheckout()
+try{
+    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+
+    parallel Build:{
+        ArtisanBuild(
+            params.CommitHash,
+            params.PortalId,
+            "0.5.0.0",
+            'sspl-base',
+            'sppl-base-build',
+            'build/release-package.xml',
+            'Linux Test',
+            "develop",
+            '',
+            '',
+            ''
+              )
+        }
+
+    SuccessfulBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+} catch(e){
+    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    error('Failed Build')
 }
