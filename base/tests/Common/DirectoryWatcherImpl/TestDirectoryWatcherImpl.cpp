@@ -30,7 +30,7 @@ class DirectoryWatcherTests : public ::testing::Test
 {
 public:
     DirectoryWatcherTests()
-    : m_Listener1("/tmp/test"), m_Listener2("/tmp/test2")
+    : m_Listener1("/tmp/test"), m_Listener2("/tmp/test2"),m_pipe_fd{0,0},m_MockiNotifyEvent{0,0,0,0,0}
     {
         m_MockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
         int r = pipe(m_pipe_fd);
@@ -132,8 +132,8 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     m_DirectoryWatcher->startWatch();
     std::string listener1PathString =  m_Listener1.getPath();
     std::string listener2PathString =  m_Listener2.getPath();
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, Eq(listener1PathString), _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, Eq(listener2PathString), _)).WillOnce(Return(2));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener1PathString.c_str()), _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener2PathString.c_str()), _)).WillOnce(Return(2));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
@@ -160,8 +160,8 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     internal::CaptureStderr();
     std::string listener1PathString =  m_Listener1.getPath();
     std::string listener2PathString =  m_Listener2.getPath();
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener1PathString.c_str(), _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, listener2PathString.c_str(), _)).WillOnce(Return(2));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener1PathString.c_str()), _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener2PathString.c_str()), _)).WillOnce(Return(2));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));
     int errCode = 7;
