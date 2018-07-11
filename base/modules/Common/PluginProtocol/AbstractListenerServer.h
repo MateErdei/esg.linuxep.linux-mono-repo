@@ -26,7 +26,8 @@ namespace Common
                 public virtual Common::Reactor::IShutdownListener
         {
         public:
-            AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite);
+            enum class ARMSHUTDOWNPOLICY{DONOTARM, HANDLESHUTDOWN};
+            AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite, ARMSHUTDOWNPOLICY armshutdownpolicy);
             void start() ;
             void stop() ;
 
