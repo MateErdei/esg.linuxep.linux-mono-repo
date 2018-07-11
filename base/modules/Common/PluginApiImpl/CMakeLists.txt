@@ -28,3 +28,5 @@ add_library(pluginapiimpl SHARED
 
 target_include_directories(pluginapiimpl PUBLIC ../PluginApi ../../Common )
 target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )
+install(TARGETS pluginapiimpl
+        LIBRARY DESTINATION files/base/lib64)

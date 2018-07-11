@@ -4,3 +4,5 @@ add_library(applicationconfigurationimpl SHARED
         ApplicationConfiguration.h ../ApplicationConfiguration/IApplicationPathManager.h ApplicationPathManager.cpp ApplicationPathManager.h ../PluginApi/ApiException.h)
 
 target_include_directories(applicationconfigurationimpl PUBLIC ../ApplicationConfiguration ../../Common)
+install(TARGETS applicationconfigurationimpl
+        LIBRARY DESTINATION files/base/lib64)

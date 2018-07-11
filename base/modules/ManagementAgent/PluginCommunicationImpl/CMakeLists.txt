@@ -16,3 +16,5 @@ add_library(plugincommunicationimpl SHARED
 target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)
+install(TARGETS plugincommunicationimpl
+        LIBRARY DESTINATION files/base/lib64)
