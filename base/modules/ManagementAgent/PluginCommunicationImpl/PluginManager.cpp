@@ -86,6 +86,7 @@ namespace PluginCommunicationImpl
 
     int PluginManager::queueAction(const std::string &appId, const std::string &actionXml)
     {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
         {
@@ -106,16 +107,19 @@ namespace PluginCommunicationImpl
 
     std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string & pluginName)
     {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         return getPlugin(pluginName)->getStatus();
     }
 
     std::string PluginManager::getTelemetry(const std::string & pluginName)
     {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         return getPlugin(pluginName)->getTelemetry();
     }
 
     void PluginManager::setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds)
     {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         auto plugin = getPlugin(pluginName);
         plugin->setPolicyAndActionsAppIds(policyAppIds);
         plugin->setStatusAppIds(statusAppIds);
