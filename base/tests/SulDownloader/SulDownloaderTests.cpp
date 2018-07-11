@@ -245,6 +245,10 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
+/**
+ * Disabled due to LINUXEP-6174, re-enable this test once that ticket has been fixed.
+ * Breaks when build dir and /tmp are on different partitions.
+ */
 TEST_F( SULDownloaderTest, DISABLED_main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
     MockWarehouseRepository & mock = warehouseMocked();
