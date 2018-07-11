@@ -5,4 +5,4 @@ add_custom_target(echogTest
         )
 add_subdirectory(Common)
 add_subdirectory(SulDownloader)
-add_subdirectory(ManagementAgent)
+add_subdirectory(Installer/VersionedCopy)

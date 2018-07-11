@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <iostream>
 #include <sys/stat.h>
+#include <Common/Exceptions/Print.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n";
 
@@ -55,6 +56,11 @@ namespace Common
             }
 
             return "";
+        }
+
+        Path FileSystemImpl::join(const Path &path1, const Path &path2, const Path &path3) const
+        {
+            return join(join(path1,path2),path3);
         }
 
         std::string FileSystemImpl::basename(const Path & path ) const
@@ -214,7 +220,7 @@ namespace Common
             {   // if it does not exists, it is not executable
                 return false;
             }
-            return S_IXUSR & statbuf.st_mode;
+            return (S_IXUSR & statbuf.st_mode) != 0;
         }
 
         void FileSystemImpl::makeExecutable(const Path &path) const
@@ -230,6 +236,25 @@ namespace Common
             if ( ret != 0)
             {
                 throw IFileSystemException("Cannot make executable: " + path);
+            }
+        }
+
+        void FileSystemImpl::makedirs(const Path &path) const
+        {
+            if (path == "/")
+            {
+                return;
+            }
+            if (isDirectory(path))
+            {
+                return;
+            }
+            Path p2 = dirName(path);
+            if (path != p2)
+            {
+                makedirs(p2);
+                ::mkdir(path.c_str(),0700);
+//                PRINT(path);
             }
         }
     }

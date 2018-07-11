@@ -27,6 +27,8 @@ namespace Common
              */
             virtual Path join(const Path& path1, const Path & path2)const = 0;
 
+            virtual Path join(const Path& path1, const Path & path2, const Path& path3 )const = 0;
+
             /**
              * Gets the last part i.e. file name from the given path
              * @param path to operate on.
@@ -98,6 +100,11 @@ namespace Common
             virtual void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const =0;
 
             virtual void makeExecutable(const Path &path) const =0;
+
+            /**
+             * Create a directory tree
+             */
+             virtual void makedirs(const Path& path) const =0;
         };
         using IFileSystemPtr = std::unique_ptr<IFileSystem>;
         extern IFileSystemPtr createFileSystem();

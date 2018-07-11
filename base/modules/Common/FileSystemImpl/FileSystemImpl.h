@@ -15,9 +15,10 @@ namespace Common
     {
         class FileSystemImpl : public IFileSystem
         {
+
         public:
             FileSystemImpl() = default;
-            ~FileSystemImpl() = default;
+            ~FileSystemImpl() override = default;
 
             Path join(const Path& path1, const Path & path2)const override;
 
@@ -42,7 +43,11 @@ namespace Common
             void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const override;
 
             void makeExecutable(const Path &path) const override;
-            };
+
+            void makedirs(const Path &path) const override;
+
+            Path join(const Path &path1, const Path &path2, const Path &path3) const override;
+        };
     }
 }
 

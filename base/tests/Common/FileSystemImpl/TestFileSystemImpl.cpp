@@ -25,7 +25,7 @@ namespace
         }
     };
 
-    TEST_F( FileSystemImplTest, basenameReturnsCorrectMatchingValue)
+    TEST_F( FileSystemImplTest, basenameReturnsCorrectMatchingValue) //NOLINT
     {
         std::vector<std::pair<std::string, std::string>> values = {
                 {"/tmp/tmpfile.txt", "tmpfile.txt" },
@@ -209,6 +209,18 @@ namespace
     TEST_F( FileSystemImplTest, isExecutableReturnFalseForNonExistingFiles)
     {
         EXPECT_FALSE( m_fileSystem->isExecutable("/tmp/thisfiledoesnotexist"));
+    }
+
+    TEST_F( FileSystemImplTest, canCreateDirectories)
+    {
+        Path A =  m_fileSystem->join(m_fileSystem->currentWorkingDirectory(), "A");
+        Path B = m_fileSystem->join(A, "B");
+        m_fileSystem->makedirs(B);
+        EXPECT_TRUE(m_fileSystem->isDirectory(A));
+        EXPECT_TRUE(m_fileSystem->isDirectory(B));
+
+        ::rmdir(B.c_str());
+        ::rmdir(A.c_str());
     }
 
 }

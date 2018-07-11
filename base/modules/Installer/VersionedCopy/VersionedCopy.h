@@ -7,6 +7,8 @@
 #ifndef EVEREST_BASE_VERSIONEDCOPY_H
 #define EVEREST_BASE_VERSIONEDCOPY_H
 
+#include <Common/FileSystem/IFileSystem.h>
+
 namespace Installer
 {
     namespace VersionedCopy
@@ -15,6 +17,7 @@ namespace Installer
         {
         public:
             static int versionedCopyMain(int argc, char* argv[]);
+            static int versionedCopy(const Path& filename, const Path& DIST, const Path& INST);
         };
     }
 }
