@@ -53,6 +53,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
     auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                                "thisisapolicy"
     );
+    // Command REQUEST_PLUGIN_DO_ACTION instead of the expected REQUEST_PLUGIN_APPLY_POLICY
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "ACK");
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(

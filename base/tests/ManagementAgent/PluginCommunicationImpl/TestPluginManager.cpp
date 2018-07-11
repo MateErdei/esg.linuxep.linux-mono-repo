@@ -182,11 +182,11 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)  // NOLINT
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)  // NOLINT
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1).WillOnce(Return("telemetryContent"));
     Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
     std::thread getTelemetry([&]() {
         m_pluginApi = mgmtCommon.createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
-        m_pluginManagerPtr->getTelemetry(plugin_one_name);
+        ASSERT_EQ(m_pluginManagerPtr->getTelemetry(plugin_one_name), "telemetryContent");
     });
     getTelemetry.join();
 }
