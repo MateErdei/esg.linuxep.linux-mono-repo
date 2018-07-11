@@ -8,8 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef EVEREST_BASE_PLUGINREGISTRY_H
 #define EVEREST_BASE_PLUGINREGISTRY_H
 
+
 #include <string>
 #include <vector>
+
 
 
 namespace Common
@@ -20,7 +22,8 @@ namespace Common
         {
         public:
             using EnvPairs = std::vector<std::pair<std::string, std::string>>;
-            std::vector<std::string> getAppIds() const;
+            std::vector<std::string> getPolicyAppIds() const;
+            std::vector<std::string> getStatusAppIds() const;
             std::string getPluginName() const;
             std::string getPluginIpcAddress() const;
             std::string getXmlTranslatorPath() const;
@@ -28,8 +31,10 @@ namespace Common
             std::vector<std::string> getExecutableArguments() const;
             EnvPairs getExecutableEnvironmentVariables() const;
 
-            void setAppIds( const std::vector<std::string> & appIDs);
-            void addAppIds( const std::string & appID);
+            void setPolicyAppIds(const std::vector<std::string> &appIDs);
+            void addPolicyAppIds(const std::string &appID);
+            void setStatusAppIds(const std::vector<std::string> &appIDs);
+            void addStatusAppIds(const std::string &appID);
             void setPluginName(const std::string &pluginName);
             void setXmlTranslatorPath(const std::string &xmlTranslationPath);
             void setExecutableFullPath(const std::string &executableFullPath);
@@ -37,6 +42,13 @@ namespace Common
             void addExecutableArguments(const std::string &executableArgument);
             void setExecutableEnvironmentVariables(const EnvPairs  &executableEnvironmentVariables);
             void addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue);
+
+            /**
+             * Serialize pluginInfo object into protobuf message.
+             * @param pluginInfo object to be serilized
+             * @return pluginInfo represented as protobuf object.
+             */
+            static std::string serializeToString(const PluginInfo &pluginInfo);
 
             /**
              * Deserialize a Json containing the PluginInfo into the PluginInfo object.
@@ -69,7 +81,8 @@ namespace Common
 
 
         private:
-            std::vector<std::string> m_appIds;
+            std::vector<std::string> m_policyAppIds;
+            std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
             std::string m_executableFullPath;

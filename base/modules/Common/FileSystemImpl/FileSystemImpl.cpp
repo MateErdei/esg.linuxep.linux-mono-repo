@@ -9,13 +9,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IFileSystemException.h"
 
 #include <fstream>
+#include <dirent.h>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
 #include <sys/stat.h>
-#include <Common/Exceptions/Print.h>
+#include <vector>
 
-#define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
+#define LOGSUPPORT(x) std::cout << x << "\n";
 
 
 namespace Common
@@ -54,11 +55,6 @@ namespace Common
             return "";
         }
 
-        Path FileSystemImpl::join(const Path &path1, const Path &path2, const Path &path3) const
-        {
-            return join(join(path1,path2),path3);
-        }
-
         std::string FileSystemImpl::basename(const Path & path ) const
         {
             size_t pos = path.rfind('/');
@@ -89,27 +85,39 @@ namespace Common
                 return ""; // no parent directory
             }
 
-            size_t endPos = path.length() - pos;
+            int endPos = path.length() - pos;
 
             return Path(path.begin(), (path.end() - endPos));
         }
 
         bool FileSystemImpl::exists(const Path &path) const
         {
-            struct stat statbuf; // NOLINT
+            struct stat statbuf;
             int ret = stat(path.c_str(), &statbuf);
             return ret == 0;
         }
 
+        bool FileSystemImpl::isFile(const Path & path) const
+        {
+            struct stat statbuf;
+            int ret = stat(path.c_str(), &statbuf);
+            if ( ret != 0)
+            {   // if it does not exists, it is not a file
+                return false;
+            }
+            return S_ISREG(statbuf.st_mode);
+        }
+
+
         bool FileSystemImpl::isDirectory(const Path & path) const
         {
-            struct stat statbuf; // NOLINT
+            struct stat statbuf;
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not a directory
                 return false;
             }
-            return S_ISDIR(statbuf.st_mode); // NOLINT
+            return S_ISDIR(statbuf.st_mode);
         }
 
         Path FileSystemImpl::currentWorkingDirectory() const
@@ -124,7 +132,7 @@ namespace Common
                 throw IFileSystemException(errdesc);
             }
 
-            return Path(currentWorkingDirectory);
+            return currentWorkingDirectory;
         }
 
         void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath) const
@@ -210,59 +218,54 @@ namespace Common
 
         bool FileSystemImpl::isExecutable(const Path &path) const
         {
-            struct stat statbuf; // NOLINT
+            struct stat statbuf;
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not executable
                 return false;
             }
-            return (S_IXUSR & statbuf.st_mode) != 0; // NOLINT
+            return S_IXUSR & statbuf.st_mode;
         }
 
-        void FileSystemImpl::makeExecutable(const Path &path) const
+        std::vector<Path> FileSystemImpl::listFiles(const Path &directoryPath) const
         {
-            struct stat statbuf; //NOLINT
-            int ret = stat(path.c_str(), &statbuf);
-            if ( ret != 0)
-            {   // if it does not exist
-                throw IFileSystemException("Cannot stat: " + path);
+            std::vector<Path> files;
+            DIR * directoryPtr;
+
+            struct dirent dirEntity;
+            struct dirent *outDirEntity;
+
+            directoryPtr = opendir(directoryPath.c_str());
+
+            if(!directoryPtr)
+            {
+                int error = errno;
+                std::string reason = strerror(error);
+                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
             }
 
-            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
-            if ( ret != 0)
+
+            while (true)
             {
-                throw IFileSystemException("Cannot make executable: " + path);
+                int errorcode = readdir_r(directoryPtr, &dirEntity, &outDirEntity);
+
+                if(errorcode !=0 || !outDirEntity)
+                {
+                    break;
+                }
+
+                if ( DT_REG & outDirEntity->d_type )
+                {
+                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                    files.push_back(fullPath);
+                }
+
             }
+
+            (void)closedir(directoryPtr);
+
+            return files;
         }
-
-        void FileSystemImpl::makedirs(const Path &path) const
-        {
-            if (path == "/")
-            {
-                return;
-            }
-            if (isDirectory(path))
-            {
-                return;
-            }
-            Path p2 = dirName(path);
-            if (path != p2)
-            {
-                makedirs(p2);
-                ::mkdir(path.c_str(),0700);
-//                PRINT(path);
-            }
-        }
-
-        void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
-        {
-            std::ifstream ifs(src);
-            std::ofstream ofs(dest);
-
-            ofs << ifs.rdbuf();
-        }
-
-
     }
 }
 
@@ -277,7 +280,7 @@ namespace
 
 Common::FileSystem::IFileSystem * Common::FileSystem::fileSystem()
 {
-    return fileSystemStaticPointer().get(); 
+    return fileSystemStaticPointer().get();
 }
 
 void Common::FileSystem::replaceFileSystem(Common::FileSystem::IFileSystemPtr pointerToReplace)

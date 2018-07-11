@@ -9,6 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/MessageUtility.h"
+
 #include <google/protobuf/util/json_util.h>
 
 namespace Common
@@ -16,9 +19,9 @@ namespace Common
     namespace PluginRegistryImpl
     {
 
-        std::vector<std::string> PluginInfo::getAppIds() const
+        std::vector<std::string> PluginInfo::getPolicyAppIds() const
         {
-            return m_appIds;
+            return m_policyAppIds;
         }
 
         std::string PluginInfo::getPluginName() const
@@ -52,14 +55,14 @@ namespace Common
             return m_executableFullPath;
         }
 
-        void PluginInfo::setAppIds(const std::vector<std::string> &appIDs)
+        void PluginInfo::setPolicyAppIds(const std::vector<std::string> &appIDs)
         {
-            m_appIds = appIDs;
+            m_policyAppIds = appIDs;
         }
 
-        void PluginInfo::addAppIds(const std::string &appID)
+        void PluginInfo::addPolicyAppIds(const std::string &appID)
         {
-            m_appIds.push_back(appID);
+            m_policyAppIds.push_back(appID);
         }
 
         void PluginInfo::setPluginName(const std::string &pluginName)
@@ -97,23 +100,65 @@ namespace Common
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
         }
 
+        std::string PluginInfo::serializeToString(const PluginInfo & pluginInfo)
+        {
+            using ProtoPluginInfo =  PluginInfoProto::PluginInfo;
+            ProtoPluginInfo pluginInfoProto;
+
+            for(auto & policyAppId : pluginInfo.getPolicyAppIds())
+            {
+                pluginInfoProto.add_policyappids(policyAppId);
+            }
+
+            for(auto & statusAppId : pluginInfo.getStatusAppIds())
+            {
+                pluginInfoProto.add_statusappids(statusAppId);
+            }
+
+            pluginInfoProto.set_pluginname(pluginInfo.getPluginName());
+            pluginInfoProto.set_xmltranslatorpath(pluginInfo.getXmlTranslatorPath());
+            pluginInfoProto.set_executablefullpath(pluginInfo.getExecutableFullPath());
+
+            for(auto & arg : pluginInfo.getExecutableArguments())
+            {
+                pluginInfoProto.add_executablearguments(arg);
+            }
+
+            PluginInfoProto::PluginInfo_EnvironmentVariablesT * environmentVariables = pluginInfoProto.add_environmentvariables();
+
+            for(auto & envVar: pluginInfo.getExecutableEnvironmentVariables())
+            {
+                environmentVariables->set_name(envVar.first);
+                environmentVariables->set_value(envVar.second);
+            }
+
+            return  Common::UtilityImpl::MessageUtility::protoBuf2Json(pluginInfoProto);
+        }
+
         PluginInfo PluginInfo::deserializeFromString(const std::string & settingsString)
         {
+
             using ProtoPluginInfo =  PluginInfoProto::PluginInfo;
             using namespace google::protobuf::util;
             ProtoPluginInfo protoPluginInfo;
 
             auto status = JsonStringToMessage(settingsString, &protoPluginInfo );
+
             if ( !status.ok())
             {
-
                   throw PluginRegistryException(std::string("Failed to load json string: ") + status.ToString());
-
             }
+
             PluginInfo pluginInfo;
-            for ( auto & appid : protoPluginInfo.appids())
+
+            for ( auto & statusAppid : protoPluginInfo.statusappids())
             {
-                pluginInfo.addAppIds(appid);
+                pluginInfo.addStatusAppIds(statusAppid);
+            }
+
+            for ( auto & policyAppid : protoPluginInfo.policyappids())
+            {
+                pluginInfo.addPolicyAppIds(policyAppid);
             }
 
             pluginInfo.setPluginName(protoPluginInfo.pluginname());
@@ -135,8 +180,56 @@ namespace Common
 
         std::vector<PluginInfo> PluginInfo::loadFromDirectoryPath(const std::string & directoryPath)
         {
-            //TODO
-            return std::vector<PluginInfo>();
+            std::vector<std::string> files = FileSystem::fileSystem()->listFiles(directoryPath);
+
+            std::vector<PluginInfo> pluginInfoList;
+
+            for(auto &pluginInfoFile : files)
+            {
+                if(pluginInfoFile.find(".json") != std::string::npos)
+                {
+                    try
+                    {
+                        std::string fileContent = FileSystem::fileSystem()->readFile(pluginInfoFile);
+                        pluginInfoList.push_back(deserializeFromString(fileContent));
+                    }
+                    catch(PluginRegistryException &)
+                    {
+                        continue;
+                    }
+                    catch(Common::FileSystem::IFileSystemException &)
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            if(pluginInfoList.empty())
+            {
+                throw PluginRegistryException("Failed to load any plugin registry information from: " + directoryPath);
+            }
+
+            return pluginInfoList;
+        }
+
+        std::vector<PluginInfo> PluginInfo::loadFromPluginRegistry()
+        {
+            return loadFromDirectoryPath(""); //Fixme get path from path manager class.
+        }
+
+        std::vector<std::string> PluginInfo::getStatusAppIds() const
+        {
+            return m_statusAppIds;
+        }
+
+        void PluginInfo::setStatusAppIds(const std::vector<std::string> &appIDs)
+        {
+            m_statusAppIds = appIDs;
+        }
+
+        void PluginInfo::addStatusAppIds(const std::string &appID)
+        {
+            m_statusAppIds.push_back(appID);
         }
     }
 }

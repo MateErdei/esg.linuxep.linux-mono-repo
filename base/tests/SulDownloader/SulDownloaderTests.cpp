@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/SulDownloader/ConfigurationData.h>
-#include <modules/SulDownloader/MessageUtility.h>
+#include <modules/Common/UtilityImpl/MessageUtility.h>
 
 
 #include "tests/Common/TestHelpers/TempDir.h"
@@ -90,7 +90,7 @@ public:
 
     std::string jsonSettings(const ConfigurationSettings & configSettings)
     {
-        return SulDownloader::MessageUtility::protoBuf2Json( configSettings );
+        return Common::UtilityImpl::MessageUtility::protoBuf2Json( configSettings );
     }
 
     SulDownloader::ConfigurationData configData( const ConfigurationSettings & configSettings)

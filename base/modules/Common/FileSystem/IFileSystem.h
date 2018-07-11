@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <memory>
+#include <vector>
 using Path = std::string;
 
 namespace Common
@@ -18,7 +19,6 @@ namespace Common
         class IFileSystem
         {
         public:
-            virtual ~IFileSystem() = default;
             /**
              * Joins 2 linux paths together
              * @param path1, first part the path
@@ -26,8 +26,6 @@ namespace Common
              * @return string containing the joined path
              */
             virtual Path join(const Path& path1, const Path & path2)const = 0;
-
-            virtual Path join(const Path& path1, const Path & path2, const Path& path3 )const = 0;
 
             /**
              * Gets the last part i.e. file name from the given path
@@ -56,6 +54,13 @@ namespace Common
              * @return true, if file is executable otherwise false
              */
             virtual bool isExecutable(const Path &path) const = 0;
+
+            /**
+             * Checks to see if the given path is a regular file
+             * @param path to check
+             * @return true, if path is a regular file, false otherwise
+             */
+            virtual bool isFile(const Path & path) const = 0;
 
             /**
              * Checks to see if the given path is a directory.
@@ -99,17 +104,17 @@ namespace Common
              */
             virtual void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const =0;
 
-            virtual void makeExecutable(const Path &path) const =0;
 
             /**
-             * Create a directory tree
+             * Provide the fullPath of the files under the directoryPath given.
+             *
+             * @note Only regular files are listed, directories or special file system entries will not be listed.
+             *
+             * @param directoryPath
+             * @return List of the full path of files under the directoryPath.
              */
-             virtual void makedirs(const Path& path) const =0;
+            virtual std::vector<Path> listFiles( const Path & directoryPath ) const = 0;
 
-             /**
-              * Copy one file to another
-              */
-             virtual void copyFile(const Path &src, const Path &dest) const =0;
         };
 
         IFileSystem * fileSystem();

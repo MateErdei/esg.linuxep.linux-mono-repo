@@ -30,8 +30,8 @@ add_library(suldownloaderimpl SHARED
         SULUtils.h
         Logger.cpp
         Logger.h
-        MessageUtility.cpp
-        MessageUtility.h
+        ../Common/UtilityImpl/MessageUtility.cpp
+        ../Common/UtilityImpl/MessageUtility.h
         ${CONFIG_SETTINGS_PROTO_SRC}
         ${CONFIG_SETTINGS_PROTO_H}
         ${DOWNLOADER_REPORT_PROTO_SRC}
@@ -49,7 +49,7 @@ set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
 set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 
-target_link_libraries(suldownloaderimpl PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads)
+target_link_libraries(suldownloaderimpl PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl)
 
 include_directories(BEFORE ${SUL_INPUT}/include)
 

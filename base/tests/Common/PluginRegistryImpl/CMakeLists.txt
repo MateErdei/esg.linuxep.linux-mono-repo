@@ -1,0 +1,8 @@
+include(GoogleTest)
+add_executable(PluginRegistryImplTests TestPluginRegistryImpl.cpp)
+target_include_directories(PluginRegistryImplTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
+target_include_directories(PluginRegistryImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
+target_include_directories(PluginRegistryImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" )
+target_link_libraries(PluginRegistryImplTests gtest gtest_main)
+target_link_libraries(PluginRegistryImplTests pluginregistryimpl ${Protobuf_LIBRARIES})
+gtest_discover_tests(PluginRegistryImplTests)

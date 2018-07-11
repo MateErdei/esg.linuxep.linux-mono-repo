@@ -11,8 +11,9 @@ message PluginInfo
         optional string value = 2;
     }
 
-    repeated string appIds = 1;
-    optional string pluginName = 2;
+    repeated string policyAppIds = 1;
+    repeated string statusAppIds = 2;
+    optional string pluginName = 3;
     optional string xmlTranslatorPath = 4;
     optional string executableFullPath = 5;
     repeated string executableArguments = 6;

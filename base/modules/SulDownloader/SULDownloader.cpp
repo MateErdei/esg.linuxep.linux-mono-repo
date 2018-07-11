@@ -27,7 +27,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "MessageUtility.h"
+#include "Common/UtilityImpl/MessageUtility.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 namespace

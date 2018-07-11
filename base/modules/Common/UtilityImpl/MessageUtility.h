@@ -16,15 +16,16 @@ namespace google
         class Message;
     }
 }
-namespace SulDownloader
+namespace Common
 {
-
-    class MessageUtility
+    namespace UtilityImpl
     {
-    public:
-        static std::string protoBuf2Json( const google::protobuf::Message & message);
-    };
+        class MessageUtility
+        {
+        public:
+            static std::string protoBuf2Json(const google::protobuf::Message &message);
+        };
 
+    }
 }
-
 #endif //EVEREST_BASE_MESSAGEUTILITY_H
