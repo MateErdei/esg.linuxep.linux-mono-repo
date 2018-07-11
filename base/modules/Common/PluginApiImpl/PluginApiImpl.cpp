@@ -12,16 +12,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
-: m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler()
+        : m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler(),
+          m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
 {
     LOGSUPPORT("Plugin initialized: " << pluginName);
     LOGSUPPORT("Uses protocol version :" << Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
 }
 
-void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(
-        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replier)
+void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(const std::string &pluginName,
+                                                             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
+                                                             Common::ZeroMQWrapper::ISocketReplierPtr replier)
 {
-    m_pluginCallbackHandler.reset( new PluginCallBackHandler( std::move(replier), pluginCallback) );
+    m_pluginCallbackHandler.reset(new PluginCallBackHandler(pluginName, std::move(replier), pluginCallback));
     m_pluginCallbackHandler->start();
 }
 
@@ -39,13 +41,14 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
 {
     LOGSUPPORT("Send Event for AppId: " << appId);
 
-    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-    Common::PluginProtocol::DataMessage message = messageBuilder.requestSendEventMessage(eventXml);
-    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
+
+    Common::PluginProtocol::DataMessage replyMessage = getReply(
+            m_messageBuilder.requestSendEventMessage(appId, eventXml)
+    );
 
     LOGSUPPORT("Received Send Event reply from management agent for AppId: " << appId);
 
-    if ( !messageBuilder.hasAck(replyMessage))
+    if (!m_messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'send event'");
         LOGERROR(errorMessage);
@@ -58,13 +61,14 @@ void Common::PluginApiImpl::PluginApiImpl::sendStatus(const std::string &appId, 
 {
     LOGSUPPORT("Change status message for AppId: " << appId);
 
-    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-    Common::PluginProtocol::DataMessage message = messageBuilder.requestSendStatusMessage(statusXml, statusWithoutTimestampsXml);
-    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
+    Common::PluginProtocol::DataMessage replyMessage = getReply(
+            m_messageBuilder.requestSendStatusMessage(appId, statusXml, statusWithoutTimestampsXml)
+    );
+
 
     LOGSUPPORT("Received Change status reply from management agent for AppId: " << appId);
 
-    if ( !messageBuilder.hasAck(replyMessage))
+    if (!m_messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'Change status'");
         LOGERROR(errorMessage);
@@ -76,11 +80,10 @@ void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
 {
     LOGSUPPORT("Registering '" << m_pluginName << "' with management agent");
 
-    Common::PluginProtocol::MessageBuilder messageBuilder(m_pluginName, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-    Common::PluginProtocol::DataMessage message = messageBuilder.requestRegisterMessage();
-
-    Common::PluginProtocol::DataMessage replyMessage = getReply(message);
-    if ( !messageBuilder.hasAck(replyMessage))
+    Common::PluginProtocol::DataMessage replyMessage = getReply(
+            m_messageBuilder.requestRegisterMessage()
+    );
+    if (!m_messageBuilder.hasAck(replyMessage))
     {
         std::string errorMessage("Invalid reply for: 'Registration'");
         LOGERROR(errorMessage);
@@ -94,13 +97,13 @@ std::string Common::PluginApiImpl::PluginApiImpl::getPolicy(const std::string &a
 {
     LOGSUPPORT("Request policy message for AppId: " << appId);
 
-    Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-    Common::PluginProtocol::DataMessage message = messageBuilder.requestCurrentPolicyMessage();
-    Common::PluginProtocol::DataMessage  reply = getReply(message);
+    Common::PluginProtocol::DataMessage reply = getReply(
+            m_messageBuilder.requestCurrentPolicyMessage(appId)
+    );
 
     LOGSUPPORT("Received policy from management agent for AppId: " << appId);
 
-    return messageBuilder.replyExtractCurrentPolicy(reply);
+    return m_messageBuilder.replyExtractCurrentPolicy(reply);
 }
 
 

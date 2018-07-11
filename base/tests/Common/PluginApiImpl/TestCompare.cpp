@@ -30,6 +30,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
                                              << "\n result: " << resulted.ApplicationId;
     }
 
+    if (expected.PluginName != resulted.PluginName)
+    {
+        return ::testing::AssertionFailure() << s.str() << " PluginName differ: \n expected: "
+                                             << expected.PluginName
+                                             << "\n result: " << resulted.PluginName;
+    }
+
     if (expected.MessageId != resulted.MessageId)
     {
         return ::testing::AssertionFailure() << s.str() << " Message Id differ: \n expected: "

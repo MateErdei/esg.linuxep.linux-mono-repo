@@ -17,17 +17,18 @@ namespace PluginCommunicationImpl
 {
 
     PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName) :
-            m_socket(std::move(socketRequester))
+            m_socket(std::move(socketRequester)),
+            m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
     {
         m_appIds.push_back(pluginName);
     }
 
     void PluginProxy::applyNewPolicy(const std::string &appId, const std::string &policyXml)
     {
-        Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginProtocol::DataMessage message = messageBuilder.requestApplyPolicyMessage(policyXml);
-        Common::PluginProtocol::DataMessage replyMessage = getReply(message);
-        if ( !messageBuilder.hasAck(replyMessage))
+        Common::PluginProtocol::DataMessage replyMessage = getReply(
+                m_messageBuilder.requestApplyPolicyMessage(appId, policyXml)
+        );
+        if (!m_messageBuilder.hasAck(replyMessage))
         {
             throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'policy event'");
         }
@@ -35,10 +36,10 @@ namespace PluginCommunicationImpl
 
     void PluginProxy::doAction(const std::string &appId, const std::string &actionXml)
     {
-        Common::PluginProtocol::MessageBuilder messageBuilder(appId, Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginProtocol::DataMessage message = messageBuilder.requestDoActionMessage(actionXml);
-        Common::PluginProtocol::DataMessage replyMessage = getReply(message);
-        if ( !messageBuilder.hasAck(replyMessage))
+        Common::PluginProtocol::DataMessage replyMessage = getReply(
+                m_messageBuilder.requestDoActionMessage(appId, actionXml)
+        );
+        if (!m_messageBuilder.hasAck(replyMessage))
         {
             throw PluginCommunication::IPluginCommunicationException("Invalid reply for: 'action event'");
         }
@@ -49,12 +50,10 @@ namespace PluginCommunicationImpl
         std::vector<Common::PluginApi::StatusInfo> statusList;
         for (auto & appId : m_appIds)
         {
-            Common::PluginProtocol::MessageBuilder messageBuilder(appId,
-                                                                  Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion
+            Common::PluginProtocol::DataMessage reply = getReply(
+                    m_messageBuilder.requestRequestPluginStatusMessage(appId)
             );
-            Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestPluginStatusMessage();
-            Common::PluginProtocol::DataMessage reply = getReply(message);
-            statusList.emplace_back(messageBuilder.requestExtractStatus(reply));
+            statusList.emplace_back(m_messageBuilder.requestExtractStatus(reply));
         }
 
         return statusList;
@@ -62,11 +61,11 @@ namespace PluginCommunicationImpl
 
     std::string PluginProxy::getTelemetry()
     {
-        Common::PluginProtocol::MessageBuilder messageBuilder("Telemetry request", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
-        Common::PluginProtocol::DataMessage message = messageBuilder.requestRequestTelemetryMessage();
-        Common::PluginProtocol::DataMessage reply = getReply(message);
+        Common::PluginProtocol::DataMessage reply = getReply(
+                m_messageBuilder.requestRequestTelemetryMessage()
+        );
 
-        return messageBuilder.replyExtractTelemetry(reply);
+        return m_messageBuilder.replyExtractTelemetry(reply);
     }
 
     void PluginProxy::setAppIds(const std::vector<std::string> &appIds)

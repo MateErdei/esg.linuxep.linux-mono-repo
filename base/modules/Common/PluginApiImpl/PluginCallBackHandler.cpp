@@ -13,10 +13,11 @@ namespace Common
     namespace PluginApiImpl
     {
 
-        PluginCallBackHandler::PluginCallBackHandler(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+        PluginCallBackHandler::PluginCallBackHandler(const std::string &pluginName,
+                                                     std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
                                                      std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback):
-                 AbstractListenerServer(std::move(ireadWrite))
-                , m_messageBuilder("NotUsed", Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion)
+                AbstractListenerServer(std::move(ireadWrite)),
+                m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
                 , m_pluginCallback(pluginCallback)
         {
         }
@@ -39,7 +40,9 @@ namespace Common
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                         {
                             LOGSUPPORT("Received request for current status");
-                            Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus();
+                            Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus(
+                                    request.ApplicationId
+                            );
                             return m_messageBuilder.replyStatus(request, statusInfo);
                         }
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY:

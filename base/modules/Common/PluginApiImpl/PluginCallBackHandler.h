@@ -20,8 +20,9 @@ namespace Common
         class PluginCallBackHandler : public Common::PluginProtocol::AbstractListenerServer
         {
          public:
-            PluginCallBackHandler( std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                                   std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback);
+            PluginCallBackHandler(const std::string &pluginName,
+                                  std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+                                  std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback);
 
 
         private:

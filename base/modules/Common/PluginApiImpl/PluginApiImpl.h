@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginCallBackHandler.h"
 #include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
 #include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
 
 namespace Common
 {
@@ -23,9 +24,11 @@ namespace Common
         public:
 
             PluginApiImpl(const std::string& pluginName, Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester );
-            ~PluginApiImpl();
+            ~PluginApiImpl() override ;
 
-            void setPluginCallback(std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr  );
+        void setPluginCallback(const std::string &pluginName,
+                               std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
+                               Common::ZeroMQWrapper::ISocketReplierPtr);
 
             void sendEvent(const std::string& appId, const std::string& eventXml) const override;
 
@@ -41,7 +44,9 @@ namespace Common
 
             std::string m_pluginName;
             Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
+
             std::unique_ptr<PluginCallBackHandler> m_pluginCallbackHandler;
+        Common::PluginProtocol::MessageBuilder m_messageBuilder;
     };
     }
 }

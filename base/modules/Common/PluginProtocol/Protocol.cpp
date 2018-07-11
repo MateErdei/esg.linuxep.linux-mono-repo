@@ -27,10 +27,10 @@ namespace Common
             return serializer->serialize(dataMessage);
         }
 
-        const Common::PluginProtocol::DataMessage Protocol::deserialize(const data_t & data)
+        const Common::PluginProtocol::DataMessage Protocol::deserialize(const data_t &data) const
         {
             std::string protocolversion;
-            if ( data.size() !=0 )
+            if (!data.empty())
             {
                 protocolversion = data[0];
             }

@@ -9,23 +9,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
+#include "StatusInfo.h"
+
 namespace Common
 {
     namespace PluginApi
     {
-
-        /**
-         * Struct to enable replying to status query from Management Agent.
-         * @see IPluginApi::changeStatus
-         */
-        struct StatusInfo
-        {
-            /// Content of the status that can be sent to the Management Console
-            std::string statusXml;
-            /// Representation of the status that can be used to reliably identify when it has changed.
-            /// @see IPluginApi::changeStatus
-            std::string statusWithoutXml;
-        };
 
         /**
          * The IPluginCallback is the class that developers of Plugins will implement and pass to the IPluginResourceManagement
@@ -78,7 +67,7 @@ namespace Common
              *
              * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
              */
-            virtual StatusInfo getStatus() = 0;
+            virtual PluginApi::StatusInfo getStatus(const std::string &appId) = 0;
 
 
             /**

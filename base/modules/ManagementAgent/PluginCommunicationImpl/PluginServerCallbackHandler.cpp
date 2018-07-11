@@ -36,7 +36,7 @@ namespace PluginCommunicationImpl
                     policyXml = m_serverCallback->receivedGetPolicy(request.ApplicationId);
                     return m_messageBuilder.replyCurrentPolicy(request, policyXml);
                 case Commands::PLUGIN_SEND_REGISTER:
-                    m_serverCallback->receivedRegisterWithManagementAgent(m_messageBuilder.requestExtractPluginName(request));
+                    m_serverCallback->receivedRegisterWithManagementAgent(request.PluginName);
                     return m_messageBuilder.replyAckMessage(request);
                 default:
                     return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");

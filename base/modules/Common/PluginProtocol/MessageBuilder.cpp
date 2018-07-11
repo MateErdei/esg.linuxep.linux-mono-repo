@@ -10,54 +10,57 @@ namespace Common
     namespace PluginProtocol
     {
         using namespace Common::PluginApi;
-        MessageBuilder::MessageBuilder(const std::string &applicationID, const std::string &protocolVersion)
-        : m_applicationID(applicationID)
+
+        MessageBuilder::MessageBuilder(const std::string &protocolVersion, const std::string &pluginName)
+                : m_pluginName(pluginName)
         , m_protocolVersion(protocolVersion)
         {
 
         }
 
-        DataMessage MessageBuilder::requestSendEventMessage(const std::string &eventXml) const
+        DataMessage MessageBuilder::requestSendEventMessage(const std::string &appId, const std::string &eventXml) const
         {
-            return createDefaultDataMessage(Commands::PLUGIN_SEND_EVENT, eventXml);
+            return createDefaultDataMessage(Commands::PLUGIN_SEND_EVENT, appId, eventXml);
         }
 
-        DataMessage MessageBuilder::requestSendStatusMessage(const std::string &statusXml,
+        DataMessage MessageBuilder::requestSendStatusMessage(const std::string &appId, const std::string &statusXml,
                                                              const std::string &statusWithoutTimeStamp) const
         {
-            DataMessage dataMessage = createDefaultDataMessage(Commands::PLUGIN_SEND_STATUS, statusXml);
+            DataMessage dataMessage = createDefaultDataMessage(Commands::PLUGIN_SEND_STATUS, appId, statusXml);
             dataMessage.Payload.push_back(statusWithoutTimeStamp);
             return dataMessage;
         }
 
         DataMessage MessageBuilder::requestRegisterMessage() const
         {
-            return createDefaultDataMessage(Commands::PLUGIN_SEND_REGISTER, std::string());
+            return createDefaultDataMessage(Commands::PLUGIN_SEND_REGISTER, std::string(), std::string());
         }
 
-        DataMessage MessageBuilder::requestCurrentPolicyMessage() const
+        DataMessage MessageBuilder::requestCurrentPolicyMessage(const std::string &appId) const
         {
-            return createDefaultDataMessage(Commands::PLUGIN_QUERY_CURRENT_POLICY, std::string());
+            return createDefaultDataMessage(Commands::PLUGIN_QUERY_CURRENT_POLICY, appId, std::string());
         }
 
-        DataMessage MessageBuilder::requestApplyPolicyMessage(const std::string &policyContent) const
+        DataMessage
+        MessageBuilder::requestApplyPolicyMessage(const std::string &appId, const std::string &policyContent) const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_APPLY_POLICY, policyContent);
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_APPLY_POLICY, appId, policyContent);
         }
 
-        DataMessage MessageBuilder::requestDoActionMessage(const std::string &actionContent) const
+        DataMessage
+        MessageBuilder::requestDoActionMessage(const std::string &appId, const std::string &actionContent) const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_DO_ACTION, actionContent);
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_DO_ACTION, appId, actionContent);
         }
 
-        DataMessage MessageBuilder::requestRequestPluginStatusMessage() const
+        DataMessage MessageBuilder::requestRequestPluginStatusMessage(const std::string &appId) const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_STATUS, std::string());
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_STATUS, appId, std::string());
         }
 
         DataMessage MessageBuilder::requestRequestTelemetryMessage() const
         {
-            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, std::string());
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, std::string(), std::string());
         }
 
         std::string MessageBuilder::requestExtractEvent(const DataMessage & dataMessage) const
@@ -88,7 +91,7 @@ namespace Common
         {
             DataMessage reply(dataMessage);
             reply.Payload.clear();
-            reply.Payload.push_back("ACK");//?
+            reply.Payload.emplace_back("ACK");
             return reply;
         }
 
@@ -146,10 +149,12 @@ namespace Common
         }
 
         DataMessage
-        MessageBuilder::createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string &payload) const
+        MessageBuilder::createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string &appId,
+                                                 const std::string &payload) const
         {
             DataMessage dataMessage;
-            dataMessage.ApplicationId = m_applicationID;
+            dataMessage.ApplicationId = appId;
+            dataMessage.PluginName = m_pluginName;
             dataMessage.Command = command;
             dataMessage.ProtocolVersion = m_protocolVersion;
             if ( !payload.empty())
@@ -161,18 +166,13 @@ namespace Common
 
         bool MessageBuilder::hasAck(const DataMessage &dataMessage) const
         {
-            if(!dataMessage.Payload.empty() && dataMessage.Payload[0] == "ACK")
+            if (!dataMessage.Payload.empty())
             {
-                return true;
+                return dataMessage.Payload[0] == "ACK";
             }
 
             return false;
         }
 
-        std::string MessageBuilder::requestExtractPluginName(const DataMessage & dataMessage) const
-        {
-            assert( dataMessage.Command == PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
-            return dataMessage.ApplicationId;
-        }
     }
 }

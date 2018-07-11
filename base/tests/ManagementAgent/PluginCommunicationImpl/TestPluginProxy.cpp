@@ -22,8 +22,7 @@ public:
                 ));
     }
 
-    ~TestPluginProxy()
-    {}
+    ~TestPluginProxy() = default;
 
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginProxy> m_pluginProxy;
     MockSocketRequester *m_mockSocketRequester;
@@ -36,6 +35,7 @@ public:
         dataMessage.Command = command;
         dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
         dataMessage.ApplicationId = appId;
+        dataMessage.PluginName = appId;
         dataMessage.MessageId = "";
         if (!firstPayloadItem.empty())
         {
@@ -48,7 +48,7 @@ public:
 
 // Reply error cases
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand)
+TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
 {
     auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                                "thisisapolicy"
@@ -61,7 +61,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand)
     EXPECT_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)
+TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)  // NOLINT
 {
     auto getStatusMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, std::string());
     auto serialisedMsg = m_Protocol.serialize(getStatusMsg);
@@ -73,7 +73,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage)
     EXPECT_THROW(m_pluginProxy->getStatus(), ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException)
+TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException)  // NOLINT
 {
     EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(
             Throw(std::exception()));
@@ -83,7 +83,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException)
 
 // Apply Policy
 
-TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)
+TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)  // NOLINT
 {
     auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                                "thisisapolicy"
@@ -97,7 +97,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy)
 }
 
 
-TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck)
+TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck)  // NOLINT
 {
     auto applyPolicyMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
                                             "thisisapolicy"
@@ -112,7 +112,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck)
 
 // Do Action
 
-TEST_F(TestPluginProxy, TestPluginProxyDoAction)
+TEST_F(TestPluginProxy, TestPluginProxyDoAction)  // NOLINT
 {
     auto doActionMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
                                                "thisisanaction"
@@ -126,7 +126,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoAction)
 }
 
 
-TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)
+TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)  // NOLINT
 {
     auto doActionMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
                                             "thisisanaction"
@@ -141,7 +141,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)
 
 // Get Status
 
-TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
+TEST_F(TestPluginProxy, TestPluginProxyGetStatus)  // NOLINT
 {
     auto getStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
                                             ""
@@ -157,15 +157,17 @@ TEST_F(TestPluginProxy, TestPluginProxyGetStatus)
     EXPECT_EQ(reply[0].statusWithoutXml, ackMsg.Payload[1]);
 }
 
-TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)
+TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)  // NOLINT
 {
     auto getAlcStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
                                           "", "ALC"
     );
+    getAlcStatus.PluginName = "plugin_one";
     auto serialisedAlcMsg = m_Protocol.serialize(getAlcStatus);
     auto getMcsStatus = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
                                           "", "MCS"
     );
+    getMcsStatus.PluginName = "plugin_one";
     auto serialisedMcsMsg = m_Protocol.serialize(getMcsStatus);
 
     auto ackAlcMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "alcStatusWithXml", "ALC");
@@ -195,11 +197,12 @@ TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)
 
 // Get Telemetry
 
-TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)
+TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)  // NOLINT
 {
     auto getTelemetry = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY,
-                                          "", "Telemetry request"
+                                             "", ""
     );
+    getTelemetry.PluginName = "plugin_one";
     auto ackMsg = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "Telemetry");
     auto serialisedMsg = m_Protocol.serialize(getTelemetry);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
@@ -211,7 +214,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)
 
 // APP IDS
 
-TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)
+TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)  // NOLINT
 {
     ASSERT_FALSE(m_pluginProxy->hasAppId("ALC"));
     std::vector<std::string> appIds;
@@ -223,7 +226,7 @@ TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)
     ASSERT_FALSE(m_pluginProxy->hasAppId("INVALID"));
 }
 
-TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName)
+TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName)  // NOLINT
 {
     ASSERT_TRUE(m_pluginProxy->hasAppId("plugin_one"));
 }

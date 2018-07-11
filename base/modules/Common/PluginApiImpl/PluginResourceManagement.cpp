@@ -56,7 +56,7 @@ namespace Common
             std::unique_ptr<Common::PluginApiImpl::PluginApiImpl> plugin( new PluginApiImpl(pluginName, std::move(requester)));
 
 
-            plugin->setPluginCallback(pluginCallback, std::move(replier));
+            plugin->setPluginCallback(pluginName, pluginCallback, std::move(replier));
 
             plugin->registerWithManagementAgent();
 

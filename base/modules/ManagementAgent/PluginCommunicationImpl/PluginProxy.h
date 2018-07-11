@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/IReadWrite.h"
 #include "IPluginProxy.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
 
 namespace ManagementAgent
 {
@@ -34,6 +35,7 @@ namespace PluginCommunicationImpl
         Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
         std::vector<std::string> m_appIds;
+        Common::PluginProtocol::MessageBuilder m_messageBuilder;
     };
 
 }

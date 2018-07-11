@@ -29,6 +29,7 @@ namespace Common
         {
             std::string ProtocolVersion;
             std::string ApplicationId;
+            std::string PluginName;
             Commands Command;
             std::string MessageId;
             std::string Error;

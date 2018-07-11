@@ -32,7 +32,7 @@ namespace
         Common::PluginProtocol::Protocol protocol;
         auto request = protocol.deserialize(replier->read());
         assert( request.Command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
-        Common::PluginProtocol::MessageBuilder messageBuilder( "plugin", "v1");
+        Common::PluginProtocol::MessageBuilder messageBuilder("v1", "plugin");
         auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
         replier->write(replyMessage);
     }
@@ -52,6 +52,8 @@ namespace
 
         void SetUp() override
         {
+            defaultPluginName = "plugin";
+            defaultAppId = "pluginApp";
             MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
             MockedApplicationPathManager &mock(*mockAppManager);
             ON_CALL(mock, getManagementAgentSocketAddress()).WillByDefault(Return("inproc://management.ipc"));
@@ -78,7 +80,8 @@ namespace
             Common::PluginProtocol::DataMessage dataMessage;
             dataMessage.Command = command;
             dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
-            dataMessage.ApplicationId = "plugin";
+            dataMessage.ApplicationId = defaultAppId;
+            dataMessage.PluginName = defaultPluginName;
             dataMessage.MessageId = "1";
             if ( !firstPayloadItem.empty())
             {
@@ -99,6 +102,8 @@ namespace
             return *mockPtr;
         }
 
+        std::string defaultAppId;
+        std::string defaultPluginName;
         PluginResourceManagement pluginResourceManagement;
         SingleManagementRequest managementRequest;
 
@@ -108,7 +113,7 @@ namespace
     };
 
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -117,7 +122,7 @@ namespace
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
         expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
 
-        EXPECT_CALL(mock(), getStatus()).WillOnce(Return(statusInfo));
+        EXPECT_CALL(mock(), getStatus(defaultAppId)).WillOnce(Return(statusInfo));
 
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
 
@@ -125,7 +130,7 @@ namespace
     }
 
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatusFail)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatusFail) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -140,7 +145,7 @@ namespace
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -157,7 +162,7 @@ namespace
     }
 
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetryFail)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetryFail) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -172,7 +177,7 @@ namespace
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -188,7 +193,7 @@ namespace
     }
 
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoActionFail)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoActionFail) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -203,7 +208,7 @@ namespace
         EXPECT_EQ(reply.Error, "Protocol not supported");
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
@@ -218,7 +223,7 @@ namespace
         EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedAnswer, reply );
     }
 
-    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyFail)
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicyFail) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);

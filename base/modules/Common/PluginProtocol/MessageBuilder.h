@@ -19,16 +19,22 @@ namespace Common
         class MessageBuilder
         {
         public:
-            MessageBuilder( const std::string& applicationID, const std::string &  protocolVersion);
+            MessageBuilder(const std::string &protocolVersion, const std::string &pluginName);
 
             /** Create the requests as client **/
-            DataMessage requestSendEventMessage( const std::string & eventXml) const;
-            DataMessage requestSendStatusMessage(const std::string & statusXml, const std::string & statusWithoutTimeStamp) const;
+            DataMessage requestSendEventMessage(const std::string &appId, const std::string &eventXml) const;
+
+            DataMessage requestSendStatusMessage(const std::string &appId, const std::string &statusXml,
+                                                 const std::string &statusWithoutTimeStamp) const;
             DataMessage requestRegisterMessage() const;
-            DataMessage requestCurrentPolicyMessage() const;
-            DataMessage requestApplyPolicyMessage(const std::string & policyContent) const;
-            DataMessage requestDoActionMessage( const std::string & actionContent) const;
-            DataMessage requestRequestPluginStatusMessage() const;
+
+            DataMessage requestCurrentPolicyMessage(const std::string &appId) const;
+
+            DataMessage requestApplyPolicyMessage(const std::string &appId, const std::string &policyContent) const;
+
+            DataMessage requestDoActionMessage(const std::string &appId, const std::string &actionContent) const;
+
+            DataMessage requestRequestPluginStatusMessage(const std::string &appId) const;
             DataMessage requestRequestTelemetryMessage() const;
 
 
@@ -37,7 +43,6 @@ namespace Common
             PluginApi::StatusInfo requestExtractStatus( const DataMessage & ) const;
             std::string requestExtractPolicy(const DataMessage & ) const;
             std::string requestExtractAction( const DataMessage & ) const;
-            std::string requestExtractPluginName(const DataMessage &) const;
 
 
             /** Build replies as servers **/
@@ -55,10 +60,11 @@ namespace Common
             bool hasAck(const DataMessage &dataMessage) const;
 
         private:
-            DataMessage createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string& payload) const;
+            DataMessage createDefaultDataMessage(Common::PluginProtocol::Commands command, const std::string &appId,
+                                                 const std::string &payload) const;
 
 
-            std::string m_applicationID;
+            std::string m_pluginName;
             std::string m_protocolVersion;
 
         };

@@ -5,10 +5,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MockPluginServerCallback.h"
-#include "../../Common/PluginApiImpl/MockedApplicationPathManager.h"
+#include "tests/Common/PluginApiImpl/MockedApplicationPathManager.h"
+#include "tests/Common/PluginApiImpl/TestCompare.h"
 #include "Common/PluginApi/ApiException.h"
 
-class TestPluginServerCallbackHandler : public ::testing::Test
+class TestPluginServerCallbackHandler : public TestCompare
 {
 public:
     TestPluginServerCallbackHandler()
@@ -54,56 +55,60 @@ public:
 
         return dataMessage;
     }
+
+    Common::PluginProtocol::DataMessage sendReceive(const Common::PluginProtocol::DataMessage &request) const
+    {
+        auto rawMessage = m_Protocol.serialize(request);
+        m_requester->write(rawMessage);
+        auto rawReply = m_requester->read();
+        return m_Protocol.deserialize(rawReply);
+
+    }
+
 };
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent)
 {
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
-    auto rawMessage = m_Protocol.serialize(eventMessage);
     EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
             Return());
-    m_requester->write(rawMessage);
     Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("ACK"));
-    auto expectedRawReply = m_Protocol.serialize(ackMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    auto replyMessage = sendReceive(eventMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnApiException)
 {
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
-    auto rawMessage = m_Protocol.serialize(eventMessage);
     EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
-    m_requester->write(rawMessage);
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, ""
     );
-    errorMessage.Payload.emplace_back("Dummy Exception");
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    errorMessage.Error = "Dummy Exception";
+
+    auto replyMessage = sendReceive(eventMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
+
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEventReturnsErrorOnStdException)
 {
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
-    auto rawMessage = m_Protocol.serialize(eventMessage);
     auto except = std::exception();
     EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
             Throw(except));
-    m_requester->write(rawMessage);
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, ""
     );
-    errorMessage.Payload.emplace_back(except.what());
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    errorMessage.Error = except.what();
+    auto replyMessage = sendReceive(eventMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
+
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginChangeStatus)
@@ -115,16 +120,15 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
-    auto rawMessage = m_Protocol.serialize(statusMessage);
+
     EXPECT_CALL(*m_mockServerCallback,
                 receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Return());
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, std::string("ACK"));
-    auto expectedRawReply = m_Protocol.serialize(ackMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    auto replyMessage = sendReceive(statusMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeStatusReturnsErrorOnApiException)
@@ -136,18 +140,17 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeSta
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
-    auto rawMessage = m_Protocol.serialize(statusMessage);
+
     EXPECT_CALL(*m_mockServerCallback,
                 receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
-    m_requester->write(rawMessage);
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, ""
     );
-    errorMessage.Payload.emplace_back("Dummy Exception");
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    errorMessage.Error = "Dummy Exception";
+
+    auto replyMessage = sendReceive(statusMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeStatusReturnsErrorOnStdException)
@@ -159,19 +162,21 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeSta
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
-    auto rawMessage = m_Protocol.serialize(statusMessage);
+
     auto except = std::exception();
     EXPECT_CALL(*m_mockServerCallback,
                 receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Throw(except));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, ""
     );
-    errorMessage.Payload.emplace_back(except.what());
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    errorMessage.Error = except.what();
+
+    auto replyMessage = sendReceive(statusMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
+
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOnPluginQueryPolicy)
@@ -182,12 +187,13 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
     auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
     EXPECT_CALL(*m_mockServerCallback, receivedGetPolicy(queryPolicyMessage.ApplicationId)).WillOnce(
             Return(std::string("policy")));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, std::string("policy"));
-    auto expectedRawReply = m_Protocol.serialize(ackMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    auto replyMessage = sendReceive(queryPolicyMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
+
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnApiException)
@@ -195,17 +201,17 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     Common::PluginProtocol::DataMessage queryPolicyMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
-    auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
+
     EXPECT_CALL(*m_mockServerCallback, receivedGetPolicy(queryPolicyMessage.ApplicationId)).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
-    errorMessage.Payload.emplace_back("Dummy Exception");
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    errorMessage.Error = "Dummy Exception";
+
+    auto replyMessage = sendReceive(queryPolicyMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnStdException)
@@ -213,18 +219,18 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     Common::PluginProtocol::DataMessage queryPolicyMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
-    auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
+
     auto except = std::exception();
     EXPECT_CALL(*m_mockServerCallback, receivedGetPolicy(queryPolicyMessage.ApplicationId)).WillOnce(
             Throw(except));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
-    errorMessage.Payload.emplace_back(except.what());
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    errorMessage.Error = except.what();
+    auto replyMessage = sendReceive(queryPolicyMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginRegistration)
@@ -232,16 +238,16 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     Common::PluginProtocol::DataMessage registerMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
-    auto rawMessage = m_Protocol.serialize(registerMessage);
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.ApplicationId)).WillOnce(
+
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
             Return());
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "ACK"
     );
-    auto expectedRawReply = m_Protocol.serialize(ackMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    auto replyMessage = sendReceive(registerMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnApiException)
@@ -249,17 +255,17 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
     Common::PluginProtocol::DataMessage registerMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
-    auto rawMessage = m_Protocol.serialize(registerMessage);
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.ApplicationId)).WillOnce(
+
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
-    errorMessage.Payload.emplace_back("Dummy Exception");
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    errorMessage.Error = "Dummy Exception";
+    auto replyMessage = sendReceive(registerMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrationReturnsErrorOnStdException)
@@ -267,18 +273,18 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
     Common::PluginProtocol::DataMessage registerMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
-    auto rawMessage = m_Protocol.serialize(registerMessage);
+
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.ApplicationId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
             Throw(except));
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "Error"
+            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
-    errorMessage.Payload.emplace_back(except.what());
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+
+    errorMessage.Error = except.what();
+    auto replyMessage = sendReceive(registerMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnBadCommand)
@@ -287,13 +293,11 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnB
     Common::PluginProtocol::DataMessage badMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, ""
     );
-    auto rawMessage = m_Protocol.serialize(badMessage);
-    m_requester->write(rawMessage);
+
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "Error"
+            Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, ""
     );
-    errorMessage.Payload.emplace_back("Request not supported");
-    auto expectedRawReply = m_Protocol.serialize(errorMessage);
-    auto rawReply = m_requester->read();
-    ASSERT_EQ(expectedRawReply, rawReply);
+    errorMessage.Error = "Request not supported";
+    auto replyMessage = sendReceive(badMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }

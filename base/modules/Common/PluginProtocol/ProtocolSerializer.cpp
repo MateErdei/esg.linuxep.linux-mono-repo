@@ -24,6 +24,7 @@ namespace Common
             data_t data;
             data.push_back(dataMessage.ProtocolVersion);
             data.push_back(dataMessage.ApplicationId);
+            data.push_back(dataMessage.PluginName);
             data.push_back(PluginProtocol::SerializeCommand(dataMessage.Command));
             data.push_back(dataMessage.MessageId);
 
@@ -43,7 +44,7 @@ namespace Common
         const Common::PluginProtocol::DataMessage ProtocolSerializer::deserialize(const data_t &serializedData)
         {
             Common::PluginProtocol::DataMessage message;
-            if ( serializedData.size() < 4 )
+            if (serializedData.size() < 5)
             {
                 message = createDefaultErrorMessage();
                 message.Error = "Bad formed message";
@@ -61,7 +62,8 @@ namespace Common
 
             message.ProtocolVersion = serializedData[0];
             message.ApplicationId = serializedData[1];
-            message.Command = PluginProtocol::DeserializeCommand(serializedData[2]);
+            message.PluginName = serializedData[2];
+            message.Command = PluginProtocol::DeserializeCommand(serializedData[3]);
 
             if(message.Command == PluginProtocol::Commands::UNKNOWN)
             {
@@ -69,26 +71,26 @@ namespace Common
                 LOGERROR("Protocol Serializer error: " << message.Error);
             }
 
-            message.MessageId = serializedData[3];
-            if ( serializedData.size() > 4)
+            message.MessageId = serializedData[4];
+            if (serializedData.size() > 5)
             {
-                if ( serializedData[4] == ProtocolSerializerFactory::ProtocolErrorMark)
+                if (serializedData[5] == ProtocolSerializerFactory::ProtocolErrorMark)
                 {
-                    if ( serializedData.size() == 5)
+                    if (serializedData.size() == 6)
                     {
                         message.Error = "Unknown error reported";
                         LOGERROR("Protocol Serializer error: " << message.Error);
                     }
                     else
                     {
-                        message.Error = serializedData[5];
+                        message.Error = serializedData[6];
                         LOGERROR("Protocol Serializer message error: " << message.Error);
                     }
                     return message;
                 }
                 else
                 {
-                    message.Payload = data_t( serializedData.begin()+4, serializedData.end());
+                    message.Payload = data_t(serializedData.begin() + 5, serializedData.end());
                 }
             }
             return message;

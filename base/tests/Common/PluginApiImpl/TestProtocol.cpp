@@ -32,8 +32,9 @@ public:
 
         message.ProtocolVersion = "v1";
         message.ApplicationId = "1";
+        message.PluginName = "p2";
         message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
-        message.MessageId = "1";
+        message.MessageId = "m1";
         message.Payload = {"Hello"};
 
         return message;
@@ -46,7 +47,7 @@ public:
 
 };
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataString)
+TEST_F(TestProtocol, Serialise_ReturnsValidDataString)  // NOLINT
 {
     Protocol protocol;
 
@@ -56,13 +57,14 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataString)
 
     EXPECT_EQ(serializedData[0], message.ProtocolVersion);
     EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[2], toString(message.Command));
-    EXPECT_EQ(serializedData[3], message.MessageId);
-    EXPECT_EQ(serializedData[4], message.Payload[0]);
+    EXPECT_EQ(serializedData[2], message.PluginName);
+    EXPECT_EQ(serializedData[3], toString(message.Command));
+    EXPECT_EQ(serializedData[4], message.MessageId);
+    EXPECT_EQ(serializedData[5], message.Payload[0]);
 
 }
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)
+TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
 {
     Protocol protocol;
 
@@ -74,13 +76,13 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)
 
     EXPECT_EQ(serializedData[0], message.ProtocolVersion);
     EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[2], toString(message.Command));
-    EXPECT_EQ(serializedData[3], message.MessageId);
-    EXPECT_EQ(serializedData[4], "Error");
-    EXPECT_EQ(serializedData[5], error);
+    EXPECT_EQ(serializedData[3], toString(message.Command));
+    EXPECT_EQ(serializedData[4], message.MessageId);
+    EXPECT_EQ(serializedData[5], "Error");
+    EXPECT_EQ(serializedData[6], error);
 }
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)
+TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
 {
     Protocol protocol;
 
@@ -94,66 +96,69 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultiple
 
     EXPECT_EQ(serializedData[0], message.ProtocolVersion);
     EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[2], toString(message.Command));
-    EXPECT_EQ(serializedData[3], message.MessageId);
+    EXPECT_EQ(serializedData[3], toString(message.Command));
+    EXPECT_EQ(serializedData[4], message.MessageId);
 
     // copy Payload into another vector to make it easy to compare.
-    data_t payload(serializedData.begin()+4, serializedData.end());
+    data_t payload(serializedData.begin() + 5, serializedData.end());
 
     EXPECT_THAT(payload, message.Payload);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)
+TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "SendEvent", "1", "Hello"};
+    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Hello"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
     EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(toString(message.Command), expectedData[2]);
-    EXPECT_EQ(message.MessageId, expectedData[3]);
-    EXPECT_EQ(message.Payload[0], expectedData[4]);
+    EXPECT_EQ(message.PluginName, expectedData[2]);
+    EXPECT_EQ(toString(message.Command), expectedData[3]);
+    EXPECT_EQ(message.MessageId, expectedData[4]);
+    EXPECT_EQ(message.Payload[0], expectedData[5]);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadIsAnError)
+TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "SendEvent", "1", "Error", "Some error"};
+    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Error", "Some error"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
     EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(toString(message.Command), expectedData[2]);
-    EXPECT_EQ(message.MessageId, expectedData[3]);
-    EXPECT_EQ("Error", expectedData[4]);
-    EXPECT_EQ(message.Error, expectedData[5]);
+    EXPECT_EQ(message.PluginName, expectedData[2]);
+    EXPECT_EQ(toString(message.Command), expectedData[3]);
+    EXPECT_EQ(message.MessageId, expectedData[4]);
+    EXPECT_EQ("Error", expectedData[5]);
+    EXPECT_EQ(message.Error, expectedData[6]);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)
+TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
+    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
     EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(toString(message.Command), expectedData[2]);
-    EXPECT_EQ(message.MessageId, expectedData[3]);
+    EXPECT_EQ(message.PluginName, expectedData[2]);
+    EXPECT_EQ(toString(message.Command), expectedData[3]);
+    EXPECT_EQ(message.MessageId, expectedData[4]);
 
     // copy Payload into another vector to make it easy to compare.
-    data_t payload(expectedData.begin()+4, expectedData.end());
+    data_t payload(expectedData.begin() + 5, expectedData.end());
 
     EXPECT_THAT(payload, message.Payload);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)
+TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)  // NOLINT
 {
     Protocol protocol;
 
@@ -169,23 +174,24 @@ TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)
 }
 
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoPayloadProvided)
+TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoPayloadProvided)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "app1", "Test", "1"};
+    data_t expectedData = {"v1", "app1", "plugin", "Test", "mid1"};
 
     DataMessage message = protocol.deserialize(expectedData);
 
     EXPECT_EQ(message.ProtocolVersion, "v1");
     EXPECT_EQ(message.ApplicationId, "app1");
+    EXPECT_EQ(message.PluginName, "plugin");
     EXPECT_EQ(toString(message.Command), "InvalidCommand");
-    EXPECT_EQ(message.MessageId, "1");
+    EXPECT_EQ(message.MessageId, "mid1");
     EXPECT_THAT(message.Payload.size(), 0);
     EXPECT_EQ(message.Error, "Invalid request");
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProvided)
+TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProvided)  // NOLINT
 {
     Protocol protocol;
 

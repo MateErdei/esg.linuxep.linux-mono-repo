@@ -20,12 +20,12 @@ namespace Common
         class Protocol
         {
         public:
-            Protocol(
+            explicit Protocol(
                     std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> protocolFactory =
                             std::unique_ptr<Common::PluginProtocol::ProtocolSerializerFactory>(new Common::PluginProtocol::ProtocolSerializerFactory()));
             const data_t serialize(const Common::PluginProtocol::DataMessage &data)const;
 
-            const Common::PluginProtocol::DataMessage deserialize(const data_t &serializedData);
+            const Common::PluginProtocol::DataMessage deserialize(const data_t &serializedData) const;
         private:
             std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> m_protocolFactory;
         };
