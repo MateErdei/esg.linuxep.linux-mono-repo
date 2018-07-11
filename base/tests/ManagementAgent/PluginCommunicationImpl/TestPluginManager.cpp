@@ -76,7 +76,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForPolicy)  //
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicynotsent"), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->setAppIds(plugin_one_name, appIds);
+        m_pluginManagerPtr->setAppIds(plugin_one_name, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicysent"), 1);
     });
     applyPolicy.join();
@@ -120,7 +120,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)  //
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent"), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->setAppIds(plugin_one_name, appIds);
+        m_pluginManagerPtr->setAppIds(plugin_one_name, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent"), 1);
     });
     applyAction.join();

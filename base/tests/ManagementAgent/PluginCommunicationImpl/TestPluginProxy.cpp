@@ -179,7 +179,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)  // NOLINT
     std::vector<std::string> appIds;
     appIds.emplace_back("ALC");
     appIds.emplace_back("MCS");
-    m_pluginProxy->setAppIds(appIds);
+    m_pluginProxy->setStatusAppIds(appIds);
 
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedAlcMsg)).WillOnce(
             Return());
@@ -215,19 +215,36 @@ TEST_F(TestPluginProxy, TestPluginProxyGetTelemetry)  // NOLINT
 
 // APP IDS
 
-TEST_F(TestPluginProxy, TestPluginProxyHasAppIds)  // NOLINT
+TEST_F(TestPluginProxy, TestPluginProxyHasPolicyAppIds)  // NOLINT
 {
-    ASSERT_FALSE(m_pluginProxy->hasAppId("ALC"));
+    ASSERT_FALSE(m_pluginProxy->hasPolicyAppId("ALC"));
     std::vector<std::string> appIds;
     appIds.emplace_back("ALC");
     appIds.emplace_back("MCS");
-    m_pluginProxy->setAppIds(appIds);
-    ASSERT_TRUE(m_pluginProxy->hasAppId("ALC"));
-    ASSERT_TRUE(m_pluginProxy->hasAppId("MCS"));
-    ASSERT_FALSE(m_pluginProxy->hasAppId("INVALID"));
+    appIds.emplace_back("ALC"); // repeat entries has no effect
+    m_pluginProxy->setPolicyAndActionsAppIds(appIds);
+    ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("ALC"));
+    ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("MCS"));
+    ASSERT_FALSE(m_pluginProxy->hasPolicyAppId("INVALID"));
+    ASSERT_TRUE(m_pluginProxy->hasActionAppId("ALC"));
+    ASSERT_TRUE(m_pluginProxy->hasActionAppId("MCS"));
+    ASSERT_FALSE(m_pluginProxy->hasActionAppId("INVALID"));
 }
 
 TEST_F(TestPluginProxy, TestDefaultPluginProxyAppIdIsPluginName)  // NOLINT
 {
-    ASSERT_TRUE(m_pluginProxy->hasAppId("plugin_one"));
+    ASSERT_TRUE(m_pluginProxy->hasPolicyAppId("plugin_one"));
+}
+
+TEST_F(TestPluginProxy, TestPluginProxyHasStatusAppIds)  // NOLINT
+{
+    ASSERT_FALSE(m_pluginProxy->hasStatusAppId("ALC"));
+    std::vector<std::string> appIds;
+    appIds.emplace_back("ALC");
+    appIds.emplace_back("MCS");
+    appIds.emplace_back("ALC"); // repeat entries has no effect
+    m_pluginProxy->setStatusAppIds(appIds);
+    ASSERT_TRUE(m_pluginProxy->hasStatusAppId("ALC"));
+    ASSERT_TRUE(m_pluginProxy->hasStatusAppId("MCS"));
+    ASSERT_FALSE(m_pluginProxy->hasStatusAppId("INVALID"));
 }

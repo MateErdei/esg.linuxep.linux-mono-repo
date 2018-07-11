@@ -54,14 +54,18 @@ namespace PluginCommunication
          *
          * @param appIds
          */
-        virtual void setAppIds(const std::vector<std::string> &appIds) = 0;
+        virtual void setPolicyAndActionsAppIds(const std::vector<std::string> &appIds) = 0;
+
+        virtual void setStatusAppIds(const std::vector<std::string> &appIds) = 0;
 
         /**
          *
          * @param appId
          * @return true if the plugin is interested in the appId given
          */
-        virtual bool hasAppId(const std::string &appId) = 0;
+        virtual bool hasPolicyAppId(const std::string &appId) = 0;
+        virtual bool hasActionAppId(const std::string &appId) = 0;
+        virtual bool hasStatusAppId(const std::string &appId) = 0;
     };
 
 

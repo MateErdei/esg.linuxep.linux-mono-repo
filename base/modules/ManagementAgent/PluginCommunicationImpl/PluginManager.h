@@ -38,7 +38,7 @@ namespace ManagementAgent
             int queueAction(const std::string &appId, const std::string &actionXml) override;
             std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
-            void setAppIds(const std::string &pluginName, const std::vector<std::string> &appIds) override;
+            void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;
             void registerPlugin(const std::string &pluginName) override;
             void removePlugin(const std::string &pluginName) override;
 
@@ -51,7 +51,7 @@ namespace ManagementAgent
 
         private:
 
-            std::unique_ptr<PluginCommunication::IPluginProxy>& getPlugin(const std::string &pluginName);
+            PluginCommunication::IPluginProxy* getPlugin(const std::string &pluginName);
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup &socket);
 

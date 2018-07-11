@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IPluginProxy.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
+#include "AppIdCollection.h"
 
 namespace ManagementAgent
 {
@@ -27,15 +28,26 @@ namespace PluginCommunicationImpl
         void queueAction(const std::string &appId, const std::string &actionXml) override;
         std::vector<Common::PluginApi::StatusInfo> getStatus() override;
         std::string getTelemetry() override;
-        void setAppIds(const std::vector<std::string> &appIds) override;
-        bool hasAppId(const std::string &appId) override;
+
+        void setPolicyAndActionsAppIds(const std::vector<std::string> &appIds) override ;
+
+        void setStatusAppIds(const std::vector<std::string> &appIds) override ;
+
+        /**
+         *
+         * @param appId
+         * @return true if the plugin is interested in the appId given
+         */
+        bool hasPolicyAppId(const std::string &appId) override ;
+        bool hasActionAppId(const std::string &appId) override ;
+        bool hasStatusAppId(const std::string &appId) override ;
 
     private:
 
         Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
-        std::vector<std::string> m_appIds;
         Common::PluginProtocol::MessageBuilder m_messageBuilder;
+        AppIdCollection m_appIdCollection;
     };
 
 }

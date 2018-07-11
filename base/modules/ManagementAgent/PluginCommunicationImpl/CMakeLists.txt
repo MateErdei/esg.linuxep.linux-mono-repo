@@ -12,7 +12,7 @@ add_library(plugincommunicationimpl SHARED
         PluginProxy.h
         PluginServerCallback.cpp
         PluginServerCallback.h
-        ../../Common/PluginApi/StatusInfo.h Logger.h)
+        ../../Common/PluginApi/StatusInfo.h Logger.h AppIdCollection.cpp AppIdCollection.h)
 target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)

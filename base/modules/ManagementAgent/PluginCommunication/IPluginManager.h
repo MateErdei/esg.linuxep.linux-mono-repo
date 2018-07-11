@@ -69,7 +69,7 @@ namespace PluginCommunication
          * @param pluginName
          * @param appIds
          */
-        virtual void setAppIds(const std::string& pluginName, const std::vector<std::string> &appIds) = 0;
+        virtual void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) =0;
 
         /**
          * Register a new plugin.

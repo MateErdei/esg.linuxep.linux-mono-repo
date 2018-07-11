@@ -69,7 +69,7 @@ namespace PluginCommunicationImpl
         int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
         {
-            if (proxy.second->hasAppId(appId))
+            if (proxy.second->hasPolicyAppId(appId))
             {
                 try
                 {
@@ -89,7 +89,7 @@ namespace PluginCommunicationImpl
         int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
         {
-            if (proxy.second->hasAppId(appId))
+            if (proxy.second->hasActionAppId(appId))
             {
                 try
                 {
@@ -114,9 +114,11 @@ namespace PluginCommunicationImpl
         return getPlugin(pluginName)->getTelemetry();
     }
 
-    void PluginManager::setAppIds(const std::string &pluginName, const std::vector<std::string> &appIds)
+    void PluginManager::setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds)
     {
-        getPlugin(pluginName)->setAppIds(appIds);
+        auto plugin = getPlugin(pluginName);
+        plugin->setPolicyAndActionsAppIds(policyAppIds);
+        plugin->setStatusAppIds(statusAppIds);
     }
 
     void PluginManager::registerPlugin(const std::string &pluginName)
@@ -130,18 +132,19 @@ namespace PluginCommunicationImpl
         m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
     }
 
-    std::unique_ptr<PluginCommunication::IPluginProxy>& PluginManager::getPlugin(const std::string &pluginName)
+    PluginCommunication::IPluginProxy* PluginManager::getPlugin(const std::string &pluginName)
     {
-        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
-        if (m_RegisteredPlugins.find(pluginName) != m_RegisteredPlugins.end())
+        auto found =m_RegisteredPlugins.find(pluginName);
+        if ( found != m_RegisteredPlugins.end())
         {
-            return (m_RegisteredPlugins[pluginName]);
+            return found->second.get();
         }
         throw PluginCommunication::IPluginCommunicationException("Tried to access non-registered plugin");
     }
 
     void PluginManager::removePlugin(const std::string &pluginName)
     {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         m_RegisteredPlugins.erase(pluginName);
     }
 

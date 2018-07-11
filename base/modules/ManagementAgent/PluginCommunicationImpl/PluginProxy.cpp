@@ -20,7 +20,8 @@ namespace PluginCommunicationImpl
             m_socket(std::move(socketRequester)),
             m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
     {
-        m_appIds.push_back(pluginName);
+        m_appIdCollection.setAppIdsForStatus({pluginName});
+        m_appIdCollection.setAppIdsForPolicyAndActions({pluginName});
     }
 
     void PluginProxy::applyNewPolicy(const std::string &appId, const std::string &policyXml)
@@ -48,7 +49,7 @@ namespace PluginCommunicationImpl
     std::vector<Common::PluginApi::StatusInfo> PluginProxy::getStatus()
     {
         std::vector<Common::PluginApi::StatusInfo> statusList;
-        for (auto & appId : m_appIds)
+        for (auto & appId : m_appIdCollection.statusAppIds())
         {
             Common::PluginProtocol::DataMessage reply = getReply(
                     m_messageBuilder.requestRequestPluginStatusMessage(appId)
@@ -68,15 +69,7 @@ namespace PluginCommunicationImpl
         return m_messageBuilder.replyExtractTelemetry(reply);
     }
 
-    void PluginProxy::setAppIds(const std::vector<std::string> &appIds)
-    {
-        m_appIds = appIds;
-    }
 
-    bool PluginProxy::hasAppId(const std::string &appId)
-    {
-        return (std::find(m_appIds.begin(), m_appIds.end(), appId) != m_appIds.end());
-    }
 
     Common::PluginProtocol::DataMessage PluginProxy::getReply(const Common::PluginProtocol::DataMessage &request) const
     {
@@ -106,6 +99,32 @@ namespace PluginCommunicationImpl
 
         return reply;
 
+    }
+
+    void PluginProxy::setPolicyAndActionsAppIds(const std::vector<std::string> &appIds)
+    {
+        m_appIdCollection.setAppIdsForPolicyAndActions(appIds);
+    }
+
+    void PluginProxy::setStatusAppIds(const std::vector<std::string> &appIds)
+    {
+        m_appIdCollection.setAppIdsForStatus(appIds);
+
+    }
+
+    bool PluginProxy::hasPolicyAppId(const std::string &appId)
+    {
+        return m_appIdCollection.usePolicyId(appId);
+    }
+
+    bool PluginProxy::hasActionAppId(const std::string &appId)
+    {
+        return m_appIdCollection.implementActionId(appId);
+    }
+
+    bool PluginProxy::hasStatusAppId(const std::string &appId)
+    {
+        return m_appIdCollection.implementStatus(appId);
     }
 }
 }
