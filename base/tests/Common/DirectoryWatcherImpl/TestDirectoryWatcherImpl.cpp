@@ -132,8 +132,8 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     m_DirectoryWatcher->startWatch();
     std::string listener1PathString =  m_Listener1.getPath();
     std::string listener2PathString =  m_Listener2.getPath();
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener1PathString.c_str()), _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, StrEq(listener2PathString.c_str()), _)).WillOnce(Return(2));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, Eq(listener1PathString), _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, Eq(listener2PathString), _)).WillOnce(Return(2));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
