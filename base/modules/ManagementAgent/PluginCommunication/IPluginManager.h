@@ -32,16 +32,20 @@ namespace PluginCommunication
          *
          * @param appId
          * @param policyXml
+         * @return Number of plugins that were given the new policy
+         * @note In case of errors in delivering the policy a message will be logged but no exception is thrown.
          */
-        virtual void applyNewPolicy(const std::string &appId, const std::string &policyXml) = 0;
+        virtual int applyNewPolicy(const std::string &appId, const std::string &policyXml) = 0;
 
         /**
          * Send actions to all plugins which are interested in appID
          *
          * @param appId
          * @param actionXml
+         * @return Number of plugins that received the action.
+         * @note In case of error
          */
-        virtual void queueAction(const std::string &appId, const std::string &actionXml) = 0;
+        virtual int queueAction(const std::string &appId, const std::string &actionXml) = 0;
 
         /**
          * Request that the plugin should send its status

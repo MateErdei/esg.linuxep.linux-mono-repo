@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <thread>
+
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 #include "ApplicationConfiguration/IApplicationPathManager.h"
@@ -12,6 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginManager.h"
 #include "PluginProxy.h"
 #include "PluginServerCallback.h"
+#include "Logger.h"
+#include <thread>
 
 namespace ManagementAgent
 {
@@ -61,28 +63,45 @@ namespace PluginCommunicationImpl
     }
 
 
-    void PluginManager::applyNewPolicy(const std::string &appId, const std::string &policyXml)
+    int PluginManager::applyNewPolicy(const std::string &appId, const std::string &policyXml)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+        int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
         {
             if (proxy.second->hasAppId(appId))
             {
-                proxy.second->applyNewPolicy(appId, policyXml);
+                try
+                {
+                    proxy.second->applyNewPolicy(appId, policyXml);
+                    ++pluginsNotified;
+                }catch ( std::exception & ex)
+                {
+                    LOGERROR("Failure on sending policy to " << proxy.first << ". Reason: " << ex.what());
+                }
             }
         }
+        return pluginsNotified;
     }
 
-    void PluginManager::queueAction(const std::string &appId, const std::string &actionXml)
+    int PluginManager::queueAction(const std::string &appId, const std::string &actionXml)
     {
-        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+        int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
         {
             if (proxy.second->hasAppId(appId))
             {
-                proxy.second->queueAction(appId, actionXml);
+                try
+                {
+                    proxy.second->queueAction(appId, actionXml);
+                    ++pluginsNotified;
+                }catch ( std::exception & ex)
+                {
+                    LOGERROR("Failure on sending action to " << proxy.first << ". Reason: " << ex.what());
+                }
             }
         }
+        return pluginsNotified;
     }
 
     std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string & pluginName)
