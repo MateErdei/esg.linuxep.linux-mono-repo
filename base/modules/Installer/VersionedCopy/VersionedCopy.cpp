@@ -17,6 +17,7 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sstream>
 
 static Common::FileSystem::IFileSystemPtr GL_filesystem;
 
@@ -57,17 +58,40 @@ static void makedirs(const Path& origpath)
 
 static Path findAppropriateExtensionName(const Path& base)
 {
-    // TODO: Actually look at what exists
     // if fullInstallFilename exists, read symlink+1
     // otherwise fullInstallFilename.0
-    return base+".0";
+    int i = 0;
+    while (true)
+    {
+        std::ostringstream ost;
+        ost << base << "." << i;
+        Path target = ost.str();
+        if (! GL_filesystem->exists(target))
+        {
+            return target;
+        }
+        i++;
+    }
 }
 
-static void deleteOldFiles(std::string filename, Path newFile)
+static void deleteOldFiles(const Path& filename, const Path& newFile)
 {
-    // TODO: Attempt to delete all filename extensions less than newFile
-    static_cast<void>(filename);
-    static_cast<void>(newFile);
+    int i = 0;
+    while (true)
+    {
+        std::ostringstream ost;
+        ost << filename << "." << i;
+        Path target = ost.str();
+        if (target == newFile)
+        {
+            return;
+        }
+        if (GL_filesystem->exists(target))
+        {
+            unlink(target.c_str());
+        }
+        i++;
+    }
 }
 
 static void copyFile(const Path& src, const Path& dest)
@@ -78,10 +102,20 @@ static void copyFile(const Path& src, const Path& dest)
     ofs << ifs.rdbuf();
 }
 
-static void createLibrarySymlinks(std::string fullInstallFilename)
+static void createLibrarySymlinks(const Path& fullInstallFilename)
 {
     // TODO: Create library symlinks
     static_cast<void>(fullInstallFilename);
+}
+
+static void createSymbolicLink(const Path& target, const Path& destination)
+{
+    Path tempDest = destination+".tmp";
+    int ret = symlink(target.c_str(),tempDest.c_str());
+    if (ret == 0)
+    {
+        rename(tempDest.c_str(), destination.c_str());
+    }
 }
 
 int Installer::VersionedCopy::VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const Path& INST)
@@ -103,7 +137,7 @@ int Installer::VersionedCopy::VersionedCopy::versionedCopy(const Path& filename,
     copyFile(filename, extensionName); // TODO: Permissions and ownership
 
     // Change/create symlink
-    symlink(extensionBase.c_str(),fullInstallFilename.c_str());
+    createSymbolicLink(extensionBase,fullInstallFilename);
 
     // Delete old files (ignore failure)
     deleteOldFiles(fullInstallFilename, extensionName);
@@ -130,11 +164,7 @@ int Installer::VersionedCopy::VersionedCopy::versionedCopyMain(int argc, char **
     assert(argc>=1);
     for(int i=0; i<argc; i++)
     {
-#if 03 == CPPSTD
-        argvv.push_back(std::string(argv[i]));
-#else
         argvv.emplace_back(argv[i]);
-#endif
     }
 
     return versionedCopyVector(argvv);

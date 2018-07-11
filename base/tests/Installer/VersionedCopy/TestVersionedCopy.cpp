@@ -56,7 +56,7 @@ namespace
         EXPECT_EQ(contents,"FirstInstall");
     }
 
-    TEST_F(TestVersionedCopy, DISABLED_Upgrade) //NOLINT
+    TEST_F(TestVersionedCopy, Upgrade) //NOLINT
     {
 
         const Path dist="distribution";
