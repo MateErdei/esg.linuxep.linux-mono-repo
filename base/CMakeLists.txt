@@ -20,15 +20,22 @@ if(NOT DEFINED INPUT)
     set( INPUT ${BINARIES_DIR}/linux11/input )
 endif()
 
-set( SUL_INPUT ${INPUT}/SUL )
+## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
-set( ZEROMQ_INPUT ${INPUT}/zeromq )
+set( EXPAT_INPUT ${INPUT}/expat )
+
+## Allow this to be redirected for SUL development
+if(NOT DEFINED SUL_INPUT)
+    set( SUL_INPUT ${INPUT}/SUL )
+endif()
+
 set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
 set( SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64)
 
-set(Protobuf_root ${INPUT}/protobuf/install64)
+set( PROTOBUF_INPUT ${INPUT}/protobuf )
+set(Protobuf_root ${PROTOBUF_INPUT}/install64)
 set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
 set(PROTOBUF_PROTOC_EXECUTABLE ${Protobuf_root}/bin/protoc)
 set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/lib/libprotobuf.so )
@@ -41,6 +48,7 @@ INCLUDE(FindProtobuf)
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
 
+set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use pkg-config to get hints for 0mq locations
 #pkg_check_modules(PC_ZeroMQ QUIET zmq)
 
@@ -56,6 +64,7 @@ find_library(ZeroMQ_LIBRARY
         NAMES zmq
         PATHS ${ZEROMQ_INPUT}/lib
         )
+
 
 include_directories(modules)
 

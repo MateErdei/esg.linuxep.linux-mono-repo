@@ -113,6 +113,17 @@ function build()
             ln -snf $ALLEGRO_REDIST/boost $REDIST/boost
         fi
 
+        local EXPAT_TAR=$INPUT/expat.tar
+        if [[ -f "$EXPAT_TAR" ]]
+        then
+            tar xf "$EXPAT_TAR" -C "$REDIST"
+        elif [[ -d $ALLEGRO_REDIST ]]
+        then
+            ln -snf $ALLEGRO_REDIST/expat $REDIST/expat
+        else
+            exitFailure 13 "Failed to find expat"
+        fi
+
         ## Google protobuf
         local PROTOBUF_TAR=$INPUT/protobuf.tar
         if [[ -f "$PROTOBUF_TAR" ]]
