@@ -20,9 +20,10 @@ namespace ManagementAgent
 namespace PluginCommunicationImpl
 {
     PluginManager::PluginManager() :
-            m_context(Common::ZeroMQWrapper::createContext()), m_serverCallbackHandler(), m_defaultTimeout(-1), m_defaultConnectTimeout(-1)
+            m_context(Common::ZeroMQWrapper::createContext()), m_serverCallbackHandler(), m_defaultTimeout(5000), m_defaultConnectTimeout(5000)
     {
         auto replier = m_context->getReplier();
+        setTimeouts(*replier);
         std::string managementSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
         replier->listen(managementSocketAdd);
         std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
