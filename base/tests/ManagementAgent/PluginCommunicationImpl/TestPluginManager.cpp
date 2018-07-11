@@ -1,15 +1,16 @@
 
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <thread>
+#include "ManagementAgent/PluginCommunicationImpl/PluginManager.h"
+#include "ManagementAgent/PluginCommunicationImpl/PluginProxy.h"
+#include "ManagementAgent/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "../../Common/PluginApiImpl/MockedApplicationPathManager.h"
 #include "../../Common/PluginApiImpl/MockedPluginApiCallback.h"
 
+#include <thread>
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 
 class TestPluginManager : public ::testing::Test
@@ -31,7 +32,7 @@ public:
                 Return("inproc:///tmp/plugin_one"));
         ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(plugin_two_name)).WillByDefault(
                 Return("inproc:///tmp/plugin_two"));
-        m_mockedPluginApiCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
+        m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
         m_mgmtCommon = std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement>(
                 new Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext()));
         m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
