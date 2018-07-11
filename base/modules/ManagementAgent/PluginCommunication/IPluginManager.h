@@ -48,9 +48,8 @@ namespace PluginCommunication
         virtual int queueAction(const std::string &appId, const std::string &actionXml) = 0;
 
         /**
-         * Request that the plugin should send its status
+         * Query the plugin for the status of each appId that the plugin named pluginName support.
          *
-         * @param pluginName
          * @return Status XML
          */
         virtual std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string &pluginName) = 0;

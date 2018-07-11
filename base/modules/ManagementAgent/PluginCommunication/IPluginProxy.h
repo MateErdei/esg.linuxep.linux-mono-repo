@@ -36,7 +36,8 @@ namespace PluginCommunication
         virtual void queueAction(const std::string &appId, const std::string &actionXml) = 0;
 
         /**
-         * Query the plugin for its status
+         * Query the plugin for the status of each appId that the plugin support.
+         * @see setStatusAppIds
          *
          * @return Status XML
          */
@@ -50,21 +51,36 @@ namespace PluginCommunication
         virtual std::string getTelemetry() = 0;
 
         /**
-         * Change the app IDs that the plugin is interested in.
+         * Change the app IDs that the plugin is interested in for policy and actions
          *
          * @param appIds
          */
         virtual void setPolicyAndActionsAppIds(const std::vector<std::string> &appIds) = 0;
 
+        /**
+         * Set the app IDs that the plugin claims to be able to provide status for.
+         *
+         * @param appIds
+         */
         virtual void setStatusAppIds(const std::vector<std::string> &appIds) = 0;
 
         /**
          *
          * @param appId
-         * @return true if the plugin is interested in the appId given
+         * @return true if the plugin is interested in the appId given for policy
          */
         virtual bool hasPolicyAppId(const std::string &appId) = 0;
+        /**
+         *
+         * @param appId
+         * @return true if the plugin is interested in the appId given for action
+         */
         virtual bool hasActionAppId(const std::string &appId) = 0;
+        /**
+         *
+         * @param appId
+         * @return true if the plugin is interested in the appId given for status
+         */
         virtual bool hasStatusAppId(const std::string &appId) = 0;
     };
 
