@@ -24,7 +24,7 @@ namespace PluginCommunicationImpl
     public:
         PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName);
         void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
-        void doAction(const std::string &appId, const std::string &actionXml) override;
+        void queueAction(const std::string &appId, const std::string &actionXml) override;
         std::vector<Common::PluginApi::StatusInfo> getStatus() override;
         std::string getTelemetry() override;
         void setAppIds(const std::vector<std::string> &appIds) override;

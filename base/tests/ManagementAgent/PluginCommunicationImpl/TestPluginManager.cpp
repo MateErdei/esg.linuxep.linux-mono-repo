@@ -103,7 +103,7 @@ TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)  // NOLINT
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi = mgmtCommon.createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
-        m_pluginManagerPtr->doAction(plugin_one_name, "testaction");
+        m_pluginManagerPtr->queueAction(plugin_one_name, "testaction");
     });
     applyAction.join();
 }
@@ -114,7 +114,7 @@ TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId)  
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi = mgmtCommon.createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
-        m_pluginManagerPtr->doAction("wrongappid", "testaction");
+        m_pluginManagerPtr->queueAction("wrongappid", "testaction");
     });
     applyAction.join();
 }
@@ -126,11 +126,11 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)  //
     std::thread applyAction([&]() {
         Common::PluginApiImpl::PluginResourceManagement mgmtCommon = Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext());
         m_pluginApi = mgmtCommon.createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
-        m_pluginManagerPtr->doAction("wrongappid", "testactionnotsent");
+        m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent");
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
         m_pluginManagerPtr->setAppIds(plugin_one_name, appIds);
-        m_pluginManagerPtr->doAction("wrongappid", "testactionsent");
+        m_pluginManagerPtr->queueAction("wrongappid", "testactionsent");
     });
     applyAction.join();
 }
@@ -143,8 +143,8 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins)  // NOLINT
     std::thread applyAction([&]() {
         m_pluginApi = mgmtCommon.createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
         m_pluginApiTwo = mgmtCommon.createPluginAPI(plugin_two_name, m_mockedPluginApiCallback);
-        m_pluginManagerPtr->doAction(plugin_one_name, "testactionone");
-        m_pluginManagerPtr->doAction(plugin_two_name, "testactiontwo");
+        m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone");
+        m_pluginManagerPtr->queueAction(plugin_two_name, "testactiontwo");
     });
     applyAction.join();
 }

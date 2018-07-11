@@ -73,14 +73,14 @@ namespace PluginCommunicationImpl
         }
     }
 
-    void PluginManager::doAction(const std::string &appId, const std::string &actionXml)
+    void PluginManager::queueAction(const std::string &appId, const std::string &actionXml)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         for (auto &proxy : m_RegisteredPlugins)
         {
             if (proxy.second->hasAppId(appId))
             {
-                proxy.second->doAction(appId, actionXml);
+                proxy.second->queueAction(appId, actionXml);
             }
         }
     }

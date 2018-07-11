@@ -34,7 +34,7 @@ namespace PluginCommunicationImpl
         }
     }
 
-    void PluginProxy::doAction(const std::string &appId, const std::string &actionXml)
+    void PluginProxy::queueAction(const std::string &appId, const std::string &actionXml)
     {
         Common::PluginProtocol::DataMessage replyMessage = getReply(
                 m_messageBuilder.requestDoActionMessage(appId, actionXml)

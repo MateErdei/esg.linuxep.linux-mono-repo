@@ -122,7 +122,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoAction)  // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
             Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->doAction("plugin_one", "thisisanaction"));
+    ASSERT_NO_THROW(m_pluginProxy->queueAction("plugin_one", "thisisanaction"));
 }
 
 
@@ -136,7 +136,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck)  // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(
             Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    EXPECT_THROW(m_pluginProxy->doAction("plugin_one", "thisisanaction"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
+    EXPECT_THROW(m_pluginProxy->queueAction("plugin_one", "thisisanaction"), ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
 // Get Status

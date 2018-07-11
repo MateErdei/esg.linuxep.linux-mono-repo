@@ -111,7 +111,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
 
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginChangeStatus)
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendStatus)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutXml = "withoutXML";
@@ -131,7 +131,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeStatusReturnsErrorOnApiException)
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnApiException)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutXml = "withoutXML";
@@ -153,7 +153,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeSta
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginChangeStatusReturnsErrorOnStdException)
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnStdException)
 {
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusWithoutXml = "withoutXML";

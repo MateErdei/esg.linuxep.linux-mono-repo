@@ -35,7 +35,7 @@ namespace ManagementAgent
             void setDefaultConnectTimeout(int timeoutMs);
 
             void applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
-            void doAction(const std::string &appId, const std::string &actionXml) override;
+            void queueAction(const std::string &appId, const std::string &actionXml) override;
             std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
             void setAppIds(const std::string &pluginName, const std::vector<std::string> &appIds) override;

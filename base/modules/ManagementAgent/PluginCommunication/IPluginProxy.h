@@ -33,7 +33,7 @@ namespace PluginCommunication
          * @param appId
          * @param actionXml
          */
-        virtual void doAction(const std::string &appId, const std::string &actionXml) = 0;
+        virtual void queueAction(const std::string &appId, const std::string &actionXml) = 0;
 
         /**
          * Query the plugin for its status
