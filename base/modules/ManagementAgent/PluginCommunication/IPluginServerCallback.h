@@ -51,7 +51,6 @@ namespace PluginCommunication
          */
         virtual void receivedRegisterWithManagementAgent(const std::string &pluginName) = 0;
 
-        virtual void shutdown() = 0;
     };
 }
 }

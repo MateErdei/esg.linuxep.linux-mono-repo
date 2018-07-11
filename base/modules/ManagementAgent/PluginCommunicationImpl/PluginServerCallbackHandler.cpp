@@ -54,8 +54,7 @@ namespace PluginCommunicationImpl
 
     void PluginServerCallbackHandler::onShutdownRequested()
     {
-        m_serverCallback->shutdown();
-        stop();
+        /**not used **/
     }
 }
 }

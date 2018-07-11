@@ -24,11 +24,6 @@ namespace ManagementAgent
 
         }
 
-        void PluginServerCallback::shutdown()
-        {
-
-        }
-
         std::string PluginServerCallback::receivedGetPolicy(const std::string &appId)
         {
             return std::string();
