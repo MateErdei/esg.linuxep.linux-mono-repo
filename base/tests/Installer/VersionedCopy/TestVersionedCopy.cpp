@@ -6,8 +6,9 @@
 ///////////////////////////////////////////////////////////
 
 
-#include <Installer/VersionedCopy/VersionedCopy.h>
 #include "gtest/gtest.h"
+
+#include <Installer/VersionedCopy/VersionedCopy.h>
 #include <boost/filesystem.hpp>
 
 namespace

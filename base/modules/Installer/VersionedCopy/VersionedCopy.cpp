@@ -26,6 +26,15 @@ static Common::FileSystem::IFileSystemPtr GL_filesystem;
 
 namespace
 {
+    Common::FileSystem::IFileSystem* fs()
+    {
+        if (GL_filesystem.get() == nullptr)
+        {
+            GL_filesystem = Common::FileSystem::createFileSystem();
+        }
+        return GL_filesystem.get();
+    }
+
     std::string getEnv(const std::string &variable, const std::string &defaultValue)
     {
         const char *value = ::getenv(variable.c_str());
@@ -53,12 +62,12 @@ namespace
 
     Path getDirname(const Path &path)
     {
-        return GL_filesystem->dirName(path);
+        return fs()->dirName(path);
     }
 
     void makedirs(const Path &origpath)
     {
-        GL_filesystem->makedirs(origpath);
+        fs()->makedirs(origpath);
     }
 
     Path getLinkDestination(const Path &link)
@@ -111,7 +120,7 @@ namespace
             {
                 return;
             }
-            if (GL_filesystem->exists(target))
+            if (fs()->exists(target))
             {
                 unlink(target.c_str());
             }
@@ -139,8 +148,8 @@ namespace
 
     void createLibrarySymlinks(const Path &fullInstallFilename)
     {
-        Path basename = GL_filesystem->basename(fullInstallFilename);
-        Path installDirname = GL_filesystem->dirName(fullInstallFilename);
+        Path basename = fs()->basename(fullInstallFilename);
+        Path installDirname = fs()->dirName(fullInstallFilename);
         Path temp = basename;
         while (true)
         {
@@ -150,7 +159,7 @@ namespace
                 break;
             }
             Path dest = temp.substr(0, last_dot);
-            Path fullDest = GL_filesystem->join(installDirname, dest);
+            Path fullDest = fs()->join(installDirname, dest);
             Path target = temp;
 
             std::string digits = temp.substr(last_dot + 1);
@@ -194,8 +203,8 @@ int VersionedCopy::getDigitFromEnd(const std::string &s)
 
 bool VersionedCopy::same(const Path& file1, const Path& file2)
 {
-    bool exists1 = GL_filesystem->exists(file1);
-    bool exists2 = GL_filesystem->exists(file2);
+    bool exists1 = fs()->exists(file1);
+    bool exists2 = fs()->exists(file2);
     if (exists1 != exists2)
     {
         return false;
@@ -252,9 +261,7 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
 
 int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const Path &INST)
 {
-    GL_filesystem = Common::FileSystem::createFileSystem();
-
-    if (!GL_filesystem->exists(filename))
+    if (!fs()->exists(filename))
     {
         return 1;
     }
@@ -275,7 +282,7 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
 
     // Find appropriate extension name
     Path extensionName = findAppropriateExtensionName(fullInstallFilename);
-    Path extensionBase = GL_filesystem->basename(extensionName);
+    Path extensionBase = fs()->basename(extensionName);
 
     // Copy file
     copyFile(filename, extensionName); // TODO: Permissions and ownership
