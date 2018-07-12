@@ -54,21 +54,25 @@ namespace Installer
             static int versionedCopyMain(int argc, char* argv[]);
 
             /**
-             * Perform versioned copy as above.
-             * Exposed for unit testing.
+             * Perform versioned copy as shown for class.
              *
              * @param filename
              * @param DIST
              * @param INST
              * @return process exit code
+             *
+             * NB: Exposed for unit testing.
              */
             static int versionedCopy(const Path& filename, const Path& DIST, const Path& INST);
-        private:
+
             /**
              * Determine if two files are the same.
+             *
              * @param file1
              * @param file2
              * @return true if the files are the same (or both don't exist)
+             *
+             * NB: Exposed for unit testing.
              */
             static bool same(const Path& file1, const Path& file2);
         };

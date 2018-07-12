@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sstream>
+#include <cstring>
 
 using Installer::VersionedCopy::VersionedCopy;
 
@@ -240,12 +241,10 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
         {
             return false;
         }
-        for (int i=0; i<f1.gcount(); ++i)
+
+        if (::memcmp(data1,data2,static_cast<size_t>(f1.gcount())) != 0)
         {
-            if (data1[i] != data2[i])
-            {
-                return false;
-            }
+            return false;
         }
     }
     return true;

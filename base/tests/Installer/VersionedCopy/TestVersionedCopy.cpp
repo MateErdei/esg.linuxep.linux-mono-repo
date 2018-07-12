@@ -14,6 +14,11 @@ namespace
 {
     using Installer::VersionedCopy::VersionedCopy;
 
+    void deleteTree(const Path& path)
+    {
+        boost::filesystem::remove_all(path);
+    }
+
     class TestVersionedCopy : public ::testing::Test
     {
     public:
@@ -23,16 +28,15 @@ namespace
             m_filesystem = Common::FileSystem::createFileSystem();
         }
 
-        void deleteTree(const Path& path)
-        {
-            boost::filesystem::remove_all(path);
-        }
-
         void createFile(const Path& filename, const std::string& contents="FOOBAR")
         {
             m_filesystem->makedirs(m_filesystem->dirName(filename));
             m_filesystem->writeFile(filename,contents);
         }
+    };
+
+    class TestSame : public TestVersionedCopy
+    {
     };
 
     TEST_F(TestVersionedCopy, FirstInstall) //NOLINT
@@ -196,5 +200,49 @@ namespace
     {
         int ret = getDigitFromEnd("14");
         EXPECT_EQ(ret,14);
+    }
+
+    TEST_F(TestSame, BothDontExist) // NOLINT
+    {
+        deleteTree("installation/DoesntExist1");
+        deleteTree("installation/DoesntExist2");
+        bool ret = VersionedCopy::same("installation/DoesntExist1","installation/DoesntExist2");
+        EXPECT_TRUE(ret);
+    }
+
+    TEST_F(TestSame, OneExists) // NOLINT
+    {
+        deleteTree("installation/1");
+        createFile("installation/2","FOO");
+
+        bool ret = VersionedCopy::same("installation/1","installation/2");
+        EXPECT_FALSE(ret);
+    }
+
+    TEST_F(TestSame, TwoDifferentLength)// NOLINT
+    {
+        createFile("installation/1","FOOBAR");
+        createFile("installation/2","FOO");
+
+        bool ret = VersionedCopy::same("installation/1","installation/2");
+        EXPECT_FALSE(ret);
+    }
+
+    TEST_F(TestSame, TwoDifferentContents)// NOLINT
+    {
+        createFile("installation/1","BAR");
+        createFile("installation/2","FOO");
+
+        bool ret = VersionedCopy::same("installation/1","installation/2");
+        EXPECT_FALSE(ret);
+    }
+
+    TEST_F(TestSame, TwoSame)// NOLINT
+    {
+        createFile("installation/1","FOO");
+        createFile("installation/2","FOO");
+
+        bool ret = VersionedCopy::same("installation/1","installation/2");
+        EXPECT_TRUE(ret);
     }
 }
