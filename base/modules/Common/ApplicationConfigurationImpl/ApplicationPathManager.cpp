@@ -43,6 +43,11 @@ namespace Common
         {
             return socketPath("subscriberdatachannel.ipc");
         }
+
+        std::string ApplicationPathManager::getPluginRegistryPath() const
+        {
+            return "/" + sophosInstall() + "/base/pluginRegistry/";
+        }
     }
 
 

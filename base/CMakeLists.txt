@@ -26,12 +26,6 @@ set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
 
-set( BOOST_INCLUDE ${BOOST_INPUT}/include )
-
-if(NOT DEFINED VERSIG_INPUT)
-    set( VERSIG_INPUT ${INPUT}/versig)
-endif()
-
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
     set( SUL_INPUT ${INPUT}/SUL )

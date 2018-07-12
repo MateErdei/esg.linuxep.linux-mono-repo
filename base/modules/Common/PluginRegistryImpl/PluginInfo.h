@@ -9,6 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_PLUGINREGISTRY_H
 
 
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+
 #include <string>
 #include <vector>
 
@@ -185,6 +187,7 @@ namespace Common
             std::string m_executableFullPath;
             std::vector<std::string> m_executableArguments;
             EnvPairs m_executableEnvironmentVariables;
+
 
         };
     }

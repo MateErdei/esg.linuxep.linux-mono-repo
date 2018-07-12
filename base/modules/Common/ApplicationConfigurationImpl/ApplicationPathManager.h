@@ -4,7 +4,7 @@
 
 #ifndef EVEREST_BASE_APPLICATIONPATHMANAGER_H
 #define EVEREST_BASE_APPLICATIONPATHMANAGER_H
-#include "IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 namespace Common
 {
     namespace ApplicationConfigurationImpl
@@ -18,6 +18,7 @@ namespace Common
             std::string sophosInstall() const override ;
             std::string getPublisherDataChannelAddress() const override ;
             std::string getSubscriberDataChannelAddress() const override ;
+            std::string getPluginRegistryPath() const override;
         private:
             std::string socketPath( const std::string & relative) const;
         };

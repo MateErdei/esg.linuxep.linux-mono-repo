@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/MessageUtility.h"
-
+#include "Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
 #include <google/protobuf/util/json_util.h>
 
 namespace Common
@@ -31,8 +31,9 @@ namespace Common
 
         std::string PluginInfo::getPluginIpcAddress() const
         {
-            //FIXME: use the calculated plugin address from the plugin name
-            return  "ipc:///tmp/" + m_pluginName + ".ipc";
+            Common::ApplicationConfigurationImpl::ApplicationPathManager applicationPathManager;
+
+            return applicationPathManager.getPluginSocketAddress(m_pluginName);
         }
 
         std::string PluginInfo::getXmlTranslatorPath() const
@@ -214,7 +215,8 @@ namespace Common
 
         std::vector<PluginInfo> PluginInfo::loadFromPluginRegistry()
         {
-            return loadFromDirectoryPath(""); //Fixme get path from path manager class.
+            Common::ApplicationConfigurationImpl::ApplicationPathManager applicationPathManager;
+            return loadFromDirectoryPath(applicationPathManager.getPluginRegistryPath());
         }
 
         std::vector<std::string> PluginInfo::getStatusAppIds() const
@@ -231,5 +233,6 @@ namespace Common
         {
             m_statusAppIds.push_back(appID);
         }
+
     }
 }

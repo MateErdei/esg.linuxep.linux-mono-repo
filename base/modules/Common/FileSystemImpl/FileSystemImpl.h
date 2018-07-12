@@ -43,6 +43,8 @@ namespace Common
 
             void writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const override;
 
+            void makeExecutable(const Path &path) const override;
+
             std::vector<Path> listFiles( const Path & directoryPath ) const override;
         };
 

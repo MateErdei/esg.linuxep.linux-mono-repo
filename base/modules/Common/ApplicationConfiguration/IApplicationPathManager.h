@@ -22,6 +22,7 @@ namespace Common
             virtual std::string sophosInstall() const = 0;
             virtual std::string getPublisherDataChannelAddress() const = 0;
             virtual std::string getSubscriberDataChannelAddress() const = 0;
+            virtual std::string getPluginRegistryPath() const = 0;
         };
 
 
