@@ -6,7 +6,6 @@
 ///////////////////////////////////////////////////////////
 #include "VersionedCopy.h"
 
-#include <Common/Datatypes/SophosCppStandard.h>
 #include <Common/Exceptions/Print.h>
 #include <Common/FileSystem/IFileSystem.h>
 
@@ -38,7 +37,7 @@ namespace
     std::string getEnv(const std::string &variable, const std::string &defaultValue)
     {
         const char *value = ::getenv(variable.c_str());
-        if (value == NULLPTR)
+        if (value == nullptr)
         {
             return defaultValue;
         }
