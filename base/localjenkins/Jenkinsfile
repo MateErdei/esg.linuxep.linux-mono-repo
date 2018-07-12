@@ -15,7 +15,7 @@ def processTestResults(osName)
     // Change the top level "tests" directory to the OS name, so that you browse results by OS in Jenkins
     sh 'sed -i "s_/tests/_/' + osName + '/_g" build64/CTestResults.xml'
     // Thresholds will not pick up tests that have timed out unfortunately.
-    xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
+    xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build64/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
 }
 
 pipeline {
