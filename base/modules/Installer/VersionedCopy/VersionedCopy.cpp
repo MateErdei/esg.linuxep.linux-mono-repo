@@ -19,6 +19,8 @@
 #include <unistd.h>
 #include <sstream>
 
+using Installer::VersionedCopy::VersionedCopy;
+
 static Common::FileSystem::IFileSystemPtr GL_filesystem;
 
 static std::string getEnv(const std::string& variable, const std::string& defaultValue)
@@ -56,22 +58,57 @@ static void makedirs(const Path& origpath)
     GL_filesystem->makedirs(origpath);
 }
 
+static Path getLinkDestination(const Path& link)
+{
+    const int BUFSIZE=1024;
+    char dest[BUFSIZE];
+    ssize_t size = ::readlink(link.c_str(), dest, BUFSIZE);
+    if (size < 0)
+    {
+        return Path();
+    }
+    if (size == BUFSIZE)
+    {
+        // Overflow
+        dest[BUFSIZE-1] = 0;
+    }
+    else
+    {
+        dest[size] = 0;
+    }
+    return Path(dest);
+}
+
+/**
+ * Get a digit block from the end of s.
+ * So Foo.14 returns 14
+ * So Foo.1 returns 1
+ * @param s
+ * @return int
+ */
+int VersionedCopy::getDigitFromEnd(const std::string& s)
+{
+    size_t last_index = s.find_last_not_of("0123456789");
+    std::string result = s.substr(last_index + 1);
+    return std::stoi(result);
+}
+
 static Path findAppropriateExtensionName(const Path& base)
 {
     // if fullInstallFilename exists, read symlink+1
     // otherwise fullInstallFilename.0
-    int i = 0;
-    while (true)
+    Path current = getLinkDestination(base);
+    int newDigit = 0;
+    if (!current.empty())
     {
-        std::ostringstream ost;
-        ost << base << "." << i;
-        Path target = ost.str();
-        if (! GL_filesystem->exists(target))
-        {
-            return target;
-        }
-        i++;
+        int currentDigit = VersionedCopy::getDigitFromEnd(current);
+        newDigit = currentDigit + 1;
     }
+
+    std::ostringstream ost;
+    ost << base << "." << newDigit;
+    Path target = ost.str();
+    return target;
 }
 
 static void deleteOldFiles(const Path& filename, const Path& newFile)
@@ -102,12 +139,6 @@ static void copyFile(const Path& src, const Path& dest)
     ofs << ifs.rdbuf();
 }
 
-static void createLibrarySymlinks(const Path& fullInstallFilename)
-{
-    // TODO: Create library symlinks
-    static_cast<void>(fullInstallFilename);
-}
-
 static void createSymbolicLink(const Path& target, const Path& destination)
 {
     Path tempDest = destination+".tmp";
@@ -115,6 +146,37 @@ static void createSymbolicLink(const Path& target, const Path& destination)
     if (ret == 0)
     {
         rename(tempDest.c_str(), destination.c_str());
+    }
+}
+
+static void createLibrarySymlinks(const Path& fullInstallFilename)
+{
+    Path basename = GL_filesystem->basename(fullInstallFilename);
+    Path installDirname = GL_filesystem->dirName(fullInstallFilename);
+    Path temp = basename;
+    while (true)
+    {
+        size_t last_dot = temp.find_last_of('.');
+        if (last_dot == Path::npos)
+        {
+            break;
+        }
+        Path dest = temp.substr(0,last_dot);
+        Path fullDest = GL_filesystem->join(installDirname, dest);
+        Path target = temp;
+
+        std::string digits = temp.substr(last_dot + 1);
+        if (digits.find_first_not_of("0123456789") != Path::npos)
+        {
+            break;
+        }
+        // digits is just numbers so continue
+//        PRINT(fullDest << " -> " << target << "(digits="<<digits<<")");
+
+        createSymbolicLink(target, fullDest);
+
+
+        temp = dest;
     }
 }
 
