@@ -3,17 +3,17 @@ def buildAndTest()
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
         sh 'rm -rf /tmp/temp*'
-        sh 'rm -rf build && mkdir -p build && cd build && cmake .. && make'
+        sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
-        sh 'cd build && ctest -V -T test --no-compress-output --timeout 60'
+        sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
 }
 
 def processTestResults(osName)
 {
-    sh 'cd build && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+    sh 'cd build64 && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
     // Change the top level "tests" directory to the OS name, so that you browse results by OS in Jenkins
-    sh 'sed -i "s_/tests/_/' + osName + '/_g" build/CTestResults.xml'
+    sh 'sed -i "s_/tests/_/' + osName + '/_g" build64/CTestResults.xml'
     // Thresholds will not pick up tests that have timed out unfortunately.
     xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
 }
