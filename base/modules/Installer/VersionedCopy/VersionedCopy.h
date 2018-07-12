@@ -19,6 +19,8 @@ namespace Installer
             static int getDigitFromEnd(const std::string& s);
             static int versionedCopyMain(int argc, char* argv[]);
             static int versionedCopy(const Path& filename, const Path& DIST, const Path& INST);
+        private:
+            static bool same(const Path& file1, const Path& file2);
         };
     }
 }

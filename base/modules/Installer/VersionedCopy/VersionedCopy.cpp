@@ -33,6 +33,53 @@ static std::string getEnv(const std::string& variable, const std::string& defaul
     return value;
 }
 
+bool VersionedCopy::same(const Path& file1, const Path& file2)
+{
+    bool exists1 = GL_filesystem->exists(file1);
+    bool exists2 = GL_filesystem->exists(file2);
+    if (exists1 != exists2)
+    {
+        return false;
+    }
+    if (!exists1)
+    {
+        assert(!exists2);
+        return true;
+    }
+
+    std::ifstream f1(file1);
+    std::ifstream f2(file2);
+
+    const int BLOCK_SIZE=1024;
+    while (f1.good() && f2.good())
+    {
+        char data1[BLOCK_SIZE];
+        char data2[BLOCK_SIZE];
+
+        f1.read(data1,BLOCK_SIZE);
+        f2.read(data2,BLOCK_SIZE);
+
+        // Files are different lengths
+        if (f1.gcount() != f2.gcount())
+        {
+            return false;
+        }
+        // One has hit EOF, and the other hasn't
+        if (f1.good() != f2.good())
+        {
+            return false;
+        }
+        for (int i=0; i<f1.gcount(); ++i)
+        {
+            if (data1[i] != data2[i])
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 static std::string getInstallationRelativeFilename(const std::string &filename, const std::string &DIST)
 {
     std::string ret = filename;
@@ -184,9 +231,21 @@ int Installer::VersionedCopy::VersionedCopy::versionedCopy(const Path& filename,
 {
     GL_filesystem = Common::FileSystem::createFileSystem();
 
+    if (!GL_filesystem->exists(filename))
+    {
+        return 1;
+    }
+
     std::string installationFilename = getInstallationRelativeFilename(filename, DIST);
 
     std::string fullInstallFilename = INST+"/"+installationFilename;
+
+
+    // Don't continue if the files are the same
+    if (same(filename, fullInstallFilename))
+    {
+        return 0;
+    }
 
     std::string installationDir = getDirname(fullInstallFilename);
     makedirs(installationDir); // TODO: Permissions and ownership
