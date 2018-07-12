@@ -5,7 +5,7 @@
 #ifndef EVEREST_BASE_APPLICATIONCONFIGURATION_H
 #define EVEREST_BASE_APPLICATIONCONFIGURATION_H
 
-#include "IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include <map>
 
 namespace Common
