@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/PluginApi/ApiException.h>
 #include "PluginResourceManagement.h"
 #include "PluginApiImpl.h"
 #include "SensorDataPublisher.h"
@@ -42,25 +43,33 @@ namespace Common
         PluginResourceManagement::createPluginAPI(const std::string &pluginName,
                                                   std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)
         {
-            auto requester = m_context->getRequester();
-            auto replier = m_context->getReplier();
-            setTimeouts(*replier);
-            setTimeouts(*requester);
+            try
+            {
+                auto requester = m_context->getRequester();
+                auto replier = m_context->getReplier();
+                setTimeouts(*replier);
+                setTimeouts(*requester);
 
-            std::string mng_address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
-            std::string plugin_address = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+                std::string mng_address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
+                std::string plugin_address = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
 
-            requester->connect(mng_address);
-            replier->listen(plugin_address);
+                requester->connect(mng_address);
+                replier->listen(plugin_address);
 
-            std::unique_ptr<Common::PluginApiImpl::PluginApiImpl> plugin( new PluginApiImpl(pluginName, std::move(requester)));
+                std::unique_ptr<Common::PluginApiImpl::PluginApiImpl> plugin( new PluginApiImpl(pluginName, std::move(requester)));
 
 
-            plugin->setPluginCallback(pluginName, pluginCallback, std::move(replier));
+                plugin->setPluginCallback(pluginName, pluginCallback, std::move(replier));
 
-            plugin->registerWithManagementAgent();
+                plugin->registerWithManagementAgent();
 
-            return std::unique_ptr<PluginApi::IBaseServiceApi>( plugin.release());
+                return std::unique_ptr<PluginApi::IBaseServiceApi>( plugin.release());
+
+            }
+            catch(std::exception & ex)
+            {
+                throw PluginApi::ApiException(ex.what());
+            }
         }
 
         std::unique_ptr<Common::PluginApi::ISensorDataPublisher>

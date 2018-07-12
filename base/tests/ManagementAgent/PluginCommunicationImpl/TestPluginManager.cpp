@@ -11,6 +11,8 @@
 #include "tests/Common/PluginApiImpl/MockedPluginApiCallback.h"
 
 #include <thread>
+#include <modules/Common/PluginApi/ApiException.h>
+
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 
 class TestPluginManager : public ::testing::Test
@@ -190,4 +192,46 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)  // NOLINT
     getTelemetry.join();
     EXPECT_THROW(m_pluginManagerPtr->getTelemetry(plugin_one_name),
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
+
+TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)  // NOLINT
+{
+    auto secondMockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*secondMockedPluginApiCallback, queueAction("testaction_after_re-registration")).Times(1);
+    std::thread secondRegistration([this, &secondMockedPluginApiCallback]() {
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
+
+        // the system will fail to create a plugin to bind to the same address.
+        ASSERT_THROW( m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback), Common::PluginApi::ApiException);
+        // shutdown the plugin
+        m_pluginApi.reset();
+
+        // register the plugin again.
+        // it usually can take a small time to clean up the plugin socket
+        int count = 3;
+        while (--count > 0 )
+        {
+            try
+            {
+                m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback);
+                // on success of creating the m_pluginApi... carry on.
+                break;
+            }catch( Common::PluginApi::ApiException & ex)
+            {
+                std::string reason = ex.what();
+                EXPECT_THAT( reason, HasSubstr("Failed to bind"));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }catch (std::exception & ex)
+            {
+                ASSERT_FALSE( true) << ex.what();
+            }
+        }
+        ASSERT_TRUE( m_pluginApi) << "Failed to create a new plugin api binding to the same address. ";
+
+
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testaction_after_re-registration"), 1);
+
+    });
+    secondRegistration.join();
 }
