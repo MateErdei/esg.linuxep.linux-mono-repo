@@ -1,4 +1,4 @@
-add_library(versionedcopylib
+add_library(versionedcopylib STATIC
         VersionedCopy.cpp
         VersionedCopy.h)
 
