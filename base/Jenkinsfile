@@ -17,11 +17,11 @@ try{
         ArtisanBuild(
             params.CommitHash,
             params.PortalId,
-            "0.5.0.0",
             'sspl-base',
             'sspl-base-build',
             'build/release-package.xml',
             'Linux Test',
+            "0.5.0.0",
             "develop",
             '',
             '',
