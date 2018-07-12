@@ -22,7 +22,7 @@ pipeline {
     agent none
     environment {
             // Set library path, as build machines need new GCC, SUL, Boost and openssl.
-            LD_LIBRARY_PATH='/redist/binaries/linux10/input/openssl/lib64:/redist/binaries/linux10/input/SUL/lib64:/redist/binaries/linux10/input/boost/lib64:/usr/local/lib64:$LD_LIBRARY_PATH'
+            LD_LIBRARY_PATH='/redist/binaries/linux11/input/openssl/lib64:/redist/binaries/linux11/input/SUL/lib64:/redist/binaries/linux11/input/boost/lib64:/redist/binaries/linux11/input/protobuf/install64/lib/:/usr/local/lib64:$LD_LIBRARY_PATH'
      }
     stages {
         stage('Builds') {
