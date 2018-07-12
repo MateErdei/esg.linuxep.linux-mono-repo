@@ -196,7 +196,21 @@ namespace
  */
 int VersionedCopy::getDigitFromEnd(const std::string &s)
 {
+    if (s.empty())
+    {
+        return -1;
+    }
     size_t last_index = s.find_last_not_of("0123456789");
+    if (last_index == std::string::npos)
+    {
+        // All numbers
+        return std::stoi(s);
+    }
+    else if (last_index == s.size()-1)
+    {
+        // No number at end
+        return -1;
+    }
     std::string result = s.substr(last_index + 1);
     return std::stoi(result);
 }

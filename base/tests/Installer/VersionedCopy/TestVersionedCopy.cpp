@@ -173,6 +173,18 @@ namespace
     }
 
 
+    TEST(TestGetDigitFromEnd, Empty) // NOLINT
+    {
+        int ret = getDigitFromEnd("");
+        EXPECT_EQ(ret,-1);
+    }
+
+    TEST(TestGetDigitFromEnd, NoNumber) // NOLINT
+    {
+        int ret = getDigitFromEnd("ABC");
+        EXPECT_EQ(ret,-1);
+    }
+
     TEST(TestGetDigitFromEnd, Foo0) // NOLINT
     {
         int ret = getDigitFromEnd("Foo.0");
