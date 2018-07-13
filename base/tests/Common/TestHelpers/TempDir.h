@@ -114,6 +114,17 @@ namespace Tests
          */
         void makeExecutable( const std::string & relativePath) const;
 
+        /**
+         * Helper method, equivalent to:
+         *
+         * std::string absPath = tempDir.absPath(relativePath);
+         * auto fileSystem = createFileSystem();
+         * return fileSystem->exists(absPath);
+         *
+         * @param relativePath
+         */
+        bool exists(const std::string & relativePath) const;
+
     private:
         static std::vector<std::string> pathParts( const std::string & relativePath);
         std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;

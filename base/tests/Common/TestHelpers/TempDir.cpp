@@ -22,7 +22,7 @@ namespace Tests
     {
         m_fileSystem = std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
         std::string template_name;
-        if ( baseDirectory == "" )
+        if ( baseDirectory.empty() )
         {
             template_name = m_fileSystem->currentWorkingDirectory();
         }
@@ -148,6 +148,12 @@ namespace Tests
             throw Common::FileSystem::IFileSystemException("Failed to make path executable: "+ path  + ". Cause: " + error_cause);
         }
 
+    }
+
+    bool TempDir::exists(const std::string& relativePath) const
+    {
+        std::string path = absPath(relativePath);
+        return m_fileSystem->exists(path);
     }
 
 
