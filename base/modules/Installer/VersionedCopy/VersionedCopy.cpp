@@ -36,7 +36,7 @@ namespace
 
     std::string getEnv(const std::string &variable, const std::string &defaultValue)
     {
-        const char *value = ::getenv(variable.c_str());
+        const char *value = ::secure_getenv(variable.c_str());
         if (value == nullptr)
         {
             return defaultValue;
