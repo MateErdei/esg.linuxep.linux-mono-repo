@@ -3,7 +3,7 @@ def buildAndTest()
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
         sh 'rm -rf /tmp/temp*'
-        sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make'
+        sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
