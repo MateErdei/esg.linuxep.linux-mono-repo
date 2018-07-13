@@ -21,10 +21,11 @@ namespace Common
 
         public:
             ProcessImpl();
-            ~ProcessImpl();
+            ~ProcessImpl() override ;
             Process::ProcessStatus wait(Process::Milliseconds period, int attempts) override ;
             void exec( const std::string & path, const std::vector<std::string> & arguments,
-                                const std::vector<Process::EnvironmentPair> & extraEnvironment={}) override;
+                                const std::vector<Process::EnvironmentPair> & extraEnvironment) override;
+            void exec( const std::string & path, const std::vector<std::string> & arguments) override;
             int exitCode() override;
             std::string output() override ;
             void kill() override ;

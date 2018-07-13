@@ -6,24 +6,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProcessImpl.h"
 #include "IProcessException.h"
-#include <memory>
-#include <unistd.h>
-#include <cassert>
-#include <queue>
-#include <thread>
-#include <sstream>
-#include <mutex>
-#include <wait.h>
-#include <signal.h>
-#include <iostream>
-#include <algorithm>
-#include <condition_variable>
-#include <cstring>
 
 #include "Common/Threads/AbstractThread.h"
 #include "ArgcAndEnv.h"
 
-#define LOGERROR(x) std::cerr << x << '\n';
+#include <queue>
+#include <thread>
+#include <sstream>
+#include <mutex>
+#include <iostream>
+#include <algorithm>
+#include <condition_variable>
+
+#include <cassert>
+#include <cstring>
+#include <unistd.h>
+#include <wait.h>
+
+
+#define LOGERROR(x) std::cerr << x << '\n'; //NOLINT
 namespace
 {
     // ensure child process do not keep filedescriptors that is only for the parent.
@@ -53,7 +54,7 @@ class FileDescriptorHolder
 {
     int m_fd;
 public:
-    FileDescriptorHolder( int fd )
+    explicit FileDescriptorHolder( int fd )
     {
         m_fd = fd;
     }
@@ -89,7 +90,7 @@ namespace ProcessImpl
     class PipeHolder
     {
     public:
-        PipeHolder()
+        PipeHolder(): m_pipe{-1,-1}, m_pipeclosed{false,false}
         {
             if (pipe(m_pipe) < 0)
             {
@@ -162,9 +163,7 @@ namespace ProcessImpl
         {
 
         }
-        ~StdPipeThread()
-        {
-        }
+        ~StdPipeThread() override  = default;
 
         std::string output()
         {
@@ -189,7 +188,7 @@ namespace ProcessImpl
             char buffer[101];
             while (! stopRequested())
             {
-                int nread = read(input.fileDescriptor(), buffer, 100);
+                ssize_t nread = read(input.fileDescriptor(), buffer, 100);
                 if ( nread == 0 )
                 {
                     // this happens when the file descriptor is closed (on child exit)
@@ -216,9 +215,7 @@ namespace ProcessImpl
 
     }
 
-    ProcessImpl::~ProcessImpl()
-    {
-    }
+    ProcessImpl::~ProcessImpl() = default;
 
     Process::ProcessStatus ProcessImpl::wait(Process::Milliseconds period, int attempts)
     {
@@ -253,7 +250,7 @@ namespace ProcessImpl
                 {
                     // this happens when child was either killed, coredump.
                     // meaning that it is finished, but WIFEXITED does not return true.
-                    m_exitcode = -1;
+                    m_exitcode = ECANCELED;
                 }
 
                 return Process::ProcessStatus::FINISHED;
@@ -263,17 +260,24 @@ namespace ProcessImpl
         return Process::ProcessStatus::TIMEOUT;
     }
 
+    void ProcessImpl::exec(const std::string& path, const std::vector<std::string>& arguments)
+    {
+        this->exec(path, arguments, std::vector<Process::EnvironmentPair>{});
+    }
+
+
     void ProcessImpl::exec(const std::string &path, const std::vector<std::string> &arguments,
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
     {
 
         ArgcAndEnv argcAndEnv(path, arguments, extraEnvironment);
 
+
         m_pipe.reset( new PipeHolder());
         std::vector<int> fileDescriptorsToPreserveAfterFork({m_pipe->writeFd()});
 
         pid_t child = fork();
-        int ret = 0;
+
         switch(child)
         {
             case -1:
@@ -304,17 +308,17 @@ namespace ProcessImpl
                 m_pipe->closeRead();
                 if ( extraEnvironment.empty())
                 {
-                    ret = execv(argcAndEnv.path(), argcAndEnv.argc());
+                    (void) execv(argcAndEnv.path(), argcAndEnv.argc());
                 }
                 else
                 {
-                    ret = execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
+                    (void) execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
                 }
-                    // if reaches this point, execv failed
-                    // for normal execution, execv never returns.
-                _exit(ret);
+                // if reaches this point, execv failed
+                // for normal execution, execv never returns.
+                _exit(errno);
 
-                break;
+                //break;
 
             default:
                 // parent
@@ -374,6 +378,7 @@ namespace ProcessImpl
         }
 
     }
+
 
 }
 }

@@ -4,13 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <cassert>
-#include <tuple>
 #include "DownloadedProduct.h"
 #include "Logger.h"
 #include "IFileSystem.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include <cassert>
+#include <cstring>
 
 
 namespace SulDownloader
@@ -43,6 +43,7 @@ namespace SulDownloader
         {
 
             LOGINFO("Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
+            LOGSUPPORT("Run installer: " << installShFile);
 
             fileSystem->makeExecutable(installShFile);
 
@@ -63,7 +64,12 @@ namespace SulDownloader
             if ( exitCode!= 0 )
             {
                 LOGERROR("Installation failed");
-                LOGSUPPORT("Install exit code: " << exitCode);
+                LOGSUPPORT("Installer exit code: " << exitCode << ". Possible reason: " << std::strerror(exitCode));
+                if (exitCode == ENOEXEC)
+                {
+                    LOGERROR("Failed to run the installer. Hint: check first line starts with #!/bin/bash");
+                }
+
                 WarehouseError error;
                 error.Description = std::string( "Product ") + getLine() + " failed to install";
                 error.status = WarehouseStatus::INSTALLFAILED;

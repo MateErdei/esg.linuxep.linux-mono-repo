@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 // required to obtain the current application environment variables so that they can be passed to the child process.
-extern char **environ;
+//extern char **environ;
 
 
 namespace Common
@@ -34,10 +34,9 @@ namespace Common
             class ArgcAdaptor
             {
             public:
-                ArgcAdaptor()
-                {};
+                ArgcAdaptor() = default;
 
-                void setArgs(std::vector<std::string> arguments, std::string path = std::string())
+                void setArgs(const std::vector<std::string>& arguments, const std::string&  path = std::string())
                 {
                     m_arguments.clear();
                     if (!path.empty())
@@ -62,8 +61,6 @@ namespace Common
 
                 char **argcpointer()
                 {
-                    if (m_argcAdaptor.empty())
-                        return nullptr;
                     return m_argcAdaptor.data();
                 }
 
@@ -76,8 +73,8 @@ namespace Common
             ArgcAdaptor m_env;
             std::string m_path;
         public:
-            ArgcAndEnv(std::string path, std::vector<std::string> arguments,
-                       std::vector<Common::Process::EnvironmentPair> extraEnvironment)
+            ArgcAndEnv(const std::string& path, const std::vector<std::string>& arguments,
+                       const std::vector<Common::Process::EnvironmentPair>& extraEnvironment)
             {
                 m_path = path;
                 m_argc.setArgs(arguments, path);
@@ -144,13 +141,13 @@ namespace Common
                     uniqueEnvironmentNames.insert(env.first);
                 }
 
-                for(char**env = environ; *env != NULL; env++)
+                for(char**env = environ; *env != nullptr; env++)
                 {
                     char * current = *env;
                     std::string envName = getEnvironmentNameFromEnvP(current);
                     if ( uniqueEnvironmentNames.find(envName) == uniqueEnvironmentNames.end())
                     {
-                        envArguments.push_back(current);
+                        envArguments.emplace_back(current);
                     }
                 }
                 return envArguments;

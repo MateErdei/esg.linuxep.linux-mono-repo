@@ -9,12 +9,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "DownloadedProduct.h"
 #include "TimeTracker.h"
 #include "Common/UtilityImpl/MessageUtility.h"
+#include "Logger.h"
 
 
 namespace SulDownloader
 {
 
-    DownloadReport::DownloadReport()
+    DownloadReport::DownloadReport(): m_status(WarehouseStatus::UNSPECIFIED)
     {
 
     }
@@ -43,7 +44,7 @@ namespace SulDownloader
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
 
-        if(products.size() == 0)
+        if(products.empty())
         {
             // empty list means no products should have been downloaded.
             report.m_status = WarehouseStatus::DOWNLOADFAILED;
@@ -57,7 +58,7 @@ namespace SulDownloader
                 report.m_status = WarehouseStatus::INSTALLFAILED;
             }
         }
-
+        //FIXME: improve the report when the error is associated with the report.downloadedVersion != report.installedVersion
         report.m_status = report.setProductsInfo(products, report.m_status);
 
         return report;
@@ -111,10 +112,10 @@ namespace SulDownloader
     {
 
         m_productReport.clear();
-        for (auto product : products)
+        for (auto & product : products)
         {
             ProductReport report;
-            auto info = product.getProductMetadata();
+            auto & info = product.getProductMetadata();
             report.rigidName = info.getLine();
             report.name = info.getName();
             report.downloadedVersion = info.getVersion();
@@ -126,6 +127,8 @@ namespace SulDownloader
             // ensure that an error status is reported
             if(report.downloadedVersion != report.installedVersion && status == WarehouseStatus::SUCCESS)
             {
+                LOGERROR("Downloaded version: " << report.downloadedVersion << " differ from the installed version: "
+                                                << report.installedVersion);
                 status = WarehouseStatus::INSTALLFAILED;
             }
         }
