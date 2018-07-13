@@ -9,4 +9,4 @@ fi
 
 
 rm -rf "$SCRIPTDIR"
-delgroup sophos-spl
+[[ -n $NO_REMOVE_GROUP ]] || delgroup sophos-spl
