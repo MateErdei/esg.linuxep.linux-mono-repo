@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MessageUtility.h"
-#include "Common/Exceptions/IException.h"
+#include "MessageException.h"
 
 #include <google/protobuf/util/json_util.h>
 
@@ -23,7 +23,7 @@ namespace Common
             auto status = MessageToJsonString(message, &json_output, options);
             if (!status.ok())
             {
-                throw Common::Exceptions::IException(status.ToString()); //FIXME add new exception type.
+                throw MessageException(status.ToString());
             }
             return json_output;
         }

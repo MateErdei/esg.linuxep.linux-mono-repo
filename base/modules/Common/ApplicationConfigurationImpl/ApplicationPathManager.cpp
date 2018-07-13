@@ -2,8 +2,10 @@
 // Created by pair on 29/06/18.
 //
 
+#include "Common/FileSystem/IFileSystem.h"
 #include "ApplicationPathManager.h"
 #include "IApplicationConfiguration.h"
+
 namespace Common
 {
     namespace ApplicationConfigurationImpl
@@ -46,7 +48,7 @@ namespace Common
 
         std::string ApplicationPathManager::getPluginRegistryPath() const
         {
-            return "/" + sophosInstall() + "/base/pluginRegistry/";
+            return Common::FileSystem::fileSystem()->join(sophosInstall(),"/base/pluginRegistry/");
         }
     }
 

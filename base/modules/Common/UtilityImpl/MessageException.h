@@ -5,19 +5,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_PLUGINREGISTRYEXCEPTION_H
-#define EVEREST_BASE_PLUGINREGISTRYEXCEPTION_H
+#ifndef EVEREST_BASE_MESSAGEEXCEPTION_H
+#define EVEREST_BASE_MESSAGEEXCEPTION_H
+
 #include "Exceptions/IException.h"
 
 namespace Common
 {
-    namespace PluginRegistryImpl
+    namespace UtilityImpl
     {
-        class PluginRegistryException : public Common::Exceptions::IException
+        class MessageException : public Common::Exceptions::IException
         {
         public:
-            using Common::Exceptions::IException::IException;
+            explicit MessageException(const std::string &what)
+                    : Common::Exceptions::IException(what)
+            {}
         };
+
     }
 }
-#endif //EVEREST_BASE_PLUGINREGISTRYEXCEPTION_H
+
+#endif //EVEREST_BASE_MESSAGEEXCEPTION_H

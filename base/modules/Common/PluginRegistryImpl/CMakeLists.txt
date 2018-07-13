@@ -5,5 +5,8 @@ add_library(pluginregistryimpl SHARED
         ${PLUGIN_INFO_PROTO_H}
         PluginRegistryException.h)
 target_include_directories(pluginregistryimpl PUBLIC ../../Common)
-target_link_libraries(pluginregistryimpl ${Protobuf_LIBRARIES} utilityimpl filesystemimpl)
+target_link_libraries(pluginregistryimpl ${Protobuf_LIBRARIES} utilityimpl filesystemimpl )
 add_dependencies(pluginregistryimpl generatePluginInfoProto)
+
+install(TARGETS pluginregistryimpl
+        LIBRARY DESTINATION files/base/lib64)

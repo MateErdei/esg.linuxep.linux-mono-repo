@@ -172,7 +172,7 @@ namespace Common
              *
              * It is equivalent to:
              * @code
-             * return loadFromDirectoryPath(<installroot>/pluginRegistry)
+             * return loadFromDirectoryPath(<installroot>/base/pluginRegistry)
              * @endcode
              * @return A list of pluginInfo objects containing the loaded from the files read from disk.
              */

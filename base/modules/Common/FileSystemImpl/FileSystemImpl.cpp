@@ -5,16 +5,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FileSystemImpl.h"
-
 #include "IFileSystemException.h"
 
-#include <fstream>
-#include <dirent.h>
-#include <unistd.h>
 #include <cstring>
+#include <dirent.h>
+#include <fstream>
 #include <iostream>
-#include <sys/stat.h>
+#include <unistd.h>
 #include <vector>
+
+#include <sys/stat.h>
+
 
 #define LOGSUPPORT(x) std::cout << x << "\n";
 

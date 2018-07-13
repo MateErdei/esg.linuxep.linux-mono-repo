@@ -30,8 +30,6 @@ add_library(suldownloaderimpl SHARED
         SULUtils.h
         Logger.cpp
         Logger.h
-        ../Common/UtilityImpl/MessageUtility.cpp
-        ../Common/UtilityImpl/MessageUtility.h
         ${CONFIG_SETTINGS_PROTO_SRC}
         ${CONFIG_SETTINGS_PROTO_H}
         ${DOWNLOADER_REPORT_PROTO_SRC}

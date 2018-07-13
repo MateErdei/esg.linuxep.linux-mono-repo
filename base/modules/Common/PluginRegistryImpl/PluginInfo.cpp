@@ -11,7 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/MessageUtility.h"
-#include "Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Logger.h"
 #include <google/protobuf/util/json_util.h>
 
 namespace Common
@@ -31,9 +32,7 @@ namespace Common
 
         std::string PluginInfo::getPluginIpcAddress() const
         {
-            Common::ApplicationConfigurationImpl::ApplicationPathManager applicationPathManager;
-
-            return applicationPathManager.getPluginSocketAddress(m_pluginName);
+            return Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(m_pluginName);
         }
 
         std::string PluginInfo::getXmlTranslatorPath() const
@@ -125,10 +124,10 @@ namespace Common
                 pluginInfoProto.add_executablearguments(arg);
             }
 
-            PluginInfoProto::PluginInfo_EnvironmentVariablesT * environmentVariables = pluginInfoProto.add_environmentvariables();
 
             for(auto & envVar: pluginInfo.getExecutableEnvironmentVariables())
             {
+                PluginInfoProto::PluginInfo_EnvironmentVariablesT * environmentVariables = pluginInfoProto.add_environmentvariables();
                 environmentVariables->set_name(envVar.first);
                 environmentVariables->set_value(envVar.second);
             }
@@ -196,10 +195,12 @@ namespace Common
                     }
                     catch(PluginRegistryException &)
                     {
+                        LOGWARN("Failed to load plugin information from file: " << pluginInfoFile);
                         continue;
                     }
                     catch(Common::FileSystem::IFileSystemException &)
                     {
+                        LOGWARN("IO error, failed to obtain plugin information from file: " << pluginInfoFile);
                         continue;
                     }
                 }
@@ -215,8 +216,7 @@ namespace Common
 
         std::vector<PluginInfo> PluginInfo::loadFromPluginRegistry()
         {
-            Common::ApplicationConfigurationImpl::ApplicationPathManager applicationPathManager;
-            return loadFromDirectoryPath(applicationPathManager.getPluginRegistryPath());
+            return loadFromDirectoryPath(Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath());
         }
 
         std::vector<std::string> PluginInfo::getStatusAppIds() const

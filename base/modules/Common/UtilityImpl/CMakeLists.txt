@@ -4,3 +4,6 @@ add_library(utilityimpl SHARED
 
 target_include_directories(utilityimpl PUBLIC ../../Common ${Protobuf_INCLUDE_DIR})
 target_link_libraries(utilityimpl PUBLIC ${Protobuf_LIBRARIES})
+
+install(TARGETS utilityimpl
+        LIBRARY DESTINATION files/base/lib64)

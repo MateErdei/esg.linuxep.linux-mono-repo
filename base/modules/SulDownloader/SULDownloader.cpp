@@ -211,7 +211,6 @@ namespace SulDownloader
         }// failed or unable to either read or to write files
         catch( std::exception & ex)
         {
-            std::string reason = ex.what();
             LOGERROR(ex.what());
             return -2;
         }
