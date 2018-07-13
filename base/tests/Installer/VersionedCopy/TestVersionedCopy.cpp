@@ -31,16 +31,14 @@ namespace
     class TestVersionedCopy : public ::testing::Test
     {
     public:
-        Common::FileSystem::IFileSystemPtr m_filesystem;
         void SetUp() override
         {
-            m_filesystem = Common::FileSystem::createFileSystem();
         }
 
         void createFile(const Path& filename, const std::string& contents="FOOBAR")
         {
-            m_filesystem->makedirs(m_filesystem->dirName(filename));
-            m_filesystem->writeFile(filename,contents);
+            Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::fileSystem()->dirName(filename));
+            Common::FileSystem::fileSystem()->writeFile(filename,contents);
         }
     };
 

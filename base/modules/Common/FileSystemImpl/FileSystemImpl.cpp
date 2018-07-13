@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "FileSystemImpl.h"
 #include "IFileSystemException.h"
 
+#include <cassert>
 #include <cstring>
 #include <dirent.h>
 #include <fstream>
@@ -15,10 +16,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <vector>
 
 #include <sys/stat.h>
-#include <cassert>
 
 
-#define LOGSUPPORT(x) std::cout << x << "\n";
+#include <Common/Exceptions/Print.h>
+
+#define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
 namespace
 {
@@ -67,6 +69,11 @@ namespace Common
             return "";
         }
 
+        Path FileSystemImpl::join(const Path &path1, const Path &path2, const Path &path3) const
+        {
+            return join(join(path1,path2),path3);
+        }
+
         std::string FileSystemImpl::basename(const Path & path ) const
         {
             size_t pos = path.rfind('/');
@@ -97,14 +104,14 @@ namespace Common
                 return ""; // no parent directory
             }
 
-            int endPos = path.length() - pos;
+            size_t endPos = path.length() - pos;
 
             return Path(path.begin(), (path.end() - endPos));
         }
 
         bool FileSystemImpl::exists(const Path &path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             return ret == 0;
         }
@@ -123,13 +130,13 @@ namespace Common
 
         bool FileSystemImpl::isDirectory(const Path & path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not a directory
                 return false;
             }
-            return S_ISDIR(statbuf.st_mode);
+            return S_ISDIR(statbuf.st_mode); // NOLINT
         }
 
         Path FileSystemImpl::currentWorkingDirectory() const
@@ -144,7 +151,7 @@ namespace Common
                 throw IFileSystemException(errdesc);
             }
 
-            return currentWorkingDirectory;
+            return Path(currentWorkingDirectory);
         }
 
         void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath) const
@@ -230,13 +237,55 @@ namespace Common
 
         bool FileSystemImpl::isExecutable(const Path &path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not executable
                 return false;
             }
-            return S_IXUSR & statbuf.st_mode;
+            return (S_IXUSR & statbuf.st_mode) != 0; // NOLINT
+        }
+
+        void FileSystemImpl::makeExecutable(const Path &path) const
+        {
+            struct stat statbuf; //NOLINT
+            int ret = stat(path.c_str(), &statbuf);
+            if ( ret != 0)
+            {   // if it does not exist
+                throw IFileSystemException("Cannot stat: " + path);
+            }
+
+            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
+            if ( ret != 0)
+            {
+                throw IFileSystemException("Cannot make executable: " + path);
+            }
+        }
+
+        void FileSystemImpl::makedirs(const Path &path) const
+        {
+            if (path == "/")
+            {
+                return;
+            }
+            if (isDirectory(path))
+            {
+                return;
+            }
+            Path p2 = dirName(path);
+            if (path != p2)
+            {
+                makedirs(p2);
+                ::mkdir(path.c_str(),0700);
+            }
+        }
+
+        void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
+        {
+            std::ifstream ifs(src);
+            std::ofstream ofs(dest);
+
+            ofs << ifs.rdbuf();
         }
 
         std::vector<Path> FileSystemImpl::listFiles(const Path &directoryPath) const

@@ -21,18 +21,8 @@
 
 using Installer::VersionedCopy::VersionedCopy;
 
-static Common::FileSystem::IFileSystemPtr GL_filesystem;
-
 namespace
 {
-    Common::FileSystem::IFileSystem* fs()
-    {
-        if (GL_filesystem.get() == nullptr)
-        {
-            GL_filesystem = Common::FileSystem::createFileSystem();
-        }
-        return GL_filesystem.get();
-    }
 
     std::string getEnv(const std::string &variable, const std::string &defaultValue)
     {
@@ -61,12 +51,12 @@ namespace
 
     Path getDirname(const Path &path)
     {
-        return fs()->dirName(path);
+        return Common::FileSystem::fileSystem()->dirName(path);
     }
 
     void makedirs(const Path &origpath)
     {
-        fs()->makedirs(origpath);
+        Common::FileSystem::fileSystem()->makedirs(origpath);
     }
 
     Path getLinkDestination(const Path &link)
@@ -125,7 +115,7 @@ namespace
             {
                 return;
             }
-            if (fs()->exists(target))
+            if (Common::FileSystem::fileSystem()->exists(target))
             {
                 unlink(target.c_str());
             }
@@ -135,7 +125,7 @@ namespace
 
     void copyFile(const Path &src, const Path &dest)
     {
-        fs()->copyFile(src,dest);
+        Common::FileSystem::fileSystem()->copyFile(src,dest);
     }
 
     void createSymbolicLink(const Path &target, const Path &destination)
@@ -150,8 +140,8 @@ namespace
 
     void createLibrarySymlinks(const Path &fullInstallFilename)
     {
-        Path basename = fs()->basename(fullInstallFilename);
-        Path installDirname = fs()->dirName(fullInstallFilename);
+        Path basename = Common::FileSystem::fileSystem()->basename(fullInstallFilename);
+        Path installDirname = Common::FileSystem::fileSystem()->dirName(fullInstallFilename);
         Path temp = basename;
         while (true)
         {
@@ -161,7 +151,7 @@ namespace
                 break;
             }
             Path dest = temp.substr(0, last_dot);
-            Path fullDest = fs()->join(installDirname, dest);
+            Path fullDest = Common::FileSystem::fileSystem()->join(installDirname, dest);
             Path target = temp;
 
             std::string digits = temp.substr(last_dot + 1);
@@ -219,8 +209,8 @@ int VersionedCopy::getDigitFromEnd(const std::string &s)
 
 bool VersionedCopy::same(const Path& file1, const Path& file2)
 {
-    bool exists1 = fs()->exists(file1);
-    bool exists2 = fs()->exists(file2);
+    bool exists1 = Common::FileSystem::fileSystem()->exists(file1);
+    bool exists2 = Common::FileSystem::fileSystem()->exists(file2);
     if (exists1 != exists2)
     {
         return false;
@@ -277,7 +267,7 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
 
 int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const Path &INST)
 {
-    if (!fs()->exists(filename))
+    if (!Common::FileSystem::fileSystem()->exists(filename))
     {
         return 1;
     }
@@ -298,7 +288,7 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
 
     // Find appropriate extension name
     Path extensionName = findAppropriateExtensionName(fullInstallFilename);
-    Path extensionBase = fs()->basename(extensionName);
+    Path extensionBase = Common::FileSystem::fileSystem()->basename(extensionName);
 
     // Copy file
     copyFile(filename, extensionName); // TODO: Permissions and ownership
