@@ -15,9 +15,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <vector>
 
 #include <sys/stat.h>
+#include <cassert>
 
 
 #define LOGSUPPORT(x) std::cout << x << "\n";
+
+namespace
+{
+    bool isReaddirSafe(const std::string& directoryPath)
+    {
+        auto nameMax = pathconf(directoryPath.c_str(), _PC_NAME_MAX);
+        struct dirent structdirent;
+        return nameMax <= 255 && sizeof( structdirent) > 256;
+    }
+}
 
 
 namespace Common
@@ -245,6 +256,7 @@ namespace Common
                 throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
             }
 
+            assert(isReaddirSafe(directoryPath));
 
             while (true)
             {
