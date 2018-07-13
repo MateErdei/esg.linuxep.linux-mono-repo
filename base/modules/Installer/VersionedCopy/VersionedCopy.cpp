@@ -109,6 +109,12 @@ namespace
 
     void deleteOldFiles(const Path &filename, const Path &newFile)
     {
+        if (newFile.find(filename) != 0)
+        {
+            PRINT("deleteOldFiles with invalid input: "<<filename<<", "<< newFile);
+            return;
+        }
+
         int i = 0;
         while (true)
         {
