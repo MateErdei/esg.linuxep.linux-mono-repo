@@ -5,8 +5,21 @@ add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
 
 add_custom_target(
         dist
-        DEPENDS ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
 )
+
+
+add_custom_target(
+        forcedist
+        COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
+)
+#
+#install(CODE "
+#        execute_process(
+#            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
+#        )
+#")
 
 set(third_party_libs)
 

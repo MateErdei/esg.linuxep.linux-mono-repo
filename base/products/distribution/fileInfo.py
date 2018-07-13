@@ -72,6 +72,12 @@ class FileInfo(object):
             raise Exception("Attempted to get contents for a large file: "+self.m_path)
         return self.m_contents
 
+def pop(l,v):
+    try:
+        l.remove(v)
+    except ValueError:
+        pass
+
 def load_file_info(dist, file_list_path):
 
     if file_list_path is not None and os.path.isfile(file_list_path):
@@ -79,7 +85,8 @@ def load_file_info(dist, file_list_path):
     else:
         file_list = walkDist(dist)
 
-    print(file_list)
+    pop(file_list, "manifest.dat")
+    pop(file_list, "SDDS-Import.xml")
 
     ## Hash all the files
     ret = [ FileInfo(dist, f) for f in file_list ]

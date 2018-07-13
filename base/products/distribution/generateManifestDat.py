@@ -54,8 +54,34 @@ class Options(object):
     def __init__(self):
         self.signing_oracle = os.environ.get("SIGNING_ORACLE", "http://buildsign-m:8000")
 
+def read(p):
+    try:
+        c = open(p,"rb").read()
+        return c.split("-----BEGIN SIGNATURE-----")[0]
+    except EnvironmentError:
+        return None
+
 def generate_manifest(dist, file_objects):
     options = Options()
+    manifest_path = os.path.join(dist, b"manifest.dat")
+
+    previousContents = read(manifest_path)
+    newContents = []
+
+    for f in file_objects:
+        display_path = b".\\" + f.m_path.replace(b"/", b"\\")
+        newContents.append(b'"%s" %d %s\n' % (display_path, f.m_length, f.m_sha1))
+        newContents.append(b'#sha256 %s\n' % f.m_sha256)
+        newContents.append(b'#sha384 %s\n' % f.m_sha384)
+
+    newContents = "".join(newContents)
+    if newContents == previousContents:
+        return False
+
+    output = open(manifest_path, "wb")
+    output.write(newContents)
+    output.close()
+
     signer = SigningOracleClientSigner(options, verbose=True)
     try:
         signer.testSigning()
@@ -65,16 +91,6 @@ def generate_manifest(dist, file_objects):
         signer = SigningOracleClientSigner(options, verbose=True)
         signer.testSigning()
 
-    manifest_path = os.path.join(dist, b"manifest.dat")
-    output = open(manifest_path, "wb")
-    for f in file_objects:
-        display_path = b".\\" + f.m_path.replace(b"/", b"\\")
-        output.write(b'"%s" %d %s\n' % (display_path, f.m_length, f.m_sha1))
-        output.write(b'#sha256 %s\n' % f.m_sha256)
-        output.write(b'#sha384 %s\n' % f.m_sha384)
-
-    output.close()
-
     sig = signer.encodedSignatureForFile(manifest_path)
 
     output = open(manifest_path, "ab")
@@ -82,3 +98,4 @@ def generate_manifest(dist, file_objects):
     output.write(signer.public_cert())
     output.write(signer.ca_cert())
     output.close()
+    return True

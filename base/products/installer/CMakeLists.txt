@@ -13,3 +13,6 @@ target_link_libraries(versionedcopy PUBLIC versionedcopylib)
 install(TARGETS versionedcopy
         DESTINATION installer)
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
+        DESTINATION files
+        PERMISSIONS OWNER_READ OWNER_EXECUTE)

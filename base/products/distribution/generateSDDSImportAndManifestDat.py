@@ -17,7 +17,10 @@ def main(argv):
 
     file_objects = fileInfo.load_file_info(dist, distribution_list)
 
-    generateManifestDat.generate_manifest(dist, file_objects)
+    changed = generateManifestDat.generate_manifest(dist, file_objects)
+    if not changed:
+        print("Contents not changed: not regenerating manifest.dat and SDDS-Import.xml")
+        return 0
 
     ## Add manifest.dat to file_list
     file_objects.append(fileInfo.FileInfo(dist, b"manifest.dat"))
