@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 #include <Common/Exceptions/Print.h>
 
-#define LOGSUPPORT(x) std::cout << x << "\n";
+#define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
 std::unique_ptr<Common::FileSystem::IFileSystem> Common::FileSystem::createFileSystem()
 {
@@ -100,20 +100,20 @@ namespace Common
 
         bool FileSystemImpl::exists(const Path &path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             return ret == 0;
         }
 
         bool FileSystemImpl::isDirectory(const Path & path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not a directory
                 return false;
             }
-            return S_ISDIR(statbuf.st_mode);
+            return S_ISDIR(statbuf.st_mode); // NOLINT
         }
 
         Path FileSystemImpl::currentWorkingDirectory() const
@@ -214,25 +214,25 @@ namespace Common
 
         bool FileSystemImpl::isExecutable(const Path &path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exists, it is not executable
                 return false;
             }
-            return (S_IXUSR & statbuf.st_mode) != 0;
+            return (S_IXUSR & statbuf.st_mode) != 0; // NOLINT
         }
 
         void FileSystemImpl::makeExecutable(const Path &path) const
         {
-            struct stat statbuf;
+            struct stat statbuf; //NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if ( ret != 0)
             {   // if it does not exist
                 throw IFileSystemException("Cannot stat: " + path);
             }
 
-            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);
+            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
             if ( ret != 0)
             {
                 throw IFileSystemException("Cannot make executable: " + path);
@@ -256,6 +256,14 @@ namespace Common
                 ::mkdir(path.c_str(),0700);
 //                PRINT(path);
             }
+        }
+
+        void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
+        {
+            std::ifstream ifs(src);
+            std::ofstream ofs(dest);
+
+            ofs << ifs.rdbuf();
         }
     }
 }

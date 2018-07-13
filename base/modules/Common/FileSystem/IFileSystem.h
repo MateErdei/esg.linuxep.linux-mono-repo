@@ -105,6 +105,11 @@ namespace Common
              * Create a directory tree
              */
              virtual void makedirs(const Path& path) const =0;
+
+             /**
+              * Copy one file to another
+              */
+             virtual void copyFile(const Path &src, const Path &dest) const =0;
         };
         using IFileSystemPtr = std::unique_ptr<IFileSystem>;
         extern IFileSystemPtr createFileSystem();

@@ -135,10 +135,7 @@ namespace
 
     void copyFile(const Path &src, const Path &dest)
     {
-        std::ifstream ifs(src);
-        std::ofstream ofs(dest);
-
-        ofs << ifs.rdbuf();
+        fs()->copyFile(src,dest);
     }
 
     void createSymbolicLink(const Path &target, const Path &destination)
