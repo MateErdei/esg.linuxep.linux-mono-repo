@@ -147,8 +147,7 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-# TODO check the directory structure is correct below
-REGISTER_CENTRAL="${INSTALL_LOCATION}/base/registerCentral"
+REGISTER_CENTRAL="${INSTALL_LOCATION}/base/bin/registerCentral"
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
