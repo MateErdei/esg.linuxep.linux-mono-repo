@@ -30,15 +30,15 @@ GROUPADD="$(which groupadd)"
 [[ -x "${GROUPADD}" ]] || failure 11 "Failed to find groupadd to add low-privilege group"
 /usr/bin/getent group "${GROUP_NAME}" 2>&1 > /dev/null || "${GROUPADD}" -r "${GROUP_NAME}" || failure 12 "Failed to add group $GROUP_NAME"
 
+mkdir -p $SOPHOS_INSTALL || failure 10 "Failed to create installation directory: $SOPHOS_INSTALL"
+chmod 711 "$SOPHOS_INSTALL"
+chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
+
 USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure 13 "Failed to find useradd to add low-privilege user"
-/usr/bin/getent shadow "${USER_NAME}" || "${USERADD}" -d "$SOPHOS_INSTALL" -g "${GROUP_NAME}" -M -N -r -s /bin/false || falure 14 "Failed to add user $USER_NAME"
-
-mkdir -p $SOPHOS_INSTALL || failure 10 "Failed to create installation directory: $SOPHOS_INSTALL"
-chmod 711 "$SOPHOS_INSTALL"
-chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
+/usr/bin/getent shadow "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" || failure 14 "Failed to add user $USER_NAME"
 
 for F in $(find $DIST/files -type f)
 do
