@@ -11,7 +11,7 @@ properties([
 
 skipDefaultCheckout()
 try{
-    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    // PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     parallel Build:{
         ArtisanBuild(
@@ -29,8 +29,8 @@ try{
               )
         }
 
-    SuccessfulBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    // SuccessfulBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 } catch(e){
-    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    // FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
     error('Failed Build')
 }

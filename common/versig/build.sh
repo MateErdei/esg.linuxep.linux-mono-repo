@@ -82,13 +82,16 @@ function build()
     echo "PATH=$PATH" >${PRODUCT}/${BITS}/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${PRODUCT}/${BITS}/LD_LIBRARY_PATH
 
+    INSTALL=$BASE/$PRODUCT/${BITS}
+
     rm -rf build${BITS}
     mkdir build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -DREDIST="${REDIST}" -DINPUT="${REDIST}" -DCMAKE_INSTALL_PREFIX=$INSTALL .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     make test || exitFailure 16 "Unit tests failed for $PRODUCT"
+    make install || exitFailure 17 "Failed to install $PRODUCT"
     cd ..
 
     ## package output
