@@ -51,7 +51,7 @@ USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-"${GETENT}" shadow "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
+"${GETENT}" passwd "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
     || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
 
 for F in $(find $DIST/files -type f)
