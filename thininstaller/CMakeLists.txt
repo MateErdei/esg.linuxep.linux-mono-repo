@@ -32,7 +32,7 @@ set(SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${EXPAT_INPUT}/lib6
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
 
 #curl Library
-set(CURL_INPUT ./libs/curl)
+set(CURL_INPUT ${LIBS}/curl)
 set(CURL_LIBRARY_DIR ${CURL_INPUT}/lib64)
 set(CURL_LIBRARY -L${CURL_LIBRARY_DIR}  -lcurl)
 
