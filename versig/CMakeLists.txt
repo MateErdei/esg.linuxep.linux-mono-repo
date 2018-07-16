@@ -57,7 +57,7 @@ add_library(versig_lib
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 
-target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
+target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} crypto )
 
 install(TARGETS versig
         DESTINATION bin)
