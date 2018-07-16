@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_VERSIGIMPL_H
 
 #include "IVersig.h"
+#include <functional>
 namespace SulDownloader
 {
     class VersigImpl: public virtual IVersig

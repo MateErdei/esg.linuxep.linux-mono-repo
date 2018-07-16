@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_COMMON_PROCESS_IPROCESSIMPL_H
 #include "IProcess.h"
 #include <sys/types.h>
+#include <functional>
 
 namespace Common
 {

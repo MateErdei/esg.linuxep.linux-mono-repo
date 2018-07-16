@@ -5,17 +5,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <iostream>
-#include <sys/param.h>
-#include <unistd.h>
-#include <cassert>
 #include "ConfigurationData.h"
 #include "SulDownloaderException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Logger.h"
 
 #include <google/protobuf/util/json_util.h>
-#include <ConfigurationSettings.pb.h>
-#include <sys/stat.h>
 
 namespace
 {
@@ -199,13 +194,13 @@ namespace SulDownloader
                     return false;
                 }
 
-                if(value.Name.empty() && value.Prefix == false)
+                if (value.Name.empty() && !value.Prefix)
                 {
                     LOGERROR( "Invalid Settings: Full product name cannot be an empty string");
                     return false;
                 }
 
-                if(value.Name.empty() && value.Prefix == true)
+                if (value.Name.empty() && value.Prefix)
                 {
                     LOGERROR( "Invalid Settings: Prefix product name cannot be an empty string");
                     return false;
@@ -215,7 +210,7 @@ namespace SulDownloader
 
 
         // productselection should already be ordered with primary being the first one.
-        if(m_productSelection[0].Name.empty() || m_productSelection[0].Prefix == true || m_productSelection[0].Primary == false)
+        if (m_productSelection[0].Name.empty() || m_productSelection[0].Prefix || !m_productSelection[0].Primary)
         {
             LOGERROR( "Invalid Settings: No primary product provided.");
             return false;
@@ -375,7 +370,7 @@ namespace SulDownloader
         primaryProductGUID.baseVersion = settings.baseversion();
         configurationData.addProductSelection(primaryProductGUID);
 
-        for(auto product : settings.fullnames())
+        for (auto& product : settings.fullnames())
         {
             ProductGUID productGUID;
             productGUID.Name = product;
@@ -386,7 +381,7 @@ namespace SulDownloader
             configurationData.addProductSelection(productGUID);
         }
 
-        for(auto product : settings.prefixnames())
+        for (auto& product : settings.prefixnames())
         {
             ProductGUID productGUID;
             productGUID.Name = product;
@@ -426,7 +421,7 @@ namespace SulDownloader
         std::vector<Proxy> options;
         if ( m_proxy.empty() && hasEnvironmentProxy())
         {
-            options.push_back(Proxy("environment:"));
+            options.emplace_back(Proxy("environment:"));
         }
 
         options.push_back(m_proxy);
