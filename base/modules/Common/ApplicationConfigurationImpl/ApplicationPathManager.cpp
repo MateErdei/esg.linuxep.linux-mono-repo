@@ -48,12 +48,22 @@ namespace Common
 
         std::string ApplicationPathManager::getPluginRegistryPath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(),"/base/pluginRegistry/");
+            return Common::FileSystem::fileSystem()->join(sophosInstall(),"base/pluginRegistry/");
         }
 
         std::string ApplicationPathManager::getVersigPath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(),"/bin/versig");
+            std::string versigPath = Common::FileSystem::fileSystem()->join(sophosInstall(),"bin/versig");
+            if ( Common::FileSystem::fileSystem()->isFile(versigPath))
+            {
+                return versigPath;
+            }
+            auto envVersigPATH = ::secure_getenv("VERSIGPATH");
+            if ( envVersigPATH == nullptr)
+            {
+                return versigPath;
+            }
+            return envVersigPATH;
         }
     }
 

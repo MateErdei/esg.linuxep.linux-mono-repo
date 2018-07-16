@@ -16,6 +16,20 @@ namespace SulDownloader
     VersigImpl::verify(const std::string& certificate_path, const std::string& productDirectoryPath) const
     {
         auto fileSystem = Common::FileSystem::fileSystem();
+
+        if( !fileSystem->isFile(certificate_path))
+        {
+            LOGERROR("No certificate path to validate signature. Certificate provided does not exist: " << certificate_path);
+            return VerifySignature::INVALID_ARGUMENTS;
+        }
+
+        if ( !fileSystem->isDirectory(productDirectoryPath))
+        {
+            LOGERROR("The given product path is not valid directory: " << productDirectoryPath);
+            return VerifySignature::INVALID_ARGUMENTS;
+        }
+
+
         std::string versig_path = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
         if ( !fileSystem->isExecutable(versig_path))
         {
@@ -31,11 +45,7 @@ namespace SulDownloader
         }
 
 
-        if ( !fileSystem->isDirectory(productDirectoryPath))
-        {
-            LOGERROR("The given product path is not valid directory: " << productDirectoryPath);
-            return VerifySignature::INVALID_ARGUMENTS;
-        }
+
 
         std::vector<std::string> versigArgs;
         versigArgs.emplace_back("-c"+certificate_path);
