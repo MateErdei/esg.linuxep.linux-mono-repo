@@ -1,5 +1,5 @@
 include(GoogleTest)
-add_executable(ProcessImplTests TestProcessImpl.cpp)
+add_executable(ProcessImplTests TestProcessImpl.cpp MockProcess.h)
 target_include_directories(ProcessImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(ProcessImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
 target_link_libraries(ProcessImplTests gtest gtest_main)

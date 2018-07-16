@@ -6,12 +6,16 @@
 ///////////////////////////////////////////////////////////
 #ifndef EVEREST_BASE_ARGCANDENV_H
 #define EVEREST_BASE_ARGCANDENV_H
+
+#include "IProcess.h"
+#include "IProcessException.h"
+
 #include <vector>
 #include <string>
 #include <set>
-#include "IProcess.h"
-#include "IProcessException.h"
+#include <cassert>
 #include <unistd.h>
+
 
 // required to obtain the current application environment variables so that they can be passed to the child process.
 //extern char **environ;

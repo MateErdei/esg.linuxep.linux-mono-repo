@@ -35,7 +35,23 @@ namespace Common
             std::unique_ptr<StdPipeThread> m_pipeThread;
             int m_exitcode;
         };
+
+
+        class ProcessFactory
+        {
+            ProcessFactory();
+            std::function<std::unique_ptr<Common::Process::IProcess>(void)> m_creator;
+        public:
+            static ProcessFactory & instance();
+            std::unique_ptr<Process::IProcess> createProcess();
+            // for tests only
+            void replaceCreator(std::function<std::unique_ptr<Common::Process::IProcess>(void)>creator);
+            void restoreCreator();
+        };
     }
+
+
+
 }
 
 

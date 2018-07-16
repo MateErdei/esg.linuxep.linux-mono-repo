@@ -74,7 +74,7 @@ public:
 
 std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
 {
-    return Common::Process::IProcessPtr(new Common::ProcessImpl::ProcessImpl());
+    return ProcessImpl::ProcessFactory::instance().createProcess();
 }
 
 Common::Process::Milliseconds Common::Process::milli( int n_ms)
@@ -380,5 +380,30 @@ namespace ProcessImpl
     }
 
 
+    ProcessFactory::ProcessFactory()
+    {
+        restoreCreator();
+    }
+
+    ProcessFactory& ProcessFactory::instance()
+    {
+        static ProcessFactory singleton;
+        return singleton;
+    }
+
+    std::unique_ptr<Process::IProcess> ProcessFactory::createProcess()
+    {
+        return m_creator();
+    }
+
+    void ProcessFactory::replaceCreator(std::function<std::unique_ptr<Process::IProcess>(void)> creator)
+    {
+        m_creator = creator;
+    }
+
+    void ProcessFactory::restoreCreator()
+    {
+        m_creator = [](){ return std::unique_ptr<Common::Process::IProcess>(new Common::ProcessImpl::ProcessImpl());  };
+    }
 }
 }

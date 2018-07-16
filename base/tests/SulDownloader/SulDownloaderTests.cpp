@@ -7,13 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 /**
 * Component tests to SULDownloader mocking out WarehouseRepository
 */
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <modules/SulDownloader/ConfigurationData.h>
-#include <modules/Common/UtilityImpl/MessageUtility.h>
-
-
-#include "tests/Common/TestHelpers/TempDir.h"
+#include <modules/Common/FileSystem/IFileSystemException.h>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "modules/SulDownloader/ConfigurationData.h"
+#include "modules/Common/UtilityImpl/MessageUtility.h"
+#include "tests/Common/ProcessImpl/MockProcess.h"
+#include "tests/Common/FileSystemImpl/MockFileSystem.h"
 #include "MockWarehouseRepository.h"
 #include "ConfigurationSettings.pb.h"
 #include "SulDownloader/SulDownloader.h"
@@ -21,6 +21,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/SulDownloaderException.h"
 #include "SulDownloader/DownloadReport.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+
 using SulDownloaderProto::ConfigurationSettings;
 
 struct SimplifiedDownloadReport
@@ -40,14 +43,6 @@ public:
     void SetUp() override
     {
         Test::SetUp();
-        m_tempDir = Tests::TempDir::makeTempDir();
-        m_tempDir->makeDirs(std::vector<std::string>{"update/certificates",
-                             "update/cache/PrimaryWarehouse",
-                             "update/cache/Primary",
-                             "etc/ssl",
-                             "etc/cache/ssl"});
-        m_tempDir->createFile("update/certificates/ps_rootca.crt", "empty");
-        m_tempDir->createFile("update/certificates/rootca.crt", "empty");
         m_mockptr = nullptr;
     }
 
@@ -56,9 +51,9 @@ public:
      */
     void TearDown() override
     {
+        Common::FileSystem::restoreFileSystem();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();
-        m_tempDir.reset(nullptr);
         Test::TearDown();
     }
 
@@ -80,10 +75,10 @@ public:
         //settings.add_fullnames("Everest-Plugin-Update-Cache");
         settings.add_prefixnames("Everest-Plugins");
 
-        settings.set_certificatepath(m_tempDir->absPath("update/certificates"));
-        settings.set_installationrootpath(m_tempDir->dirPath());
-        settings.set_systemsslpath(m_tempDir->absPath("etc/ssl"));
-        settings.set_cacheupdatesslpath(m_tempDir->absPath("etc/cache/ssl"));
+        settings.set_certificatepath("/installroot/update/certificates");
+        settings.set_installationrootpath("/installroot");
+        settings.set_systemsslpath("/installroot/etc/ssl");
+        settings.set_cacheupdatesslpath("/installroot/etc/cache/ssl");
 
         return settings;
     }
@@ -106,7 +101,7 @@ public:
         {
             SulDownloader::DownloadedProduct product(metadata);
             product.setPostUpdateInstalledVersion(metadata.getVersion());
-            product.setDistributePath(m_tempDir->absPath(std::string("update/cache/Primary/")));
+            product.setDistributePath("/installroot/update/cache/Primary");
             products.push_back(product);
         }
         return products;
@@ -160,6 +155,23 @@ public:
         }
         return *m_mockptr;
     }
+
+
+    MockFileSystem & setupFileSystemAndGetMock()
+    {
+        auto filesystemMock = new MockFileSystem();
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/update/cache/PrimaryWarehouse")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/update/cache/Primary")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
+        auto pointer = filesystemMock;
+        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        return *pointer;
+    }
+
+
+
 
     ::testing::AssertionResult downloadReportSimilar( const char* m_expr,
                                                       const char* n_expr,
@@ -215,12 +227,12 @@ public:
 
 
 protected:
-    std::unique_ptr<Tests::TempDir> m_tempDir ;
     MockWarehouseRepository * m_mockptr = nullptr;
 };
 
 TEST_F( SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue )
 {
+    setupFileSystemAndGetMock();
     SulDownloader::ConfigurationData confData = configData( defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE( confData.isVerified());
@@ -228,6 +240,9 @@ TEST_F( SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturns
 
 TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
 {
+    auto filesystemMock = new MockFileSystem();
+    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
     int expectedErrorCode = -2;
 
     char ** argsNotUsed = nullptr;
@@ -236,21 +251,26 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode
     char * inputFileDoesNotExist [] = {const_cast<char*>("SulDownloader"),
                                        const_cast<char*>("inputfiledoesnotexists.json"),
                                        const_cast<char*>("createoutputpath.json")};
+    EXPECT_CALL(*filesystemMock, readFile("inputfiledoesnotexists.json")).WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
+
     EXPECT_EQ( SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
 
-    m_tempDir->createFile("input.json", jsonSettings(defaultSettings()));
+    EXPECT_CALL(*filesystemMock, readFile("input.json")).WillOnce(Return(jsonSettings(defaultSettings())) );
+
+    EXPECT_CALL(*filesystemMock, isDirectory("/installroot/directorypath")).WillOnce(Return(true));
     // directory can not be replaced by file
-    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {m_tempDir->absPath("input.json"), m_tempDir->absPath("etc")}, {});
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"input.json", "/installroot/directorypath"}, {});
 
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
 /**
- * Disabled due to LINUXEP-6174, re-enable this test once that ticket has been fixed.
+ * To be fixed in LINUXEP-6174, it should not call currentdirectory once that ticket has been fixed.
  * Breaks when build dir and /tmp are on different partitions.
  */
-TEST_F( SULDownloaderTest, DISABLED_main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
+TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
+    auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
 
     auto products = defaultProducts();
@@ -263,31 +283,43 @@ TEST_F( SULDownloaderTest, DISABLED_main_entry_onSuccessCreatesReportContainingE
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
 
+    // fixme: it should not call currentWorkingDirectory.
+    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).WillOnce(Return("/cwd"));
+    EXPECT_CALL(fileSystemMock, dirName("/dir/output.json")).WillOnce(Return("/dir"));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/cwd"));
 
-    m_tempDir->createFile("input.json", jsonSettings(defaultSettings()));
-    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {m_tempDir->absPath("input.json"), m_tempDir->absPath("output.json")}, {});
+
+
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
 
-    // read the file content
-    std::string content = m_tempDir->fileContent("output.json");
-    EXPECT_THAT( content, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)));
 
 }
 
 // the other execution paths were covered in main_entry_* tests.
 TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
-    m_tempDir->createFile("input.json", jsonSettings(defaultSettings()));
+    auto filesystemMock = new MockFileSystem();
+    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, dirName("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return("/dir/path/that/cannot/be/created/"));
+    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/")).WillOnce(Return(false));
 
     EXPECT_THROW(SulDownloader::fileEntriesAndRunDownloader(
-            m_tempDir->absPath("input.json"), m_tempDir->absPath("path/that/cannot/be/created/output.json")),
+                 "/dir/input.json", "/dir/path/that/cannot/be/created/output.json"),
             SulDownloader::SulDownloaderException);
 }
 
 // configAndRunDownloader
 TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
 {
+    auto filesystemMock = new MockFileSystem();
+    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     std::string reportContent;
     int exitCode =0;
     auto settings = defaultSettings();
@@ -301,26 +333,10 @@ TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError_Ware
     EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
 }
 
-//TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportErrorAndLogExpectedErrorInformation)
-//{
-//    std::string reportContent;
-//    int exitCode =0;
-//    auto settings = defaultSettings();
-//    settings.clear_sophosurls(); // no sophos urls, the system can not connect to warehouses
-//    std::string settingsString = jsonSettings(settings);
-//
-//    std::tie(exitCode,reportContent) = SulDownloader::configAndRunDownloader(settingsString);
-//
-//    EXPECT_NE(exitCode, 0 );
-//    EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS))));
-//    EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
-//    //Add additional checks for log details.
-//}
-
-
 // runSULDownloader
 TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
+    setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
     wError.Description = "Error description";
@@ -343,6 +359,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCrea
 
 TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
+    setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
     wError.Description = "Error description";
@@ -371,6 +388,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShoul
  */
 TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
 {
+    setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     SulDownloader::WarehouseError wError;
     wError.Description = "Error description";
@@ -408,6 +426,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
 
 TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
+    setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
@@ -436,6 +455,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
  */
 TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
+    auto & fileSystemMock = setupFileSystemAndGetMock();
+
     MockWarehouseRepository & mock = warehouseMocked();
 
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
@@ -445,15 +466,38 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
         product.setProductHasChanged(true);
     }
 
-    m_tempDir->createFile("update/cache/Primary/everest/install.sh", R"(#! /bin/bash
-echo "installing base"
-exit 0; )");
-    m_tempDir->createFile("update/cache/Primary/everest-plugin-a/install.sh", R"(#! /bin/bash
-echo "installing plugin"
-echo "simulate failure"
-exit 5; )");
-    m_tempDir->makeExecutable("update/cache/Primary/everest/install.sh" );
-    m_tempDir->makeExecutable("update/cache/Primary/everest-plugin-a/install.sh" );
+    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter](){
+        if ( counter++ == 0 )
+        {
+            auto mockProcess = new MockProcess();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+
+        } else
+        {
+            auto mockProcess = new MockProcess();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin\nsimulate failure"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
+    }
+    );
+
+
 
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
@@ -482,6 +526,7 @@ exit 5; )");
  */
 TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
+    auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
 
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
@@ -491,14 +536,38 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
         product.setProductHasChanged(true);
     }
 
-    m_tempDir->createFile("update/cache/Primary/everest/install.sh", R"(#! /bin/bash
-echo "installing base"
-exit 0; )");
-    m_tempDir->createFile("update/cache/Primary/everest-plugin-a/install.sh", R"(#! /bin/bash
-echo "installing plugin"
-exit 0; )");
-    m_tempDir->makeExecutable("update/cache/Primary/everest/install.sh" );
-    m_tempDir->makeExecutable("update/cache/Primary/everest-plugin-a/install.sh" );
+    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
+    EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+
+    int counter = 0;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter](){
+           if ( counter++ == 0 )
+           {
+               auto mockProcess = new MockProcess();
+               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+               EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+               EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+               return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+
+           } else
+           {
+               auto mockProcess = new MockProcess();
+               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+               EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+               EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+               return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+           }
+       }
+    );
+
+
 
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
@@ -520,6 +589,7 @@ exit 0; )");
 
 TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
 {
+    setupFileSystemAndGetMock();
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -538,6 +608,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
 
 TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityNORMAL)
 {
+    setupFileSystemAndGetMock();
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
