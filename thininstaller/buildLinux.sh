@@ -62,8 +62,9 @@ mkdir -p "$bin_dir"
 
 # bin files
 cp cmake-build-release/thininstaller "$installer_binary" || failure "Failure to copy installer binary"
+
 # TODO change this to a redist location
-cp -a /home/pair/git-repos-alex/versig/versig "$bin_dir/"
+cp -a /redist/binaries/everest/versig_temp/versig "$bin_dir/"
 
 # lib files
 cp -a libs/SUL/lib64/*.so* "$libs_dir"
@@ -87,13 +88,18 @@ mkdir -p output
 tar cf installer.tar installer/*
 rm -f installer.tar.gz
 gzip installer.tar
-cp installer.tar.gz output/
 
-cat installer_header.sh credentials.txt installer.tar.gz > output/installer.sh
-cat installer_header.sh credentials_with_windows_line_endings.txt installer.tar.gz > output/installer_with_windows_line_endings.sh
-cat installer_header.sh credentials_with_extra_lines.txt installer.tar.gz > output/installer_with_extra_lines.sh
-cat installer_header.sh credentials_with_windows_line_endings_and_extra_lines.txt installer.tar.gz > output/installer_with_windows_line_endings_and_extra_lines.sh
-
-chmod u+x output/installer*.sh
-cp installer_header.sh output/
-cp credentials.txt output/
+output_install_script="SophosSetup.sh"
+cat installer_header.sh installer.tar.gz > output/${output_install_script}
+pushd output
+chmod u+x ${output_install_script}
+python ../generateManifestDat.py .
+tar cf installer.tar *
+gzip installer.tar
+sha256=$(sha256sum installer.tar.gz)
+sha256="${sha256%% *}"
+mv installer.tar.gz "${sha256}.tar.gz"
+echo "{\"name\": \"${sha256}\"}" > latest.json
+rm manifest.dat
+rm ${output_install_script}
+popd

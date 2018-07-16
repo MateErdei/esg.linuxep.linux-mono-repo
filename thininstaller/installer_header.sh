@@ -18,6 +18,12 @@ EXITCODE_NOT_64_BIT=9
 EXITCODE_DOWNLOAD_FAILED=10
 EXITCODE_FAILED_TO_UNPACK=11
 EXITCODE_CANNOT_MAKE_TEMP=12
+EXITCODE_VERIFY_INSTALLER_FAILED=13
+EXITCODE_SYMLINKS_FAILED=14
+EXITCODE_CHMOD_FAILED=15
+EXITCODE_NOEXEC_TMP=16
+EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
+EXITCODE_BASE_INSTALL_FAILED=18
 
 INSTALL_LOCATION="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -45,11 +51,10 @@ create_symlinks()
               [ -n "$extn" ]
         do
             shortlib=$(basename ${shortlib} ${extn})
-            ln -s "$baselib" "$shortlib" || failure 14 "Failed to create library symlinks"
+            ln -s "$baselib" "$shortlib" || failure ${EXITCODE_SYMLINKS_FAILED} "Failed to create library symlinks"
         done
     done
 }
-
 
 handle_installer_errorcodes()
 {
@@ -196,7 +201,7 @@ fi
 mkdir -p "$SOPHOS_TEMP_DIRECTORY"
 
 echo "exit 0" > "$SOPHOS_TEMP_DIRECTORY/exectest" && chmod +x "$SOPHOS_TEMP_DIRECTORY/exectest"
-$SOPHOS_TEMP_DIRECTORY/exectest || failure 15 "Cannot execute files within $TMPDIR directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
+$SOPHOS_TEMP_DIRECTORY/exectest || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within $TMPDIR directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
 MIDDLEBIT=`awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' $0`
 UC_CERTS=`awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' $0`
@@ -283,7 +288,7 @@ check_free_storage ${INSTALL_LOCATION} 1024
 check_total_mem 1000000
 
 tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
-rm -f installer.tar.gz || failure 12 "ERROR: Failed to delete packed thin installer: $?"
+rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "ERROR: Failed to delete packed thin installer: $?"
 
 export LD_LIBRARY_PATH=installer/bin64:installer/bin32
 
@@ -313,7 +318,7 @@ CERT=installer/rootca.crt
 [ -f ${CERT} ] || CERT=installer/rootca.crt
 
 ${BIN}/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
-    || failure 8 "ERROR: Failed to verify base installer: $?"
+    || failure ${EXITCODE_VERIFY_INSTALLER_FAILED} "ERROR: Failed to verify base installer: $?"
 
 [ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp ${OVERRIDE_PROD_SOPHOS_CERTS}/* distribute/update/certificates/
 
@@ -346,7 +351,7 @@ fi
 
 cd distribute
 
-chmod u+x install.sh || failure 13 "Failed to chmod base installer: $?"
+chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
 
 # todo add this back once we know what libs we need to symlink (if any)
 #if [ $MACHINE_TYPE = "x86_64" ]
@@ -361,9 +366,9 @@ chmod u+x install.sh || failure 13 "Failed to chmod base installer: $?"
 echo "Running base installer (this may take some time)"
 ./install.sh ${installer_args}
 inst_ret=$?
-if [ ${inst_ret} -ne 0 ] && [ $inst_ret -ne 4 ]
+if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
-    failure 10 "ERROR: Installer returned $inst_ret (see above messages)"
+    failure ${EXITCODE_BASE_INSTALL_FAILED} "ERROR: Installer returned $inst_ret (see above messages)"
 fi
 
 ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
@@ -375,3 +380,4 @@ fi
 
 cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
+__ARCHIVE_BELOW__
