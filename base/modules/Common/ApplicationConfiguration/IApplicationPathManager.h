@@ -23,6 +23,7 @@ namespace Common
             virtual std::string getPublisherDataChannelAddress() const = 0;
             virtual std::string getSubscriberDataChannelAddress() const = 0;
             virtual std::string getPluginRegistryPath() const = 0;
+            virtual std::string getVersigPath() const = 0;
         };
 
 

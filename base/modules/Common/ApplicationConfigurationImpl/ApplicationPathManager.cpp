@@ -50,6 +50,11 @@ namespace Common
         {
             return Common::FileSystem::fileSystem()->join(sophosInstall(),"/base/pluginRegistry/");
         }
+
+        std::string ApplicationPathManager::getVersigPath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(),"/bin/versig");
+        }
     }
 
 

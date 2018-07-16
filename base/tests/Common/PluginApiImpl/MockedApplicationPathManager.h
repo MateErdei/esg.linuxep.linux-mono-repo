@@ -23,5 +23,6 @@ public:
     MOCK_CONST_METHOD0(getPublisherDataChannelAddress, std::string(void));
     MOCK_CONST_METHOD0(getSubscriberDataChannelAddress, std::string(void));
     MOCK_CONST_METHOD0(getPluginRegistryPath, std::string (void));
+    MOCK_CONST_METHOD0(getVersigPath, std::string (void));
 };
 #endif //EVEREST_BASE_MOCKEDAPPLICATIONPATHMANAGER_H
