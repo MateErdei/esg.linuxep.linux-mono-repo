@@ -59,3 +59,11 @@ do
     $DIST/installer/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
 chmod 700 "$SOPHOS_INSTALL/uninstall.sh"
+
+mkdir -p "$SOPHOS_INSTALL/var/ipc/plugins"
+chmod 711 "$SOPHOS_INSTALL/var"
+chmod 700 "$SOPHOS_INSTALL/var/ipc"
+chmod 700 "$SOPHOS_INSTALL/var/ipc/plugins"
+chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc"
+chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc/plugins"
+
