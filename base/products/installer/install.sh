@@ -67,3 +67,11 @@ chmod 700 "$SOPHOS_INSTALL/var/ipc/plugins"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc/plugins"
 
+mkdir -p "${SOPHOS_INSTALL}/logs/base"
+chmod 711 "${SOPHOS_INSTALL}/logs"
+chmod 700 "${SOPHOS_INSTALL}/logs/base"
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base"
+
+mkdir -p "${SOPHOS_INSTALL}/tmp"
+chmod 1770 "${SOPHOS_INSTALL}/tmp"
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
