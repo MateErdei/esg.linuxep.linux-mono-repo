@@ -11,6 +11,11 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libs
         OUTPUT_VARIABLE libstdcpp_path)
 string(STRIP "${libstdcpp_path}" libstdcpp_path )
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libgcc_s.so.1
+        OUTPUT_VARIABLE libgcc_s_path)
+string(STRIP "${libgcc_s_path}" libgcc_s_path )
+message( "${libgcc_s_path}" )
+
 if (NOT DEFINED REDIST)
     set( REDIST /redist )
 endif (NOT DEFINED REDIST)
@@ -65,6 +70,7 @@ install(TARGETS versig
 install(FILES
             ${OPENSSL_LIBRARY_DIR}/libcrypto.so.${OPENSSL_LIBVERSION}
             ${libstdcpp_path}
+            ${libgcc_s_path}
         DESTINATION lib)
 
 include(GoogleTest)
