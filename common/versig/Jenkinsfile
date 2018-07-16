@@ -17,10 +17,10 @@ try{
         ArtisanBuild(
             params.CommitHash,
             params.PortalId,
-            "2.0.0",
             'versig',
             'versig-build',
             'release-package.xml',
+            "2.0.0",
             'Linux Test',
             "develop",
             '',
