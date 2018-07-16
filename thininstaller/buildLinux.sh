@@ -63,7 +63,7 @@ mkdir -p "$bin_dir"
 # bin files
 cp cmake-build-release/thininstaller "$installer_binary" || failure "Failure to copy installer binary"
 
-# TODO change this to a redist location
+# TODO LINUXEP-6202 change this to an artisan prod build location
 cp -a /redist/binaries/everest/versig_temp/versig "$bin_dir/"
 
 # lib files
@@ -73,7 +73,8 @@ cp -a libs/boost/lib64/*.so* "$libs_dir"
 cp -a libs/openssl/lib64/*.so* "$libs_dir"
 cp -a libs/expat/lib64/*.so* "$libs_dir"
 cp -a libs/zlib/lib64/*.so* "$libs_dir"
-#TODO which libs should we ship?
+
+#TODO LINUXEP-6203 which libs should we ship?
 #cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
 #cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
 #cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
