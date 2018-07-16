@@ -37,6 +37,10 @@ function unpack_scaffold_gcc_make()
         tar xzf $GCC_TARFILE
         export PATH=/build/input/gcc/bin:$PATH
         export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+    elif [[ -d /build/input/gcc/bin ]]
+    then
+        export PATH=/build/input/gcc/bin:$PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
     else
         echo "WARNING: BUILDING WITH LOCAL GCC!"
     fi

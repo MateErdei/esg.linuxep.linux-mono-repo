@@ -7,6 +7,10 @@ endif (NOT DEFINED CMAKE_CXX_STANDARD)
 
 include_directories(.)
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libstdc++.so
+        OUTPUT_VARIABLE libstdcpp_path)
+string(STRIP "${libstdcpp_path}" libstdcpp_path )
+
 if (NOT DEFINED REDIST)
     set( REDIST /redist )
 endif (NOT DEFINED REDIST)
@@ -18,6 +22,9 @@ if (NOT DEFINED INPUT)
 endif (NOT DEFINED INPUT)
 
 set( OPENSSL_DIR ${INPUT}/openssl )
+
+file( READ ${OPENSSL_DIR}/LIBVERSION OPENSSL_LIBVERSION)
+string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION )
 
 set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
 
@@ -52,10 +59,18 @@ add_executable(versig src/versig_main.cpp src/versig.h)
 
 target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto )
 
+install(TARGETS versig
+        DESTINATION bin)
+
+install(FILES
+            ${OPENSSL_LIBRARY_DIR}/libcrypto.so.${OPENSSL_LIBVERSION}
+            ${libstdcpp_path}
+        DESTINATION lib)
+
 include(GoogleTest)
 enable_testing()
 
-add_subdirectory(tests/googletest)
+add_subdirectory(tests/googletest EXCLUDE_FROM_ALL)
 
 add_executable(versig_test
         tests/test_versig.cpp
