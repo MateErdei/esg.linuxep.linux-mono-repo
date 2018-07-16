@@ -114,7 +114,7 @@ namespace
         process->exec( "/bin/command_does_not_exists", {"fake_argument"});
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
         EXPECT_EQ( process->output(), "");
-        EXPECT_EQ( process->exitCode(), 255);
+        EXPECT_EQ(process->exitCode(), 2);
     }
 
 
