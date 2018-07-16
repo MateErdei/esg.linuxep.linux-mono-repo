@@ -81,10 +81,10 @@ namespace SulDownloader
 
 
         auto products = warehouseRepository->getProducts();
-
+        std::string rootcaPath = Common::FileSystem::fileSystem()->join(configurationData.getCertificatePath(), "rootca.crt");
         for( auto & product: products)
         {
-            product.verify();
+            product.verify(rootcaPath);
         }
 
         if ( hasError(products))

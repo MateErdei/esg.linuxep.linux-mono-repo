@@ -233,8 +233,6 @@ namespace SulDownloader
         assert( m_state == State::Synchronized);
         m_state = State::Distributed;
 
-        auto fileSystem = Common::FileSystem::fileSystem();
-
         for ( auto & productPair : m_products)
         {
             std::string distributePath = getRootDistributionPath();

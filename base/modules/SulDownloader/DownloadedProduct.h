@@ -29,10 +29,11 @@ namespace SulDownloader
 
         /**
          * Perform a versig verification.
+         * @param rootca_path: path to the rootca.crt certificate.
          * @note If the verification fails, internal error will be set and can be checked by hasError.
          * @pre ::setDistributePath called first and ::hasError return false.
          */
-        void verify();
+        void verify(const std::string & rootca_path );
         /**
          * Run the installer that should be in ::distributePath() + /install.sh.
          * Passing the installArgs to the installer

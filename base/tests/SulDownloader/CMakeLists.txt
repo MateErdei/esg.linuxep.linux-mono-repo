@@ -8,7 +8,8 @@ add_executable(SulDownloaderTests
         SulDownloaderTests.cpp
         TestDownloadReport.cpp
         TestConnectionSelector.cpp
-        TestProductSelection.cpp)
+        TestProductSelection.cpp
+        MockVersig.h)
 
 target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")

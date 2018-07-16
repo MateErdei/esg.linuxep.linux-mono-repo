@@ -23,6 +23,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloader/DownloadReport.h"
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "SulDownloader/VersigImpl.h"
+#include "MockVersig.h"
 
 using SulDownloaderProto::ConfigurationSettings;
 
@@ -43,6 +45,12 @@ public:
     void SetUp() override
     {
         Test::SetUp();
+
+        SulDownloader::VersigFactory::instance().replaceCreator([](){
+            auto versig = new NiceMock<MockVersig>();
+            ON_CALL(*versig, verify(_,_)).WillByDefault(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_VERIFIED));
+            return std::unique_ptr<SulDownloader::IVersig>(versig);
+        });
         m_mockptr = nullptr;
     }
 
@@ -52,6 +60,7 @@ public:
     void TearDown() override
     {
         Common::FileSystem::restoreFileSystem();
+        SulDownloader::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();
         Test::TearDown();
@@ -449,6 +458,63 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
 
     EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, SulDownloader::runSULDownloader(configurationData));
 }
+/**
+ * Simulate invalid signature
+ *
+ */
+TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
+{
+    setupFileSystemAndGetMock();
+    MockWarehouseRepository & mock = warehouseMocked();
+
+    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+
+    for ( auto & product : products)
+    {
+        product.setProductHasChanged(true);
+    }
+
+    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    int counter = 0;
+    SulDownloader::VersigFactory::instance().replaceCreator([&counter](){
+        auto versig = new StrictMock<MockVersig>();
+        if ( counter++ == 0 )
+        {
+            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt","/installroot/update/cache/Primary/everest"))
+                    .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_VERIFIED));
+        }
+        else
+        {
+            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt","/installroot/update/cache/Primary/everest-plugin-a"))
+                    .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_FAILED));
+        }
+
+
+        return std::unique_ptr<SulDownloader::IVersig>(versig);
+    });
+
+
+
+    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+
+    // if up to distribution passed, warehouse never returns error = true
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
+                                                    "Update failed",productReports};
+
+    expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
+    ConfigurationData configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+    auto result = SulDownloader::runSULDownloader(configurationData);
+    EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, result);
+}
+
+
 
 /**
  * Simulate error in installing base successfully but fail to install plugin

@@ -9,8 +9,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IFileSystem.h"
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
+#include "IVersig.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include <cassert>
 #include <cstring>
+
 
 
 namespace SulDownloader
@@ -21,11 +24,25 @@ namespace SulDownloader
 
     }
 
-    void DownloadedProduct::verify()
+    void DownloadedProduct::verify(const std::string & rootca )
     {
         assert(m_state == State::Distributed);
         m_state = State::Verified;
-        // TODO: implement verify LINUXEP-6112
+        auto iVersig = createVersig();
+        auto fileSystem = ::Common::FileSystem::fileSystem();
+        std::string product_path = fileSystem->join(m_distributePath,distributionFolderName());
+        if ( iVersig->verify(rootca, product_path ) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
+        {
+            WarehouseError error;
+            error.Description = std::string( "Product ") + getLine() + " failed signature verification";
+            error.status = WarehouseStatus::INSTALLFAILED;
+            LOGERROR(error.Description);
+            setError(error);
+        }
+        else
+        {
+            LOGINFO("Product verified: " << m_productMetadata.getLine());
+        }
     }
 
 
@@ -64,7 +81,8 @@ namespace SulDownloader
             if ( exitCode!= 0 )
             {
                 LOGERROR("Installation failed");
-                LOGSUPPORT("Installer exit code: " << exitCode << ". Possible reason: " << std::strerror(exitCode));
+                LOGSUPPORT("Installer exit code: " << exitCode);
+                LOGDEBUG("Possible reason: " << std::strerror(exitCode));
                 if (exitCode == ENOEXEC)
                 {
                     LOGERROR("Failed to run the installer. Hint: check first line starts with #!/bin/bash");

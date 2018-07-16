@@ -40,14 +40,17 @@ add_library(suldownloaderimpl SHARED
         WarehouseError.h
         WarehouseRepositoryFactory.cpp
         WarehouseRepositoryFactory.h
-        IWarehouseRepository.h)
+        IWarehouseRepository.h
+        IVersig.h
+        VersigImpl.cpp
+        VersigImpl.h)
 
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
 
 set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
 
-target_link_libraries(suldownloaderimpl PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl)
+target_link_libraries(suldownloaderimpl PUBLIC ${SUL_LIBRARY} ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl)
 
 include_directories(BEFORE ${SUL_INPUT}/include)
 
