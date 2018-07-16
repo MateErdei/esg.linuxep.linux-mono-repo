@@ -7,6 +7,8 @@
         <option value="DIST" />
         <option value="LD_LIBRARY_PATH" />
         <option value="LINK_OPTIONS" />
+        <option value="NO_REMOVE_GROUP" />
+        <option value="NO_REMOVE_USER" />
         <option value="NPROC" />
         <option value="OPTIONS" />
         <option value="SOPHOS_INSTALL" />
