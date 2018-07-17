@@ -85,7 +85,6 @@ for F in $(find $DIST/files -type f)
 do
     $DIST/installer/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
-chmod 700 "$SOPHOS_INSTALL/uninstall.sh"
 
 mkdir -p "$SOPHOS_INSTALL/var/ipc/plugins"
 chmod 711 "$SOPHOS_INSTALL/var"
@@ -108,6 +107,8 @@ chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 
 mkdir -p "${SOPHOS_INSTALL}/base/etc"
 chmod 711 "${SOPHOS_INSTALL}/base/etc"
+
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
 
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then

@@ -14,5 +14,5 @@ install(TARGETS versionedcopy
         DESTINATION installer)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
-        DESTINATION files
+        DESTINATION files/base/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
