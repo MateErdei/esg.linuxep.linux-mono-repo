@@ -97,8 +97,7 @@ chmod u+x ${output_install_script}
 python ../generateManifestDat.py .
 tar cf installer.tar *
 gzip installer.tar
-sha256=$(sha256sum installer.tar.gz)
-sha256="${sha256%% *}"
+sha256=$(python ../sha256OfFile.py installer.tar.gz)
 mv installer.tar.gz "${sha256}.tar.gz"
 echo "{\"name\": \"${sha256}\"}" > latest.json
 rm manifest.dat
