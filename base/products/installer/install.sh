@@ -7,6 +7,7 @@ EXIT_FAIL_FIND_USERADD=13
 EXIT_FAIL_ADDUSER=14
 EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_VERSIONEDCOPY=20
+EXIT_FAIL_REGISTER=30
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -19,6 +20,32 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
+
+MCS_TOKEN=${MCS_TOKEN:-}
+MCS_URL=${MCS_URL:-}
+
+while [[ $# -ge 1 ]] ; do
+    case $1 in
+        --instdir | --install)
+            shift
+            export SOPHOS_INSTALL=$1
+            ;;
+
+        --mcs-token)
+            shift
+            MCS_TOKEN=$1
+            ;;
+        --mcs-url)
+            shift
+            MCS_URL=$1
+            ;;
+        *)
+            echo "BAD OPTION $1"
+            exit 2
+            ;;
+    esac
+    shift
+done
 
 failure()
 {
@@ -78,3 +105,11 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
+
+mkdir -p "${SOPHOS_INSTALL}/base/etc"
+chmod 711 "${SOPHOS_INSTALL}/base/etc"
+
+if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+then
+    $SOPHOS_INSTALL/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+fi
