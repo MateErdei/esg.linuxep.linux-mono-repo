@@ -208,6 +208,7 @@ class MCSRouter(object):
                 logger.error("GC collected %d objects",count)
                 time.sleep(60)
 
+        # noinspection PyUnreachableCode
         return 100
 
     def run(self):
