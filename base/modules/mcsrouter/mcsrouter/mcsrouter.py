@@ -265,7 +265,7 @@ def clearTmpDirectory(installDir):
                 pass
 
 def main(argv):
-    installDir = os.environ.get("INST",None)
+    installDir = os.environ.get("INST_DIR",None)
     if installDir is None:
         # Go one directory up from the script's location
         arg0 = sys.argv[0]
