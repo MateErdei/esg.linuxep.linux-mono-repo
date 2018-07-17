@@ -53,7 +53,7 @@ namespace Common
 
         std::string ApplicationPathManager::getVersigPath() const
         {
-            std::string versigPath = Common::FileSystem::fileSystem()->join(sophosInstall(),"bin/versig");
+            std::string versigPath = Common::FileSystem::fileSystem()->join(sophosInstall(), "base/update/versig");
             if ( Common::FileSystem::fileSystem()->isFile(versigPath))
             {
                 return versigPath;
@@ -83,7 +83,7 @@ namespace Common
         /** Use only for test */
         void replaceApplicationPathManager( std::unique_ptr<IApplicationPathManager>  applicationPathManager)
         {
-            instance().reset(applicationPathManager.release());
+            instance().reset(applicationPathManager.release()); // NOLINT
         }
         void restoreApplicationPathManager()
         {
