@@ -5,7 +5,7 @@ from __future__ import print_function,division,unicode_literals
 import os
 import xml.dom
 
-import utils.XmlHelper
+import mcsrouter.utils.XmlHelper
 
 class Command(object):
     def getConnection(self):
@@ -31,7 +31,7 @@ class Command(object):
 
 class BasicCommand(Command):
     def __getTextFromElement(self, element):
-        return utils.XmlHelper.getTextFromElement(element)
+        return mcsrouter.utils.XmlHelper.getTextFromElement(element)
 
     def __decodeCommand(self, commandNode):
         values = {}

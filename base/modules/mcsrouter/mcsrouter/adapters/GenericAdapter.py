@@ -1,15 +1,14 @@
 
 import xml.dom.minidom
 import os
-import json
-import datetime
-import time
 
 import logging
 logger = logging.getLogger(__name__)
 
 import AdapterBase
-import utils.Timestamp
+import mcsrouter.utils.AtomicWrite
+import mcsrouter.utils.Timestamp
+
 
 class GenericAdapter(AdapterBase.AdapterBase):
     def __init__(self,appid,installdir=None):
@@ -46,7 +45,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
 
         policyPath = os.path.join(self.__m_installdir, "policy", policyName)
         policyPathTmp = os.path.join(self.__m_installdir, "tmp", policyName)
-        utils.AtomicWrite.atomic_write(policyPath, policyPathTmp, policy)
+        mcsrouter.utils.AtomicWrite.atomic_write(policyPath, policyPathTmp, policy)
 
         return []
 
@@ -57,12 +56,12 @@ class GenericAdapter(AdapterBase.AdapterBase):
         try:
             timestamp = command.get(u"creationTime")
         except KeyError:
-            timestamp = utils.Timestamp.timestamp()
+            timestamp = mcsrouter.utils.Timestamp.timestamp()
         
         actionName = "%s_action_%s.xml"%(self.__m_appid, timestamp)
         actionPath = os.path.join(self.__m_installdir,"action", actionName)
         actionPathTmp = os.path.join(self.__m_installdir, "tmp", actionName)
-        utils.AtomicWrite.atomic_write(actionPath, actionPathTmp, body)
+        mcsrouter.utils.AtomicWrite.atomic_write(actionPath, actionPathTmp, body)
 
         return []
 

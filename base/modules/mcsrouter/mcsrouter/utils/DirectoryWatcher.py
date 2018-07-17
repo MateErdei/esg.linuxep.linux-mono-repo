@@ -13,7 +13,7 @@ import logging
 import watchdog.observers
 import watchdog.events
 
-import utils.SignalHandler
+from . import SignalHandler
 
 logger = logging.getLogger(__name__)
 
@@ -30,21 +30,21 @@ class PipeEventHandler(watchdog.events.PatternMatchingEventHandler):
         logger.debug("Got event: %s", str(event))
         if self.__ignore_delete and event.event_type == "deleted":
             return
-        os.write(self.__pipefd, "1")
+        os.write(self.__pipefd, b"1")
 
 class DirectoryWatcher(object):
     """A simple directory watcher, which writes to a pipe whenever a change
     is observed
     """
     def __init__(self):
-        self.__pipe = utils.SignalHandler.createPipe()
+        self.__pipe = SignalHandler.createPipe()
         self.__observer = watchdog.observers.Observer()
         self.__observer.start()
 
     def __del__(self):
         self.__observer.stop()
         self.__observer.join()
-        utils.SignalHandler.closePipe(self.__pipe)
+        SignalHandler.closePipe(self.__pipe)
 
     @property
     def notify_pipefd(self):

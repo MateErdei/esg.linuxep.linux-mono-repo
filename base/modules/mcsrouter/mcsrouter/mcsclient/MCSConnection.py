@@ -6,7 +6,10 @@ import xml.dom.minidom
 import httplib
 
 ## urllib.parse in python 3
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,9 +18,9 @@ envelopeLogger = logging.getLogger("ENVELOPES")
 import MCSCommands
 import MCSException
 
-import SophosHTTPS
-import IPSelection
-import ProxyAuthorization
+from mcsrouter import SophosHTTPS
+from mcsrouter import IPSelection
+from mcsrouter import ProxyAuthorization
 
 
 splitHostPort = SophosHTTPS.splitHostPort
@@ -272,6 +275,7 @@ class MCSConnection(object):
     def __try_createConnection(self, proxy, host, port):
         (proxyHost, proxyPort) = (proxy.host(),proxy.port())
 
+        connection = None
         args = {"ca_certs": self.__m_cafile}
         ConnectionClass = SophosHTTPS.CertValidatingHTTPSConnection
         authCalculator = self.getAuthenticatorForProxy(proxy, host, port)
@@ -532,6 +536,7 @@ class MCSConnection(object):
         raise self.__m_lastSeenHTTPError
 
     def __createConnectionAndGetResponse(self, requestData):
+        response = None
         self.__m_lastSeenHTTPError = None
         # If we have an existing connection
         if self.__m_connection is not None:
@@ -564,6 +569,7 @@ class MCSConnection(object):
             response = self.__tryURLs(requestData)
 
         assert self.__m_connection is not None
+        assert response is not None
         return response
 
     def __closeConnection(self):

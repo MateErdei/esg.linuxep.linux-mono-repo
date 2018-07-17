@@ -10,14 +10,14 @@ import xml.parsers.expat # for xml.parsers.expat.ExpatError
 import logging
 logger = logging.getLogger(__name__)
 
-import utils.XmlHelper
-import utils.AtomicWrite
-import adapters.base.PolicyHandlerBase
+import mcsrouter.utils.XmlHelper
+import mcsrouter.utils.AtomicWrite
+import mcsrouter.adapters.base.PolicyHandlerBase
 
 class MCSPolicyHandlerException(Exception):
     pass
 
-class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
+class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBase):
     """
     Process MCS adapter policy
     as defined at
@@ -50,7 +50,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         assert policyXml is not None
         if path is None:
             path = self.__policyPath()
-        utils.AtomicWrite.atomic_write(path, os.path.join(self.__m_installDir,"tmp", self.policyBaseName()), policyXml)
+        mcsrouter.utils.AtomicWrite.atomic_write(path, os.path.join(self.__m_installDir,"tmp", self.policyBaseName()), policyXml)
 
     def __loadPolicy(self):
         path = self.__policyPath()
@@ -74,7 +74,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
         if node is None:
             return False
 
-        value = utils.XmlHelper.getTextFromElement(node)
+        value = mcsrouter.utils.XmlHelper.getTextFromElement(node)
         logger.debug("MCS policy %s = %s",policyOption,value)
 
         self.__m_policy_config.set(configOption,value)
@@ -106,7 +106,7 @@ class MCSPolicyHandler(adapters.base.PolicyHandlerBase.PolicyHandlerBase):
 
         subNodes = node.getElementsByTagName(subNodeName)
 
-        texts = [ utils.XmlHelper.getTextFromElement(x) for x in subNodes ]
+        texts = [ mcsrouter.utils.XmlHelper.getTextFromElement(x) for x in subNodes ]
         texts = [ s for s in texts if s != "" ]
 
         return texts

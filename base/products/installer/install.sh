@@ -75,3 +75,6 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base"
 mkdir -p "${SOPHOS_INSTALL}/tmp"
 chmod 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
+
+chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
+chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*

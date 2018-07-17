@@ -5,10 +5,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 import AdapterBase
-import utils.Timestamp
+import mcsrouter.utils.Timestamp
 
-import utils.TargetSystemManager
-import IPAddress
+import mcsrouter.utils.TargetSystemManager
+from mcsrouter import IPAddress
 
 def formatIPv6(i):
     assert ":" not in i
@@ -104,7 +104,7 @@ class AgentAdapter(AdapterBase.AdapterBase):
         return "PT10000S"
 
     def getTimestamp(self):
-        return utils.Timestamp.timestamp()
+        return mcsrouter.utils.Timestamp.timestamp()
 
     def getStatusXml(self):
         return "".join((
@@ -123,7 +123,7 @@ class AgentAdapter(AdapterBase.AdapterBase):
         return """</ns:computerStatus>"""
 
     def __targetSystem(self):
-        return utils.TargetSystemManager.getTargetSystem(self.__m_installdir)
+        return mcsrouter.utils.TargetSystemManager.getTargetSystem(self.__m_installdir)
 
     def __createCommonStatus(self):
         ts = self.__targetSystem()

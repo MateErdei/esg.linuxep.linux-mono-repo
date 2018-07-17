@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 import AdapterBase
 
-import utils.Timestamp
-import utils.XmlHelper
-import mcsclient.MCSCommands
+import mcsrouter.utils.Timestamp
+import mcsrouter.utils.XmlHelper
+import mcsrouter.mcsclient.MCSCommands
 
 class AppProxyAdapter(AdapterBase.AdapterBase):
     def __init__(self, appids):
@@ -25,7 +25,7 @@ class AppProxyAdapter(AdapterBase.AdapterBase):
 
         statusxml.append('<?xml version="1.0" encoding="utf-8"?>')
         statusxml.append('<ns:registeredApplicationsStatus xmlns:ns="http://www.sophos.com/xml/mcs/registeredApplicationsStatus">')
-        statusxml.append('<meta protocolVersion="1.0" timestamp="%s"/>'%(utils.Timestamp.timestamp()))
+        statusxml.append('<meta protocolVersion="1.0" timestamp="%s"/>'%(mcsrouter.utils.Timestamp.timestamp()))
         for appid in self.__m_appids:
             statusxml.append('<application name="%s"/>'%appid)
         statusxml.append('</ns:registeredApplicationsStatus>')
@@ -81,18 +81,18 @@ u'<?xml version="1.0"?>
             commandID = command.get('id')
 
             for policyAssignment in policyAssignments:
-                appId = utils.XmlHelper.getTextNodeText(policyAssignment, "appId")
-                policyId = utils.XmlHelper.getTextNodeText(policyAssignment, "policyId")
-                commands.append(mcsclient.MCSCommands.PolicyCommand(
+                appId = mcsrouter.utils.XmlHelper.getTextNodeText(policyAssignment, "appId")
+                policyId = mcsrouter.utils.XmlHelper.getTextNodeText(policyAssignment, "policyId")
+                commands.append(mcsrouter.mcsclient.MCSCommands.PolicyCommand(
                         commandID, appId, policyId, connection))
 
             fragmentedAssignments = doc.getElementsByTagName("fragments")
             logger.debug("Received %d fragmented policy assignments", len(fragmentedAssignments))
 
             for fragmented in fragmentedAssignments:
-                appId = utils.XmlHelper.getTextNodeText(fragmented, "appId")
+                appId = mcsrouter.utils.XmlHelper.getTextNodeText(fragmented, "appId")
                 fragmentNodes = fragmented.getElementsByTagName("fragment")
-                commands.append(mcsclient.MCSCommands.FragmentedPolicyCommand(
+                commands.append(mcsrouter.mcsclient.MCSCommands.FragmentedPolicyCommand(
                         commandID, appId, fragmentNodes, connection))
         finally:
             doc.unlink()
