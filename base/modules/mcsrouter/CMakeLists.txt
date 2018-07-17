@@ -24,3 +24,6 @@ add_custom_command(OUTPUT mcsrouter.zip
 
 install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
         DESTINATION files/base/lib64)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt
+        DESTINATION files/base/mcs)

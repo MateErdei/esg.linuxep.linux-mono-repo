@@ -76,7 +76,7 @@ class MCSConnection(object):
         self.__m_mcsurl = None
         self.__m_currentPath = ""
 
-        cafile = self.__m_config.getDefault("CAFILE",os.path.join(installDir,"engine","mcs_rootca.crt"))
+        cafile = self.__m_config.getDefault("CAFILE",os.path.join(installDir,"base","mcs","mcs_rootca.crt"))
         self.__m_cafile = None
         if cafile is not None and not os.path.isfile(cafile):
             logger.error("Unable to load CA certificates from %s as it isn't a file", cafile)
