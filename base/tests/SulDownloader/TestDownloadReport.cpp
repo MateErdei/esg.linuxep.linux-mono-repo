@@ -6,18 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/DownloadReport.h"
 #include "SulDownloader/SulDownloaderException.h"
-#include "../Common/TestHelpers/TempDir.h"
 
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/WarehouseRepositoryFactory.h"
-#include "SulDownloader/WarehouseError.h"
 #include "SulDownloader/ProductSelection.h"
 #include "SulDownloader/DownloadedProduct.h"
-#include "SulDownloader/ConfigurationData.h"
 #include "SulDownloader/TimeTracker.h"
 #include "MockWarehouseRepository.h"
 
@@ -447,7 +443,8 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     checkReportValue(report, metadata, downloadedProduct);
-    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
+    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),
+                 "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -515,10 +512,11 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
-    EXPECT_STREQ(report.getDescription().c_str(), "");
+    EXPECT_EQ(report.getDescription(), "");
     checkReportValue(report, metadata, downloadedProduct);
 
-    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
+    EXPECT_EQ(report.getProducts()[0].errorDescription,
+              "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -634,9 +632,10 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
-    EXPECT_STREQ(report.getDescription().c_str(), "");
+    EXPECT_EQ(report.getDescription(), "");
     EXPECT_EQ(report.getProducts().size(), 2);
-    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
+    EXPECT_EQ(report.getProducts()[0].errorDescription,
+              "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 

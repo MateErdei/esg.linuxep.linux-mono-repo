@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TimeTracker.h"
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
+#include <sstream>
 
 
 namespace SulDownloader
@@ -58,7 +59,7 @@ namespace SulDownloader
                 report.m_status = WarehouseStatus::INSTALLFAILED;
             }
         }
-        //FIXME: improve the report when the error is associated with the report.downloadedVersion != report.installedVersion
+
         report.m_status = report.setProductsInfo(products, report.m_status);
 
         return report;
@@ -114,23 +115,32 @@ namespace SulDownloader
         m_productReport.clear();
         for (auto & product : products)
         {
-            ProductReport report;
+            ProductReport productReportEntry;
             auto & info = product.getProductMetadata();
-            report.rigidName = info.getLine();
-            report.name = info.getName();
-            report.downloadedVersion = info.getVersion();
-            report.installedVersion = product.getPostUpdateInstalledVersion();
+            productReportEntry.rigidName = info.getLine();
+            productReportEntry.name = info.getName();
+            productReportEntry.downloadedVersion = info.getVersion();
+            productReportEntry.installedVersion = product.getPostUpdateInstalledVersion();
             auto wError = product.getError();
-            report.errorDescription = wError.Description;
-            m_productReport.push_back(report);
+            productReportEntry.errorDescription = wError.Description;
 
             // ensure that an error status is reported
-            if(report.downloadedVersion != report.installedVersion && status == WarehouseStatus::SUCCESS)
+            if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
+                status == WarehouseStatus::SUCCESS)
             {
-                LOGERROR("Downloaded version: " << report.downloadedVersion << " differ from the installed version: "
-                                                << report.installedVersion);
+                std::stringstream errorInfo;
+                errorInfo << "Downloaded version: " << productReportEntry.downloadedVersion
+                          << " differ from the installed version: "
+                          << productReportEntry.installedVersion;
+                LOGERROR(errorInfo.str());
                 status = WarehouseStatus::INSTALLFAILED;
+                if (productReportEntry.errorDescription.empty())
+                {
+                    productReportEntry.errorDescription = errorInfo.str();
+                }
             }
+
+            m_productReport.push_back(productReportEntry);
         }
 
         return status;

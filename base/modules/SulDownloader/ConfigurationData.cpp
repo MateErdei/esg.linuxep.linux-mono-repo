@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloaderException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Logger.h"
+#include "ConfigurationSettings.pb.h"
 
 #include <google/protobuf/util/json_util.h>
 
