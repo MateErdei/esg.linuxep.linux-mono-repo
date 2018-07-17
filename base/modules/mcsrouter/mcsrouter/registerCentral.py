@@ -117,8 +117,9 @@ def register(config, INST, logger):
             mcs.register()
             break
         except MCSException.MCSConnectionFailedException as e:
-            print("ERROR: Failed to connect to Sophos Central: Check URL",file=sys.stderr)
-            logger.fatal("Failed to connect to Sophos Central: Check URL")
+            url = config.get("MCSURL")
+            print("ERROR: Failed to connect to Sophos Central: Check URL: %s"%url, file=sys.stderr)
+            logger.fatal("Failed to connect to Sophos Central: Check URL: %s", url)
             ret = 4
             break
         except MCSConnection.MCSHttpException as e:
