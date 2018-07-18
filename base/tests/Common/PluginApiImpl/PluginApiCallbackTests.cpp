@@ -183,7 +183,7 @@ namespace
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.Payload.clear();
-        expectedAnswer.Payload.push_back("ACK");
+        expectedAnswer.Payload.emplace_back("ACK");
 
         EXPECT_CALL(mock(), queueAction(_));
 
@@ -200,7 +200,7 @@ namespace
 
         std::string actionData = "ActionData";
         expectedAnswer.Payload.clear();
-        expectedAnswer.Payload.push_back(actionData);
+        expectedAnswer.Payload.emplace_back(actionData);
 
         dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";
@@ -214,7 +214,7 @@ namespace
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.Payload.clear();
-        expectedAnswer.Payload.push_back("ACK");
+        expectedAnswer.Payload.emplace_back("ACK");
 
         EXPECT_CALL(mock(), applyNewPolicy(_));
 
@@ -230,7 +230,7 @@ namespace
 
         std::string policyData = "PolicyData";
         expectedAnswer.Payload.clear();
-        expectedAnswer.Payload.push_back(policyData);
+        expectedAnswer.Payload.emplace_back(policyData);
 
         dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";

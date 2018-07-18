@@ -22,7 +22,7 @@ public:
                 ));
     }
 
-    ~TestPluginProxy() = default;
+    ~TestPluginProxy() override = default;
 
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginProxy> m_pluginProxy;
     MockSocketRequester *m_mockSocketRequester;

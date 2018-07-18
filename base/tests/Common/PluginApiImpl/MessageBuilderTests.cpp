@@ -164,7 +164,7 @@ TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)  // NOLINT
 
     DataMessage actualMessage = m_messageBuilder->replyAckMessage(expectedMessage);
 
-    expectedMessage.Payload.push_back("ACK");
+    expectedMessage.Payload.emplace_back("ACK");
 
     EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedMessage, actualMessage );
 }
