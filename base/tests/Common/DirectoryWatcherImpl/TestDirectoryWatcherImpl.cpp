@@ -46,7 +46,7 @@ public:
     }
 
     StrictMock<MockiNotifyWrapper>* m_MockiNotifyWrapper;
-    std::unique_ptr<IDirectoryWatcher> m_DirectoryWatcher;
+    std::unique_ptr<IDirectoryWatcher> m_DirectoryWatcher;std::unique_ptr<IDirectoryWatcher> m_DirectoryWatcher;
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;

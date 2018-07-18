@@ -1,1 +1,2 @@
 add_subdirectory(PluginCommunicationImpl)
+add_subdirectory(McsRouterPluginCommunicationImpl)

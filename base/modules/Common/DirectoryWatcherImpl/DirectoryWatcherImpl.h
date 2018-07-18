@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <map>
 #include <memory>
 #include "Common/Threads/AbstractThread.h"
-#include "IDirectoryWatcher.h"
+#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 
 using namespace Common::DirectoryWatcher;
 

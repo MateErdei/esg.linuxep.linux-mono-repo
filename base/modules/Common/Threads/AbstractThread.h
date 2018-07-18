@@ -30,7 +30,7 @@ namespace Common
              * Start the thread and wait it to be 'really started'.
              * After returning from start, the abstractthread ensures that ::run method has started.
              * After a thread is created, it can be in either initializing, running, finished.
-             * Some come may be simplified by ensuring that a thread is either running or finished.
+             * Some code may be simplified by ensuring that a thread is either running or finished.
              * The start method ensure that, but to do so, it is required that the implementation of ::run method calls
              * ::announceThreadStarted at some point.
              */
@@ -64,7 +64,10 @@ namespace Common
              * @code
              * void MyThread::run() override
              * {
+             *
+             *   // -- DO NOT FORGET TO ADD THIS @see ::announceThreadStarted ---
              *   announceThreadStarted();
+             *
              *   while ( !stopRequested())
              *   {
              *     // do my thread specific task.

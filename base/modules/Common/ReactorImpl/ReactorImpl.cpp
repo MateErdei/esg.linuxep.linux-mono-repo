@@ -171,8 +171,6 @@ namespace Common
 
             m_ReactorState = ReactorState::Stopped;
             m_reactorthread->requestStop();
-            // wait for the thread to stop
-            m_reactorthread.reset();
         }
 
         ReactorImpl::ReactorImpl()
