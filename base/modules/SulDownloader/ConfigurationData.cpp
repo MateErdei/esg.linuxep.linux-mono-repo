@@ -422,7 +422,7 @@ namespace SulDownloader
         std::vector<Proxy> options;
         if ( m_proxy.empty() && hasEnvironmentProxy())
         {
-            options.emplace_back(Proxy("environment:"));
+            options.emplace_back("environment:");
         }
 
         options.push_back(m_proxy);

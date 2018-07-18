@@ -130,7 +130,7 @@ namespace SulDownloader
             {
                 std::stringstream errorInfo;
                 errorInfo << "Downloaded version: " << productReportEntry.downloadedVersion
-                          << " differ from the installed version: "
+                          << " differs from the installed version: "
                           << productReportEntry.installedVersion;
                 LOGERROR(errorInfo.str());
                 status = WarehouseStatus::INSTALLFAILED;

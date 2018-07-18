@@ -444,7 +444,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     checkReportValue(report, metadata, downloadedProduct);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),
-                 "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
+                 "Downloaded version: 1.1.1.1 differs from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -516,7 +516,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     checkReportValue(report, metadata, downloadedProduct);
 
     EXPECT_EQ(report.getProducts()[0].errorDescription,
-              "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
+              "Downloaded version: 1.1.1.1 differs from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -635,7 +635,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     EXPECT_EQ(report.getDescription(), "");
     EXPECT_EQ(report.getProducts().size(), 2);
     EXPECT_EQ(report.getProducts()[0].errorDescription,
-              "Downloaded version: 1.1.1.1 differ from the installed version: 1.0.0.0");
+              "Downloaded version: 1.1.1.1 differs from the installed version: 1.0.0.0");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
