@@ -1,5 +1,11 @@
 include(GoogleTest)
-add_executable(PluginCommunicationImplTests TestPluginServerCallbackHandler.cpp TestPluginManager.cpp TestPluginProxy.cpp MockPluginServerCallback.h MockSocketRequester.h
+add_executable(PluginCommunicationImplTests
+        TestPluginServerCallbackHandler.cpp
+        TestPluginManager.cpp
+        TestPluginProxy.cpp
+        TestStatusCache.cpp
+        MockPluginServerCallback.h
+        MockSocketRequester.h
         ../../../tests/Common/PluginApiImpl/TestCompare.h
         ../../../tests/Common/PluginApiImpl/TestCompare.cpp)
 target_include_directories(PluginCommunicationImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")

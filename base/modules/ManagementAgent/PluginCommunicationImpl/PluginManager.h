@@ -29,7 +29,7 @@ namespace ManagementAgent
         public:
 
             PluginManager();
-            ~PluginManager();
+            ~PluginManager() override;
 
 
             int applyNewPolicy(const std::string &appId, const std::string &policyXml) override;

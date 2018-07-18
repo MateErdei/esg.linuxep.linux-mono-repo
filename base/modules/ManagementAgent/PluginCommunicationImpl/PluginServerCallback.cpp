@@ -16,12 +16,15 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string &eventXml)
         {
-
+            // Write file to directory
         }
 
         void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
         {
-
+            if (m_statusCache.statusChanged(appId,statusInfo.statusWithoutTimestampsXml))
+            {
+                // write file to directory
+            }
         }
 
         std::string PluginServerCallback::receivedGetPolicy(const std::string &appId)

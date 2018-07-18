@@ -117,6 +117,13 @@ namespace Common
 
         };
 
+        /**
+         * Return a BORROWED pointer to a static IFileSystem instance.
+         *
+         * Do not delete this yourself.
+         *
+         * @return BORROWED IFileSystem pointer
+         */
         IFileSystem * fileSystem();
 
     }

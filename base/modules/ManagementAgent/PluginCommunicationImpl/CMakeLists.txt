@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 add_library(plugincommunicationimpl SHARED
+        ../../Common/PluginApi/StatusInfo.h
         ../PluginCommunication/IPluginServerCallback.h
         ../PluginCommunication/IPluginProxy.h
         ../PluginCommunication/IPluginManager.h
@@ -12,7 +13,11 @@ add_library(plugincommunicationimpl SHARED
         PluginProxy.h
         PluginServerCallback.cpp
         PluginServerCallback.h
-        ../../Common/PluginApi/StatusInfo.h Logger.h AppIdCollection.cpp AppIdCollection.h)
+        StatusCache.cpp
+        StatusCache.h
+        Logger.h
+        AppIdCollection.cpp
+        AppIdCollection.h)
 target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)
