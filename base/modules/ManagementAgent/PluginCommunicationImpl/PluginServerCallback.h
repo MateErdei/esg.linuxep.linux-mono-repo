@@ -12,7 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IPluginServerCallback.h"
 #include "PluginManager.h"
 #include "Common/PluginProtocol/DataMessage.h"
-#include "StatusCache.h"
 
 namespace ManagementAgent
 {
@@ -28,7 +27,6 @@ namespace ManagementAgent
             void receivedRegisterWithManagementAgent(const std::string &pluginName) override;
         private:
             PluginManager& m_pluginManagerPtr;
-            StatusCache m_statusCache;
         };
     }
 }

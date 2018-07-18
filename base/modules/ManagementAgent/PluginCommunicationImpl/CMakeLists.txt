@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 add_library(plugincommunicationimpl SHARED
         ../../Common/PluginApi/StatusInfo.h
         ../PluginCommunication/IPluginServerCallback.h
+        ../PluginCommunication/IStatusReceiver.h
         ../PluginCommunication/IPluginProxy.h
         ../PluginCommunication/IPluginManager.h
         ../PluginCommunication/IPluginCommunicationException.h
@@ -13,8 +14,6 @@ add_library(plugincommunicationimpl SHARED
         PluginProxy.h
         PluginServerCallback.cpp
         PluginServerCallback.h
-        StatusCache.cpp
-        StatusCache.h
         Logger.h
         AppIdCollection.cpp
         AppIdCollection.h)

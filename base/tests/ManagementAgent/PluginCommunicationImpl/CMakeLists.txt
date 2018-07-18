@@ -3,7 +3,6 @@ add_executable(PluginCommunicationImplTests
         TestPluginServerCallbackHandler.cpp
         TestPluginManager.cpp
         TestPluginProxy.cpp
-        TestStatusCache.cpp
         MockPluginServerCallback.h
         MockSocketRequester.h
         ../../../tests/Common/PluginApiImpl/TestCompare.h

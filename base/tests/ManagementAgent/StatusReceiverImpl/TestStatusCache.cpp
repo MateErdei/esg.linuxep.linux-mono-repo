@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////
 
-#include <ManagementAgent/PluginCommunicationImpl/StatusCache.h>
+#include <modules/ManagementAgent/StatusReceiverImpl/StatusCache.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
