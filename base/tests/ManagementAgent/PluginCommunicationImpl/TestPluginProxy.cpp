@@ -155,7 +155,7 @@ TEST_F(TestPluginProxy, TestPluginProxyGetStatus)  // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     auto reply = m_pluginProxy->getStatus();
     EXPECT_EQ(reply[0].statusXml, ackMsg.Payload[0]);
-    EXPECT_EQ(reply[0].statusWithoutXml, ackMsg.Payload[1]);
+    EXPECT_EQ(reply[0].statusWithoutTimestampsXml, ackMsg.Payload[1]);
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)  // NOLINT
@@ -190,9 +190,9 @@ TEST_F(TestPluginProxy, TestPluginProxyGetMultipleStatuses)  // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMcsMsg))).RetiresOnSaturation();
     auto reply = m_pluginProxy->getStatus();
     EXPECT_EQ(reply[0].statusXml, ackMcsMsg.Payload[0]);
-    EXPECT_EQ(reply[0].statusWithoutXml, ackMcsMsg.Payload[1]);
+    EXPECT_EQ(reply[0].statusWithoutTimestampsXml, ackMcsMsg.Payload[1]);
     EXPECT_EQ(reply[1].statusXml, ackAlcMsg.Payload[0]);
-    EXPECT_EQ(reply[1].statusWithoutXml, ackAlcMsg.Payload[1]);
+    EXPECT_EQ(reply[1].statusWithoutTimestampsXml, ackAlcMsg.Payload[1]);
 
 }
 

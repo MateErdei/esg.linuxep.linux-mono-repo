@@ -132,7 +132,7 @@ namespace Common
             DataMessage reply(dataMessage);
             reply.Payload.clear();
             reply.Payload.push_back(statusInfo.statusXml);
-            reply.Payload.push_back(statusInfo.statusWithoutXml);
+            reply.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
             return reply;
         }
 

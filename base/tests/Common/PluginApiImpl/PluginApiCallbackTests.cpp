@@ -120,7 +120,7 @@ namespace
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
-        expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
+        expectedAnswer.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
 
         EXPECT_CALL(mock(), getStatus(defaultAppId)).WillOnce(Return(statusInfo));
 
@@ -137,7 +137,7 @@ namespace
         Common::PluginApi::StatusInfo statusInfo{"statusContent","statusNoTimestamp"};
         expectedAnswer.Payload.clear();
         expectedAnswer.Payload.push_back(statusInfo.statusXml);
-        expectedAnswer.Payload.push_back(statusInfo.statusWithoutXml);
+        expectedAnswer.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
 
         dataMessage.Payload.clear();
         dataMessage.ProtocolVersion = "invalid";

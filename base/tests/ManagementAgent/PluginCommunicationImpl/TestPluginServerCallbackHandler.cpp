@@ -114,10 +114,10 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendStatus)
 {
     Common::PluginApi::StatusInfo statusInfo;
-    statusInfo.statusWithoutXml = "withoutXML";
+    statusInfo.statusWithoutTimestampsXml = "withoutXML";
     statusInfo.statusXml = "withXML";
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
 
@@ -134,10 +134,10 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnApiException)
 {
     Common::PluginApi::StatusInfo statusInfo;
-    statusInfo.statusWithoutXml = "withoutXML";
+    statusInfo.statusWithoutTimestampsXml = "withoutXML";
     statusInfo.statusXml = "withXML";
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
 
@@ -156,10 +156,10 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatu
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatusReturnsErrorOnStdException)
 {
     Common::PluginApi::StatusInfo statusInfo;
-    statusInfo.statusWithoutXml = "withoutXML";
+    statusInfo.statusWithoutTimestampsXml = "withoutXML";
     statusInfo.statusXml = "withXML";
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutXml
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
     statusMessage.Payload.push_back(statusInfo.statusXml);
 
