@@ -8,14 +8,14 @@ import os
 
 
 def import_file_list(p, dist):
-    data = open(p).read()
-    files = data.split(";")
     ret = []
-    for f in files:
-        f = f.strip()
-        if f.startswith(dist):
-            f = f[len(dist)+1:]
-        ret.append(f)
+    with open(p).read() as data:
+        files = data.split(";")
+        for f in files:
+            f = f.strip()
+            if f.startswith(dist):
+                f = f[len(dist)+1:]
+            ret.append(f)
     return ret
 
 
@@ -40,16 +40,16 @@ class FileInfo(object):
         sha384calc = hashlib.sha384()
         length = 0
 
-        f = open(self.__m_fullPath)
-        while True:
-            data = f.read(1024*100)
-            if len(data) == 0:
-                break
-            md5calc.update(data)
-            sha1calc.update(data)
-            sha256calc.update(data)
-            sha384calc.update(data)
-            length += len(data)
+        with open(self.__m_fullPath) as f:
+            while True:
+                data = f.read(1024*100)
+                if len(data) == 0:
+                    break
+                md5calc.update(data)
+                sha1calc.update(data)
+                sha256calc.update(data)
+                sha384calc.update(data)
+                length += len(data)
 
         if length < 1024:
             self.m_contents = data
