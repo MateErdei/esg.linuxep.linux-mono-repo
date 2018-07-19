@@ -54,13 +54,20 @@ void Common::TaskQueueImpl::TaskProcessorImplThread::run()
     while ( !stopRequested())
     {
         Common::TaskQueue::ITaskPtr task = m_taskQueue->popTask();
-        if (task != nullptr)
+        if (task)
         {
-            task->run();
+            try
+            {
+                task->run();
+            }
+            catch( std::exception& e)
+            {
+                // TODO: LOG
+            }
         }
         else
         {
-            // LOG?
+            // TODO: LOG
         }
     }
 }

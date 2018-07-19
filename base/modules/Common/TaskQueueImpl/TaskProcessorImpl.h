@@ -24,7 +24,6 @@ namespace Common
         {
         public:
             explicit TaskProcessorImplThread(ITaskQueueSharedPtr taskQueue);
-            void sendStopTask();
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
         private:
             void run() override;
