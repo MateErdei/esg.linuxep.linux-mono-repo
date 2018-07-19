@@ -17,7 +17,6 @@ void Common::TaskQueueImpl::TaskQueueImpl::queueTask(ITaskPtr& task)
     }
 
     std::lock_guard<std::mutex> lock(m_queueMutex);
-    m_queueMutex.unlock();
     m_tasks.push_back(std::move(task));
 
     m_condition.notify_all();
