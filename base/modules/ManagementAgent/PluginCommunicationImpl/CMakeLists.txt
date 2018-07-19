@@ -14,7 +14,7 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallback.h
         ../../Common/PluginApi/StatusInfo.h Logger.h AppIdCollection.cpp AppIdCollection.h)
 target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
-target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl)
+target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)
 install(TARGETS plugincommunicationimpl
         LIBRARY DESTINATION files/base/lib64)
