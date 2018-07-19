@@ -14,6 +14,7 @@ import logging
 import random
 
 logger = logging.getLogger(__name__)
+logger.setLevel(10)
 
 import Computer
 import adapters.AgentAdapter
@@ -34,6 +35,7 @@ import utils.Timestamp
 import utils.IdManager
 import utils.SignalHandler
 import utils.DirectoryWatcher
+import utils.PluginRegistry
 
 class CommandCheckInterval(object):
     DEFAULT_COMMAND_POLLING_INTERVAL = 20
@@ -128,9 +130,9 @@ class MCS(object):
 
         self.__m_computer.addAdapter(adapters.MCSAdapter.MCSAdapter(installDir,self.__m_policy_config,self.__m_config))
 
-        # SHS;NTP;ALC;AGENT;APPSPROXY;HBT;MCS;SAV
-        #~ apps = [ "ALC", "HBT", "NTP", "SHS" ]
-        apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
+        #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
+        self.__plugin_registry = utils.PluginRegistry.PluginRegistry(installDir)
+        apps, ignored = self.__plugin_registry.added_and_removed_appids()
 
         for app in apps:
             self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, self.__m_installDir))
@@ -271,6 +273,17 @@ class MCS(object):
                         # If re-registering due to a de-dupe from Central, clear cache and re-send status.
                         computer.clearCache()
                         statusUpdated(reason="reregistration")
+
+                    # Check for any new appids 'for newly installed plugins'
+                    added_apps, removed_apps = self.__plugin_registry.added_and_removed_appids()
+                    if added_apps or removed_apps:
+                        if  added_apps:
+                            logger.info("New AppIds found to register for: " + ' ,'.join(added_apps))
+                        if removed_apps:
+                            logger.info("AppIds not supported anymore: " ' ,'.join(removed_apps))
+                            # Not removing adapters if plugin uninstalled - this will cause Central to delete commands
+                        for app in added_apps:
+                            self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, self.__m_installDir))
 
                     if time.time() > lastCommands + self.__m_commandCheckInterval.get():
                         logger.debug("Checking for commands")

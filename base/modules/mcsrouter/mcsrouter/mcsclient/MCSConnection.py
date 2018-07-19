@@ -652,8 +652,7 @@ class MCSConnection(object):
         """
         Query any commands the server has for us
         """
-        if appids is None:
-            appids = ["ALC", "SAV", "APPSPROXY", "NTP"]
+        assert(appids is not None)
         commands = self.sendMessageWithId("/commands/applications/%s/endpoint/"%(";".join(appids)))
 
         try:

@@ -208,7 +208,6 @@ class MCSRouter(object):
                 logger.error("GC collected %d objects",count)
                 time.sleep(60)
 
-        # noinspection PyUnreachableCode
         return 100
 
     def run(self):
@@ -266,12 +265,15 @@ def clearTmpDirectory(installDir):
                 pass
 
 def main(argv):
-    installDir = os.environ.get("INST_DIR",None)
+    logger.setLevel(10)
+
+    installDir = os.environ.get("INST",None)
     if installDir is None:
         # Go one directory up from the script's location
         arg0 = sys.argv[0]
         scriptDir = os.path.dirname(os.path.realpath(arg0))
         installDir = os.path.abspath(os.path.join(scriptDir, ".."))
+    logger.info("Started with install directory set to " + installDir)
     clearTmpDirectory(installDir)
     os.umask(0o177)
     config = createConfiguration(installDir, argv)
