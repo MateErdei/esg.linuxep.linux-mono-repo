@@ -23,11 +23,11 @@ namespace Common
         using ITaskPtr = Common::TaskQueue::ITaskPtr;
 
         class TaskQueueImpl
-            : public Common::TaskQueue::ITaskQueue
+            : public virtual Common::TaskQueue::ITaskQueue
         {
         public:
             void queueTask(ITaskPtr& task) override;
-            ITaskPtr popTask();
+            ITaskPtr popTask() override;
         private:
             std::deque<ITaskPtr> m_tasks;
             std::mutex m_queueMutex;

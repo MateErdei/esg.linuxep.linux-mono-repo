@@ -22,6 +22,7 @@ namespace Common
         public:
             virtual ~ITaskQueue() = default;
             virtual void queueTask(ITaskPtr& task) = 0;
+            virtual ITaskPtr popTask() = 0;
         };
     }
 }

@@ -1,0 +1,52 @@
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+
+#ifndef EVEREST_BASE_TASKPROCESSORIMPL_H
+#define EVEREST_BASE_TASKPROCESSORIMPL_H
+
+
+#include <Common/TaskQueue/ITaskProcessor.h>
+#include <Common/TaskQueue/ITaskQueue.h>
+#include <Common/Threads/AbstractThread.h>
+
+namespace Common
+{
+    namespace TaskQueueImpl
+    {
+        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+
+        class TaskProcessorImplThread
+            : public Common::Threads::AbstractThread
+        {
+        public:
+            explicit TaskProcessorImplThread(ITaskQueueSharedPtr taskQueue);
+            void sendStopTask();
+            std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
+        private:
+            void run() override;
+        };
+
+
+
+        class TaskProcessorImpl : public virtual Common::TaskQueue::ITaskProcessor
+        {
+        public:
+            explicit TaskProcessorImpl(ITaskQueueSharedPtr taskQueue);
+
+
+            void start() override;
+
+            void stop() override;
+
+        private:
+            TaskProcessorImplThread m_thread;
+        };
+    }
+}
+
+
+#endif //EVEREST_BASE_TASKPROCESSORIMPL_H
