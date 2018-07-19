@@ -36,14 +36,6 @@ namespace ManagementAgent
             }
 
             // Get appid and task type from file name.
-            try
-            {
-                task.payload = Common::FileSystem::fileSystem()->readFile(task.filePath);
-            }
-            catch(Common::FileSystem::IFileSystemException& e)
-            {
-                LOGWARN("Failed to read from file: " << task.filePath);
-            }
 
             std::string basename = Common::FileSystem::fileSystem()->basename(task.filePath);
 
@@ -62,6 +54,18 @@ namespace ManagementAgent
                 task.taskType = TaskType::Unknown;
             }
 
+            try
+            {
+                if (task.taskType != TaskType::Unknown)
+                {
+                    task.payload = Common::FileSystem::fileSystem()->readFile(task.filePath);
+                }
+            }
+            catch(Common::FileSystem::IFileSystemException& e)
+            {
+                LOGWARN("Failed to read from file: " << task.filePath << ", error: " << e.what());
+            }
+
             return task;
         }
 
@@ -75,6 +79,7 @@ namespace ManagementAgent
             {
                 Task task = getNextTask();
 
+
                 switch (task.taskType)
                 {
                     case TaskType::Policy:
@@ -86,7 +91,7 @@ namespace ManagementAgent
                         m_isRunning = false;
                         continue;
                     default:
-                        LOGWARN("Unknown task found in task queue");
+                        LOGWARN("Unknown task found in task queue: " << task.filePath);
                         continue;
                 }
             }
