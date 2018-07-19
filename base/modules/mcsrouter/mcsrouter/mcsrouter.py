@@ -13,7 +13,7 @@ import signal
 import time
 import __builtin__
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__ if __name__ != "__main___" else "mcsrouter")
 LOG_LEVEL_DEFAULT="INFO"
 
 __builtin__.__dict__['REGISTER_MCS'] = False
@@ -265,15 +265,12 @@ def clearTmpDirectory(installDir):
                 pass
 
 def main(argv):
-    logger.setLevel(10)
-
     installDir = os.environ.get("INST",None)
     if installDir is None:
         # Go one directory up from the script's location
         arg0 = sys.argv[0]
         scriptDir = os.path.dirname(os.path.realpath(arg0))
         installDir = os.path.abspath(os.path.join(scriptDir, ".."))
-    logger.info("Started with install directory set to " + installDir)
     clearTmpDirectory(installDir)
     os.umask(0o177)
     config = createConfiguration(installDir, argv)
@@ -282,6 +279,7 @@ def main(argv):
         daemonise()
 
     sophosLogging = SophosLogging(config,installDir)
+    logger.info("Started with install directory set to " + installDir)
     pidfile = PidFile(installDir)
     try:
         mgmt = MCSRouter(config,installDir)
