@@ -11,6 +11,11 @@ using ITaskPtr = Common::TaskQueue::ITaskPtr;
 
 void Common::TaskQueueImpl::TaskQueueImpl::queueTask(ITaskPtr& task)
 {
+    if (task == nullptr)
+    {
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(m_queueMutex);
     m_queueMutex.unlock();
     m_tasks.push_back(std::move(task));

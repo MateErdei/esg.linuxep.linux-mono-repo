@@ -5,13 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_POLICYDIRECTORYLISTENER_H
-#define EVEREST_BASE_POLICYDIRECTORYLISTENER_H
+#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_TASKDIRECTORYLISTENER_H
+#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_TASKDIRECTORYLISTENER_H
 
+#include <ManagementAgent/PluginCommunication/IPluginManager.h>
 
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
-
-#include "TaskQueue.h"
+#include <Common/TaskQueue/ITaskQueue.h>
 
 #include <vector>
 
@@ -19,10 +19,16 @@ namespace ManagementAgent
 {
     namespace McsRouterPluginCommunicationImpl
     {
-       class TaskDirectoryListener: public Common::DirectoryWatcher::IDirectoryWatcherListener
+        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
+
+        class TaskDirectoryListener: public virtual Common::DirectoryWatcher::IDirectoryWatcherListener
         {
         public:
-            TaskDirectoryListener(const std::string & path, std::shared_ptr<TaskQueue> taskQueue);
+            TaskDirectoryListener(
+                    const std::string & path,
+                    ITaskQueueSharedPtr taskQueue,
+                    PluginCommunication::IPluginManager& pluginManager
+                );
             ~TaskDirectoryListener() = default;
             
             std::string getPath() const override;
@@ -30,12 +36,13 @@ namespace ManagementAgent
             void watcherActive(bool active) override;
 
         private:
+            PluginCommunication::IPluginManager& m_pluginManager;
             std::string m_directoryPath;
-            std::shared_ptr<TaskQueue> m_taskQueue;
+            ITaskQueueSharedPtr m_taskQueue;
             bool m_active;
         };
 
     }
 }
 
-#endif //EVEREST_BASE_POLICYDIRECTORYLISTENER_H
+#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_TASKDIRECTORYLISTENER_H

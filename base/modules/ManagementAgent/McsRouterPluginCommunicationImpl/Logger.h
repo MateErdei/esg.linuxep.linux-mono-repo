@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 
-#ifndef EVEREST_BASE_LOGGER_H
-#define EVEREST_BASE_LOGGER_H
+#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_LOGGER_H
+#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_LOGGER_H
 
 #define LOGINFO(x) std::cerr << x << '\n'
 #define LOGWARN(x) std::cerr << x << '\n'
@@ -16,4 +16,4 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define LOGSUPPORT(x) std::cerr << x << '\n'
 
 
-#endif //EVEREST_BASE_LOGGER_H
+#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_LOGGER_H

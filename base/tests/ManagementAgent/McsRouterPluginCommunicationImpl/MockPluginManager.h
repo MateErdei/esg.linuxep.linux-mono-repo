@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_MOCKPLUGINMANAGER_H
-#define EVEREST_BASE_MOCKPLUGINMANAGER_H
+#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H
+#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H
 
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif //EVEREST_BASE_MOCKPLUGINMANAGER_H
+#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H
