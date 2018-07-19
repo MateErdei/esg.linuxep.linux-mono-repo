@@ -25,7 +25,9 @@ class SigningOracleClientSigner(object):
         self.m_server = xmlrpc_client.ServerProxy(self.m_options.signing_oracle, verbose=verbose, allow_none=1)
 
     def encoded_signature_for_file(self, filepath):
-        data = open(filepath).read()
+        data = []
+        with open(filepath) as f:
+            data = f.read()
         return self.__encoded_signature_for_data(data)
 
     def __encoded_signature_for_data(self, data):
@@ -62,8 +64,9 @@ class Options(object):
 
 def read(p):
     try:
-        c = open(p, "rb").read()
-        return c.split("-----BEGIN SIGNATURE-----")[0]
+        with open(p, "rb") as f:
+            c = f.read()
+            return c.split("-----BEGIN SIGNATURE-----")[0]
     except EnvironmentError:
         return None
 
@@ -99,11 +102,11 @@ def generate_manifest(dist, file_objects):
 
     sig = signer.encoded_signature_for_file(manifest_path)
 
-    output = open(manifest_path, "ab")
-    output.write(sig)
-    output.write(signer.public_cert())
-    output.write(signer.ca_cert())
-    output.close()
+    with open(manifest_path, "ab") as output:
+        output.write(sig)
+        output.write(signer.public_cert())
+        output.write(signer.ca_cert())
+
     return True
 
 
