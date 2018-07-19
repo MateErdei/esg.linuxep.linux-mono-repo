@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/ZeroMQWrapper/IReadWrite.h>
 #include "AbstractListenerServer.h"
 
 #include "Common/ReactorImpl/ReactorImpl.h"

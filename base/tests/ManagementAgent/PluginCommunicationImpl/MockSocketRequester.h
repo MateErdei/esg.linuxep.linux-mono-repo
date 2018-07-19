@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "ISensorDataCallback.h"
+#include "Common/PluginApi/ISensorDataCallback.h"
 #include <memory>
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 

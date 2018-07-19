@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "IReactor.h"
-#include "ICallbackListener.h"
+#include "Common/Reactor/IReactor.h"
+#include "Common/Reactor/ICallbackListener.h"
 #include "Common/Threads/AbstractThread.h"
 
 

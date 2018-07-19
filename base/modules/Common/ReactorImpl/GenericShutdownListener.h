@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Reactor/IShutdownListener.h>
 #include <functional>
-#include "ICallbackListener.h"
+#include "Common/Reactor/ICallbackListener.h"
 namespace Common
 {
     namespace ReactorImpl

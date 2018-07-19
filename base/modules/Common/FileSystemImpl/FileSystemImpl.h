@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 namespace Common
 {

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "ICallbackListener.h"
-#include "IReadable.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
 #include "IShutdownListener.h"
 namespace Common
 {

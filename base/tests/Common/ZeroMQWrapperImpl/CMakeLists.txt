@@ -12,7 +12,7 @@ add_executable(TestZeroMQWrapperImpl
         TestSocketSubscriberImpl.cpp
         )
 
-target_include_directories(TestZeroMQWrapperImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
+target_include_directories(TestZeroMQWrapperImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" ${ZeroMQ_INCLUDE_DIR})
 target_include_directories(TestZeroMQWrapperImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}")
 target_link_libraries(TestZeroMQWrapperImpl gtest gtest_main)
 target_link_libraries(TestZeroMQWrapperImpl zeromqwrapperimpl)

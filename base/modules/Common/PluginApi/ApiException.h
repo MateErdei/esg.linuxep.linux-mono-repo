@@ -7,7 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "Common/Exceptions/IException.h"
+#include <exception>
+#include <stdexcept>
 
 namespace Common
 {
@@ -16,11 +17,11 @@ namespace Common
         /**
          * Exception class to report failures when handling the api requests.
          */
-        class ApiException : public Common::Exceptions::IException
+        class ApiException : public std::runtime_error
         {
         public:
             explicit ApiException(const std::string& what)
-                    : Common::Exceptions::IException(what)
+                    : std::runtime_error(what)
             {}
         };
     }

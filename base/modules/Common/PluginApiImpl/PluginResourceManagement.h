@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
-
-#include "IPluginResourceManagement.h"
+#ifndef EVEREST_BASE_PLUGINRESOURCEMANAGEMENT_H
+#define EVEREST_BASE_PLUGINRESOURCEMANAGEMENT_H
+#include "Common/PluginApi/IPluginResourceManagement.h"
 #include "Common/ZeroMQWrapper/IContextPtr.h"
 #include "Common/ZeroMQWrapper/ISocketSetup.h"
 namespace Common
@@ -40,4 +40,4 @@ namespace Common
 }
 
 
-
+#endif //EVEREST_BASE_PLUGINRESOURCEMANAGEMENT_H

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "Common/PluginProtocol/Protocol.h"
-
+#include "Common/ZeroMQWrapper/IReadWrite.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/Reactor/IReactor.h"
 #include "Common/Reactor/ICallbackListener.h"

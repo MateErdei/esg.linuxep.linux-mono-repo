@@ -1,4 +1,4 @@
-add_library(reactorimpl SHARED
+add_library(reactorimplobject OBJECT
         ../Reactor/ICallbackListener.h
         ../Reactor/IShutdownListener.h
         ../Reactor/IReactor.h
@@ -11,7 +11,9 @@ add_library(reactorimpl SHARED
         ReadableFd.h
         ReadableFd.cpp)
 
-target_include_directories(reactorimpl PUBLIC ../Reactor ../../Common ../../Common/ZeroMQWrapper )
+target_include_directories(reactorimplobject PUBLIC ../Reactor ../../Common ../../Common/ZeroMQWrapper )
+add_library(reactorimpl SHARED $<TARGET_OBJECTS:reactorimplobject> )
+
 target_link_libraries(reactorimpl PUBLIC zeromqwrapperimpl threads)
 
 

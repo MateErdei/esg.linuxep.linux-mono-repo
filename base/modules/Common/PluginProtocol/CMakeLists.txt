@@ -1,6 +1,22 @@
-add_library(pluginprotocol SHARED
+add_library(pluginprotocolobject OBJECT
         DataMessage.h
         DataMessage.cpp
-        Logger.h)
+        Logger.h
+        AbstractListenerServer.cpp
+        AbstractListenerServer.h
+        MessageBuilder.cpp
+        MessageBuilder.h
+        Protocol.h
+        Protocol.cpp
+        ProtocolSerializer.h
+        ProtocolSerializer.cpp
+        IProtocolSerializer.h
+        ProtocolSerializerFactory.h
+        ProtocolSerializerFactory.cpp
+        )
+target_include_directories(pluginprotocolobject PUBLIC ../ZeroMQWrapper ../Reactor ../../)
+add_library(pluginprotocol SHARED $<TARGET_OBJECTS:pluginprotocolobject> )
+
+target_link_libraries(pluginprotocol PUBLIC zeromqwrapperimpl)
 install(TARGETS pluginprotocol
         LIBRARY DESTINATION files/base/lib64)
