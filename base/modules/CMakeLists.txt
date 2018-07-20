@@ -4,3 +4,4 @@ add_subdirectory(mcsrouter)
 add_subdirectory(ManagementAgent)
 
 add_subdirectory(SulDownloader)
+add_subdirectory(Watchdog)

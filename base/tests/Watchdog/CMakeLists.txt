@@ -1,0 +1,11 @@
+include(GoogleTest)
+add_executable(WatchdogTests WatchdogTests.cpp)
+target_include_directories(WatchdogTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
+#message( "check"  "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
+target_include_directories(WatchdogTests BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" ${PROJECT_SOURCE_DIR}/modules/Watchdog)
+target_link_libraries(WatchdogTests gtest gmock gtest_main)
+target_link_libraries(WatchdogTests applicationconfigurationimpl watchdogimpl)
+gtest_discover_tests(WatchdogTests)
+add_dependencies(WatchdogTests watchdogimpl gmock)
+
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")

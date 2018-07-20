@@ -1,5 +1,4 @@
-add_subdirectory(commandline)
 add_subdirectory(distribution)
 add_subdirectory(installer)
-add_subdirectory(mcsrouter)
 add_subdirectory(SulDownloader)
+add_subdirectory(Watchdog)
