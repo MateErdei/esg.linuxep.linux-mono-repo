@@ -37,3 +37,16 @@ add_library(pluginapi SHARED
         )
 
 target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} )
+
+file(GLOB_RECURSE pluginapiheaders
+        ../PluginApi/* )
+
+add_custom_target(
+        plugintar
+        COMMAND mkdir -p pluginapi/include pluginapi/lib64
+        COMMAND cp ${pluginapiheaders} pluginapi/include
+        COMMAND cp $<TARGET_FILE:pluginapi> pluginapi/lib64
+        COMMAND tar -czf pluginapi.tar.gz pluginapi
+        COMMAND rm -rf pluginapi
+        COMMAND mv pluginapi.tar.gz ${PROJECT_BINARY_DIR}
+)
