@@ -25,6 +25,12 @@ class Computer(object):
         logger.info("Adding %s adapter", appId)
         self.__m_adapters[appId] = adapter
 
+    def removeAdapterByAppId(self, appId):
+        try:
+            del self.__m_adapters[appId]
+        except Exception as ex:
+            logger.warning('Failed to remove adapter: ' + str(ex))
+
     def getTimestamp(self):
         return utils.Timestamp.timestamp()
 

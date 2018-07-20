@@ -13,6 +13,8 @@ import select
 import logging
 import random
 
+logger = logging.getLogger(__name__)
+
 import Computer
 import adapters.AgentAdapter
 import adapters.EventReceiver
@@ -281,6 +283,10 @@ class MCS(object):
                             # Not removing adapters if plugin uninstalled - this will cause Central to delete commands
                         for app in added_apps:
                             self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, self.__m_installDir))
+                        appids = [app for app in self.__m_computer.getAppIds() if app not in ['APPSPROXY','AGENT']]
+                        logger.info("Reconfiguring the APPSPROXY to handle: " + ' '.join(appids))
+                        self.__m_computer.removeAdapterByAppId('APPSPROXY')
+                        self.__m_computer.addAdapter(adapters.AppProxyAdapter.AppProxyAdapter(appids))
 
                     if time.time() > lastCommands + self.__m_commandCheckInterval.get():
                         logger.debug("Checking for commands")
