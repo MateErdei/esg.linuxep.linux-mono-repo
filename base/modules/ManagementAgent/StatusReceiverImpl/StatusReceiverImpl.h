@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_STATUSRECEIVERIMPL_H
-#define EVEREST_BASE_STATUSRECEIVERIMPL_H
+#ifndef MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSRECEIVERIMPL_H
+#define MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSRECEIVERIMPL_H
 
 #include "StatusCache.h"
 
@@ -18,13 +18,16 @@ namespace ManagementAgent
         class StatusReceiverImpl : public virtual ManagementAgent::PluginCommunication::IStatusReceiver
         {
         public:
+            explicit StatusReceiverImpl(const std::string& mcsDir);
 
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) override;
         private:
             StatusCache m_statusCache;
+            std::string m_tempDir;
+            std::string m_statusDir;
         };
     }
 }
 
 
-#endif //EVEREST_BASE_STATUSRECEIVERIMPL_H
+#endif //MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSRECEIVERIMPL_H

@@ -11,23 +11,37 @@ def getHeaderGuard(p):
     h = p
     while True:
         (h,t) = os.path.split(h)
-        if t in ("modules","tests","products"):
+        if t in (b"modules",b"tests",b"products"):
             break
-        parts.append(t.upper().replace(".","_"))
+        parts.append(t.upper().replace(b".",b"_"))
     parts.reverse()
-    return "_".join(parts)
+    return b"_".join(parts)
 
 ## Replace first ifndef
-IFNDEF_RE = re.compile(r"#ifndef ([A-Z_]+)")
+IFNDEF_RE = re.compile(br"#ifndef ([A-Z_]+)")
+
 
 def fixup(p):
+    # type: (str) -> None
+    if os.path.isdir(p):
+        for f in os.listdir(p):
+            if f in (".", ".."):
+                continue
+            fixup(os.path.join(p, f))
+
+    elif not os.path.isfile(p):
+        return
+
+    if not p.endswith(".h"):
+        return
+
     f = open(p)
     lines = f.readlines()
     f.close()
     output = []
     guard = getHeaderGuard(p)
     oldguard = None
-    print("Fixing up %s with %s"%(p,guard))
+    changed = False
     for line in lines:
         if oldguard is not None:
             output.append(line.replace(oldguard,guard))
@@ -39,11 +53,15 @@ def fixup(p):
             continue
 
         oldguard = mo.group(1)
+        if oldguard != guard:
+            changed = True
         output.append(line.replace(oldguard,guard))
 
-    f = open(p,"w")
-    f.writelines(output)
-    f.close()
+    if changed:
+        print("Fixing up %s with %s"%(p,guard))
+        f = open(p,"w")
+        f.writelines(output)
+        f.close()
 
 
 def main(argv):
