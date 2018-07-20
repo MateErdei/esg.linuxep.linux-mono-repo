@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace ::testing;
 
+using ManagementAgent::PluginCommunication::IStatusReceiver;
 
 class MockPluginManager : public ManagementAgent::PluginCommunication::IPluginManager
 {
@@ -28,6 +29,7 @@ public:
     MOCK_METHOD3(setAppIds, void(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds));
     MOCK_METHOD1(registerPlugin, void(const std::string &pluginName));
     MOCK_METHOD1(removePlugin, void(const std::string &pluginName));
+    MOCK_METHOD1(setStatusReceiver, void(std::shared_ptr<IStatusReceiver>& statusReceiver));
 public:
 };
 

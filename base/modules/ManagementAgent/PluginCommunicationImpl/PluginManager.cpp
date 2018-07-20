@@ -166,14 +166,10 @@ namespace PluginCommunicationImpl
 
     void PluginManager::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
     {
-//        if (m_serverCallbackHandler != nullptr)
-//        {
-//            PluginServerCallback* test = dynamic_cast<PluginServerCallback>(m_serverCallbackHandler.get());
-//            if (test != nullptr)
-//            {
-//                test->setStatusReceiver(statusReceiver);
-//            }
-//        }
+        if (m_serverCallbackHandler != nullptr)
+        {
+            m_serverCallbackHandler->setStatusReceiver(statusReceiver);
+        }
     }
 }
 }

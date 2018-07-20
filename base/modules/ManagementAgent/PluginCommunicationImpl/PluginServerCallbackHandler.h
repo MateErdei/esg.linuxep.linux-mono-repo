@@ -25,6 +25,7 @@ namespace PluginCommunicationImpl
         PluginServerCallbackHandler(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
                                     std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback);
 
+        void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
 
     private:
         DataMessage process(const DataMessage &request) const override;
