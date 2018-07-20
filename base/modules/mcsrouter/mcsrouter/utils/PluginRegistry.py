@@ -3,7 +3,7 @@ import json
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(10)
+
 def get_appids_from_plugin_registry_json(file_path):
 
     try:
@@ -16,6 +16,7 @@ def get_appids_from_plugin_registry_json(file_path):
     except Exception as ex:
         logger.error("Failed to load plugin file")
         logger.error(str(ex))
+        return None
 
 
 def get_appids_from_directory(directory_path):

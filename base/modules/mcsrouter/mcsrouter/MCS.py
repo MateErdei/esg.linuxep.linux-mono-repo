@@ -13,9 +13,6 @@ import select
 import logging
 import random
 
-logger = logging.getLogger(__name__)
-logger.setLevel(10)
-
 import Computer
 import adapters.AgentAdapter
 import adapters.EventReceiver
