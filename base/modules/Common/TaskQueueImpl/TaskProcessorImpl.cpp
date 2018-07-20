@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "TaskProcessorImpl.h"
+#include "Logger.h"
 
 Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue)
         : m_thread(taskQueue)
@@ -62,12 +63,12 @@ void Common::TaskQueueImpl::TaskProcessorImplThread::run()
             }
             catch( std::exception& e)
             {
-                // TODO: LOG
+                LOGERROR("Failed to run task with error: " << e.what());
             }
         }
         else
         {
-            // TODO: LOG
+            LOGWARN("Failed to obtain task from queue");
         }
     }
 }

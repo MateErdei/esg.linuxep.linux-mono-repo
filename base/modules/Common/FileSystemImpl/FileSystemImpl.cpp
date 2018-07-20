@@ -328,6 +328,16 @@ namespace Common
 
             return files;
         }
+
+        void FileSystemImpl::removeFile(const Path& path) const
+        {
+            if (::remove(path.c_str()) != 0)
+            {
+                int errn = errno;
+                std::string error_cause = ::strerror(errn);
+                throw Common::FileSystem::IFileSystemException("Failed to delete file: "+ path + ". Cause: " + error_cause);
+            }
+        }
     }
 }
 

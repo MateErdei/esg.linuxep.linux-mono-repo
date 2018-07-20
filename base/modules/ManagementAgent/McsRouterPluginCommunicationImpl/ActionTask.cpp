@@ -5,12 +5,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include "PolicyTask.h"
+#include "ActionTask.h"
 #include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
-void ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::run()
+void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 {
 
     std::string basename = Common::FileSystem::fileSystem()->basename(m_filePath);
@@ -19,12 +19,11 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::run()
 
     if (pos == std::string::npos)
     {
-        LOGWARN("Got an invalid file name for policy detection: "<<m_filePath);
+        LOGWARN("Got an invalid file name for action detection: "<<m_filePath);
         return;
     }
 
     std::string appId = basename.substr(0, pos);
-
     std::string payload;
 
     try
@@ -37,11 +36,12 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::run()
         throw;
     }
 
-    int newPolicyResult = m_pluginManager.applyNewPolicy(appId, payload);
-    LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
+    m_pluginManager.queueAction(appId, payload);
+    Common::FileSystem::fileSystem()->removeFile(m_filePath);
+
 }
 
-ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::PolicyTask(
+ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
         ManagementAgent::PluginCommunication::IPluginManager& pluginManager, std::string filePath)
     : m_pluginManager(pluginManager),
       m_filePath(std::move(filePath))

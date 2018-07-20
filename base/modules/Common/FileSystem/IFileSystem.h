@@ -19,6 +19,7 @@ namespace Common
         class IFileSystem
         {
         public:
+            virtual ~IFileSystem() = default;
             /**
              * Joins 2 linux paths together
              * @param path1, first part the path
@@ -26,6 +27,8 @@ namespace Common
              * @return string containing the joined path
              */
             virtual Path join(const Path& path1, const Path & path2)const = 0;
+
+            virtual Path join(const Path& path1, const Path & path2, const Path& path3 )const = 0;
 
             /**
              * Gets the last part i.e. file name from the given path
@@ -115,15 +118,29 @@ namespace Common
              */
             virtual std::vector<Path> listFiles( const Path & directoryPath ) const = 0;
 
+
+            virtual void makeExecutable(const Path &path) const =0;
+
+            /**
+             * Create a directory tree
+             * @param path, the directory path that will be created
+             */
+             virtual void makedirs(const Path& path) const =0;
+
+             /**
+              * Copy one file to another
+              * @param src, source file that is to be copied
+              * @param dest, location where the file will be copied to
+              */
+             virtual void copyFile(const Path &src, const Path &dest) const =0;
+
+             /**
+             * Remove file from filesystem
+             * @param path, full path to the file which is to be deleted
+             */
+             virtual void removeFile(const Path &path) const = 0;
         };
 
-        /**
-         * Return a BORROWED pointer to a static IFileSystem instance.
-         *
-         * Do not delete this yourself.
-         *
-         * @return BORROWED IFileSystem pointer
-         */
         IFileSystem * fileSystem();
 
     }

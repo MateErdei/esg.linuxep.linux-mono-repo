@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "TaskDirectoryListener.h"
 #include "PolicyTask.h"
+#include "ActionTask.h"
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -48,7 +49,7 @@ namespace ManagementAgent
             }
             else if (filename.find("action") != std::string::npos)
             {
-                //Create ActionTask
+                task.reset(new ActionTask(m_pluginManager, fullPath));
             }
             else
             {

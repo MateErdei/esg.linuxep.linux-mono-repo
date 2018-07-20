@@ -46,6 +46,8 @@ namespace Common
             void makeExecutable(const Path &path) const override;
 
             std::vector<Path> listFiles( const Path & directoryPath ) const override;
+
+            void removeFile(const Path &path) const override;
         };
 
         /** To be used in tests only */
