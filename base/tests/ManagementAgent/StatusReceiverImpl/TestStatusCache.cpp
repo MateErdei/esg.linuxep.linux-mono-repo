@@ -12,12 +12,12 @@
 
 TEST(TestStatusCache, TestConstruction) // NOLINT
 {
-    ManagementAgent::PluginCommunicationImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 }
 
 TEST(TestStatusCache, CanAddFirstStatus) // NOLINT
 {
-    ManagementAgent::PluginCommunicationImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -25,7 +25,7 @@ TEST(TestStatusCache, CanAddFirstStatus) // NOLINT
 
 TEST(TestStatusCache, CanAddDifferentApps) // NOLINT
 {
-    ManagementAgent::PluginCommunicationImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -36,7 +36,7 @@ TEST(TestStatusCache, CanAddDifferentApps) // NOLINT
 
 TEST(TestStatusCache, CanAddChangedStatus) // NOLINT
 {
-    ManagementAgent::PluginCommunicationImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -47,7 +47,7 @@ TEST(TestStatusCache, CanAddChangedStatus) // NOLINT
 
 TEST(TestStatusCache, DontSendSameStatus) // NOLINT
 {
-    ManagementAgent::PluginCommunicationImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);

@@ -13,7 +13,7 @@
 
 namespace ManagementAgent
 {
-    namespace PluginCommunicationImpl
+    namespace StatusReceiverImpl
     {
         class IStatusCache
         {

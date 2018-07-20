@@ -47,7 +47,7 @@ namespace PluginCommunicationImpl
         {
             m_serverCallbackHandler->stop();
         }
-        m_serverCallbackHandler.reset( new PluginServerCallbackHandler( std::move(replier), serverCallback) );
+        m_serverCallbackHandler.reset( new PluginServerCallbackHandler( std::move(replier), std::move(serverCallback) ) );
         m_serverCallbackHandler->start();
     }
 
@@ -162,6 +162,18 @@ namespace PluginCommunicationImpl
     {
         socket.setTimeout(m_defaultTimeout);
         socket.setConnectionTimeout(m_defaultConnectTimeout);
+    }
+
+    void PluginManager::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+    {
+//        if (m_serverCallbackHandler != nullptr)
+//        {
+//            PluginServerCallback* test = dynamic_cast<PluginServerCallback>(m_serverCallbackHandler.get());
+//            if (test != nullptr)
+//            {
+//                test->setStatusReceiver(statusReceiver);
+//            }
+//        }
     }
 }
 }

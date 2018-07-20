@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 #include "StatusCache.h"
 
-bool ManagementAgent::PluginCommunicationImpl::StatusCache::statusChanged(const std::string& appid,
+bool ManagementAgent::StatusReceiverImpl::StatusCache::statusChanged(const std::string& appid,
                                                                           const std::string& statusForComparison)
 {
     auto search = m_statusCache.find(appid);
@@ -21,7 +21,7 @@ bool ManagementAgent::PluginCommunicationImpl::StatusCache::statusChanged(const 
     return updateStatus(appid, statusForComparison);
 }
 
-bool ManagementAgent::PluginCommunicationImpl::StatusCache::updateStatus(const std::string& appid,
+bool ManagementAgent::StatusReceiverImpl::StatusCache::updateStatus(const std::string& appid,
                                                                          const std::string& statusForComparison)
 {
     m_statusCache[appid] = statusForComparison;

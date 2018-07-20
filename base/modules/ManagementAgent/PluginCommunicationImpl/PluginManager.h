@@ -49,6 +49,7 @@ namespace ManagementAgent
             Common::ZeroMQWrapper::IContext & getSocketContext();
             void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
 
+            void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
         private:
 

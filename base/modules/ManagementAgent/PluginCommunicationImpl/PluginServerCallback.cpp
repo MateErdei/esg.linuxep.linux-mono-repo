@@ -21,11 +21,10 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
         {
-//
-//            if (m_statusCache.statusChanged(appId,statusInfo.statusWithoutTimestampsXml))
-//            {
-//                // write file to directory
-//            }
+            if (m_statusReceiver != nullptr)
+            {
+                m_statusReceiver->receivedChangeStatus(appId, statusInfo);
+            }
         }
 
         std::string PluginServerCallback::receivedGetPolicy(const std::string &appId)
@@ -36,6 +35,11 @@ namespace ManagementAgent
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
         {
             m_pluginManagerPtr.registerPlugin(pluginName);
+        }
+
+        void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+        {
+            m_statusReceiver = statusReceiver;
         }
     }
 }

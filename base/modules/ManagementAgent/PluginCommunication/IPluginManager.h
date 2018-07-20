@@ -84,6 +84,13 @@ namespace PluginCommunication
          * @param pluginName
          */
         virtual void removePlugin(const std::string &pluginName) = 0;
+
+        /**
+         * Set the status receiver for statuses from plugins
+         *
+         * @param statusReceiver
+         */
+        virtual void setStatusReceiver(std::shared_ptr<IStatusReceiver>& statusReceiver) = 0;
     };
 }
 }
