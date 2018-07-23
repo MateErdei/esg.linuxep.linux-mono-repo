@@ -16,7 +16,10 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string &eventXml)
         {
-            // Write file to directory
+            if (m_eventReceiver != nullptr)
+            {
+                m_eventReceiver->receivedSendEvent(appId, eventXml);
+            }
         }
 
         void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
@@ -40,6 +43,11 @@ namespace ManagementAgent
         void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
         {
             m_statusReceiver = statusReceiver;
+        }
+
+        void PluginServerCallback::setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+        {
+            m_eventReceiver = receiver;
         }
     }
 }

@@ -1,3 +1,4 @@
+add_subdirectory(EventReceiverImpl)
 add_subdirectory(PluginCommunicationImpl)
 add_subdirectory(McsRouterPluginCommunicationImpl)
 add_subdirectory(StatusReceiverImpl)

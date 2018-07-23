@@ -70,5 +70,13 @@ namespace ManagementAgent
             assert(test != nullptr);
             test->setStatusReceiver(statusReceiver);
         }
+
+        void PluginServerCallbackHandler::setEventReceiver(
+                std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+        {
+            auto test = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
+            assert(test != nullptr);
+            test->setEventReceiver(receiver);
+        }
     }
 }

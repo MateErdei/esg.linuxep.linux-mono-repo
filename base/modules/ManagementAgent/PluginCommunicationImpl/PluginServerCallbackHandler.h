@@ -26,6 +26,7 @@ namespace PluginCommunicationImpl
                                     std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback);
 
         void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
+        void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
 
     private:
         DataMessage process(const DataMessage &request) const override;

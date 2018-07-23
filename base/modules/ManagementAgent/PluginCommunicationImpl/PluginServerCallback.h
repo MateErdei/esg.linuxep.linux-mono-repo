@@ -28,9 +28,11 @@ namespace ManagementAgent
 
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
+            void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
         private:
             PluginManager& m_pluginManagerPtr;
             std::shared_ptr<PluginCommunication::IStatusReceiver> m_statusReceiver;
+            std::shared_ptr<PluginCommunication::IEventReceiver> m_eventReceiver;
         };
     }
 }

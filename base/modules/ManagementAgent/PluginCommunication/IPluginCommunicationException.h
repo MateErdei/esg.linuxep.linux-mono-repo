@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IMANAGEMENTAGENTEXCEPTION_H
-#define EVEREST_BASE_IMANAGEMENTAGENTEXCEPTION_H
+#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H
+#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H
 
 
 #include "Common/Exceptions/IException.h"
@@ -24,4 +24,4 @@ namespace PluginCommunication
 }
 }
 
-#endif //EVEREST_BASE_IMANAGEMENTAGENTEXCEPTION_H
+#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H

@@ -8,7 +8,7 @@
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 
-#include "FakeQueue.h"
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 

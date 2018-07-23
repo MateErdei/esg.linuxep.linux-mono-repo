@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IPLUGINPROXY_H
-#define EVEREST_BASE_IPLUGINPROXY_H
+#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINPROXY_H
+#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINPROXY_H
 
 #include "Common/PluginApi/StatusInfo.h"
 #include "Common/PluginProtocol/DataMessage.h"
@@ -89,4 +89,4 @@ namespace PluginCommunication
 }
 }
 
-#endif //EVEREST_BASE_IPLUGINPROXY_H
+#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINPROXY_H

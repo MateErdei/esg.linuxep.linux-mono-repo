@@ -16,7 +16,7 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallback.h
         Logger.h
         AppIdCollection.cpp
-        AppIdCollection.h)
+        AppIdCollection.h ../PluginCommunication/IEventReceiver.h)
 target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)

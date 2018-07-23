@@ -30,6 +30,7 @@ public:
     MOCK_METHOD1(registerPlugin, void(const std::string &pluginName));
     MOCK_METHOD1(removePlugin, void(const std::string &pluginName));
     MOCK_METHOD1(setStatusReceiver, void(std::shared_ptr<IStatusReceiver>& statusReceiver));
+    MOCK_METHOD1(setEventReceiver, void(std::shared_ptr<ManagementAgent::PluginCommunication::IEventReceiver>& receiver));
 public:
 };
 

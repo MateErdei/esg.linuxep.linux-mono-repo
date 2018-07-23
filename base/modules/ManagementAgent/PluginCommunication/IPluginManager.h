@@ -4,13 +4,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IPLUGINMANAGER_H
-#define EVEREST_BASE_IPLUGINMANAGER_H
+#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
+#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
 
-#include <string>
 #include "IPluginProxy.h"
 #include "IPluginServerCallback.h"
-#include "Common/PluginProtocol/DataMessage.h"
+#include "IStatusReceiver.h"
+#include "IEventReceiver.h"
+
+#include <Common/PluginProtocol/DataMessage.h>
+
+#include <string>
 
 namespace ManagementAgent
 {
@@ -86,14 +90,21 @@ namespace PluginCommunication
         virtual void removePlugin(const std::string &pluginName) = 0;
 
         /**
-         * Set the status receiver for statuses from plugins
+         * Set the status receiver for statuses from plugins, if using default callback handler
          *
          * @param statusReceiver
          */
         virtual void setStatusReceiver(std::shared_ptr<IStatusReceiver>& statusReceiver) = 0;
+
+        /**
+         * Set the event receiver for statuses from plugins, if using default callback handler
+         *
+         * @param receiver
+         */
+        virtual void setEventReceiver(std::shared_ptr<IEventReceiver>& receiver) = 0;
     };
 }
 }
 
-#endif //EVEREST_BASE_IPLUGINMANAGER_H
+#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
 

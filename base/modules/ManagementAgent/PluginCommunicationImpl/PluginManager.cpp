@@ -171,6 +171,15 @@ namespace PluginCommunicationImpl
             m_serverCallbackHandler->setStatusReceiver(statusReceiver);
         }
     }
+
+    void PluginManager::setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
+    {
+        if (m_serverCallbackHandler != nullptr)
+        {
+            m_serverCallbackHandler->setEventReceiver(receiver);
+        }
+    }
+
 }
 }
 

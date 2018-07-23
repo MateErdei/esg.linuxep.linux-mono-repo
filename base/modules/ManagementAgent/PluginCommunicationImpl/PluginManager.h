@@ -51,6 +51,8 @@ namespace ManagementAgent
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
+            void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;
+
         private:
 
             PluginCommunication::IPluginProxy* getPlugin(const std::string &pluginName);
