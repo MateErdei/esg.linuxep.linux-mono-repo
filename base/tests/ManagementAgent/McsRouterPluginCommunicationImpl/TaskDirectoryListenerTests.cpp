@@ -27,29 +27,30 @@ public:
 
     void SetUp() override
     {
-
+        m_mockTaskQueue = std::make_shared<StrictMock<MockTaskQueue>>();
     }
 
     void TearDown() override
     {
 
     }
+
+    StrictMock<MockPluginManager> m_mockPluginManager;
+    std::shared_ptr<StrictMock<MockTaskQueue>> m_mockTaskQueue;
 };
 
 TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles)
 {
-
     std::string filePath = "/tmp/base/policy"; //"/opt/sophos-sspl/base/policy"
     std::string filename = "appId1-unknown.txt";
     std::string file1 = Common::FileSystem::fileSystem()->join(filePath, filename);
 
-    MockPluginManager mockPluginManager;
-    std::shared_ptr<MockTaskQueue> mockTaskQueue(new MockTaskQueue());
 
-    EXPECT_CALL(*mockTaskQueue, queueTask(_)).Times(0);
+
+    EXPECT_CALL(*m_mockTaskQueue, queueTask(_)).Times(0);
 
     std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener>
-            listener1(new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(filePath,mockTaskQueue,mockPluginManager));
+            listener1(new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(filePath, m_mockTaskQueue, m_mockPluginManager));
 
     listener1->fileMoved(filename);
 }

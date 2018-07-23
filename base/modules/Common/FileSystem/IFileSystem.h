@@ -119,7 +119,7 @@ namespace Common
             virtual std::vector<Path> listFiles( const Path & directoryPath ) const = 0;
 
 
-            virtual void makeExecutable(const Path &path) const =0;
+            virtual void makeExecutable(const Path& path) const =0;
 
             /**
              * Create a directory tree
@@ -132,13 +132,13 @@ namespace Common
               * @param src, source file that is to be copied
               * @param dest, location where the file will be copied to
               */
-             virtual void copyFile(const Path &src, const Path &dest) const =0;
+             virtual void copyFile(const Path& src, const Path &dest) const =0;
 
              /**
              * Remove file from filesystem
              * @param path, full path to the file which is to be deleted
              */
-             virtual void removeFile(const Path &path) const = 0;
+             virtual void removeFile(const Path& path) const = 0;
         };
 
         IFileSystem * fileSystem();

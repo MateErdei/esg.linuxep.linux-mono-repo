@@ -51,6 +51,7 @@ public:
 
     void TearDown() override
     {
+        m_taskQueueProcessor->stop();
         m_tempDir.reset(nullptr);
         m_taskQueueProcessor.reset(nullptr);
         m_taskQueue.reset();
@@ -105,7 +106,6 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     directoryWatcher.reset();
-    m_taskQueueProcessor->stop();
 
 }
 
@@ -169,6 +169,5 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessMultip
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     directoryWatcher.reset();
-    m_taskQueueProcessor->stop();
 
 }

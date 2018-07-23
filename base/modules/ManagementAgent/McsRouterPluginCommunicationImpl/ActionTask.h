@@ -23,11 +23,8 @@ namespace ManagementAgent
             : public virtual Common::TaskQueue::ITask
         {
         public:
+            ActionTask(PluginCommunication::IPluginManager& pluginManager, const std::string& filePath);
             void run() override;
-            ActionTask(
-                    PluginCommunication::IPluginManager& pluginManager,
-                    std::string filePath
-                    );
         private:
 
             PluginCommunication::IPluginManager& m_pluginManager;

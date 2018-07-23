@@ -10,6 +10,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
+ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
+        ManagementAgent::PluginCommunication::IPluginManager& pluginManager, const std::string& filePath)
+        : m_pluginManager(pluginManager),
+          m_filePath(std::move(filePath))
+{
+}
+
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 {
 
@@ -39,11 +46,4 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
     m_pluginManager.queueAction(appId, payload);
     Common::FileSystem::fileSystem()->removeFile(m_filePath);
 
-}
-
-ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
-        ManagementAgent::PluginCommunication::IPluginManager& pluginManager, std::string filePath)
-    : m_pluginManager(pluginManager),
-      m_filePath(std::move(filePath))
-{
 }

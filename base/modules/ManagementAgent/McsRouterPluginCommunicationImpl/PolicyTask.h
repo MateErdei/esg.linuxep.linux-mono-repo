@@ -10,9 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
-
 #include <Common/TaskQueue/ITask.h>
-
 #include <string>
 
 namespace ManagementAgent

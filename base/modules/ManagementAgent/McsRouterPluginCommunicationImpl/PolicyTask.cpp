@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "PolicyTask.h"
 #include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::run()
 {
