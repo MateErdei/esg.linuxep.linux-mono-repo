@@ -6,36 +6,34 @@
 ///////////////////////////////////////////////////////////
 
 #include "StatusReceiverImpl.h"
+#include "StatusTask.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/TaskQueue/ITask.h>
 
-ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(const std::string& mcsDir)
+ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(const std::string& mcsDir,
+                                                                            Common::TaskQueue::ITaskQueue& taskQueue)
+    : m_taskQueue(taskQueue)
 {
     m_tempDir = Common::FileSystem::fileSystem()->join(mcsDir,"tmp");
     m_statusDir = Common::FileSystem::fileSystem()->join(mcsDir,"status");
 }
 
-namespace
-{
-    /**
-     * Generate <appId>_status.xml
-     * @param appId
-     * @return
-     */
-    Path createStatusFilename(const std::string& appId)
-    {
-        return appId+"_status.xml";
-    }
-}
-
 void ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::receivedChangeStatus(const std::string& appId,
                                                                                    const Common::PluginApi::StatusInfo& statusInfo)
 {
-    if (m_statusCache.statusChanged(appId,statusInfo.statusWithoutTimestampsXml))
-    {
-        Path basename = createStatusFilename(appId);
-        Path filepath = Common::FileSystem::fileSystem()->join(m_statusDir,basename);
-        // write file to directory
-        Common::FileSystem::fileSystem()->writeFileAtomically(filepath,statusInfo.statusXml,m_tempDir);
-    }
+    std::unique_ptr<Common::TaskQueue::ITask>
+            task(
+                    new StatusTask(
+                            m_statusCache,
+                            appId,
+                            statusInfo.statusXml,
+                            statusInfo.statusWithoutTimestampsXml,
+                            m_tempDir,
+                            m_statusDir
+                            )
+                    );
+
+    // Add task to queue
+    m_taskQueue.queueTask(task);
 }

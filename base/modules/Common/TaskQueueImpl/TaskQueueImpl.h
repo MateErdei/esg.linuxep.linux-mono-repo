@@ -28,7 +28,7 @@ namespace Common
         public:
             void queueTask(ITaskPtr& task) override;
             ITaskPtr popTask() override;
-        private:
+        protected:
             std::deque<ITaskPtr> m_tasks;
             std::mutex m_queueMutex;
             std::condition_variable m_condition;
