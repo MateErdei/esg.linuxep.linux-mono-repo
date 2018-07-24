@@ -13,6 +13,10 @@ import signal
 import time
 import __builtin__
 
+import utils.PathManager as PathManager
+
+
+
 logger = logging.getLogger(__name__ if __name__ != "__main___" else "mcsrouter")
 LOG_LEVEL_DEFAULT="INFO"
 
@@ -32,7 +36,8 @@ class PidFile(object):
                 raise
 
     def __init__(self, installDir):
-        self.__m_pidfilePath = os.path.join(installDir,"var","lock-sophosspl","mcsrouter.pid")
+        PathManager.INST = installDir
+        self.__m_pidfilePath = os.path.join( PathManager.lock_sophos(),"mcsrouter.pid")
         self.__safemakedirs(os.path.dirname(self.__m_pidfilePath))
         if os.path.isfile(self.__m_pidfilePath):
             logger.warning("Previous mcsrouter not shutdown cleanly")
@@ -141,7 +146,8 @@ def daemonise():
 
 class SophosLogging(object):
     def __init__(self, config, installDir):
-        logconfig = config.getDefault("LOGCONFIG",os.path.join(installDir,"etc","mcsrouter.log.conf"))
+        PathManager.INST = installDir
+        logconfig = config.getDefault("LOGCONFIG", PathManager.logConfFile())
         if os.path.isfile(logconfig):
             logging.config.fileConfig(logconfig)
             return
@@ -149,7 +155,7 @@ class SophosLogging(object):
         ## Configure directly
         loglevelStr = config.getDefault("LOGLEVEL",LOG_LEVEL_DEFAULT).upper()
         loglevel = getattr(logging, loglevelStr, logging.INFO)
-        logfile = config.getDefault("LOGFILE",os.path.join(installDir,"logs", "base","sophosspl","mcsrouter.log"))
+        logfile = config.getDefault("LOGFILE", PathManager.mcsrouterLog())
 
         rootLogger = logging.getLogger()
         rootLogger.setLevel(loglevel)
@@ -166,8 +172,7 @@ class SophosLogging(object):
             streamHandler.setFormatter(formatter)
             rootLogger.addHandler(streamHandler)
 
-        envelopeFile = config.getDefault("ENVELOPE_LOG",
-            os.path.join(installDir,"logs","base","sophosspl","mcs_envelope.log"))
+        envelopeFile = config.getDefault("ENVELOPE_LOG", PathManager.mcsenvelopeLog())
 
         envelopeLogger = logging.getLogger("ENVELOPES")
         envelopeLogger.propagate = False
@@ -236,7 +241,7 @@ class MCSRouter(object):
         return ret
 
 def createConfiguration(installDir, argv):
-    config = utils.Config.Config(os.path.join(installDir,"etc","mcsrouter.conf"))
+    config = utils.Config.Config(PathManager.mcsrouterConf())
     config.setDefault("LOGLEVEL",LOG_LEVEL_DEFAULT)
 
     for arg in argv[1:]:

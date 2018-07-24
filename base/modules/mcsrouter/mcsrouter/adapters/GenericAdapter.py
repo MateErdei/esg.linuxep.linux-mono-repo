@@ -8,15 +8,16 @@ logger = logging.getLogger(__name__)
 import AdapterBase
 import mcsrouter.utils.AtomicWrite
 import mcsrouter.utils.Timestamp
+import mcsrouter.utils.PathManager as PathManager
 
 
 class GenericAdapter(AdapterBase.AdapterBase):
     def __init__(self,appid,installdir=None):
+
         self.__m_appid = appid
         self.__m_last_status_time = None
-        if installdir is None:
-            installdir = os.path.abspath("..")
-        self.__m_installdir = installdir
+        if installdir is not None:
+            PathManager.INST = installdir
 
     def getAppId(self):
         return self.__m_appid
@@ -43,8 +44,8 @@ class GenericAdapter(AdapterBase.AdapterBase):
             logger.info("%s Policy didn't contain one compliance node"%self.__m_appid)
             policyName = "%s_policy.xml"%(self.__m_appid)
 
-        policyPath = os.path.join(self.__m_installdir, "policy", policyName)
-        policyPathTmp = os.path.join(self.__m_installdir, "tmp", policyName)
+        policyPath = os.path.join(PathManager.policyDir(), policyName)
+        policyPathTmp = os.path.join(PathManager.tempDir(), policyName)
         mcsrouter.utils.AtomicWrite.atomic_write(policyPath, policyPathTmp, policy)
 
         return []
@@ -59,14 +60,14 @@ class GenericAdapter(AdapterBase.AdapterBase):
             timestamp = mcsrouter.utils.Timestamp.timestamp()
         
         actionName = "%s_action_%s.xml"%(self.__m_appid, timestamp)
-        actionPath = os.path.join(self.__m_installdir,"action", actionName)
-        actionPathTmp = os.path.join(self.__m_installdir, "tmp", actionName)
+        actionPath = os.path.join(PathManager.actionDir(), actionName)
+        actionPathTmp = os.path.join(PathManager.tempDir(), actionName)
         mcsrouter.utils.AtomicWrite.atomic_write(actionPath, actionPathTmp, body)
 
         return []
 
     def _getStatusXml(self):
-        statuspath = os.path.join(self.__m_installdir,"status","%s_status.xml"%self.__m_appid)
+        statuspath = os.path.join(PathManager.statusDir(), "%s_status.xml"%self.__m_appid)
         try:
             self.__m_last_status_time = os.path.getmtime(statuspath)
         except OSError:
@@ -77,7 +78,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
             return None
 
     def _hasNewStatus(self):
-        statuspath = os.path.join(self.__m_installdir,"status","%s_status.xml"%self.__m_appid)
+        statuspath = os.path.join(PathManager.statusDir(), "%s_status.xml"%self.__m_appid)
         try:
             status_time = os.path.getmtime(statuspath)
         except OSError:

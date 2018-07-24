@@ -9,6 +9,7 @@ import mcsrouter.utils.Timestamp
 
 import mcsrouter.utils.TargetSystemManager
 from mcsrouter import IPAddress
+import mcsrouter.utils.PathManager as PathManager
 
 def formatIPv6(i):
     assert ":" not in i
@@ -92,9 +93,9 @@ class ComputerCommonStatus(object):
 class AgentAdapter(AdapterBase.AdapterBase):
     def __init__(self, installdir=None):
         self.__m_last_status_time = None
-        if installdir is None:
-            installdir = os.path.abspath("..")
-        self.__m_installdir = installdir
+        if installdir is not None:
+            PathManager.INST = installdir
+
         self.__m_commonStatus = None
 
     def getAppId(self):
@@ -123,7 +124,7 @@ class AgentAdapter(AdapterBase.AdapterBase):
         return """</ns:computerStatus>"""
 
     def __targetSystem(self):
-        return mcsrouter.utils.TargetSystemManager.getTargetSystem(self.__m_installdir)
+        return mcsrouter.utils.TargetSystemManager.getTargetSystem(PathManager.installDir())
 
     def __createCommonStatus(self):
         ts = self.__targetSystem()

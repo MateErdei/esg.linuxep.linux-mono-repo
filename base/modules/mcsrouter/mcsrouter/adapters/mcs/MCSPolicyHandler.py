@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 import mcsrouter.utils.XmlHelper
 import mcsrouter.utils.AtomicWrite
 import mcsrouter.adapters.base.PolicyHandlerBase
+import mcsrouter.utils.PathManager as PathManager
 
 class MCSPolicyHandlerException(Exception):
     pass
@@ -29,7 +30,7 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         super(MCSPolicyHandler,self).__init__(installDir)
         self.__m_compliance = None
         self.__m_policyXml = None
-        self.__m_installDir = installDir
+        PathManager.INST = installDir
         self.__m_policy_config = policy_config
         self.__m_applied_config = applied_config
         if not REGISTER_MCS:
@@ -42,7 +43,7 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         return "MCS-25_policy.xml"
 
     def __policyPath(self):
-        return os.path.join(self.__m_installDir,"policy",self.policyBaseName())
+        return os.path.join(PathManager.policyDir(),self.policyBaseName())
 
     def __savePolicy(self, policyXml=None, path=None):
         if policyXml is None:
@@ -50,7 +51,7 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         assert policyXml is not None
         if path is None:
             path = self.__policyPath()
-        mcsrouter.utils.AtomicWrite.atomic_write(path, os.path.join(self.__m_installDir,"tmp", self.policyBaseName()), policyXml)
+        mcsrouter.utils.AtomicWrite.atomic_write(path, os.path.join(PathManager.tempDir(), self.policyBaseName()), policyXml)
 
     def __loadPolicy(self):
         path = self.__policyPath()

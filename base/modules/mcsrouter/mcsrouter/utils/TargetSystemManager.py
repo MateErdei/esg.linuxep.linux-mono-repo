@@ -14,13 +14,10 @@ def getTargetSystem(installDir=None):
     g_installDir = installDir
     if g_targetSystem is None:
         try:
-            from mcsrouter import targetsystem
+            import mcsrouter.targetsystem as targetsystem
             g_targetSystem = targetsystem.TargetSystem(g_installDir)
         except ImportError:
-            try:
-                import targetsystem
-                g_targetSystem = targetsystem.TargetSystem(g_installDir)
-            except ImportError:
-                # g_targetSystem = FakeTargetSystem()
-                logger.exception("Failed to import targetsystem")
+            ## Not sure what we can do here
+            # g_targetSystem = FakeTargetSystem()
+            logger.exception("Failed to import targetsystem")
     return g_targetSystem

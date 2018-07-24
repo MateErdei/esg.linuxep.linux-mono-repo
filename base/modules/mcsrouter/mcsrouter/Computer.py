@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 from mcsclient import StatusCache
 import utils.Timestamp
 
+
 class Computer(object):
     """
     Class that represents a computer with adapters and a connection to a management service
     """
-    def __init__(self, installDir=".", statusCache=None):
-        self.__m_installDir = installDir
+    def __init__(self, statusCache=None):
         self.__m_adapters = {}
         self.__m_commands = []
         self.__m_statusCache = statusCache or StatusCache.StatusCache()

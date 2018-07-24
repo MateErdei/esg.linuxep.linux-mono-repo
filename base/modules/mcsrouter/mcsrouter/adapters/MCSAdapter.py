@@ -10,6 +10,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 import mcs.MCSPolicyHandler
+import mcsrouter.utils.PathManager as PathManager
+
 
 TEMPLATE_STATUS_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
  <ns:mcsStatus xmlns:ns="http://www.sophos.com/xml/mcs/status">
@@ -25,11 +27,11 @@ class MCSAdapter(AdapterBase.AdapterBase):
         installdir,
         policy_config,
         applied_config):
-        if installdir is None:
-            installdir = os.path.abspath("..")
-        self.__m_installdir = installdir
+        if installdir is not None:
+            PathManager.INST = installdir
+
         self.__m_policyHandler = mcs.MCSPolicyHandler.MCSPolicyHandler(
-                    installdir,
+                    PathManager.installDir(),
                     policy_config,
                     applied_config)
         self.__m_relayId = None

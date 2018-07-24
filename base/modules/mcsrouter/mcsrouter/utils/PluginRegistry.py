@@ -2,6 +2,8 @@ import os
 import json
 import logging
 
+import PathManager
+
 logger = logging.getLogger(__name__)
 
 def get_appids_from_plugin_registry_json(file_path):
@@ -33,7 +35,8 @@ def get_appids_from_directory(directory_path):
 
 class PluginRegistry:
     def __init__(self, installdir):
-        self._plugin_registry_path = os.path.join(installdir, "base/pluginRegistry")
+        PathManager.INST = installdir
+        self._plugin_registry_path = PathManager.pluginRegistryPath()
         logger.info("PluginRegistry path: " + self._plugin_registry_path)
         self._currentAppIds = set()
 

@@ -6,21 +6,22 @@ import os
 import re
 
 import logging
+import mcsrouter.utils.PathManager as PathManager
+
 logger = logging.getLogger(__name__)
 
 
 class EventReceiver(object):
     def __init__(self, installdir):
-        if installdir is None:
-            installdir = os.path.abspath("..")
-        self.__m_installdir = installdir
+        if installdir is not None:
+            PathManager.INST = installdir
 
     def receive(self):
         """
         Async receive call
         """
 
-        eventdir = os.path.join(self.__m_installdir, "event")
+        eventdir = os.path.join(PathManager.eventDir())
         for eventfile in os.listdir(eventdir):
             mo = re.match(r"([A-Z]*)_event-(.*).xml", eventfile)
             filepath = os.path.join(eventdir, eventfile)

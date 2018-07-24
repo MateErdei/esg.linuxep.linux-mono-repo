@@ -36,6 +36,9 @@ import utils.SignalHandler
 import utils.DirectoryWatcher
 import utils.PluginRegistry
 
+import utils.PathManager as PathManager
+
+
 class CommandCheckInterval(object):
     DEFAULT_COMMAND_POLLING_INTERVAL = 20
 
@@ -105,14 +108,15 @@ class CommandCheckInterval(object):
 
 class MCS(object):
     def __init__(self, config, installDir):
+        PathManager.INST=installDir
+
         self.__m_comms = None
         config.setDefault("MCSURL","https://mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep")
-        fixedConfig = utils.Config.Config(filename=os.path.join(installDir,"etc","mcs.config"),parentConfig=config)
-        self.__m_policy_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosspl","mcs_policy.config"),parentConfig=fixedConfig)
-        self.__m_config = utils.Config.Config(filename=os.path.join(installDir,"etc","sophosspl","mcs.config"),parentConfig=self.__m_policy_config)
+        fixedConfig = utils.Config.Config(filename= PathManager.rootConfig(),parentConfig=config)
+        self.__m_policy_config = utils.Config.Config(filename=PathManager.mcsPolicyConfig(),parentConfig=fixedConfig)
+        self.__m_config = utils.Config.Config(filename=PathManager.sophossplConfig(),parentConfig=self.__m_policy_config)
         config = self.__m_config
 
-        self.__m_installDir = installDir
         statusLatency = self.__m_config.getInt("STATUS_LATENCY",30)
         logger.debug("STATUS_LATENCY=%d", statusLatency)
         self.__m_statusTimer = mcsclient.StatusTimer.StatusTimer(
@@ -121,11 +125,10 @@ class MCS(object):
             )
 
         ## Configure fragmented policy cache directory
-        mcsclient.MCSCommands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = \
-            os.path.join(self.__m_installDir,"var","cache","mcs_fragmented_policies")
+        mcsclient.MCSCommands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = PathManager.fragmentedPoliciesDir()
 
         ## Create computer
-        self.__m_computer = Computer.Computer(self.__m_installDir)
+        self.__m_computer = Computer.Computer()
 
         self.__m_computer.addAdapter(adapters.MCSAdapter.MCSAdapter(installDir,self.__m_policy_config,self.__m_config))
 
@@ -134,7 +137,7 @@ class MCS(object):
         apps, ignored = self.__plugin_registry.added_and_removed_appids()
 
         for app in apps:
-            self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, self.__m_installDir))
+            self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, installDir))
 
         ## AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
         appids = self.__m_computer.getAppIds()
@@ -151,11 +154,10 @@ class MCS(object):
         Connect and register if required
         """
         config = self.__m_config
-        installDir = self.__m_installDir
 
         comms = mcsclient.MCSConnection.MCSConnection(
             config,
-            installDir=installDir
+            installDir=PathManager.installDir()
             )
 
         self.__updateUserAgent(comms)
@@ -173,8 +175,7 @@ class MCS(object):
             if comms is None:
                 return
 
-        installDir = self.__m_installDir
-        productVersionFile = os.path.join(installDir,"engine","savVersion")
+        productVersionFile = os.path.join(PathManager.installDir(),"engine","savVersion")
         try:
             productVersion = open(productVersionFile).read().strip()
         except EnvironmentError:
@@ -212,7 +213,6 @@ class MCS(object):
             logger.critical("Not registered: MCSPassword is not present")
             return 2
 
-        installDir = self.__m_installDir
         comms = self.__m_comms
         computer = self.__m_computer
 
@@ -222,7 +222,8 @@ class MCS(object):
             config.getInt("EVENTS_MAX_REGULATION_DELAY",60),
             config.getInt("EVENTS_MAX_EVENTS",20)
             )
-        eventReceiver = adapters.EventReceiver.EventReceiver(installDir)
+
+        eventReceiver = adapters.EventReceiver.EventReceiver(PathManager.installDir())
 
         def addEvent(*eventArgs):
             events.addEvent(*eventArgs)
@@ -240,8 +241,9 @@ class MCS(object):
 
         ## setup a directory watcher for events and statuses
         directoryWatcher = utils.DirectoryWatcher.DirectoryWatcher()
-        directoryWatcher.add_watch(os.path.join(installDir, "event"), patterns=["*.xml"], ignore_delete=True)
-        directoryWatcher.add_watch(os.path.join(installDir, "status"), patterns=["*.xml"])
+
+        directoryWatcher.add_watch(PathManager.eventDir(), patterns=["*.xml"], ignore_delete=True)
+        directoryWatcher.add_watch(PathManager.statusDir(), patterns=["*.xml"])
         notify_pipe_fd = directoryWatcher.notify_pipefd
 
         lastCommands = 0
@@ -282,7 +284,7 @@ class MCS(object):
                             logger.info("AppIds not supported anymore: " ' ,'.join(removed_apps))
                             # Not removing adapters if plugin uninstalled - this will cause Central to delete commands
                         for app in added_apps:
-                            self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, self.__m_installDir))
+                            self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, PathManager.installDir()))
                         appids = [app for app in self.__m_computer.getAppIds() if app not in ['APPSPROXY','AGENT']]
                         logger.info("Reconfiguring the APPSPROXY to handle: " + ' '.join(appids))
                         self.__m_computer.removeAdapterByAppId('APPSPROXY')

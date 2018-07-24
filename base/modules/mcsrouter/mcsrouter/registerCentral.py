@@ -12,6 +12,7 @@ import __builtin__
 
 import logging
 import logging.handlers
+
 logger = logging.getLogger(__name__)
 
 __builtin__.__dict__['REGISTER_MCS'] = True
@@ -29,9 +30,6 @@ def safeMkdir(directory):
                 raise
     return
 
-INST = os.environ['INST_DIR']
-BASE_DIR = os.environ['BASE_DIR']
-
 ## So don't need to add it
 ## Already in mcsrouter.zip
 
@@ -42,6 +40,8 @@ from .utils import Config as utilsConfig
 from .mcsclient import MCSException
 from .mcsclient import MCSConnection
 from . import MCS
+from .utils import PathManager
+
 #~ import SECObfuscation
 
 def setupLogging():
@@ -50,7 +50,7 @@ def setupLogging():
 
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
 
-    logfile = os.path.join(INST, "logs", "base", "registerCentral.log")
+    logfile = PathManager.registerLog()
 
     fileHandler = logging.handlers.RotatingFileHandler(logfile,maxBytes=1024*1024,backupCount=5)
     fileHandler.setFormatter(formatter)
@@ -66,29 +66,22 @@ def setupLogging():
         streamHandler.setLevel(logging.ERROR)
     rootLogger.addHandler(streamHandler)
 
-def createDirs(INST):
-    safeMkdir(os.path.join(INST, "var", "cache", "mcs_fragmented_policies"))
-    safeMkdir(os.path.join(INST, "var", "lock-sophosspl"))
 
-    safeMkdir(os.path.join(INST, "logs", "base", "sophosspl"))
-
-    safeMkdir(os.path.join(INST, "etc", "sophosspl"))
-
-    paths = ["action",  "event", "policy", "status" ]
+def createDirs():
+    p = PathManager
+    paths = [p.fragmentedPoliciesDir(), p.lock_sophos(), p.sophossplLogDir(), p.sophos_etc_dir(), p.policyDir(), p.eventDir(), p.actionDir(), p.statusDir()]
     for path in paths:
-        safeMkdir(os.path.join(INST,"base","mcs", path))
+        safeMkdir(path)
 
 def getTargetSystem():
     import mcsrouter.targetsystem
     return mcsrouter.targetsystem.TargetSystem()
 
-def getInstallationLibPath():
-    installDir = INST
-    return os.path.join(installDir,"base","lib")+":"+os.path.join(installDir,"base","lib64")
+
 
 def cleanup():
-    rootConfig = os.path.join(INST,"etc","mcs.config")
-    sophosavConfig = os.path.join(INST,"etc","sophosspl","mcs.config") 
+    rootConfig = PathManager.rootConfig()
+    sophosavConfig = PathManager.sophossplConfig()
     for configFile in [rootConfig, sophosavConfig]:
         try:
             os.unlink(configFile)
@@ -147,8 +140,8 @@ def register(config, INST, logger):
     return ret
 
 def removeMCSPolicy():
-    safeDelete(os.path.join(INST,"base","etc","sophosspl","mcs_policy.config"))
-    safeDelete(os.path.join(INST,"base","mcs","policy","MCS-25_policy.xml"))
+    safeDelete(PathManager.mcsPolicyConfig())
+    safeDelete(os.path.join(PathManager.policyDir(),"MCS-25_policy.xml"))
 
 def getUID(uidText):
     """
@@ -192,12 +185,11 @@ class RandomGenerator(object):
     def randomBytes(self, size):
         return bytearray(random.getrandbits(8) for _ in xrange(size))
 
-
 def addOptionsToPolicy(relays, proxy_credentials):
     if relays is None and proxy_credentials is None:
         return
 
-    policy_config_path = os.path.join(INST,"base","etc","sophosspl","mcs_policy.config")
+    policy_config_path = PathManager.mcsPolicyConfig()
     policy_config = utilsConfig.Config(policy_config_path)
 
     if relays is not None:
@@ -226,12 +218,11 @@ def addOptionsToPolicy(relays, proxy_credentials):
 
 
 def removeConsoleConfiguration():
-    policy_dir = os.path.join(INST, "base", "mcs", "policy")
+    policy_dir = PathManager.policyDir()
     for policy_file in os.listdir(policy_dir):
         file_path = os.path.join(policy_dir, policy_file)
         if os.path.isfile(file_path):
             safeDelete(file_path)
-
 
 def innerMain(argv):
     ret = 1
@@ -259,13 +250,13 @@ def innerMain(argv):
         parser.print_usage()
         return 2
 
-    topconfig = utilsConfig.Config(os.path.join(INST,"base","etc","mcsrouter.conf"))
+    topconfig = utilsConfig.Config(os.path.join(PathManager.sophos_etc_dir(),"mcsrouter.conf"))
     debug = os.environ.get("MCS_DEBUG",None)
     if debug:
         topconfig.set("LOGLEVEL","DEBUG")
         topconfig.save()
 
-    config = utilsConfig.Config(os.path.join(INST,"base","etc","mcs.config"),topconfig)
+    config = utilsConfig.Config(PathManager.rootConfig(),topconfig)
 
     ## grep proxy from environment
     proxy = os.environ.get("https_proxy",None)
@@ -285,18 +276,12 @@ def innerMain(argv):
 
         config.set("MCSToken",token)
         config.set("MCSURL",url)
-
-        cafileEnv = os.environ.get("MCS_CA", "")
-        if len(cafileEnv) > 0 and os.path.isfile(cafileEnv):
-            logger.warning("Using %s as certificate CA",cafileEnv)
-            config.set("CAFILE", cafileEnv)
-
         config.save()
 
     elif options.reregister:
         ## Need to get the URL and Token from the policy file, in case they have been
         ## updated by Central
-        policy_config = utilsConfig.Config(os.path.join(INST,"base", "etc", "sophosspl", "mcs_policy.config"),config)
+        policy_config = utilsConfig.Config(PathManager.mcsPolicyConfig(),config)
         try:
             token = policy_config.get("MCSToken")
             url = policy_config.get("MCSURL")
@@ -306,7 +291,7 @@ def innerMain(argv):
 
     elif options.deregister:
         print("Deregistering from Sophos Central")
-        clientconfig = utilsConfig.Config(os.path.join(INST, "base", "etc", "sophosspl", "mcs.config"))
+        clientconfig = utilsConfig.Config(PathManager.sophossplConfig())
         clientconfig.set("MCSID", "reregister")
         clientconfig.set("MCSPassword", "")
         clientconfig.save()
@@ -318,7 +303,7 @@ def innerMain(argv):
 
     ## register or reregister
     if token is not None and url is not None:
-        ret = register(config, INST, logger)
+        ret = register(config, PathManager.installDir(), logger)
 
         if ret != 0:
             logger.fatal("Failed to register with Sophos Central (%d)", ret)
@@ -329,10 +314,10 @@ def innerMain(argv):
             config.save()
 
             ## cleanup RMS files
-            safeDelete(os.path.join(INST,"policy","sophos.config"))
+            safeDelete(os.path.join( PathManager.policyDir(), "sophos.config"))
 
             ## cleanup last reported update event
-            safeDelete(os.path.join(INST, "base", "var", "run", "sophosspl", "update.last_event"))
+            safeDelete(os.path.join(PathManager.getVarRunDir(), "update.last_event"))
 
             ## cleanup console config layers
             if not options.reregister:
@@ -346,7 +331,7 @@ def innerMain(argv):
 def main(argv):
     os.umask(0o177)
     # Create required directories
-    createDirs(INST)
+    createDirs()
     setupLogging()
     try:
         return innerMain(argv)
