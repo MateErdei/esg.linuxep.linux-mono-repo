@@ -18,7 +18,9 @@
 TEST(TestEventReceiverImpl, Construction) //NOLINT
 {
     std::string mcs_dir = "test/mcs";
-    FakeQueue queue;
+    Common::TaskQueue::ITaskQueueSharedPtr queue(
+            new FakeQueue
+            );
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
                     mcs_dir,
@@ -29,12 +31,14 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
 TEST(TestEventReceiverImpl, EventCausesTask) //NOLINT
 {
     std::string mcs_dir = "test/mcs";
-    FakeQueue queue;
+    std::shared_ptr<FakeQueue> queue(
+            new FakeQueue
+    );
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
                     mcs_dir,
                     queue
             );
     foo.receivedSendEvent("APPID","EventXML");
-    EXPECT_FALSE(queue.empty());
+    EXPECT_FALSE(queue->empty());
 }

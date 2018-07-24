@@ -18,27 +18,33 @@
 TEST(TestStatusReceiverImpl, Construction) //NOLINT
 {
     std::string mcs_dir="test/mcs";
-    FakeQueue fakeQueue;
+    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
+            new FakeQueue
+    );
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
 }
 
 TEST(TestStatusReceiverImpl, newStatusCausesTask) //NOLINT
 {
     std::string mcs_dir="test/mcs";
-    FakeQueue fakeQueue;
+    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
+            new FakeQueue
+    );
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
     foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
-    Common::TaskQueueImpl::ITaskPtr task = fakeQueue.popTask();
+    Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
 }
 
 TEST(TestStatusReceiverImpl, newStatusCausesTaskThatWrites) //NOLINT
 {
     std::string mcs_dir="test/mcs";
-    FakeQueue fakeQueue;
+    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
+            new FakeQueue
+    );
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
     foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
-    Common::TaskQueueImpl::ITaskPtr task = fakeQueue.popTask();
+    Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
 
     auto filesystemMock = new MockFileSystem();
