@@ -22,7 +22,10 @@ namespace Common
 
         ApplicationConfiguration::ApplicationConfiguration()
         {
-            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = "/opt/sophos";
+
+            char * installpath = secure_getenv("SOPHOS_INSTALL");
+            std::string installDir = installpath != nullptr ? installpath : "/opt/sophos-spl";
+            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = installDir;
         }
     }
 

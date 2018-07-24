@@ -5,6 +5,7 @@ option(test "Build all tests." ON) # Makes boolean 'test' available.
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")
 enable_testing()
 
 find_package(PkgConfig)

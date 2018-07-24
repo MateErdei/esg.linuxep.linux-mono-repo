@@ -36,16 +36,24 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         )
 
+
 target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} )
+
+INCLUDE(FindLibraryFullPath)
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 
 file(GLOB_RECURSE pluginapiheaders
         ../PluginApi/* )
+file(GLOB_RECURSE pluginapiimplheaders
+        ../PluginApiImpl/*.h)
 
 add_custom_target(
         plugintar
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
         COMMAND cp ${pluginapiheaders} pluginapi/include
+        COMMAND cp ${pluginapiimplheaders} pluginapi/include
         COMMAND cp $<TARGET_FILE:pluginapi> pluginapi/lib64
+        COMMAND cp ${zmqfull} pluginapi/lib64
         COMMAND tar -czf pluginapi.tar.gz pluginapi
         COMMAND rm -rf pluginapi
         COMMAND mv pluginapi.tar.gz ${PROJECT_BINARY_DIR}

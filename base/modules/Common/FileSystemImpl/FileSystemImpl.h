@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
-
+#ifndef EVEREST_BASE_FILESYSTEM_H
+#define EVEREST_BASE_FILESYSTEM_H
 
 #include "Common/FileSystem/IFileSystem.h"
 
@@ -24,6 +24,10 @@ namespace Common
             std::string basename(const Path & path ) const override;
 
             std::string dirName(const Path & path) const override;
+
+            void copyFile(const Path& src, const Path& dest) const override;
+
+            void copyPermissions( const Path& src, const Path & dest) const override;
 
             bool exists(const Path &path) const override;
 
@@ -45,9 +49,11 @@ namespace Common
 
             void makeExecutable(const Path &path) const override;
 
-            std::vector<Path> listFiles( const Path & directoryPath ) const override;
+            void makedirs(const Path &path) const override;
 
-            void removeFile(const Path &path) const override;
+            Path join(const Path &path1, const Path &path2, const Path &path3) const override;
+
+            std::vector<Path> listFiles( const Path & directoryPath ) const override;
         };
 
         /** To be used in tests only */
@@ -58,4 +64,4 @@ namespace Common
 }
 
 
-
+#endif //EVEREST_BASE_FILESYSTEM_H

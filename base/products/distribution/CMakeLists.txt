@@ -36,13 +36,7 @@ add_custom_target(
 set(third_party_libs)
 
 function(add_third_party_library LIB LIBRARY_PATH)
-    set(FOUND_LIB ${LIB}-NOTFOUND)
-    FIND_LIBRARY(FOUND_LIB
-            NAMES ${LIB}
-            PATHS ${LIBRARY_PATH}
-            NO_DEFAULT_PATH
-            )
-    GET_FILENAME_COMPONENT(FOUND_LIB_ABSOLUTE ${FOUND_LIB} REALPATH)
+    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 
 endfunction(add_third_party_library)
@@ -66,6 +60,9 @@ foreach (LIB SUL retailer_lib xmlcpp aesclib saucrypto)
 endforeach(LIB)
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
+
+add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
+
 
 install(FILES ${third_party_libs}
         DESTINATION files/base/lib64)
