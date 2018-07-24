@@ -24,6 +24,8 @@ namespace Common
             virtual void queueTask(ITaskPtr& task) = 0;
             virtual ITaskPtr popTask() = 0;
         };
+
+        using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
     }
 }
 

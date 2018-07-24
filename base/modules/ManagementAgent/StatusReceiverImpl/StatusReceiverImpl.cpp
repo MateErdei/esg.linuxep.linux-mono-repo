@@ -12,8 +12,8 @@
 #include <Common/TaskQueue/ITask.h>
 
 ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(const std::string& mcsDir,
-                                                                            Common::TaskQueue::ITaskQueue& taskQueue)
-    : m_taskQueue(taskQueue)
+                                                                            Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
+    : m_taskQueue(std::move(taskQueue))
 {
     m_tempDir = Common::FileSystem::fileSystem()->join(mcsDir,"tmp");
     m_statusDir = Common::FileSystem::fileSystem()->join(mcsDir,"status");
@@ -35,5 +35,5 @@ void ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::receivedChangeStat
                     );
 
     // Add task to queue
-    m_taskQueue.queueTask(task);
+    m_taskQueue->queueTask(task);
 }

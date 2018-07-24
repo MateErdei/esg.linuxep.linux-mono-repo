@@ -10,9 +10,9 @@
 using ManagementAgent::EventReceiverImpl::EventReceiverImpl;
 
 ManagementAgent::EventReceiverImpl::EventReceiverImpl::EventReceiverImpl(std::string mcsDir,
-                                                                         Common::TaskQueue::ITaskQueue& taskQueue)
+                                                                         Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
     : m_mcsDir(std::move(mcsDir)),
-      m_taskQueue(taskQueue)
+      m_taskQueue(std::move(taskQueue))
 {
 
 }
@@ -29,5 +29,5 @@ void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::s
                             )
                     );
 
-    m_taskQueue.queueTask(task);
+    m_taskQueue->queueTask(task);
 }

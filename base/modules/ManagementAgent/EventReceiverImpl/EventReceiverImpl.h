@@ -21,12 +21,12 @@ namespace ManagementAgent
         public:
             explicit EventReceiverImpl(
                     std::string mcsDir,
-                    Common::TaskQueue::ITaskQueue& taskQueue);
+                    Common::TaskQueue::ITaskQueueSharedPtr taskQueue);
 
             void receivedSendEvent(const std::string& appId, const std::string &eventXml) override;
         private:
             std::string m_mcsDir;
-            Common::TaskQueue::ITaskQueue& m_taskQueue;
+            Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
         };
 
     }
