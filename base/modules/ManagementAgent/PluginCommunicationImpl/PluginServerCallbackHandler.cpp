@@ -66,17 +66,23 @@ namespace ManagementAgent
         void PluginServerCallbackHandler::setStatusReceiver(
                 std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
         {
-            auto test = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(test != nullptr);
-            test->setStatusReceiver(statusReceiver);
+            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
+            assert(serverCallbackAsPluginServerCallback != nullptr);
+            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            {
+                serverCallbackAsPluginServerCallback->setStatusReceiver(statusReceiver);
+            }
         }
 
         void PluginServerCallbackHandler::setEventReceiver(
                 std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
         {
-            auto test = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(test != nullptr);
-            test->setEventReceiver(receiver);
+            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
+            assert(serverCallbackAsPluginServerCallback != nullptr);
+            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            {
+                serverCallbackAsPluginServerCallback->setEventReceiver(receiver);
+            }
         }
     }
 }
