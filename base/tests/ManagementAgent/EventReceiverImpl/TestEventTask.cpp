@@ -14,12 +14,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 TEST(TestEventTask, Construction) //NOLINT
 {
+    EXPECT_NO_THROW(
     ManagementAgent::EventReceiverImpl::EventTask task
             (
                     "mcsdir",
                     "APPID",
                     "EventXml"
-                    );
+            )
+        );
 }
 
 TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT

@@ -11,7 +11,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 TEST(TestStatusCache, TestConstruction) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    EXPECT_NO_THROW
+        (
+            ManagementAgent::StatusReceiverImpl::StatusCache cache
+        );
 }
 
 TEST(TestStatusCache, CanAddFirstStatus) // NOLINT

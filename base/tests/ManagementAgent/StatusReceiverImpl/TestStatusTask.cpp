@@ -14,19 +14,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-/*
- *
-                    StatusCache& statusCache,
-                    std::string appId,
-                    std::string statusXml,
-                    std::string statusXmlWithoutTimestamps,
-                    std::string tempDir,
-                    std::string statusDir
- */
-
 TEST(TestStatusTask, Construction) //NOLINT
 {
     ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    EXPECT_NO_THROW
+    (
     ManagementAgent::StatusReceiverImpl::StatusTask task(
             cache,
             "APPID",
@@ -34,7 +26,8 @@ TEST(TestStatusTask, Construction) //NOLINT
             "StatusWithoutTimestamp",
             "tempDir",
             "statusDir"
-            );
+            )
+    );
 }
 
 TEST(TestStatusTask, WriteNewStatus) //NOLINT

@@ -20,11 +20,13 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
     Common::TaskQueue::ITaskQueueSharedPtr queue(
             new FakeQueue
             );
+    EXPECT_NO_THROW(
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
                     mcs_dir,
                     queue
-                    );
+                    )
+        );
 }
 
 TEST(TestEventReceiverImpl, EventCausesTask) //NOLINT

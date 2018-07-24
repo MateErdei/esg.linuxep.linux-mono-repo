@@ -17,10 +17,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 TEST(TestStatusReceiverImpl, Construction) //NOLINT
 {
     std::string mcs_dir="test/mcs";
-    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
-            new FakeQueue
+    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
+    EXPECT_NO_THROW
+    (
+        ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue)
     );
-    ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
 }
 
 TEST(TestStatusReceiverImpl, newStatusCausesTask) //NOLINT
