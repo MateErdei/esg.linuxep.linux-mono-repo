@@ -68,10 +68,13 @@ namespace ManagementAgent
         {
             auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
             assert(serverCallbackAsPluginServerCallback != nullptr);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
             {
                 serverCallbackAsPluginServerCallback->setStatusReceiver(statusReceiver);
             }
+#pragma clang diagnostic pop
         }
 
         void PluginServerCallbackHandler::setEventReceiver(
@@ -79,10 +82,13 @@ namespace ManagementAgent
         {
             auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
             assert(serverCallbackAsPluginServerCallback != nullptr);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
             if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
             {
                 serverCallbackAsPluginServerCallback->setEventReceiver(receiver);
             }
+#pragma clang diagnostic pop
         }
     }
 }
