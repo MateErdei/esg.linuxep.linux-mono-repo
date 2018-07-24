@@ -81,7 +81,31 @@ namespace
         std::string path2("./tempfile.txt");
         std::string expectedValue("/tmp/tempfile.txt");
         EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
-    }    
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyStringsReturnsExpectedPath) //NOLINT
+    {
+        std::string path1;
+        std::string path2;
+        std::string expectedValue("/"); // ?? differs from C++17 and python
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndAbsolutePath2ReturnsPath2) //NOLINT
+    {
+        Path path1;
+        Path path2("/foo/bar");
+        Path& expectedValue = path2;
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndRelativePath2ReturnsExpectedPath) //NOLINT
+    {
+        Path path1;
+        Path path2("foo/bar");
+        Path expectedValue("/foo/bar");  // ?? differs from C++17 and python
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
 
     TEST_F(FileSystemImplTest, existReturnsTrueWhenFileExists) //NOLINT
     {

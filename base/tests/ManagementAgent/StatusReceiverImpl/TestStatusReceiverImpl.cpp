@@ -24,7 +24,7 @@ TEST(TestStatusReceiverImpl, Construction) //NOLINT
     );
 }
 
-TEST(TestStatusReceiverImpl, newStatusCausesTask) //NOLINT
+TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
 {
     std::string mcs_dir="test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
@@ -36,12 +36,11 @@ TEST(TestStatusReceiverImpl, newStatusCausesTask) //NOLINT
     EXPECT_NE(task.get(),nullptr);
 }
 
-TEST(TestStatusReceiverImpl, newStatusCausesTaskThatWrites) //NOLINT
+TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile) //NOLINT
 {
     std::string mcs_dir="test/mcs";
-    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
-            new FakeQueue
-    );
+    Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
+
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
     foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();

@@ -30,7 +30,7 @@ TEST(TestStatusTask, Construction) //NOLINT
     );
 }
 
-TEST(TestStatusTask, WriteNewStatus) //NOLINT
+TEST(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, join("statusDir","APPID_status.xml")).WillOnce(Return("statusDir/APPID_status.xml"));
@@ -49,7 +49,7 @@ TEST(TestStatusTask, WriteNewStatus) //NOLINT
     Common::FileSystem::restoreFileSystem();
 }
 
-TEST(TestStatusTask, DontWriteOldStatus) //NOLINT
+TEST(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
 {
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
@@ -81,5 +81,24 @@ TEST(TestStatusTask, DontWriteOldStatus) //NOLINT
     task2.run();
 
 
+    Common::FileSystem::restoreFileSystem();
+}
+
+TEST(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, join("statusDir","_status.xml")).WillOnce(Return("statusDir/_status.xml"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml","","tempDir")).WillOnce(Return());
+    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusReceiverImpl::StatusTask task(
+            cache,
+            "",
+            "",
+            "",
+            "tempDir",
+            "statusDir"
+    );
+    task.run();
     Common::FileSystem::restoreFileSystem();
 }

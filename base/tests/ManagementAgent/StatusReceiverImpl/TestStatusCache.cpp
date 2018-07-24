@@ -25,7 +25,7 @@ TEST(TestStatusCache, CanAddFirstStatus) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST(TestStatusCache, CanAddDifferentApps) // NOLINT
+TEST(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted) // NOLINT
 {
     ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
@@ -36,7 +36,7 @@ TEST(TestStatusCache, CanAddDifferentApps) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST(TestStatusCache, CanAddChangedStatus) // NOLINT
+TEST(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted) // NOLINT
 {
     ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
@@ -47,7 +47,7 @@ TEST(TestStatusCache, CanAddChangedStatus) // NOLINT
     EXPECT_TRUE(v);
 }
 
-TEST(TestStatusCache, DontSendSameStatus) // NOLINT
+TEST(TestStatusCache, checkSameStatusSameAppIdIsRejected) // NOLINT
 {
     ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
@@ -55,8 +55,22 @@ TEST(TestStatusCache, DontSendSameStatus) // NOLINT
     EXPECT_TRUE(v);
 
     v = cache.statusChanged("F","A");
-    EXPECT_FALSE(v);
+    EXPECT_FALSE(v); // Don't send repeated statuses
 }
 
+TEST(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
+{
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
 
+    bool v = cache.statusChanged("APPID","");
+    EXPECT_TRUE(v);
+}
+
+TEST(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
+{
+    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+
+    bool v = cache.statusChanged("","StatusXML");
+    EXPECT_TRUE(v);
+}
 
