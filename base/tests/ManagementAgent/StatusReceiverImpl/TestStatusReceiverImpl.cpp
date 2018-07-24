@@ -1,9 +1,8 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>

@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #include "StatusCache.h"
 
 bool ManagementAgent::StatusReceiverImpl::StatusCache::statusChanged(const std::string& appid,

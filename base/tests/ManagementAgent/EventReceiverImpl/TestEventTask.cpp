@@ -1,9 +1,8 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include <ManagementAgent/EventReceiverImpl/EventTask.h>
 
@@ -36,9 +35,9 @@ TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT
     auto filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
 
-    //NOLINT
+    // NOLINT
     EXPECT_CALL(*filesystemMock, writeFileAtomically(
-            ::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"),EndsWith(".xml")),"EventXml","mcsdir/tmp")).WillOnce(Return());
+            ::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"),EndsWith(".xml")),"EventXml","mcsdir/tmp")).WillOnce(Return()); // NOLINT
 
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
@@ -79,14 +78,14 @@ TEST(TestEventTask, 2EventsHaveDifferentFilenames) //NOLINT
                     )).
                               WillOnce(
                 SaveArg<0>(&base1)
-        );
+        ); // NOLINT
         EXPECT_CALL(*filesystemMock,
                     writeFileAtomically(::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"), EndsWith(".xml")), "EventXml",
                                         "mcsdir/tmp"
                     )).
                               WillOnce(
                 SaveArg<0>(&base2)
-        );
+        ); // NOLINT
     }
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 

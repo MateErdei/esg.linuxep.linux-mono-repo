@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #ifndef MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSRECEIVERIMPL_H
 #define MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSRECEIVERIMPL_H
 
