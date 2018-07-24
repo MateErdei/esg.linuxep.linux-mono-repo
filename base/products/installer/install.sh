@@ -23,6 +23,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
+MCS_CA=${MCS_CA:-}
 
 while [[ $# -ge 1 ]] ; do
     case $1 in
@@ -39,6 +40,10 @@ while [[ $# -ge 1 ]] ; do
             shift
             MCS_URL=$1
             ;;
+        --mcs-ca)
+            shift
+            MCS_CA=$1
+            ;;
         *)
             echo "BAD OPTION $1"
             exit 2
@@ -54,6 +59,7 @@ failure()
     echo "$@" >&2
     exit $CODE
 }
+export LD_LIBRARY_PATH=$DIST/files/base/lib64
 export DIST
 export SOPHOS_INSTALL
 
@@ -67,9 +73,9 @@ GETENT=/usr/bin/getent
 GROUPADD="$(which groupadd)"
 [[ -x "${GROUPADD}" ]] || GROUPADD=/usr/sbin/groupadd
 [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
-"${GETENT}" group "${GROUP_NAME}" >/dev/null 2>&1 || "${GROUPADD}" -r "${GROUP_NAME}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $GROUP_NAME"
+"${GETENT}" group "${GROUP_NAME}" 2>&1 > /dev/null || "${GROUPADD}" -r "${GROUP_NAME}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $GROUP_NAME"
 
-mkdir -p ${SOPHOS_INSTALL} || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
+mkdir -p $SOPHOS_INSTALL || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
 chmod 711 "$SOPHOS_INSTALL"
 chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
 
@@ -77,12 +83,13 @@ USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-"${GETENT}" passwd "${USER_NAME}" >/dev/null 2>&1 || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
+"${GETENT}" passwd "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
     || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
 
-mkdir -p "${SOPHOS_INSTALL}/tmp"
-chmod 1770 "${SOPHOS_INSTALL}/tmp"
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
+for F in $(find $DIST/files -type f)
+do
+    $DIST/installer/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+done
 
 mkdir -p "$SOPHOS_INSTALL/var/ipc/plugins"
 chmod 711 "$SOPHOS_INSTALL/var"
@@ -96,26 +103,25 @@ chmod 711 "${SOPHOS_INSTALL}/logs"
 chmod 700 "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base"
 
-mkdir -p "${SOPHOS_INSTALL}/base/etc"
-chmod 711 "${SOPHOS_INSTALL}/base/etc"
-
-## Setup libraries for versionedcopy
-INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
-export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
-mkdir -p "${INSTALLER_LIB}"
-ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
-
-for F in $(find "$DIST/files" -type f)
-do
-    "$DIST/installer/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
-done
-
-rm -rf "${INSTALLER_LIB}"
-
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+mkdir -p "${SOPHOS_INSTALL}/tmp"
+chmod 1770 "${SOPHOS_INSTALL}/tmp"
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
+
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+
+mkdir -p "${SOPHOS_INSTALL}/base/etc"
+chmod 711 "${SOPHOS_INSTALL}/base/etc"
+
+mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
+chmod 711 "${SOPHOS_INSTALL}/base/pluginRegistry"
+
+if [[ -n "$MCS_CA" ]]
+then
+    export MCS_CA
+fi
 
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
