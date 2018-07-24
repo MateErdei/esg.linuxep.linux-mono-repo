@@ -32,7 +32,6 @@ public:
     MOCK_CONST_METHOD1(makeExecutable, void(const Path &path));
     MOCK_CONST_METHOD1(listFiles, std::vector<Path>( const Path & directoryPath));
     MOCK_CONST_METHOD1(removeFile, void(const Path &path));
-
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD2(copyPermissions, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD1(makedirs, void(const Path &path));

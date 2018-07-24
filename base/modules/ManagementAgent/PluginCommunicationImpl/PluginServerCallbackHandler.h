@@ -6,11 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "ZeroMQWrapper/IReadWrite.h"
-#include "ZeroMQWrapper/ISocketReplier.h"
-#include "PluginProtocol/AbstractListenerServer.h"
+#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/PluginProtocol/AbstractListenerServer.h"
 #include "IPluginServerCallback.h"
-#include "PluginProtocol/MessageBuilder.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
 
 using namespace Common::PluginProtocol;
 

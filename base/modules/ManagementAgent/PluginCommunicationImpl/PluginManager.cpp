@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "IPluginCommunicationException.h"
 #include "PluginManager.h"
 #include "PluginProxy.h"
