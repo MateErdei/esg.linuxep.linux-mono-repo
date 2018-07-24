@@ -153,4 +153,28 @@ namespace
         Common::FileSystem::restoreFileSystem();
     }
 
+
+    TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs) // NOLINT
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+        std::vector<std::string> files;
+        std::string filename1("/tmp/plugins/valid1.json");
+        std::string filename2("/tmp/plugins/valid2.json");
+        files.push_back(filename1);
+        files.push_back(filename2);
+        std::string fileContent = createJsonString("", "");
+
+        EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+        EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
+        EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return(fileContent));
+
+        TestWatchdog watchdog;
+
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
+
+        Common::FileSystem::restoreFileSystem();
+    }
 }
