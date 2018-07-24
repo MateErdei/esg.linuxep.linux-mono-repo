@@ -34,7 +34,7 @@ TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT
             );
 
 
-    auto filesystemMock = new MockFileSystem();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
 
     // NOLINT
