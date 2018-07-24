@@ -30,9 +30,10 @@ namespace PluginCommunication
          * Plugin is querying for the policy associated with appId, return the current policy.
          *
          * @param appId
+         * @param policyId
          * @return Policy XML
          */
-        virtual std::string receivedGetPolicy(const std::string &appId) = 0;
+        virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& policyId) = 0;
 
         /**
          * Function called when a plugin is attempting to register with the management agent.

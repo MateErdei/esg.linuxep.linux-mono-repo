@@ -30,9 +30,14 @@ namespace ManagementAgent
             }
         }
 
-        std::string PluginServerCallback::receivedGetPolicy(const std::string &appId)
+        bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId, const std::string& policyId)
         {
-            return std::string();
+            if(m_policyReceiver != nullptr)
+            {
+                return m_policyReceiver->receivedGetPolicy(appId, policyId);
+            }
+
+            return false;
         }
 
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
