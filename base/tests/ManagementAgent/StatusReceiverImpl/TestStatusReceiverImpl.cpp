@@ -47,7 +47,7 @@ TEST(TestStatusReceiverImpl, newStatusCausesTaskThatWrites) //NOLINT
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
 
-    auto filesystemMock = new MockFileSystem();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, join("test/mcs/status","APPID_status.xml")).WillOnce(Return("test/mcs/status/APPID_status.xml"));

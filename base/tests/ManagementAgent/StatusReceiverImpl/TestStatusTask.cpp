@@ -32,7 +32,7 @@ TEST(TestStatusTask, Construction) //NOLINT
 
 TEST(TestStatusTask, WriteNewStatus) //NOLINT
 {
-    auto filesystemMock = new MockFileSystem();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, join("statusDir","APPID_status.xml")).WillOnce(Return("statusDir/APPID_status.xml"));
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml","StatusWithTimestamp","tempDir")).WillOnce(Return());
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -52,7 +52,7 @@ TEST(TestStatusTask, WriteNewStatus) //NOLINT
 TEST(TestStatusTask, DontWriteOldStatus) //NOLINT
 {
 
-    auto filesystemMock = new MockFileSystem();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
 
     EXPECT_CALL(*filesystemMock, join("statusDir","APPID_status.xml")).WillOnce(Return("statusDir/APPID_status.xml"));
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml","StatusWithTimestamp","tempDir")).WillOnce(Return());

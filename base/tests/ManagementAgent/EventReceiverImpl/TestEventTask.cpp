@@ -65,7 +65,7 @@ TEST(TestEventTask, 2EventsHaveDifferentFilenames) //NOLINT
             );
 
 
-    auto filesystemMock = new MockFileSystem();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
 
     std::string base1;
     std::string base2;
