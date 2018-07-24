@@ -24,7 +24,15 @@ TEST(TestEventTask, Construction) //NOLINT
         );
 }
 
-TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT
+StrictMock<MockFileSystem>* createMockFileSystem()
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
+
+    return filesystemMock;
+}
+
+TEST(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
 {
     ManagementAgent::EventReceiverImpl::EventTask task
             (
@@ -34,12 +42,15 @@ TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT
             );
 
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
+    auto filesystemMock = createMockFileSystem();
 
-    // NOLINT
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(
-            ::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"),EndsWith(".xml")),"EventXml","mcsdir/tmp")).WillOnce(Return()); // NOLINT
+    EXPECT_CALL(*filesystemMock,
+                writeFileAtomically(
+                        MatchesRegex("mcsdir/event/APPID_event-.*\\.xml")
+                        ,"EventXml"
+                        ,"mcsdir/tmp"
+                )
+            ).WillOnce(Return());
 
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
@@ -47,7 +58,7 @@ TEST(TestEventTask, RunningTaskCreatesFile) //NOLINT
     Common::FileSystem::restoreFileSystem();
 }
 
-TEST(TestEventTask, 2EventsHaveDifferentFilenames) //NOLINT
+TEST(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) //NOLINT
 {
 
     ManagementAgent::EventReceiverImpl::EventTask task
@@ -65,29 +76,27 @@ TEST(TestEventTask, 2EventsHaveDifferentFilenames) //NOLINT
             );
 
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = createMockFileSystem();
 
     std::string base1;
     std::string base2;
 
-    EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
-
     {
         InSequence seq;
         EXPECT_CALL(*filesystemMock,
-                    writeFileAtomically(::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"), EndsWith(".xml")), "EventXml",
-                                        "mcsdir/tmp"
-                    )).
-                              WillOnce(
-                SaveArg<0>(&base1)
-        ); // NOLINT
+                    writeFileAtomically(
+                            MatchesRegex("mcsdir/event/APPID_event-.*\\.xml"),
+                            "EventXml",
+                            "mcsdir/tmp"
+                    )).WillOnce(SaveArg<0>(&base1)
+            );
         EXPECT_CALL(*filesystemMock,
-                    writeFileAtomically(::testing::AllOf(StartsWith("mcsdir/event/APPID_event-"), EndsWith(".xml")), "EventXml",
-                                        "mcsdir/tmp"
-                    )).
-                              WillOnce(
-                SaveArg<0>(&base2)
-        ); // NOLINT
+                    writeFileAtomically(
+                            MatchesRegex("mcsdir/event/APPID_event-.*\\.xml"),
+                            "EventXml",
+                            "mcsdir/tmp"
+                    )).WillOnce(SaveArg<0>(&base2)
+            );
     }
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 

@@ -29,7 +29,7 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
         );
 }
 
-TEST(TestEventReceiverImpl, EventCausesTask) //NOLINT
+TEST(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued) //NOLINT
 {
     std::string mcs_dir = "test/mcs";
     std::shared_ptr<FakeQueue> queue(
