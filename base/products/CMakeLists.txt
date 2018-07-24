@@ -1,4 +1,4 @@
 add_subdirectory(distribution)
 add_subdirectory(installer)
 add_subdirectory(SulDownloader)
-add_subdirectory(Watchdog)
+add_subdirectory(watchdog)

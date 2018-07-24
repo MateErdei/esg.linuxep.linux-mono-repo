@@ -3,18 +3,31 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
-#include "Watchdog.h"
+#include <watchdog/watchdogimpl/watchdog_main.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/PluginRegistryImpl/PluginRegistryException.h>
+
 #include "MockedApplicationPathManager.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/PluginRegistryImpl/PluginRegistryException.h"
-#include "../../tests/Common/FileSystemImpl/MockFileSystem.h"
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 
 namespace
 {
+    class TestWatchdog
+        : public watchdog::watchdogimpl::watchdog_main
+    {
+    public:
+        void call_read_plugin_configs()
+        {
+            read_plugin_configs();
+        }
+    };
+
     using ::testing::NiceMock;
 
     class WatchdogTests : public ::testing::Test
@@ -76,7 +89,7 @@ namespace
     }
 
 
-    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig)
+    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) //NOLINT
     {
         auto mockFileSystem = new MockFileSystem();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -90,12 +103,14 @@ namespace
         EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
         EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return(fileContent));
 
-        EXPECT_NO_THROW(Watchdog::read_plugin_configs());
+        TestWatchdog watchdog;
+
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
 
         Common::FileSystem::restoreFileSystem();
     }
 
-    TEST_F(WatchdogTests, WatchdogFailsIfNoValidPluginConfigs)
+    TEST_F(WatchdogTests, WatchdogFailsIfNoValidPluginConfigs) //NOLINT
     {
         auto mockFileSystem = new MockFileSystem();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -107,12 +122,14 @@ namespace
         EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
         EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return("invalid json"));
 
-        EXPECT_THROW(Watchdog::read_plugin_configs(), Common::PluginRegistryImpl::PluginRegistryException);
+        TestWatchdog watchdog;
+
+        EXPECT_THROW(watchdog.call_read_plugin_configs(), Common::PluginRegistryImpl::PluginRegistryException);
 
         Common::FileSystem::restoreFileSystem();
     }
 
-    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs)
+    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) //NOLINT
     {
         auto mockFileSystem = new MockFileSystem();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -129,7 +146,9 @@ namespace
         EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
         EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return("invalid json"));
 
-        EXPECT_NO_THROW(Watchdog::read_plugin_configs());
+        TestWatchdog watchdog;
+
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
 
         Common::FileSystem::restoreFileSystem();
     }
