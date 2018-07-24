@@ -91,8 +91,8 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) //NOLINT
     {
-        auto mockFileSystem = new MockFileSystem();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
         Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
@@ -112,8 +112,8 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogFailsIfNoValidPluginConfigs) //NOLINT
     {
-        auto mockFileSystem = new MockFileSystem();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
         Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
@@ -131,8 +131,8 @@ namespace
 
     TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) //NOLINT
     {
-        auto mockFileSystem = new MockFileSystem();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
         Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
