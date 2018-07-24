@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 add_library(plugincommunicationimpl SHARED
         ../../Common/PluginApi/StatusInfo.h
+        ../PluginCommunication/IEventReceiver.h
         ../PluginCommunication/IPluginServerCallback.h
         ../PluginCommunication/IStatusReceiver.h
         ../PluginCommunication/IPluginProxy.h
@@ -16,8 +17,9 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallback.h
         Logger.h
         AppIdCollection.cpp
-        AppIdCollection.h ../PluginCommunication/IEventReceiver.h)
-target_include_directories(plugincommunicationimpl PUBLIC  ../../Common ../PluginCommunication)
+        AppIdCollection.h
+        )
+target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)
 install(TARGETS plugincommunicationimpl
