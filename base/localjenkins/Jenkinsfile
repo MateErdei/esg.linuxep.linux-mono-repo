@@ -12,10 +12,7 @@ def buildAndTest()
 def copyAndTest()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
-        //checkout scm
-        //sh 'rm -rf /tmp/temp*'
-        //sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
-        sh 'cd .. && rm -rf ${BRANCH_NAME} && cp -r /mnt/filer6/SSPL/JenkinsBuildOutput/{$BRANCH_NAME} {$BRANCH_NAME}'
+        sh 'cd .. && rm -rf ${BRANCH_NAME} && cp -r /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME} ${BRANCH_NAME}'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
@@ -23,8 +20,8 @@ def copyAndTest()
 
 def copyBuild()
 {
-    sh 'rm -rf /mnt/filer6/SSPL/JenkinsBuildOutput/{$BRANCH_NAME}'
-    sh 'cp -r ../${BRANCH_NAME} /mnt/filer6/SSPL/JenkinsBuildOutput/{$BRANCH_NAME}'
+    sh 'rm -rf /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'cp -r ../${BRANCH_NAME} /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
 }
 
 def processTestResults(osName)
