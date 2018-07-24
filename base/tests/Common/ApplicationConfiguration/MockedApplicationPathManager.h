@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #ifndef COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
 #define COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
