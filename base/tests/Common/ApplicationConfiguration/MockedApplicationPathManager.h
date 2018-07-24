@@ -4,11 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_MOCKEDAPPLICATIONPATHMANAGER_H
-#define EVEREST_BASE_MOCKEDAPPLICATIONPATHMANAGER_H
+#ifndef COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
+#define COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 
 using namespace ::testing;
 
@@ -25,4 +28,4 @@ public:
     MOCK_CONST_METHOD0(getPluginRegistryPath, std::string (void));
     MOCK_CONST_METHOD0(getVersigPath, std::string (void));
 };
-#endif //EVEREST_BASE_MOCKEDAPPLICATIONPATHMANAGER_H
+#endif //COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
