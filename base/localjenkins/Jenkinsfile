@@ -59,7 +59,7 @@ pipeline {
                     copyBuildToFiler()
                 }
                 always {
-                    processTestResults("CentOS Builder")
+                    processTestResults("Builder CentOS")
                 }
             }
         }
