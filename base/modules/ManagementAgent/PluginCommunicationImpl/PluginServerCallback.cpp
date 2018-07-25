@@ -34,7 +34,7 @@ namespace ManagementAgent
         {
             if(m_policyReceiver != nullptr)
             {
-                return m_policyReceiver->receivedGetPolicy(appId, policyId);
+                return m_policyReceiver->receivedGetPolicyRequest(appId, policyId);
             }
 
             return false;

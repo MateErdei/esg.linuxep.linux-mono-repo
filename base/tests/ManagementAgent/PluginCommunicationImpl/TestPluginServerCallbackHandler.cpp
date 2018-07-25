@@ -187,12 +187,11 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
     EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId, queryPolicyMessage.ApplicationTypeId)).WillOnce(
             Return(true));
 
-    Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, std::string("policy"));
-
     auto replyMessage = sendReceive(queryPolicyMessage);
-    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 
+    std::vector<std::string> expectedPayload = {"ACK"};
+
+    EXPECT_EQ(expectedPayload, replyMessage.Payload);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnApiException) //NOLINT

@@ -19,7 +19,7 @@ namespace ManagementAgent
         public:
             virtual ~IPolicyReceiver() = default;
 
-            virtual bool receivedGetPolicy(const std::string &appId, const std::string& policyId) = 0;
+            virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& policyId) = 0;
         };
     }
 }

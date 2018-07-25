@@ -6,12 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "PolicyReceiverImpl.h"
+#include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include "Logger.h"
+
 
 
 using namespace ManagementAgent::McsRouterPluginCommunicationImpl;
@@ -30,7 +31,7 @@ namespace ManagementAgent
             m_policyDir = Common::FileSystem::fileSystem()->join(mcsDir, "policy");
         }
 
-        bool PolicyReceiverImpl::receivedGetPolicy(const std::string& appId, const std::string& policyId)
+        bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId, const std::string& policyId)
         {
 
             bool policyTaskAddedToQueue = false;

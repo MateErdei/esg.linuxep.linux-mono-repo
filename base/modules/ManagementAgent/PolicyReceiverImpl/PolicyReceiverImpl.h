@@ -22,7 +22,7 @@ namespace ManagementAgent
         {
         public:
             explicit PolicyReceiverImpl(const std::string& mcsDir, std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue, PluginCommunication::IPluginManager& pluginManager);
-            bool receivedGetPolicy(const std::string &appId, const std::string& policyId) override;
+            bool receivedGetPolicyRequest(const std::string& appId, const std::string& policyId) override;
         private:
             std::string m_mcsDir;
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQeue;
