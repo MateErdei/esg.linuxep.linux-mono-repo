@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_POLICYRECEIVERIMPL_H
-#define EVEREST_BASE_POLICYRECEIVERIMPL_H
+#ifndef MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H
+#define MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H
 
 
 
@@ -34,4 +34,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //EVEREST_BASE_POLICYRECEIVERIMPL_H
+#endif //MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H

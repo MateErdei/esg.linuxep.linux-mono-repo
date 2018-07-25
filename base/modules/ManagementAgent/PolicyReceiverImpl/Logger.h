@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_LOGGER_H
-#define EVEREST_BASE_LOGGER_H
+#ifndef MANAGEMENTAGENT_POLICYRECEIVERIMPL_LOGGER_H
+#define MANAGEMENTAGENT_POLICYRECEIVERIMPL_LOGGER_H
 
 #include <iostream>
 
@@ -14,4 +14,4 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define LOGDEBUG(x) std::cerr << x << '\n'
 #define LOGSUPPORT(x) std::cerr << x << '\n'
 
-#endif //EVEREST_BASE_LOGGER_H
+#endif //MANAGEMENTAGENT_POLICYRECEIVERIMPL_LOGGER_H

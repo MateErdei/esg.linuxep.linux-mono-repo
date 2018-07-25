@@ -31,7 +31,8 @@ namespace PluginCommunication
          *
          * @param appId
          * @param policyId
-         * @return Policy XML
+         * @return true if succeeding in adding policy request to Task Queue, false otherwise.  False will normally
+         *         mean that there is no local policy file that can be re-processed.
          */
         virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& policyId) = 0;
 

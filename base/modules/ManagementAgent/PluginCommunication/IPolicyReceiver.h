@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_IPOLICYRECEIVER_H
-#define EVEREST_BASE_IPOLICYRECEIVER_H
+#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
+#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
 
 #include <string>
 
@@ -24,4 +24,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //EVEREST_BASE_IPOLICYRECEIVER_H
+#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
