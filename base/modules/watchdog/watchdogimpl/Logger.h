@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
-
+#ifndef WATCHDOG_WATCHDOGIMPL_LOGGER_H
+#define WATCHDOG_WATCHDOGIMPL_LOGGER_H
 
 #include <iostream>
 
@@ -17,4 +17,4 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define LOGWARN(x) std::cerr << x << std::endl // NOLINT
 #define LOGERROR(x) std::cerr << x << std::endl // NOLINT
 
-
+#endif //WATCHDOG_WATCHDOGIMPL_LOGGER_H

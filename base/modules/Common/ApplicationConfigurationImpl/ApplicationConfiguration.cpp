@@ -1,8 +1,6 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//
+// Created by pair on 29/06/18.
+//
 
 #include "ApplicationConfiguration.h"
 namespace Common
@@ -22,10 +20,12 @@ namespace Common
 
         ApplicationConfiguration::ApplicationConfiguration()
         {
+            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = "/opt/sophos-spl";
+        }
 
-            char * installpath = secure_getenv("SOPHOS_INSTALL");
-            std::string installDir = installpath != nullptr ? installpath : "/opt/sophos-spl";
-            m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = installDir;
+        void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
+        {
+            m_configurationData[key] = data;
         }
     }
 

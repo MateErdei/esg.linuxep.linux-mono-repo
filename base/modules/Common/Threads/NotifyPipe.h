@@ -28,8 +28,8 @@ namespace Common
                  * Create a new NotifyPipe.
                  * Creates a pipe().
                  */
-                NotifyPipe();
-                virtual ~NotifyPipe();
+                NotifyPipe() noexcept;
+                virtual ~NotifyPipe() noexcept;
 
                 /**
                  * @return True once for each time notify() is called.

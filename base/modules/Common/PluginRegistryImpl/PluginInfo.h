@@ -4,12 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#ifndef COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H
+#define COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H
 
-#pragma once
-
-
-
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/Process/EnvPair.h>
 
 #include <string>
 #include <vector>
@@ -23,7 +22,7 @@ namespace Common
         class PluginInfo
         {
         public:
-            using EnvPairs = std::vector<std::pair<std::string, std::string>>;
+            using EnvPairs = Common::Process::EnvPairVector;
 
             /**
              * Used to get stored policy appIds
@@ -157,6 +156,9 @@ namespace Common
              * @return PluginInfo parsed from the serializedPluginInfo.
              */
             static PluginInfo deserializeFromString(const std::string & serializedPluginInfo);
+
+            using PluginInfoVector = std::vector<PluginInfo>;
+
             /**
              * List the json entries from the directoryPath and load them into a vector of PluginInfo.
              * Failed to load specific entries will be 'silently' ignored. Although a log warning will be produced.
@@ -165,7 +167,7 @@ namespace Common
              * Uses deserializeFromString to convert json files into PluginInfo objects
              * @return A list of pluginInfo objects containing the loaded from the files read from disk.
              */
-            static std::vector<PluginInfo> loadFromDirectoryPath(const std::string & directoryPath);
+            static PluginInfoVector loadFromDirectoryPath(const std::string & directoryPath);
 
             /**
              * Uses the expected location of the plugin registry folder to load the plugins information.
@@ -176,7 +178,7 @@ namespace Common
              * @endcode
              * @return A list of pluginInfo objects containing the loaded from the files read from disk.
              */
-            static std::vector<PluginInfo> loadFromPluginRegistry();
+            static PluginInfoVector loadFromPluginRegistry();
 
 
         private:
@@ -190,7 +192,9 @@ namespace Common
 
 
         };
+
+        using PluginInfoVector = std::vector<PluginInfo>;
     }
 }
 
-
+#endif //COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H

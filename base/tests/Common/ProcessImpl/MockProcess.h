@@ -20,6 +20,7 @@ public:
     MOCK_METHOD0(kill, void(void));
     MOCK_METHOD0(exitCode, int(void));
     MOCK_METHOD0(output, std::string(void));
+    MOCK_METHOD0(getStatus, Common::Process::ProcessStatus(void));
 
 };
 

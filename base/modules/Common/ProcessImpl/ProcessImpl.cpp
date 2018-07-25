@@ -242,9 +242,9 @@ namespace ProcessImpl
                 m_pipeThread->requestStop();
 
 
-                if (WIFEXITED(status))
+                if (WIFEXITED(status)) //NOLINT
                 {
-                    m_exitcode = WEXITSTATUS(status);
+                    m_exitcode = WEXITSTATUS(status); //NOLINT
                 }
                 else
                 {
@@ -379,6 +379,22 @@ namespace ProcessImpl
 
     }
 
+    Process::ProcessStatus ProcessImpl::getStatus()
+    {
+        if (!m_pipeThread)
+        {
+            throw Process::IProcessException( "getStatus can be called only after exec.");
+        }
+        int status;
+        pid_t exited = ::waitpid(m_pid, &status, WNOHANG);
+        if (exited == 0)
+        {
+            return Process::ProcessStatus::RUNNING;
+        }
+        m_exitcode = status;
+        return Process::ProcessStatus::FINISHED;
+    }
+
 
     ProcessFactory::ProcessFactory()
     {
@@ -398,12 +414,13 @@ namespace ProcessImpl
 
     void ProcessFactory::replaceCreator(std::function<std::unique_ptr<Process::IProcess>(void)> creator)
     {
-        m_creator = creator;
+        m_creator = std::move(creator);
     }
 
     void ProcessFactory::restoreCreator()
     {
         m_creator = [](){ return std::unique_ptr<Common::Process::IProcess>(new Common::ProcessImpl::ProcessImpl());  };
     }
+
 }
 }

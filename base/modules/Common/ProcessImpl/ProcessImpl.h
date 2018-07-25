@@ -4,11 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
+#ifndef COMMON_PROCESSIMPL_PROCESSIMPL_H
+#define COMMON_PROCESSIMPL_PROCESSIMPL_H
 
 #include "IProcess.h"
-#include <sys/types.h>
+
 #include <functional>
+
+#include <sys/types.h>
 
 namespace Common
 {
@@ -30,6 +33,9 @@ namespace Common
             int exitCode() override;
             std::string output() override ;
             void kill() override ;
+
+            Process::ProcessStatus getStatus() override;
+
         private:
             pid_t m_pid;
             std::unique_ptr<PipeHolder> m_pipe;
@@ -56,4 +62,4 @@ namespace Common
 }
 
 
-
+#endif //COMMON_PROCESSIMPL_PROCESSIMPL_H

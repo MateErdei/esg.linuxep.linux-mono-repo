@@ -25,13 +25,13 @@ using Common::Threads::NotifyPipe;
 //LINKED-ATTRIBUTES
 //LINKED-ATTRIBUTES-END
 
-NotifyPipe::~NotifyPipe()
+NotifyPipe::~NotifyPipe() noexcept
 {
     ::close(m_readFd);
     ::close(m_writeFd);
 }
 
-NotifyPipe::NotifyPipe()
+NotifyPipe::NotifyPipe() noexcept
 {
     int filedes[2];
     int ret = pipe(filedes);

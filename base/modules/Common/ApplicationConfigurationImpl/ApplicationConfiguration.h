@@ -22,6 +22,8 @@ namespace Common
 
             void setConfigurationData(const std::map<std::string, std::string> &m_configurationData);
 
+            void setData(const std::string& key, const std::string& data) override;
+
         private:
             std::map<std::string, std::string> m_configurationData;
 

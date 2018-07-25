@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
-
+#ifndef COMMON_PROCESS_IPROCESSEXCEPTION_H
+#define COMMON_PROCESS_IPROCESSEXCEPTION_H
 #include "Exceptions/IException.h"
 namespace Common
 {
@@ -22,4 +22,4 @@ namespace Common
 }
 
 
-
+#endif //COMMON_PROCESS_IPROCESSEXCEPTION_H

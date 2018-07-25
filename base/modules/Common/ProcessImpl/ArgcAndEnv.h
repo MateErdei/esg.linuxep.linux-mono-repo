@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#pragma once
-
+#ifndef COMMON_PROCESSIMPL_ARGCANDENV_H
+#define COMMON_PROCESSIMPL_ARGCANDENV_H
 
 #include "IProcess.h"
 #include "IProcessException.h"
@@ -161,4 +161,4 @@ namespace Common
 
     }
 }
-
+#endif //COMMON_PROCESSIMPL_ARGCANDENV_H

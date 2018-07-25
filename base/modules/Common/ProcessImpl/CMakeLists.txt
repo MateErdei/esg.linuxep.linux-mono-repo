@@ -1,8 +1,11 @@
 
 add_library(processimpl SHARED
+        ../Process/EnvPair.h
         ../Process/IProcess.h
         ProcessImpl.cpp
-        ProcessImpl.h ArgcAndEnv.h)
+        ProcessImpl.h
+        ArgcAndEnv.h
+        )
 target_include_directories(processimpl PUBLIC ../Process ../../Common)
 
 

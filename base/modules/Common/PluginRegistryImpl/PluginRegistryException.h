@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#pragma once
-
+#ifndef COMMON_PLUGINREGISTRYIMPL_PLUGINREGISTRYEXCEPTION_H
+#define COMMON_PLUGINREGISTRYIMPL_PLUGINREGISTRYEXCEPTION_H
 #include "Exceptions/IException.h"
 
 namespace Common
@@ -20,4 +20,4 @@ namespace Common
         };
     }
 }
-
+#endif //COMMON_PLUGINREGISTRYIMPL_PLUGINREGISTRYEXCEPTION_H

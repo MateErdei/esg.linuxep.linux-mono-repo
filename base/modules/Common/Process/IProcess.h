@@ -4,20 +4,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#ifndef COMMON_PROCESS_IPROCESS_H
+#define COMMON_PROCESS_IPROCESS_H
 
-#pragma once
+#include "EnvPair.h"
 
 #include <chrono>
 #include <string>
 #include <memory>
 #include <vector>
+
 namespace Common
 {
     namespace Process
     {
         using Milliseconds = std::chrono::milliseconds;
-        using EnvironmentPair = std::pair<std::string,std::string>;
-        enum class ProcessStatus {FINISHED, TIMEOUT};
+        enum class ProcessStatus {FINISHED, TIMEOUT, RUNNING};
         Milliseconds  milli( int n_ms);
 
         class IProcess
@@ -35,7 +37,7 @@ namespace Common
              * @pre Require extraEnvironment to have a non empty key.
              */
             virtual void exec( const std::string & path, const std::vector<std::string> & arguments,
-                                const std::vector<EnvironmentPair> & extraEnvironment) = 0;
+                                const EnvPairVector& extraEnvironment) = 0;
             virtual void exec( const std::string & path, const std::vector<std::string> & arguments) = 0;
 
             /**
@@ -68,6 +70,13 @@ namespace Common
             * @pre requires exec to be called before this method.
             */
             virtual std::string output() = 0;
+
+            /**
+             * Non-blocking get the current status of the process
+             * @pre requires exec to have been called before this method
+             * @return ProcessStatus
+             */
+            virtual ProcessStatus getStatus() = 0;
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();
@@ -75,4 +84,4 @@ namespace Common
 }
 
 
-
+#endif //COMMON_PROCESS_IPROCESS_H
