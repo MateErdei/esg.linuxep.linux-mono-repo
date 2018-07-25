@@ -48,17 +48,20 @@ namespace
 {
     std::string work_out_install_directory()
     {
+        // Check if we have an environment variable telling us the installation location
         char* SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
         if (SOPHOS_INSTALL != nullptr)
         {
             return SOPHOS_INSTALL;
         }
+        // If we don't have environment variable, assume we were started in the installation directory
         char pwd[PATH_MAX];
         char* cwd = getcwd(pwd,PATH_MAX);
         if (cwd != nullptr)
         {
             return cwd;
         }
+        // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
 
@@ -79,7 +82,7 @@ namespace
 
     void setSignalHandler()
     {
-        struct sigaction signalBuf; //NOLINT
+        struct sigaction signalBuf{0}; //NOLINT
         signalBuf.sa_handler = signal_handler;
         sigemptyset(&signalBuf.sa_mask);
         signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; //NOLINT
@@ -139,7 +142,7 @@ int watchdog_main::run()
 
     while (keepRunning)
     {
-        // TODO: Handle wdctl commands
+        // TODO: LINUXEP-5920 Handle wdctl commands
 
         fd_set read_temp = read_fds;
         int active = pselect(max_fd+1, &read_temp, nullptr, nullptr,
