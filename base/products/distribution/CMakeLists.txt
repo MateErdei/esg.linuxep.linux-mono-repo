@@ -6,6 +6,7 @@ string(STRIP "${libstdcpp_path}" libstdcpp_path )
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libgcc_s.so.1
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
+message(${libgcc_s_path})
 
 install(FILES ${libstdcpp_path} ${libgcc_s_path}
         DESTINATION files/base/lib64
@@ -54,8 +55,6 @@ endforeach(LIB)
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 
 add_third_party_library(expat ${EXPAT_INPUT}/lib64)
-
-add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
 
 foreach (LIB crypto ssl)
     add_third_party_library(${LIB} ${OPENSSL_INPUT}/lib64)
