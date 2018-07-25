@@ -65,7 +65,7 @@ pipeline {
         }
         stage('Tests') {
             parallel {
-                stage('Build on Ubuntu') {
+                stage('Test on Ubuntu') {
                     agent {
                         node {
                             label 'ubuntu1804'
@@ -82,7 +82,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Build on CentOS') {
+                stage('Test on CentOS') {
                     agent {
                         node {
                             label 'centos7'
@@ -98,7 +98,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Build on Redhat') {
+                stage('Test on Redhat') {
                     agent {
                         node {
                             label 'rhel7'
