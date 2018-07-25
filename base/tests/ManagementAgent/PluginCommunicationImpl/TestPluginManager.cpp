@@ -176,11 +176,11 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)  // NOLINT
     getTelemetry.join();
 }
 
-//TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows)
-//{
-//    EXPECT_THROW(m_pluginManagerPtr->getTelemetry("plugin_not_registered"),
-//                 ManagementAgent::PluginCommunication::IPluginCommunicationException);
-//}
+TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows)
+{
+    EXPECT_THROW(m_pluginManagerPtr->getTelemetry("plugin_not_registered"),
+                 ManagementAgent::PluginCommunication::IPluginCommunicationException);
+}
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)  // NOLINT
 {
