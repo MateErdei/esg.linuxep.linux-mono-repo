@@ -12,16 +12,17 @@ def buildAndTest()
 def copyAndTest()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
-        sh 'cd .. && rm -rf ${BRANCH_NAME} && cp -r /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME} ${BRANCH_NAME}'
+        sh 'cd ../.. && rm -rf ${BRANCH_NAME} && cp -r /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME} ${BRANCH_NAME}'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
 }
 
-def copyBuild()
+def copyBuildToFiler()
 {
-    sh 'rm -rf /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
-    sh 'cp -r ../${BRANCH_NAME} /mnt/filer6/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'cp -r ../../${BRANCH_NAME} /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
 }
 
 def processTestResults(osName)
@@ -53,7 +54,7 @@ pipeline {
             }
             post {
                 success {
-                    copyBuild()
+                    copyBuildToFiler()
                 }
                 always {
                     processTestResults("CentOS Builder")
