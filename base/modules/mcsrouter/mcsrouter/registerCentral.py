@@ -141,7 +141,7 @@ def register(config, INST, logger):
 
 def removeMCSPolicy():
     safeDelete(PathManager.mcsPolicyConfig())
-    safeDelete(os.path.join(PathManager.policyDir(),"MCS-25_policy.xml"))
+    safeDelete(PathManager.mcsPolicyFile())
 
 def getUID(uidText):
     """
@@ -250,7 +250,7 @@ def innerMain(argv):
         parser.print_usage()
         return 2
 
-    topconfig = utilsConfig.Config(os.path.join(PathManager.sophos_etc_dir(),"mcsrouter.conf"))
+    topconfig = utilsConfig.Config(PathManager.mcsrouterConf())
     debug = os.environ.get("MCS_DEBUG",None)
     if debug:
         topconfig.set("LOGLEVEL","DEBUG")
@@ -314,10 +314,10 @@ def innerMain(argv):
             config.save()
 
             ## cleanup RMS files
-            safeDelete(os.path.join( PathManager.policyDir(), "sophos.config"))
+            safeDelete(PathManager.sophosConfigFile())
 
             ## cleanup last reported update event
-            safeDelete(os.path.join(PathManager.getVarRunDir(), "update.last_event"))
+            safeDelete(PathManager.getUpdateLastEventFile())
 
             ## cleanup console config layers
             if not options.reregister:

@@ -37,7 +37,7 @@ class PidFile(object):
 
     def __init__(self, installDir):
         PathManager.INST = installDir
-        self.__m_pidfilePath = os.path.join( PathManager.lock_sophos(),"mcsrouter.pid")
+        self.__m_pidfilePath = PathManager.mcsrouterPidFile()
         self.__safemakedirs(os.path.dirname(self.__m_pidfilePath))
         if os.path.isfile(self.__m_pidfilePath):
             logger.warning("Previous mcsrouter not shutdown cleanly")
@@ -260,8 +260,8 @@ def createConfiguration(installDir, argv):
             config.set("DAEMON","0")
     return config
     
-def clearTmpDirectory(installDir):
-    tempDir = os.path.join(installDir, "tmp")
+def clearTmpDirectory():
+    tempDir = PathManager.tempDir()
     if os.path.exists(tempDir):
         for files in os.listdir(tempDir):
             try:
@@ -276,7 +276,8 @@ def main(argv):
         arg0 = sys.argv[0]
         scriptDir = os.path.dirname(os.path.realpath(arg0))
         installDir = os.path.abspath(os.path.join(scriptDir, ".."))
-    clearTmpDirectory(installDir)
+    PathManager.INST = installDir
+    clearTmpDirectory()
     os.umask(0o177)
     config = createConfiguration(installDir, argv)
 
