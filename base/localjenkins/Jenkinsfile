@@ -4,6 +4,7 @@ def buildAndTest()
         checkout scm
         sh 'rm -rf /tmp/temp*'
         sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
+
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
@@ -12,7 +13,8 @@ def buildAndTest()
 def copyAndTest()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
-        sh 'cd ../.. && rm -rf ${BRANCH_NAME} && cp -r /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME} ${BRANCH_NAME}'
+        sh 'rm -rf build64 && cp -r /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME} build64'
+        sh 'sudo chown -R jenkins:jenkins build64'
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
@@ -20,9 +22,9 @@ def copyAndTest()
 
 def copyBuildToFiler()
 {
-    sh 'rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
-    sh 'mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
-    sh 'cp -r ../../${BRANCH_NAME} /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'sudo rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'sudo mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
+    sh 'sudo cp -r build64/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${BRANCH_NAME}'
 }
 
 def processTestResults(osName)
