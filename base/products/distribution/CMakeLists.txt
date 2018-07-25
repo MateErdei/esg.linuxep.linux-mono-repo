@@ -1,4 +1,17 @@
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libstdc++.so
+        OUTPUT_VARIABLE libstdcpp_path)
+string(STRIP "${libstdcpp_path}" libstdcpp_path )
+
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libgcc_s.so.1
+        OUTPUT_VARIABLE libgcc_s_path)
+string(STRIP "${libgcc_s_path}" libgcc_s_path )
+message(${libgcc_s_path})
+
+install(FILES ${libstdcpp_path} ${libgcc_s_path}
+        DESTINATION files/base/lib64
+        )
+
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
         )
