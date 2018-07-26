@@ -26,17 +26,16 @@ namespace ManagementAgent
         class ManagementAgentMain
         {
         public:
-            ManagementAgentMain(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             static int main(int argc, char *argv[]);
 
         protected:
-            void initialise();
+            void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             void loadPlugins();
             void initialiseTaskQueue();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
-
             int run();
+
 
             ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
 

@@ -43,11 +43,6 @@ namespace ManagementAgent
 {
     namespace ManagementAgentImpl
     {
-        ManagementAgentMain::ManagementAgentMain(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
-        : m_pluginManager(&pluginManager)
-        {
-        }
-
         int ManagementAgentMain::main(int argc, char **argv)
         {
             static_cast<void>(argv); // unused
@@ -60,14 +55,16 @@ namespace ManagementAgent
 
             ManagementAgent::PluginCommunication::IPluginManager* pluginManager = new ManagementAgent::PluginCommunicationImpl::PluginManager();
 
-            ManagementAgentMain managementAgent(*pluginManager);
-            managementAgent.initialise();
+            ManagementAgentMain managementAgent;
+            managementAgent.initialise(*pluginManager);
             return managementAgent.run();
         }
 
-        void ManagementAgentMain::initialise()
+        void ManagementAgentMain::initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
         {
             LOGDEBUG("Initializing Management Agent");
+
+            m_pluginManager = &pluginManager;
 
             // order is important.
             loadPlugins();

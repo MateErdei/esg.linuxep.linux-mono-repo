@@ -26,27 +26,47 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <modules/ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 
-class ManagementAgentImplTests : public ::testing::Test
+namespace
 {
-public:
-
-    void SetUp() override
+    class TestManagementAgent
+            : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
     {
+    public:
+        void initialiseWrapper(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
+        {
+            initialise(pluginManager);
+        }
+    };
 
+    class ManagementAgentImplTests : public ::testing::Test
+    {
+    public:
+
+        void SetUp() override
+        {
+
+        }
+
+        void TearDown() override
+        {
+
+        }
+
+        StrictMock<MockPluginManager> m_mockPluginManager;
+    };
+
+    TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
+    {
+        EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent());
     }
 
-    void TearDown() override
+    TEST_F(ManagementAgentImplTests, initialiseWillNotThrow)
     {
 
+        //TestManagementAgent managementAgent;
+
+        //EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
     }
-    StrictMock<MockPluginManager> m_mockPluginManager;
-};
-
-TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
-{
-    EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent(m_mockPluginManager));
-
 }
-
 
 
