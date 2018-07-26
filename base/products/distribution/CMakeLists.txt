@@ -61,9 +61,6 @@ endforeach(LIB)
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
 
-add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
-
-
 install(FILES ${third_party_libs}
         DESTINATION files/base/lib64)
 

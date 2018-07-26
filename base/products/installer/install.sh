@@ -59,7 +59,6 @@ failure()
     echo "$@" >&2
     exit $CODE
 }
-export LD_LIBRARY_PATH=$DIST/files/base/lib64
 export DIST
 export SOPHOS_INSTALL
 
@@ -86,11 +85,9 @@ USERADD="$(which useradd)"
 "${GETENT}" passwd "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
     || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
 
-for F in $(find $DIST/files -type f)
-do
-    $DIST/installer/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
-done
-install $DIST/installer/versionedcopy  "$SOPHOS_INSTALL/base/bin"
+mkdir -p "${SOPHOS_INSTALL}/tmp"
+chmod 1770 "${SOPHOS_INSTALL}/tmp"
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
 mkdir -p "$SOPHOS_INSTALL/var/ipc/plugins"
 chmod 711 "$SOPHOS_INSTALL/var"
@@ -104,15 +101,6 @@ chmod 711 "${SOPHOS_INSTALL}/logs"
 chmod 700 "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base"
 
-mkdir -p "${SOPHOS_INSTALL}/tmp"
-chmod 1770 "${SOPHOS_INSTALL}/tmp"
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
-
-chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
-chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
-
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
-
 mkdir -p "${SOPHOS_INSTALL}/base/etc"
 chmod 711 "${SOPHOS_INSTALL}/base/etc"
 
@@ -123,13 +111,33 @@ mkdir -p "${SOPHOS_INSTALL}/base/update/cache/Primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
 chmod 711 -R "${SOPHOS_INSTALL}/base/update/cache/"
 
+
+## Setup libraries for versionedcopy
+INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
+export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
+mkdir -p "${INSTALLER_LIB}"
+ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
+
+## Copy versioned copy into install location too
+cp "$DIST/installer/versionedcopy" "$DIST/files/base/bin"
+
+for F in $(find "$DIST/files" -type f)
+do
+    "$DIST/installer/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+done
+
+chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
+chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
+
+rm -rf "${INSTALLER_LIB}"
 
 if [[ -n "$MCS_CA" ]]
 then
     export MCS_CA
 fi
-
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
     $SOPHOS_INSTALL/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
