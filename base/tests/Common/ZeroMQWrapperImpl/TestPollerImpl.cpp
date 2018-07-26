@@ -1,19 +1,18 @@
-//
-// Created by pair on 11/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 
 #include <gtest/gtest.h>
 
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/IContextPtr.h>
 #include <Common/ZeroMQWrapper/IReadWrite.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <Common/Exceptions/Print.h>
-#include <thread>
 
 using namespace Common::ZeroMQWrapper;
 

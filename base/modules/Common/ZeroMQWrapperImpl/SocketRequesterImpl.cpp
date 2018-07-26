@@ -1,12 +1,13 @@
-//
-// Created by pair on 07/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "SocketRequesterImpl.h"
 #include "SocketUtil.h"
 
 #include <zmq.h>
-#include <cassert>
 
 using namespace Common::ZeroMQWrapperImpl;
 

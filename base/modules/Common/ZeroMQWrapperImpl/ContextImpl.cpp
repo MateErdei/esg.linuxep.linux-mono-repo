@@ -1,16 +1,14 @@
-//
-// Created by pair on 06/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ContextImpl.h"
 #include "SocketRequesterImpl.h"
 #include "SocketReplierImpl.h"
 #include "SocketPublisherImpl.h"
 #include "SocketSubscriberImpl.h"
-
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-
-#include <zmq.h>
 
 using namespace Common::ZeroMQWrapperImpl;
 

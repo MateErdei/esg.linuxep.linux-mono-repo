@@ -1,6 +1,8 @@
-//
-// Created by pair on 08/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 
 
@@ -11,7 +13,6 @@
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/IContextPtr.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 
 #include <thread>

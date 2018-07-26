@@ -1,11 +1,12 @@
-//
-// Created by pair on 06/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 
 #include <gtest/gtest.h>
 #include <Common/ZeroMQWrapperImpl/SocketHolder.h>
-#include <Common/ZeroMQWrapperImpl/ContextHolder.h>
 #include <zmq.h>
 
 namespace

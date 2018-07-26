@@ -1,6 +1,8 @@
-//
-// Created by pair on 29/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "ApplicationPathManager.h"

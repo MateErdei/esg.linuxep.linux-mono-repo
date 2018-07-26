@@ -1,8 +1,9 @@
-//
-// Created by pair on 08/06/18.
-//
+/******************************************************************************************************
 
-#include <cassert>
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #include "SocketSubscriberImpl.h"
 #include "SocketUtil.h"
 #include "ZeroMQWrapperException.h"

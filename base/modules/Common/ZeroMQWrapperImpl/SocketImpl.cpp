@@ -1,10 +1,11 @@
-//
-// Created by pair on 07/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include <string>
 #include <zmq.h>
-#include <cassert>
 #include "SocketImpl.h"
 #include "ZeroMQWrapperException.h"
 #include "SocketUtil.h"

@@ -1,6 +1,8 @@
-//
-// Created by pair on 07/06/18.
-//
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "SocketUtil.h"
 #include "ZeroMQWrapperException.h"
@@ -9,7 +11,6 @@
 #include <Common/Exceptions/Print.h>
 
 #include <zmq.h>
-#include <cassert>
 #include <sstream>
 
 std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(Common::ZeroMQWrapperImpl::SocketHolder & socketHolder)
