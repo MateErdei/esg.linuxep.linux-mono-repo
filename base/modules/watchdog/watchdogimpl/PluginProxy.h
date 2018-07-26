@@ -20,6 +20,13 @@ namespace watchdog
             explicit PluginProxy(
                     Common::PluginRegistryImpl::PluginInfo info
                     );
+            ~PluginProxy() noexcept;
+            PluginProxy(PluginProxy&&) = default;
+
+            // Don't allow copying
+            PluginProxy(const PluginProxy&) = delete;
+            PluginProxy& operator=(const PluginProxy&) = delete;
+
             void start();
             void stop();
             void checkForExit();
@@ -31,6 +38,7 @@ namespace watchdog
             time_t startIfRequired();
 
         private:
+
             Common::Process::ProcessStatus status();
             int exitCode();
 

@@ -106,3 +106,8 @@ time_t PluginProxy::startIfRequired()
         return 10 - (now - m_deathTime);
     }
 }
+
+PluginProxy::~PluginProxy() noexcept
+{
+    stop();
+}
