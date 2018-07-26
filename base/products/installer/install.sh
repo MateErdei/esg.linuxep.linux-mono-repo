@@ -124,6 +124,8 @@ do
     cp "$F" "${SOPHOS_INSTALL}/base/pluginRegistry/"
 done
 
+chmod 644 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
+
 if [[ -n "$MCS_CA" ]]
 then
     export MCS_CA
