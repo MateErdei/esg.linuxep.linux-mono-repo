@@ -8,15 +8,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 
+#include "PluginServerCallbackHandler.h"
+
+#include <ManagementAgent/PluginCommunication/IPluginManager.h>
+#include <ManagementAgent/PluginCommunication/IPluginProxy.h>
+#include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
+
+#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#include "Common/ZeroMQWrapper/IContextPtr.h"
+
 #include <string>
 #include <map>
 #include <mutex>
-#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
-#include "Common/ZeroMQWrapper/IContextPtr.h"
-#include "IPluginManager.h"
-#include "IPluginProxy.h"
-#include "PluginServerCallbackHandler.h"
-#include "IPluginServerCallback.h"
+
+
 
 
 namespace ManagementAgent
@@ -52,6 +57,8 @@ namespace ManagementAgent
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;
+
+            void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
 
         private:
 

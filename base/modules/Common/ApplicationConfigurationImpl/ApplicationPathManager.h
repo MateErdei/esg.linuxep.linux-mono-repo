@@ -22,6 +22,11 @@ namespace Common
             std::string getSubscriberDataChannelAddress() const override ;
             std::string getPluginRegistryPath() const override;
             std::string getVersigPath() const override ;
+            std::string getMcsPolicyFilePath() const override;
+            std::string getMcsActionFilePath() const override;
+            std::string getMcsStatusFilePath() const override;
+            std::string getMcsEventFilePath() const override;
+
         private:
             std::string socketPath( const std::string & relative) const;
         };

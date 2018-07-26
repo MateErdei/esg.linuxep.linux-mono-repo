@@ -100,5 +100,19 @@ namespace ManagementAgent
             }
 #pragma clang diagnostic pop
         }
+
+        void PluginServerCallbackHandler::setPolicyReceiver(
+                std::shared_ptr<PluginCommunication::IPolicyReceiver>& policyReceiver)
+        {
+            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
+            assert(serverCallbackAsPluginServerCallback != nullptr);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
+            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            {
+                serverCallbackAsPluginServerCallback->setPolicyReceiver(policyReceiver);
+            }
+#pragma clang diagnostic pop
+        }
     }
 }

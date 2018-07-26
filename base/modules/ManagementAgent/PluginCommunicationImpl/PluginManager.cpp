@@ -180,6 +180,14 @@ namespace PluginCommunicationImpl
         }
     }
 
+    void PluginManager::setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver)
+    {
+        if (m_serverCallbackHandler != nullptr)
+        {
+            m_serverCallbackHandler->setPolicyReceiver(receiver);
+        }
+    }
+
 }
 }
 

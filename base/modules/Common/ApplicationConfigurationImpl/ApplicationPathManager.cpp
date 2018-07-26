@@ -67,6 +67,27 @@ namespace Common
             }
             return envVersigPATH;
         }
+
+        std::string ApplicationPathManager::getMcsPolicyFilePath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/policy");
+        }
+
+        std::string ApplicationPathManager::getMcsActionFilePath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/action");
+        }
+
+        std::string ApplicationPathManager::getMcsStatusFilePath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/status");
+        }
+
+        std::string ApplicationPathManager::getMcsEventFilePath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/event");
+        }
+
     }
 
 

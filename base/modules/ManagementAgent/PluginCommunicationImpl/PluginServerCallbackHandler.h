@@ -3,14 +3,15 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#pragma once
+#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_PLUGINAPISERVERCALLBACKHANDLER_H
+#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_PLUGINAPISERVERCALLBACKHANDLER_H
 
-
-#include "Common/ZeroMQWrapper/IReadWrite.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/PluginProtocol/AbstractListenerServer.h"
+#include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
+#include "ZeroMQWrapper/IReadWrite.h"
+#include "ZeroMQWrapper/ISocketReplier.h"
+#include "PluginProtocol/AbstractListenerServer.h"
 #include "IPluginServerCallback.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
+#include "PluginProtocol/MessageBuilder.h"
 
 using namespace Common::PluginProtocol;
 
@@ -27,6 +28,7 @@ namespace PluginCommunicationImpl
 
         void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
         void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
+        void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver);
 
     private:
         DataMessage process(const DataMessage &request) const override;
@@ -43,4 +45,4 @@ namespace PluginCommunicationImpl
 
 
 
-
+#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_PLUGINAPISERVERCALLBACKHANDLER_H

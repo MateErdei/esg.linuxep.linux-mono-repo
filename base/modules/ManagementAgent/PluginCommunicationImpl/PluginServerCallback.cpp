@@ -54,5 +54,10 @@ namespace ManagementAgent
         {
             m_eventReceiver = receiver;
         }
+
+        void PluginServerCallback::setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver)
+        {
+            m_policyReceiver = receiver;
+        }
     }
 }

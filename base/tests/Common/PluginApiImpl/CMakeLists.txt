@@ -2,7 +2,6 @@ include(GoogleTest)
 add_executable(PluginApiImplTests
         TestProtocol.cpp
         SingleResponseServer.h
-        MockedApplicationPathManager.h
         MockedPluginApiCallback.h
         PluginApiTests.cpp
         SingleManagementRequest.h

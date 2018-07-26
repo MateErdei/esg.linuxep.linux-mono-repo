@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MockPluginServerCallback.h"
-#include "tests/Common/PluginApiImpl/MockedApplicationPathManager.h"
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include "tests/Common/PluginApiImpl/TestCompare.h"
 #include "Common/PluginApi/ApiException.h"
 

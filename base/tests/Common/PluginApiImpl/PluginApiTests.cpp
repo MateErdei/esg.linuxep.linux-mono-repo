@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "MockedApplicationPathManager.h"
+
 #include "MockedPluginApiCallback.h"
 #include "SingleResponseServer.h"
 
@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include <thread>
+#include <../../../tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
 namespace
 {

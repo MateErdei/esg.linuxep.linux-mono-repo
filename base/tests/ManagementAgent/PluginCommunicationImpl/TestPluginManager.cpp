@@ -7,7 +7,7 @@
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "tests/Common/PluginApiImpl/MockedApplicationPathManager.h"
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include "tests/Common/PluginApiImpl/MockedPluginApiCallback.h"
 
 #include <thread>

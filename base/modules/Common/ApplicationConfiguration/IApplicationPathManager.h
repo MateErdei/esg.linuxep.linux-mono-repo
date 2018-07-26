@@ -26,6 +26,10 @@ namespace Common
             virtual std::string getSubscriberDataChannelAddress() const = 0;
             virtual std::string getPluginRegistryPath() const = 0;
             virtual std::string getVersigPath() const = 0;
+            virtual std::string getMcsPolicyFilePath() const = 0;
+            virtual std::string getMcsActionFilePath() const = 0;
+            virtual std::string getMcsStatusFilePath() const = 0;
+            virtual std::string getMcsEventFilePath() const = 0;
         };
 
 

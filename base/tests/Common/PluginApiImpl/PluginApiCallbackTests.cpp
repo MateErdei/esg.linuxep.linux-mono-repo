@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "MockedApplicationPathManager.h"
+
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
 
@@ -16,7 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
 #include "TestCompare.h"
-
+#include <../../../tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <thread>
 
 namespace

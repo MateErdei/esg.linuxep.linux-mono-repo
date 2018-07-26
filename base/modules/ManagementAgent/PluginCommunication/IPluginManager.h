@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IPluginServerCallback.h"
 #include "IStatusReceiver.h"
 #include "IEventReceiver.h"
+#include "IPolicyReceiver.h"
 
 #include <Common/PluginProtocol/DataMessage.h>
 
@@ -102,6 +103,13 @@ namespace PluginCommunication
          * @param receiver
          */
         virtual void setEventReceiver(std::shared_ptr<IEventReceiver>& receiver) = 0;
+
+        /**
+         * Set the policy receiver for polices requests from plugins, if using default callback handler
+         *
+         * @param receiver
+         */
+        virtual void setPolicyReceiver(std::shared_ptr<IPolicyReceiver>& receiver) = 0;
     };
 }
 }

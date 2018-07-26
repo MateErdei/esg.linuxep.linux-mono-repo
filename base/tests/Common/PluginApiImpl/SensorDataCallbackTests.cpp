@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "MockedApplicationPathManager.h"
+
 #include "MockSensorDataCallback.h"
 
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "TestExecutionSynchronizer.h"
 #include "Common/Threads/NotifyPipe.h"
-
+#include <../../../tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <thread>
 
 
