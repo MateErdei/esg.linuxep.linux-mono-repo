@@ -9,23 +9,23 @@
 
 namespace Common
 {
-namespace PluginApi
-{
-    /**
-     * Struct to enable replying to status query from Management Agent.
-     * @see IPluginApi::changeStatus
-     */
-    struct StatusInfo
+    namespace PluginApi
     {
-        /// Content of the status that can be sent to Sophos Cloud
-        std::string statusXml;
-        /// Representation of the status that can be used to reliably identify when it has changed.
-        /// @see IBaseServiceApi::changeStatus
-        std::string statusWithoutTimestampsXml;
-        /// Application Id that the status is related to
-        std::string appId;
-    };
-}
+        /**
+         * Struct to enable replying to status query from Management Agent.
+         * @see IPluginApi::changeStatus
+         */
+        struct StatusInfo
+        {
+            /// Content of the status that can be sent to Sophos Cloud
+            std::string statusXml;
+            /// Representation of the status that can be used to reliably identify when it has changed.
+            /// @see IBaseServiceApi::changeStatus
+            std::string statusWithoutTimestampsXml;
+            /// Application Id that the status is related to
+            std::string appId;
+        };
+    }
 }
 
 

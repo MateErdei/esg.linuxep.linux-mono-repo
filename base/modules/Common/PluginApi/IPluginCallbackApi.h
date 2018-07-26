@@ -39,7 +39,7 @@ namespace Common
              * @todo add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new policy.
              */
-            virtual void applyNewPolicy(const std::string &policyXml) = 0;
+            virtual void applyNewPolicy(const std::string& policyXml) = 0;
 
             /**
              * Require the plugin to perform an action ( Sent by Management Console ).
@@ -49,7 +49,7 @@ namespace Common
              * @todo add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested action.
              */
-            virtual void queueAction(const std::string &actionXml) = 0;
+            virtual void queueAction(const std::string& actionXml) = 0;
 
             /**
              *  Method that will be called when the Plugin receives a SIGTERM or SIGINT (@see Reactor::setShutdownListener).
@@ -67,7 +67,7 @@ namespace Common
              *
              * @return StatusInfo The content of StatusInfo is forwarded to the Management Agent via the ipc channel.
              */
-            virtual PluginApi::StatusInfo getStatus(const std::string &appId) = 0;
+            virtual PluginApi::StatusInfo getStatus(const std::string& appId) = 0;
 
 
             /**

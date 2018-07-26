@@ -6,8 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #ifndef EVEREST_BASE_ISENSORDATASUBSCRIBER_H
 #define EVEREST_BASE_ISENSORDATASUBSCRIBER_H
+
 #include <memory>
 #include "ISensorDataCallback.h"
+
 namespace Common
 {
     namespace PluginApi
@@ -26,12 +28,14 @@ namespace Common
         {
         public:
             virtual  ~ISensorDataSubscriber() = default;
+
             /**
              * Start the thread that monitors the subscription ipc channel for incoming data.
              * It is not re-entrant. After starting/stop, it should not try to re-start.
              * Neither it should try to call start twice.
              */
             virtual void start() = 0;
+
             /**
              * Stop the thread the monitors the subscription of the ipc channel.
              * Stop may be called multiple times. But has no effect after the first call.  

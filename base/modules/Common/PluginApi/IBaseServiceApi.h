@@ -53,7 +53,7 @@ namespace Common
              * @param eventXml The content of the xml to be sent to Management Console.
              * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
              */
-            virtual void sendEvent(const std::string& appId, const std::string& eventXml) const  = 0;
+            virtual void sendEvent(const std::string& appId, const std::string& eventXml) const = 0;
 
             /**
              * Report the App Status to Management Console.
@@ -75,8 +75,8 @@ namespace Common
              * @param statusWithoutTimestampsXml A representation of status that can be used reliably to identify that status has in effect changed.
              * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
              */
-            virtual void sendStatus(const std::string &appId, const std::string &statusXml,
-                                    const std::string &statusWithoutTimestampsXml) const = 0;
+            virtual void sendStatus(const std::string& appId, const std::string& statusXml,
+                                    const std::string& statusWithoutTimestampsXml) const = 0;
 
             /**
              * Query the Management Agent for the current policy to be applied to the App identified by AppId.
@@ -85,7 +85,7 @@ namespace Common
              * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
              * @todo add information about 'translating xml'
              */
-            virtual std::string getPolicy(const std::string &appId) const = 0;
+            virtual std::string getPolicy(const std::string& appId) const = 0;
 
         };
 

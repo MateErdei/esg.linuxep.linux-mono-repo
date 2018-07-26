@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #define EVEREST_BASE_ISENSORDATAPUBLISHER_H
 
 #include <memory>
+
 namespace Common
 {
     namespace PluginApi
@@ -34,6 +35,7 @@ namespace Common
         {
         public:
             virtual ~ISensorDataPublisher() = default;
+
             /**
              * Publishes the data
              * @param sensorDataCategory: The category of the data. Bear in mind that subscribers express their filter as matching prefix of sensorDataCategory.
