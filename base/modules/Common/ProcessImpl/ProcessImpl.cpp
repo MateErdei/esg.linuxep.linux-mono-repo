@@ -213,7 +213,9 @@ namespace ProcessImpl
 
 
 
-    ProcessImpl::ProcessImpl(): m_exitcode(std::numeric_limits<int>::max())
+    ProcessImpl::ProcessImpl()
+        : m_pid(-1),
+          m_exitcode(std::numeric_limits<int>::max())
     {
 
     }
@@ -361,6 +363,7 @@ namespace ProcessImpl
                     }
                 }
 
+                m_pipeThread->requestStop();
                 return m_exitcode;
             }
         }
@@ -383,6 +386,11 @@ namespace ProcessImpl
         {
             ::kill(m_pid, SIGKILL);
         }
+        m_pid = -1;
+        if ( m_pipeThread)
+        {
+            m_pipeThread->requestStop();
+        }
 
     }
 
@@ -392,12 +400,17 @@ namespace ProcessImpl
         {
             throw Process::IProcessException( "getStatus can be called only after exec.");
         }
+        if (m_pid == -1)
+        {
+            return Process::ProcessStatus::FINISHED;
+        }
         int status;
         pid_t exited = ::waitpid(m_pid, &status, WNOHANG);
         if (exited == 0)
         {
             return Process::ProcessStatus::RUNNING;
         }
+        m_pid = -1;
         m_exitcode = status;
         return Process::ProcessStatus::FINISHED;
     }
