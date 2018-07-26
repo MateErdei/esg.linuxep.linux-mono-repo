@@ -339,6 +339,7 @@ namespace ProcessImpl
         // close the write pipe as parent wants to read what the child writes to stdout, stderr
         m_pipe->closeWrite();
         m_pid = child;
+        m_exitcode = std::numeric_limits<int>::max();
 
         m_pipeThread.reset( new StdPipeThread(m_pipe->readFd()));
         m_pipeThread->start();
