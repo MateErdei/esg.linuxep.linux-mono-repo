@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IVERSIG_H
-#define EVEREST_BASE_IVERSIG_H
+#pragma once
+
 #include <string>
 #include <memory>
 namespace SulDownloader
@@ -23,4 +23,4 @@ namespace SulDownloader
 
 
 }
-#endif //EVEREST_BASE_IVERSIG_H
+

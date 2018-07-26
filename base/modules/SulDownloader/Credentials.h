@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_CREDENTIALS_H
-#define EVEREST_CREDENTIALS_H
+#pragma once
+
 
 #include <string>
 
@@ -26,4 +26,4 @@ namespace SulDownloader
     };
 
 }
-#endif //EVEREST_CREDENTIALS_H
+

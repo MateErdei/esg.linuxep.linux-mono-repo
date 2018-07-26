@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_COMMON_PROCESS_IPROCESSIMPL_H
-#define EVEREST_BASE_COMMON_PROCESS_IPROCESSIMPL_H
+#pragma once
+
 #include "IProcess.h"
 #include <sys/types.h>
 #include <functional>
@@ -56,4 +56,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_COMMON_PROCESS_IPROCESSIMPL_H
+

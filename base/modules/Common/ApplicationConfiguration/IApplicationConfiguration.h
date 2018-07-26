@@ -2,8 +2,8 @@
 // Created by pair on 29/06/18.
 //
 
-#ifndef EVEREST_BASE_IAPPLICATIONCONFIGURATION_H
-#define EVEREST_BASE_IAPPLICATIONCONFIGURATION_H
+#pragma once
+
 #include <string>
 #include <memory>
 namespace Common
@@ -24,4 +24,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_IAPPLICATIONCONFIGURATION_H
+

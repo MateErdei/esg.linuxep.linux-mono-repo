@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_PROXY_H
-#define EVEREST_PROXY_H
+#pragma once
+
 
 #include <string>
 
@@ -31,4 +31,4 @@ namespace SulDownloader
     };
 }
 
-#endif //EVEREST_PROXY_H
+

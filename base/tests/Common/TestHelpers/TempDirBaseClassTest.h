@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_TEMPDIRBASECLASSTEST_H
-#define EVEREST_BASE_TEMPDIRBASECLASSTEST_H
+#pragma once
+
 #include "gtest/gtest.h"
 #include "TempDir.h"
 namespace Tests
@@ -37,4 +37,4 @@ protected:
 
 }
 
-#endif //EVEREST_BASE_TEMPDIRBASECLASSTEST_H
+

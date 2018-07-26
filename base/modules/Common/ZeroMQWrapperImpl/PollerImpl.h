@@ -2,8 +2,8 @@
 // Created by pair on 11/06/18.
 //
 
-#ifndef EVEREST_BASE_POLLERIMPL_H
-#define EVEREST_BASE_POLLERIMPL_H
+#pragma once
+
 
 
 #include <Common/ZeroMQWrapper/IPoller.h>
@@ -34,4 +34,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_POLLERIMPL_H
+

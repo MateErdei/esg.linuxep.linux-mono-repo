@@ -2,8 +2,8 @@
 // Created by pair on 25/06/18.
 //
 
-#ifndef EVEREST_BASE_READABLEFD_H
-#define EVEREST_BASE_READABLEFD_H
+#pragma once
+
 #include "Common/ZeroMQWrapper/IReadable.h"
 namespace Common
 {
@@ -30,4 +30,4 @@ namespace Common
 
 
 
-#endif //EVEREST_BASE_READABLEFD_H
+

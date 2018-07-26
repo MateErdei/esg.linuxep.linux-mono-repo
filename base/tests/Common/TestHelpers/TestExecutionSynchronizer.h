@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_TESTEXECUTIONSYNCHRONIZER_H
-#define EVEREST_BASE_TESTEXECUTIONSYNCHRONIZER_H
+#pragma once
+
 
 
 #include <mutex>
@@ -28,4 +28,4 @@ namespace Tests
     };
 
 }
-#endif //EVEREST_BASE_TESTEXECUTIONSYNCHRONIZER_H
+

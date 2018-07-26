@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_IREADABLE_H
-#define EVEREST_BASE_IREADABLE_H
+#pragma once
+
 
 #include "IHasFD.h"
 
@@ -24,4 +24,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_IREADABLE_H
+

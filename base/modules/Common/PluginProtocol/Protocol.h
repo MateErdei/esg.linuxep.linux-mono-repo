@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_PROTOCOL_H
-#define EVEREST_BASE_PROTOCOL_H
+#pragma once
+
 
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/PluginProtocol/ProtocolSerializerFactory.h"
@@ -31,4 +31,4 @@ namespace Common
         };
     }
 }
-#endif //EVEREST_BASE_PROTOCOL_H
+

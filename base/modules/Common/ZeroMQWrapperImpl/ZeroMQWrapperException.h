@@ -2,8 +2,8 @@
 // Created by pair on 08/06/18.
 //
 
-#ifndef EVEREST_BASE_ZEROMQWRAPPEREXCEPTION_H
-#define EVEREST_BASE_ZEROMQWRAPPEREXCEPTION_H
+#pragma once
+
 
 
 #include <Common/ZeroMQWrapper/IIPCException.h>
@@ -26,4 +26,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_ZEROMQWRAPPEREXCEPTION_H
+

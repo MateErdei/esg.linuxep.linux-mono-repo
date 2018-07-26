@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_PRODUCTSELECTION_H
-#define EVEREST_PRODUCTSELECTION_H
+#pragma once
+
 
 #include "ProductMetadata.h"
 #include "ConfigurationData.h"
@@ -67,4 +67,4 @@ namespace SulDownloader
 
 }
 
-#endif //EVEREST_PRODUCTSELECTION_H
+

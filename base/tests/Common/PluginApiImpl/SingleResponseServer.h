@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_SINGLERESPONSESERVER_H
-#define EVEREST_BASE_SINGLERESPONSESERVER_H
+#pragma once
+
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include "Common/PluginProtocol/DataMessage.h"
@@ -66,4 +66,4 @@ public:
         }
     }
 };
-#endif //EVEREST_BASE_SINGLERESPONSESERVER_H
+

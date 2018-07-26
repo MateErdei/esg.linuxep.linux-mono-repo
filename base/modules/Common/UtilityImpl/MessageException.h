@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_MESSAGEEXCEPTION_H
-#define EVEREST_BASE_MESSAGEEXCEPTION_H
+#pragma once
+
 
 #include "Exceptions/IException.h"
 
@@ -25,4 +25,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_MESSAGEEXCEPTION_H
+

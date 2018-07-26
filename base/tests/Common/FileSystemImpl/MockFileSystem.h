@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_MOCKFILESYSTEM_H
-#define EVEREST_BASE_MOCKFILESYSTEM_H
+#pragma once
+
 
 #include "Common/FileSystem/IFileSystem.h"
 #include <gmock/gmock.h>
@@ -38,4 +38,4 @@ public:
     MOCK_CONST_METHOD3(join, Path(const Path &path1, const Path &path2, const Path &path3));
 };
 
-#endif //EVEREST_BASE_MOCKFILESYSTEM_H
+

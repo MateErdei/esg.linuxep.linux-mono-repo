@@ -2,8 +2,8 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_ISOCKETSUBSCRIBER_H
-#define EVEREST_BASE_ISOCKETSUBSCRIBER_H
+#pragma once
+
 
 #include "IReadable.h"
 #include "ISocketSetup.h"
@@ -20,4 +20,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_ISOCKETSUBSCRIBER_H
+

@@ -2,8 +2,8 @@
 // Created by pair on 11/06/18.
 //
 
-#ifndef EVEREST_BASE_IPOLLER_H
-#define EVEREST_BASE_IPOLLER_H
+#pragma once
+
 
 #include "IHasFD.h"
 
@@ -62,4 +62,4 @@ namespace Common
         extern IPollerPtr createPoller();
     }
 }
-#endif //EVEREST_BASE_IPOLLER_H
+

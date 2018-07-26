@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
-#define EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
+#pragma once
+
 
 #include "IBaseServiceApi.h"
 #include "ISensorDataPublisher.h"
@@ -88,4 +88,4 @@ namespace Common
         std::unique_ptr<IPluginResourceManagement> createPluginResourceManagement();
     }
 }
-#endif //EVEREST_BASE_IPLUGINRESOURCEMANAGEMENT_H
+

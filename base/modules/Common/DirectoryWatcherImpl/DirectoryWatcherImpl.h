@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_DIRECTORYWATCHER_H
-#define EVEREST_BASE_DIRECTORYWATCHER_H
+#pragma once
+
 
 #include <string>
 #include <map>
@@ -82,6 +82,6 @@ class DirectoryWatcher :  public virtual IDirectoryWatcher, public Common::Threa
 }
 }
 
-#endif //EVEREST_BASE_DIRECTORYWATCHER_H
+
 
 

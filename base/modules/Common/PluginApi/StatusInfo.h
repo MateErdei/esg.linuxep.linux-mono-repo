@@ -2,8 +2,8 @@
 // Created by pair on 06/07/18.
 //
 
-#ifndef EVEREST_BASE_STATUSINFO_H
-#define EVEREST_BASE_STATUSINFO_H
+#pragma once
+
 
 #include <string>
 
@@ -29,4 +29,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_STATUSINFO_H
+

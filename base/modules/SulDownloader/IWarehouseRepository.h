@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_IWAREHOUSEREPOSITORY_H
-#define EVEREST_BASE_IWAREHOUSEREPOSITORY_H
+#pragma once
+
 
 #include <vector>
 
@@ -37,4 +37,4 @@ namespace SulDownloader
 
 }
 
-#endif //EVEREST_BASE_IWAREHOUSEREPOSITORY_H
+

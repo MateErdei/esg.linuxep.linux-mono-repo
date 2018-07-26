@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_SULDOWNLOADEREXCEPTIONS_H
-#define EVEREST_SULDOWNLOADEREXCEPTIONS_H
+#pragma once
+
 #include <exception>
 #include <string>
 namespace SulDownloader
@@ -21,4 +21,4 @@ namespace SulDownloader
 
 
 }
-#endif //EVEREST_SULDOWNLOADEREXCEPTIONS_H
+

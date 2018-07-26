@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_MOCKINOTIFYWRAPPER_H
-#define EVEREST_BASE_MOCKINOTIFYWRAPPER_H
+#pragma once
+
 
 #include "gmock/gmock.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
@@ -21,4 +21,4 @@ public:
     MOCK_METHOD3(read, ssize_t(int, void*, size_t));
 };
 
-#endif //EVEREST_BASE_MOCKINOTIFYWRAPPER_H
+

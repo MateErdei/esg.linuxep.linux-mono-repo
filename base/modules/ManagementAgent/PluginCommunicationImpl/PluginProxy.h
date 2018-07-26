@@ -3,8 +3,8 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef EVEREST_BASE_PLUGINPROXY_H
-#define EVEREST_BASE_PLUGINPROXY_H
+#pragma once
+
 
 
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
@@ -54,4 +54,4 @@ namespace PluginCommunicationImpl
 }
 
 
-#endif //EVEREST_BASE_PLUGINPROXY_H
+

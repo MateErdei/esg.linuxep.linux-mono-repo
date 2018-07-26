@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IREACTOR_H
-#define EVEREST_BASE_IREACTOR_H
+#pragma once
+
 
 #include "ICallbackListener.h"
 #include "IReadable.h"
@@ -78,4 +78,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_IREACTOR_H
+

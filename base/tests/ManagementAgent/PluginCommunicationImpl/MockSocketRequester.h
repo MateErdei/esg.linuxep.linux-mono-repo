@@ -2,8 +2,8 @@
 // Created by pair on 06/07/18.
 //
 
-#ifndef EVEREST_BASE_MOCKSOCKETREQUESTER_H
-#define EVEREST_BASE_MOCKSOCKETREQUESTER_H
+#pragma once
+
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -25,4 +25,4 @@ public:
     MOCK_METHOD1(listen, void(const std::string&));
 };
 
-#endif //EVEREST_BASE_MOCKSOCKETREQUESTER_H
+

@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
-#define EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
+#pragma once
+
 
 #include "SulDownloader/IWarehouseRepository.h"
 #include "SulDownloader/WarehouseError.h"
@@ -25,4 +25,4 @@ public:
 
 };
 
-#endif //EVEREST_BASE_MOCKWAREHOUSEREPOSITORY_H
+

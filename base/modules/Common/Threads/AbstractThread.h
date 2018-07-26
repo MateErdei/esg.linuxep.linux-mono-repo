@@ -5,8 +5,8 @@
 //
 ///////////////////////////////////////////////////////////
 
-#ifndef EVEREST_BASE_COMMON_THREADS_ABSTRACTTHREAD_H
-#define EVEREST_BASE_COMMON_THREADS_ABSTRACTTHREAD_H
+#pragma once
+
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -88,4 +88,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_COMMON_THREADS_ABSTRACTTHREAD_H
+

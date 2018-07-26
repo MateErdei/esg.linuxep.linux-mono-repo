@@ -2,8 +2,8 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_ISOCKETREQUESTER_H
-#define EVEREST_BASE_ISOCKETREQUESTER_H
+#pragma once
+
 
 #include "IReadWrite.h"
 #include "ISocketSetup.h"
@@ -19,4 +19,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_ISOCKETREQUESTER_H
+

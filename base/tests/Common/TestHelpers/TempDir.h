@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_TESTS_TEMPDIR_H
-#define EVEREST_BASE_TESTS_TEMPDIR_H
+#pragma once
+
 
 #include <string>
 #include <vector>
@@ -137,4 +137,4 @@ namespace Tests
 
 
 
-#endif //EVEREST_BASE_TESTS_TEMPDIR_H
+

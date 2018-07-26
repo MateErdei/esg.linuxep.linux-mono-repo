@@ -2,8 +2,8 @@
 // Created by pair on 26/06/18.
 //
 
-#ifndef EVEREST_BASE_TESTLISTENER_H
-#define EVEREST_BASE_TESTLISTENER_H
+#pragma once
+
 
 #include "Common/Reactor/ICallbackListener.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
@@ -19,4 +19,4 @@ private:
 };
 
 
-#endif //EVEREST_BASE_TESTLISTENER_H
+

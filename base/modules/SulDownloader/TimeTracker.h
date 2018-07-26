@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_TIMETRACKER_H
-#define EVEREST_BASE_TIMETRACKER_H
+#pragma once
+
 
 #include <ctime>
 #include <string>
@@ -47,4 +47,4 @@ namespace SulDownloader
 
     };
 }
-#endif //EVEREST_BASE_TIMETRACKER_H
+

@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_LOGGER_H
-#define EVEREST_LOGGER_H
+#pragma once
+
 
 #include <iostream>
 namespace SulDownloader
@@ -25,4 +25,4 @@ namespace SulDownloader
 
 
 
-#endif //EVEREST_LOGGER_H
+

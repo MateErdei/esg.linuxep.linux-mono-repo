@@ -2,8 +2,8 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_COMMON_ZEROMQWRAPPERIMPL_CONTEXT_H
-#define EVEREST_BASE_COMMON_ZEROMQWRAPPERIMPL_CONTEXT_H
+#pragma once
+
 
 #include "ContextHolder.h"
 
@@ -33,4 +33,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_COMMON_ZEROMQWRAPPERIMPL_CONTEXT_H
+

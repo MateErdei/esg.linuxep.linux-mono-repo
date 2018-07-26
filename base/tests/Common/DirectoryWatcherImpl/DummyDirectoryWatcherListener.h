@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_DUMMYDIRECTORYWATCHERLISTENER_H
-#define EVEREST_BASE_DUMMYDIRECTORYWATCHERLISTENER_H
+#pragma once
+
 
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 
@@ -55,4 +55,4 @@ public:
     std::mutex m_FilenameMutex;
 };
 
-#endif //EVEREST_BASE_DUMMYDIRECTORYWATCHERLISTENER_H
+

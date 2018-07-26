@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_PROXYIMPL_H
-#define EVEREST_BASE_PROXYIMPL_H
+#pragma once
+
 
 #include "ContextHolder.h"
 
@@ -49,4 +49,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_PROXYIMPL_H
+

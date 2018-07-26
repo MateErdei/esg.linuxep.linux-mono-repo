@@ -2,8 +2,8 @@
 // Created by pair on 25/06/18.
 //
 
-#ifndef EVEREST_BASE_PIPEFORTESTS_H
-#define EVEREST_BASE_PIPEFORTESTS_H
+#pragma once
+
 #include <string>
 
 class PipeForTests
@@ -20,4 +20,4 @@ private:
     int m_writeFd;
 };
 
-#endif //EVEREST_BASE_PIPEFORTESTS_H
+

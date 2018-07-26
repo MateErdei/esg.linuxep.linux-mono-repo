@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_SINGLEMANAGEMENTREQUEST_H
-#define EVEREST_BASE_SINGLEMANAGEMENTREQUEST_H
+#pragma once
+
 
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -39,4 +39,4 @@ public:
     }
 
 };
-#endif //EVEREST_BASE_SINGLEMANAGEMENTREQUEST_H
+

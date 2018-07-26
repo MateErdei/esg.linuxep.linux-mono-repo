@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_WATCHDOG_MAIN_H
-#define EVEREST_BASE_WATCHDOG_MAIN_H
+#pragma once
+
 
 namespace watchdog
 {
@@ -22,4 +22,4 @@ namespace watchdog
     }
 }
 
-#endif //EVEREST_BASE_WATCHDOG_MAIN_H
+

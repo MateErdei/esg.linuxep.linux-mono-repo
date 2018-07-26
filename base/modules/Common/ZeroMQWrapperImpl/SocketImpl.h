@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_SOCKETIMPL_H
-#define EVEREST_BASE_SOCKETIMPL_H
+#pragma once
+
 
 #include "SocketHolder.h"
 
@@ -44,4 +44,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_SOCKETIMPL_H
+

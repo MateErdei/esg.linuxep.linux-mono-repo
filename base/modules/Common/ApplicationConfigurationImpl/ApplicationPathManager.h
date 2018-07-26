@@ -2,8 +2,8 @@
 // Created by pair on 29/06/18.
 //
 
-#ifndef EVEREST_BASE_APPLICATIONPATHMANAGER_H
-#define EVEREST_BASE_APPLICATIONPATHMANAGER_H
+#pragma once
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 namespace Common
 {
@@ -29,4 +29,4 @@ namespace Common
 
 
 
-#endif //EVEREST_BASE_APPLICATIONPATHMANAGER_H
+

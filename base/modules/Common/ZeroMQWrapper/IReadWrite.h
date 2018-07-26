@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_IREADWRITE_H
-#define EVEREST_BASE_IREADWRITE_H
+#pragma once
+
 
 #include "IReadable.h"
 #include "IWritable.h"
@@ -17,4 +17,4 @@ namespace Common
         };
     }
 }
-#endif //EVEREST_BASE_IREADWRITE_H
+

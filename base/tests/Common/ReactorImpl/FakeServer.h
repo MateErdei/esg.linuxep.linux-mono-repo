@@ -2,8 +2,8 @@
 // Created by pair on 26/06/18.
 //
 
-#ifndef EVEREST_BASE_FAKESERVER_H
-#define EVEREST_BASE_FAKESERVER_H
+#pragma once
+
 
 #include "Common/Reactor/IReactor.h"
 #include "TestListener.h"
@@ -28,4 +28,4 @@ private:
 };
 
 
-#endif //EVEREST_BASE_FAKESERVER_H
+

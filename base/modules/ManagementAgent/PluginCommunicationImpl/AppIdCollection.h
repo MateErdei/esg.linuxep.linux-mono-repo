@@ -2,8 +2,8 @@
 // Created by pair on 11/07/18.
 //
 
-#ifndef EVEREST_BASE_APPIDCOLLECTION_H
-#define EVEREST_BASE_APPIDCOLLECTION_H
+#pragma once
+
 
 #include <string>
 #include <vector>
@@ -39,4 +39,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //EVEREST_BASE_APPIDCOLLECTION_H
+

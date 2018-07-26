@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_EXAMPLETEMPDIRSUITETEST_H
-#define EVEREST_BASE_EXAMPLETEMPDIRSUITETEST_H
+#pragma once
+
 #include "gtest/gtest.h"
 #include "TempDir.h"
 namespace Tests
@@ -40,4 +40,4 @@ namespace Tests
     };
 
 }
-#endif //EVEREST_BASE_EXAMPLETEMPDIRSUITETEST_H
+

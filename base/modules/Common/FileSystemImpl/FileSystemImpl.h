@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_FILESYSTEM_H
-#define EVEREST_BASE_FILESYSTEM_H
+#pragma once
+
 
 #include "IFileSystem.h"
 
@@ -58,4 +58,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_FILESYSTEM_H
+

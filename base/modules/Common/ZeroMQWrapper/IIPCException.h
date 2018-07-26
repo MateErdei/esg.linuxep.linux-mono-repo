@@ -2,8 +2,8 @@
 // Created by pair on 08/06/18.
 //
 
-#ifndef EVEREST_BASE_IIPCEXCEPTION_H
-#define EVEREST_BASE_IIPCEXCEPTION_H
+#pragma once
+
 
 #include <Common/Exceptions/IException.h>
 
@@ -22,4 +22,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_IIPCEXCEPTION_H
+

@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef EVEREST_BASE_TASKPROCESSORIMPL_H
-#define EVEREST_BASE_TASKPROCESSORIMPL_H
+#pragma once
+
 
 
 #include <Common/TaskQueue/ITaskProcessor.h>
@@ -48,4 +48,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_TASKPROCESSORIMPL_H
+

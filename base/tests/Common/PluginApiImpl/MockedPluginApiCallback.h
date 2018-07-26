@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_MOCKEDPLUGINAPICALLBACK_H
-#define EVEREST_BASE_MOCKEDPLUGINAPICALLBACK_H
+#pragma once
+
 #include "Common/PluginApi/IPluginCallbackApi.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -25,4 +25,4 @@ public:
     MOCK_METHOD0(getTelemetry, std::string(void));
 };
 #endif
-#endif //EVEREST_BASE_MOCKEDPLUGINAPICALLBACK_H
+

@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_ISOCKETSETUP_H
-#define EVEREST_BASE_ISOCKETSETUP_H
+#pragma once
+
 
 #include <string>
 
@@ -61,4 +61,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_ISOCKETSETUP_H
+

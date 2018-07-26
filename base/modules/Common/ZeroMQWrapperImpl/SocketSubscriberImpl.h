@@ -2,8 +2,8 @@
 // Created by pair on 08/06/18.
 //
 
-#ifndef EVEREST_BASE_SOCKETSUBSCRIBERIMPL_H
-#define EVEREST_BASE_SOCKETSUBSCRIBERIMPL_H
+#pragma once
+
 
 
 #include "SocketImpl.h"
@@ -41,4 +41,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_SOCKETSUBSCRIBERIMPL_H
+

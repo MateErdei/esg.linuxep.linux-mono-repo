@@ -2,8 +2,8 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_CONTEXTHOLDER_H
-#define EVEREST_BASE_CONTEXTHOLDER_H
+#pragma once
+
 
 
 namespace Common
@@ -24,4 +24,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_CONTEXTHOLDER_H
+

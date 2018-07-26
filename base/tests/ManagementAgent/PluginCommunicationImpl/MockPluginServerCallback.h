@@ -2,8 +2,8 @@
 // Created by pair on 06/07/18.
 //
 
-#ifndef EVEREST_BASE_MOCKPLUGINSERVERCALLBACK_H
-#define EVEREST_BASE_MOCKPLUGINSERVERCALLBACK_H
+#pragma once
+
 
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 #include "gtest/gtest.h"
@@ -21,4 +21,4 @@ public:
     MOCK_METHOD1(receivedRegisterWithManagementAgent, void (const std::string &pluginName));
 };
 
-#endif //EVEREST_BASE_MOCKPLUGINSERVERCALLBACK_H
+

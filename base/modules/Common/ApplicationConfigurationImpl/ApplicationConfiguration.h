@@ -2,8 +2,8 @@
 // Created by pair on 29/06/18.
 //
 
-#ifndef EVEREST_BASE_APPLICATIONCONFIGURATION_H
-#define EVEREST_BASE_APPLICATIONCONFIGURATION_H
+#pragma once
+
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include <map>
@@ -30,4 +30,4 @@ namespace Common
 
 
 
-#endif //EVEREST_BASE_APPLICATIONCONFIGURATION_H
+

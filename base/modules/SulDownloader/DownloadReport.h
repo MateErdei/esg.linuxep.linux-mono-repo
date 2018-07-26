@@ -3,8 +3,8 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef EVEREST_DOWNLOADREPORT_H
-#define EVEREST_DOWNLOADREPORT_H
+#pragma once
+
 
 
 #include <vector>
@@ -79,4 +79,4 @@ namespace SulDownloader
 }
 
 
-#endif //EVEREST_DOWNLOADREPORT_H
+

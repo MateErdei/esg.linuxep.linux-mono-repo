@@ -2,8 +2,8 @@
 // Created by pair on 18/07/18.
 //
 
-#ifndef EVEREST_BASE_LOGGER_H
-#define EVEREST_BASE_LOGGER_H
+#pragma once
+
 
 #include <iostream>
 
@@ -15,4 +15,4 @@
 #define LOGWARN(x) std::cerr << x << std::endl // NOLINT
 #define LOGERROR(x) std::cerr << x << std::endl // NOLINT
 
-#endif //EVEREST_BASE_LOGGER_H
+

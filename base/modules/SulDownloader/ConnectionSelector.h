@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_CONNECTIONSELECTOR_H
-#define EVEREST_CONNECTIONSELECTOR_H
+#pragma once
+
 
 #include "ConfigurationData.h"
 #include "ConnectionSetup.h"
@@ -27,4 +27,4 @@ namespace SulDownloader
 }
 
 
-#endif //EVEREST_CONNECTIONSELECTOR_H
+

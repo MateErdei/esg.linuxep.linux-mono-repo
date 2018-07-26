@@ -2,8 +2,8 @@
 // Created by pair on 26/06/18.
 //
 
-#ifndef EVEREST_BASE_FAKECLIENT_H
-#define EVEREST_BASE_FAKECLIENT_H
+#pragma once
+
 
 
 #include "Common/ZeroMQWrapper/IContext.h"
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //EVEREST_BASE_FAKECLIENT_H
+

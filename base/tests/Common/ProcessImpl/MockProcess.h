@@ -2,8 +2,8 @@
 // Created by pair on 16/07/18.
 //
 
-#ifndef EVEREST_BASE_MOCKPROCESS_H
-#define EVEREST_BASE_MOCKPROCESS_H
+#pragma once
+
 #include "Common/Process/IProcess.h"
 #include <gmock/gmock.h>
 using namespace ::testing;
@@ -20,4 +20,4 @@ public:
     MOCK_METHOD0(output, std::string(void));
 
 };
-#endif //EVEREST_BASE_MOCKPROCESS_H
+

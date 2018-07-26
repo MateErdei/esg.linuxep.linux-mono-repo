@@ -2,8 +2,8 @@
 // Created by pair on 11/06/18.
 //
 
-#ifndef EVEREST_BASE_IEXCEPTION_H
-#define EVEREST_BASE_IEXCEPTION_H
+#pragma once
+
 
 #include <exception>
 #include <stdexcept>
@@ -23,4 +23,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_IEXCEPTION_H
+

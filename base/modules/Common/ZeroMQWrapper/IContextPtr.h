@@ -2,8 +2,8 @@
 // Created by pair on 08/06/18.
 //
 
-#ifndef EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXTPTR_H
-#define EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXTPTR_H
+#pragma once
+
 
 #include <memory>
 
@@ -16,4 +16,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_COMMON_ZEROMQ_WRAPPER_ICONTEXTPTR_H
+

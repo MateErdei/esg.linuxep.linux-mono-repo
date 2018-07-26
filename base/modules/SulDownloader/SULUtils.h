@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_SULUTILS_H
-#define EVEREST_SULUTILS_H
+#pragma once
+
 extern "C" {
 #include <SUL.h>
 }
@@ -35,4 +35,4 @@ namespace SulDownloader
     };
 }
 
-#endif //EVEREST_SULUTILS_H
+

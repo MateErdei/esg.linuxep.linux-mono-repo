@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_PLUGINMANAGER_H
-#define EVEREST_BASE_PLUGINMANAGER_H
+#pragma once
+
 
 
 #include <string>
@@ -73,4 +73,4 @@ namespace ManagementAgent
 
 
 
-#endif //EVEREST_BASE_PLUGINMANAGER_H
+

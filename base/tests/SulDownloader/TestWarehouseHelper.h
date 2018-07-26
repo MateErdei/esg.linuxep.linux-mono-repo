@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_TESTWAREHOUSEHELPER_H
-#define EVEREST_BASE_TESTWAREHOUSEHELPER_H
+#pragma once
+
 #include "SulDownloader/IWarehouseRepository.h"
 #include "SulDownloader/ConfigurationData.h"
 
@@ -24,4 +24,4 @@ namespace SulDownloader
 }
 
 
-#endif //EVEREST_BASE_TESTWAREHOUSEHELPER_H
+

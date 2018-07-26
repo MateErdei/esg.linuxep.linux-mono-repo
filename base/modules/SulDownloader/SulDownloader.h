@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_SULDOWNLOADER_H
-#define EVEREST_SULDOWNLOADER_H
+#pragma once
+
 #include <tuple>
 #include <string>
 namespace SulDownloader
@@ -75,4 +75,4 @@ namespace SulDownloader
      */
     int main_entry(int argc, char *argv[]);
 }
-#endif //EVEREST_SULDOWNLOADER_H
+

@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_ISOCKETSUBSCRIBERPTR_H
-#define EVEREST_BASE_ISOCKETSUBSCRIBERPTR_H
+#pragma once
+
 
 
 #include <memory>
@@ -17,4 +17,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_ISOCKETSUBSCRIBERPTR_H
+

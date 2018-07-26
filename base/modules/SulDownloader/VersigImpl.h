@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_VERSIGIMPL_H
-#define EVEREST_BASE_VERSIGIMPL_H
+#pragma once
+
 
 #include "IVersig.h"
 #include <functional>
@@ -32,4 +32,4 @@ namespace SulDownloader
     };
 }
 
-#endif //EVEREST_BASE_VERSIGIMPL_H
+

@@ -2,8 +2,8 @@
 // Created by pair on 11/06/18.
 //
 
-#ifndef EVEREST_BASE_IIPCTIMEOUTEXCEPTION_H
-#define EVEREST_BASE_IIPCTIMEOUTEXCEPTION_H
+#pragma once
+
 
 
 #include "IIPCException.h"
@@ -22,4 +22,4 @@ namespace Common
     }
 }
 
-#endif //EVEREST_BASE_IIPCTIMEOUTEXCEPTION_H
+

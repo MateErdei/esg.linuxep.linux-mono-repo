@@ -2,8 +2,8 @@
 // Created by pair on 25/06/18.
 //
 
-#ifndef EVEREST_BASE_MOCKCALLBACKLISTENER_H
-#define EVEREST_BASE_MOCKCALLBACKLISTENER_H
+#pragma once
+
 
 
 #include "Common/Reactor/ICallbackListener.h"
@@ -18,4 +18,4 @@ public:
     MOCK_METHOD1( messageHandler, void (Common::ZeroMQWrapper::IReadable::data_t));
 };
 
-#endif //EVEREST_BASE_MOCKCALLBACKLISTENER_H
+

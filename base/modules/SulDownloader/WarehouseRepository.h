@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_WAREHOUSEREPOSITORY_H
-#define EVEREST_WAREHOUSEREPOSITORY_H
+#pragma once
+
 extern "C" {
 #include <SUL.h>
 }
@@ -144,4 +144,4 @@ namespace SulDownloader
 
 
 
-#endif //EVEREST_WAREHOUSEREPOSITORY_H
+

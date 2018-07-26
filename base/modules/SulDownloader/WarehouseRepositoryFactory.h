@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_WAREHOUSEREPOSITORYFACTORY_H
-#define EVEREST_BASE_WAREHOUSEREPOSITORYFACTORY_H
+#pragma once
+
 #include "WarehouseRepositoryFactory.h"
 #include "ConfigurationData.h"
 #include "IWarehouseRepository.h"
@@ -69,4 +69,4 @@ namespace SulDownloader
         std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData&)> m_creatorMethod;
     };
 }
-#endif //EVEREST_BASE_WAREHOUSEREPOSITORYFACTORY_H
+

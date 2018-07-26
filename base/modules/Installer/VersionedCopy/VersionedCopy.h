@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_VERSIONEDCOPY_H
-#define EVEREST_BASE_VERSIONEDCOPY_H
+#pragma once
+
 
 #include <Common/FileSystem/IFileSystem.h>
 
@@ -79,4 +79,4 @@ namespace Installer
     }
 }
 
-#endif //EVEREST_BASE_VERSIONEDCOPY_H
+

@@ -2,8 +2,8 @@
 // Created by pair on 06/06/18.
 //
 
-#ifndef EVEREST_BASE_SOCKETHOLDER_H
-#define EVEREST_BASE_SOCKETHOLDER_H
+#pragma once
+
 
 #include "ContextHolder.h"
 
@@ -26,4 +26,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_SOCKETHOLDER_H
+

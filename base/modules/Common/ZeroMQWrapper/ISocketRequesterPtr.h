@@ -2,8 +2,8 @@
 // Created by pair on 07/06/18.
 //
 
-#ifndef EVEREST_BASE_ISOCKETREQUESTERPTR_H
-#define EVEREST_BASE_ISOCKETREQUESTERPTR_H
+#pragma once
+
 
 #include <memory>
 
@@ -16,4 +16,4 @@ namespace Common
         using ISocketRequesterPtr = std::unique_ptr<ISocketRequester>;
     }
 }
-#endif //EVEREST_BASE_ISOCKETREQUESTERPTR_H
+

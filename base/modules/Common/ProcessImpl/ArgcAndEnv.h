@@ -4,8 +4,8 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef EVEREST_BASE_ARGCANDENV_H
-#define EVEREST_BASE_ARGCANDENV_H
+#pragma once
+
 
 #include "IProcess.h"
 #include "IProcessException.h"
@@ -161,4 +161,4 @@ namespace Common
 
     }
 }
-#endif //EVEREST_BASE_ARGCANDENV_H
+

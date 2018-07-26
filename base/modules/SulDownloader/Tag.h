@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_TAG_H
-#define EVEREST_TAG_H
+#pragma once
+
 
 #include <string>
 
@@ -24,4 +24,4 @@ namespace SulDownloader
     };
 }
 
-#endif //EVEREST_TAG_H
+

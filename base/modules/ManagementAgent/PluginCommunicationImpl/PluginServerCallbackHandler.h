@@ -3,8 +3,8 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef EVEREST_BASE_PLUGINAPISERVERCALLBACKHANDLER_H
-#define EVEREST_BASE_PLUGINAPISERVERCALLBACKHANDLER_H
+#pragma once
+
 
 #include "ZeroMQWrapper/IReadWrite.h"
 #include "ZeroMQWrapper/ISocketReplier.h"
@@ -43,4 +43,4 @@ namespace PluginCommunicationImpl
 
 
 
-#endif //EVEREST_BASE_PLUGINAPISERVERCALLBACKHANDLER_H
+

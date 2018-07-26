@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_WAREHOUSEERROR_H
-#define EVEREST_BASE_WAREHOUSEERROR_H
+#pragma once
+
 
 #include <string>
 namespace SulDownloader
@@ -38,4 +38,4 @@ namespace SulDownloader
 
 
 
-#endif //EVEREST_BASE_WAREHOUSEERROR_H
+

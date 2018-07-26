@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_SENSORDATAPUBLISHER_H
-#define EVEREST_BASE_SENSORDATAPUBLISHER_H
+#pragma once
+
 
 #include "Common/PluginApi/ISensorDataPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
@@ -26,4 +26,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_SENSORDATAPUBLISHER_H
+

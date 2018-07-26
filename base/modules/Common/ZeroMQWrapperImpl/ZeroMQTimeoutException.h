@@ -2,8 +2,8 @@
 // Created by pair on 11/06/18.
 //
 
-#ifndef EVEREST_BASE_ZEROMQTIMEOUTEXCEPTION_H
-#define EVEREST_BASE_ZEROMQTIMEOUTEXCEPTION_H
+#pragma once
+
 
 
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
@@ -24,4 +24,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_ZEROMQTIMEOUTEXCEPTION_H
+
