@@ -126,7 +126,6 @@ namespace
     void copyFile(const Path &src, const Path &dest)
     {
         Common::FileSystem::fileSystem()->copyFile(src,dest);
-        Common::FileSystem::fileSystem()->copyPermissions(src,dest);
     }
 
     void createSymbolicLink(const Path &target, const Path &destination)

@@ -7,6 +7,9 @@ set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
 target_link_libraries(SulDownloader  suldownloaderimpl)
 
+SET_TARGET_PROPERTIES( SulDownloader
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+
 
 install(TARGETS SulDownloader
         DESTINATION files/base/bin)

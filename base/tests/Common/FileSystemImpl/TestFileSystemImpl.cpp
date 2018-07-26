@@ -81,7 +81,31 @@ namespace
         std::string path2("./tempfile.txt");
         std::string expectedValue("/tmp/tempfile.txt");
         EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
-    }    
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyStringsReturnsExpectedPath) //NOLINT
+    {
+        std::string path1;
+        std::string path2;
+        std::string expectedValue("/"); // ?? differs from C++17 and python
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndAbsolutePath2ReturnsPath2) //NOLINT
+    {
+        Path path1;
+        Path path2("/foo/bar");
+        Path& expectedValue = path2;
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndRelativePath2ReturnsExpectedPath) //NOLINT
+    {
+        Path path1;
+        Path path2("foo/bar");
+        Path expectedValue("/foo/bar");  // ?? differs from C++17 and python
+        EXPECT_EQ(m_fileSystem->join(path1, path2), expectedValue);
+    }
 
     TEST_F(FileSystemImplTest, existReturnsTrueWhenFileExists) //NOLINT
     {
@@ -261,17 +285,26 @@ namespace
         EXPECT_EQ(content,"FOOBAR");
     }
 
-    TEST_F( FileSystemImplTest, copyPermissions) // NOLINT
+    TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
-        Tests::TempDir tempdir("","FileSystemImplTest_copyPermissions");
-        Path A = tempdir.absPath("A");
-        Path B = tempdir.absPath("B");
-        tempdir.createFile("A","FOOBAR");
-        m_fileSystem->copyFile(A,B);
-        ASSERT_TRUE(!m_fileSystem->isExecutable(A) && !m_fileSystem->isExecutable(B));
-        m_fileSystem->makeExecutable(A);
-        m_fileSystem->copyPermissions(A, B);
-        ASSERT_TRUE(m_fileSystem->isExecutable(A) && m_fileSystem->isExecutable(B));
+        std::string filePath = m_fileSystem->join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+
+        std::string testContent("HelloWorld");
+
+        m_fileSystem->writeFile(filePath, testContent);
+
+        EXPECT_TRUE(m_fileSystem->isFile(filePath));
+
+        m_fileSystem->removeFile(filePath);
+
+        EXPECT_FALSE(m_fileSystem->exists(filePath));
+    }
+
+    TEST_F(FileSystemImplTest, removeFileThrowsIfFileDoesNotExist) // NOLINT
+    {
+        std::string filePath = m_fileSystem->join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+        ASSERT_FALSE(m_fileSystem->exists(filePath));
+        EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException);
     }
 
 }

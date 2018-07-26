@@ -23,6 +23,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
+MCS_CA=${MCS_CA:-}
 
 while [[ $# -ge 1 ]] ; do
     case $1 in
@@ -38,6 +39,10 @@ while [[ $# -ge 1 ]] ; do
         --mcs-url)
             shift
             MCS_URL=$1
+            ;;
+        --mcs-ca)
+            shift
+            MCS_CA=$1
             ;;
         *)
             echo "BAD OPTION $1"
@@ -106,12 +111,22 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+
 mkdir -p "${SOPHOS_INSTALL}/base/etc"
 chmod 711 "${SOPHOS_INSTALL}/base/etc"
 
 mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
+chmod 711 "${SOPHOS_INSTALL}/base/pluginRegistry"
 
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+mkdir -p "${SOPHOS_INSTALL}/base/update/cache/Primary"
+mkdir -p "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
+chmod 711 -R "${SOPHOS_INSTALL}/base/update/cache/"
+
+if [[ -n "$MCS_CA" ]]
+then
+    export MCS_CA
+fi
 
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then

@@ -10,6 +10,10 @@ add_executable(versionedcopy
 
 target_link_libraries(versionedcopy PUBLIC versionedcopylib)
 
+SET_TARGET_PROPERTIES( versionedcopy
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+
+
 install(TARGETS versionedcopy
         DESTINATION installer)
 

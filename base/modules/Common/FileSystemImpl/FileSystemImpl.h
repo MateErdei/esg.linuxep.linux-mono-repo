@@ -27,8 +27,6 @@ namespace Common
 
             void copyFile(const Path& src, const Path& dest) const override;
 
-            void copyPermissions( const Path& src, const Path & dest) const override;
-
             bool exists(const Path &path) const override;
 
             bool isExecutable(const Path &path) const override;

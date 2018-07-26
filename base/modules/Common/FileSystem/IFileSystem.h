@@ -119,26 +119,35 @@ namespace Common
             virtual std::vector<Path> listFiles( const Path & directoryPath ) const = 0;
 
 
-            virtual void makeExecutable(const Path &path) const =0;
+            virtual void makeExecutable(const Path& path) const =0;
 
             /**
              * Create a directory tree
+             * @param path, the directory path that will be created
              */
              virtual void makedirs(const Path& path) const =0;
 
              /**
               * Copy one file to another
+              * @param src, source file that is to be copied
+              * @param dest, location where the file will be copied to
               */
              virtual void copyFile(const Path &src, const Path &dest) const =0;
 
              /**
-              * Copy the file permissions ( read|write|executable for owner,group,all) from src to dest
-              * @param src
-              * @param dest
-              */
-             virtual void copyPermissions( const Path& src, const Path & dest) const = 0;
+             * Remove file from filesystem
+             * @param path, full path to the file which is to be deleted
+             */
+             virtual void removeFile(const Path& path) const = 0;
         };
 
+        /**
+         * Return a BORROWED pointer to a static IFileSystem instance.
+         *
+         * Do not delete this yourself.
+         *
+         * @return BORROWED IFileSystem pointer
+         */
         IFileSystem * fileSystem();
 
     }

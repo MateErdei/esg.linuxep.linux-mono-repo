@@ -329,19 +329,13 @@ namespace Common
             return files;
         }
 
-        void FileSystemImpl::copyPermissions(const Path& src, const Path& dest) const
+        void FileSystemImpl::removeFile(const Path& path) const
         {
-            struct stat statbuf; // NOLINT
-            int ret = stat(src.c_str(), &statbuf);
-            if ( ret != 0)
+            if (::remove(path.c_str()) != 0)
             {
-                throw IFileSystemException("Cannot copy permissions from " + src + " to " + dest);
-            }
-
-            ret = chmod(dest.c_str(), statbuf.st_mode);  //NOLINT
-            if ( ret != 0)
-            {
-                throw IFileSystemException("Cannot copy permissions from " + src + " to " + dest);
+                int errn = errno;
+                std::string error_cause = ::strerror(errn);
+                throw Common::FileSystem::IFileSystemException("Failed to delete file: "+ path + ". Cause: " + error_cause);
             }
         }
     }
