@@ -101,9 +101,6 @@ chmod 711 "${SOPHOS_INSTALL}/logs"
 chmod 700 "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base"
 
-chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
-chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
-
 mkdir -p "${SOPHOS_INSTALL}/base/etc"
 chmod 711 "${SOPHOS_INSTALL}/base/etc"
 
@@ -123,6 +120,8 @@ done
 
 rm -rf "${INSTALLER_LIB}"
 
+chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
+chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
 
 if [[ -n "$MCS_CA" ]]
