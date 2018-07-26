@@ -145,47 +145,58 @@ int watchdog_main::run()
         // TODO: LINUXEP-5920 Handle wdctl commands
 
         fd_set read_temp = read_fds;
-        int active = pselect(max_fd+1, &read_temp, nullptr, nullptr,
+        LOGDEBUG("Calling pselect at "<<::time(nullptr));
+        int active = ::pselect(max_fd+1,
+                &read_temp,
+                nullptr,
+                nullptr,
                 &timeout,
                 nullptr);
-        if (active == 0)
+        LOGDEBUG("Returned from pselect: "<<active<<" at "<<::time(nullptr));
+        if (active < 0)
         {
+            LOGERROR("pselect returned error: "<<errno);
             continue;
         }
-        if (FD_ISSET(GL_TERM_PIPE.readFd(),&read_temp)) //NOLINT
+        if (active > 0)
         {
-            while (GL_TERM_PIPE.notified())
+            if (FD_ISSET(GL_TERM_PIPE.readFd(), &read_temp)) //NOLINT
             {
-            }
-            keepRunning = false;
-            continue;
-        }
-        if (FD_ISSET(GL_CHILD_DEATH_PIPE.readFd(),&read_temp)) //NOLINT
-        {
-            while (GL_CHILD_DEATH_PIPE.notified())
-            {
-            }
-            for (auto& proxy : proxies)
-            {
-                if (proxy.status() == Common::Process::ProcessStatus::FINISHED)
+                LOGWARN("Sophos watchdog exiting");
+                while (GL_TERM_PIPE.notified())
                 {
-                    int exitCode = proxy.exitCode();
-                    if (exitCode != 0)
-                    {
-                        LOGERROR("Process died with "<<exitCode);
-                    }
-                    proxy.start();
+                }
+                keepRunning = false;
+                continue;
+            }
+            if (FD_ISSET(GL_CHILD_DEATH_PIPE.readFd(), &read_temp)) //NOLINT
+            {
+                LOGERROR("Child process died");
+                while (GL_CHILD_DEATH_PIPE.notified())
+                {
                 }
             }
         }
+        for (auto& proxy : proxies)
+        {
+            proxy.checkForExit();
+        }
+        timeout.tv_sec = 10;
+        for (auto& proxy : proxies)
+        {
+            proxy.checkForExit();
+            time_t waitPeriod = proxy.startIfRequired();
+            timeout.tv_sec = std::min(waitPeriod, timeout.tv_sec);
+        }
+
+        timeout.tv_sec = std::max(timeout.tv_sec, static_cast<time_t>(1)); // Ensure we wait at least 1 second
+        LOGDEBUG("timeout = "<<timeout.tv_sec);
     }
 
+    LOGINFO("Stopping processes");
     for (auto& proxy : proxies)
     {
-        if (proxy.status() == Common::Process::ProcessStatus::RUNNING)
-        {
-            proxy.stop();
-        }
+        proxy.stop();
     }
 
     return 0;

@@ -22,12 +22,23 @@ namespace watchdog
                     );
             void start();
             void stop();
+            void checkForExit();
+
+            /**
+             *
+             * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
+             */
+            time_t startIfRequired();
+
+        private:
             Common::Process::ProcessStatus status();
             int exitCode();
-        private:
+
             Common::PluginRegistryImpl::PluginInfo m_info;
             Common::Process::IProcessPtr m_process;
             std::string m_exe;
+            bool m_running;
+            time_t m_deathTime;
         };
     }
 }

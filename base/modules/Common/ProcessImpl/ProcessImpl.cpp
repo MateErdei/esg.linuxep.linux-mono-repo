@@ -156,6 +156,10 @@ namespace ProcessImpl
         std::stringstream m_stdoutStream;
         std::mutex m_mutex;
     public:
+        /**
+         *
+         * @param fileDescriptor BORROWED fileDescriptor
+         */
         explicit StdPipeThread(int fileDescriptor) :
                 Common::Threads::AbstractThread()
                 , m_fileDescriptor(fileDescriptor)
@@ -184,11 +188,10 @@ namespace ProcessImpl
 
             announceThreadStarted();
 
-            FileDescriptorHolder input( m_fileDescriptor);
             char buffer[101];
             while (! stopRequested())
             {
-                ssize_t nread = read(input.fileDescriptor(), buffer, 100);
+                ssize_t nread = read(m_fileDescriptor, buffer, 100);
                 if ( nread == 0 )
                 {
                     // this happens when the file descriptor is closed (on child exit)
@@ -198,7 +201,7 @@ namespace ProcessImpl
                 if ( nread == -1 )
                 {
                     int err = errno;
-                    LOGERROR( ::strerror(err));
+                    LOGERROR( "Error reading from pipe: "<<err<<": " << ::strerror(err));
                 }
                 buffer[nread] = '\0';
                 m_stdoutStream << buffer;
@@ -270,10 +273,15 @@ namespace ProcessImpl
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
     {
 
+        if (m_pipeThread)
+        {
+            m_pipeThread->requestStop();
+        }
+        m_pipe.reset(new PipeHolder());
+        m_pipeThread.reset();
+
         ArgcAndEnv argcAndEnv(path, arguments, extraEnvironment);
 
-
-        m_pipe.reset( new PipeHolder());
         std::vector<int> fileDescriptorsToPreserveAfterFork({m_pipe->writeFd()});
 
         pid_t child = fork();
@@ -321,18 +329,17 @@ namespace ProcessImpl
                 //break;
 
             default:
-                // parent
-                // close the write pipe as parent wants to read what the child writes to stdout, stderr
-                m_pipe->closeWrite();
-                m_pid = child;
-
-
-                m_pipeThread.reset( new StdPipeThread(m_pipe->readFd()));
-                m_pipeThread->start();
-                return;
+                break;
 
         }
 
+        // parent
+        // close the write pipe as parent wants to read what the child writes to stdout, stderr
+        m_pipe->closeWrite();
+        m_pid = child;
+
+        m_pipeThread.reset( new StdPipeThread(m_pipe->readFd()));
+        m_pipeThread->start();
     }
 
     int ProcessImpl::exitCode()
