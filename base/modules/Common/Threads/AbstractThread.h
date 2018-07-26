@@ -80,9 +80,10 @@ namespace Common
 
             std::mutex m_threadStarted;
             std::condition_variable m_ensureThreadStarted;
-            std::thread m_thread;
         protected:
             NotifyPipe m_notifyPipe;
+        private:
+            std::thread m_thread;
         };
     }
 }

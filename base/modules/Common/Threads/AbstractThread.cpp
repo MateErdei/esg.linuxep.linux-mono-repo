@@ -13,8 +13,8 @@ namespace Common
         AbstractThread::AbstractThread():
             m_threadStarted(),
             m_ensureThreadStarted(),
-            m_thread(),
-            m_notifyPipe()
+            m_notifyPipe(),
+            m_thread()
         {
 
         }

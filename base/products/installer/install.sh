@@ -123,6 +123,8 @@ mkdir -p "${SOPHOS_INSTALL}/base/update/cache/Primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
 chmod 711 -R "${SOPHOS_INSTALL}/base/update/cache/"
 
+chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
+
 if [[ -n "$MCS_CA" ]]
 then
     export MCS_CA

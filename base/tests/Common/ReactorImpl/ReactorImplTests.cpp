@@ -49,8 +49,10 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
     using ::testing::Invoke;
     MockCallBackListener mockCallBackListener;
 
-    auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
+    auto reactor = Common::Reactor::createReactor();
+
+
     data_t processData = {{"hello"}};
 
     Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -168,10 +170,11 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     });
     MockCallBackListener mockCallBackListener;
 
-    auto reactor = Common::Reactor::createReactor();
+
     std::unique_ptr<PipeForTests> m_pipeWhichThrows = std::unique_ptr<PipeForTests>(new PipeForTests());
     ReadableFd readableFdThatThrows(m_pipeWhichThrows->readFd(), false);
     ReadableFd readableFd(m_pipe->readFd(), false);
+    auto reactor = Common::Reactor::createReactor();
     data_t processData = {{"hello"}};
 
     Tests::TestExecutionSynchronizer executionSynchronizer;
