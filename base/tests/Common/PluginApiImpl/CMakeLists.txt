@@ -15,7 +15,9 @@ add_executable(PluginApiImplTests
         TestCompare.cpp)
 target_include_directories(PluginApiImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
 message( "check"  "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
-target_include_directories(PluginApiImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" PluginApiImpl ../TestHelpers ../../../modules/Common/PluginApi)
+target_include_directories(PluginApiImplTests
+        BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include"
+        PluginApiImpl ../TestHelpers ${CMAKE_SOURCE_DIR}/modules/Common/PluginApi)
 target_link_libraries(PluginApiImplTests gtest gmock gtest_main)
 target_link_libraries(PluginApiImplTests pluginapiimpl reactorimpl threads pluginprotocol applicationconfigurationimpl testhelpers)
 gtest_discover_tests(PluginApiImplTests)
