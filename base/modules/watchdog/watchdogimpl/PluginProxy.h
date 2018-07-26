@@ -27,6 +27,7 @@ namespace watchdog
         private:
             Common::PluginRegistryImpl::PluginInfo m_info;
             Common::Process::IProcessPtr m_process;
+            std::string m_exe;
         };
     }
 }

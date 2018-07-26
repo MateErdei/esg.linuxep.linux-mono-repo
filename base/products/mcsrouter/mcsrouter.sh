@@ -16,6 +16,9 @@ export BASE_DIR
 INST_DIR=${BASE_DIR%/*}
 export INST_DIR
 
+[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=$INST_DIR
+export SOPHOS_INSTALL
+
 BIN_DIR=${BASE_DIR}/bin
 
 mcsrouterzip=$BASE_DIR/lib64/mcsrouter.zip
