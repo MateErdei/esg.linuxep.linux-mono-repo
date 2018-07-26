@@ -60,8 +60,6 @@ int PluginProxy::exitCode()
     }
     int code = m_process->exitCode();
 
-    LOGINFO(m_exe<<" exited with "<<code);
-
     std::string output = m_process->output();
     LOGINFO("Output: "<<output);
 

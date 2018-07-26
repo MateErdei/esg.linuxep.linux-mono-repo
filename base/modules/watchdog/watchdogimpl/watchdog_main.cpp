@@ -128,12 +128,8 @@ int watchdog_main::run()
     bool keepRunning = true;
 
     fd_set read_fds;
-    fd_set write_fds;
-    fd_set except_fds;
     int max_fd = 0;
     FD_ZERO(&read_fds);
-    FD_ZERO(&write_fds);
-    FD_ZERO(&except_fds);
 
     max_fd = addFD(&read_fds,GL_CHILD_DEATH_PIPE.readFd(),max_fd);
     max_fd = addFD(&read_fds,GL_TERM_PIPE.readFd(),max_fd);

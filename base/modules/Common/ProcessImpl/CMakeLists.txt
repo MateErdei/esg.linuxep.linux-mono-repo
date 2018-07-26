@@ -5,7 +5,11 @@ add_library(processimpl SHARED
         ProcessImpl.cpp
         ProcessImpl.h
         ArgcAndEnv.h
-        )
+        StdPipeThread.cpp
+        StdPipeThread.h
+        PipeHolder.cpp
+        PipeHolder.h
+        Logger.h)
 target_include_directories(processimpl PUBLIC ../Process ../../Common)
 
 

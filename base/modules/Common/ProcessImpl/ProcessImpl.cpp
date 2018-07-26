@@ -6,17 +6,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProcessImpl.h"
 #include "IProcessException.h"
-
-#include "Common/Threads/AbstractThread.h"
+#include "PipeHolder.h"
+#include "StdPipeThread.h"
 #include "ArgcAndEnv.h"
+#include "Logger.h"
 
 #include <queue>
 #include <thread>
 #include <sstream>
-#include <mutex>
 #include <iostream>
 #include <algorithm>
-#include <condition_variable>
 
 #include <cassert>
 #include <cstring>
@@ -24,7 +23,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <wait.h>
 
 
-#define LOGERROR(x) std::cerr << x << '\n'; //NOLINT
 namespace
 {
     // ensure child process do not keep filedescriptors that is only for the parent.
@@ -87,129 +85,6 @@ namespace Common
 namespace ProcessImpl
 {
 
-    class PipeHolder
-    {
-    public:
-        PipeHolder(): m_pipe{-1,-1}, m_pipeclosed{false,false}
-        {
-            if (pipe(m_pipe) < 0)
-            {
-                throw Common::Process::IProcessException("Pipe construction failure");
-            }
-            m_pipeclosed[PIPE_READ] = false;
-            m_pipeclosed[PIPE_WRITE] = false;
-        }
-        ~PipeHolder()
-        {
-            if ( !m_pipeclosed[PIPE_READ] )
-            {
-                close(m_pipe[PIPE_READ]);
-            }
-            if ( !m_pipeclosed[PIPE_WRITE] )
-            {
-                close(m_pipe[PIPE_WRITE]);
-            }
-        }
-        int readFd()
-        {
-            assert( !m_pipeclosed[PIPE_READ]);
-            return m_pipe[PIPE_READ];
-        }
-        int writeFd()
-        {
-            assert( !m_pipeclosed[PIPE_WRITE]);
-            return m_pipe[PIPE_WRITE];
-
-        }
-        void closeRead()
-        {
-            assert( !m_pipeclosed[PIPE_READ]);
-            close(m_pipe[PIPE_READ]);
-            m_pipeclosed[PIPE_READ] = true;
-        }
-
-        void closeWrite()
-        {
-            assert( !m_pipeclosed[PIPE_WRITE]);
-            close(m_pipe[PIPE_WRITE]);
-            m_pipeclosed[PIPE_WRITE] = true;
-        }
-
-
-    private:
-        int m_pipe[2];
-        bool m_pipeclosed[2];
-        constexpr static int PIPE_READ = 0;
-        constexpr static int PIPE_WRITE = 1;
-
-
-    };
-
-
-    // Pipe has a limited capacity (see man 7 pipe : Pipe Capacity)
-    // This class allows the pipe buffer to be cleared to ensure that child process is never blocked trying
-    // to write to stdout or stderr.
-    class StdPipeThread : public Common::Threads::AbstractThread
-    {
-    private:
-        int m_fileDescriptor;
-        std::stringstream m_stdoutStream;
-        std::mutex m_mutex;
-    public:
-        /**
-         *
-         * @param fileDescriptor BORROWED fileDescriptor
-         */
-        explicit StdPipeThread(int fileDescriptor) :
-                Common::Threads::AbstractThread()
-                , m_fileDescriptor(fileDescriptor)
-                , m_mutex()
-        {
-
-        }
-        ~StdPipeThread() override  = default;
-
-        std::string output()
-        {
-            hasFinished();
-            return m_stdoutStream.str();
-        }
-        bool hasFinished()
-        {
-            // use lock in order to ensure ::run has finished. Hence, child process finished.
-            std::unique_lock<std::mutex> lock(m_mutex);
-            return true;
-        }
-
-    private:
-        void run() override
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-
-            announceThreadStarted();
-
-            char buffer[101];
-            while (! stopRequested())
-            {
-                ssize_t nread = read(m_fileDescriptor, buffer, 100);
-                if ( nread == 0 )
-                {
-                    // this happens when the file descriptor is closed (on child exit)
-                    // hence also means process finished.
-                    return;
-                }
-                if ( nread == -1 )
-                {
-                    int err = errno;
-                    LOGERROR( "Error reading from pipe: "<<err<<": " << ::strerror(err));
-                }
-                buffer[nread] = '\0';
-                m_stdoutStream << buffer;
-            }
-        }
-
-    };
-
 
 
 
@@ -244,6 +119,7 @@ namespace ProcessImpl
 
             if (ret != 0)
             {
+                m_pid = -1;
                 m_pipeThread->requestStop();
 
 
@@ -347,10 +223,18 @@ namespace ProcessImpl
 
     int ProcessImpl::exitCode()
     {
+        if (m_exitcode != std::numeric_limits<int>::max())
+        {
+            // Already recorded the exit code
+            return m_exitcode;
+        }
         if ( m_pipeThread)
         {
-            if ( m_pipeThread->hasFinished())
+            // Need to stop the pipe thread to stop
+            m_pipeThread->requestStop();
+            if ( m_pipeThread->hasFinished()) // waits for thread to finish
             {
+                // How get the exit code from the process
                 if ( m_exitcode == std::numeric_limits<int>::max())
                 {
                     for ( int i = 0; i<10; i++)
@@ -364,18 +248,18 @@ namespace ProcessImpl
                     }
                 }
 
-                m_pipeThread->requestStop();
                 return m_exitcode;
             }
         }
-        throw Process::IProcessException( "Exit Code can be called only after exec.");
+        // Not got a pipe, and no exit code, so we've never executed
+        throw Process::IProcessException( "Exit Code can be called only after exec and process exit.");
     }
 
     std::string ProcessImpl::output()
     {
         if ( m_pipeThread)
         {
-            return m_pipeThread->output();
+            return m_pipeThread->output(); // waits for thread to exit
         }
         throw Process::IProcessException( "Output can be called only after exec.");
     }
@@ -392,7 +276,6 @@ namespace ProcessImpl
         {
             m_pipeThread->requestStop();
         }
-
     }
 
     Process::ProcessStatus ProcessImpl::getStatus()
@@ -413,6 +296,7 @@ namespace ProcessImpl
         }
         m_pid = -1;
         m_exitcode = status;
+        m_pipeThread->requestStop(); // nothing more will be logged, so start the thread exiting
         return Process::ProcessStatus::FINISHED;
     }
 
