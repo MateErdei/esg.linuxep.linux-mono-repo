@@ -37,7 +37,7 @@ namespace Common
                 }
                 if (!m_pipeclosed[PIPE_WRITE])
                 {
-                    close(m_pipe[PIPE_WRITE]);
+                    ::close(m_pipe[PIPE_WRITE]);
                 }
             }
 
@@ -57,14 +57,14 @@ namespace Common
             void closeRead()
             {
                 assert(!m_pipeclosed[PIPE_READ]);
-                close(m_pipe[PIPE_READ]);
+                ::close(m_pipe[PIPE_READ]);
                 m_pipeclosed[PIPE_READ] = true;
             }
 
             void closeWrite()
             {
                 assert(!m_pipeclosed[PIPE_WRITE]);
-                close(m_pipe[PIPE_WRITE]);
+                ::close(m_pipe[PIPE_WRITE]);
                 m_pipeclosed[PIPE_WRITE] = true;
             }
 
