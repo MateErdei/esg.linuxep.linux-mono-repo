@@ -44,9 +44,9 @@ public:
 
     std::string plugin_one_name;
     std::string plugin_two_name;
-    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
     std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement> m_mgmtCommon;
     std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
+    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApi;
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApiTwo;
 
