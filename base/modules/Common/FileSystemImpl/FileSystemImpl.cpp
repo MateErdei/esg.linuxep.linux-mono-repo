@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FileSystemImpl.h"
-#include "IFileSystemException.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <cassert>
 #include <cstring>
@@ -13,12 +13,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
-#include <vector>
 
 #include <sys/stat.h>
 
-
-#include <Common/Exceptions/Print.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 

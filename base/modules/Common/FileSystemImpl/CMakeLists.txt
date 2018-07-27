@@ -4,7 +4,6 @@ add_library(filesystemimplobject OBJECT
         FileSystemImpl.cpp
         FileSystemImpl.h)
 
-target_include_directories(filesystemimplobject PUBLIC ../FileSystem ../../Common)
 add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject> )
 
 install(TARGETS filesystemimpl

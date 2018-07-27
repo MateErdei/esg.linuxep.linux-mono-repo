@@ -109,8 +109,8 @@ chmod 711 "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/Primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
-chmod 711 -R "${SOPHOS_INSTALL}/base/update/cache/"
-
+chmod 700 "${SOPHOS_INSTALL}/base/update/cache/Primary"
+chmod 700 "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
 
 ## Setup libraries for versionedcopy
 INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
@@ -118,17 +118,14 @@ export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
 mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
 
-## Copy versioned copy into install location too
-cp "$DIST/installer/versionedcopy" "$DIST/files/base/bin"
-
 for F in $(find "$DIST/files" -type f)
 do
-    "$DIST/installer/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+    "$DIST/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh"
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh."*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
