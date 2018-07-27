@@ -3,8 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef COMMON_PROCESSIMPL_PIPEHOLDER_H
-#define COMMON_PROCESSIMPL_PIPEHOLDER_H
+#pragma once
 
 #include <Common/Process/IProcessException.h>
 
@@ -81,5 +80,3 @@ namespace Common
 
     }
 }
-
-#endif //COMMON_PROCESSIMPL_PIPEHOLDER_H

@@ -3,8 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef COMMON_PROCESS_ENVPAIR_H
-#define COMMON_PROCESS_ENVPAIR_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -18,5 +17,3 @@ namespace Common
         using EnvPairVector = std::vector<EnvironmentPair>;
     }
 }
-
-#endif //COMMON_PROCESS_ENVPAIR_H

@@ -3,8 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#ifndef COMMON_PROCESSIMPL_STDPIPETHREAD_H
-#define COMMON_PROCESSIMPL_STDPIPETHREAD_H
+#pragma once
 
 #include "Logger.h"
 
@@ -58,5 +57,3 @@ namespace Common
         };
     }
 }
-
-#endif //COMMON_PROCESSIMPL_STDPIPETHREAD_H

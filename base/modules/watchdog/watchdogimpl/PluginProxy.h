@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef WATCHDOG_WATCHDOGIMPL_PLUGINPROXY_H
-#define WATCHDOG_WATCHDOGIMPL_PLUGINPROXY_H
+#pragma once
 
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Process/IProcess.h>
@@ -50,6 +49,3 @@ namespace watchdog
         };
     }
 }
-
-
-#endif //WATCHDOG_WATCHDOGIMPL_PLUGINPROXY_H
