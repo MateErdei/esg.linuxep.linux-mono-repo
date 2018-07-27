@@ -120,7 +120,7 @@ ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so
 
 for F in $(find "$DIST/files" -type f)
 do
-    "$DIST/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+    "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*

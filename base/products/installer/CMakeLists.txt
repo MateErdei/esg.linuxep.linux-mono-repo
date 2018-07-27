@@ -15,7 +15,7 @@ SET_TARGET_PROPERTIES( versionedcopy
 
 
 install(TARGETS versionedcopy
-        DESTINATION base/bin)
+        DESTINATION files/base/bin)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
         DESTINATION files/base/bin
