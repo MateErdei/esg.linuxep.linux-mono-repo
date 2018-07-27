@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <modules/Common/ProcessImpl/ProcessImpl.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
 
 
 namespace
@@ -28,6 +30,27 @@ TEST_F(TestPluginProxy, TestConstruction) //NOLINT
 TEST_F(TestPluginProxy, WontStartPluginWithoutExecutable) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo info;
+
+    watchdog::watchdogimpl::PluginProxy proxy(info);
+    time_t delay = proxy.startIfRequired();
+    EXPECT_EQ(delay,3600);
+}
+
+TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
+{
+    std::string execPath = "./foobar";
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            [execPath](){
+           std::vector<std::string> args;
+           auto mockProcess = new StrictMock<MockProcess>();
+           EXPECT_CALL(*mockProcess, exec(execPath, args, _)).Times(1);
+           EXPECT_CALL(*mockProcess, kill()).Times(1); // In the destructor of PluginProxy
+           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+       }
+    );
+
+    Common::PluginRegistryImpl::PluginInfo info;
+    info.setExecutableFullPath(execPath);
 
     watchdog::watchdogimpl::PluginProxy proxy(info);
     time_t delay = proxy.startIfRequired();
