@@ -234,7 +234,7 @@ namespace ProcessImpl
             m_pipeThread->requestStop();
             if ( m_pipeThread->hasFinished()) // waits for thread to finish
             {
-                // How get the exit code from the process
+                // Now get the exit code from the process
                 if ( m_exitcode == std::numeric_limits<int>::max())
                 {
                     for ( int i = 0; i<10; i++)
