@@ -33,13 +33,15 @@ public:
     ~TestPluginServerCallbackHandler() override = default;
 
     Common::ZeroMQWrapper::IContextPtr m_context;
-    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_PluginManagerPtr;
-    std::shared_ptr<MockPluginServerCallback> m_mockServerCallback;
-
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
+    std::shared_ptr<MockPluginServerCallback> m_mockServerCallback;
+    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_PluginManagerPtr;
+
+
     Common::PluginProtocol::Protocol m_Protocol;
 
     Common::PluginProtocol::DataMessage
+
     createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem)
     {
         Common::PluginProtocol::DataMessage dataMessage;
