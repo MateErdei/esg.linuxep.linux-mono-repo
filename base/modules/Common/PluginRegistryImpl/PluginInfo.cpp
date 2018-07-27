@@ -208,7 +208,8 @@ namespace Common
 
             if(pluginInfoList.empty())
             {
-                throw PluginRegistryException("Failed to load any plugin registry information from: " + directoryPath);
+                // There may be instances when there are no plugins available. Such as initial install.
+                LOGWARN("Failed to load any plugin registry information from: " + directoryPath);
             }
 
             return pluginInfoList;

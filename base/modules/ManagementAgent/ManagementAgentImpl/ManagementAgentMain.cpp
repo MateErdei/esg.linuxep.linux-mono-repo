@@ -38,7 +38,6 @@ namespace
 
 }
 
-
 namespace ManagementAgent
 {
     namespace ManagementAgentImpl
@@ -75,6 +74,7 @@ namespace ManagementAgent
 
         void ManagementAgentMain::loadPlugins()
         {
+            // Load known plugins.  New plugins will be loaded via PluginServerCallback
             std::vector<Common::PluginRegistryImpl::PluginInfo> plugins = Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
             for(auto & plugin : plugins)
@@ -149,6 +149,7 @@ namespace ManagementAgent
             {
                 if(signalPipe && signalPipe->notified())
                 {
+                    LOGDEBUG("Management Agent stopping");
                     running = false;
                 }
             }
