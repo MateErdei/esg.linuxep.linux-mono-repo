@@ -184,6 +184,12 @@ namespace Common
             m_ReactorState = ReactorState::Ready;
             m_reactorthread->join();
         }
+
+        ReactorImpl::~ReactorImpl()
+        {
+            stop();
+            join();
+        }
     }
 }
 std::unique_ptr<Common::Reactor::IReactor>  Common::Reactor::createReactor()

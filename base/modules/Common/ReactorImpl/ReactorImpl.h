@@ -47,6 +47,8 @@ namespace Common
         {
         public:
              ReactorImpl();
+
+            ~ReactorImpl();
              void addListener(Common::ZeroMQWrapper::IReadable * readable, Reactor::ICallbackListener * callback) override;
              void armShutdownListener(Reactor::IShutdownListener * shutdownListener) override;
              void start() override;
