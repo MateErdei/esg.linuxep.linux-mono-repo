@@ -201,10 +201,5 @@ int watchdog_main::run()
 PluginInfoVector watchdog_main::read_plugin_configs()
 {
     PluginInfoVector plugins = Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
-
-    for (auto &plugin: plugins)
-    {
-        LOGINFO("plugin " << plugin.getPluginName() << " is at " << plugin.getExecutableFullPath());
-    }
     return plugins;
 }

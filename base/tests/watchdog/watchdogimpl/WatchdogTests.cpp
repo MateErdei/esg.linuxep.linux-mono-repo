@@ -22,9 +22,9 @@ namespace
         : public watchdog::watchdogimpl::watchdog_main
     {
     public:
-        void call_read_plugin_configs()
+        watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs()
         {
-            read_plugin_configs();
+            return read_plugin_configs();
         }
     };
 
@@ -104,8 +104,11 @@ namespace
         EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return(fileContent));
 
         TestWatchdog watchdog;
+        watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+
+        EXPECT_EQ(plugins.size(),1);
 
         Common::FileSystem::restoreFileSystem();
     }
@@ -148,7 +151,11 @@ namespace
 
         TestWatchdog watchdog;
 
-        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
+        watchdog::watchdogimpl::PluginInfoVector plugins;
+
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+
+        EXPECT_EQ(plugins.size(),1);
 
         Common::FileSystem::restoreFileSystem();
     }
@@ -173,7 +180,11 @@ namespace
 
         TestWatchdog watchdog;
 
-        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
+        watchdog::watchdogimpl::PluginInfoVector plugins;
+
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+
+        EXPECT_EQ(plugins.size(),2);
 
         Common::FileSystem::restoreFileSystem();
     }
