@@ -4,13 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
