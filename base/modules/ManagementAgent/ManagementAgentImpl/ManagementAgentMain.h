@@ -4,11 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-#ifndef EVEREST_BASE_MANAGEMENTAGENT_MAIN_H
-#define EVEREST_BASE_MANAGEMENTAGENT_MAIN_H
-
-
+#pragma once
 
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
@@ -53,5 +49,3 @@ namespace ManagementAgent
         };
     }
 }
-
-#endif //EVEREST_BASE_MANAGEMENTAGENT_MAIN_H

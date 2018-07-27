@@ -4,9 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H
-#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H
+#pragma once
 
 #include "ManagementAgent/PluginCommunication/IPluginManager.h"
 
@@ -18,8 +16,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace ::testing;
 
 using ManagementAgent::PluginCommunication::IStatusReceiver;
-
-class Receiver;
 
 class MockPluginManager : public ManagementAgent::PluginCommunication::IPluginManager
 {
@@ -37,5 +33,3 @@ public:
 public:
 };
 
-
-#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKPLUGINMANAGER_H

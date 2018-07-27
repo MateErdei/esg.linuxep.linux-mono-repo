@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginApi/ApiException.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include <thread>
-#include <../../../tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
 namespace
 {

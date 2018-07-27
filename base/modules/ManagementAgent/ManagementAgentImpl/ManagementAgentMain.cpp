@@ -24,16 +24,16 @@ using namespace Common;
 
 namespace
 {
-    static std::unique_ptr<Common::Threads::NotifyPipe> signalPipe;
+    static std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
 
     static void s_signal_handler (int signal_value)
     {
         LOGDEBUG( "Signal received: " << signal_value );
-        if ( !signalPipe)
+        if ( !GL_signalPipe)
         {
             return;
         }
-        signalPipe->notify();
+        GL_signalPipe->notify();
     }
 
 }
@@ -128,7 +128,7 @@ namespace ManagementAgent
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-            signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>( new Common::Threads::NotifyPipe());
+            GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>( new Common::Threads::NotifyPipe());
             struct sigaction action;
             action.sa_handler = s_signal_handler;
             action.sa_flags = 0;
@@ -136,7 +136,7 @@ namespace ManagementAgent
             sigaction (SIGINT, &action, NULL);
             sigaction (SIGTERM, &action, NULL);
 
-            shutdownPipePtr = poller->addEntry(signalPipe.get()->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+            shutdownPipePtr = poller->addEntry(GL_signalPipe.get()->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
             // start running background threads
             m_taskQueueProcessor->start();
@@ -147,7 +147,7 @@ namespace ManagementAgent
             bool running = true;
             while(running)
             {
-                if(signalPipe && signalPipe->notified())
+                if(GL_signalPipe && GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
                     running = false;
