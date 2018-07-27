@@ -19,6 +19,10 @@ namespace Common
 {
     namespace PluginRegistryImpl
     {
+        class PluginInfo;
+
+        using PluginInfoVector = std::vector<PluginInfo>;
+
         class PluginInfo
         {
         public:
@@ -157,8 +161,6 @@ namespace Common
              */
             static PluginInfo deserializeFromString(const std::string & serializedPluginInfo);
 
-            using PluginInfoVector = std::vector<PluginInfo>;
-
             /**
              * List the json entries from the directoryPath and load them into a vector of PluginInfo.
              * Failed to load specific entries will be 'silently' ignored. Although a log warning will be produced.
@@ -193,7 +195,6 @@ namespace Common
 
         };
 
-        using PluginInfoVector = std::vector<PluginInfo>;
     }
 }
 
