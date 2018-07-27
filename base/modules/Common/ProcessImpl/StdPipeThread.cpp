@@ -86,7 +86,8 @@ void Common::ProcessImpl::StdPipeThread::run()
                     )
                 {
                     break;
-                } else
+                }
+                else
                 {
                     LOGERROR("Error reading from pipe: " << err << ": " << ::strerror(err));
                 }
