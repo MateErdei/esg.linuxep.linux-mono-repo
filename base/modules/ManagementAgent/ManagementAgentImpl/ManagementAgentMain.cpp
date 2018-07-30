@@ -7,8 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ManagementAgentMain.h"
 #include "Logger.h"
 
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -52,7 +50,8 @@ namespace ManagementAgent
                 return -1;
             }
 
-            ManagementAgent::PluginCommunication::IPluginManager* pluginManager = new ManagementAgent::PluginCommunicationImpl::PluginManager();
+            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager = std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
+                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
             ManagementAgentMain managementAgent;
             managementAgent.initialise(*pluginManager);

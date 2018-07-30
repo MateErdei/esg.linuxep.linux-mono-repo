@@ -15,10 +15,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-
 class PolicyReceiverImplTests : public ::testing::Test
 {
 public:
@@ -61,7 +57,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(mcsDir, fakeQueue, m_mockPluginManager);
-    policyReceiver.receivedGetPolicyRequest(appId, policyId);
+    policyReceiver.receivedGetPolicyRequest(appId);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
     EXPECT_NE(task.get(),nullptr);
@@ -89,7 +85,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(mcsDir, fakeQueue, m_mockPluginManager);
-    policyReceiver.receivedGetPolicyRequest(appId, policyId);
+    policyReceiver.receivedGetPolicyRequest(appId);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
     EXPECT_NE(task.get(),nullptr);

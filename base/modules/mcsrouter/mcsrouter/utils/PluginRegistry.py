@@ -1,6 +1,6 @@
-import os
 import json
 import logging
+import os
 
 import PathManager
 
@@ -16,7 +16,7 @@ def get_appids_from_plugin_registry_json(file_path):
             return appsids
 
     except Exception as ex:
-        logger.error("Failed to load plugin file")
+        logger.error("Failed to load plugin file: " + str(file_path))
         logger.error(str(ex))
         return None
 

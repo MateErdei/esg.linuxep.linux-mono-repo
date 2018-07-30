@@ -40,15 +40,14 @@ namespace ManagementAgent
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                         {
-                            DataMessage message;
-                            message.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
-                            if (m_serverCallback->receivedGetPolicyRequest(request.ApplicationId, request.ApplicationTypeId
-                            ))
+                            if (m_serverCallback->receivedGetPolicyRequest(request.ApplicationId))
                             {
-                                return m_messageBuilder.replyAckMessage(message);
+                                return m_messageBuilder.replyAckMessage(request);
                             } else
                             {
-                                return message;
+                                return m_messageBuilder.replySetErrorIfEmpty(request,
+                                                                             "Failed to queue request for policy"
+                                );
                             }
                         }
                     case Commands::PLUGIN_SEND_REGISTER:

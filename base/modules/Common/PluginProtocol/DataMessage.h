@@ -38,10 +38,6 @@ namespace Common
              * ApplicationId, used to store identifier for the application i.e. ALC, SAV etc..
              */
             std::string ApplicationId;
-            /**
-             * ApplicationTypeId, optional, used to store additional sub identifier for application such as policy id for application.
-             */
-            std::string ApplicationTypeId;
 
             /**
              * PluginName, unique name of the plugin the data message is for.

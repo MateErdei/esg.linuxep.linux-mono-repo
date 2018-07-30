@@ -8,10 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PolicyReceiverImpl.h"
 #include "Logger.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
+#include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 
 
@@ -28,10 +29,10 @@ namespace ManagementAgent
         , m_taskQeue(taskQueue)
         , m_pluginManager(pluginManager)
         {
-            m_policyDir = Common::FileSystem::fileSystem()->join(mcsDir, "policy");
+            m_policyDir = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
         }
 
-        bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId, const std::string& policyId)
+        bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId)
         {
 
             bool policyTaskAddedToQueue = false;
@@ -48,14 +49,15 @@ namespace ManagementAgent
                 return false;
             }
 
-            std::string policyFileName = appId + "-" + policyId + "_policy.xml";
 
             for(auto& policyFile : policyFiles)
             {
-                if(policyFile == policyFileName)
+                LOGSUPPORT("Checking policyFile: " << policyFile);
+                if (policyFile.find(appId) != std::string::npos)
                 {
-                    std::string fullPolicyFilePath = Common::FileSystem::fileSystem()->join(m_policyDir, policyFile);
 
+                    std::string fullPolicyFilePath = Common::FileSystem::fileSystem()->join(m_policyDir, policyFile);
+                    LOGSUPPORT("Queue policy file to be sent to plugins " << fullPolicyFilePath);
                     std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, fullPolicyFilePath));
 
                     m_taskQeue->queueTask(task);

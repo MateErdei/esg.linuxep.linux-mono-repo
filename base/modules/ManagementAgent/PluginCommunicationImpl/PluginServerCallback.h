@@ -25,7 +25,8 @@ namespace ManagementAgent
             explicit PluginServerCallback(PluginManager & pluginManagerPtr);
             void receivedSendEvent(const std::string& appId, const std::string &eventXml) override;
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo) override;
-            bool receivedGetPolicyRequest(const std::string& appId, const std::string& policyId) override;
+
+            bool receivedGetPolicyRequest(const std::string& appId) override;
             void receivedRegisterWithManagementAgent(const std::string &pluginName) override;
 
 
@@ -33,7 +34,7 @@ namespace ManagementAgent
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver);
         private:
-            PluginManager& m_pluginManagerPtr;
+            PluginManager& m_pluginManager;
             std::shared_ptr<PluginCommunication::IStatusReceiver> m_statusReceiver;
             std::shared_ptr<PluginCommunication::IEventReceiver> m_eventReceiver;
             std::shared_ptr<PluginCommunication::IPolicyReceiver> m_policyReceiver;

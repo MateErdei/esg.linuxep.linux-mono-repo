@@ -5,13 +5,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginServerCallback.h"
+#include "Logger.h"
 // TODO: this will be implemented in LINUXEP-5987
 namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
         PluginServerCallback::PluginServerCallback(PluginManager & pluginManagerPtr)
-        : m_pluginManagerPtr(pluginManagerPtr)
+                : m_pluginManager(pluginManagerPtr)
         {}
 
         void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string &eventXml)
@@ -30,11 +31,11 @@ namespace ManagementAgent
             }
         }
 
-        bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId, const std::string& policyId)
+        bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId)
         {
             if(m_policyReceiver != nullptr)
             {
-                return m_policyReceiver->receivedGetPolicyRequest(appId, policyId);
+                return m_policyReceiver->receivedGetPolicyRequest(appId);
             }
 
             return false;
@@ -42,7 +43,8 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
         {
-            m_pluginManagerPtr.registerPlugin(pluginName);
+            LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
+            m_pluginManager.registerPlugin(pluginName);
         }
 
         void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)

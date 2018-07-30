@@ -186,7 +186,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
     auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId, queryPolicyMessage.ApplicationTypeId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
             Return(true));
 
     auto replyMessage = sendReceive(queryPolicyMessage);
@@ -202,7 +202,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
 
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId, queryPolicyMessage.ApplicationTypeId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
@@ -221,7 +221,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     );
 
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId, queryPolicyMessage.ApplicationTypeId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
             Throw(except));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(

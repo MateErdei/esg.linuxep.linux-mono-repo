@@ -124,7 +124,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::PluginApiImpl::getRep
     if( reply.Command != request.Command)
     {
         std::string errorMessage("Received reply from wrong command, expecting" + Common::PluginProtocol::SerializeCommand(request.Command) +
-                                 ", Received: " + Common::PluginProtocol::SerializeCommand(request.Command));
+                                 ", Received: " + Common::PluginProtocol::SerializeCommand(reply.Command));
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
