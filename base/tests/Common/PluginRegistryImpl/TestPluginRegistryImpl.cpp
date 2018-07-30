@@ -680,7 +680,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromEmptyJsonStringShouldNotTh
     EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}"));
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenNoJsonFileFound)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJsonFileFound)
 {
     auto mockFileSystem = new MockFileSystem();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -690,11 +690,8 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenNoJsonFileF
     files.push_back("/tmp/file1");
     std::string fileContent = createJsonString("","");
 
-
-    //EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-    //EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(fileContent));
-
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry(), Common::PluginRegistryImpl::PluginRegistryException);
+    // There may be times when there are no plugin config files (such as initial install)
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
 
 }
 
@@ -759,7 +756,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenMultipleJsonFilesAreInvalid)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMultipleJsonFilesAreInvalid)
 {
     auto mockFileSystem = new MockFileSystem();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -775,7 +772,8 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenMultipleJso
     EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return("invalidJsonContent"));
     EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return("alsoInvalidJsonContent"));
 
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry(), Common::PluginRegistryImpl::PluginRegistryException);
+    // Should not throw if no valid plugin configuration files found.  (Plugs may not have been installed)
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
 
 }
 
@@ -800,7 +798,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenAllJsonFilesAreUnsuccessfullyRead)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJsonFilesAreUnsuccessfullyRead)
 {
     auto mockFileSystem = new MockFileSystem();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -817,6 +815,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathThrowsWhenAllJsonFile
     EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed to read")));
     EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed to read")));
 
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry(), Common::PluginRegistryImpl::PluginRegistryException);
+    // When no plugin config files are successfully read, warning should be logged but no expection should be thrown.
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
 
 }
