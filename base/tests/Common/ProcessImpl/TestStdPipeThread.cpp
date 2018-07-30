@@ -28,7 +28,7 @@ namespace
         std::string expected_output("EXPECTED OUTPUT");
         ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
         pipe.closeWrite();
-        t.requestStop();
+        // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
         EXPECT_EQ(actual_output,expected_output);
     }
@@ -43,7 +43,7 @@ namespace
         std::string expected_output("EXPECTED OUTPUT");
         ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
         pipe.closeWrite();
-        t.requestStop();
+        // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
         expected_output = expected_output.substr(expected_output.size() - limit);
         EXPECT_EQ(actual_output,expected_output);
@@ -59,7 +59,7 @@ namespace
         std::string expected_output("EXPECTED OUTPUT");
         ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
         pipe.closeWrite();
-        t.requestStop();
+        // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
         expected_output = expected_output.substr(expected_output.size() - limit);
         EXPECT_EQ(actual_output,expected_output);
@@ -75,7 +75,7 @@ namespace
         std::string expected_output("EXPECTED OUTPUT");
         ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
         pipe.closeWrite();
-        t.requestStop();
+        // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
         EXPECT_EQ(actual_output,expected_output);
     }
