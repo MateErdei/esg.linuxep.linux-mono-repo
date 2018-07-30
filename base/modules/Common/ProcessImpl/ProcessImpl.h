@@ -36,11 +36,14 @@ namespace Common
 
             Process::ProcessStatus getStatus() override;
 
+            void setOutputLimit(size_t limit) override;
+
         private:
             pid_t m_pid;
             std::unique_ptr<PipeHolder> m_pipe;
             std::unique_ptr<StdPipeThread> m_pipeThread;
             int m_exitcode;
+            size_t m_outputLimit;
         };
 
 
@@ -56,8 +59,6 @@ namespace Common
             void restoreCreator();
         };
     }
-
-
 
 }
 

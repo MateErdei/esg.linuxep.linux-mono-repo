@@ -56,19 +56,21 @@ namespace Common
             virtual void kill() = 0;
 
             /**
-            *
-            * exitCode of the child process, return only when child process has completed. If child process has not finished call will be blocked.
-            * @return errorcode, 0 success, anything else failure.
-            * @pre requires exec to be called before this method.
-            */
+             *
+             * exitCode of the child process, return only when child process has completed. If child process has not finished call will be blocked.
+             * @return errorcode, 0 success, anything else failure.
+             * @pre requires exec to be called before this method.
+             */
             virtual int exitCode() = 0;
 
             /**
-            *
-            * output stdout and stderr from child process.
-            * @return string, only when child process has completed
-            * @pre requires exec to be called before this method.
-            */
+             *
+             * output stdout and stderr from child process.
+             *  Most recent limit bytes if setOutputLimit called.
+             *
+             * @return string, only when child process has completed
+             * @pre requires exec to be called before this method.
+             */
             virtual std::string output() = 0;
 
             /**
@@ -77,6 +79,14 @@ namespace Common
              * @return ProcessStatus
              */
             virtual ProcessStatus getStatus() = 0;
+
+            /**
+             * Set a limit on how much output we keep for this process.
+             * We'll keep the most recent limit bytes of output.
+             *
+             * @param limit
+             */
+            virtual void setOutputLimit(size_t limit) = 0;
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();

@@ -90,7 +90,8 @@ namespace ProcessImpl
 
     ProcessImpl::ProcessImpl()
         : m_pid(-1),
-          m_exitcode(std::numeric_limits<int>::max())
+          m_exitcode(std::numeric_limits<int>::max()),
+          m_outputLimit(0)
     {
 
     }
@@ -218,6 +219,7 @@ namespace ProcessImpl
         m_exitcode = std::numeric_limits<int>::max();
 
         m_pipeThread.reset( new StdPipeThread(m_pipe->readFd()));
+        m_pipeThread->setOutputLimit(m_outputLimit);
         m_pipeThread->start();
     }
 
@@ -298,6 +300,16 @@ namespace ProcessImpl
         m_exitcode = status;
         m_pipeThread->requestStop(); // nothing more will be logged, so start the thread exiting
         return Process::ProcessStatus::FINISHED;
+    }
+
+
+    void ProcessImpl::setOutputLimit(size_t limit)
+    {
+        m_outputLimit = limit;
+        if (m_pipeThread)
+        {
+            m_pipeThread->setOutputLimit(limit);
+        }
     }
 
 

@@ -13,6 +13,7 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
     : m_info(std::move(info)),m_process(Common::Process::createProcess()),m_running(false),m_deathTime(0)
 {
     m_exe = m_info.getExecutableFullPath();
+    m_process->setOutputLimit(1024*1024);
 }
 
 void PluginProxy::start()

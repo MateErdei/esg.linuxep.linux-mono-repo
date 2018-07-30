@@ -27,6 +27,8 @@ namespace Common
             int m_fileDescriptor;
             std::stringstream m_stdoutStream;
             std::mutex m_mutex;
+            size_t m_outputLimit;
+            size_t m_outputSize;
         public:
             /**
              *
@@ -36,11 +38,7 @@ namespace Common
 
             ~StdPipeThread() override = default;
 
-            std::string output()
-            {
-                hasFinished();
-                return m_stdoutStream.str();
-            }
+            std::string output();
 
             bool hasFinished()
             {
@@ -49,9 +47,16 @@ namespace Common
                 return true;
             }
 
+            void setOutputLimit(size_t limit)
+            {
+                m_outputLimit = limit;
+            }
+
         private:
             void run() override;
 
+        protected:
+            void trimStream();
 
 
         };

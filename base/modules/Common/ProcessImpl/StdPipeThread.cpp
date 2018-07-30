@@ -26,7 +26,11 @@ namespace
 
 Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor)
         :
-        Common::Threads::AbstractThread(), m_fileDescriptor(fileDescriptor), m_mutex()
+        Common::Threads::AbstractThread(),
+        m_fileDescriptor(fileDescriptor),
+        m_stdoutStream(std::ios_base::out | std::ios_base::ate),
+        m_outputLimit(0),
+        m_outputSize(0)
 {
     setNonBlocking(fileDescriptor);
 }
@@ -97,7 +101,29 @@ void Common::ProcessImpl::StdPipeThread::run()
             {
                 buffer[nread] = '\0';
                 m_stdoutStream << buffer;
+
+                m_outputSize += nread;
+                trimStream();
             }
         }
     }
+}
+
+void Common::ProcessImpl::StdPipeThread::trimStream()
+{
+    if (m_outputLimit > 0 && m_outputSize > m_outputLimit * 2)
+    {
+        m_stdoutStream.str(m_stdoutStream.str().substr(m_outputSize-m_outputLimit));
+        m_outputSize = m_outputLimit;
+    }
+}
+
+std::string Common::ProcessImpl::StdPipeThread::output()
+{
+    hasFinished();
+    if (m_outputLimit > 0)
+    {
+        m_stdoutStream.str(m_stdoutStream.str().substr(m_outputSize - m_outputLimit));
+    }
+    return m_stdoutStream.str();
 }
