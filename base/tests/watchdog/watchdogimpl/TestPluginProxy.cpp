@@ -59,3 +59,33 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
     time_t delay = proxy.startIfRequired();
     EXPECT_EQ(delay,3600);
 }
+
+TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
+{
+    const std::string INST=Common::ApplicationConfiguration::applicationPathManager().sophosInstall();;
+    const std::string execPath = "./foobar";
+    const std::string absolutePath = INST+"/foobar";
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            [absolutePath](){
+                std::vector<std::string> args;
+                auto mockProcess = new StrictMock<MockProcess>();
+                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
+                EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+                EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+                return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            }
+    );
+
+    Common::PluginRegistryImpl::PluginInfo info;
+    info.setExecutableFullPath(execPath);
+
+    watchdog::watchdogimpl::PluginProxy proxy(info);
+    time_t delay = proxy.startIfRequired();
+    EXPECT_EQ(delay,3600);
+
+    EXPECT_NO_THROW(proxy.checkForExit()); //NOLINT
+    delay = proxy.startIfRequired();
+    EXPECT_EQ(delay,10); // Not starting for 10 seconds
+}
