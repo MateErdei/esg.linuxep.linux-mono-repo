@@ -38,12 +38,14 @@ TEST_F(TestPluginProxy, WontStartPluginWithoutExecutable) //NOLINT
 
 TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
 {
-    std::string execPath = "./foobar";
+    const std::string INST=Common::ApplicationConfiguration::applicationPathManager().sophosInstall();;
+    const std::string execPath = "./foobar";
+    const std::string absolutePath = INST+"/foobar";
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-            [execPath](){
+            [absolutePath](){
                 std::vector<std::string> args;
                 auto mockProcess = new StrictMock<MockProcess>();
-                EXPECT_CALL(*mockProcess, exec(execPath, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _)).Times(1);
                 EXPECT_CALL(*mockProcess, kill()).Times(1); // In the destructor of PluginProxy
                 EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);

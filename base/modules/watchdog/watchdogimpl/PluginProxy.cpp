@@ -7,12 +7,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginProxy.h"
 #include "Logger.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
+
 using namespace watchdog::watchdogimpl;
 
 PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
     : m_info(std::move(info)),m_process(Common::Process::createProcess()),m_running(false),m_deathTime(0)
 {
     m_exe = m_info.getExecutableFullPath();
+    if ((!m_exe.empty()) && m_exe[0] != '/')
+    {
+        // Convert relative path to absolute path relative to installation directory
+        std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        m_exe = Common::FileSystem::fileSystem()->join(INST,m_exe);
+    }
     m_process->setOutputLimit(1024*1024);
 }
 
