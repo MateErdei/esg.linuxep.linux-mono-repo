@@ -121,7 +121,7 @@ void Common::ProcessImpl::StdPipeThread::trimStream()
 std::string Common::ProcessImpl::StdPipeThread::output()
 {
     hasFinished();
-    if (m_outputLimit > 0)
+    if (m_outputLimit > 0 && m_outputSize > m_outputLimit)
     {
         m_stdoutStream.str(m_stdoutStream.str().substr(m_outputSize - m_outputLimit));
     }

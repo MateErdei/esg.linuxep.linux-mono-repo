@@ -64,4 +64,19 @@ namespace
         expected_output = expected_output.substr(expected_output.size() - limit);
         EXPECT_EQ(actual_output,expected_output);
     }
+
+    TEST(TestStdPipeThread, TestOutputNotTrimmedIfSmallerThanOutputLimit) // NOLINT
+    {
+        Common::ProcessImpl::PipeHolder pipe;
+        Common::ProcessImpl::StdPipeThread t(pipe.readFd());
+        const size_t limit = 50;
+        t.setOutputLimit(limit);
+        t.start();
+        std::string expected_output("EXPECTED OUTPUT");
+        ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
+        pipe.closeWrite();
+        t.requestStop();
+        std::string actual_output = t.output();
+        EXPECT_EQ(actual_output,expected_output);
+    }
 }
