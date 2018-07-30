@@ -111,6 +111,20 @@ chmod 711 "${SOPHOS_INSTALL}/base/etc"
 mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
 chmod 711 "${SOPHOS_INSTALL}/base/pluginRegistry"
 
+mkdir -p "${SOPHOS_INSTALL}/base/update/cache/Primary"
+mkdir -p "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
+chmod 700 "${SOPHOS_INSTALL}/base/update/cache/Primary"
+chmod 700 "${SOPHOS_INSTALL}/base/update/cache/PrimaryWarehouse"
+
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/action"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/policy"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/status"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/events"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/certs"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/tmp"
+chmod -R 750 "${SOPHOS_INSTALL}/base"
+chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
+
 ## Setup libraries for versionedcopy
 INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
 export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
@@ -119,15 +133,14 @@ ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so
 
 for F in $(find "$DIST/files" -type f)
 do
-    "$DIST/installer/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+    "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
 done
-
-rm -rf "${INSTALLER_LIB}"
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh.*"
-chmod 700 "$SOPHOS_INSTALL/base/update/versig.*"
+chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh."*
+
+chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 for F in "$DIST/installer/plugins"/*
 do
@@ -136,6 +149,9 @@ do
 done
 
 chmod 644 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
+
+
+rm -rf "${INSTALLER_LIB}"
 
 if [[ -n "$MCS_CA" ]]
 then

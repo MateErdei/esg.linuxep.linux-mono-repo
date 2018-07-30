@@ -18,9 +18,12 @@ add_custom_target(mcsrouter ALL
 
 add_custom_command(OUTPUT mcsrouter.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND zip -r ${CMAKE_BINARY_DIR}/mcsrouter.zip ${mcs_router_SRC} engine
+        COMMAND zip ${CMAKE_BINARY_DIR}/mcsrouter.zip ${mcs_router_SRC}
         DEPENDS ${mcs_router_DEPS}
         )
 
 install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
-        DESTINATION installer/)
+        DESTINATION files/base/lib64)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt
+        DESTINATION files/base/mcs/certs)

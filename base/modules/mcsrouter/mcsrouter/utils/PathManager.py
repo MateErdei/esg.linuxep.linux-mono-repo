@@ -14,7 +14,7 @@ def mcsPath():
     return os.path.join(basePath(), 'mcs')
 
 def rootCaPath():
-    return os.path.join(mcsPath(),"mcs_rootca.crt")
+    return os.path.join(mcsPath(), "certs/mcs_rootca.crt")
 
 #base/mcs/action
 def actionDir():
