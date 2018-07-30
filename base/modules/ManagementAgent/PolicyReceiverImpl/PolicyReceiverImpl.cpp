@@ -52,13 +52,12 @@ namespace ManagementAgent
 
             for(auto& policyFile : policyFiles)
             {
-                LOGSUPPORT("Checking policyFile: " << policyFile);
+                LOGSUPPORT("Checking policyFile: " << policyFile << " for appid: " << appId);
                 if (policyFile.find(appId) != std::string::npos)
                 {
 
-                    std::string fullPolicyFilePath = Common::FileSystem::fileSystem()->join(m_policyDir, policyFile);
-                    LOGSUPPORT("Queue policy file to be sent to plugins " << fullPolicyFilePath);
-                    std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, fullPolicyFilePath));
+                    LOGSUPPORT("Queue policy file to be sent to plugins " << policyFile);
+                    std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, policyFile));
 
                     m_taskQeue->queueTask(task);
 
