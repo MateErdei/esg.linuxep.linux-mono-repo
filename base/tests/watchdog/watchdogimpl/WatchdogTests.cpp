@@ -113,7 +113,7 @@ namespace
         Common::FileSystem::restoreFileSystem();
     }
 
-    TEST_F(WatchdogTests, WatchdogFailsIfNoValidPluginConfigs) //NOLINT
+    TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) //NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -126,8 +126,8 @@ namespace
         EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return("invalid json"));
 
         TestWatchdog watchdog;
-
-        EXPECT_THROW(watchdog.call_read_plugin_configs(), Common::PluginRegistryImpl::PluginRegistryException);
+        
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
 
         Common::FileSystem::restoreFileSystem();
     }
