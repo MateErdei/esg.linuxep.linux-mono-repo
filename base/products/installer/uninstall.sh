@@ -13,5 +13,36 @@ INSTDIR="${BASEDIR%/*}"
 
 
 rm -rf "$INSTDIR"
-[[ -n $NO_REMOVE_USER ]] || deluser sophos-spl-user 2>/dev/null >/dev/null
-[[ -n $NO_REMOVE_GROUP ]] || delgroup sophos-spl-group 2>/dev/null >/dev/null
+
+PATH=$PATH:/usr/sbin:/sbin
+
+USERNAME=sophos-spl-user
+GROUPNAME="sophos-spl-group"
+if [[ -z $NO_REMOVE_USER ]]
+then
+    DELUSER=$(which deluser 2>/dev/null)
+    USERDEL=$(which userdel 2>/dev/null)
+
+    if [[ -x "$DELUSER" ]]
+    then
+        "$DELUSER" "$USERNAME" 2>/dev/null >/dev/null
+    elif [[ -x "$USERDEL" ]]
+    then
+        "$USERDEL" "$USERNAME" 2>/dev/null >/dev/null
+    else
+        echo "Unable to delete user $USERNAME" >&2
+    fi
+
+    ## Can't delete the group if we aren't deleting the user
+    if [[ -z $NO_REMOVE_GROUP ]]
+    then
+        GROUP_DELETER=$(which delgroup 2>/dev/null)
+        [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+        if [[ -x "$GROUP_DELETER" ]]
+        then
+            "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null
+        else
+            echo "Unable to delete group $GROUPNAME" >&2
+        fi
+    fi
+fi
