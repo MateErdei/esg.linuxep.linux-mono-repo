@@ -142,7 +142,7 @@ namespace
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Error = "Server rejected call";
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->getPolicy("plugin"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException);
     }
 
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand)
@@ -150,9 +150,9 @@ namespace
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Payload.clear();
-        dataMessage.Payload.push_back("testPolicyPayload");
+        dataMessage.Payload.push_back("ACK");
         responseServer.setReply(dataMessage);
-        EXPECT_EQ(plugin->getPolicy("plugin"), dataMessage.Payload.at(0));
+        EXPECT_NO_THROW(plugin->requestPolicies("plugin"));
     }
 
     TEST( PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable)

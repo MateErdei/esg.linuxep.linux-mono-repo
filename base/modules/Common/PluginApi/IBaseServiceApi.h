@@ -79,13 +79,11 @@ namespace Common
                                     const std::string& statusWithoutTimestampsXml) const = 0;
 
             /**
-             * Query the Management Agent for the current policy to be applied to the App identified by AppId.
+             * Request the management to send the policies for the appid. It will be sent via the applyNewPolicy method.
              * @param appId The App name as required by Management Console.
-             * @return Either the xmlContent of the policy or the 'translation of it'
              * @throw ApiException May throw if plugin fail to Contact ManagementAgent or if it rejects the call.
-             * @todo add information about 'translating xml'
              */
-            virtual std::string getPolicy(const std::string& appId) const = 0;
+            virtual void requestPolicies(const std::string& appId) const = 0;
 
         };
 

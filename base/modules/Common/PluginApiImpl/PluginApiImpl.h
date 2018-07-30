@@ -35,7 +35,7 @@ namespace Common
             void sendStatus(const std::string &appId, const std::string &statusXml,
                             const std::string &statusWithoutTimestampsXml) const override;
 
-            std::string getPolicy(const std::string &appId) const override ;
+        void requestPolicies(const std::string& appId) const override;
 
             void registerWithManagementAgent() const;
 

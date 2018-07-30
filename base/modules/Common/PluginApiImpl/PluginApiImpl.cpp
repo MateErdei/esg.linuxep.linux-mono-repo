@@ -92,8 +92,7 @@ void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
 }
 
 
-
-std::string Common::PluginApiImpl::PluginApiImpl::getPolicy(const std::string &appId) const
+void Common::PluginApiImpl::PluginApiImpl::requestPolicies(const std::string& appId) const
 {
     LOGSUPPORT("Request policy message for AppId: " << appId);
 
@@ -102,8 +101,14 @@ std::string Common::PluginApiImpl::PluginApiImpl::getPolicy(const std::string &a
     );
 
     LOGSUPPORT("Received policy from management agent for AppId: " << appId);
+    if (!m_messageBuilder.hasAck(reply))
+    {
 
-    return m_messageBuilder.replyExtractCurrentPolicy(reply);
+        std::string errorMessage = "Request policies failed with error: ";
+        errorMessage += reply.Error;
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
+    }
 }
 
 
