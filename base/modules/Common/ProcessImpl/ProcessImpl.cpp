@@ -152,6 +152,11 @@ namespace ProcessImpl
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
     {
 
+        if (m_pid != -1)
+        {
+            kill();
+        }
+
         if (m_pipeThread)
         {
             m_pipeThread->requestStop();
@@ -268,12 +273,16 @@ namespace ProcessImpl
 
     void ProcessImpl::kill()
     {
-        ::kill(m_pid, SIGTERM);
-        if ( wait( Process::milli(2), 10) == Process::ProcessStatus::TIMEOUT)
+        if (m_pid > 0)
         {
-            ::kill(m_pid, SIGKILL);
+            LOGSUPPORT("Killing process "<<m_pid);
+            ::kill(m_pid, SIGTERM);
+            if ( wait( Process::milli(2), 10) == Process::ProcessStatus::TIMEOUT)
+            {
+                ::kill(m_pid, SIGKILL);
+            }
+            m_pid = -1;
         }
-        m_pid = -1;
         if ( m_pipeThread)
         {
             m_pipeThread->requestStop();
