@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTRECEIVERIMPL_H
-#define MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTRECEIVERIMPL_H
+#pragma once
 
 
 #include <ManagementAgent/PluginCommunication/IEventReceiver.h>
@@ -32,5 +31,3 @@ namespace ManagementAgent
     }
 }
 
-
-#endif //MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTRECEIVERIMPL_H

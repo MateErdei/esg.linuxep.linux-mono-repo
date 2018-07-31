@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "EventTask.h"
-
-#include <Common/FileSystem/IFileSystem.h>
+#include "Logger.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <chrono>
 #include <cassert>
@@ -48,6 +48,7 @@ namespace
 
 void ManagementAgent::EventReceiverImpl::EventTask::run()
 {
+    LOGSUPPORT("Send event from appid " << m_appId << " to mcsrouter");
     Path eventDir = Common::FileSystem::fileSystem()->join(m_mcsDir,"event");
     assert(!eventDir.empty());
     Path tmpDir = Common::FileSystem::fileSystem()->join(m_mcsDir,"tmp");

@@ -66,6 +66,7 @@ namespace PluginCommunicationImpl
 
     int PluginManager::applyNewPolicy(const std::string &appId, const std::string &policyXml)
     {
+        LOGSUPPORT("PluginManager: apply new policy: " << appId);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
@@ -87,6 +88,7 @@ namespace PluginCommunicationImpl
 
     int PluginManager::queueAction(const std::string &appId, const std::string &actionXml)
     {
+        LOGSUPPORT("PluginManager: Queue action " << appId);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         int pluginsNotified = 0;
         for (auto &proxy : m_RegisteredPlugins)
@@ -108,18 +110,22 @@ namespace PluginCommunicationImpl
 
     std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string & pluginName)
     {
+        LOGSUPPORT("PluginManager: get status " << pluginName);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         return getPlugin(pluginName)->getStatus();
     }
 
     std::string PluginManager::getTelemetry(const std::string & pluginName)
     {
+        LOGSUPPORT("PluginManager: get telemetry " << pluginName);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         return getPlugin(pluginName)->getTelemetry();
     }
 
     void PluginManager::setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds)
     {
+        std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
+        LOGSUPPORT("PluginManager: associate appids to pluginName " << pluginName << firstPolicy);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         auto plugin = getPlugin(pluginName);
         plugin->setPolicyAndActionsAppIds(policyAppIds);
