@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueue/ITaskProcessor.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
@@ -15,11 +14,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/ManagementAgent/McsRouterPluginCommunicationImpl/PolicyAndActionListener.h>
 
 #include "TempDir.h"
 #include "MockPluginManager.h"
-#include "MockTaskQueue.h"
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {

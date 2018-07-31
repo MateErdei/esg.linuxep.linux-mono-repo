@@ -4,8 +4,6 @@ add_library(mcsrouterplugincommunicationimpl SHARED
         TaskDirectoryListener.h
         Logger.h PolicyTask.cpp
         PolicyTask.h
-        PolicyAndActionListener.cpp
-        PolicyAndActionListener.h
         ActionTask.h
         ActionTask.cpp)
 target_include_directories(mcsrouterplugincommunicationimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication)
