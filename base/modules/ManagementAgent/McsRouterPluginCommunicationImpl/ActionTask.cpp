@@ -23,7 +23,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
     LOGSUPPORT("Process new action from mcsrouter: " << m_filePath);
     std::string basename = Common::FileSystem::fileSystem()->basename(m_filePath);
 
-    size_t pos = basename.find("-");
+    size_t pos = basename.find("_action_");
 
     if (pos == std::string::npos)
     {

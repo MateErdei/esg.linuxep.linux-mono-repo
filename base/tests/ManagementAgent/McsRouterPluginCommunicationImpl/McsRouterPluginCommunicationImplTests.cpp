@@ -74,7 +74,7 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
     std::string policyFile1 = Common::FileSystem::fileSystem()->join(m_policyFilePath, "appId1-policy.txt");
     std::string policyFileTmp1 = Common::FileSystem::fileSystem()->join(m_policyFilePath, "policyFileTmp1.txt");
 
-    std::string actionFile1 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId1-action.txt");
+    std::string actionFile1 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId1_action_.txt");
     std::string actionFileTmp1 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "actionFileTmp1.txt");
 
     m_tempDir->createFile(policyFileTmp1, "Hello");
@@ -112,8 +112,8 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessMultip
     std::string policyFile2 = Common::FileSystem::fileSystem()->join(m_policyFilePath, "appId2-policy.txt");
     std::string policyFile3 = Common::FileSystem::fileSystem()->join(m_policyFilePath, "appId3-unknown.txt");
 
-    std::string actionFile1 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId1-action.txt");
-    std::string actionFile2 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId2-action.txt");
+    std::string actionFile1 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId1_action_.txt");
+    std::string actionFile2 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId2_action_.txt");
     std::string actionFile3 = Common::FileSystem::fileSystem()->join(m_actionFilePath, "appId3-unknown.txt");
 
 
