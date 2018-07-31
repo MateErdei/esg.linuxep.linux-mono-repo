@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSTASK_H
-#define MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSTASK_H
+#pragma once
 
 
 #include <Common/TaskQueue/ITask.h>
@@ -41,4 +40,4 @@ namespace ManagementAgent
 }
 
 
-#endif //MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSTASK_H
+

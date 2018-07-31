@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
-#define COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
+#pragma once
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
@@ -34,4 +33,4 @@ public:
 
     MOCK_CONST_METHOD0(getTempPath, std::string(void));
 };
-#endif //COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H
+

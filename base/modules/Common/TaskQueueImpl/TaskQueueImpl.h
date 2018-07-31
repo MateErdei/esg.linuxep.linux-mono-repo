@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef COMMON_TASKQUEUEIMPL_TASKQUEUEIMPL_H
-#define COMMON_TASKQUEUEIMPL_TASKQUEUEIMPL_H
+#pragma once
 
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <Common/TaskQueue/ITask.h>
@@ -37,4 +36,4 @@ namespace Common
 }
 
 
-#endif //COMMON_TASKQUEUEIMPL_TASKQUEUEIMPL_H
+

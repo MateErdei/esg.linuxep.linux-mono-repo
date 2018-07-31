@@ -4,8 +4,7 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_ISTATUSRECEIVER_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_ISTATUSRECEIVER_H
+#pragma once
 
 #include <Common/PluginApi/StatusInfo.h>
 
@@ -31,4 +30,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_ISTATUSRECEIVER_H
+

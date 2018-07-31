@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
+#pragma once
 
 #include <string>
 
@@ -24,4 +23,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPOLICYRECEIVER_H
+

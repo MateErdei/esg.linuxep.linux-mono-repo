@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef SULDOWNLOADER_CONNECTIONSETUP_H
-#define SULDOWNLOADER_CONNECTIONSETUP_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -52,4 +51,4 @@ namespace SulDownloader
 
 }
 
-#endif //SULDOWNLOADER_CONNECTIONSETUP_H
+

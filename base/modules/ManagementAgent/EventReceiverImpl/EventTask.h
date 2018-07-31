@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTTASK_H
-#define MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTTASK_H
+#pragma once
 
 
 #include <Common/TaskQueue/ITask.h>
@@ -32,4 +31,4 @@ namespace ManagementAgent
 }
 
 
-#endif //MANAGEMENTAGENT_EVENTRECEIVERIMPL_EVENTTASK_H
+

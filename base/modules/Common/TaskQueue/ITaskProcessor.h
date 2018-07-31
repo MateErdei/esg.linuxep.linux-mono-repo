@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef COMMON_TASKQUEUE_ITASKPROCESSOR_H
-#define COMMON_TASKQUEUE_ITASKPROCESSOR_H
+#pragma once
 
 namespace Common
 {
@@ -31,4 +30,4 @@ namespace Common
         };
     }
 }
-#endif //COMMON_TASKQUEUE_ITASKPROCESSOR_H
+

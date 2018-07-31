@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H
-#define MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H
+#pragma once
 
 
 
@@ -34,4 +33,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //MANAGEMENTAGENT_POLICYRECEIVERIMPL_POLICYRECEIVERIMPL_H
+

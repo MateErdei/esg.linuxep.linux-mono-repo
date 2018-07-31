@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef SULDOWNLOADER_DOWNLOADEDPRODUCTS_H
-#define SULDOWNLOADER_DOWNLOADEDPRODUCTS_H
+#pragma once
 
 #include "ProductMetadata.h"
 #include "WarehouseError.h"
@@ -127,4 +126,4 @@ namespace SulDownloader
     };
 }
 
-#endif //SULDOWNLOADER_DOWNLOADEDPRODUCTS_H
+

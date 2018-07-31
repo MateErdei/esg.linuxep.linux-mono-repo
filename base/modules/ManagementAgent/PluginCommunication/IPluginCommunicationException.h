@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H
+#pragma once
 
 
 #include "Common/Exceptions/IException.h"
@@ -24,4 +23,4 @@ namespace PluginCommunication
 }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINCOMMUNICATIONEXCEPTION_H
+

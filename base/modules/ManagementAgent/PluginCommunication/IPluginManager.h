@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
+#pragma once
 
 #include "IPluginProxy.h"
 #include "IPluginServerCallback.h"
@@ -114,5 +113,5 @@ namespace PluginCommunication
 }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINMANAGER_H
+
 

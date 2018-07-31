@@ -4,8 +4,7 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IEVENTRECEIVER_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IEVENTRECEIVER_H
+#pragma once
 
 #include <string>
 
@@ -30,4 +29,4 @@ namespace ManagementAgent
     }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IEVENTRECEIVER_H
+

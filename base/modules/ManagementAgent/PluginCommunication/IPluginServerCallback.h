@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINSERVERCALLBACK_H
-#define MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINSERVERCALLBACK_H
+#pragma once
 
 #include "IStatusReceiver.h"
 #include "IEventReceiver.h"
@@ -47,4 +46,4 @@ namespace PluginCommunication
 }
 }
 
-#endif //MANAGEMENTAGENT_PLUGINCOMMUNICATION_IPLUGINSERVERCALLBACK_H
+

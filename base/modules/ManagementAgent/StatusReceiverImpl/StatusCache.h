@@ -4,8 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSCACHE_H
-#define MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSCACHE_H
+#pragma once
 
 
 #include <string>
@@ -53,4 +52,4 @@ namespace ManagementAgent
 }
 
 
-#endif //MANAGEMENTAGENT_STATUSRECEIVERIMPL_STATUSCACHE_H
+

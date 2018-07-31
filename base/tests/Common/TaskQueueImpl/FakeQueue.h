@@ -4,8 +4,7 @@
 // All rights reserved.
 //
 ///////////////////////////////////////////////////////////
-#ifndef MANAGEMENTAGENT_STATUSRECEIVERIMPL_FAKEQUEUE_H
-#define MANAGEMENTAGENT_STATUSRECEIVERIMPL_FAKEQUEUE_H
+#pragma once
 
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 
@@ -22,4 +21,4 @@ namespace
 }
 
 
-#endif //MANAGEMENTAGENT_STATUSRECEIVERIMPL_FAKEQUEUE_H
+

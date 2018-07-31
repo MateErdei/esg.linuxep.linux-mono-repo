@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKTASKQUEUE_H
-#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKTASKQUEUE_H
+#pragma once
 
 #include <modules/Common/TaskQueue/ITaskQueue.h>
 
@@ -22,4 +21,4 @@ public:
     MOCK_METHOD0(popTask, ITaskPtr());
 };
 
-#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_MOCKTASKQUEUE_H
+

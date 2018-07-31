@@ -5,8 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#ifndef MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_POLICYTASK_H
-#define MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_POLICYTASK_H
+#pragma once
 
 
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
@@ -35,4 +34,4 @@ namespace ManagementAgent
 }
 
 
-#endif //MANAGEMENTAGENT_MCSROUTERPLUGINCOMMUNICATIONIMPL_POLICYTASK_H
+
