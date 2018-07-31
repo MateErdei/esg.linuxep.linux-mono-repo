@@ -6,11 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "StatusTask.h"
 
-#include "StatusCache.h"
+#include "Logger.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-
-#include <utility>
 #include <cassert>
 
 namespace
@@ -30,6 +28,7 @@ void ManagementAgent::StatusReceiverImpl::StatusTask::run()
 {
     if (m_statusCache.statusChanged(m_appId,m_statusXmlWithoutTimestamps))
     {
+        LOGSUPPORT("Send updated status to mcsrouter from appid: " << m_appId);
         Path basename = createStatusFilename(m_appId);
         assert(!basename.empty());
         Path filepath = Common::FileSystem::fileSystem()->join(m_statusDir,basename);

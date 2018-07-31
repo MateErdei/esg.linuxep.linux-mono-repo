@@ -23,6 +23,7 @@ bool StatusCache::statusChanged(const std::string& appid,
     return updateStatus(appid, statusForComparison);
 }
 
+//FIXME: is it sufficient to have a cache in memory?
 bool StatusCache::updateStatus(const std::string& appid,
                                const std::string& statusForComparison)
 {
