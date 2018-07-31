@@ -70,22 +70,27 @@ namespace Common
 
         std::string ApplicationPathManager::getMcsPolicyFilePath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/policy");
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "base/mcs/policy");
         }
 
         std::string ApplicationPathManager::getMcsActionFilePath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/action");
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "base/mcs/action");
         }
 
         std::string ApplicationPathManager::getMcsStatusFilePath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/status");
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "base/mcs/status");
         }
 
         std::string ApplicationPathManager::getMcsEventFilePath() const
         {
-            return Common::FileSystem::fileSystem()->join(sophosInstall(), "/base/mcs/event");
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "base/mcs/event");
+        }
+
+        std::string ApplicationPathManager::getTempPath() const
+        {
+            return Common::FileSystem::fileSystem()->join(sophosInstall(), "tmp");
         }
 
     }

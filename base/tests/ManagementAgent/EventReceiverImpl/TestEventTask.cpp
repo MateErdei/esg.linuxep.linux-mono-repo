@@ -8,8 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
 
 TEST(TestEventTask, Construction) //NOLINT
@@ -17,7 +15,6 @@ TEST(TestEventTask, Construction) //NOLINT
     EXPECT_NO_THROW(
     ManagementAgent::EventReceiverImpl::EventTask task
             (
-                    "mcsdir",
                     "APPID",
                     "EventXml"
             )
@@ -36,7 +33,6 @@ TEST(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
 {
     ManagementAgent::EventReceiverImpl::EventTask task
             (
-                    "mcsdir",
                     "APPID",
                     "EventXml"
             );
@@ -46,9 +42,8 @@ TEST(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
 
     EXPECT_CALL(*filesystemMock,
                 writeFileAtomically(
-                        MatchesRegex("mcsdir/event/APPID_event-.*\\.xml")
-                        ,"EventXml"
-                        ,"mcsdir/tmp"
+                        MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml")
+                        , "EventXml", "/opt/sophos-spl/tmp"
                 )
             ).WillOnce(Return());
 
@@ -63,14 +58,12 @@ TEST(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreat
 
     ManagementAgent::EventReceiverImpl::EventTask task
             (
-                    "mcsdir",
                     "APPID",
                     "EventXml"
             );
 
     ManagementAgent::EventReceiverImpl::EventTask task2
             (
-                    "mcsdir",
                     "APPID",
                     "EventXml"
             );
@@ -85,16 +78,16 @@ TEST(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreat
         InSequence seq;
         EXPECT_CALL(*filesystemMock,
                     writeFileAtomically(
-                            MatchesRegex("mcsdir/event/APPID_event-.*\\.xml"),
+                            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"),
                             "EventXml",
-                            "mcsdir/tmp"
+                            "/opt/sophos-spl/tmp"
                     )).WillOnce(SaveArg<0>(&base1)
             );
         EXPECT_CALL(*filesystemMock,
                     writeFileAtomically(
-                            MatchesRegex("mcsdir/event/APPID_event-.*\\.xml"),
+                            MatchesRegex("/opt/sophos-spl/base/mcs/event/APPID_event-.*\\.xml"),
                             "EventXml",
-                            "mcsdir/tmp"
+                            "/opt/sophos-spl/tmp"
                     )).WillOnce(SaveArg<0>(&base2)
             );
     }

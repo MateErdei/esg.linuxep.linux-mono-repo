@@ -125,7 +125,7 @@ namespace PluginCommunicationImpl
     void PluginManager::setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds)
     {
         std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
-        LOGSUPPORT("PluginManager: associate appids to pluginName " << pluginName << firstPolicy);
+        LOGSUPPORT("PluginManager: associate appids to pluginName " << pluginName << ": " << firstPolicy);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
         auto plugin = getPlugin(pluginName);
         plugin->setPolicyAndActionsAppIds(policyAppIds);

@@ -11,26 +11,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 TEST(TestStatusReceiverImpl, Construction) //NOLINT
 {
-    std::string mcs_dir="test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     EXPECT_NO_THROW
     (
-        ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue)
+            ManagementAgent::StatusReceiverImpl::StatusReceiverImpl
+            foo(fakeQueue)
     );
 }
 
 TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
 {
-    std::string mcs_dir="test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
             new FakeQueue
     );
-    ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
+    ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue);
     foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
@@ -38,10 +34,9 @@ TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
 
 TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile) //NOLINT
 {
-    std::string mcs_dir="test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
 
-    ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(mcs_dir, fakeQueue);
+    ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue);
     foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
@@ -49,8 +44,12 @@ TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToASta
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    EXPECT_CALL(*filesystemMock, join("test/mcs/status","APPID_status.xml")).WillOnce(Return("test/mcs/status/APPID_status.xml"));
-    EXPECT_CALL(*filesystemMock, writeFileAtomically("test/mcs/status/APPID_status.xml","WithTimestamp","test/mcs/tmp")).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, join("/opt/sophos-spl/base/mcs/status", "APPID_status.xml")).WillOnce(
+            Return("/opt/sophos-spl/base/mcs/status/APPID_status.xml"));
+    EXPECT_CALL(*filesystemMock,
+                writeFileAtomically("/opt/sophos-spl/base/mcs/status/APPID_status.xml", "WithTimestamp",
+                                    "/opt/sophos-spl/tmp"
+                )).WillOnce(Return());
 
     task->run();
 

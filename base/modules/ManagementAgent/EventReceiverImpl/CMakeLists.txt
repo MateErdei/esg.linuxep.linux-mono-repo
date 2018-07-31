@@ -4,6 +4,6 @@ add_library(eventreceiverimpl SHARED
         EventTask.cpp
         EventTask.h)
 target_include_directories(eventreceiverimpl PUBLIC  ../../Common )
-target_link_libraries(eventreceiverimpl PUBLIC)
+target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl)
 install(TARGETS eventreceiverimpl
         LIBRARY DESTINATION files/base/lib64)

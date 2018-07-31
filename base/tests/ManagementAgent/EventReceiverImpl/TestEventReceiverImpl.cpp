@@ -11,9 +11,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 TEST(TestEventReceiverImpl, Construction) //NOLINT
 {
     std::string mcs_dir = "test/mcs";
@@ -23,7 +20,6 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
     EXPECT_NO_THROW(
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
-                    mcs_dir,
                     queue
                     )
         );
@@ -31,13 +27,11 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
 
 TEST(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued) //NOLINT
 {
-    std::string mcs_dir = "test/mcs";
     std::shared_ptr<FakeQueue> queue(
             new FakeQueue
     );
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
-                    mcs_dir,
                     queue
             );
     foo.receivedSendEvent("APPID","EventXML");

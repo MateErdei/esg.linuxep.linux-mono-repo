@@ -31,5 +31,7 @@ public:
     MOCK_CONST_METHOD0(getMcsActionFilePath, std::string (void));
     MOCK_CONST_METHOD0(getMcsStatusFilePath, std::string (void));
     MOCK_CONST_METHOD0(getMcsEventFilePath, std::string (void));
+
+    MOCK_CONST_METHOD0(getTempPath, std::string(void));
 };
 #endif //COMMON_APPLICATIONCONFIGURATION_MOCKEDAPPLICATIONPATHMANAGER_H

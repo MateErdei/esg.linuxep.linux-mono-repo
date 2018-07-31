@@ -22,11 +22,9 @@ namespace ManagementAgent
 {
     namespace PolicyReceiverImpl
     {
-        PolicyReceiverImpl::PolicyReceiverImpl(const std::string& mcsDir,
-                                               std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue,
+        PolicyReceiverImpl::PolicyReceiverImpl(std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue,
                                                PluginCommunication::IPluginManager& pluginManager)
-        : m_mcsDir(mcsDir)
-        , m_taskQeue(taskQueue)
+                : m_taskQeue(taskQueue)
         , m_pluginManager(pluginManager)
         {
             m_policyDir = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();

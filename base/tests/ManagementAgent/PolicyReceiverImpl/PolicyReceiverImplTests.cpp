@@ -33,10 +33,10 @@ public:
 
 TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThrow) // NOLINT
 {
-    std::string mcsDir("test/mcs");
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
 
-    EXPECT_NO_THROW(ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(mcsDir, fakeQueue, m_mockPluginManager));
+    EXPECT_NO_THROW(
+            ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager));
 
 }
 
@@ -44,8 +44,6 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
-    std::string mcsDir("test/mcs");
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -56,7 +54,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
     EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(directoryFileList));
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
-    ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(mcsDir, fakeQueue, m_mockPluginManager);
+    ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager);
     policyReceiver.receivedGetPolicyRequest(appId);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
@@ -70,8 +68,6 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
     auto filesystemMock = new NiceMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    std::string mcsDir("test/mcs");
-
     std::string appId = "AppID";
     std::string policyId = "25";
     std::string policyFileName(appId + "-" + policyId + "_policy.xml");
@@ -84,7 +80,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
     EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(directoryFileList));
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
-    ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(mcsDir, fakeQueue, m_mockPluginManager);
+    ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager);
     policyReceiver.receivedGetPolicyRequest(appId);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 

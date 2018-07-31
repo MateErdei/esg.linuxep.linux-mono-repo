@@ -27,6 +27,8 @@ namespace Common
             std::string getMcsStatusFilePath() const override;
             std::string getMcsEventFilePath() const override;
 
+            std::string getTempPath() const override;
+
         private:
             std::string socketPath( const std::string & relative) const;
         };

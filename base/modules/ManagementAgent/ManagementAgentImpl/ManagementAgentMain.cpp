@@ -105,14 +105,11 @@ namespace ManagementAgent
 
         void ManagementAgentMain::initialisePluginReceivers()
         {
-            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(), m_taskQueue, *m_pluginManager);
+            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(m_taskQueue, *m_pluginManager);
 
-            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath(), m_taskQueue);
+            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(m_taskQueue);
 
-            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsEventFilePath(), m_taskQueue);
+            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(m_taskQueue);
 
             m_pluginManager->setPolicyReceiver(m_policyReceiver);
             m_pluginManager->setStatusReceiver(m_statusReceiver);

@@ -11,11 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <chrono>
 #include <cassert>
 #include <sstream>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 
-ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string mcsDir, std::string appId, std::string eventXml)
+ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml)
     :
-        m_mcsDir(std::move(mcsDir)),
         m_appId(std::move(appId)),
         m_eventXml(std::move(eventXml))
 {
@@ -49,9 +49,9 @@ namespace
 void ManagementAgent::EventReceiverImpl::EventTask::run()
 {
     LOGSUPPORT("Send event from appid " << m_appId << " to mcsrouter");
-    Path eventDir = Common::FileSystem::fileSystem()->join(m_mcsDir,"event");
+    Path eventDir = Common::ApplicationConfiguration::applicationPathManager().getMcsEventFilePath();
     assert(!eventDir.empty());
-    Path tmpDir = Common::FileSystem::fileSystem()->join(m_mcsDir,"tmp");
+    Path tmpDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     assert(!tmpDir.empty());
 
     Path basename = createEventBasename(m_appId);

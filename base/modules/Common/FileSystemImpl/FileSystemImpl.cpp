@@ -212,7 +212,7 @@ namespace Common
         {
             if(!isDirectory(tempDir))
             {
-                throw IFileSystemException("Temp directory provided is not a directory");
+                throw IFileSystemException("Temp directory provided is not a directory: " + tempDir);
             }
 
             // create temp file name.

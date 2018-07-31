@@ -21,15 +21,14 @@ namespace ManagementAgent
     class PolicyReceiverImpl : public virtual PluginCommunication::IPolicyReceiver
         {
         public:
-            explicit PolicyReceiverImpl(const std::string& mcsDir, std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue, PluginCommunication::IPluginManager& pluginManager);
+        explicit PolicyReceiverImpl(std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue,
+                                    PluginCommunication::IPluginManager& pluginManager);
 
         bool receivedGetPolicyRequest(const std::string& appId) override;
         private:
-            std::string m_mcsDir;
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQeue;
             PluginCommunication::IPluginManager& m_pluginManager;
             std::string m_policyDir;
-
         };
 
     }

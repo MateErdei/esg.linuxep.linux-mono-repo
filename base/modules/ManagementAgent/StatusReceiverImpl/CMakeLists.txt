@@ -7,6 +7,6 @@ add_library(statusreceiverimpl SHARED
             StatusTask.cpp
             StatusTask.h)
 target_include_directories(statusreceiverimpl PUBLIC  ../../Common )
-target_link_libraries(statusreceiverimpl PUBLIC)
+target_link_libraries(statusreceiverimpl PUBLIC applicationconfigurationimpl)
 install(TARGETS statusreceiverimpl
         LIBRARY DESTINATION files/base/lib64)

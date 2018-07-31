@@ -20,13 +20,11 @@ namespace ManagementAgent
         {
         public:
             EventTask(
-                    std::string mcsDir,
                     std::string appId,
                     std::string eventXml
                     );
             void run() override;
         private:
-            std::string m_mcsDir;
             std::string m_appId;
             std::string m_eventXml;
         };

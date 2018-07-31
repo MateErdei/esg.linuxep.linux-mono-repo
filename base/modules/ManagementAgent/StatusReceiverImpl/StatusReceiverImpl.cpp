@@ -7,15 +7,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "StatusReceiverImpl.h"
 #include "StatusTask.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/TaskQueue/ITask.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
-ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(const std::string& mcsDir,
-                                                                            Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
+ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
+        Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
     : m_taskQueue(std::move(taskQueue))
 {
-    m_tempDir = Common::FileSystem::fileSystem()->join(mcsDir,"tmp");
-    m_statusDir = Common::FileSystem::fileSystem()->join(mcsDir,"status");
+    m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+    m_statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
 }
 
 void ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::receivedChangeStatus(const std::string& appId,

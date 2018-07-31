@@ -9,10 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using ManagementAgent::EventReceiverImpl::EventReceiverImpl;
 
-ManagementAgent::EventReceiverImpl::EventReceiverImpl::EventReceiverImpl(std::string mcsDir,
-                                                                         Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
-    : m_mcsDir(std::move(mcsDir)),
-      m_taskQueue(std::move(taskQueue))
+ManagementAgent::EventReceiverImpl::EventReceiverImpl::EventReceiverImpl(
+        Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
+        : m_taskQueue(std::move(taskQueue))
 {
 
 }
@@ -23,7 +22,6 @@ void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::s
     Common::TaskQueue::ITaskPtr task
             (
                     new EventTask(
-                            m_mcsDir,
                             appId,
                             eventXml
                             )
