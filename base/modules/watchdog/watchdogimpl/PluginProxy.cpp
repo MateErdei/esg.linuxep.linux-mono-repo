@@ -19,8 +19,8 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
     if ((!m_exe.empty()) && m_exe[0] != '/')
     {
         // Convert relative path to absolute path relative to installation directory
-        std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-        m_exe = Common::FileSystem::join(INST,m_exe);
+        const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        m_exe = Common::FileSystem::fileSystem()->join(INST,m_exe);
     }
     m_process->setOutputLimit(1024*1024);
 }

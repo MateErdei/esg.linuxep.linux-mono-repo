@@ -200,6 +200,5 @@ int watchdog_main::run()
 
 PluginInfoVector watchdog_main::read_plugin_configs()
 {
-    PluginInfoVector plugins = Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
-    return plugins;
+    return Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 }
