@@ -7,8 +7,10 @@
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/PluginApiImpl/MockedPluginApiCallback.h"
+#include "tests/Common/FileSystemImpl/MockFileSystem.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include <thread>
 #include <modules/Common/PluginApi/ApiException.h>
@@ -27,23 +29,76 @@ public:
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
         ON_CALL(*mockApplicationPathManager, getManagementAgentSocketAddress()).WillByDefault(
                 Return("inproc:///tmp/management.ipc"));
-        m_pluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
-                new ManagementAgent::PluginCommunicationImpl::PluginManager());
-
         ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(plugin_one_name)).WillByDefault(
                 Return("inproc:///tmp/plugin_one"));
         ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(plugin_two_name)).WillByDefault(
                 Return("inproc:///tmp/plugin_two"));
+        registrypath = "/registry";
+        ON_CALL(*mockApplicationPathManager, getPluginRegistryPath()).WillByDefault(
+                Return(registrypath));
+
+
+
+
+
+        m_pluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
+                new ManagementAgent::PluginCommunicationImpl::PluginManager());
+
         m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
         m_mgmtCommon = std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement>(
                 new Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext()));
+        setupFileSystemAndGetMock();
         m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
     }
+
+    MockFileSystem& setupFileSystemAndGetMock()
+    {
+        std::string plugin_one_settings = R"sophos({
+"policyAppIds": ["plugin_one"],
+"statusAppIds": ["plugin_one"],
+"pluginName": "plugin_one"})sophos";
+        std::string plugin_two_settings = R"sophos({
+"policyAppIds": ["plugin_two"],
+"statusAppIds": ["plugin_two"],
+"pluginName": "plugin_two"})sophos";
+
+
+        auto filesystemMock = new NiceMock<MockFileSystem>();
+        ON_CALL(*filesystemMock, listFiles(registrypath)).WillByDefault(
+                Return(std::vector<std::string>{
+                               {"/registry/plugin_one.json"},
+                               {"/registry/plugin_two.json"}
+                       }
+                ));
+        ON_CALL(*filesystemMock, basename("/registry/plugin_one.json")).WillByDefault(
+                Return("plugin_one.json"));
+
+        ON_CALL(*filesystemMock, basename("/registry/plugin_two.json")).WillByDefault(
+                Return("plugin_two.json"));
+
+        ON_CALL(*filesystemMock, readFile("/registry/plugin_one.json")).WillByDefault(
+                Return(plugin_one_settings));
+        ON_CALL(*filesystemMock, readFile("/registry/plugin_two.json")).WillByDefault(
+                Return(plugin_two_settings));
+
+
+        /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/PrimaryWarehouse")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/Primary")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));*/
+        auto pointer = filesystemMock;
+        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        return *pointer;
+    }
+
+
 
     ~TestPluginManager() = default;
 
     std::string plugin_one_name;
     std::string plugin_two_name;
+    std::string registrypath;
     std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement> m_mgmtCommon;
     std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;

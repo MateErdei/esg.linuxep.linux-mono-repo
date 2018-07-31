@@ -11,7 +11,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/MessageUtility.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
 
@@ -233,6 +232,43 @@ namespace Common
         void PluginInfo::addStatusAppIds(const std::string &appID)
         {
             m_statusAppIds.push_back(appID);
+        }
+
+        std::pair<PluginInfo, bool> PluginInfo::loadPluginInfoFromRegistry(const std::string& pluginName)
+        {
+            auto tolowerstring = [](std::string& st) { std::transform(st.begin(), st.end(), st.begin(), ::tolower); };
+
+            std::string lowercasepluginname = pluginName;
+            tolowerstring(lowercasepluginname);
+
+            std::string pluginFilePath;
+            for (std::string filepath : Common::FileSystem::fileSystem()->listFiles(
+                    Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath()))
+            {
+                std::string basename = Common::FileSystem::fileSystem()->basename(filepath);
+
+                tolowerstring(basename);
+                if (basename.find(lowercasepluginname) != std::string::npos)
+                {
+                    pluginFilePath = filepath;
+                }
+            }
+
+            if (pluginFilePath.empty())
+            {
+                return std::pair<PluginInfo, bool>(PluginInfo(), false);
+            }
+            try
+            {
+                std::string fileContent = FileSystem::fileSystem()->readFile(pluginFilePath);
+                return std::pair<PluginInfo, bool>(deserializeFromString(fileContent), true);
+
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to load plugin info: " << ex.what());
+            }
+            return std::pair<PluginInfo, bool>(PluginInfo(), false);
         }
 
     }

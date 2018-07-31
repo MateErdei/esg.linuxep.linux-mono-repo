@@ -183,6 +183,9 @@ namespace Common
             static PluginInfoVector loadFromPluginRegistry();
 
 
+            static std::pair<PluginInfo, bool> loadPluginInfoFromRegistry(const std::string& pluginName);
+
+
         private:
             std::vector<std::string> m_policyAppIds;
             std::vector<std::string> m_statusAppIds;

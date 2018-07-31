@@ -4,8 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/PluginApi/ApiException.h>
 #include "PluginServerCallback.h"
 #include "Logger.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
 // TODO: this will be implemented in LINUXEP-5987
 namespace ManagementAgent
 {
@@ -49,6 +51,20 @@ namespace ManagementAgent
             LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
             m_pluginManager.registerPlugin(pluginName);
             // TODO: load information from registry about this plugin Name
+            Common::PluginRegistryImpl::PluginInfo pluginInfo;
+            bool validPlugin;
+            std::tie(pluginInfo, validPlugin) = Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(
+                    pluginName
+            );
+
+            if (!validPlugin)
+            {
+                LOGERROR("No information found about this plugin: " << pluginName);
+                throw Common::PluginApi::ApiException(
+                        "Information for the plugin not found in the registry: " + pluginName
+                );
+            }
+            m_pluginManager.setAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
         }
 
         void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)

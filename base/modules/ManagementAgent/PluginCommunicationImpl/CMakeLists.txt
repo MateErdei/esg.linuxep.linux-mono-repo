@@ -20,7 +20,7 @@ add_library(plugincommunicationimpl SHARED
         AppIdCollection.h
         )
 target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ../PluginCommunication)
-target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl)
+target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl pluginregistryimpl)
 add_dependencies(plugincommunicationimpl pluginapiimpl)
 install(TARGETS plugincommunicationimpl
         LIBRARY DESTINATION files/base/lib64)
