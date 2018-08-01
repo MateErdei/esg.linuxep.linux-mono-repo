@@ -149,10 +149,19 @@ function build()
         else
             exitFailure 13 "Failed to find zeromq"
         fi
-        addpath ${REDIST}/protobuf/bin
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/lib
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
 
-
+        local LOG4CPLUS_TAR=$INPUT/log4cplus.tar
+        if [[ -f "$LOG4CPLUS_TAR" ]]
+        then
+            tar xf "$LOG4CPLUS_TAR" -C "$REDIST"
+        elif [[ -d "$ALLEGRO_REDIST" ]]
+        then
+            ln -snf $ALLEGRO_REDIST/log4cplus $REDIST/log4cplus
+        else
+            exitFailure 13 "Failed to find log4cplus"
+        fi
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
     else
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
