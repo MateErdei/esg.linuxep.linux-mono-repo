@@ -17,11 +17,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <google/protobuf/util/json_util.h>
-
-#include <iostream>
-#include <algorithm>
-#include <map>
 
 
 namespace
