@@ -37,7 +37,7 @@ TEST(TestWdctlBootstrap, ConvertArgs) //NOLINT
     StringHolder name(strdup("wdctl"));
     ASSERT_NE(name.get(),nullptr);
     char *argv[] = {name.get(), nullptr};
-    int argc = sizeof(argv) / sizeof(char*) - 1;
+    unsigned int argc = sizeof(argv) / sizeof(char*) - 1;
 
     auto res = wdctl::wdctlimpl::wdctl_bootstrap::convertArgv(argc, argv);
     ASSERT_EQ(res.size(),1);

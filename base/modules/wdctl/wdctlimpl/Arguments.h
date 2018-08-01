@@ -6,20 +6,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "StringVector.h"
-#include "Arguments.h"
 
 namespace wdctl
 {
     namespace wdctlimpl
     {
-        class wdctl_bootstrap
+        class Arguments
         {
         public:
-            int main(int argc, char* argv[]);
-            int main(const StringVector& args);
-            static StringVector convertArgv(unsigned int argc, char* argv[]);
-        private:
-            Arguments m_args;
+            void parseArguments(const StringVector& args);
+            StringVector m_positionalArgs;
+            StringVector m_options;
+            std::string m_command;
+            std::string m_argument;
         };
     }
 }
+
+
