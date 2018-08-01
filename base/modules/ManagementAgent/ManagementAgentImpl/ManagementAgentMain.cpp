@@ -7,6 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ManagementAgentMain.h"
 #include "Logger.h"
 
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
+
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -17,6 +19,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <signal.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 using namespace Common;
 
@@ -50,8 +55,7 @@ namespace ManagementAgent
                 return -1;
             }
 
-            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager = std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
+            ManagementAgent::PluginCommunication::IPluginManager* pluginManager = new ManagementAgent::PluginCommunicationImpl::PluginManager();
 
             ManagementAgentMain managementAgent;
             managementAgent.initialise(*pluginManager);
@@ -69,8 +73,7 @@ namespace ManagementAgent
             initialiseTaskQueue();
             initialiseDirectoryWatcher();
             initialisePluginReceivers();
-
-            m_ppid = ::getppid();
+            sendCurrentPluginsStatus();
         }
 
         void ManagementAgentMain::loadPlugins()
@@ -107,15 +110,59 @@ namespace ManagementAgent
 
         void ManagementAgentMain::initialisePluginReceivers()
         {
-            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(m_taskQueue, *m_pluginManager);
+            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(
+                    ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(), m_taskQueue, *m_pluginManager);
 
-            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(m_taskQueue);
+            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(
+                    ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath(), m_taskQueue);
 
-            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(m_taskQueue);
+            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(
+                    ApplicationConfiguration::applicationPathManager().getMcsEventFilePath(), m_taskQueue);
 
             m_pluginManager->setPolicyReceiver(m_policyReceiver);
             m_pluginManager->setStatusReceiver(m_statusReceiver);
             m_pluginManager->setEventReceiver(m_eventReceiver);
+        }
+
+        void ManagementAgentMain::sendCurrentPluginsStatus()
+        {
+            std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
+
+            std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+            std::string tempDir = FileSystem::fileSystem()->join(mcsDir, "tmp");
+            std::string statusDir = FileSystem::fileSystem()->join(mcsDir, "status");
+
+            for (auto& pluginName : registeredPlugins)
+            {
+                std::vector<Common::PluginApi::StatusInfo> pluginStatus;
+                try
+                {
+                    pluginStatus = m_pluginManager->getStatus(pluginName);
+                }
+                catch (PluginCommunication::IPluginCommunicationException& e)
+                {
+                    LOGWARN("Failed to get plugin status for: " << pluginName << ", with error" << e.what());
+                    continue;
+                }
+
+                for (auto& pluginStatusInfo : pluginStatus)
+                {
+                    StatusReceiverImpl::StatusCache statusCache;
+                    std::unique_ptr<Common::TaskQueue::ITask>
+                            task(
+                            new StatusReceiverImpl::StatusTask(
+                                    statusCache,
+                                    pluginStatusInfo.appId,
+                                    pluginStatusInfo.statusXml,
+                                    pluginStatusInfo.statusWithoutTimestampsXml,
+                                    tempDir,
+                                    statusDir
+                            )
+                    );
+
+                    m_taskQueue->queueTask(task);
+                }
+            }
         }
 
         int ManagementAgentMain::run()
@@ -145,15 +192,9 @@ namespace ManagementAgent
             bool running = true;
             while(running)
             {
-                poller->poll(std::chrono::seconds(30));
-                if (GL_signalPipe->notified())
+                if(GL_signalPipe && GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
-                    running = false;
-                }
-                if (::getppid() != m_ppid)
-                {
-                    LOGWARN("Management Agent stopping because parent process has changed");
                     running = false;
                 }
             }
@@ -166,6 +207,8 @@ namespace ManagementAgent
             LOGDEBUG("Management Agent stopped");
             return 0;
         }
+
+
 
 
     }

@@ -91,6 +91,12 @@ namespace PluginCommunication
         virtual void removePlugin(const std::string &pluginName) = 0;
 
         /**
+         * Gets the names of the registered plugins
+         * @return list registered plugin names
+         */
+        virtual std::vector<std::string> getRegisteredPluginNames() = 0;
+
+        /**
          * Set the status receiver for statuses from plugins, if using default callback handler
          *
          * @param statusReceiver

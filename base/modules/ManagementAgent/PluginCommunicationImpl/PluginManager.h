@@ -45,11 +45,7 @@ namespace ManagementAgent
             void registerPlugin(const std::string &pluginName) override;
             void removePlugin(const std::string &pluginName) override;
 
-            /**
-             * Used mainly for Tests
-             */
-            void setDefaultTimeout(int timeoutMs);
-            void setDefaultConnectTimeout(int timeoutMs);
+            std::vector<std::string> getRegisteredPluginNames() override;
 
             Common::ZeroMQWrapper::IContext & getSocketContext();
             void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
@@ -59,6 +55,12 @@ namespace ManagementAgent
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;
 
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
+
+            /**
+             * Used mainly for Tests
+             */
+            void setDefaultTimeout(int timeoutMs);
+            void setDefaultConnectTimeout(int timeoutMs);
 
         private:
 

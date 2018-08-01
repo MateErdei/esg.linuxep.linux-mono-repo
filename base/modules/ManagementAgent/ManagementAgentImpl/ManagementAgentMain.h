@@ -30,6 +30,7 @@ namespace ManagementAgent
             void initialiseTaskQueue();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
+            void sendCurrentPluginsStatus();
             int run();
 
 

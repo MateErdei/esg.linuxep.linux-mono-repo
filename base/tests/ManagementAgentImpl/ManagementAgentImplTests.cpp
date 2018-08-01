@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
+#include <modules/ManagementAgent/StatusReceiverImpl/StatusTask.h>
 
 namespace
 {
@@ -34,6 +35,11 @@ namespace
         void runWrapper()
         {
             run();
+        }
+
+        Common::TaskQueue::ITaskQueueSharedPtr getTaskQueue()
+        {
+            return m_taskQueue;
         }
     };
 
@@ -106,21 +112,70 @@ namespace
 
         std::string jsonContent = createJsonString();
 
+        std::vector<std::string> registeredPlugins = {"PluginName"};
+
         EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerPlugin("PluginName")).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
+
+        std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
+
+        EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
+        EXPECT_CALL(m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
 
         TestManagementAgent managementAgent;
 
         EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
 
+     }
+
+    TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
+    {
+        auto filesystemMock = new NiceMock<MockFileSystem>();
+        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+        std::vector<std::string> pluginFiles = {"plugin.json"};
+
+        std::string jsonContent = createJsonString();
+
+        std::vector<std::string> registeredPlugins = {"PluginName"};
+
+        EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(pluginFiles));
+        EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
+        EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
+        EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
+
+        EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
+
+        std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
+        Common::PluginApi::StatusInfo statusInfo;
+        statusInfo.appId = "app2";
+        statusInfo.statusXml = "StatusXml";
+        statusInfo.statusWithoutTimestampsXml = "StatusWithoutTimestampsXml";
+        pluginStatusInfoList.push_back(statusInfo);
+
+        EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
+        EXPECT_CALL(m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
+
+        TestManagementAgent managementAgent;
+
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
+
+        Common::TaskQueue::ITaskQueueSharedPtr actualTaskQueue = managementAgent.getTaskQueue();
+        Common::TaskQueue::ITaskPtr task = actualTaskQueue->popTask();
+
+        EXPECT_NE(task, nullptr);
     }
+
 }
 
 
