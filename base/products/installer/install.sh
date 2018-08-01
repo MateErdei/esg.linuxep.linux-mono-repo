@@ -187,6 +187,7 @@ do
 done
 
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
+chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh."*
 
