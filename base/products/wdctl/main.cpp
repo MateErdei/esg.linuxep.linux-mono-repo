@@ -8,5 +8,5 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 int main(int argc, char* argv[])
 {
-    return wdctl_main(argc, argv);
+    return wdctl::wdctlimpl::wdctl_main(argc, argv);
 }

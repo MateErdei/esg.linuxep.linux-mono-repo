@@ -3,12 +3,16 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#pragma once
 
-#include "wdctl_main.h"
-#include "wdctl_bootstrap.h"
-
-int wdctl::wdctlimpl::wdctl_main(int argc, char **argv)
+namespace wdctl
 {
-    wdctl_bootstrap boot;
-    return boot.main(argc, argv);
+    namespace wdctlimpl
+    {
+        class wdctl_bootstrap
+        {
+        public:
+            int main(int argc, char* argv[]);
+        };
+    }
 }
