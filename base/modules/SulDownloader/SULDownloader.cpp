@@ -5,16 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <iostream>
-#include <sys/param.h>
-#include <unistd.h>
-#include <exception>
 #include <algorithm>
-#include <sys/stat.h>
-#include <vector>
 #include <map>
 #include <google/protobuf/util/json_util.h>
-#include <string>
-#include <cassert>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include "SULRaii.h"
 #include "DownloadReport.h"
@@ -22,12 +16,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "WarehouseRepository.h"
 #include "ProductSelection.h"
 #include "DownloadedProduct.h"
-#include "ConfigurationSettings.pb.h"
-#include "DownloadReport.pb.h"
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/UtilityImpl/MessageUtility.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 namespace
@@ -159,8 +150,10 @@ namespace SulDownloader
         }
 
         auto result = configAndRunDownloader(settingsString);
-        // LOGSUPPORT(std::get<1>(result)); // put back in for dev if required
-        fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), fileSystem->currentWorkingDirectory());
+        std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+        LOGSUPPORT("Generate the report file: " << outputFilePath << " using temp directory " << tempDir);
+
+        fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), tempDir);
 
         return std::get<0>(result);
     }
