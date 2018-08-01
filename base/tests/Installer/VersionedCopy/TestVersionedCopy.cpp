@@ -37,7 +37,7 @@ namespace
 
         void createFile(const Path& filename, const std::string& contents="FOOBAR")
         {
-            Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::fileSystem()->dirName(filename));
+            Common::FileSystem::fileSystem()->makedirs(Common::FileSystem::dirName(filename));
             Common::FileSystem::fileSystem()->writeFile(filename,contents);
         }
     };

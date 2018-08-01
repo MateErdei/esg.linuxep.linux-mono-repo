@@ -245,7 +245,7 @@ namespace Common
             for (std::string filepath : Common::FileSystem::fileSystem()->listFiles(
                     Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath()))
             {
-                std::string basename = Common::FileSystem::fileSystem()->basename(filepath);
+                std::string basename = Common::FileSystem::basename(filepath);
 
                 tolowerstring(basename);
                 if (basename.find(lowercasepluginname) != std::string::npos)

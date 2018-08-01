@@ -37,7 +37,7 @@ namespace SulDownloader
             return VerifySignature::INVALID_ARGUMENTS;
         }
 
-        std::string manifest_dat = fileSystem->join(productDirectoryPath, "manifest.dat");
+        std::string manifest_dat = Common::FileSystem::join(productDirectoryPath, "manifest.dat");
         if( !fileSystem->isFile(manifest_dat))
         {
             LOGERROR("No manifest.dat found. Path expected to be in: " << manifest_dat);

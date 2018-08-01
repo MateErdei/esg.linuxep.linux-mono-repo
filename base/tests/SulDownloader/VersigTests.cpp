@@ -22,7 +22,6 @@ public:
         manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";
         versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
         fileSystemMock = new MockFileSystem();
-        ON_CALL(*fileSystemMock, join(_,_)).WillByDefault(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
     }
     ~VersigTests()
@@ -63,7 +62,6 @@ TEST_F( VersigTests, returnInvalidIfFailsToFindVersigExecutable ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(false));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(false));
-    EXPECT_CALL(*fileSystemMock, join(_,_));
 
     ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
 }
@@ -76,7 +74,6 @@ TEST_F( VersigTests, returnInvalidIfNoManitestDatIsFound ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
-    EXPECT_CALL(*fileSystemMock, join(_,_)).Times(2);
     EXPECT_CALL(*fileSystemMock, isFile(manifestdat)).WillOnce(Return(false));
 
     ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
@@ -91,7 +88,6 @@ TEST_F( VersigTests, passTheCorrectParametersToProcess ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
-    EXPECT_CALL(*fileSystemMock, join(_,_)).Times(2);
     EXPECT_CALL(*fileSystemMock, isFile(manifestdat)).WillOnce(Return(true));
 
 
@@ -124,7 +120,6 @@ TEST_F( VersigTests, signatureFailureIsReportedAsFailure ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
-    EXPECT_CALL(*fileSystemMock, join(_,_)).Times(2);
     EXPECT_CALL(*fileSystemMock, isFile(manifestdat)).WillOnce(Return(true));
 
 

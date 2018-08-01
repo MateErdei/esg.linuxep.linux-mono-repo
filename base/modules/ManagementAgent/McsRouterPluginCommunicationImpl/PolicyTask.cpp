@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 void ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask::run()
 {
     LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
-    std::string basename = Common::FileSystem::fileSystem()->basename(m_filePath);
+    std::string basename = Common::FileSystem::basename(m_filePath);
 
     size_t pos = basename.find("-");
 

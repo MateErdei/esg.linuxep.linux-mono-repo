@@ -127,13 +127,13 @@ namespace SulDownloader
     {
         auto fileSystem = Common::FileSystem::fileSystem();
 
-        return fileSystem->join(getInstallationRootPath(), "base/update/cache/PrimaryWarehouse");
+        return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/PrimaryWarehouse");
     }
 
     std::string ConfigurationData::getLocalDistributionRepository() const
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        return fileSystem->join(getInstallationRootPath(), "base/update/cache/Primary");
+        return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/Primary");
     }
 
     bool ConfigurationData::verifySettingsAreValid()
@@ -245,8 +245,8 @@ namespace SulDownloader
         // certificate path should exist and contain the root.crt and ps_rootca.crt
         std::string certificatePath = getCertificatePath();
         if ( !fileSystem->exists(certificatePath) ||
-             !fileSystem->exists(fileSystem->join(certificatePath, "rootca.crt")) ||
-             !fileSystem->exists(fileSystem->join(certificatePath, "ps_rootca.crt"))
+             !fileSystem->exists(Common::FileSystem::join(certificatePath, "rootca.crt")) ||
+             !fileSystem->exists(Common::FileSystem::join(certificatePath, "ps_rootca.crt"))
            )
         {
             LOGSUPPORT( "Certificate Path: " << certificatePath );

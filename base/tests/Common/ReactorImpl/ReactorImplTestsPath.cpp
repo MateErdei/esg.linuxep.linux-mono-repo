@@ -27,7 +27,7 @@ std::string ReactorImplTestsPath()
     }
     else
     {
-        fullPath = fileSystem->join(fileSystem->currentWorkingDirectory(), programPath);
+        fullPath = Common::FileSystem::join(fileSystem->currentWorkingDirectory(), programPath);
     }
-    return fileSystem->dirName(fullPath);
+    return Common::FileSystem::dirName(fullPath);
 }

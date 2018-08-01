@@ -107,7 +107,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly)
 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
-    std::string fakeServerPath = fileSystem->join(ReactorImplTestsPath(), "FakeServerRunner");
+    std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
     ASSERT_TRUE( fileSystem->isExecutable(fakeServerPath));
     data_t args{socketAddress};
     process->exec(fakeServerPath, args);

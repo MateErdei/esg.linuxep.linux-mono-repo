@@ -173,7 +173,6 @@ public:
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/PrimaryWarehouse")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/Primary")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
         auto pointer = filesystemMock;
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
@@ -294,7 +293,6 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
 
     // fixme: it should not call currentWorkingDirectory.
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).WillOnce(Return("/cwd"));
-    EXPECT_CALL(fileSystemMock, dirName("/dir/output.json")).WillOnce(Return("/dir"));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
@@ -316,8 +314,7 @@ TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputF
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, dirName("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return("/dir/path/that/cannot/be/created/"));
-    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
     EXPECT_THROW(SulDownloader::fileEntriesAndRunDownloader(
                  "/dir/input.json", "/dir/path/that/cannot/be/created/output.json"),

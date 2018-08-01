@@ -24,7 +24,7 @@ namespace
      */
     std::string extractAppIdFromPolicyFile(const std::string& policyPath)
     {
-        std::string policyFileName = Common::FileSystem::fileSystem()->basename(policyPath);
+        std::string policyFileName = Common::FileSystem::basename(policyPath);
         //FIXME: it is not necessary, there because of tests using wrong mock basename
         if (policyFileName.empty())
         {

@@ -44,8 +44,6 @@ TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToASta
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-    EXPECT_CALL(*filesystemMock, join("/opt/sophos-spl/base/mcs/status", "APPID_status.xml")).WillOnce(
-            Return("/opt/sophos-spl/base/mcs/status/APPID_status.xml"));
     EXPECT_CALL(*filesystemMock,
                 writeFileAtomically("/opt/sophos-spl/base/mcs/status/APPID_status.xml", "WithTimestamp",
                                     "/opt/sophos-spl/tmp"

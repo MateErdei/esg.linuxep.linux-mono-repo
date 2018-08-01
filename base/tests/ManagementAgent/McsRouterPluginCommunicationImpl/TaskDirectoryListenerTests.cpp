@@ -39,7 +39,7 @@ TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles)
 {
     std::string filePath = "/tmp/base/policy"; //"/opt/sophos-sspl/base/policy"
     std::string filename = "appId1-unknown.txt";
-    std::string file1 = Common::FileSystem::fileSystem()->join(filePath, filename);
+    std::string file1 = Common::FileSystem::join(filePath, filename);
 
 
 

@@ -17,34 +17,35 @@ namespace Common
 {
     namespace FileSystem
     {
+        /**
+         * Joins 2 linux paths together
+         * @param path1, first part the path
+         * @param path2, second part of the path
+         * @return string containing the joined path
+         */
+        Path join(const Path& path1, const Path& path2) ;
+
+        Path join(const Path& path1, const Path& path2, const Path& path3);
+
+        /**
+         * Gets the last part i.e. file name from the given path
+         * @param path to operate on.
+         * @return the base name of the path, i.e. file name
+         */
+        std::string basename(const Path& path);
+
+        /**
+         * Gets the parent path for the given location.
+         * @param path to operate on
+         * @return the parent path based on the given path.
+         */
+        std::string dirName(const Path& path);
+
+
         class IFileSystem
         {
         public:
             virtual ~IFileSystem() = default;
-
-            /**
-             * Joins 2 linux paths together
-             * @param path1, first part the path
-             * @param path2, second part of the path
-             * @return string containing the joined path
-             */
-            virtual Path join(const Path& path1, const Path& path2) const = 0;
-
-            virtual Path join(const Path& path1, const Path& path2, const Path& path3) const = 0;
-
-            /**
-             * Gets the last part i.e. file name from the given path
-             * @param path to operate on.
-             * @return the base name of the path, i.e. file name
-             */
-            virtual std::string basename(const Path& path) const = 0;
-
-            /**
-             * Gets the parent path for the given location.
-             * @param path to operate on
-             * @return the parent path based on the given path.
-             */
-            virtual std::string dirName(const Path& path) const = 0;
 
             /**
              * Checks to see if the file or directory provided already exists

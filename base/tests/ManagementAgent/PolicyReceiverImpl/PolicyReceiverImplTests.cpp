@@ -86,7 +86,6 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
 
     EXPECT_NE(task.get(),nullptr);
 
-    EXPECT_CALL(*filesystemMock, basename(_)).WillOnce(Return(policyFileName));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(fileContent));
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy(appId, fileContent)).WillOnce(Return(1));
 

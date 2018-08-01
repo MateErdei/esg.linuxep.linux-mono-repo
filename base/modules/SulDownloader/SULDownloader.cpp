@@ -81,7 +81,7 @@ namespace SulDownloader
 
 
         auto products = warehouseRepository->getProducts();
-        std::string rootcaPath = Common::FileSystem::fileSystem()->join(configurationData.getCertificatePath(), "rootca.crt");
+        std::string rootcaPath = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
         for( auto & product: products)
         {
             product.verify(rootcaPath);
@@ -151,7 +151,7 @@ namespace SulDownloader
             throw SulDownloaderException("Output file path cannot be a directory");
         }
 
-        std::string outputParentPath = fileSystem->dirName(outputFilePath);
+        std::string outputParentPath = Common::FileSystem::dirName(outputFilePath);
         if ( !fileSystem->isDirectory(outputParentPath))
         {
             LOGERROR("The directory of the output path does not exists: " << outputParentPath);

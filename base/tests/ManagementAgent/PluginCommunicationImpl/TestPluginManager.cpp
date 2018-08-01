@@ -70,11 +70,6 @@ public:
                                {"/registry/plugin_two.json"}
                        }
                 ));
-        ON_CALL(*filesystemMock, basename("/registry/plugin_one.json")).WillByDefault(
-                Return("plugin_one.json"));
-
-        ON_CALL(*filesystemMock, basename("/registry/plugin_two.json")).WillByDefault(
-                Return("plugin_two.json"));
 
         ON_CALL(*filesystemMock, readFile("/registry/plugin_one.json")).WillByDefault(
                 Return(plugin_one_settings));

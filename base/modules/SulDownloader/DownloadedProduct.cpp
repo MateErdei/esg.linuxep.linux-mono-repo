@@ -29,8 +29,7 @@ namespace SulDownloader
         assert(m_state == State::Distributed);
         m_state = State::Verified;
         auto iVersig = createVersig();
-        auto fileSystem = ::Common::FileSystem::fileSystem();
-        std::string product_path = fileSystem->join(m_distributePath,distributionFolderName());
+        std::string product_path = Common::FileSystem::join(m_distributePath,distributionFolderName());
         if ( iVersig->verify(rootca, product_path ) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
         {
             WarehouseError error;
@@ -53,8 +52,8 @@ namespace SulDownloader
 
         auto fileSystem = ::Common::FileSystem::fileSystem();
 
-        std::string installShFile = fileSystem->join(distributionFolderName(), "install.sh");
-        installShFile = fileSystem->join(m_distributePath, installShFile);
+        std::string installShFile = Common::FileSystem::join(distributionFolderName(), "install.sh");
+        installShFile = Common::FileSystem::join(m_distributePath, installShFile);
 
         if( fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile) )
         {

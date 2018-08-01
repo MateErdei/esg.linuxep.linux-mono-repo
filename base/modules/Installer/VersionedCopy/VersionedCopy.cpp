@@ -51,7 +51,7 @@ namespace
 
     Path getDirname(const Path &path)
     {
-        return Common::FileSystem::fileSystem()->dirName(path);
+        return Common::FileSystem::dirName(path);
     }
 
     void makedirs(const Path &origpath)
@@ -140,8 +140,8 @@ namespace
 
     void createLibrarySymlinks(const Path &fullInstallFilename)
     {
-        Path basename = Common::FileSystem::fileSystem()->basename(fullInstallFilename);
-        Path installDirname = Common::FileSystem::fileSystem()->dirName(fullInstallFilename);
+        Path basename = Common::FileSystem::basename(fullInstallFilename);
+        Path installDirname = Common::FileSystem::dirName(fullInstallFilename);
         Path temp = basename;
         while (true)
         {
@@ -151,7 +151,7 @@ namespace
                 break;
             }
             Path dest = temp.substr(0, last_dot);
-            Path fullDest = Common::FileSystem::fileSystem()->join(installDirname, dest);
+            Path fullDest = Common::FileSystem::join(installDirname, dest);
             Path target = temp;
 
             std::string digits = temp.substr(last_dot + 1);
@@ -288,7 +288,7 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
 
     // Find appropriate extension name
     Path extensionName = findAppropriateExtensionName(fullInstallFilename);
-    Path extensionBase = Common::FileSystem::fileSystem()->basename(extensionName);
+    Path extensionBase = Common::FileSystem::basename(extensionName);
 
     // Copy file
     copyFile(filename, extensionName); // TODO: Permissions and ownership

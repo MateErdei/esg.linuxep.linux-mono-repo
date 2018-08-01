@@ -30,7 +30,7 @@ namespace Tests
         {
             template_name = baseDirectory;
         }
-        template_name = m_fileSystem->join(template_name, namePrefix);
+        template_name = Common::FileSystem::join(template_name, namePrefix);
         template_name += "XXXXXX";
         std::vector<char> aux_array(template_name.begin(), template_name.end());
         aux_array.emplace_back('\0');
@@ -61,7 +61,7 @@ namespace Tests
 
     std::string TempDir::absPath(const std::string& relativePath) const
     {
-        return m_fileSystem->join(m_rootpath, relativePath);
+        return Common::FileSystem::join(m_rootpath, relativePath);
     }
 
     void TempDir::makeDirs(const std::string& relativePath) const
@@ -70,7 +70,7 @@ namespace Tests
         std::string dirpath = m_rootpath;
         for ( auto & dirname : parts)
         {
-            dirpath = m_fileSystem->join(dirpath, dirname);
+            dirpath = Common::FileSystem::join(dirpath, dirname);
             if( !m_fileSystem->isDirectory(dirpath))
             {
                 if ( ::mkdir( dirpath.c_str(), 0700) != 0)
@@ -95,7 +95,7 @@ namespace Tests
     void TempDir::createFile(const std::string& relativePath, const std::string& content) const
     {
         std::string abs_path = absPath(relativePath);
-        std::string filename = m_fileSystem->basename(abs_path);
+        std::string filename = Common::FileSystem::basename(abs_path);
         std::string dir_path = abs_path.substr(m_rootpath.size(), abs_path.size() - filename.size() - m_rootpath.size());
         makeDirs(dir_path);
         m_fileSystem->writeFile(abs_path, content);

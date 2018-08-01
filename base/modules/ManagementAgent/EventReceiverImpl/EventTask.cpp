@@ -57,7 +57,7 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
     Path basename = createEventBasename(m_appId);
     assert(!basename.empty());
 
-    Path dest = Common::FileSystem::fileSystem()->join(eventDir,basename);
+    Path dest = Common::FileSystem::join(eventDir,basename);
     assert(!dest.empty());
 
     Common::FileSystem::fileSystem()->writeFileAtomically(dest, m_eventXml, tmpDir);

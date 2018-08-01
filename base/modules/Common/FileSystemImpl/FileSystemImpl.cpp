@@ -35,11 +35,11 @@ namespace Common
     namespace FileSystem
     {
 
-        Path FileSystemImpl::join(const Path& path1, const Path & path2) const
+        Path join(const Path& path1, const Path& path2)
         {
             std::string subPath2;
 
-            if(path2.find("./") == 0 )
+            if (path2.find("./") == 0)
             {
                 subPath2 = path2.substr(2);
             }
@@ -48,17 +48,17 @@ namespace Common
                 subPath2 = path2;
             }
 
-            if(path1.back() != '/' && subPath2.front() != '/' )
+            if (path1.back() != '/' && subPath2.front() != '/')
             {
                 return path1 + '/' + subPath2;
             }
 
-            if( (path1.back() != '/' && subPath2.front() == '/' ) || (path1.back() == '/' && subPath2.front() != '/')  )
+            if ((path1.back() != '/' && subPath2.front() == '/') || (path1.back() == '/' && subPath2.front() != '/'))
             {
                 return path1 + subPath2;
             }
 
-            if(path1.back() == '/' && subPath2.front() == '/' )
+            if (path1.back() == '/' && subPath2.front() == '/')
             {
                 return path1 + subPath2.substr(1);
             }
@@ -66,12 +66,12 @@ namespace Common
             return "";
         }
 
-        Path FileSystemImpl::join(const Path &path1, const Path &path2, const Path &path3) const
+        Path join(const Path& path1, const Path& path2, const Path& path3)
         {
-            return join(join(path1,path2),path3);
+            return join(join(path1, path2), path3);
         }
 
-        std::string FileSystemImpl::basename(const Path & path ) const
+        std::string basename(const Path& path)
         {
             size_t pos = path.rfind('/');
 
@@ -82,12 +82,12 @@ namespace Common
             return path.substr(pos + 1);
         }
 
-        std::string FileSystemImpl::dirName(const Path & path) const
+        std::string dirName(const Path& path)
         {
             std::string tempPath;
-            if(path.back() == '/')
+            if (path.back() == '/')
             {
-                tempPath = std::string(path.begin(), path.end() -1);
+                tempPath = std::string(path.begin(), path.end() - 1);
             }
             else
             {
@@ -335,6 +335,7 @@ namespace Common
                 throw Common::FileSystem::IFileSystemException("Failed to delete file: "+ path + ". Cause: " + error_cause);
             }
         }
+
     }
 }
 

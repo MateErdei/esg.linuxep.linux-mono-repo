@@ -31,7 +31,7 @@ void ManagementAgent::StatusReceiverImpl::StatusTask::run()
         LOGSUPPORT("Send updated status to mcsrouter from appid: " << m_appId);
         Path basename = createStatusFilename(m_appId);
         assert(!basename.empty());
-        Path filepath = Common::FileSystem::fileSystem()->join(m_statusDir,basename);
+        Path filepath = Common::FileSystem::join(m_statusDir,basename);
         assert(!filepath.empty());
         // write file to directory
         Common::FileSystem::fileSystem()->writeFileAtomically(filepath,m_statusXml,m_tempDir);

@@ -34,7 +34,6 @@ TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy("SAV", "Hello")).WillOnce(Return(1));
 
     StrictMock<MockFileSystem> *filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, basename(_)).WillOnce(Return("SAV-11.xml"));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 

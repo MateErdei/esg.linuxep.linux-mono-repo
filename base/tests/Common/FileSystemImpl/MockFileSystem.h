@@ -17,9 +17,6 @@ using namespace Common::FileSystem;
 class MockFileSystem: public Common::FileSystem::IFileSystem
 {
 public:
-    MOCK_CONST_METHOD2(join, Path(const Path& path1, const Path & path2));
-    MOCK_CONST_METHOD1(basename, std::string(const Path & path));
-    MOCK_CONST_METHOD1(dirName, std::string(const Path & path));
     MOCK_CONST_METHOD1(exists, bool(const Path &path));
     MOCK_CONST_METHOD1(isExecutable, bool(const Path &path));
     MOCK_CONST_METHOD1(isFile, bool(const Path & path));
@@ -34,7 +31,6 @@ public:
     MOCK_CONST_METHOD1(removeFile, void(const Path &path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD1(makedirs, void(const Path &path));
-    MOCK_CONST_METHOD3(join, Path(const Path &path1, const Path &path2, const Path &path3));
 };
 
 

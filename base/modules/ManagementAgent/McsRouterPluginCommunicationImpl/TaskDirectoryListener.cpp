@@ -36,8 +36,8 @@ namespace ManagementAgent
         
         void TaskDirectoryListener::fileMoved(const std::string & filename)
         {
-            assert(Common::FileSystem::fileSystem()->basename(filename) == filename);
-            std::string fullPath = Common::FileSystem::fileSystem()->join(getPath(), filename);
+            assert(Common::FileSystem::basename(filename) == filename);
+            std::string fullPath = Common::FileSystem::join(getPath(), filename);
 
             Common::TaskQueue::ITaskPtr task;
 

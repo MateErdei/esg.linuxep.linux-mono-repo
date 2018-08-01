@@ -19,12 +19,6 @@ namespace Common
             FileSystemImpl() = default;
             ~FileSystemImpl() = default;
 
-            Path join(const Path& path1, const Path & path2)const override;
-
-            std::string basename(const Path & path ) const override;
-
-            std::string dirName(const Path & path) const override;
-
             void copyFile(const Path& src, const Path& dest) const override;
 
             bool exists(const Path &path) const override;
@@ -49,7 +43,7 @@ namespace Common
 
             void makedirs(const Path &path) const override;
 
-            Path join(const Path &path1, const Path &path2, const Path &path3) const override;
+
 
             std::vector<Path> listFiles( const Path & directoryPath ) const override;
         };
