@@ -4,11 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <iostream>
-#include <algorithm>
-#include <map>
-#include <google/protobuf/util/json_util.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include "SULRaii.h"
 #include "DownloadReport.h"
@@ -21,6 +16,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <google/protobuf/util/json_util.h>
+
+#include <iostream>
+#include <algorithm>
+#include <map>
+
+
 namespace
 {
     bool hasError( const std::vector<SulDownloader::DownloadedProduct> & products )
@@ -157,33 +160,7 @@ namespace SulDownloader
 
         return std::get<0>(result);
     }
-// TODO: future to go to the test suite
-//    void create_fake_json_settings()
-//    {
-//        using SulDownloaderProto::ConfigurationSettings;
-//        ConfigurationSettings settings;
-//        Credentials credentials;
-//
-//        settings.add_sophosurls("http://ostia.eng.sophos/latest/Virt-vShield");
-//        settings.add_updatecache("http://ostia.eng.sophos/latest/Virt-vShieldBroken");
-//        settings.mutable_credential()->set_username("administrator");
-//        settings.mutable_credential()->set_password("password");
-//        settings.mutable_proxy()->set_url("noproxy:");
-//        settings.mutable_proxy()->mutable_credential()->set_username("");
-//        settings.mutable_proxy()->mutable_credential()->set_password("");
-//        settings.set_baseversion("10");
-//        settings.set_releasetag("RECOMMENDED");
-//        settings.set_primary("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
-//        settings.add_fullnames("A845A8B5-6532-4EF1-B19E-1DB2B3CB73D1");
-//        settings.add_prefixnames("A845A8B5");
-//        settings.set_certificatepath("/home/pair/CLionProjects/everest-suldownloader/cmake-build-debug/certificates");
-//
-//
-//        std::string json_output = MessageUtility::protoBuf2Json( settings );
-//
-//        std::cout << "Json serialized: " << json_output << std::endl;
-//
-//    }
+
 
 
     int main_entry( int argc, char * argv[])
