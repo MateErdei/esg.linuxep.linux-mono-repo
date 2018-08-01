@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ISensorDataPublisher.h"
 #include "ISensorDataSubscriber.h"
 
+#include <string>
 #include <memory>
 
 namespace Common

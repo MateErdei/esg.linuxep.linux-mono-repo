@@ -15,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginProtocol/DataMessage.h>
 
 #include <string>
+#include <memory>
 
 namespace ManagementAgent
 {
