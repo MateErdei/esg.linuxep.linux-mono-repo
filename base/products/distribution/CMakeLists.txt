@@ -60,6 +60,7 @@ foreach (LIB SUL retailer_lib xmlcpp aesclib saucrypto)
 endforeach(LIB)
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
+add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
         DESTINATION files/base/lib64)

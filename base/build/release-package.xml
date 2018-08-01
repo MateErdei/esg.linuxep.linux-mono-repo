@@ -34,6 +34,9 @@
         <package name="zeromqlinux11" version="master/%LASTGOODCOMPONENTBUILD%/zeromqlinux/4.2.5/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
+        <package name="log4cpluslinux11" version="master/%LASTGOODCOMPONENTBUILD%/log4cpluslinux11/1.2.0/output" dest="input">
+            <include src="log4cplus.tar" dest="."/>
+        </package>
 
     </inputs>
     <buildcommands>
