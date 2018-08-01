@@ -34,7 +34,7 @@ namespace
 
 TEST(TestWdctlBootstrap, ConvertArgs) //NOLINT
 {
-    StringHolder name(strdup("wdctl"));
+    StringHolder name("wdctl");
     ASSERT_NE(name.get(),nullptr);
     char *argv[] = {name.get(), nullptr};
     unsigned int argc = sizeof(argv) / sizeof(char*) - 1;
