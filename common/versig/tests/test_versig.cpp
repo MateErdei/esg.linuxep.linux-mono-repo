@@ -44,7 +44,7 @@ namespace
     TEST(versig_test, no_args) // NOLINT
     {
 
-        StringHolder name(strdup("versig_test"));
+        StringHolder name("versig_test");
         ASSERT_NE(name.get(),NULLPTR);
         char *argv[] = {name.get(), NULLPTR};
         int argc = sizeof(argv) / sizeof(char*) - 1;
