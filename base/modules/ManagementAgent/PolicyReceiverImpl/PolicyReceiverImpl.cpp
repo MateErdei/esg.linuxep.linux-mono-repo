@@ -25,11 +25,6 @@ namespace
     std::string extractAppIdFromPolicyFile(const std::string& policyPath)
     {
         std::string policyFileName = Common::FileSystem::basename(policyPath);
-        //FIXME: it is not necessary, there because of tests using wrong mock basename
-        if (policyFileName.empty())
-        {
-            policyFileName = policyPath;
-        }
         std::string PolicyPattern{R"sophos(([\w]+)(-[\w]+)?_policy.xml)sophos"};
         return Common::UtilityImpl::returnFirstMatch(PolicyPattern, policyFileName);
 
