@@ -13,12 +13,7 @@ namespace Common
         std::string returnFirstMatch(const std::string& stringpattern, const std::string& content)
         {
             std::regex regexPattern{stringpattern};
-            std::string result = returnFirstMatch(regexPattern, content);
-            if (result.empty())
-            {
-                int a = 0;
-            }
-            return result;
+            return returnFirstMatch(regexPattern, content);
         }
 
         std::string returnFirstMatch(const std::regex& regexPattern, const std::string& content)

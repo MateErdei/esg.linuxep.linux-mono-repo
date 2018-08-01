@@ -125,14 +125,11 @@ namespace SulDownloader
 
     std::string ConfigurationData::getLocalWarehouseRepository() const
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
-
         return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/PrimaryWarehouse");
     }
 
     std::string ConfigurationData::getLocalDistributionRepository() const
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
         return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/Primary");
     }
 
