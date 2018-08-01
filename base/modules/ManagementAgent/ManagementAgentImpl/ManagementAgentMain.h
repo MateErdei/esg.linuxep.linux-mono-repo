@@ -46,6 +46,7 @@ namespace ManagementAgent
 
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
+            StatusReceiverImpl::StatusCache m_statusCache;
 
 
             /**

@@ -113,6 +113,8 @@ namespace
         std::string jsonContent = createJsonString();
 
         std::vector<std::string> registeredPlugins = {"PluginName"};
+        std::vector<std::string> policyIds = {"app1"};
+        std::vector<std::string> statusIds = {"app2"};
 
         EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
@@ -120,6 +122,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
         EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setAppIds("PluginName", policyIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
@@ -145,6 +148,8 @@ namespace
         std::string jsonContent = createJsonString();
 
         std::vector<std::string> registeredPlugins = {"PluginName"};
+        std::vector<std::string> policyIds = {"app1"};
+        std::vector<std::string> statusIds = {"app2"};
 
         EXPECT_CALL(*filesystemMock, listFiles(_)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
@@ -152,6 +157,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
         EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setAppIds("PluginName", policyIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);

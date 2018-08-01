@@ -21,7 +21,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <Common/FileSystem/IFileSystem.h>
+
 
 using namespace Common;
 
@@ -85,6 +85,7 @@ namespace ManagementAgent
             {
                 m_pluginManager->registerPlugin(plugin.getPluginName());
                 LOGINFO("Registered plugin " << plugin.getPluginName() << ", executable path " << plugin.getExecutableFullPath());
+                m_pluginManager->setAppIds(plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
             }
         }
 
@@ -129,8 +130,8 @@ namespace ManagementAgent
             std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
 
             std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
-            std::string tempDir = FileSystem::fileSystem()->join(mcsDir, "tmp");
-            std::string statusDir = FileSystem::fileSystem()->join(mcsDir, "status");
+            std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();
+            std::string statusDir = ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
 
             for (auto& pluginName : registeredPlugins)
             {
@@ -147,11 +148,11 @@ namespace ManagementAgent
 
                 for (auto& pluginStatusInfo : pluginStatus)
                 {
-                    StatusReceiverImpl::StatusCache statusCache;
+
                     std::unique_ptr<Common::TaskQueue::ITask>
                             task(
                             new StatusReceiverImpl::StatusTask(
-                                    statusCache,
+                                    m_statusCache,
                                     pluginStatusInfo.appId,
                                     pluginStatusInfo.statusXml,
                                     pluginStatusInfo.statusWithoutTimestampsXml,
