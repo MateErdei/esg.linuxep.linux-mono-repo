@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginServerCallback.h"
 #include "Logger.h"
 #include <Common/PluginRegistryImpl/PluginInfo.h>
-// TODO: this will be implemented in LINUXEP-5987
+
 namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
