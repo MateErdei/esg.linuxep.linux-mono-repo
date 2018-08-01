@@ -7,9 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "ManagementAgent/PluginCommunication/IPluginManager.h"
+#include <ManagementAgent/PluginCommunication/IPluginManager.h>
 
-#include "Common/TaskQueue/ITask.h"
+#include <Common/TaskQueue/ITask.h>
 
 #include <string>
 

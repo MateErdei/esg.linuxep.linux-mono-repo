@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <cassert>
-#include "Common/PluginApi/ApiException.h"
+#include <Common/PluginApi/ApiException.h>
 #include "PluginServerCallbackHandler.h"
 #include "PluginServerCallback.h"
 

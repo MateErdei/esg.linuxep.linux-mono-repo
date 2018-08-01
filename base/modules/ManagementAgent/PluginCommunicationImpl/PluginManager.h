@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include "Common/ZeroMQWrapper/IContextPtr.h"
+#include <Common/ZeroMQWrapper/IContextPtr.h>
 
 #include <string>
 #include <map>

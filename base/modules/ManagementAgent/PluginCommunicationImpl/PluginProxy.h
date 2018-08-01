@@ -8,10 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include <Common/ZeroMQWrapper/IReadWrite.h>
 #include "IPluginProxy.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/PluginProtocol/MessageBuilder.h>
 #include "AppIdCollection.h"
 
 namespace ManagementAgent

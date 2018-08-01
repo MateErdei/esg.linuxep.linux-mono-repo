@@ -5,9 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "IPluginCommunicationException.h"
-#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
-#include "Common/PluginProtocol/Protocol.h"
+#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#include <Common/PluginProtocol/MessageBuilder.h>
+#include <Common/PluginProtocol/Protocol.h>
 #include "PluginProxy.h"
 #include <algorithm>
 

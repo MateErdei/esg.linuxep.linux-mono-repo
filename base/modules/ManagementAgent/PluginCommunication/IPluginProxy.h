@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/PluginApi/StatusInfo.h"
-#include "Common/PluginProtocol/DataMessage.h"
+#include <Common/PluginApi/StatusInfo.h>
+#include <Common/PluginProtocol/DataMessage.h>
 
 namespace ManagementAgent
 {

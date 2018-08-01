@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 
-#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
+#include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 #include <Common/TaskQueue/ITaskQueue.h>
 
 #include <vector>

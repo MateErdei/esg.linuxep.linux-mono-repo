@@ -8,11 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PolicyReceiverImpl.h"
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
-#include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
-#include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 
 

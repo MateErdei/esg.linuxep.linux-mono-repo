@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "EventTask.h"
 #include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <chrono>
 #include <cassert>

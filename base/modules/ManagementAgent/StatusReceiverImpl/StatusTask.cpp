@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "StatusTask.h"
 
 #include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <cassert>
 
