@@ -4,9 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <wdctl/wdctlimpl/wdctl_main.h>
+#include "wdctl_main.h"
 
-int main(int argc, char* argv[])
+int wdctl_main(int argc, char* argv[])
 {
-    return wdctl_main(argc, argv);
+    static_cast<void>(argc);
+    static_cast<void>(argv);
+    return 0;
 }

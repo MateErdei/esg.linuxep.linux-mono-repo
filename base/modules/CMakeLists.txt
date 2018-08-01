@@ -5,3 +5,4 @@ add_subdirectory(ManagementAgent)
 
 add_subdirectory(SulDownloader)
 add_subdirectory(watchdog)
+add_subdirectory(wdctl)

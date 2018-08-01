@@ -3,10 +3,6 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#pragma once
 
-#include <wdctl/wdctlimpl/wdctl_main.h>
-
-int main(int argc, char* argv[])
-{
-    return wdctl_main(argc, argv);
-}
+int wdctl_main(int argc, char* argv[]);
