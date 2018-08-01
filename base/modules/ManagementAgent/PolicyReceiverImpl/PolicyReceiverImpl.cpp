@@ -13,7 +13,28 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/RegexUtilities.h>
 
+namespace
+{
+
+    /**
+     * The policy file pattern currently implemented by mcsrouter: GenericAdapter::__processPolicy
+     * is as follow: AppID[-PolicyType]_policy.xml
+     */
+    std::string extractAppIdFromPolicyFile(const std::string& policyPath)
+    {
+        std::string policyFileName = Common::FileSystem::fileSystem()->basename(policyPath);
+        //FIXME: it is not necessary, there because of tests using wrong mock basename
+        if (policyFileName.empty())
+        {
+            policyFileName = policyPath;
+        }
+        std::string PolicyPattern{R"sophos(([\w]+)(-[\w]+)?_policy.xml)sophos"};
+        return Common::UtilityImpl::returnFirstMatch(PolicyPattern, policyFileName);
+
+    }
+}
 
 
 using namespace ManagementAgent::McsRouterPluginCommunicationImpl;
@@ -51,7 +72,8 @@ namespace ManagementAgent
             for(auto& policyFile : policyFiles)
             {
                 LOGSUPPORT("Checking policyFile: " << policyFile << " for appid: " << appId);
-                if (policyFile.find(appId) != std::string::npos)
+                std::string appid_file = extractAppIdFromPolicyFile(policyFile);
+                if (!appid_file.empty() && appid_file == appId)
                 {
 
                     LOGSUPPORT("Queue policy file to be sent to plugins " << policyFile);
