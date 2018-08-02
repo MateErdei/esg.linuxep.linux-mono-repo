@@ -73,7 +73,7 @@ function createWatchdogSystemdService()
     then
         STARTUP_DIR="/usr/lib/systemd/system"
     else
-        failure "Could not install the sophos-spl service"
+        failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
     fi
 
     cat > ${STARTUP_DIR}/sophos-spl.service << EOF
