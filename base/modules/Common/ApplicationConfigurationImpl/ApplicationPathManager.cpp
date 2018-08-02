@@ -103,6 +103,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/cache/primary");
         }
 
+        std::string ApplicationPathManager::getUpdateCertificatesPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/certs");
+        }
+
     }
 
 

@@ -87,8 +87,13 @@ namespace SulDownloader
         m_proxy = proxy;
     }
 
-    const std::string& ConfigurationData::getCertificatePath() const
+    std::string ConfigurationData::getCertificatePath() const
     {
+        if (m_certificatePath.empty())
+        {
+            return Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
+        }
+
         return  m_certificatePath;
     }
 

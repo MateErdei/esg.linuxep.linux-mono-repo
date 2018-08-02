@@ -44,9 +44,8 @@ namespace SulDownloader
         static const std::string DoNotSetSslSystemPath;
 
         enum class LogLevel{NORMAL, VERBOSE};
-
-
-        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  Credentials credentials = Credentials(), const std::vector<std::string> & updateCache = std::vector<std::string>(), Proxy proxy = Proxy());
+        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  const Credentials& credentials = Credentials(),
+                const std::vector<std::string> & updateCache = std::vector<std::string>(), const Proxy& proxy = Proxy());
 
         /**
          * Gets the credentials used to connect to the remote warehouse repository.
@@ -148,23 +147,25 @@ namespace SulDownloader
         /**
          * Gets the path to the certificates used to validate the warehouse repository files and distributed files.
          * The warehouse repository files will be signed with the same sophos certificate used to sign application files.
+         * Usually it returns: ApplicationPathManager::getUpdateCertificatesPath()
          * @return certificatePath, path containing the sophos certificates
          */
-        std::string getCertificatePath() const ;
+        std::string getCertificatePath() const;
 
         /**
          * Get the update cache ssl certificate path used to validate the local update cache https url connection.
          * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is configured.
          * @return certificatePath, path to the local cache ssl certificates store.
          */
-        std::string getUpdateCacheSslCertificatePath() const;
+        const std::string& getUpdateCacheSslCertificatePath() const;
+
 
         /**
          * Set the system ssl certificate path used to validate https url connections.  The system certificate store should
          * contain the required root certificates to validate the sophos website when connecting over https.
          * @return certificatePath, path to the system ssl certificates store.
          */
-        std::string getSystemSslCertificatePath() const;
+        const std::string& getSystemSslCertificatePath() const;
 
         /**
          * Adds the given productGUID containing the product details to the product selection list
@@ -176,7 +177,7 @@ namespace SulDownloader
          * Gets the list productGUID objetcs containing the details of all the selected products
          * @return list of ProductGUID objects.
          */
-        const std::vector<ProductGUID> getProductSelection() const;
+        const std::vector<ProductGUID> & getProductSelection() const;
 
         /**
          * Gets the log level parameter that has been set for the application.
@@ -195,7 +196,7 @@ namespace SulDownloader
          * Gets the list of arguments that need to be passed to all product install.sh scripts.
          * @return list of command line arguments.
          */
-        std::vector<std::string> getInstallArguments() const;
+        const std::vector<std::string> & getInstallArguments() const;
 
         /**
          * Sets the list of arguments that need to be passed to all product install.sh scripts.

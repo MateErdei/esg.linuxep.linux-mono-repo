@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 
 using namespace SulDownloader;
@@ -327,7 +328,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne)
 {
     setupFileSystemAndGetMock();
     std::string oldString = m_absCertificatePath;
@@ -338,12 +339,14 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificat
 
     configurationData.verifySettingsAreValid();
 
-    EXPECT_FALSE(configurationData.isVerified());
+    EXPECT_TRUE(configurationData.isVerified());
+    EXPECT_EQ(configurationData.getCertificatePath(),
+              Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
 
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOnde)
 {
     setupFileSystemAndGetMock();
 
@@ -355,7 +358,10 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertific
 
     configurationData.verifySettingsAreValid();
 
-    EXPECT_FALSE(configurationData.isVerified());
+    EXPECT_TRUE(configurationData.isVerified());
+    EXPECT_EQ(configurationData.getCertificatePath(),
+              Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
+
 }
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslCertPathShouldFailValidation )

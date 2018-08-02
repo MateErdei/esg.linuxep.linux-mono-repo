@@ -39,9 +39,9 @@ namespace Common
             virtual std::string getMcsEventFilePath() const = 0;
 
             virtual std::string getLocalWarehouseRepository() const = 0;
-
             virtual std::string getLocalDistributionRepository() const = 0;
 
+            virtual std::string getUpdateCertificatesPath() const = 0;
             virtual std::string getTempPath() const = 0;
         };
 
