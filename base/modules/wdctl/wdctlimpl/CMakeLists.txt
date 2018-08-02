@@ -18,4 +18,7 @@ find_library(LOG4CPLUS_LIBRARY
 
 target_include_directories(wdctlimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(wdctlimpl PUBLIC ${LOG4CPLUS_LIBRARY})
+target_link_libraries(wdctlimpl PUBLIC
+        ${LOG4CPLUS_LIBRARY}
+        applicationconfigurationimpl
+        filesystemimpl)
