@@ -65,7 +65,17 @@ function failure()
 
 function createWatchdogSystemdService()
 {
-    STARTUP_DIR="/lib/systemd/system"
+
+    if [[ -d /lib/systemd/system ]]
+    then
+        STARTUP_DIR="/lib/systemd/system"
+    elif [[ -d /usr/lib/systemd/system ]]
+    then
+        STARTUP_DIR="/usr/lib/systemd/system"
+    else
+        failure "Could not install the sophos-spl service"
+    fi
+
     cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 [Service]
 Environment=SOPHOS_INSTALL=${SOPHOS_INSTALL}

@@ -18,14 +18,13 @@ PATH=$PATH:/usr/sbin:/sbin
 
 function removeWatchdogSystemdService()
 {
-    STARTUP_DIR=/lib/systemd/system
     systemctl stop sophos-spl.service
-    if [[ -f "${STARTUP_DIR}/sophos-spl.service" ]]
-    then
-        rm -rf "${STARTUP_DIR}/sophos-spl.service"
-    fi
+    rm -f "/lib/systemd/system/sophos-spl.service"
+    rm -f "/usr/lib/systemd/system/sophos-spl.service"
     systemctl daemon-reload
 }
+
+removeWatchdogSystemdService
 
 USERNAME=sophos-spl-user
 GROUPNAME="sophos-spl-group"
@@ -57,5 +56,3 @@ then
         fi
     fi
 fi
-
-removeWatchdogSystemdService
