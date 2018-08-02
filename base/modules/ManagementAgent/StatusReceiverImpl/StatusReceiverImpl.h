@@ -19,7 +19,7 @@ namespace ManagementAgent
         {
         public:
             explicit StatusReceiverImpl(
-                    Common::TaskQueue::ITaskQueueSharedPtr taskQueue);
+                    Common::TaskQueue::ITaskQueueSharedPtr taskQueue, StatusCache& statusCache);
 
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) override;
         private:

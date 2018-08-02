@@ -10,8 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
-        Common::TaskQueue::ITaskQueueSharedPtr taskQueue)
+        Common::TaskQueue::ITaskQueueSharedPtr taskQueue, StatusCache& statusCache)
     : m_taskQueue(std::move(taskQueue))
+    , m_statusCache(statusCache)
 {
     m_tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     m_statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();

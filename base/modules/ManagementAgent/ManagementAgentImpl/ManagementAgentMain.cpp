@@ -7,8 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ManagementAgentMain.h"
 #include "Logger.h"
 
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -55,7 +53,8 @@ namespace ManagementAgent
                 return -1;
             }
 
-            ManagementAgent::PluginCommunication::IPluginManager* pluginManager = new ManagementAgent::PluginCommunicationImpl::PluginManager();
+            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager = std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
+                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
             ManagementAgentMain managementAgent;
             managementAgent.initialise(*pluginManager);
@@ -111,14 +110,11 @@ namespace ManagementAgent
 
         void ManagementAgentMain::initialisePluginReceivers()
         {
-            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(), m_taskQueue, *m_pluginManager);
+            m_policyReceiver = std::make_shared<PolicyReceiverImpl::PolicyReceiverImpl>(m_taskQueue, *m_pluginManager);
 
-            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath(), m_taskQueue);
+            m_statusReceiver = std::make_shared<StatusReceiverImpl::StatusReceiverImpl>(m_taskQueue, m_statusCache);
 
-            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(
-                    ApplicationConfiguration::applicationPathManager().getMcsEventFilePath(), m_taskQueue);
+            m_eventReceiver = std::make_shared<EventReceiverImpl::EventReceiverImpl>(m_taskQueue);
 
             m_pluginManager->setPolicyReceiver(m_policyReceiver);
             m_pluginManager->setStatusReceiver(m_statusReceiver);
