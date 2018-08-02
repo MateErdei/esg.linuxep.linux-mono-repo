@@ -315,32 +315,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallPathShouldFailValidation )
-{
-    std::string oldString = m_absInstallationPath;
-
-    std::string newString = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallPathShouldFailValidation )
-{
-    std::string oldString = R"("installationRootPath": ")" + m_absInstallationPath + R"(",)";
-
-    std::string newString = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathShouldFailValidation )
 {
     std::string oldString = m_absCertificatePath;

@@ -29,6 +29,8 @@ namespace
 namespace SulDownloader
 {
 
+    const std::string ConfigurationData::DoNotSetSslSystemPath(":system:");
+
     ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, const Credentials &credentials,
                                          const std::vector<std::string> &updateCache, const Proxy & proxy)
     : m_credentials(credentials)
@@ -256,7 +258,8 @@ namespace SulDownloader
         }
 
         std::string systemSslCertificatePath = getSystemSslCertificatePath();
-        if (!fileSystem->exists(systemSslCertificatePath))
+
+        if (systemSslCertificatePath != DoNotSetSslSystemPath && (!fileSystem->exists(systemSslCertificatePath)))
         {
             LOGERROR( "Invalid Settings: system ssl certificate path does not exist: " << systemSslCertificatePath);
             return false;

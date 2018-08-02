@@ -12,7 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULRaii.h"
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystem.h"
 #include "SulDownloaderException.h"
 
 namespace
@@ -365,7 +364,8 @@ namespace SulDownloader
         {
             ssl_cert_path = configurationData.getSystemSslCertificatePath();
         }
-        if(!SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
+        if (ssl_cert_path != ConfigurationData::DoNotSetSslSystemPath &&
+            !SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
         {
             setError("Failed to set ssl certificate path");
             return;

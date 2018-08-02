@@ -37,6 +37,12 @@ namespace SulDownloader
     class ConfigurationData
     {
     public:
+
+        /**
+         * If the path is not set for the Ssl
+         */
+        static const std::string DoNotSetSslSystemPath;
+
         enum class LogLevel{NORMAL, VERBOSE};
 
 
