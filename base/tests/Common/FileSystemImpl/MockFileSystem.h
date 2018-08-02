@@ -31,6 +31,7 @@ public:
     MOCK_CONST_METHOD1(removeFile, void(const Path &path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD1(makedirs, void(const Path &path));
+    MOCK_CONST_METHOD1(make_absolute, Path(const Path &path));
 };
 
 

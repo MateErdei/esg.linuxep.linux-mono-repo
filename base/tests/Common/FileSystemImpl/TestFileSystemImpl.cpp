@@ -308,5 +308,19 @@ namespace
         EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException);
     }
 
+    TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
+    {
+        Path original = "/foo";
+        Path result = Common::FileSystem::fileSystem()->make_absolute(original);
+        EXPECT_EQ(original, result);
+    }
+
+    TEST_F(FileSystemImplTest, makeAbsoluteReturnsAbsolutePathWhenArgumentIsRelative) // NOLINT
+    {
+        Path original = "foo";
+        Path result = Common::FileSystem::fileSystem()->make_absolute(original);
+        EXPECT_EQ(result[0], '/');
+    }
+
 }
 

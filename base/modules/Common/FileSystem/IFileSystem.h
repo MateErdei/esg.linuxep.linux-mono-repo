@@ -143,6 +143,18 @@ namespace Common
             * @param path, full path to the file which is to be deleted
             */
             virtual void removeFile(const Path& path) const = 0;
+
+
+            /**
+             * Convert a relative path to an absolute path in the current working directory.
+             *
+             * /Foo -> /Foo
+             * Foo/Bar -> <cwd>/Foo/Bar
+             *
+             * @param path
+             * @return Absolute Path
+             */
+            virtual Path make_absolute(const Path& path) const = 0;
         };
 
         /**

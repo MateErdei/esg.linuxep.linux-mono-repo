@@ -17,7 +17,6 @@ namespace Common
         {
         public:
             FileSystemImpl() = default;
-            ~FileSystemImpl() = default;
 
             void copyFile(const Path& src, const Path& dest) const override;
 
@@ -28,6 +27,8 @@ namespace Common
             bool isFile(const Path & path) const override;
 
             bool isDirectory(const Path & path) const  override;
+
+            Path make_absolute(const Path& path) const override;
 
             Path currentWorkingDirectory() const override;
 

@@ -336,6 +336,16 @@ namespace Common
             }
         }
 
+        Path FileSystemImpl::make_absolute(const Path& path) const
+        {
+            if (path[0] == '/')
+            {
+                return path;
+            }
+
+            return Common::FileSystem::join(currentWorkingDirectory(),path);
+        }
+
     }
 }
 

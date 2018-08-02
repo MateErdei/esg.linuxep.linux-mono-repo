@@ -41,24 +41,9 @@ StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char **argv)
 }
 namespace
 {
-    Path get_cwd()
-    {
-        return Common::FileSystem::fileSystem()->currentWorkingDirectory();
-    }
-
     Path make_absolute(const Path& path)
     {
-        if (path[0] == '/')
-        {
-            return path;
-        }
-
-        if (path.find('/') != Path::npos)
-        {
-            Common::FileSystem::join(get_cwd(),path);
-        }
-
-        return Path();
+        return Common::FileSystem::fileSystem()->make_absolute(path);
     }
 
     Path get_executable_path()
