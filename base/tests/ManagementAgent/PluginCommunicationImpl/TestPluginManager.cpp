@@ -78,8 +78,8 @@ public:
 
 
         /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/PrimaryWarehouse")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/Primary")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));*/
         auto pointer = filesystemMock;

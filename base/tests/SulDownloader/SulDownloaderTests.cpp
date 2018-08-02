@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 * Component tests to SULDownloader mocking out WarehouseRepository
 */
 #include <modules/Common/FileSystem/IFileSystemException.h>
+#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "modules/SulDownloader/ConfigurationData.h"
@@ -110,7 +112,7 @@ public:
         {
             SulDownloader::DownloadedProduct product(metadata);
             product.setPostUpdateInstalledVersion(metadata.getVersion());
-            product.setDistributePath("/installroot/update/cache/Primary");
+            product.setDistributePath("/installroot/update/cache/primary");
             products.push_back(product);
         }
         return products;
@@ -170,8 +172,9 @@ public:
     {
         auto filesystemMock = new MockFileSystem();
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/PrimaryWarehouse")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/Primary")).WillOnce(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(
+                Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));
         auto pointer = filesystemMock;
@@ -234,6 +237,20 @@ public:
     }
 
 
+    std::string everestpath() const
+    {
+        return Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(), "everest"
+        );
+    }
+
+    std::string everestpluginpath() const
+    {
+        return Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(),
+                "everest-plugin-a"
+        );
+    }
 
 protected:
     MockWarehouseRepository * m_mockptr = nullptr;
@@ -476,19 +493,24 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
-    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    std::string everest_installer = "/installroot/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/primary/everest-plugin-a/install.sh";
     int counter = 0;
+
     SulDownloader::VersigFactory::instance().replaceCreator([&counter](){
         auto versig = new StrictMock<MockVersig>();
         if ( counter++ == 0 )
         {
-            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt","/installroot/update/cache/Primary/everest"))
+            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt",
+                                        "/installroot/update/cache/primary/everest"
+            ))
                     .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_VERIFIED));
         }
         else
         {
-            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt","/installroot/update/cache/Primary/everest-plugin-a"))
+            EXPECT_CALL(*versig, verify("/installroot/update/certificates/rootca.crt",
+                                        "/installroot/update/cache/primary/everest-plugin-a"
+            ))
                     .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_FAILED));
         }
 
@@ -534,8 +556,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
-    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    std::string everest_installer = "/installroot/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/primary/everest-plugin-a/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -601,8 +623,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer="/installroot/update/cache/Primary/everest/install.sh";
-    std::string plugin_installer = "/installroot/update/cache/Primary/everest-plugin-a/install.sh";
+    std::string everest_installer = "/installroot/update/cache/primary/everest/install.sh";
+    std::string plugin_installer = "/installroot/update/cache/primary/everest-plugin-a/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);

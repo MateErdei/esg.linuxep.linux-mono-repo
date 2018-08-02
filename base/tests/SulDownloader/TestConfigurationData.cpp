@@ -33,8 +33,8 @@ public:
         m_absCertificatePath = "/installroot/dev_certificates";
         m_absSystemSslPath = "/installroot/etc/ssl/certs";
         m_absCacheUpdatePath = "/installroot/etc/cachessl/certs";
-        m_primaryPath = "/installroot/base/update/cache/PrimaryWarehouse";
-        m_distPath = "/installroot/base/update/cache/Primary";
+        m_primaryPath = "/installroot/base/update/cache/primarywarehouse";
+        m_distPath = "/installroot/base/update/cache/primary";
 
     }
 

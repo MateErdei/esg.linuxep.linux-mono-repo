@@ -95,12 +95,12 @@ namespace Common
 
         std::string ApplicationPathManager::getLocalWarehouseRepository() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/update/cache/PrimaryWarehouse");
+            return Common::FileSystem::join(sophosInstall(), "base/update/cache/primarywarehouse");
         }
 
         std::string ApplicationPathManager::getLocalDistributionRepository() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/update/cache/Primary");
+            return Common::FileSystem::join(sophosInstall(), "base/update/cache/primary");
         }
 
     }

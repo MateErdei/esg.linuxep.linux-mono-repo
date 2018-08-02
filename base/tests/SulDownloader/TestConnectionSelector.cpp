@@ -5,11 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
-#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/ConnectionSelector.h"
-#include "SulDownloader/ConfigurationData.h"
-#include "SulDownloader/SulDownloaderException.h"
 #include "../Common/TestHelpers/TempDir.h"
 
 
@@ -44,8 +41,9 @@ public:
                                                      m_systemSslRelPath,
                                                      m_systemSslRelPath,
                                                      m_cacheUpdateSslRelPath,
-                                                     "tmp/sophos-av/update/cache/PrimaryWarehouse",
-                                                     "tmp/sophos-av/update/cache/Primary"});
+                                                     "tmp/sophos-av/update/cache/primarywarehouse",
+                                                     "tmp/sophos-av/update/cache/primary"}
+        );
 
         m_tempDir->createFile(m_certificateRelPath + "/ps_rootca.crt", "empty");
         m_tempDir->createFile(m_certificateRelPath + "/rootca.crt", "empty");
