@@ -22,6 +22,13 @@ namespace Common
             virtual std::string getManagementAgentSocketAddress() const = 0;
             virtual std::string getWatchdogSocketAddress() const = 0;
             virtual std::string sophosInstall() const = 0;
+
+            /**
+             * Get the directory to store root logs for base processes.
+             * @return
+             */
+            virtual std::string getBaseLogDirectory() const = 0;
+
             virtual std::string getPublisherDataChannelAddress() const = 0;
             virtual std::string getSubscriberDataChannelAddress() const = 0;
             virtual std::string getPluginRegistryPath() const = 0;

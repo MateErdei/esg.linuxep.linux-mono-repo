@@ -17,10 +17,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
 
-    void setupLogging(const Path& SOPHOS_INSTALL)
+    void setupLogging()
     {
 
-        Path logDir = Common::FileSystem::join(SOPHOS_INSTALL,"logs","base");
+        Path logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
         Path logFilename = Common::FileSystem::join(logDir,"wdctl.log");
 
         log4cplus::initialize();
@@ -55,8 +55,7 @@ namespace
 }
 wdctl::wdctlimpl::LoggingSetup::LoggingSetup()
 {
-    Path SOPHOS_INSTALL = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    setupLogging(SOPHOS_INSTALL);
+    setupLogging();
 }
 
 wdctl::wdctlimpl::LoggingSetup::~LoggingSetup()
