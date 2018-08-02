@@ -6,15 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
 
-#include <iostream>
+extern log4cplus::Logger GL_WDCTL_LOGGER;
 
-//TODO: To incorporate the log facility after LINUXEP-5909 is completed.
-
-#define LOGDEBUG(x) std::cout << x << std::endl // NOLINT
-#define LOGINFO(x) std::cout << x << std::endl // NOLINT
-#define LOGSUPPORT(x) std::cout << x << std::endl // NOLINT
-#define LOGWARN(x) std::cerr << x << std::endl // NOLINT
-#define LOGERROR(x) std::cerr << x << std::endl // NOLINT
-
-
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(GL_WDCTL_LOGGER, x) // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(GL_WDCTL_LOGGER, x) // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_INFO(GL_WDCTL_LOGGER, x) // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(GL_WDCTL_LOGGER, x) // NOLINT
+#define LOGERROR(x) LOG4CPLUG_ERROR(GL_WDCTL_LOGGER, x) // NOLINT
