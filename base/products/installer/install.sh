@@ -8,6 +8,7 @@ EXIT_FAIL_ADDUSER=14
 EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
+EXIT_FAIL_SERVICE=40
 
 umask 077
 
@@ -54,13 +55,35 @@ while [[ $# -ge 1 ]] ; do
     shift
 done
 
-failure()
+function failure()
 {
     local CODE=$1
     shift
     echo "$@" >&2
     exit $CODE
 }
+
+function createWatchdogSystemdService()
+{
+    STARTUP_DIR="/lib/systemd/system"
+    cat > ${STARTUP_DIR}/sophos-spl.service << EOF
+[Service]
+Environment=SOPHOS_INSTALL=${SOPHOS_INSTALL}
+ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Description=Sophos Server Protection for Linux
+RequiresMountsFor=${SOPHOS_INSTALL}
+EOF
+    chmod 644 ${STARTUP_DIR}/sophos-spl.service
+    systemctl daemon-reload
+    systemctl enable --now --quiet sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
+}
+
 export DIST
 export SOPHOS_INSTALL
 
@@ -84,7 +107,7 @@ USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
 [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
 [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-"${GETENT}" passwd "${USER_NAME}" || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
+"${GETENT}" passwd "${USER_NAME}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
     || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
 
 mkdir -p "${SOPHOS_INSTALL}/tmp"
@@ -150,7 +173,6 @@ done
 
 chmod 644 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
 
-
 rm -rf "${INSTALLER_LIB}"
 
 if [[ -n "$MCS_CA" ]]
@@ -161,3 +183,5 @@ if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
     $SOPHOS_INSTALL/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
 fi
+
+createWatchdogSystemdService
