@@ -11,11 +11,6 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 BASEDIR="${ABS_SCRIPTDIR%/*}"
 INSTDIR="${BASEDIR%/*}"
 
-
-rm -rf "$INSTDIR"
-
-PATH=$PATH:/usr/sbin:/sbin
-
 function removeWatchdogSystemdService()
 {
     systemctl stop sophos-spl.service
@@ -25,6 +20,10 @@ function removeWatchdogSystemdService()
 }
 
 removeWatchdogSystemdService
+
+rm -rf "$INSTDIR"
+
+PATH=$PATH:/usr/sbin:/sbin
 
 USERNAME=sophos-spl-user
 GROUPNAME="sophos-spl-group"
