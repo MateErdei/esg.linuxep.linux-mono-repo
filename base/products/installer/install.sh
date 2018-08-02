@@ -6,6 +6,7 @@ EXIT_FAIL_ADD_GROUP=12
 EXIT_FAIL_FIND_USERADD=13
 EXIT_FAIL_ADDUSER=14
 EXIT_FAIL_FIND_GETENT=15
+EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
@@ -197,8 +198,7 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 for F in "$DIST/installer/plugins"/*
 do
-    ## TODO: wdctl
-    cp "$F" "${SOPHOS_INSTALL}/base/pluginRegistry/"
+    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
 done
 
 chmod 644 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
