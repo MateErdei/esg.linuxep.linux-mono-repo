@@ -16,6 +16,18 @@ rm -rf "$INSTDIR"
 
 PATH=$PATH:/usr/sbin:/sbin
 
+function removeWatchdogSystemdService()
+{
+    STARTUP_DIR=/lib/systemd/system
+    systemctl disable --quiet sophos-spl.service
+    systemctl stop sophos-spl.service
+    if [ -f "${STARTUP_DIR}/sophos-spl.service" ]
+    then
+        rm -rf "${STARTUP_DIR}/sophos-spl.service"
+    fi
+    systemctl daemon-reload
+}
+
 USERNAME=sophos-spl-user
 GROUPNAME="sophos-spl-group"
 if [[ -z $NO_REMOVE_USER ]]
@@ -46,3 +58,5 @@ then
         fi
     fi
 fi
+
+removeWatchdogSystemdService

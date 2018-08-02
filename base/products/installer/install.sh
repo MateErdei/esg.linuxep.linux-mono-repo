@@ -81,7 +81,8 @@ RequiresMountsFor=${SOPHOS_INSTALL}
 EOF
     chmod 644 ${STARTUP_DIR}/sophos-spl.service
     systemctl daemon-reload
-    systemctl enable --now --quiet sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
+    systemctl enable --quiet sophos-spl.service
+    systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
 }
 
 export DIST
