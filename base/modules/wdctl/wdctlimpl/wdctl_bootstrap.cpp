@@ -117,5 +117,15 @@ int wdctl_bootstrap::main(const StringVector& args)
 
     LOGINFO(m_args.m_command<<" "<<m_args.m_argument);
 
-    return 0;
+    if (m_args.m_command == "copyPluginRegistration")
+    {
+        CopyPlugin copy(m_args);
+        return copy.run();
+    }
+    else
+    {
+        LOGERROR("Unknown command: " << m_args.m_command);
+    }
+
+    return 1;
 }
