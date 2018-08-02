@@ -43,13 +43,7 @@ namespace
 {
     Path get_cwd()
     {
-        char path[PATH_MAX];
-        char* cwd = getcwd(path,PATH_MAX);
-        if (cwd != nullptr)
-        {
-            return cwd;
-        }
-        return Path();
+        return Common::FileSystem::fileSystem()->currentWorkingDirectory();
     }
 
     Path make_absolute(const Path& path)
