@@ -5,10 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "wdctl_bootstrap.h"
 #include "Logger.h"
-
-#include <log4cplus/logger.h>
-#include <log4cplus/configurator.h>
-#include <log4cplus/fileappender.h>
+#include "CopyPlugin.h"
+#include "LoggingSetup.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -102,39 +100,6 @@ namespace
         return "/opt/sophos-spl";
     }
 
-    void setupLogging(const Path& SOPHOS_INSTALL)
-    {
-
-        Path logDir = Common::FileSystem::join(SOPHOS_INSTALL,"logs","base");
-        Path logFilename = Common::FileSystem::join(logDir,"wdctl.log");
-
-        log4cplus::initialize();
-
-        GL_WDCTL_LOGGER = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("wdctl"));
-
-        log4cplus::tstring datePattern;
-        const long maxFileSize = 10*1024*1024;
-        const int maxBackupIndex = 10;
-        const bool immediateFlush = true;
-        const bool createDirs = true;
-        log4cplus::SharedAppenderPtr appender(
-                new log4cplus::RollingFileAppender(
-                        logFilename,
-                        maxFileSize,
-                        maxBackupIndex,
-                        immediateFlush,
-                        createDirs
-                )
-        );
-
-        // std::string pattern("%d{%m/%d/%y  %H:%M:%S}  - %m [%l]%n");
-        const char* pattern = "%-7r [%d{%Y-%m-%dT%H:%M:%S.%Q}] %5p [%10.10t] %c <> %m%n";
-        std::auto_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(pattern)); // NOLINT
-        appender->setLayout(layout);
-
-        GL_WDCTL_LOGGER.addAppender(appender);
-
-    }
 }
 
 int wdctl_bootstrap::main(const StringVector& args)
@@ -146,13 +111,11 @@ int wdctl_bootstrap::main(const StringVector& args)
             SOPHOS_INSTALL
     );
 
-    setupLogging(SOPHOS_INSTALL);
+    LoggingSetup logging;
 
     m_args.parseArguments(args);
 
     LOGINFO(m_args.m_command<<" "<<m_args.m_argument);
-
-    log4cplus::Logger::shutdown();
 
     return 0;
 }

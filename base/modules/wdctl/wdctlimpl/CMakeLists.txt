@@ -7,6 +7,8 @@ add_library(wdctlimpl STATIC
         Arguments.h
         StringVector.h
         Logger.h
+        LoggingSetup.cpp
+        LoggingSetup.h
         )
 
 set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
