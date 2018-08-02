@@ -27,7 +27,9 @@ namespace Common
             std::string getMcsStatusFilePath() const override;
             std::string getMcsEventFilePath() const override;
 
-            std::string getBaseLogDirectory() const override;
+            std::string getLocalWarehouseRepository() const override;
+
+            std::string getLocalDistributionRepository() const override;
 
             std::string getTempPath() const override;
 

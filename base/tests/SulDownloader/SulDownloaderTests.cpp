@@ -299,7 +299,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/opt/sophos-spl/tmp"
+            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
 
 

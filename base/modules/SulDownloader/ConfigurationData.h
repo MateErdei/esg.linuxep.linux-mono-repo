@@ -128,12 +128,6 @@ namespace SulDownloader
         void setInstallationRootPath(const std::string &installationRootPath);
 
         /**
-         * Gets the installation root path, this path is used as the relative path of all other application paths.
-         * @return installationRootPath, location where the product is installed.
-         */
-        std::string getInstallationRootPath() const;
-
-        /**
          * Gets the path to the local warehouse repository relative to the install root path.
          * @return path to the local warehouse repository.
          */
@@ -240,7 +234,6 @@ namespace SulDownloader
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_proxy;
         State m_state;
-        std::string m_installationRootPath;
         std::string m_certificatePath;
         std::string m_systemSslCertificatePath;
         std::string m_updateCacheSslCertificatePath;

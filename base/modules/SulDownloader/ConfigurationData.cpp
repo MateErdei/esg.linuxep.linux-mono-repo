@@ -12,6 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ConfigurationSettings.pb.h"
 
 #include <google/protobuf/util/json_util.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 namespace
 {
@@ -115,22 +117,24 @@ namespace SulDownloader
 
     void ConfigurationData::setInstallationRootPath(const std::string & installationRootPath)
     {
-        m_installationRootPath = installationRootPath;
-    }
-
-    std::string ConfigurationData::getInstallationRootPath() const
-    {
-        return m_installationRootPath;
+        if (installationRootPath.empty())
+        {
+            return;
+        }
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+                Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath
+        );
     }
 
     std::string ConfigurationData::getLocalWarehouseRepository() const
     {
-        return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/PrimaryWarehouse");
+        return Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository();
     }
 
     std::string ConfigurationData::getLocalDistributionRepository() const
     {
-        return Common::FileSystem::join(getInstallationRootPath(), "base/update/cache/Primary");
+        return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
+
     }
 
     bool ConfigurationData::verifySettingsAreValid()
@@ -216,7 +220,7 @@ namespace SulDownloader
 
         auto fileSystem = Common::FileSystem::fileSystem();
 
-        std::string installationRootPath = getInstallationRootPath();
+        std::string installationRootPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         if (!fileSystem->isDirectory(installationRootPath))
         {
             LOGERROR( "Invalid Settings: installation root path does not exist or is not a directory: " << installationRootPath);

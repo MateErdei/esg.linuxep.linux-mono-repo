@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
-#include <gtest/gtest_pred_impl.h>
 
 #include "SulDownloader/ConfigurationData.h"
 #include "SulDownloader/SulDownloaderException.h"
@@ -192,7 +191,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_STREQ(configurationData.getProductSelection()[2].baseVersion.c_str(), "9");
 
     EXPECT_STREQ(configurationData.getSystemSslCertificatePath().c_str(), m_absSystemSslPath.c_str());
-    EXPECT_STREQ(configurationData.getInstallationRootPath().c_str(), m_absInstallationPath.c_str());
     EXPECT_STREQ(configurationData.getUpdateCacheSslCertificatePath().c_str(), m_absCacheUpdatePath.c_str());
 
     EXPECT_STREQ(configurationData.getInstallArguments()[0].c_str(), "--install-dir");

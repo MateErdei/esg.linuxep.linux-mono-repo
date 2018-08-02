@@ -93,10 +93,16 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "tmp");
         }
 
-        std::string ApplicationPathManager::getBaseLogDirectory() const
+        std::string ApplicationPathManager::getLocalWarehouseRepository() const
         {
-            return Common::FileSystem::join(sophosInstall(), "logs", "base");
+            return Common::FileSystem::join(sophosInstall(), "base/update/cache/PrimaryWarehouse");
         }
+
+        std::string ApplicationPathManager::getLocalDistributionRepository() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/cache/Primary");
+        }
+
     }
 
 
