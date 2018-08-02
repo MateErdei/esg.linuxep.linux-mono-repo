@@ -18,9 +18,14 @@ CopyPlugin::CopyPlugin(const wdctl::wdctlimpl::Arguments& args)
 int CopyPlugin::run()
 {
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
-    LOGDEBUG("Copying "<< m_args.m_argument << " to "<< pluginRegistry);
 
-    Common::FileSystem::fileSystem()->copyFile(m_args.m_argument,pluginRegistry);
+    Path destination = Common::FileSystem::join(
+            pluginRegistry,
+            Common::FileSystem::basename(m_args.m_argument)
+            );
+
+    LOGDEBUG("Copying "<< m_args.m_argument << " to "<< destination);
+    Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
 
     return 0;
 }
