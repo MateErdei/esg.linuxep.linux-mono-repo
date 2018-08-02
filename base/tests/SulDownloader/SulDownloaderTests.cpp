@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 */
 #include <modules/Common/FileSystem/IFileSystemException.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "modules/SulDownloader/ConfigurationData.h"
@@ -234,22 +233,6 @@ public:
             return "{empty}";
         }
         return serialized;
-    }
-
-
-    std::string everestpath() const
-    {
-        return Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(), "everest"
-        );
-    }
-
-    std::string everestpluginpath() const
-    {
-        return Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(),
-                "everest-plugin-a"
-        );
     }
 
 protected:
