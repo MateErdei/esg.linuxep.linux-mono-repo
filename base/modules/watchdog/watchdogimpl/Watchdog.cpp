@@ -23,6 +23,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
+Watchdog::~Watchdog()
+{
+    m_socket.reset();
+    m_context.reset();
+}
+
 int Watchdog::run()
 {
     SignalHandler signalHandler;
@@ -46,9 +52,7 @@ int Watchdog::run()
 
     bool keepRunning = true;
 
-    std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
-    auto socket = context->getReplier();
-    socket->listen(getIPCPath());
+    setupSocket();
 
     Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
@@ -62,7 +66,7 @@ int Watchdog::run()
             );
 
     poller->addEntry(
-            *socket,
+            *m_socket,
              Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
             );
 
@@ -89,13 +93,9 @@ int Watchdog::run()
                 LOGERROR("Child process died");
                 signalHandler.clearSubProcessExitPipe();
             }
-            if (fd == socket.get())
+            if (fd == m_socket.get())
             {
-                Common::ZeroMQWrapper::IReadable::data_t request = socket->read();
-                LOGINFO("Command from IPC: "<<request.at(0));
-                Common::ZeroMQWrapper::IWritable::data_t response;
-                response.emplace_back("OK");
-                socket->write(response);
+                handleSocketRequest();
             }
         }
 
@@ -117,6 +117,11 @@ int Watchdog::run()
         proxy.stop();
     }
 
+    // Normal shutdown
+    m_pluginProxies.clear();
+    m_socket.reset();
+    m_context.reset();
+
     return 0;
 }
 
@@ -128,4 +133,29 @@ PluginInfoVector Watchdog::read_plugin_configs()
 std::string Watchdog::getIPCPath()
 {
     return Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress();
+}
+
+void Watchdog::setupSocket()
+{
+    m_socket = m_context->getReplier();
+    m_socket->listen(getIPCPath());
+}
+
+void Watchdog::handleSocketRequest()
+{
+    Common::ZeroMQWrapper::IReadable::data_t request = m_socket->read();
+    LOGINFO("Command from IPC: "<<request.at(0));
+    Common::ZeroMQWrapper::IWritable::data_t response;
+    response.emplace_back("OK");
+    m_socket->write(response);
+}
+
+Watchdog::Watchdog()
+    : Watchdog(Common::ZeroMQWrapper::createContext())
+{
+}
+
+Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context)
+    : m_context(std::move(context))
+{
 }

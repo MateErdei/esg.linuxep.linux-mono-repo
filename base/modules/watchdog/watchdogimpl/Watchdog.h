@@ -8,6 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginProxy.h"
 
 #include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 
 namespace watchdog
 {
@@ -19,12 +23,20 @@ namespace watchdog
         class Watchdog
         {
         public:
+            explicit Watchdog();
+            explicit Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context);
+            ~Watchdog();
             int run();
             PluginInfoVector read_plugin_configs();
         protected:
             std::string getIPCPath();
+            void setupSocket();
+            void handleSocketRequest();
+            Common::ZeroMQWrapper::IContextSharedPtr m_context;
+
         private:
             ProxyVector m_pluginProxies;
+            Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
         };
     }
 }

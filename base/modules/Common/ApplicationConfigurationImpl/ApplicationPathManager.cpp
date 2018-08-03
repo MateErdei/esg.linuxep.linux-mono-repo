@@ -35,7 +35,17 @@ namespace Common
 
         std::string ApplicationPathManager::socketPath(const std::string &relative) const
         {
-            return "ipc://" + sophosInstall() + "/var/ipc/" + relative;
+            try
+            {
+                // Allow an override with the relative path
+                return Common::ApplicationConfiguration::applicationConfiguration().getData(relative);
+            }
+            catch (const std::out_of_range& )
+            {
+                // No override, so return the constructed value.
+                // If the exception is a performance problem, then provide a getData that doesn't throw
+                return "ipc://" + sophosInstall() + "/var/ipc/" + relative;
+            }
         }
 
         std::string ApplicationPathManager::getPublisherDataChannelAddress() const
