@@ -95,6 +95,22 @@ EOF
     systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
 }
 
+function confirmProcessRunning()
+{
+    pgrep -f "$1" &> /dev/null
+}
+
+function waitForProcess()
+{
+    for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
+    do
+        confirmProcessRunning "$@" && return 0
+        sleep 1
+    done
+
+    return 1
+}
+
 export DIST
 export SOPHOS_INSTALL
 
@@ -192,7 +208,12 @@ then
 fi
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
-    $SOPHOS_INSTALL/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+    ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
 fi
 
 createWatchdogSystemdService
+waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+then
+    waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+fi

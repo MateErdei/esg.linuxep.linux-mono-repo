@@ -143,7 +143,8 @@ namespace ManagementAgent
             bool running = true;
             while(running)
             {
-                if(GL_signalPipe && GL_signalPipe->notified())
+                poller->poll(std::chrono::milliseconds(-1));
+                if (GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
                     running = false;
