@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <watchdog/watchdogimpl/watchdog_main.h>
+#include <watchdog/watchdogimpl/Watchdog.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
@@ -19,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
     class TestWatchdog
-        : public watchdog::watchdogimpl::watchdog_main
+        : public watchdog::watchdogimpl::Watchdog
     {
     public:
         watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs()
