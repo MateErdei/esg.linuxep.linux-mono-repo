@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "wdctl_bootstrap.h"
 #include "Logger.h"
 #include "LoggingSetup.h"
+#include "CopyPlugin.h"
 
 #include <cstdlib>
 #include <csignal>
