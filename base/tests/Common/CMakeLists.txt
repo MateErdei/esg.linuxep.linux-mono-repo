@@ -1,4 +1,5 @@
 
+add_subdirectory(Datatypes)
 add_subdirectory(TestHelpers)
 add_subdirectory(Threads)
 add_subdirectory(ZeroMQWrapperImpl)
