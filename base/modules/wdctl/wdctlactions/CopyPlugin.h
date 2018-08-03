@@ -5,22 +5,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
-#include "Arguments.h"
+#include "wdctl/wdctlimpl/Arguments.h"
+#include "Action.h"
 
 namespace wdctl
 {
-    namespace wdctlimpl
+    namespace wdctlactions
     {
-        class CopyPlugin
+        class CopyPlugin : public Action
         {
         public:
-            explicit CopyPlugin(const Arguments& args);
-            int run();
-        private:
-            const Arguments& m_args;
+            explicit CopyPlugin(const wdctl::wdctlimpl::Arguments& args);
+            int run() override;
         };
     }
 }
-
-

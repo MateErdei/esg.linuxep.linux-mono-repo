@@ -6,15 +6,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "wdctl_bootstrap.h"
 #include "Logger.h"
 #include "LoggingSetup.h"
-#include "CopyPlugin.h"
+#include "wdctl/wdctlactions/CopyPlugin.h"
+#include "wdctl/wdctlactions/StopAction.h"
+
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #include <cstdlib>
 #include <csignal>
 
 #include <unistd.h>
 #include <sys/select.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 #ifndef PATH_MAX
 # define PATH_MAX 2048
@@ -96,15 +98,20 @@ int wdctl_bootstrap::main(const StringVector& args)
 
     LOGINFO(m_args.m_command<<" "<<m_args.m_argument);
 
+    std::unique_ptr<wdctl::wdctlactions::Action> action;
+
     if (m_args.m_command == "copyPluginRegistration")
     {
-        CopyPlugin copy(m_args);
-        return copy.run();
+        action.reset(new wdctl::wdctlactions::CopyPlugin(m_args));
+    }
+    else if (m_args.m_command == "stop")
+    {
+        action.reset(new wdctl::wdctlactions::StopAction(m_args));
     }
     else
     {
         LOGERROR("Unknown command: " << m_args.m_command);
+        return 1;
     }
-
-    return 1;
+    return action->run();
 }

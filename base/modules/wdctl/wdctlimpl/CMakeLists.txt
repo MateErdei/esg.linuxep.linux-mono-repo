@@ -9,8 +9,6 @@ add_library(wdctlimpl STATIC
         Logger.h
         LoggingSetup.cpp
         LoggingSetup.h
-        CopyPlugin.cpp
-        CopyPlugin.h
         )
 
 set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
@@ -25,4 +23,5 @@ target_include_directories(wdctlimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(wdctlimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
         applicationconfigurationimpl
-        filesystemimpl)
+        filesystemimpl
+        wdctlactions)

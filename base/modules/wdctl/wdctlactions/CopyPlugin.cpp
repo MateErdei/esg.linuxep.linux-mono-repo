@@ -6,12 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include "CopyPlugin.h"
-#include "Logger.h"
+#include "wdctl/wdctlimpl/Logger.h"
 
-using namespace wdctl::wdctlimpl;
+using namespace wdctl::wdctlactions;
 
 CopyPlugin::CopyPlugin(const wdctl::wdctlimpl::Arguments& args)
-    : m_args(args)
+    : Action(args)
 {
 }
 
