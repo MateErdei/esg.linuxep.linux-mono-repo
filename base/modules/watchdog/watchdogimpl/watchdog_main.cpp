@@ -8,13 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "PluginProxy.h"
+#include "SignalHandler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 
 #include <cstdlib>
-#include <csignal>
 
 #include <unistd.h>
 #include <sys/select.h>
@@ -37,7 +37,7 @@ int watchdog_main::main(int argc, char **argv)
     if(argc > 1)
     {
         LOGERROR("Error, invalid command line arguments. Usage: watchdog");
-        return -1;
+        return 2;
     }
 
     watchdog_main m;
@@ -65,32 +65,6 @@ namespace
         return "/opt/sophos-spl";
     }
 
-    Common::Threads::NotifyPipe GL_CHILD_DEATH_PIPE;
-    Common::Threads::NotifyPipe GL_TERM_PIPE;
-
-    void signal_handler(int signal)
-    {
-        if (signal == SIGCHLD)
-        {
-            GL_CHILD_DEATH_PIPE.notify();
-        }
-        else if (signal == SIGINT || signal == SIGTERM)
-        {
-            GL_TERM_PIPE.notify();
-        }
-    }
-
-    void setSignalHandler()
-    {
-        struct sigaction signalBuf{0}; //NOLINT
-        signalBuf.sa_handler = signal_handler;
-        sigemptyset(&signalBuf.sa_mask);
-        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; //NOLINT
-        ::sigaction(SIGCHLD, &signalBuf, nullptr);
-        ::sigaction(SIGINT, &signalBuf, nullptr);
-        ::sigaction(SIGTERM, &signalBuf, nullptr);
-    }
-
     int addFD(fd_set* fds, int fd, int maxfd)
     {
         FD_SET(fd,fds); //NOLINT
@@ -103,7 +77,7 @@ namespace
 
 int watchdog_main::run()
 {
-    setSignalHandler();
+    SignalHandler signalHandler;
 
     std::string installDir = work_out_install_directory();
     Common::ApplicationConfiguration::applicationConfiguration().setData(
@@ -131,8 +105,8 @@ int watchdog_main::run()
     int max_fd = 0;
     FD_ZERO(&read_fds);
 
-    max_fd = addFD(&read_fds,GL_CHILD_DEATH_PIPE.readFd(),max_fd);
-    max_fd = addFD(&read_fds,GL_TERM_PIPE.readFd(),max_fd);
+    max_fd = addFD(&read_fds,signalHandler.subprocessExitFileDescriptor(),max_fd);
+    max_fd = addFD(&read_fds,signalHandler.terminationFileDescriptor(),max_fd);
 
     struct timespec timeout{ .tv_sec=10 ,.tv_nsec=0 };
 
@@ -156,21 +130,17 @@ int watchdog_main::run()
         }
         if (active > 0)
         {
-            if (FD_ISSET(GL_TERM_PIPE.readFd(), &read_temp)) //NOLINT
+            if (FD_ISSET(signalHandler.terminationFileDescriptor(), &read_temp)) //NOLINT
             {
                 LOGWARN("Sophos watchdog exiting");
-                while (GL_TERM_PIPE.notified())
-                {
-                }
+                signalHandler.clearTerminationPipe();
                 keepRunning = false;
                 continue;
             }
-            if (FD_ISSET(GL_CHILD_DEATH_PIPE.readFd(), &read_temp)) //NOLINT
+            if (FD_ISSET(signalHandler.subprocessExitFileDescriptor(), &read_temp)) //NOLINT
             {
                 LOGERROR("Child process died");
-                while (GL_CHILD_DEATH_PIPE.notified())
-                {
-                }
+                signalHandler.clearSubProcessExitPipe();
             }
         }
         for (auto& proxy : proxies)
