@@ -12,22 +12,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
 
 #include <cstdlib>
 
 #include <unistd.h>
 #include <sys/select.h>
+#include <Common/ZeroMQWrapper/IPoller.h>
 
 using namespace watchdog::watchdogimpl;
-
-namespace
-{
-    int addFD(fd_set* fds, int fd, int maxfd)
-    {
-        FD_SET(fd,fds); //NOLINT
-        return std::max(maxfd,fd);
-    }
-}
 
 int Watchdog::run()
 {
@@ -52,58 +46,69 @@ int Watchdog::run()
 
     bool keepRunning = true;
 
-    fd_set read_fds;
-    int max_fd = 0;
-    FD_ZERO(&read_fds);
+    std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+    auto socket = context->getReplier();
+    socket->listen(getIPCPath());
 
-    max_fd = addFD(&read_fds,signalHandler.subprocessExitFileDescriptor(),max_fd);
-    max_fd = addFD(&read_fds,signalHandler.terminationFileDescriptor(),max_fd);
+    Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-    struct timespec timeout{ .tv_sec=10 ,.tv_nsec=0 };
+    Common::ZeroMQWrapper::IHasFDPtr subprocessFD = poller->addEntry(
+            signalHandler.subprocessExitFileDescriptor(),
+            Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
+            );
+    Common::ZeroMQWrapper::IHasFDPtr terminationFD = poller->addEntry(
+            signalHandler.terminationFileDescriptor(),
+            Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
+            );
+
+    poller->addEntry(
+            *socket,
+             Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
+            );
+
+    std::chrono::seconds timeout(10);
 
     while (keepRunning)
     {
-        // TODO: LINUXEP-5920 Handle wdctl commands
+        LOGDEBUG("Calling poller at "<<::time(nullptr));
+        Common::ZeroMQWrapper::IPoller::poll_result_t active =
+                poller->poll(std::chrono::milliseconds(timeout));
+        LOGDEBUG("Returned from poller: "<<active.size()<<" at "<<::time(nullptr));
 
-        fd_set read_temp = read_fds;
-        LOGDEBUG("Calling pselect at "<<::time(nullptr));
-        int active = ::pselect(max_fd+1,
-                               &read_temp,
-                               nullptr,
-                               nullptr,
-                               &timeout,
-                               nullptr);
-        LOGDEBUG("Returned from pselect: "<<active<<" at "<<::time(nullptr));
-        if (active < 0)
+        for (auto& fd : active)
         {
-            LOGERROR("pselect returned error: "<<errno);
-            continue;
-        }
-        if (active > 0)
-        {
-            if (FD_ISSET(signalHandler.terminationFileDescriptor(), &read_temp)) //NOLINT
+            if (fd == terminationFD.get())
             {
                 LOGWARN("Sophos watchdog exiting");
                 signalHandler.clearTerminationPipe();
                 keepRunning = false;
                 continue;
             }
-            if (FD_ISSET(signalHandler.subprocessExitFileDescriptor(), &read_temp)) //NOLINT
+            if (fd == subprocessFD.get())
             {
                 LOGERROR("Child process died");
                 signalHandler.clearSubProcessExitPipe();
             }
+            if (fd == socket.get())
+            {
+                Common::ZeroMQWrapper::IReadable::data_t request = socket->read();
+                LOGINFO("Command from IPC: "<<request.at(0));
+                Common::ZeroMQWrapper::IWritable::data_t response;
+                response.emplace_back("OK");
+                socket->write(response);
+            }
         }
-        timeout.tv_sec = 10;
+
+        timeout = std::chrono::seconds(10);
         for (auto& proxy : m_pluginProxies)
         {
             proxy.checkForExit();
-            time_t waitPeriod = proxy.startIfRequired();
-            timeout.tv_sec = std::min(waitPeriod, timeout.tv_sec);
+            auto waitPeriod = proxy.startIfRequired();
+            timeout = std::min(waitPeriod, timeout);
         }
 
-        timeout.tv_sec = std::max(timeout.tv_sec, static_cast<time_t>(1)); // Ensure we wait at least 1 second
-        LOGDEBUG("timeout = "<<timeout.tv_sec);
+        timeout = std::max(timeout, std::chrono::seconds(1)); // Ensure we wait at least 1 second
+        LOGDEBUG("timeout = "<<timeout.count());
     }
 
     LOGINFO("Stopping processes");
@@ -118,4 +123,9 @@ int Watchdog::run()
 PluginInfoVector Watchdog::read_plugin_configs()
 {
     return Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
+}
+
+std::string Watchdog::getIPCPath()
+{
+    return Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress();
 }

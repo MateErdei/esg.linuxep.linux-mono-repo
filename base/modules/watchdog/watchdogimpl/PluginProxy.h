@@ -9,6 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Process/IProcess.h>
 
+#include <chrono>
+
 namespace watchdog
 {
     namespace watchdogimpl
@@ -34,7 +36,7 @@ namespace watchdog
              *
              * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
              */
-            time_t startIfRequired();
+            std::chrono::seconds startIfRequired();
 
         private:
 

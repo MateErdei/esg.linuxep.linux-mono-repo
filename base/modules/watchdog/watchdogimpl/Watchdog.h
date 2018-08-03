@@ -21,6 +21,8 @@ namespace watchdog
         public:
             int run();
             PluginInfoVector read_plugin_configs();
+        protected:
+            std::string getIPCPath();
         private:
             ProxyVector m_pluginProxies;
         };

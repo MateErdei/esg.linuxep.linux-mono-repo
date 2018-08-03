@@ -95,23 +95,23 @@ void PluginProxy::checkForExit()
     }
 }
 
-time_t PluginProxy::startIfRequired()
+std::chrono::seconds PluginProxy::startIfRequired()
 {
     if (m_running)
     {
-        return 3600;
+        return std::chrono::hours(1);
     }
 
     time_t now = ::time(nullptr);
     if ((now - m_deathTime) > 10)
     {
         start();
-        return 3600;
+        return std::chrono::hours(1);
     }
     else
     {
         LOGDEBUG("Not starting "<<m_exe);
-        return 10 - (now - m_deathTime);
+        return std::chrono::seconds(10 - (now - m_deathTime));
     }
 }
 
