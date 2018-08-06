@@ -49,6 +49,13 @@ namespace
         {
             return *m_context;
         }
+
+        void addPlugin(const std::string& pluginName)
+        {
+            Common::PluginRegistryImpl::PluginInfo info;
+            info.setPluginName(pluginName);
+            m_pluginProxies.emplace_back(info);
+        }
     };
 }
 
@@ -80,4 +87,25 @@ TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
     EXPECT_EQ(result.at(0),"Error: Plugin not found");
+}
+
+TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
+{
+    const std::string IPC_ADDRESS="inproc://stopPluginViaIPC_test_plugin";
+    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc",IPC_ADDRESS);
+    Common::ZeroMQWrapper::IContextSharedPtr context(Common::ZeroMQWrapper::createContext());
+    TestableWatchdog watchdog(context);
+    watchdog.callSetupIpc();
+
+    watchdog.addPlugin("mcsrouter");
+
+    Common::ZeroMQWrapper::ISocketRequesterPtr requester = context->getRequester();
+    requester->connect(IPC_ADDRESS);
+    requester->write({"STOP","mcsrouter"});
+
+    watchdog.callHandleSocketRequest();
+
+    Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
+    EXPECT_EQ(result.at(0),"OK");
+
 }

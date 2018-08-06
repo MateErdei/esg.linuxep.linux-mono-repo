@@ -37,8 +37,8 @@ namespace watchdog
             std::string stopPlugin(const std::string& pluginName);
 
             Common::ZeroMQWrapper::IContextSharedPtr m_context;
-        private:
             ProxyVector m_pluginProxies;
+        private:
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
         };
     }
