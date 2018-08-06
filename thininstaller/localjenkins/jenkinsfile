@@ -1,6 +1,7 @@
 def buildInstaller()
 {
-    withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
+    withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin',
+    'LD_LIBRARY_PATH=/home/pair/gcc-8.1.0/build/prev-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6:$LD_LIBRARY_PATH']){
         checkout scm
         sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
     }
