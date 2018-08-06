@@ -22,7 +22,7 @@ namespace Common
                                  std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback,
                                  Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber);
 
-            ~SensorDataSubscriber();
+            ~SensorDataSubscriber() override;
             void start() override ;
             void stop() override ;
         private:

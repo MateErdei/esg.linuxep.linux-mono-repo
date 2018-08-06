@@ -213,7 +213,7 @@ public:
 
 // basic tests
 
-TEST_F( PluginRegistryTests, addPolicyAppIdAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, addPolicyAppIdAddsNewValueCorrectly) //NOLINT
 {
    Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -227,7 +227,7 @@ TEST_F( PluginRegistryTests, addPolicyAppIdAddsNewValueCorrectly)
 }
 
 
-TEST_F( PluginRegistryTests, addStatusAppIdAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, addStatusAppIdAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -239,7 +239,7 @@ TEST_F( PluginRegistryTests, addStatusAppIdAddsNewValueCorrectly)
     EXPECT_EQ(pluginInfo.getPolicyAppIds()[0], statusAppId);
 }
 
-TEST_F( PluginRegistryTests, addExecutableArgumentsAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, addExecutableArgumentsAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -251,7 +251,7 @@ TEST_F( PluginRegistryTests, addExecutableArgumentsAddsNewValueCorrectly)
     EXPECT_EQ(pluginInfo.getExecutableArguments()[0], arg);
 }
 
-TEST_F( PluginRegistryTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, addExecutableEnvironmentVariablesAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -265,7 +265,7 @@ TEST_F( PluginRegistryTests, addExecutableEnvironmentVariablesAddsNewValueCorrec
     EXPECT_EQ(pluginInfo.getExecutableEnvironmentVariables()[0].second, envValue);
 }
 
-TEST_F( PluginRegistryTests, setExecutableFullPathAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, setExecutableFullPathAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -276,7 +276,7 @@ TEST_F( PluginRegistryTests, setExecutableFullPathAddsNewValueCorrectly)
     EXPECT_EQ(pluginInfo.getExecutableFullPath(), path);
 }
 
-TEST_F( PluginRegistryTests, setXmlTranslatorPathAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, setXmlTranslatorPathAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -287,7 +287,7 @@ TEST_F( PluginRegistryTests, setXmlTranslatorPathAddsNewValueCorrectly)
     EXPECT_EQ(pluginInfo.getXmlTranslatorPath(), path);
 }
 
-TEST_F( PluginRegistryTests, setPluginNameAddsNewValueCorrectly)
+TEST_F( PluginRegistryTests, setPluginNameAddsNewValueCorrectly) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -298,7 +298,7 @@ TEST_F( PluginRegistryTests, setPluginNameAddsNewValueCorrectly)
     EXPECT_EQ(pluginInfo.getPluginName(), name);
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoData)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoData) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -307,7 +307,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmptyString)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmptyString) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -317,11 +317,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app1","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmpty)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmpty) //NOLINT
 {
     std::string oldString = R"("app1")";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -331,13 +331,13 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsMissing) //NOLINT
 {
         std::string oldString = R"("policyAppIds": [
                                     "app1"
                                      ],)";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -347,7 +347,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoPolicyAppIds)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoPolicyAppIds) //NOLINT
 {
     std::string oldString = R"("policyAppIds": [
                                     "app1"
@@ -366,7 +366,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmptyString)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmptyString) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -376,11 +376,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app2","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmpty)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmpty) //NOLINT
 {
     std::string oldString = R"("app2")";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -390,14 +390,14 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsMissing) //NOLINT
 {
     std::string oldString = R"(                                 "statusAppIds": [
                                       "app2"
                                      ],)";
 
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -407,7 +407,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoStatusAppIds)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoStatusAppIds) //NOLINT
 {
     std::string oldString = R"("app2")";
 
@@ -422,7 +422,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
                         Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsEmptyString)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsEmptyString) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -432,11 +432,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("PluginName","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsMissing) //NOLINT
 {
     std::string oldString = R"("pluginName": "PluginName",)";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -447,7 +447,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
 }
 
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenXmlTranslatorPathIsEmptyString)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenXmlTranslatorPathIsEmptyString) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -457,11 +457,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("path1","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenXmlTranslatorPathIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenXmlTranslatorPathIsMissing) //NOLINT
 {
     std::string oldString = R"( "xmlTranslatorPath": "path1",)";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -471,7 +471,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsEmpty)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsEmpty) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -481,13 +481,13 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("arg1","")));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsMissing) //NOLINT
 {
     std::string oldString = R"(     "executableArguments": [
                                       "arg1"
                                      ],)";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -497,7 +497,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo,Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoExecutableArgs)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoExecutableArgs) //NOLINT
 {
     std::string oldString = R"(     "executableArguments": [
                                       "arg1"
@@ -516,14 +516,14 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsEmpty)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsEmpty) //NOLINT
 {
     std::string oldString = R"({
                                        "name": "hello",
                                        "value": "world"
                                       })";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -534,7 +534,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsMissing)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsMissing) //NOLINT
 {
     std::string oldString = R"(  "environmentVariables": [
                                       {
@@ -543,7 +543,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
                                       }
                                      ])";
 
-    std::string newString = "";
+    std::string newString;
 
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
 
@@ -553,7 +553,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsTwoPairs)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsTwoPairs) //NOLINT
 {
     std::string oldString = R"({
                                        "name": "hello",
@@ -577,7 +577,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString)));
 }
 
-TEST_F( PluginRegistryTests, pluginInfoSerializeToStringReturnsExpectedData)
+TEST_F( PluginRegistryTests, pluginInfoSerializeToStringReturnsExpectedData) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
 
@@ -591,7 +591,7 @@ TEST_F( PluginRegistryTests, pluginInfoSerializeToStringReturnsExpectedData)
     EXPECT_EQ(expected, result);
 }
 
-TEST_F( PluginRegistryTests, pluginInfoSerializeToStringWithMultipleEnvironmentVariablesReturnsExpectedData)
+TEST_F( PluginRegistryTests, pluginInfoSerializeToStringWithMultipleEnvironmentVariablesReturnsExpectedData) //NOLINT
 {
     std::string oldString = R"({
                                        "name": "hello",
@@ -622,7 +622,7 @@ TEST_F( PluginRegistryTests, pluginInfoSerializeToStringWithMultipleEnvironmentV
     EXPECT_EQ(expected, result);
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataThrows)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataThrows) //NOLINT
 {
     std::string oldString = R"( "xmlTranslatorPath": "path1",)";
 
@@ -637,7 +637,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataThrow
 
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypesThrows)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypesThrows) //NOLINT
 {
 
     std::string oldString = R"(  "environmentVariables": [
@@ -663,41 +663,33 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypes
     EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)), Common::PluginRegistryImpl::PluginRegistryException);
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromNonJsonStringThrows)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromNonJsonStringThrows) //NOLINT
 {
-    Common::PluginRegistryImpl::PluginInfo pluginInfo;
-    pluginInfo = createDefaultPluginInfo();
-
-
     EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("Non JasonString"), Common::PluginRegistryImpl::PluginRegistryException);
 }
 
-TEST_F( PluginRegistryTests, pluginInfoDeserializeFromEmptyJsonStringShouldNotThrow)
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromEmptyJsonStringShouldNotThrow) //NOLINT
 {
-    Common::PluginRegistryImpl::PluginInfo pluginInfo;
-    pluginInfo = createDefaultPluginInfo();
-
     EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}"));
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJsonFileFound)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJsonFileFound) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
-    files.push_back("/tmp/file1");
-    std::string fileContent = createJsonString("","");
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
 
     // There may be times when there are no plugin config files (such as initial install)
     EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenJsonFileFound)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenJsonFileFound) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -714,9 +706,9 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenJsonF
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMultipleJsonFilesFound)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMultipleJsonFilesFound) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -735,9 +727,9 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMulti
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLeastOneJsonFileIsValid)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLeastOneJsonFileIsValid) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -756,9 +748,9 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMultipleJsonFilesAreInvalid)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMultipleJsonFilesAreInvalid) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -777,9 +769,9 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMulti
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLeastOneJsonFileIsSuccessfullyRead)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLeastOneJsonFileIsSuccessfullyRead) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -798,9 +790,9 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 
 }
 
-TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJsonFilesAreUnsuccessfullyRead)
+TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJsonFilesAreUnsuccessfullyRead) //NOLINT
 {
-    auto mockFileSystem = new MockFileSystem();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -818,4 +810,10 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJs
     // When no plugin config files are successfully read, warning should be logged but no expection should be thrown.
     EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
 
+}
+
+TEST_F(PluginRegistryTests, extractPluginNameReturnsCorrectAnswer) //NOLINT
+{
+    std::string plugin = Common::PluginRegistryImpl::PluginInfo::extractPluginNameFromFilename("/foo/bar/sav.json");
+    EXPECT_EQ(plugin,"sav");
 }

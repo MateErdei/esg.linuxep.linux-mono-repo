@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
+#include <Common/Datatypes/StringUtils.h>
 
 namespace Common
 {
@@ -182,15 +183,17 @@ namespace Common
             std::vector<std::string> files = FileSystem::fileSystem()->listFiles(directoryPath);
 
             std::vector<PluginInfo> pluginInfoList;
+            pluginInfoList.reserve(files.size());
 
             for(auto &pluginInfoFile : files)
             {
-                if(pluginInfoFile.find(".json") != std::string::npos)
+                if (Common::Datatypes::StringUtils::endswith(pluginInfoFile,".json"))
                 {
+                    std::string pluginName(extractPluginNameFromFilename(pluginInfoFile));
                     try
                     {
                         std::string fileContent = FileSystem::fileSystem()->readFile(pluginInfoFile);
-                        pluginInfoList.push_back(deserializeFromString(fileContent));
+                        pluginInfoList.emplace_back(deserializeFromString(fileContent));
                     }
                     catch(PluginRegistryException &)
                     {
@@ -242,7 +245,7 @@ namespace Common
             tolowerstring(lowercasepluginname);
 
             std::string pluginFilePath;
-            for (std::string filepath : Common::FileSystem::fileSystem()->listFiles(
+            for (const std::string& filepath : Common::FileSystem::fileSystem()->listFiles(
                     Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath()))
             {
                 std::string basename = Common::FileSystem::basename(filepath);
@@ -269,6 +272,13 @@ namespace Common
                 LOGERROR("Failed to load plugin info: " << ex.what());
             }
             return std::pair<PluginInfo, bool>(PluginInfo(), false);
+        }
+
+        std::string PluginInfo::extractPluginNameFromFilename(const std::string& filepath)
+        {
+            std::string basename = Common::FileSystem::basename(filepath);
+            std::string prefix = basename.substr(0, basename.size() - 5);
+            return prefix;
         }
 
     }

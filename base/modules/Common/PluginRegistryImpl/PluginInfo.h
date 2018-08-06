@@ -185,6 +185,13 @@ namespace Common
 
             static std::pair<PluginInfo, bool> loadPluginInfoFromRegistry(const std::string& pluginName);
 
+            /**
+             * From a filepath extract the non-extension part of the basename, which should be the plugin name
+             *
+             * @param filepath
+             * @return
+             */
+            static std::string extractPluginNameFromFilename(const std::string& filepath);
 
         private:
             std::vector<std::string> m_policyAppIds;
