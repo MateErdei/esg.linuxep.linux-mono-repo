@@ -1,4 +1,4 @@
-def build()
+def buildInstaller()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
@@ -30,7 +30,7 @@ pipeline {
                 }
             }
             steps {
-                build()
+                buildInstaller()
             }
             post {
                 success {
