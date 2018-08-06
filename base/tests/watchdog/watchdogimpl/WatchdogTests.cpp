@@ -80,7 +80,7 @@ namespace
         {
             size_t pos = jsonString.find(oldPartString);
 
-            EXPECT_TRUE(pos != std::string::npos);
+            EXPECT_NE(pos,std::string::npos);
 
             jsonString.replace(pos, oldPartString.size(), newPartString);
 
@@ -97,7 +97,7 @@ namespace
         Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
-        std::string filename("/tmp/plugins/valid.json");
+        std::string filename("/tmp/plugins/PluginName.json");
         files.push_back(filename);
         std::string fileContent = createJsonString("", "");
 
@@ -144,7 +144,7 @@ namespace
         std::string filename2("/tmp/plugins/invalid.json");
         files.push_back(filename1);
         files.push_back(filename2);
-        std::string fileContent = createJsonString("", "");
+        std::string fileContent = createJsonString("PluginName", "valid");
 
         EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
         EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
@@ -173,11 +173,12 @@ namespace
         std::string filename2("/tmp/plugins/valid2.json");
         files.push_back(filename1);
         files.push_back(filename2);
-        std::string fileContent = createJsonString("", "");
+        std::string fileContent1 = createJsonString("PluginName", "valid1");
+        std::string fileContent2 = createJsonString("PluginName", "valid2");
 
         EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-        EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
-        EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return(fileContent));
+        EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent1));
+        EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return(fileContent2));
 
         TestWatchdog watchdog;
 

@@ -135,7 +135,7 @@ namespace Common
             return  Common::UtilityImpl::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
 
-        PluginInfo PluginInfo::deserializeFromString(const std::string & settingsString)
+        PluginInfo PluginInfo::deserializeFromString(const std::string& settingsString, const std::string& pluginNameFromFilename)
         {
 
             using ProtoPluginInfo =  PluginInfoProto::PluginInfo;
@@ -151,21 +151,36 @@ namespace Common
 
             PluginInfo pluginInfo;
 
-            for ( auto & statusAppid : protoPluginInfo.statusappids())
+            for ( const auto & statusAppid : protoPluginInfo.statusappids())
             {
                 pluginInfo.addStatusAppIds(statusAppid);
             }
 
-            for ( auto & policyAppid : protoPluginInfo.policyappids())
+            for ( const auto & policyAppid : protoPluginInfo.policyappids())
             {
                 pluginInfo.addPolicyAppIds(policyAppid);
             }
 
-            pluginInfo.setPluginName(protoPluginInfo.pluginname());
+            std::string pluginname = protoPluginInfo.pluginname();
+            if (pluginname.empty())
+            {
+                pluginname = pluginNameFromFilename;
+            }
+            else if (pluginNameFromFilename.empty())
+            {
+                // Pass
+            }
+            else if (pluginname != pluginNameFromFilename)
+            {
+                throw PluginRegistryException(
+                        std::string("Inconsistent plugin name plugin_name_from_file=") + pluginNameFromFilename + " plugin_name_from_json=" + pluginname
+                        );
+            }
+            pluginInfo.setPluginName(pluginname);
             pluginInfo.setXmlTranslatorPath(protoPluginInfo.xmltranslatorpath());
             pluginInfo.setExecutableFullPath(protoPluginInfo.executablefullpath());
 
-            for( auto & argv : protoPluginInfo.executablearguments())
+            for( const auto & argv : protoPluginInfo.executablearguments())
             {
                 pluginInfo.addExecutableArguments(argv);
             }
@@ -193,7 +208,7 @@ namespace Common
                     try
                     {
                         std::string fileContent = FileSystem::fileSystem()->readFile(pluginInfoFile);
-                        pluginInfoList.emplace_back(deserializeFromString(fileContent));
+                        pluginInfoList.emplace_back(deserializeFromString(fileContent, pluginName));
                     }
                     catch(PluginRegistryException &)
                     {
@@ -264,7 +279,7 @@ namespace Common
             try
             {
                 std::string fileContent = FileSystem::fileSystem()->readFile(pluginFilePath);
-                return std::pair<PluginInfo, bool>(deserializeFromString(fileContent), true);
+                return std::pair<PluginInfo, bool>(deserializeFromString(fileContent, lowercasepluginname), true);
 
             }
             catch (std::exception& ex)

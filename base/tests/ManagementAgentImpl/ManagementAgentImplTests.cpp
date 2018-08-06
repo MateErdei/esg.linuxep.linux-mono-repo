@@ -40,6 +40,10 @@ namespace
     class ManagementAgentImplTests : public ::testing::Test
     {
     public:
+        ManagementAgentImplTests()
+            : m_mockApplicationManager(nullptr)
+        {
+        }
 
         void SetUp() override
         {
@@ -50,7 +54,7 @@ namespace
             MockedApplicationPathManager &mockPathManager(*m_mockApplicationManager);
             ON_CALL(mockPathManager, getManagementAgentSocketAddress()).WillByDefault(Return(frontend));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
-                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(m_mockApplicationManager));
+                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(m_mockApplicationManager)); // DONATED
 
         }
 
@@ -98,7 +102,7 @@ namespace
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-        std::vector<std::string> pluginFiles = {"plugin.json"};
+        std::vector<std::string> pluginFiles = {"PluginName.json"};
 
         std::string jsonContent = createJsonString();
 

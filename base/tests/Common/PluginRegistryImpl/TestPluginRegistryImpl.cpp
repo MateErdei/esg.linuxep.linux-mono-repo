@@ -304,7 +304,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
 
     expectedPluginInfo = createDefaultPluginInfo();
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("",""),"PluginName")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmptyString) //NOLINT
@@ -314,7 +318,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPolicyAppIds({""});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app1","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app1",""),"PluginName")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsEmpty) //NOLINT
@@ -328,7 +336,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPolicyAppIds({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"PluginName")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPolicyAppIdIsMissing) //NOLINT
@@ -344,7 +356,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPolicyAppIds({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"PluginName")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoPolicyAppIds) //NOLINT
@@ -363,7 +379,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.addPolicyAppIds("app2");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"PluginName")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmptyString) //NOLINT
@@ -373,7 +393,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setStatusAppIds({""});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app2","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("app2",""),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsEmpty) //NOLINT
@@ -387,7 +411,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setStatusAppIds({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenStatusAppIdIsMissing) //NOLINT
@@ -404,7 +432,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setStatusAppIds({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoStatusAppIds) //NOLINT
@@ -418,8 +450,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.addStatusAppIds("app3");
 
-    EXPECT_PRED_FORMAT2(pluginInfoSimilar, expectedPluginInfo,
-                        Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsEmptyString) //NOLINT
@@ -429,7 +464,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPluginName("");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("PluginName","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("PluginName",""),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenPluginNameIsMissing) //NOLINT
@@ -443,7 +482,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setPluginName("");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString),"")
+            );
 }
 
 
@@ -454,7 +497,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setXmlTranslatorPath("");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("path1","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("path1",""),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenXmlTranslatorPathIsMissing) //NOLINT
@@ -468,7 +515,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setXmlTranslatorPath("");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsEmpty) //NOLINT
@@ -478,7 +529,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setExecutableArguments({""});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("arg1","")));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("arg1",""),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenExecutableArgsIsMissing) //NOLINT
@@ -494,7 +549,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setExecutableArguments({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo,Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenTwoExecutableArgs) //NOLINT
@@ -513,7 +572,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.addExecutableArguments("arg2");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsEmpty) //NOLINT
@@ -531,7 +594,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     std::vector<std::pair<std::string, std::string>> pairs;
     expectedPluginInfo.setExecutableEnvironmentVariables(pairs);
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsMissing) //NOLINT
@@ -550,7 +617,11 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setExecutableEnvironmentVariables({});
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)));
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPluginInfoDataWhenEnvironmentVariablesIsTwoPairs) //NOLINT
@@ -574,7 +645,9 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.addExecutableEnvironmentVariables("goodbye", "earth");
 
-    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo, Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString)));
+    EXPECT_PRED_FORMAT2( pluginInfoSimilar, expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString,newString),"")
+            );
 }
 
 TEST_F( PluginRegistryTests, pluginInfoSerializeToStringReturnsExpectedData) //NOLINT
@@ -627,14 +700,25 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataThrow
     std::string oldString = R"( "xmlTranslatorPath": "path1",)";
 
     std::string newString = R"( "invalidField": "InvalidData",)";
+//
+//    Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
+//
+//    expectedPluginInfo = createDefaultPluginInfo();
+//    expectedPluginInfo.setXmlTranslatorPath("");
 
-    Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
+    EXPECT_THROW(
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),""),
+            Common::PluginRegistryImpl::PluginRegistryException);
 
-    expectedPluginInfo = createDefaultPluginInfo();
-    expectedPluginInfo.setXmlTranslatorPath("");
+}
 
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)), Common::PluginRegistryImpl::PluginRegistryException);
+TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringThrowsWithIncorrectPluginNameFromFilename) //NOLINT
+{
+    Common::PluginRegistryImpl::PluginInfo expectedPluginInfo = createDefaultPluginInfo();
 
+    EXPECT_THROW(
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("",""),"FOOBAR"),
+            Common::PluginRegistryImpl::PluginRegistryException);
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypesThrows) //NOLINT
@@ -660,17 +744,18 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypes
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setXmlTranslatorPath("");
 
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString)), Common::PluginRegistryImpl::PluginRegistryException);
+    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),""),
+            Common::PluginRegistryImpl::PluginRegistryException);
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromNonJsonStringThrows) //NOLINT
 {
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("Non JasonString"), Common::PluginRegistryImpl::PluginRegistryException);
+    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("Non JasonString",""), Common::PluginRegistryImpl::PluginRegistryException);
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromEmptyJsonStringShouldNotThrow) //NOLINT
 {
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}"));
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}","sav"));
 }
 
 TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJsonFileFound) //NOLINT

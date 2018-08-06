@@ -159,7 +159,7 @@ namespace Common
              *
              * @return PluginInfo parsed from the serializedPluginInfo.
              */
-            static PluginInfo deserializeFromString(const std::string & serializedPluginInfo);
+            static PluginInfo deserializeFromString(const std::string & serializedPluginInfo, const std::string& pluginName);
 
             /**
              * List the json entries from the directoryPath and load them into a vector of PluginInfo.
