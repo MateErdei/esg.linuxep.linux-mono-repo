@@ -32,8 +32,11 @@ namespace watchdog
             std::string getIPCPath();
             void setupSocket();
             void handleSocketRequest();
-            Common::ZeroMQWrapper::IContextSharedPtr m_context;
+            std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
 
+            std::string stopPlugin(const std::string& pluginName);
+
+            Common::ZeroMQWrapper::IContextSharedPtr m_context;
         private:
             ProxyVector m_pluginProxies;
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;

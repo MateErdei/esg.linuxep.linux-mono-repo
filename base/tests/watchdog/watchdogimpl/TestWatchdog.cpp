@@ -65,7 +65,7 @@ TEST_F(TestWatchdog, ipcStartup) // NOLINT
     EXPECT_NO_THROW(watchdog.callSetupIpc()); // NOLINT
 }
 
-TEST_F(TestWatchdog, stopPluginViaIPC) // NOLINT
+TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
 {
     const std::string IPC_ADDRESS="inproc://stopPluginViaIPC";
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc",IPC_ADDRESS);
@@ -79,5 +79,5 @@ TEST_F(TestWatchdog, stopPluginViaIPC) // NOLINT
     watchdog.callHandleSocketRequest();
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
-    EXPECT_EQ(result.at(0),"OK");
+    EXPECT_EQ(result.at(0),"Error: Plugin not found");
 }

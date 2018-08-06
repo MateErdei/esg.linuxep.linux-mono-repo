@@ -38,6 +38,13 @@ namespace watchdog
              */
             std::chrono::seconds startIfRequired();
 
+            /**
+             * Get the name of the plugin.
+             *
+             * @return plugin name (either from the JSON, or from the filename if not specified in the JSON info)
+             */
+            std::string name() const;
+
         private:
 
             Common::Process::ProcessStatus status();

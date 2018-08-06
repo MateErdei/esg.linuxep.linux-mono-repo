@@ -119,3 +119,8 @@ PluginProxy::~PluginProxy() noexcept
 {
     stop();
 }
+
+std::string PluginProxy::name() const
+{
+    return m_info.getPluginName();
+}

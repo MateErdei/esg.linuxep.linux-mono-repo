@@ -23,6 +23,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
+Watchdog::Watchdog()
+        : Watchdog(Common::ZeroMQWrapper::createContext())
+{
+}
+
+Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context)
+        : m_context(std::move(context))
+{
+}
+
 Watchdog::~Watchdog()
 {
     m_socket.reset();
@@ -40,7 +50,7 @@ int Watchdog::run()
 
     for (auto& info : pluginConfigs)
     {
-        m_pluginProxies.emplace_back(info);
+        m_pluginProxies.emplace_back(std::move(info));
     }
 
     pluginConfigs.clear();
@@ -144,18 +154,40 @@ void Watchdog::setupSocket()
 void Watchdog::handleSocketRequest()
 {
     Common::ZeroMQWrapper::IReadable::data_t request = m_socket->read();
-    LOGINFO("Command from IPC: "<<request.at(0));
-    Common::ZeroMQWrapper::IWritable::data_t response;
-    response.emplace_back("OK");
+    std::string responseStr = handleCommand(request);
+
+    Common::ZeroMQWrapper::IWritable::data_t response{responseStr};
     m_socket->write(response);
 }
 
-Watchdog::Watchdog()
-    : Watchdog(Common::ZeroMQWrapper::createContext())
+std::string Watchdog::stopPlugin(const std::string& pluginName)
 {
+    LOGINFO("Stopping "<<pluginName);
+    for (auto& proxy : m_pluginProxies)
+    {
+        if (proxy.name() == pluginName)
+        {
+            return "OK";
+        }
+    }
+    return "Error: Plugin not found";
 }
 
-Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context)
-    : m_context(std::move(context))
+std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t request)
 {
+    if (request.size() != 2)
+    {
+        return "Error: Wrong number of arguments in IPC";
+    }
+    std::string command = request.at(0);
+    std::string argument = request.at(1);
+    LOGINFO("Command from IPC: "<<command);
+
+    if (command == "STOP")
+    {
+        return stopPlugin(argument);
+    }
+
+
+    return "Error: Unknown command";
 }
