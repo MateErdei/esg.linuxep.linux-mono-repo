@@ -2,8 +2,8 @@ def build()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
-        sh 'rm -rf /tmp/temp*'
-        sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
+        //sh 'rm -rf build64 && mkdir -p build64 && cd build64 && cmake .. && make && make install && make dist'
+        sh './buildLinux.sh'
     }
 }
 
