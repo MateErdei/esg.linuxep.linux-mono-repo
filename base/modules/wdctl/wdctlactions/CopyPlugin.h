@@ -5,8 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "wdctl/wdctlimpl/Arguments.h"
 #include "Action.h"
+
+#include <wdctl/wdctlimpl/Arguments.h>
 
 namespace wdctl
 {
