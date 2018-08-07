@@ -32,7 +32,7 @@ TEST_F(TestPluginProxy, WontStartPluginWithoutExecutable) //NOLINT
     Common::PluginRegistryImpl::PluginInfo info;
 
     watchdog::watchdogimpl::PluginProxy proxy(info);
-    std::chrono::seconds delay = proxy.startIfRequired();
+    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay.count(),3600);
 }
 
@@ -56,7 +56,7 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
     info.setExecutableFullPath(execPath);
 
     watchdog::watchdogimpl::PluginProxy proxy(info);
-    std::chrono::seconds delay = proxy.startIfRequired();
+    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::hours(1));
 }
 
@@ -82,10 +82,10 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     info.setExecutableFullPath(execPath);
 
     watchdog::watchdogimpl::PluginProxy proxy(info);
-    std::chrono::seconds delay = proxy.startIfRequired();
+    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::hours(1));
 
     EXPECT_NO_THROW(proxy.checkForExit()); //NOLINT
-    delay = proxy.startIfRequired();
+    delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::seconds(10)); // Not starting for 10 seconds
 }

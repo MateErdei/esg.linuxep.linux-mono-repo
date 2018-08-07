@@ -36,8 +36,17 @@ namespace watchdog
 
             std::string stopPlugin(const std::string& pluginName);
 
+            /**
+             * Find a plugin by name from m_pluginProxies, returning nullptr if no plugin found,
+             * @param pluginName
+             * @return BORROWED pointer to plugin, or nullptr.
+             */
+            PluginProxy* findPlugin(const std::string& pluginName);
+
             Common::ZeroMQWrapper::IContextSharedPtr m_context;
             ProxyVector m_pluginProxies;
+
+
         private:
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
         };

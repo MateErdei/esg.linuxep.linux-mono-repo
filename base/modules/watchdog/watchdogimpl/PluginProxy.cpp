@@ -13,7 +13,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace watchdog::watchdogimpl;
 
 PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
-    : m_info(std::move(info)),m_process(Common::Process::createProcess()),m_running(false),m_deathTime(0)
+    :
+    m_info(std::move(info)),
+    m_process(Common::Process::createProcess()),
+    m_running(false),
+    m_deathTime(0),
+    m_enabled(true)
 {
     m_exe = m_info.getExecutableFullPath();
     if ((!m_exe.empty()) && m_exe[0] != '/')
@@ -95,10 +100,21 @@ void PluginProxy::checkForExit()
     }
 }
 
-std::chrono::seconds PluginProxy::startIfRequired()
+std::chrono::seconds PluginProxy::ensureStateMatchesOptions()
 {
-    if (m_running)
+    if (!m_enabled)
     {
+        if (m_running)
+        {
+            // Running and we don't want it - stop it
+            stop();
+        }
+        // We don't want it running - wait a long time before calling again
+        return std::chrono::hours(1);
+    }
+    else if (m_running)
+    {
+        // Running and we want it running, so wait a long time before calling again
         return std::chrono::hours(1);
     }
 
@@ -123,4 +139,9 @@ PluginProxy::~PluginProxy() noexcept
 std::string PluginProxy::name() const
 {
     return m_info.getPluginName();
+}
+
+void PluginProxy::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }

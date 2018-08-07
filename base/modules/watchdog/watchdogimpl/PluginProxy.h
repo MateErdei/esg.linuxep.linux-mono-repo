@@ -33,10 +33,13 @@ namespace watchdog
             void checkForExit();
 
             /**
+             * If plugin is enabled, and is not running, and enough time has passed, start plugin.
+             * If plugin is enabled, and is not running, and enough time has not passed, return amount of time to wait.
+             * If plugin is disabled, and is running, stop plugin.
              *
              * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
              */
-            std::chrono::seconds startIfRequired();
+            std::chrono::seconds ensureStateMatchesOptions();
 
             /**
              * Get the name of the plugin.
@@ -44,6 +47,9 @@ namespace watchdog
              * @return plugin name (either from the JSON, or from the filename if not specified in the JSON info)
              */
             std::string name() const;
+
+            void setEnabled(bool enabled);
+
 
         private:
 
@@ -55,6 +61,8 @@ namespace watchdog
             std::string m_exe;
             bool m_running;
             time_t m_deathTime;
+
+            bool m_enabled;
         };
     }
 }

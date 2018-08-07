@@ -57,7 +57,7 @@ int Watchdog::run()
 
     for (auto& proxy : m_pluginProxies)
     {
-        proxy.startIfRequired();
+        proxy.ensureStateMatchesOptions();
     }
 
     bool keepRunning = true;
@@ -109,11 +109,12 @@ int Watchdog::run()
             }
         }
 
+        // Child may have exited, or socket request may have altered state.
         timeout = std::chrono::seconds(10);
         for (auto& proxy : m_pluginProxies)
         {
             proxy.checkForExit();
-            auto waitPeriod = proxy.startIfRequired();
+            auto waitPeriod = proxy.ensureStateMatchesOptions();
             timeout = std::min(waitPeriod, timeout);
         }
 
@@ -163,12 +164,11 @@ void Watchdog::handleSocketRequest()
 std::string Watchdog::stopPlugin(const std::string& pluginName)
 {
     LOGINFO("Stopping "<<pluginName);
-    for (auto& proxy : m_pluginProxies)
+    PluginProxy* proxy = findPlugin(pluginName);
+    if (proxy != nullptr)
     {
-        if (proxy.name() == pluginName)
-        {
-            return "OK";
-        }
+        proxy->setEnabled(false);
+        return "OK";
     }
     return "Error: Plugin not found";
 }
@@ -190,4 +190,16 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
 
 
     return "Error: Unknown command";
+}
+
+PluginProxy *Watchdog::findPlugin(const std::string& pluginName)
+{
+    for (auto& proxy : m_pluginProxies)
+    {
+        if (proxy.name() == pluginName)
+        {
+            return &proxy;
+        }
+    }
+    return nullptr;
 }
