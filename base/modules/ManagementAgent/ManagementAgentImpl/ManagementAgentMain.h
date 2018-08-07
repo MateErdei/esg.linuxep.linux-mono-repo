@@ -46,6 +46,12 @@ namespace ManagementAgent
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
 
+
+            /**
+             * Remember the original parent PID so that we can exit if it changes.
+             */
+            pid_t m_ppid;
+
         };
     }
 }

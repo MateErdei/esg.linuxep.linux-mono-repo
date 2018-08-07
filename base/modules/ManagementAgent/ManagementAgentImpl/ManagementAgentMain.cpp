@@ -69,6 +69,8 @@ namespace ManagementAgent
             initialiseTaskQueue();
             initialiseDirectoryWatcher();
             initialisePluginReceivers();
+
+            m_ppid = ::getppid();
         }
 
         void ManagementAgentMain::loadPlugins()
@@ -143,10 +145,15 @@ namespace ManagementAgent
             bool running = true;
             while(running)
             {
-                poller->poll(std::chrono::milliseconds(-1));
+                poller->poll(std::chrono::seconds(30));
                 if (GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
+                    running = false;
+                }
+                if (::getppid() != m_ppid)
+                {
+                    LOGWARN("Management Agent stopping because parent process has changed");
                     running = false;
                 }
             }
