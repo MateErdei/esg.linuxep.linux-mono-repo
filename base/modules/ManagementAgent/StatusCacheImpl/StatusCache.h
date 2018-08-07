@@ -17,6 +17,8 @@ namespace ManagementAgent
         class StatusCache : public virtual ManagementAgent::StatusCache::IStatusCache
         {
         public:
+            StatusCache() = default;
+            StatusCache(const StatusCache&) = delete;
             ~StatusCache() override = default;
             bool statusChanged(const std::string& appid, const std::string& statusForComparison) override;
         private:
