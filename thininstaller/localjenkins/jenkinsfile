@@ -11,7 +11,7 @@ def copyBuildToFiler()
 {
     sh 'sudo rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/ThinInstaller/${BRANCH_NAME}'
     sh 'sudo mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/ThinInstaller/${BRANCH_NAME}'
-    sh 'sudo cp -r build64/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/ThinInstaller/${BRANCH_NAME}'
+    sh 'sudo cp -r cmake-build-release/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/ThinInstaller/${BRANCH_NAME}'
 }
 
 pipeline {
