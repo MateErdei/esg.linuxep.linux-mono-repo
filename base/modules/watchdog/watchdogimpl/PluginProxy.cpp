@@ -143,6 +143,7 @@ std::string PluginProxy::name() const
 void PluginProxy::setEnabled(bool enabled)
 {
     m_enabled = enabled;
+    m_deathTime = 0; // If enabled we want to start as soon as possible
 }
 
 void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
