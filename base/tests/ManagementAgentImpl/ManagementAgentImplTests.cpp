@@ -143,7 +143,7 @@ namespace
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-        std::vector<std::string> pluginFiles = {"plugin.json"};
+        std::vector<std::string> pluginFiles = {"PluginName.json"};
 
         std::string jsonContent = createJsonString();
 
