@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/ManagementAgent/StatusReceiverImpl/StatusCache.h>
+#include <modules/ManagementAgent/StatusCacheImpl/StatusCache.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -13,13 +13,13 @@ TEST(TestStatusCache, TestConstruction) // NOLINT
 {
     EXPECT_NO_THROW
         (
-            ManagementAgent::StatusReceiverImpl::StatusCache cache
+            ManagementAgent::StatusCacheImpl::StatusCache cache;
         );
 }
 
 TEST(TestStatusCache, CanAddFirstStatus) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -27,7 +27,7 @@ TEST(TestStatusCache, CanAddFirstStatus) // NOLINT
 
 TEST(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -38,7 +38,7 @@ TEST(TestStatusCache, checkSameStatusXmlForDifferentAppIdsIsAccepted) // NOLINT
 
 TEST(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -49,7 +49,7 @@ TEST(TestStatusCache, checkDifferentStatusXmlForSameAppIdIsAccepted) // NOLINT
 
 TEST(TestStatusCache, checkSameStatusSameAppIdIsRejected) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("F","A");
     EXPECT_TRUE(v);
@@ -60,7 +60,7 @@ TEST(TestStatusCache, checkSameStatusSameAppIdIsRejected) // NOLINT
 
 TEST(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("APPID","");
     EXPECT_TRUE(v);
@@ -68,7 +68,7 @@ TEST(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
 
 TEST(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
 {
-    ManagementAgent::StatusReceiverImpl::StatusCache cache;
+    ManagementAgent::StatusCacheImpl::StatusCache cache;
 
     bool v = cache.statusChanged("","StatusXML");
     EXPECT_TRUE(v);

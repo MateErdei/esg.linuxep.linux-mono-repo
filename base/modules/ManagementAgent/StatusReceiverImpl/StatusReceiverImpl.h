@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "StatusCache.h"
+#include "ManagementAgent/StatusCache/IStatusCache.h"
 
 #include <ManagementAgent/PluginCommunication/IStatusReceiver.h>
 #include <Common/TaskQueue/ITaskQueue.h>
@@ -19,12 +19,12 @@ namespace ManagementAgent
         {
         public:
             explicit StatusReceiverImpl(
-                    Common::TaskQueue::ITaskQueueSharedPtr taskQueue, StatusCache& statusCache);
+                    Common::TaskQueue::ITaskQueueSharedPtr taskQueue, const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache);
 
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) override;
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
-            StatusCache m_statusCache;
+            std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
             std::string m_tempDir;
             std::string m_statusDir;
         };

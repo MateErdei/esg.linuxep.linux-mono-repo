@@ -26,7 +26,7 @@ namespace
 
 void ManagementAgent::StatusReceiverImpl::StatusTask::run()
 {
-    if (m_statusCache.statusChanged(m_appId,m_statusXmlWithoutTimestamps))
+    if (m_statusCache->statusChanged(m_appId,m_statusXmlWithoutTimestamps))
     {
         LOGSUPPORT("Send updated status to mcsrouter from appid: " << m_appId);
         Path basename = createStatusFilename(m_appId);
@@ -39,7 +39,7 @@ void ManagementAgent::StatusReceiverImpl::StatusTask::run()
 }
 
 ManagementAgent::StatusReceiverImpl::StatusTask::StatusTask(
-        ManagementAgent::StatusReceiverImpl::StatusCache& statusCache, std::string appId, std::string statusXml,
+        const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache, std::string appId, std::string statusXml,
         std::string statusXmlWithoutTimestamps, std::string tempDir, std::string statusDir)
     : m_statusCache(statusCache),
       m_appId(std::move(appId)),

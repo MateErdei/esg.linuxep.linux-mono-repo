@@ -7,18 +7,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ManagementAgentMain.h"
 #include "Logger.h"
 
+#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
-#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
-#include <signal.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <signal.h>
+#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 
 
 using namespace Common;
@@ -53,6 +54,8 @@ namespace ManagementAgent
                 return -1;
             }
 
+
+
             std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager = std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
                     new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
@@ -66,6 +69,7 @@ namespace ManagementAgent
             LOGDEBUG("Initializing Management Agent");
 
             m_pluginManager = &pluginManager;
+            m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
 
             // order is important.
             loadPlugins();
@@ -73,6 +77,7 @@ namespace ManagementAgent
             initialiseDirectoryWatcher();
             initialisePluginReceivers();
             sendCurrentPluginsStatus();
+
         }
 
         void ManagementAgentMain::loadPlugins()

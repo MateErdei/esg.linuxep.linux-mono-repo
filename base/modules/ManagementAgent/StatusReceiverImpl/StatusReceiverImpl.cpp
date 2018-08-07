@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 ManagementAgent::StatusReceiverImpl::StatusReceiverImpl::StatusReceiverImpl(
-        Common::TaskQueue::ITaskQueueSharedPtr taskQueue, StatusCache& statusCache)
+        Common::TaskQueue::ITaskQueueSharedPtr taskQueue, const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache)
     : m_taskQueue(std::move(taskQueue))
     , m_statusCache(statusCache)
 {

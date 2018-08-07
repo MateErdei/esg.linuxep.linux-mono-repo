@@ -6,29 +6,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <ManagementAgent/StatusCache/IStatusCache.h>
 
-#include <string>
 #include <map>
 
 namespace ManagementAgent
 {
-    namespace StatusReceiverImpl
+    namespace StatusCacheImpl
     {
-        class IStatusCache
-        {
-
-        public:
-            virtual ~IStatusCache() = default;
-            /**
-             *
-             * @param appid
-             * @param statusForComparison
-             * @return True if the status has changed
-             */
-            virtual bool statusChanged(const std::string& appid, const std::string& statusForComparison) = 0;
-        };
-
-        class StatusCache : public virtual IStatusCache
+        class StatusCache : public virtual ManagementAgent::StatusCache::IStatusCache
         {
         public:
             ~StatusCache() override = default;
@@ -50,6 +36,3 @@ namespace ManagementAgent
         };
     }
 }
-
-
-

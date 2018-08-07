@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 
 namespace
 {

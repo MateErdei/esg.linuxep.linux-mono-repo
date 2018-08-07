@@ -8,11 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <Common/TaskQueue/ITaskProcessor.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
+#include <Common/TaskQueue/ITaskQueue.h>
+#include <Common/TaskQueue/ITaskProcessor.h>
 
 namespace ManagementAgent
 {
@@ -46,7 +45,7 @@ namespace ManagementAgent
 
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
-            StatusReceiverImpl::StatusCache m_statusCache;
+            std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
 
 
             /**

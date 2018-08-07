@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
+#include <ManagementAgent/StatusCache/IStatusCache.h>
 #include <Common/TaskQueue/ITask.h>
-#include "StatusCache.h"
+#include <memory>
 
 namespace ManagementAgent
 {
@@ -19,7 +19,7 @@ namespace ManagementAgent
         {
         public:
             StatusTask(
-                    StatusCache& statusCache,
+                    const std::shared_ptr<ManagementAgent::StatusCache::IStatusCache>& statusCache,
                     std::string appId,
                     std::string statusXml,
                     std::string statusXmlWithoutTimestamps,
@@ -29,7 +29,7 @@ namespace ManagementAgent
 
             void run() override;
         private:
-            StatusCache& m_statusCache;
+            std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
             std::string m_appId;
             std::string m_statusXml;
             std::string m_statusXmlWithoutTimestamps;
