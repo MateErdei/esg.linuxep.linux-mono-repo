@@ -13,13 +13,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 
 #include <cstdlib>
 
 #include <unistd.h>
 #include <sys/select.h>
-#include <Common/ZeroMQWrapper/IPoller.h>
 
 using namespace watchdog::watchdogimpl;
 
