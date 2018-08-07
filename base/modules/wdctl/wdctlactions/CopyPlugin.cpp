@@ -3,10 +3,12 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
+#include "CopyPlugin.h"
+#include "Logger.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include "CopyPlugin.h"
-#include "wdctl/wdctlimpl/Logger.h"
 
 using namespace wdctl::wdctlactions;
 
