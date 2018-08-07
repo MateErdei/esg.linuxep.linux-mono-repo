@@ -1,9 +1,11 @@
 add_library(wdctlactions STATIC
-        ../wdctlimpl/Arguments.h
+        ../wdctlarguments/Arguments.h
         ../wdctlimpl/StringVector.h
         Logger.h
         CopyPlugin.cpp
         CopyPlugin.h
+        StartAction.cpp
+        StartAction.h
         StopAction.cpp
         StopAction.h
         Action.cpp

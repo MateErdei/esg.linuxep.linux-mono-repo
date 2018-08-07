@@ -6,8 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "wdctl_bootstrap.h"
 #include "Logger.h"
 #include "LoggingSetup.h"
-#include "wdctl/wdctlactions/CopyPlugin.h"
-#include "wdctl/wdctlactions/StopAction.h"
+
+#include <wdctl/wdctlactions/CopyPlugin.h>
+#include <wdctl/wdctlactions/StopAction.h>
+#include <wdctl/wdctlactions/StartAction.h>
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -107,6 +109,10 @@ int wdctl_bootstrap::main(const StringVector& args)
     else if (m_args.m_command == "stop")
     {
         action.reset(new wdctl::wdctlactions::StopAction(m_args));
+    }
+    else if (m_args.m_command == "start")
+    {
+        action.reset(new wdctl::wdctlactions::StartAction(m_args));
     }
     else
     {

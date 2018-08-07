@@ -3,7 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "StopAction.h"
+#include "StartAction.h"
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -13,19 +13,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace wdctl::wdctlactions;
 
-StopAction::StopAction(const wdctl::wdctlarguments::Arguments& args)
+StartAction::StartAction(const wdctl::wdctlarguments::Arguments& args)
         : ZMQAction(args)
 {
 }
 
-int StopAction::run()
+int StartAction::run()
 {
-    LOGINFO("Attempting to stop "<<m_args.m_argument);
+    LOGINFO("Attempting to start "<<m_args.m_argument);
 
     Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
     socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
 
-    socket->write({"STOP",m_args.m_argument});
+    socket->write({"START",m_args.m_argument});
 
     auto response = socket->read();
 
@@ -34,6 +34,6 @@ int StopAction::run()
         return 0;
     }
 
-    LOGERROR("Failed to stop "<< m_args.m_argument);
+    LOGERROR("Failed to start "<< m_args.m_argument<<": "<<response.at(0));
     return 1;
 }

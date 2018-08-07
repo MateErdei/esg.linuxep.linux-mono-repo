@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ZeroMQWrapper/IContext.h>
 
-wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlimpl::Arguments& args)
+wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args)
         : Action(args),m_context(Common::ZeroMQWrapper::createContext())
 {
 }

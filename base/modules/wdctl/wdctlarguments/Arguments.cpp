@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "Arguments.h"
 
-using namespace wdctl::wdctlimpl;
+using namespace wdctl::wdctlarguments;
 
 void Arguments::parseArguments(const StringVector& args)
 {

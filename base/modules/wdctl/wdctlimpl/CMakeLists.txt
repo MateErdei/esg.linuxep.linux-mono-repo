@@ -3,8 +3,8 @@ add_library(wdctlimpl STATIC
         wdctl_main.h
         wdctl_bootstrap.cpp
         wdctl_bootstrap.h
-        Arguments.cpp
-        Arguments.h
+        ../wdctlarguments/Arguments.cpp
+        ../wdctlarguments/Arguments.h
         StringVector.h
         Logger.h
         LoggingSetup.cpp

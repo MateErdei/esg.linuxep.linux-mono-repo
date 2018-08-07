@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "wdctl/wdctlimpl/Arguments.h"
+#include <wdctl/wdctlarguments/Arguments.h>
 
 namespace wdctl
 {
@@ -14,10 +14,21 @@ namespace wdctl
         class Action
         {
         public:
-            explicit Action(const wdctl::wdctlimpl::Arguments& args);
+
+            using Arguments = wdctl::wdctlarguments::Arguments;
+            /**
+             *
+             * @param args BORROWED reference to arguments
+             */
+            explicit Action(const Arguments& args);
+            Action(const Action&) = delete;
+
+            virtual ~Action() = default;
+
             virtual int run() = 0;
+
         protected:
-            const wdctl::wdctlimpl::Arguments& m_args;
+            const Arguments& m_args;
         };
     }
 }

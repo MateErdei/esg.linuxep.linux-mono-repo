@@ -5,20 +5,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "Action.h"
 
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include "ZMQAction.h"
 
 namespace wdctl
 {
     namespace wdctlactions
     {
-        class ZMQAction : public Action
+        class StartAction : public ZMQAction
         {
         public:
-            explicit ZMQAction(const wdctl::wdctlarguments::Arguments& args);
-        protected:
-            Common::ZeroMQWrapper::IContextSharedPtr m_context;
+            explicit StartAction(const wdctl::wdctlarguments::Arguments& args);
+            int run() override;
+
         };
     }
 }

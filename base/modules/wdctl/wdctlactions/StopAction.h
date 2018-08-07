@@ -15,7 +15,7 @@ namespace wdctl
         class StopAction : public ZMQAction
         {
         public:
-            explicit StopAction(const wdctl::wdctlimpl::Arguments& args);
+            explicit StopAction(const wdctl::wdctlarguments::Arguments& args);
             int run() override;
 
         };

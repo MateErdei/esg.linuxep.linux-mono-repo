@@ -16,7 +16,7 @@ namespace wdctl
         class CopyPlugin : public Action
         {
         public:
-            explicit CopyPlugin(const wdctl::wdctlimpl::Arguments& args);
+            explicit CopyPlugin(const wdctl::wdctlarguments::Arguments& args);
             int run() override;
         };
     }

@@ -5,12 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <Common/Datatypes/StringVector.h>
+#include <string>
+#include <vector>
 
-namespace wdctl
+namespace Common
 {
-    namespace wdctlimpl
+    namespace Datatypes
     {
-        using StringVector = Common::Datatypes::StringVector;
+        using StringVector = std::vector<std::string>;
     }
 }
