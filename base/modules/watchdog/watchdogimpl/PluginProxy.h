@@ -50,6 +50,11 @@ namespace watchdog
 
             void setEnabled(bool enabled);
 
+            /**
+             * Info has been reloaded, so update the information
+             * @param info
+             */
+            void updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info);
 
         private:
 

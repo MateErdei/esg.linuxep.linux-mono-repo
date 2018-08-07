@@ -35,6 +35,7 @@ namespace watchdog
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
 
             std::string stopPlugin(const std::string& pluginName);
+            std::string startPlugin(const std::string& pluginName);
 
             /**
              * Find a plugin by name from m_pluginProxies, returning nullptr if no plugin found,

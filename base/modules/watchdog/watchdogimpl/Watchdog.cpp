@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 
 #include <cstdlib>
+#include <cassert>
 
 #include <unistd.h>
 #include <sys/select.h>
@@ -173,6 +174,35 @@ std::string Watchdog::stopPlugin(const std::string& pluginName)
     return "Error: Plugin not found";
 }
 
+std::string Watchdog::startPlugin(const std::string& pluginName)
+{
+    LOGINFO("Starting "<<pluginName);
+
+    PluginProxy* proxy = findPlugin(pluginName); // BORROWED pointer
+
+    std::pair<Common::PluginRegistryImpl::PluginInfo, bool> loadResult = Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
+
+    if (proxy == nullptr && !loadResult.second)
+    {
+        // No plugin loaded and none on disk
+        return "Error: Plugin not found";
+    }
+    if (proxy == nullptr)
+    {
+        // Not previously loaded, but now available
+        assert(loadResult.second);
+        m_pluginProxies.emplace_back(loadResult.first);
+        proxy = &m_pluginProxies.back();
+    }
+    else if (loadResult.second)
+    {
+        // update info from disk
+        proxy->updatePluginInfo(loadResult.first);
+    }
+    proxy->setEnabled(true);
+    return "OK";
+}
+
 std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t request)
 {
     if (request.size() != 2)
@@ -187,7 +217,10 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     {
         return stopPlugin(argument);
     }
-
+    else if (command == "START")
+    {
+        return startPlugin(argument);
+    }
 
     return "Error: Unknown command";
 }

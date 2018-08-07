@@ -182,7 +182,14 @@ namespace Common
              */
             static PluginInfoVector loadFromPluginRegistry();
 
-
+            /**
+             * Load a new plugin from the registry by name.
+             *
+             * LoadSuccess: bool: True if we have loaded the info.
+             *
+             * @param pluginName
+             * @return pair<PluginInfo, LoadSuccess>
+             */
             static std::pair<PluginInfo, bool> loadPluginInfoFromRegistry(const std::string& pluginName);
 
             /**

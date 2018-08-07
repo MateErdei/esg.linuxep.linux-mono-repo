@@ -144,3 +144,8 @@ void PluginProxy::setEnabled(bool enabled)
 {
     m_enabled = enabled;
 }
+
+void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
+{
+    m_info = info;
+}
