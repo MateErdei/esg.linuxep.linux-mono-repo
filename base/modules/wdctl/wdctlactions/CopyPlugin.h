@@ -7,8 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Action.h"
 
-#include <wdctl/wdctlimpl/Arguments.h>
-
 namespace wdctl
 {
     namespace wdctlactions
@@ -16,7 +14,7 @@ namespace wdctl
         class CopyPlugin : public Action
         {
         public:
-            explicit CopyPlugin(const wdctl::wdctlarguments::Arguments& args);
+            explicit CopyPlugin(const Action::Arguments& args);
             int run() override;
         };
     }

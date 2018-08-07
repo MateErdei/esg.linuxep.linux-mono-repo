@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace wdctl::wdctlactions;
 
-CopyPlugin::CopyPlugin(const wdctl::wdctlarguments::Arguments& args)
+CopyPlugin::CopyPlugin(const Action::Arguments& args)
     : Action(args)
 {
 }
