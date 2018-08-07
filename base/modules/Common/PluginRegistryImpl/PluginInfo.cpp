@@ -166,10 +166,6 @@ namespace Common
             {
                 pluginname = pluginNameFromFilename;
             }
-            else if (pluginNameFromFilename.empty())
-            {
-                // Pass
-            }
             else if (pluginname != pluginNameFromFilename)
             {
                 throw PluginRegistryException(
