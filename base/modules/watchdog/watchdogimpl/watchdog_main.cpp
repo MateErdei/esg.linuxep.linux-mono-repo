@@ -23,14 +23,14 @@ namespace
     std::string work_out_install_directory()
     {
         // Check if we have an environment variable telling us the installation location
-        char *SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
+        char* SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
         if (SOPHOS_INSTALL != nullptr)
         {
             return SOPHOS_INSTALL;
         }
         // If we don't have environment variable, assume we were started in the installation directory
         char pwd[PATH_MAX];
-        char *cwd = ::getcwd(pwd, PATH_MAX);
+        char* cwd = ::getcwd(pwd, PATH_MAX);
         if (cwd != nullptr)
         {
             return cwd;
