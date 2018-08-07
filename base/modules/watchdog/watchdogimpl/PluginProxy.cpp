@@ -13,12 +13,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace watchdog::watchdogimpl;
 
 PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
-    :
-    m_info(std::move(info)),
-    m_process(Common::Process::createProcess()),
-    m_running(false),
-    m_deathTime(0),
-    m_enabled(true)
+    : m_info(std::move(info))
+    , m_process(Common::Process::createProcess())
+    , m_running(false)
+    , m_deathTime(0)
+    , m_enabled(true)
 {
     m_exe = m_info.getExecutableFullPath();
     if ((!m_exe.empty()) && m_exe[0] != '/')
