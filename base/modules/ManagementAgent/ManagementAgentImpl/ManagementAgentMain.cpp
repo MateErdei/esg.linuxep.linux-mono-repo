@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -19,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <signal.h>
-#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+
 
 
 using namespace Common;
