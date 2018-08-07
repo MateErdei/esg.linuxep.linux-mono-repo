@@ -1,6 +1,5 @@
 add_library(wdctlactions STATIC
         ../wdctlarguments/Arguments.h
-        ../wdctlimpl/StringVector.h
         Logger.h
         CopyPlugin.cpp
         CopyPlugin.h
@@ -27,4 +26,5 @@ target_link_libraries(wdctlactions PUBLIC
         ${LOG4CPLUS_LIBRARY}
         applicationconfigurationimpl
         filesystemimpl
-        zeromqwrapperimpl)
+        zeromqwrapperimpl
+        wdctlarguments)

@@ -3,8 +3,6 @@ add_library(wdctlimpl STATIC
         wdctl_main.h
         wdctl_bootstrap.cpp
         wdctl_bootstrap.h
-        ../wdctlarguments/Arguments.cpp
-        ../wdctlarguments/Arguments.h
         StringVector.h
         Logger.h
         LoggingSetup.cpp
@@ -24,4 +22,5 @@ target_link_libraries(wdctlimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
         applicationconfigurationimpl
         filesystemimpl
-        wdctlactions)
+        wdctlactions
+        wdctlarguments)

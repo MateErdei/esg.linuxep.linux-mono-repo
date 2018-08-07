@@ -1,7 +1,6 @@
 include(GoogleTest)
 add_executable(TestWdctl
         TestWdctlBootstrap.cpp
-        TestWdctlArguments.cpp
         )
 target_include_directories(TestWdctl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
 target_include_directories(TestWdctl BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}")
