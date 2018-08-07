@@ -2,7 +2,6 @@ def buildInstallerWithScript()
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
         checkout scm
-        sh 'rm -rf cmake-build-release && mkdir -p cmake-build-release && cd cmake-build-release && cmake ..'
         sh './buildLinux.sh'
     }
 }

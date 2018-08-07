@@ -44,9 +44,19 @@ rm -rf $BASE/output $BASE/installer
 
 #tar zxf $INPUT/sav-linux-x86-precid-*.tgz 2>&1 | tee -a "$LOG" || failure "Unable to unpack savlinux tarfile"
 #popd
+cmake_dir=/redist/binaries/everest/cmake/bin
+export PATH=${cmake_dir}:$PATH
+which_cmake=$(which cmake)
+if [ "$which_cmake" != "${cmake_dir}/cmake" ];
+then
+    failure "Using wrong cmake"
+fi
 
+mkdir -p ${BASE}/build || failure "Failed to create build directory"
+pushd ${BASE}/build
+cmake .. || failure "Failed to cmake configure thininstaller"
 cmake --build ./cmake-build-release --target thininstaller
-
+popd
 #LIBRARIES="-lSUL -lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lretailer_lib -lxmlcpp -laesclib -lsaucrypto -lcurl -lexpat -lcrypto -lssl -lz -lssp"
 #g++ -std=c++11 -g -DLINUX64 installer.cpp -Iredist/SUL/include -Iredist/curl/include64 -Lredist/curl/lib64 -Lredist/SUL/lib64 -Lredist/boost/lib64 -Lredist/openssl/lib64 -Lredist/zlib/lib64 -Lredist/expat/lib64 $LIBRARIES -o installer64 2>&1 | tee -a "$LOG" || failure "Failure to compile 64 bit version!"
 
