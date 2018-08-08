@@ -1,5 +1,5 @@
-## 
-## ALWAYS EDIT //version/product/savlinux/3rdparty/support/pathmgr.sh 
+##
+## ALWAYS EDIT //version/product/savlinux/3rdparty/support/pathmgr.sh
 ##
 
 
@@ -43,11 +43,14 @@ if [ -d "$lpath" ]; then
     export LINK_FLAGS="$LINK_FLAGS -L$lpath/lib"
 fi
 
-lpath=/opt/tools
-if [ -d "$lpath" ]; then
-    addpath $lpath/bin
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$lpath/lib
-    export LINK_FLAGS="$LINK_FLAGS -L$lpath/lib"
+if [[ -z $NO_TOOLS ]]
+then
+    lpath=/opt/tools
+    if [ -d "$lpath" ]; then
+        addpath $lpath/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$lpath/lib
+        export LINK_FLAGS="$LINK_FLAGS -L$lpath/lib"
+    fi
 fi
 
 lpath=/opt/sophos
@@ -64,6 +67,14 @@ if [ -d "$lpath" ]; then
     export LINK_FLAGS="-L$lpath/lib $LINK_FLAGS"
 fi
 
+## AIX xlC compiler - new version
+lpath=/opt/IBM/xlC/13.1.3
+if [ -d "$lpath" ]; then
+    addpath $lpath/bin
+    export LD_LIBRARY_PATH=$lpath/lib:$LD_LIBRARY_PATH
+    export LINK_FLAGS="-L$lpath/lib $LINK_FLAGS"
+fi
+
 ## AIX xlC compiler
 lpath=/usr/vacpp
 if [ -d "$lpath" ]; then
@@ -72,10 +83,20 @@ if [ -d "$lpath" ]; then
     export LINK_FLAGS="-L$lpath/lib $LINK_FLAGS"
 fi
 
-lpath=/opt/toolchain
+if [[ -z $NO_TOOLCHAIN ]]
+then
+    lpath=/opt/toolchain
+    if [ -d "$lpath" ]; then
+        addpath $lpath/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$lpath/lib:$lpath/lib64
+    fi
+fi
+
+lpath=/opt/csw
 if [ -d "$lpath" ]; then
     addpath $lpath/bin
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$lpath/lib:$lpath/lib64
+    addpath $lpath/gnu
+    export LD_LIBRARY_PATH=$lpath/lib:$LD_LIBRARY_PATH
 fi
 
 # On AIX, msgfmt requires that /opt/pware/lib is in the search path before /usr/lib.

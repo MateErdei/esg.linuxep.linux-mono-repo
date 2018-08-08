@@ -1,115 +1,177 @@
 #!/bin/bash
+PRODUCT=sspl-thininstaller
 
-PRODUCT=thininstaller
+source /etc/profile
+set -ex
+set -o pipefail
+
+STARTINGDIR=$(pwd)
+
 cd ${0%/*}
 BASE=$(pwd)
-[ -f "$BASE"/pathmgr.sh ] || { echo "Failed to find $BASE/bin/build/pathmgr.sh" | tee log/build.log ; exit 1 ; }
-source "$BASE"/pathmgr.sh
-source "$BASE"/common.sh
+OUTPUT=$BASE/output
 
-ORIG_PATH=$PATH
-ORIG_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+LOG=$BASE/log/build.log
+mkdir -p $BASE/log || exit 1
 
-rm -rf $BASE/output $BASE/installer
+export NO_REMOVE_GCC=1
+INPUT=$BASE/input
+ALLEGRO_REDIST=/redist/binaries/linux11/input
+REDIST=$BASE/redist
+mkdir -p $REDIST
 
-## Create redist from input
-#INPUT=$BASE/input
-#[ -d $INPUT ] || failure "Can't find input"
 
-#REDIST=$BASE/redist
-#rm -rf $REDIST
-#mkdir -p $REDIST
-#pushd $REDIST
-#tar xf $INPUT/boost.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack boost"
-#tar xf $INPUT/curl.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack curl"
-#tar xf $INPUT/expat.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack expat"
-#tar xf $INPUT/openssl.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack openssl"
-#tar xf $INPUT/SUL.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack SUL"
-#tar xf $INPUT/zlib.tar 2>&1 | tee -a "$LOG" || failure "Unable to unpack zlib"
+## These can't be exitFailure since it doesn't exist till the sourcing is done
+[ -f "$BASE"/build-scripts/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
+source "$BASE"/build-scripts/pathmgr.sh
+[ -f "$BASE"/build-scripts/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
+source "$BASE"/build-scripts/common.sh
 
-## Setup redist symlinks
 
-#pushd openssl/lib64
-#for lib in ssl crypto
-#do
-#    ln -snf lib${lib}.so.1.* "lib${lib}.so.1"
-#    ln -snf lib${lib}.so.1.* "lib${lib}.so"
-#done
-#popd
+function untar_or_link_to_redist()
+{
+    local input=$1
+    local tar=${INPUT}/${input}.tar
 
-#pushd expat/lib64
-#ln -snf libexpat.so.1.* libexpat.so.1
-#ln -snf libexpat.so.1.* libexpat.so
-#popd
+    echo "Untaring $tar"
 
-#tar zxf $INPUT/sav-linux-x86-precid-*.tgz 2>&1 | tee -a "$LOG" || failure "Unable to unpack savlinux tarfile"
-#popd
-cmake_dir=/redist/binaries/everest/cmake/bin
-export PATH=${cmake_dir}:$PATH
-which_cmake=$(which cmake)
-if [ "$which_cmake" != "${cmake_dir}/cmake" ];
-then
-    failure "Using wrong cmake"
-fi
+    if [[ -f $tar ]]
+    then
+        tar xf "$tar" -C "$REDIST"
+    else
+        ln -snf ${ALLEGRO_REDIST}/$input ${REDIST}/$input
+    fi
+}
 
-mkdir -p ${BASE}/build || failure "Failed to create build directory"
-pushd ${BASE}/build
-cmake .. || failure "Failed to cmake configure thininstaller"
-cmake --build ./cmake-build-release --target thininstaller
-popd
-#LIBRARIES="-lSUL -lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lretailer_lib -lxmlcpp -laesclib -lsaucrypto -lcurl -lexpat -lcrypto -lssl -lz -lssp"
-#g++ -std=c++11 -g -DLINUX64 installer.cpp -Iredist/SUL/include -Iredist/curl/include64 -Lredist/curl/lib64 -Lredist/SUL/lib64 -Lredist/boost/lib64 -Lredist/openssl/lib64 -Lredist/zlib/lib64 -Lredist/expat/lib64 $LIBRARIES -o installer64 2>&1 | tee -a "$LOG" || failure "Failure to compile 64 bit version!"
+function prepare_dependencies()
+{
+    echo "Preparing dependencies"
 
-#Target directories for copying
-installer_dir="installer"
-bin_dir="$installer_dir/bin"
-libs_dir="$installer_dir/libs"
-installer_binary="$bin_dir/installer"
+    if [[ -d $INPUT ]]
+    then
+        unpack_scaffold_gcc_make "$INPUT"
 
-mkdir -p "$installer_dir"
-mkdir -p "$libs_dir"
-mkdir -p "$bin_dir"
+        # openssl
+        OPENSSL_TAR=${INPUT}/openssl.tar
+        if [[ -f $OPENSSL_TAR ]]
+        then
+            rm -rf $REDIST/openssl
+            tar xf "$OPENSSL_TAR" -C "$REDIST"
+            ln -snf libssl.so.1 ${REDIST}/openssl/lib64/libssl.so.10
+            ln -snf libcrypto.so.1 ${REDIST}/openssl/lib64/libcrypto.so.10
+        elif [[ -d $ALLEGRO_REDIST ]]
+        then
+            ln -snf $ALLEGRO_REDIST/openssl $REDIST/openssl
+            echo "Failed to find input openssl, using allegro redist openssl"
+        else
+            exitFailure 12 "Failed to find openssl"
+        fi
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib64
 
-# bin files
-cp cmake-build-release/thininstaller "$installer_binary" || failure "Failure to copy installer binary"
+        # cmake
+        local CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
+        if [[ -f "$CMAKE_TAR" ]]
+        then
+            tar xzf "$CMAKE_TAR" -C "$REDIST"
+            addpath "$REDIST/cmake/bin"
+        else
+            echo "WARNING: using system cmake"
+        fi
+        echo "Using cmake: $(which cmake)"
 
-# TODO LINUXEP-6202 change this to an artisan prod build location
-cp -a /redist/binaries/everest/versig_temp/versig "$bin_dir/"
+        untar_or_link_to_redist versig
+        untar_or_link_to_redist curl
+        untar_or_link_to_redist SUL
+        untar_or_link_to_redist boost
+        untar_or_link_to_redist expat
+        untar_or_link_to_redist zlib
+    else
+        echo "WARNING: No input available; using system or /redist files"
+        REDIST=$ALLEGRO_REDIST
+    fi
+}
 
-# lib files
-cp -a libs/SUL/lib64/*.so* "$libs_dir"
-cp -a libs/curl/lib64/*.so* "$libs_dir"
-cp -a libs/boost/lib64/*.so* "$libs_dir"
-cp -a libs/openssl/lib64/*.so* "$libs_dir"
-cp -a libs/expat/lib64/*.so* "$libs_dir"
-cp -a libs/zlib/lib64/*.so* "$libs_dir"
+function build()
+{
+    echo "STARTINGDIR=$STARTINGDIR"
+    echo "BASE=$BASE"
+    echo "PATH=$PATH"
+    echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
 
-#TODO LINUXEP-6203 which libs should we ship?
-#cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
-#cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
-#cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
+    cd $BASE
 
-# strip files
-strip $bin_dir/*
-strip $libs_dir/*
+    prepare_dependencies
+    ls -l ./redist
 
-cp *rootca* installer/
+    rm -rf $BASE/output
+    rm -rf $BASE/installer
+    mkdir -p ${BASE}/build
 
-mkdir -p output
-tar cf installer.tar installer/*
-rm -f installer.tar.gz
-gzip installer.tar
+    pushd ${BASE}/build
+    cmake -v -DREDIST="${REDIST}" ..
+    make || exitFailure 15 "Failed to build thininstaller"
+    popd
 
-output_install_script="SophosSetup.sh"
-cat installer_header.sh installer.tar.gz > output/${output_install_script}
-pushd output
-chmod u+x ${output_install_script}
-python ../generateManifestDat.py .
-tar cf installer.tar *
-gzip installer.tar
-sha256=$(python ../sha256OfFile.py installer.tar.gz)
-mv installer.tar.gz "${sha256}.tar.gz"
-echo "{\"name\": \"${sha256}\"}" > latest.json
-rm manifest.dat
-rm ${output_install_script}
-popd
+    # Targets for copying to final distrbutable.
+    installer_dir=$BASE/installer
+    bin_dir="$installer_dir/bin"
+    libs_dir="$installer_dir/libs"
+    installer_binary="$bin_dir/installer"
+
+    mkdir -p "$installer_dir"
+    mkdir -p "$libs_dir"
+    mkdir -p "$bin_dir"
+
+    # bin files
+    cp build/thininstaller "$installer_binary" || exitFailure 16 "Failure to copy installer binary"
+
+    # TODO LINUXEP-6202 change this to an artisan prod build location
+    cp -a /redist/binaries/everest/versig_temp/versig "$bin_dir/"
+
+    # lib files
+    cp -a $REDIST/SUL/lib64/*.so* $libs_dir
+    cp -a $REDIST/curl/lib64/*.so* $libs_dir
+    cp -a $REDIST/boost/lib64/*.so* $libs_dir
+    cp -a $REDIST/openssl/lib64/*.so* $libs_dir
+    cp -a $REDIST/expat/lib64/*.so* $libs_dir
+    cp -a $REDIST/zlib/lib64/*.so* $libs_dir
+
+    #TODO LINUXEP-6203 which libs should we ship?
+    #cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
+    #cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
+    #cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
+
+    # strip files
+    strip $bin_dir/*
+    strip $libs_dir/*
+
+    cp *rootca* installer/
+
+    mkdir -p output
+    tar cf partial_installer.tar installer/*
+    rm -f partial_installer.tar.gz
+    gzip partial_installer.tar
+
+    output_install_script="SophosSetup.sh"
+    cat installer_header.sh partial_installer.tar.gz > output/${output_install_script}
+    rm -f partial_installer.tar.gz
+
+    pushd output
+    chmod u+x ${output_install_script}
+    python ../generateManifestDat.py .
+    tar cf installer.tar *
+    gzip installer.tar
+    sha256=$(python ../sha256OfFile.py installer.tar.gz)
+    mv installer.tar.gz "${sha256}.tar.gz"
+    echo "{\"name\": \"${sha256}\"}" > latest.json
+    rm manifest.dat
+    rm ${output_install_script}
+    popd
+
+    echo "Build completed"
+}
+
+build | tee -a $LOG
+EXIT=$?
+cp $LOG $OUTPUT/ || true
+exit $EXIT
