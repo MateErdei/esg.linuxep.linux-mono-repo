@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace Datatypes
+    namespace UtilityImpl
     {
         class StringUtils
         {

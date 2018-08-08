@@ -198,7 +198,7 @@ namespace Common
 
             for(auto &pluginInfoFile : files)
             {
-                if (Common::Datatypes::StringUtils::endswith(pluginInfoFile,".json"))
+                if (Common::UtilityImpl::StringUtils::endswith(pluginInfoFile,".json"))
                 {
                     std::string pluginName(extractPluginNameFromFilename(pluginInfoFile));
                     try
