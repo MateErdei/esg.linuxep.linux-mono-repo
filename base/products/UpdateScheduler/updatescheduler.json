@@ -1,0 +1,10 @@
+{
+  "policyAppIds": [
+    "ALC"
+  ],
+  "statusAppIds": [
+    "ALC"
+  ],
+  "pluginName": "UpdateScheduler",
+  "executableFullPath": "base/bin/UpdateScheduler"
+}

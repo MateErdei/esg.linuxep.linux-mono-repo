@@ -3,12 +3,16 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #pragma once
 
-#include <iostream>
+#include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
 
-#define LOGINFO(x) std::cerr << x << std::endl // NOLINT
-#define LOGWARN(x) std::cerr << x << std::endl // NOLINT
-#define LOGERROR(x) std::cerr << x << std::endl // NOLINT
-#define LOGDEBUG(x) std::cerr << x << std::endl // NOLINT
-#define LOGSUPPORT(x) std::cerr << x << std::endl // NOLINT
+extern log4cplus::Logger GL_UPDSCH_LOGGER;
+
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(GL_UPDSCH_LOGGER, x) // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(GL_UPDSCH_LOGGER, x) // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_INFO(GL_UPDSCH_LOGGER, x) // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(GL_UPDSCH_LOGGER, x) // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(GL_UPDSCH_LOGGER, x) // NOLINT
