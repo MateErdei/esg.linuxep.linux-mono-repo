@@ -71,7 +71,7 @@ namespace ManagementAgent
 
             m_pluginManager = &pluginManager;
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
-
+            m_statusCache->loadCacheFromDisk();
             // order is important.
             loadPlugins();
             initialiseTaskQueue();

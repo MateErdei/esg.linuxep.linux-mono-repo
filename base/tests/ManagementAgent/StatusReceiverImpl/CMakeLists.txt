@@ -1,6 +1,6 @@
 include(GoogleTest)
 add_executable(TestStatusReceiverImpl
-        TestStatusCache.cpp
+        ../StatusCacheImpl/TestStatusCache.cpp
         TestStatusReceiverImpl.cpp
         TestStatusTask.cpp
         ../../Common/TaskQueueImpl/FakeQueue.h)

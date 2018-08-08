@@ -209,7 +209,7 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/certs"
 
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/action"
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/policy"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/status"
+mkdir -p "${SOPHOS_INSTALL}/base/mcs/status/cache"
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/event"
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/certs"
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/tmp"

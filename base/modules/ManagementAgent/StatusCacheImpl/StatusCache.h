@@ -21,6 +21,7 @@ namespace ManagementAgent
             StatusCache(const StatusCache&) = delete;
             ~StatusCache() override = default;
             bool statusChanged(const std::string& appid, const std::string& statusForComparison) override;
+            void loadCacheFromDisk() override;
         private:
             /**
              * Possibly need to convert to on-disk, or use on-disk as well
