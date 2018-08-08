@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
-#include <Common/Datatypes/StringUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace Common
 {

@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/Datatypes/StringUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include "gtest/gtest.h"
 
