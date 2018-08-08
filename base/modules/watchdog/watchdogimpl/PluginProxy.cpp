@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <cassert>
 
 using namespace watchdog::watchdogimpl;
 
@@ -149,4 +150,18 @@ void PluginProxy::setEnabled(bool enabled)
 void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
 {
     m_info = info;
+}
+
+PluginProxy& PluginProxy::operator=(PluginProxy&& other) noexcept
+{
+    stop(); // Ensure we aren't running
+
+    m_info = std::move(other.m_info);
+    m_exe = std::move(other.m_exe);
+    m_running = other.m_running;
+    m_deathTime = other.m_deathTime;
+    m_enabled = other.m_enabled;
+    m_process = std::move(other.m_process);
+
+    return *this;
 }

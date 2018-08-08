@@ -162,7 +162,7 @@ void Watchdog::handleSocketRequest()
     m_socket->write(response);
 }
 
-std::string Watchdog::stopPlugin(const std::string& pluginName)
+std::string Watchdog::disablePlugin(const std::string &pluginName)
 {
     LOGINFO("Stopping "<<pluginName);
     PluginProxy* proxy = findPlugin(pluginName);
@@ -174,7 +174,7 @@ std::string Watchdog::stopPlugin(const std::string& pluginName)
     return "Error: Plugin not found";
 }
 
-std::string Watchdog::startPlugin(const std::string& pluginName)
+std::string Watchdog::enablePlugin(const std::string &pluginName)
 {
     LOGINFO("Starting "<<pluginName);
 
@@ -203,6 +203,34 @@ std::string Watchdog::startPlugin(const std::string& pluginName)
     return "OK";
 }
 
+std::string Watchdog::removePlugin(const std::string &pluginName)
+{
+    LOGINFO("Removing "<<pluginName);
+
+    bool found = false;
+    for (auto it = m_pluginProxies.begin() ; it != m_pluginProxies.end() ; )
+    {
+        if (pluginName == it->name())
+        {
+            it->stop();
+            it = m_pluginProxies.erase(it);
+            found = true;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    if (!found)
+    {
+        // Maybe should just return "OK"?
+        return "Error: Plugin not found";
+    }
+
+    return "OK";
+}
+
 std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t request)
 {
     if (request.size() != 2)
@@ -215,11 +243,15 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
 
     if (command == "STOP")
     {
-        return stopPlugin(argument);
+        return disablePlugin(argument);
     }
     else if (command == "START")
     {
-        return startPlugin(argument);
+        return enablePlugin(argument);
+    }
+    else if (command == "REMOVE")
+    {
+        return removePlugin(argument);
     }
 
     return "Error: Unknown command";

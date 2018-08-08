@@ -8,8 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "LoggingSetup.h"
 
 #include <wdctl/wdctlactions/CopyPlugin.h>
-#include <wdctl/wdctlactions/StopAction.h>
+#include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
+#include <wdctl/wdctlactions/StopAction.h>
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -102,17 +103,23 @@ int wdctl_bootstrap::main(const StringVector& args)
 
     std::unique_ptr<wdctl::wdctlactions::Action> action;
 
-    if (m_args.m_command == "copyPluginRegistration")
+    std::string command = m_args.m_command;
+
+    if (command == "copyPluginRegistration")
     {
         action.reset(new wdctl::wdctlactions::CopyPlugin(m_args));
     }
-    else if (m_args.m_command == "stop")
+    else if (command == "stop")
     {
         action.reset(new wdctl::wdctlactions::StopAction(m_args));
     }
-    else if (m_args.m_command == "start")
+    else if (command == "start")
     {
         action.reset(new wdctl::wdctlactions::StartAction(m_args));
+    }
+    else if (command == "removePluginRegistration")
+    {
+        action.reset(new wdctl::wdctlactions::RemoveAction(m_args));
     }
     else
     {

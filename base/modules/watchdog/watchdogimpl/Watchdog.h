@@ -34,8 +34,15 @@ namespace watchdog
             void handleSocketRequest();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
 
-            std::string stopPlugin(const std::string& pluginName);
-            std::string startPlugin(const std::string& pluginName);
+            std::string disablePlugin(const std::string &pluginName);
+            std::string enablePlugin(const std::string &pluginName);
+
+            /**
+             * Stop the plugin if it is running, and remove it from m_pluginProxies.
+             * @param pluginName
+             * @return "OK" or an error
+             */
+            std::string removePlugin(const std::string& pluginName);
 
             /**
              * Find a plugin by name from m_pluginProxies, returning nullptr if no plugin found,

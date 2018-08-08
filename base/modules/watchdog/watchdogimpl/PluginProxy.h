@@ -23,6 +23,7 @@ namespace watchdog
                     );
             ~PluginProxy() noexcept;
             PluginProxy(PluginProxy&&) = default;
+            PluginProxy& operator=(PluginProxy&&) noexcept;
 
             // Don't allow copying
             PluginProxy(const PluginProxy&) = delete;
