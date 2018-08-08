@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 using namespace wdctl::wdctlactions;
 
@@ -26,10 +27,20 @@ int RemoveAction::run()
 
     Path destination = Common::FileSystem::join(
             pluginRegistry,
-            Common::FileSystem::basename(m_args.m_argument)
+            Common::FileSystem::basename(m_args.m_argument)+".json"
     );
 
-    Common::FileSystem::fileSystem()->removeFile(destination);
+    int result = 0;
+
+    try
+    {
+        Common::FileSystem::fileSystem()->removeFile(destination);
+    }
+    catch (const Common::FileSystem::IFileSystemException& e)
+    {
+        LOGERROR("Unable to delete "<<destination);
+        result = 1;
+    }
 
     Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
     socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
@@ -40,9 +51,9 @@ int RemoveAction::run()
 
     if (response.size() == 1 && response.at(0) == "OK")
     {
-        return 0;
+        return result;
     }
 
     LOGERROR("Failed to remove "<< m_args.m_argument<<": "<<response.at(0));
-    return 1;
+    return 2;
 }

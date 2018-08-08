@@ -6,12 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "LoggingSetup.h"
 #include "Logger.h"
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 
 #include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/fileappender.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <log4cplus/consoleappender.h>
 
 
 namespace
@@ -47,8 +48,17 @@ namespace
 
         // Has to be an auto_ptr since the setLayout requires it.
         std::auto_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(pattern)); // NOLINT
-        appender->setLayout(layout);
+        appender->setLayout(std::move(layout));
 
+        GL_WDCTL_LOGGER.addAppender(appender);
+
+        appender = new log4cplus::ConsoleAppender(
+                true, // logToStdErr
+                true  // immediateFlush
+                );
+        std::auto_ptr<log4cplus::Layout> layout2(new log4cplus::PatternLayout("%-5p %m%n"));
+        appender->setLayout(std::move(layout2));
+        appender->setThreshold(log4cplus::WARN_LOG_LEVEL);
         GL_WDCTL_LOGGER.addAppender(appender);
 
     }

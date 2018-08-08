@@ -124,7 +124,7 @@ int wdctl_bootstrap::main(const StringVector& args)
     else
     {
         LOGERROR("Unknown command: " << m_args.m_command);
-        return 1;
+        return 10;
     }
     return action->run();
 }
