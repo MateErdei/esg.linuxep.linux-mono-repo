@@ -10,8 +10,7 @@
 #include <cassert>
 
 #include "SUL.h"
-
-#include <curl/curl.h> // Because #include "curl.h" does not work.
+#include "curl.h"
 
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;

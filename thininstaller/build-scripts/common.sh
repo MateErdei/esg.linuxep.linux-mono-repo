@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 ##
 ## ALWAYS EDIT //version/product/savlinux/3rdparty/support/common.sh
 ##
@@ -80,19 +79,6 @@ function unpack_scaffold_gcc_make()
     fi
 
     popd
-}
-
-function set_paths_for_unpacked_tools()
-{
-    if [[ -d /build/input/gcc/bin ]]
-    then
-        export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
-    fi
-    if [[ -d /build/input/make/bin ]]
-    then
-        export PATH=/build/input/make/bin:$PATH
-    fi
 }
 
 
@@ -201,7 +187,7 @@ fi
 
 SYMBOLS=-g
 OPTIMIZE=-O2
-CPP_OPTIONS="$SECURITY_CPP $LARGEFILES -std=c++17"
+CPP_OPTIONS="$SECURITY_CPP $LARGEFILES -std=c++0x"
 COMPILE_OPTIONS="$SYMBOLS $OPTIMIZE $MLP $SECURITY_COMPILE"
 OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP $LARGEFILES"
 LINK_OPTIONS="$MLP $EXTRA_LIBS $SECURITY_LINK"
