@@ -41,6 +41,7 @@ public:
 
 
 
+
         m_pluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
                 new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
@@ -71,6 +72,10 @@ public:
                        }
                 ));
 
+        ON_CALL(*filesystemMock, isFile("/registry/plugin_one.json")).WillByDefault(
+                Return(true));
+        ON_CALL(*filesystemMock, isFile("/registry/plugin_two.json")).WillByDefault(
+                Return(true));
         ON_CALL(*filesystemMock, readFile("/registry/plugin_one.json")).WillByDefault(
                 Return(plugin_one_settings));
         ON_CALL(*filesystemMock, readFile("/registry/plugin_two.json")).WillByDefault(
