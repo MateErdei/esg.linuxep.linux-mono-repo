@@ -164,12 +164,27 @@ PluginProxy& PluginProxy::operator=(PluginProxy&& other) noexcept
         return *this;
     }
 
+    swap(other);
+
+    return *this;
+}
+
+void PluginProxy::swap(PluginProxy &other)
+{
+    if (&other == this)
+    {
+        return;
+    }
+
     std::swap(m_info, other.m_info);
     std::swap(m_exe, other.m_exe);
     std::swap(m_running, other.m_running);
     std::swap(m_deathTime, other.m_deathTime);
     std::swap(m_enabled, other.m_enabled);
     std::swap(m_process, other.m_process);
+}
 
-    return *this;
+PluginProxy::PluginProxy(PluginProxy&& other) noexcept
+{
+    swap(other);
 }

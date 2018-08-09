@@ -22,7 +22,7 @@ namespace watchdog
                     Common::PluginRegistryImpl::PluginInfo info
                     );
             ~PluginProxy() noexcept;
-            PluginProxy(PluginProxy&&) noexcept = default;
+            PluginProxy(PluginProxy&&) noexcept;
 
             /**
              * Move-assignment operator.
@@ -35,7 +35,9 @@ namespace watchdog
             PluginProxy(const PluginProxy&) = delete;
             PluginProxy& operator=(const PluginProxy&) = delete;
 
-            void start();
+            /**
+             * Stops the plugin if it is running.
+             */
             void stop();
             void checkForExit();
 
@@ -64,14 +66,45 @@ namespace watchdog
             void updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info);
 
         private:
+            /**
+             * Starts the plugin.
+             */
+            void start();
 
+            /**
+             * Get the current status of the plugin.
+             * @return
+             */
             Common::Process::ProcessStatus status();
+
+            /**
+             * Wait for the exit code from the plugin.
+             * @return
+             */
             int exitCode();
 
+            void swap(PluginProxy& other);
+
+            /**
+             * Loaded information about the plugin
+             */
             Common::PluginRegistryImpl::PluginInfo m_info;
+            /**
+             * Execution object for the plugin
+             */
             Common::Process::IProcessPtr m_process;
+            /**
+             * Full path to the executable
+             */
             std::string m_exe;
+            /**
+             * True if the plugin is currently running.
+             */
             bool m_running;
+
+            /**
+             * When the plugin process last died.
+             */
             time_t m_deathTime;
 
             bool m_enabled;

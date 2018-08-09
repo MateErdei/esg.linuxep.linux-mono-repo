@@ -47,7 +47,6 @@ int Watchdog::run()
     PluginInfoVector pluginConfigs = read_plugin_configs();
 
     m_pluginProxies.clear();
-    m_pluginProxies.reserve(pluginConfigs.size());
 
     for (auto& info : pluginConfigs)
     {

@@ -13,12 +13,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 
+#include <list>
+
 namespace watchdog
 {
     namespace watchdogimpl
     {
         using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
         using ProxyVector = std::vector<watchdog::watchdogimpl::PluginProxy>;
+        using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
         class Watchdog
         {
@@ -52,7 +55,7 @@ namespace watchdog
             PluginProxy* findPlugin(const std::string& pluginName);
 
             Common::ZeroMQWrapper::IContextSharedPtr m_context;
-            ProxyVector m_pluginProxies;
+            ProxyList m_pluginProxies;
 
 
         private:

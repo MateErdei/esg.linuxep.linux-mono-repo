@@ -163,3 +163,25 @@ TEST(TestVectorEraseMoves, TestBoolCopiedCorrectly) // NOLINT
     values[1].m_running = false;
     values.clear();
 }
+
+TEST(TestList, TestBoolCorrect) // NOLINT
+{
+    std::list<TestC> values;
+    values.emplace_back(0);
+    values.emplace_back(1);
+    values.emplace_back(2);
+
+    for (auto& v : values)
+    {
+        v.m_running = true;
+    }
+
+    values.begin()->m_running = false;
+    values.erase(values.begin());
+
+    for (auto& v : values)
+    {
+        v.m_running = false;
+    }
+    values.clear();
+}
