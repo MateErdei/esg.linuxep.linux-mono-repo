@@ -144,7 +144,8 @@ function waitForProcess()
     return 1
 }
 
-if [ $(id -u) -ne 0 ]
+
+if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
 fi
