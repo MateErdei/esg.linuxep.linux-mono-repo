@@ -1,5 +1,5 @@
 
-library "standardPipeline"
+library "standardPipeline@develop"
 
 properties([
   parameters([
@@ -22,7 +22,7 @@ try{
             'release-package.xml',
             'Linux Test',
             "2.0.0",
-            "master",
+            "develop",
             '',
             '',
             ''
