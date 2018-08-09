@@ -58,6 +58,7 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
     watchdog::watchdogimpl::PluginProxy proxy(info);
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::hours(1));
+    Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
 }
 
 TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
@@ -88,4 +89,6 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_NO_THROW(proxy.checkForExit()); //NOLINT
     delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::seconds(10)); // Not starting for 10 seconds
+
+    Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
 }

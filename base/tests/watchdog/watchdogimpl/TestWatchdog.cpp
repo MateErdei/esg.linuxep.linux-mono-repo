@@ -109,3 +109,57 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
     EXPECT_EQ(result.at(0),"OK");
 
 }
+
+class TestC
+{
+public:
+    explicit TestC(int pos)
+        : m_running(false),m_pos(pos)
+    {
+    }
+
+    TestC(TestC&& other) noexcept
+        : m_running(false)
+    {
+        std::swap(m_running, other.m_running);
+        m_pos = 5;
+    }
+
+    ~TestC()
+    {
+        std::cerr << "Deleting "<<m_pos << " running="<< m_running << std::endl;
+        EXPECT_FALSE(m_running);
+    }
+
+    TestC& operator=(TestC&& other) noexcept
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+        std::swap(m_running, other.m_running);
+        return *this;
+    }
+
+    bool m_running;
+    int m_pos;
+};
+
+TEST(TestVectorEraseMoves, TestBoolCopiedCorrectly) // NOLINT
+{
+    std::vector<TestC> values;
+    values.emplace_back(0);
+    values.emplace_back(1);
+    values.emplace_back(2);
+
+    values[0].m_running = true;
+    values[1].m_running = true;
+    values[2].m_running = true;
+
+    values[0].m_running = false;
+    values.erase(values.begin());
+
+    values[0].m_running = false;
+    values[1].m_running = false;
+    values.clear();
+}

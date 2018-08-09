@@ -22,7 +22,13 @@ namespace watchdog
                     Common::PluginRegistryImpl::PluginInfo info
                     );
             ~PluginProxy() noexcept;
-            PluginProxy(PluginProxy&&) = default;
+            PluginProxy(PluginProxy&&) noexcept = default;
+
+            /**
+             * Move-assignment operator.
+             * Need to provide our own implementation, since we need to swap m_running, not copy it.
+             * @return
+             */
             PluginProxy& operator=(PluginProxy&&) noexcept;
 
             // Don't allow copying

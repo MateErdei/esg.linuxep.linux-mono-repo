@@ -27,6 +27,7 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
         const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         m_exe = Common::FileSystem::fileSystem()->join(INST,m_exe);
     }
+    assert(m_process != nullptr);
     m_process->setOutputLimit(1024*1024);
 }
 
@@ -38,6 +39,7 @@ void PluginProxy::start()
         return;
     }
     LOGINFO("Starting "<<m_exe);
+    assert(m_process != nullptr);
     m_process->exec(m_exe,
         m_info.getExecutableArguments(),
         m_info.getExecutableEnvironmentVariables()
@@ -54,6 +56,7 @@ void PluginProxy::stop()
     if (m_running)
     {
         LOGINFO("Stopping " << m_exe);
+        assert(m_process != nullptr);
         m_process->kill();
     }
 }
@@ -64,6 +67,7 @@ Common::Process::ProcessStatus PluginProxy::status()
     {
         return Common::Process::ProcessStatus::FINISHED;
     }
+    assert(m_process != nullptr);
     return m_process->getStatus();
 }
 
@@ -73,6 +77,7 @@ int PluginProxy::exitCode()
     {
         return -1;
     }
+    assert(m_process != nullptr);
     int code = m_process->exitCode();
 
     std::string output = m_process->output();
@@ -154,14 +159,17 @@ void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo&
 
 PluginProxy& PluginProxy::operator=(PluginProxy&& other) noexcept
 {
-    stop(); // Ensure we aren't running
+    if (&other == this)
+    {
+        return *this;
+    }
 
-    m_info = std::move(other.m_info);
-    m_exe = std::move(other.m_exe);
-    m_running = other.m_running;
-    m_deathTime = other.m_deathTime;
-    m_enabled = other.m_enabled;
-    m_process = std::move(other.m_process);
+    std::swap(m_info, other.m_info);
+    std::swap(m_exe, other.m_exe);
+    std::swap(m_running, other.m_running);
+    std::swap(m_deathTime, other.m_deathTime);
+    std::swap(m_enabled, other.m_enabled);
+    std::swap(m_process, other.m_process);
 
     return *this;
 }
