@@ -250,32 +250,17 @@ namespace Common
 
         std::pair<PluginInfo, bool> PluginInfo::loadPluginInfoFromRegistry(const std::string& pluginName)
         {
-            auto tolowerstring = [](std::string& st) { std::transform(st.begin(), st.end(), st.begin(), ::tolower); };
+            Path pluginFilePath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(),
+                    pluginName+".json");
 
-            std::string lowercasepluginname = pluginName;
-            tolowerstring(lowercasepluginname);
-
-            std::string pluginFilePath;
-            for (const std::string& filepath : Common::FileSystem::fileSystem()->listFiles(
-                    Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath()))
-            {
-                std::string basename = Common::FileSystem::basename(filepath);
-
-                tolowerstring(basename);
-                if (basename.find(lowercasepluginname) != std::string::npos)
-                {
-                    pluginFilePath = filepath;
-                }
-            }
-
-            if (pluginFilePath.empty())
+            if (!Common::FileSystem::fileSystem()->isFile(pluginFilePath))
             {
                 return std::pair<PluginInfo, bool>(PluginInfo(), false);
             }
             try
             {
                 std::string fileContent = FileSystem::fileSystem()->readFile(pluginFilePath);
-                return std::pair<PluginInfo, bool>(deserializeFromString(fileContent, lowercasepluginname), true);
+                return std::pair<PluginInfo, bool>(deserializeFromString(fileContent, pluginName), true);
 
             }
             catch (std::exception& ex)
