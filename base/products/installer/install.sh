@@ -7,6 +7,7 @@ EXIT_FAIL_FIND_USERADD=13
 EXIT_FAIL_ADDUSER=14
 EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
+EXIT_FAIL_NOT_ROOT=17
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
@@ -111,6 +112,10 @@ function waitForProcess()
 
     return 1
 }
+
+if [ $(id -u) -ne 0 ]; then
+    failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
+fi
 
 export DIST
 export SOPHOS_INSTALL
