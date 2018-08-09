@@ -11,8 +11,8 @@ def get_appids_from_plugin_registry_json(file_path):
     try:
         with open(file_path, 'r') as filep:
             parsed_file = json.load(filep)
-            appsids = set(parsed_file[u'policyAppIds'])
-            appsids = appsids.union(parsed_file[u'statusAppIds'])
+            appsids = set(parsed_file.get(u'policyAppIds', []))
+            appsids = appsids.union(parsed_file.get(u'statusAppIds', []))
             return appsids
 
     except Exception as ex:
