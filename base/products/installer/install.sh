@@ -97,6 +97,37 @@ EOF
     systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
 }
 
+function createUpdaterSystemdService()
+{
+
+    if [[ -d /lib/systemd/system ]]
+    then
+        STARTUP_DIR="/lib/systemd/system"
+    elif [[ -d /usr/lib/systemd/system ]]
+    then
+        STARTUP_DIR="/usr/lib/systemd/system"
+    else
+        failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl update service"
+    fi
+    local service_name="sophos-spl-update.service"
+    cat > ${STARTUP_DIR}/${service_name} << EOF
+[Service]
+Environment=SOPHOS_INSTALL=${SOPHOS_INSTALL}
+ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/config.json ${SOPHOS_INSTALL}/base/update/var/report.json
+Restart=no
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Description=Sophos Server Protection Update Service
+RequiresMountsFor=${SOPHOS_INSTALL}
+EOF
+    chmod 644 ${STARTUP_DIR}/${service_name}
+    systemctl daemon-reload
+}
+
 function confirmProcessRunning()
 {
     pgrep -f "$1" &> /dev/null
@@ -223,6 +254,7 @@ then
     ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
 fi
 
+createUpdaterSystemdService
 createWatchdogSystemdService
 waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
