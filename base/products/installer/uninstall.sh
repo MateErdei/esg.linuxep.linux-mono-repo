@@ -11,6 +11,14 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 BASEDIR="${ABS_SCRIPTDIR%/*}"
 INSTDIR="${BASEDIR%/*}"
 
+function removeUpdaterSystemdService()
+{
+    systemctl stop sophos-spl-update.service
+    rm -f "/lib/systemd/system/sophos-spl-update.service"
+    rm -f "/usr/lib/systemd/system/sophos-spl-update.service"
+    systemctl daemon-reload
+}
+
 function removeWatchdogSystemdService()
 {
     systemctl stop sophos-spl.service
@@ -19,6 +27,7 @@ function removeWatchdogSystemdService()
     systemctl daemon-reload
 }
 
+removeUpdaterSystemdService
 removeWatchdogSystemdService
 
 rm -rf "$INSTDIR"
