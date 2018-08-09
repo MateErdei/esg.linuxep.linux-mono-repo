@@ -26,6 +26,7 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
+message("Expat: ${EXPAT_INPUT}" )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 
 ## Allow this to be redirected for SUL development
@@ -60,13 +61,28 @@ find_path(ZeroMQ_INCLUDE_DIR
         NAMES zmq.h
         PATHS ${ZEROMQ_INPUT}/include
         )
-
+message( "ZeroMQ_INCLUDE_DIR: ${ZeroMQ_INCLUDE_DIR}")
 ## use the hint from about to find the location of libzmq
 find_library(ZeroMQ_LIBRARY
         NAMES zmq
         PATHS ${ZEROMQ_INPUT}/lib
         )
+message( "ZeroMQ_LIBRARY: ${ZeroMQ_LIBRARY}")
+## load in pkg-config support
+## use the hint from above to find where 'zmq.hpp' is located
+find_path(EXPAT_INCLUDE_DIR
+        NAMES expat.h
+        PATHS ${EXPAT_INPUT}/include
+        NO_DEFAULT_PATH
+        )
 
+## use the hint from about to find the location of libzmq
+find_library(EXPAT_LIBRARY
+        NAMES expat
+        PATHS ${EXPAT_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+message("Expat Library: ${EXPAT_LIBRARY} and include ${EXPAT_INCLUDE_DIR}")
 
 include_directories(modules)
 
