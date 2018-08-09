@@ -78,9 +78,10 @@ function createWatchdogSystemdService()
         failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
     fi
 
+    #TODO LD_LIBRARY_PATH is being set here until we have a SUL build with rpath set.
     cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 [Service]
-Environment=SOPHOS_INSTALL=${SOPHOS_INSTALL}
+Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}" "LD_LIBRARY_PATH=${SOPHOS_INSTALL}/base/lib64"
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 Restart=always
 
