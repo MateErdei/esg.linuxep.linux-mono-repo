@@ -1,6 +1,10 @@
 include(GoogleTest)
 add_library(filesystemimpltests SHARED
         MockFileSystem.h)
+
+SET_TARGET_PROPERTIES( filesystemimpltests
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 target_include_directories(filesystemimpltests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(filesystemimpltests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
 target_link_libraries(filesystemimpltests PUBLIC filesystemimpl gtest gtest_main gmock)

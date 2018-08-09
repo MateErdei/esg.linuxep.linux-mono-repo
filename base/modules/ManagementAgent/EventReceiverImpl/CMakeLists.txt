@@ -5,5 +5,9 @@ add_library(eventreceiverimpl SHARED
         EventTask.h)
 target_include_directories(eventreceiverimpl PUBLIC  ../../Common )
 target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl)
+
+SET_TARGET_PROPERTIES( eventreceiverimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 install(TARGETS eventreceiverimpl
         LIBRARY DESTINATION files/base/lib64)

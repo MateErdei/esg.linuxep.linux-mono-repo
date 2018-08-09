@@ -16,6 +16,8 @@ add_library(reactorimpl SHARED $<TARGET_OBJECTS:reactorimplobject> )
 
 target_link_libraries(reactorimpl PUBLIC zeromqwrapperimpl threads)
 
+SET_TARGET_PROPERTIES( reactorimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS reactorimpl
         LIBRARY DESTINATION files/base/lib64)

@@ -8,5 +8,8 @@ target_include_directories(directorywatcherimpl PUBLIC ../DirectoryWatcher ../..
 target_link_libraries(directorywatcherimpl PUBLIC threads zeromqwrapperimpl)
 add_dependencies(directorywatcherimpl threads zeromqwrapperimpl)
 
+SET_TARGET_PROPERTIES( directorywatcherimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 install(TARGETS directorywatcherimpl
         LIBRARY DESTINATION files/base/lib64)

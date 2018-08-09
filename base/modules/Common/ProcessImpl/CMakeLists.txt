@@ -12,6 +12,8 @@ add_library(processimpl SHARED
         Logger.h)
 target_include_directories(processimpl PUBLIC ../Process ../../Common)
 
+SET_TARGET_PROPERTIES( processimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS processimpl
         LIBRARY DESTINATION files/base/lib64)

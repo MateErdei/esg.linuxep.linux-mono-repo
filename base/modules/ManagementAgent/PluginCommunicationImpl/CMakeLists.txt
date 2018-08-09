@@ -21,6 +21,10 @@ add_library(plugincommunicationimpl SHARED
         )
 target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ../PluginCommunication)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl pluginregistryimpl)
+
+SET_TARGET_PROPERTIES( plugincommunicationimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 add_dependencies(plugincommunicationimpl pluginapiimpl)
 install(TARGETS plugincommunicationimpl
         LIBRARY DESTINATION files/base/lib64)

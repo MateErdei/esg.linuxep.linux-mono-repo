@@ -23,6 +23,10 @@ target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
 
 target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )
+
+SET_TARGET_PROPERTIES( pluginapiimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 install(TARGETS pluginapiimpl
         LIBRARY DESTINATION files/base/lib64)
 
@@ -35,7 +39,6 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         )
-
 
 target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} )
 SET_TARGET_PROPERTIES( pluginapi

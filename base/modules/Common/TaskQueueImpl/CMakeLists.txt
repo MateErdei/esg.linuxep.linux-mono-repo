@@ -10,6 +10,8 @@ add_library(taskqueueimpl SHARED
 target_include_directories(taskqueueimpl PUBLIC  )
 target_link_libraries(taskqueueimpl PUBLIC threads)
 
+SET_TARGET_PROPERTIES( taskqueueimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS taskqueueimpl
         LIBRARY DESTINATION files/base/lib64)

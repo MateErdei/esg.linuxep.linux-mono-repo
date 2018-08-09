@@ -10,5 +10,8 @@ target_include_directories(pluginregistryimpl PUBLIC ../../Common)
 target_link_libraries(pluginregistryimpl ${Protobuf_LIBRARIES} utilityimpl filesystemimpl applicationconfigurationimpl)
 add_dependencies(pluginregistryimpl generatePluginInfoProto)
 
+SET_TARGET_PROPERTIES( pluginregistryimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
 install(TARGETS pluginregistryimpl
         LIBRARY DESTINATION files/base/lib64)
