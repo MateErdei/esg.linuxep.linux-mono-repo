@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ##
 ## ALWAYS EDIT //version/product/savlinux/3rdparty/support/common.sh
 ##

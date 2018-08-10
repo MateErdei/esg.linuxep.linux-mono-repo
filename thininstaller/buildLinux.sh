@@ -1,6 +1,8 @@
 #!/bin/bash
 PRODUCT=sspl-thininstaller
 
+FAILURE_INPUT_NOT_AVAILABLE=50
+
 source /etc/profile
 set -ex
 set -o pipefail
@@ -27,19 +29,21 @@ source "$BASE"/build-scripts/pathmgr.sh
 [ -f "$BASE"/build-scripts/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-scripts/common.sh
 
-
 function untar_or_link_to_redist()
 {
     local input=$1
     local tar=${INPUT}/${input}.tar
 
-    echo "Untaring $tar"
-
     if [[ -f $tar ]]
     then
+        echo "Untaring $tar"
         tar xf "$tar" -C "$REDIST"
-    else
+    elif [[ -d ${ALLEGRO_REDIST}/$input ]]
+    then
+        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
         ln -snf ${ALLEGRO_REDIST}/$input ${REDIST}/$input
+    else
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
 }
 
@@ -74,6 +78,10 @@ function prepare_dependencies()
         then
             tar xzf "$CMAKE_TAR" -C "$REDIST"
             addpath "$REDIST/cmake/bin"
+        elif [[ -d $ALLEGRO_REDIST/cmake ]]
+        then
+            ln -snf $ALLEGRO_REDIST/cmake $REDIST/cmake
+            addpath "$REDIST/cmake/bin"
         else
             echo "WARNING: using system cmake"
         fi
@@ -85,9 +93,12 @@ function prepare_dependencies()
         untar_or_link_to_redist boost
         untar_or_link_to_redist expat
         untar_or_link_to_redist zlib
-    else
+    elif [[ -d $ALLEGRO_REDIST ]]
+    then
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
+    else
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
     fi
 }
 
@@ -125,8 +136,7 @@ function build()
     # bin files
     cp build/thininstaller "$installer_binary" || exitFailure 16 "Failure to copy installer binary"
 
-    # TODO LINUXEP-6202 change this to an artisan prod build location
-    cp -a /redist/binaries/everest/versig_temp/versig "$bin_dir/"
+    cp -a $REDIST/versig/bin64/versig "$bin_dir/"
 
     # lib files
     cp -a $REDIST/SUL/lib64/*.so* $libs_dir
