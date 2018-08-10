@@ -317,7 +317,13 @@ CERT=installer/rootca.crt
 [ -n ${OVERRIDE_SOPHOS_CERTS} ] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca.crt
 [ -f ${CERT} ] || CERT=installer/rootca.crt
 
-${BIN}/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh \
+DEBUG_VERSIG=
+if [ -n "$DEBUG_THIN_INSTALLER" ]
+then
+    DEBUG_VERSIG=--silent-off
+fi
+
+${BIN}/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh $DEBUG_VERSIG \
     || failure ${EXITCODE_VERIFY_INSTALLER_FAILED} "ERROR: Failed to verify base installer: $?"
 
 [ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp ${OVERRIDE_PROD_SOPHOS_CERTS}/* distribute/update/certificates/
