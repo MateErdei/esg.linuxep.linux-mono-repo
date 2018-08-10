@@ -10,10 +10,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateScheduler
 {
+
+    struct SettingsHolder
+    {
+        SulDownloader::ConfigurationData configurationData;
+        std::string updateCacheCertificatesContent;
+    };
+
     class UpdatePolicyTranslator
     {
     public:
-        SulDownloader::ConfigurationData translatePolicy(const std::string &policyXml);
+        SettingsHolder translatePolicy(const std::string &policyXml);
+        std::string cacheID(const std::string & hostname) const;
+        std::string revID() const;
     private:
         struct Cache
         {
@@ -22,6 +31,7 @@ namespace UpdateScheduler
             std::string id;
         };
         std::vector<Cache> m_Caches;
+        std::string m_revID;
     };
 }
 

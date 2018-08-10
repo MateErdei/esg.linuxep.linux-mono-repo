@@ -7,7 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <algorithm>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include "UpdatePolicyTranslator.h"
 
 namespace UpdateScheduler
@@ -15,12 +14,20 @@ namespace UpdateScheduler
 
     using namespace Common::XmlUtilities;
     using namespace Common::ApplicationConfiguration;
-    SulDownloader::ConfigurationData UpdatePolicyTranslator::translatePolicy(const std::string &policyXml)
+    SettingsHolder UpdatePolicyTranslator::translatePolicy(const std::string &policyXml)
     {
         m_Caches.clear();
 
 
         Common::XmlUtilities::AttributesMap attributesMap = parseXml(policyXml);
+
+        auto cscComp = attributesMap.lookup("AUConfigurations/csc:Comp");
+        if(cscComp.value("policyType") != "1")
+        {
+            throw std::runtime_error("Update Policy type incorrect");
+        }
+        m_revID = cscComp.value("RevID");
+
         auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
 
         std::string connectionAddress = primaryLocation.value("ConnectionAddress");
@@ -40,7 +47,7 @@ namespace UpdateScheduler
                 "AUConfigurations/update_cache/locations/location"
         );
 
-
+        std::string certificateFileContent;
         if ( !updateCacheEntities.empty())
         {
             for (auto &updateCache : updateCacheEntities)
@@ -65,7 +72,7 @@ namespace UpdateScheduler
             auto cacheCertificates = attributesMap.entitiesThatContainPath(
                     "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate"
             );
-            std::string certificateFileContent;
+
             for (auto & certificate : cacheCertificates)
             {
                 auto attributes = attributesMap.lookup(certificate);
@@ -77,8 +84,6 @@ namespace UpdateScheduler
                 certificateFileContent += Common::UtilityImpl::StringUtils::replaceAll(attributes.value(attributes.TextId), "&#13;", "");
             }
             std::string cacheCertificatePath = applicationPathManager().getUpdateCacheCertificateFilePath();
-            Common::FileSystem::fileSystem()->writeFile(cacheCertificatePath, certificateFileContent);
-
             config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
         }
 
@@ -121,7 +126,25 @@ namespace UpdateScheduler
         config.setInstallArguments({"--instdir", applicationPathManager().sophosInstall()});
         config.setLogLevel(SulDownloader::ConfigurationData::LogLevel::VERBOSE);
 
-        return config;
+        return SettingsHolder{config, certificateFileContent};
+    }
+
+    std::string UpdatePolicyTranslator::cacheID(const std::string &hostname) const
+    {
+        for (auto & cache : m_Caches)
+        {
+            if (cache.hostname == hostname)
+            {
+                return cache.id;
+            }
+        }
+        // Could not find the cache
+        return std::string();
+    }
+
+    std::string UpdatePolicyTranslator::revID() const
+    {
+        return m_revID;
     }
 
 }

@@ -176,6 +176,12 @@ static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
 </AUConfigurations>
 )sophos"};
 
+static std::string incorrectPolicyTypeXml{R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
+</AUConfigurations>
+)sophos"};
+
 std::string cacheCertificates{R"sophos(-----BEGIN CERTIFICATE-----
 MIIDxDCCAqygAwIBAgIQEFgFEJ0SYXZx+dHI2UTIVzANBgkqhkiG9w0BAQsFADBh
 MQswCQYDVQQGEwJHQjEPMA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3Mx
@@ -244,27 +250,15 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos"};
 
-MockFileSystem& setupFileSystemAndGetMock()
-{
-    using ::testing::Ne;
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-
-
-    auto pointer = filesystemMock;
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-    return *pointer;
-}
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
-    auto & filesystemMock = setupFileSystemAndGetMock();
-    std::string updateCacheCertPath = "/opt/sophos-spl/base/update/certs/cache_certificates.crt";
-    EXPECT_CALL(filesystemMock, writeFile(updateCacheCertPath, cacheCertificates));
-
-
     UpdateScheduler::UpdatePolicyTranslator translator;
-    auto config = translator.translatePolicy(updatePolicyWithCache);
+
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_EQ(settingsHolder.updateCacheCertificatesContent, cacheCertificates);
 
     EXPECT_EQ(config.getCredentials().getUsername(), "W2YJXI6FED");
     EXPECT_EQ(config.getCredentials().getPassword(), "xxxxxx");
@@ -272,15 +266,15 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
     EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), updateCacheCertPath);
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/certs/cache_certificates.crt");
 
     EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/cloudupdate");
     EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.com/update");
     EXPECT_EQ(config.getSophosUpdateUrls()[2], "http://dci.sophosupd.net/update");
 
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[0],"maineng2.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[1],"2k12-64-ld55-df.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[2],"w2k8r2-std-en-df.eng.sophos:8191");
+    EXPECT_EQ(config.getLocalUpdateCacheUrls()[0], "maineng2.eng.sophos:8191");
+    EXPECT_EQ(config.getLocalUpdateCacheUrls()[1], "2k12-64-ld55-df.eng.sophos:8191");
+    EXPECT_EQ(config.getLocalUpdateCacheUrls()[2], "w2k8r2-std-en-df.eng.sophos:8191");
 
     EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0.5");
     EXPECT_EQ(config.getProductSelection()[0].Name, "SSPL-RIGIDNAME");
@@ -295,11 +289,63 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
-    EXPECT_TRUE(config.getProxy().empty());
 
+    EXPECT_TRUE(config.getProxy().empty());
+}
+
+TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
+{
+    UpdateScheduler::UpdatePolicyTranslator translator;
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_EQ( translator.cacheID("maineng2.eng.sophos:8191"), "d4739ed5-b66a-4a21-9218-4fd0dfe4dcbd");
+    EXPECT_TRUE(translator.cacheID("invalid_cache").empty());
+    EXPECT_EQ(translator.revID(), "b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9");
 }
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
+    UpdateScheduler::UpdatePolicyTranslator translator;
 
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "QA940267");
+    EXPECT_EQ(config.getCredentials().getPassword(), "54m5ung");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[0].Name, "SSPL-RIGIDNAME");
+    EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
+    EXPECT_EQ(config.getProductSelection()[0].Primary, true);
+    EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
+
+    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "SSPL-RIGIDNAME-PLUGIN");
+    EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
+    EXPECT_EQ(config.getProductSelection()[1].Primary, false);
+    EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
+
+    SulDownloader::Proxy expectedProxy{"uk-abn-wpan-1.green.sophos:8080",
+                               SulDownloader::Credentials{"TestUser",
+                                                          "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="}};
+    EXPECT_EQ(config.getProxy(), expectedProxy);
+}
+
+TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
+{
+    UpdateScheduler::UpdatePolicyTranslator translator;
+    EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
 }
