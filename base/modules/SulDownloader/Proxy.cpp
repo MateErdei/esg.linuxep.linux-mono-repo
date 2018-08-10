@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
+    const std::string Proxy::NoProxy("noproxy:");
     Proxy::Proxy(const std::string &url, const SulDownloader::Credentials &credentials)
             : m_url( url )
             , m_credentials( credentials)
@@ -29,7 +30,7 @@ namespace SulDownloader
 
     bool Proxy::empty() const
     {
-        return m_url.empty() || m_url == "noproxy:";
+        return m_url.empty() || m_url == NoProxy;
     }
 
 

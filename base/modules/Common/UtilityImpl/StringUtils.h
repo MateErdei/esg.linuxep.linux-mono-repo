@@ -25,6 +25,29 @@ namespace Common
             {
                 return s.rfind(target) == (s.size() - target.size());
             }
+
+            static std::string replaceAll(const std::string& pattern, const std::string& key, const std::string& replace)
+            {
+                std::string result;
+                size_t beginPos = 0;
+
+                while(true)
+                {
+                    size_t pos = pattern.find(key, beginPos);
+
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    result += pattern.substr(beginPos, pos - beginPos);
+                    result += replace;
+                    beginPos = pos + key.length();
+                }
+
+                result += pattern.substr(beginPos);
+
+                return result;
+            }
         };
     }
 }

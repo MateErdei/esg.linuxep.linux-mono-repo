@@ -23,6 +23,19 @@ namespace SulDownloader
         bool Prefix;
         std::string releaseTag;
         std::string baseVersion;
+
+        bool operator==(const ProductGUID& rhs) const
+        {
+             return ((Name==rhs.Name) &&
+                     (Primary==rhs.Primary) &&
+                     (Prefix==rhs.Prefix) &&
+                     (releaseTag==rhs.releaseTag) &&
+                     (baseVersion==rhs.baseVersion));
+        }
+        bool operator !=(const ProductGUID& rhs) const
+        {
+            return ! operator==(rhs);
+        }
     };
 
     /**
@@ -42,6 +55,7 @@ namespace SulDownloader
          * If the path is not set for the Ssl
          */
         static const std::string DoNotSetSslSystemPath;
+        static const std::vector<std::string> DefaultSophosLocationsURL;
 
         enum class LogLevel{NORMAL, VERBOSE};
         explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  const Credentials& credentials = Credentials(),
@@ -131,6 +145,7 @@ namespace SulDownloader
          * @param installationRootPath, location where the product is installed.
          */
         void setInstallationRootPath(const std::string &installationRootPath);
+        std::string getInstallationRootPath() const;
 
         /**
          * Gets the path to the local warehouse repository relative to the install root path.
@@ -233,6 +248,15 @@ namespace SulDownloader
          * @throws SulDownloaderException if settingsString cannot be converted.
          */
         static ConfigurationData fromJsonSettings( const std::string & settingsString );
+
+        /**
+         * Serialize the contents of an instance of ConfigurationData into a json representation.
+         * Calling ::fromJsonSettings to the output of toJsonSettings yield equivalent ConfigurationData.
+         *
+         * @paramn configurationData object containing the settings
+         * @param settingsString, string contain a json formatted data representing the state of configurationData
+         */
+        static std::string toJsonSettings( const ConfigurationData & );
 
     private:
         enum class State{Initialized, Verified, FailedVerified};

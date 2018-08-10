@@ -33,6 +33,7 @@ namespace Common
             std::string getLocalDistributionRepository() const override;
 
             std::string getUpdateCertificatesPath() const override;
+            std::string getUpdateCacheCertificateFilePath() const override;
 
             std::string getTempPath() const override;
 

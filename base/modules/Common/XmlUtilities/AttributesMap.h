@@ -52,12 +52,13 @@ namespace Common
         class AttributesMap
         {
         public:
-            explicit AttributesMap( std::unordered_map<std::string, Attributes> attributesMap );
+            explicit AttributesMap( std::unordered_map<std::string, Attributes> attributesMap, std::vector<std::string> idOrderedFullName );
             Attributes lookup( const std::string & entityFullPath) const;
             std::vector<std::string> entitiesThatContainPath(const std::string & entityPath);
 
         private:
             std::unordered_map<std::string, Attributes> m_attributesMap;
+            std::vector<std::string> m_idOrderedFullName;
         };
 
 

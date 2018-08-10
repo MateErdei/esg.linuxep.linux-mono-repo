@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <google/protobuf/util/json_util.h>
 #include <iostream>
+#include <Common/UtilityImpl/MessageUtility.h>
 
 namespace
 {
@@ -30,6 +31,7 @@ namespace SulDownloader
 {
 
     const std::string ConfigurationData::DoNotSetSslSystemPath(":system:");
+    const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{"http://dci.sophosupd.com/update", "http://dci.sophosupd.net/update"};
 
     ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, const Credentials &credentials,
                                          const std::vector<std::string> &updateCache, const Proxy & proxy)
@@ -132,6 +134,12 @@ namespace SulDownloader
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath
         );
     }
+
+    std::string ConfigurationData::getInstallationRootPath() const
+    {
+        return Common::ApplicationConfiguration::applicationConfiguration().getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
+    }
+
 
     std::string ConfigurationData::getLocalWarehouseRepository() const
     {
@@ -437,6 +445,81 @@ namespace SulDownloader
         options.push_back(m_proxy);
         return options;
     }
+
+    std::string ConfigurationData::toJsonSettings(const ConfigurationData & configurationData)
+    {
+        using namespace google::protobuf::util;
+        using SulDownloaderProto::ConfigurationSettings;
+
+        ConfigurationSettings settings;
+        for( auto & url : configurationData.getSophosUpdateUrls())
+        {
+            settings.add_sophosurls()->assign(url);
+        }
+
+        for( auto & cacheUrl : configurationData.getLocalUpdateCacheUrls())
+        {
+            settings.add_updatecache()->assign(cacheUrl);
+        }
+
+        settings.mutable_credential()->set_username(configurationData.getCredentials().getUsername());
+        settings.mutable_credential()->set_password(configurationData.getCredentials().getPassword());
+
+        settings.mutable_proxy()->mutable_credential()->set_username(configurationData.getProxy().getCredentials().getUsername());
+        settings.mutable_proxy()->mutable_credential()->set_password(configurationData.getProxy().getCredentials().getPassword());
+        settings.mutable_proxy()->mutable_url()->assign(configurationData.getProxy().getUrl());
+
+        settings.set_certificatepath(configurationData.getCertificatePath());
+        settings.set_installationrootpath(configurationData.getInstallationRootPath());
+
+        auto productsGUID = configurationData.getProductSelection();
+
+        if ( !productsGUID.empty())
+        {
+            auto& primaryProduct = productsGUID[0];
+            // the established convention is that the first one should be the primary
+            assert( primaryProduct.Primary);
+            settings.set_primary(primaryProduct.Name);
+            settings.set_baseversion(primaryProduct.baseVersion);
+            settings.set_releasetag(primaryProduct.releaseTag);
+        }
+        // skip first as it is the primary
+        for( size_t i = 1; i< productsGUID.size(); i++ )
+        {
+            auto & secondaryProduct = productsGUID[i];
+            if( secondaryProduct.Prefix)
+            {
+                settings.add_prefixnames()->assign(secondaryProduct.Name);
+            }
+            else
+            {
+                settings.add_fullnames()->assign(secondaryProduct.Name);
+            }
+        }
+
+        for( auto & installarg: configurationData.getInstallArguments())
+        {
+            settings.add_installarguments()->assign(installarg);
+        }
+
+        settings.set_certificatepath(configurationData.getCertificatePath());
+
+        settings.set_systemsslpath( configurationData.getSystemSslCertificatePath());
+        settings.set_cacheupdatesslpath(configurationData.getUpdateCacheSslCertificatePath());
+
+        if ( configurationData.getLogLevel() == LogLevel::NORMAL)
+        {
+            settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL);
+        }
+        else
+        {
+            settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_VERBOSE);
+        }
+
+        return  Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
+
+    }
+
 
 
 }

@@ -25,10 +25,11 @@ namespace
         void onTextHandler(const std::string & content);
 
         std::unordered_map<std::string, Attributes> attributesMap() const;
+        std::vector<std::string> pathIds;
 
     private:
 
-        std::string getElementPath(const std::string & currentElement, const std::string & id ) const;
+        std::string getElementPath(const std::string & currentElement, const std::string & id );
 
         std::stack<AttributesEntry> m_stack;
         std::unordered_map<std::string, Attributes> m_attributesMap;
@@ -134,12 +135,13 @@ namespace
     }
 
 
-    std::string SimpleXmlParser::getElementPath(const std::string & currentElement, const std::string & id ) const
+    std::string SimpleXmlParser::getElementPath(const std::string & currentElement, const std::string & id )
     {
         std::string elementPath = m_stack.empty()? currentElement :  m_stack.top().fullpath + "/" + currentElement;
         if ( !id.empty())
         {
             elementPath += "#" + id;
+            pathIds.push_back(elementPath);
         }
         return elementPath;
     }
@@ -222,8 +224,8 @@ namespace Common
 
 
 /** SimpleXml **/
-        AttributesMap::AttributesMap(std::unordered_map<std::string, Attributes> attributesMap)
-                : m_attributesMap(std::move(attributesMap))
+        AttributesMap::AttributesMap(std::unordered_map<std::string, Attributes> attributesMap, std::vector<std::string> idOrderedFullName)
+                : m_attributesMap(std::move(attributesMap)), m_idOrderedFullName(std::move(idOrderedFullName))
         {
 
         }
@@ -241,11 +243,11 @@ namespace Common
         std::vector<std::string> AttributesMap::entitiesThatContainPath(const std::string &entityPath)
         {
             std::vector<std::string>  fullPaths;
-            for( const auto & mapEntry : m_attributesMap )
+            for( const auto & fullPathEntry : m_idOrderedFullName )
             {
-                if ( mapEntry.first.find(entityPath) != std::string::npos)
+                if ( fullPathEntry.find(entityPath) != std::string::npos)
                 {
-                    fullPaths.push_back(mapEntry.first);
+                    fullPaths.push_back(fullPathEntry);
                 }
             }
             return fullPaths;
@@ -274,7 +276,7 @@ namespace Common
                 throw XmlUtilitiesException( errorInfoStream.str());
             }
 
-            return AttributesMap(simpleXmlParser.attributesMap());
+            return AttributesMap(simpleXmlParser.attributesMap(), simpleXmlParser.pathIds);
         }
 
     }

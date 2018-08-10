@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <modules/Common/UtilityImpl/StringUtils.h>
 
 
 using namespace SulDownloader;
@@ -123,6 +124,93 @@ public:
 
         return jsonString;
     }
+
+    ::testing::AssertionResult configurationDataIsEquivalent( const char* m_expr,
+                                                      const char* n_expr,
+                                                      const SulDownloader::ConfigurationData & expected,
+                                                      const SulDownloader::ConfigurationData & resulted)
+    {
+        std::stringstream s;
+        s<< m_expr << " and " << n_expr << " failed: ";
+
+        if ( expected.getLogLevel() != resulted.getLogLevel())
+        {
+            return ::testing::AssertionFailure() << s.str() << "log level differs";
+        }
+
+        if ( expected.getUpdateCacheSslCertificatePath() != resulted.getUpdateCacheSslCertificatePath())
+        {
+            return ::testing::AssertionFailure() << s.str() << "update cache certificate path differs";
+        }
+
+        if (expected.getCredentials() != resulted.getCredentials())
+        {
+            return ::testing::AssertionFailure() << s.str() << "credentials differ";
+        }
+
+        if (expected.getSophosUpdateUrls() != resulted.getSophosUpdateUrls())
+        {
+            return ::testing::AssertionFailure() << s.str() << "update urls differ";
+        }
+
+        if (expected.getLocalUpdateCacheUrls() != resulted.getLocalUpdateCacheUrls())
+        {
+            return ::testing::AssertionFailure() << s.str() << "update cache urls differ";
+        }
+
+        if (expected.getProxy().getUrl() != resulted.getProxy().getUrl())
+        {
+            return ::testing::AssertionFailure() << s.str() << "proxy urls differ";
+        }
+
+        if (expected.getProxy() != resulted.getProxy())
+        {
+            return ::testing::AssertionFailure() << s.str() << "proxy credentials differ";
+        }
+
+        if (expected.proxiesList() != resulted.proxiesList())
+        {
+            return ::testing::AssertionFailure() << s.str() << "proxy list differs";
+        }
+
+        if (expected.getInstallationRootPath() != resulted.getInstallationRootPath())
+        {
+            return ::testing::AssertionFailure() << s.str() << "installation root path differs";
+        }
+
+        if (expected.getLocalWarehouseRepository() != resulted.getLocalWarehouseRepository())
+        {
+            return ::testing::AssertionFailure() << s.str() << "local warehouse repository differs";
+        }
+
+        if (expected.getLocalDistributionRepository() != resulted.getLocalDistributionRepository())
+        {
+            return ::testing::AssertionFailure() << s.str() << "local distribution repository differs";
+        }
+
+        if (expected.getCertificatePath() != resulted.getCertificatePath())
+        {
+            return ::testing::AssertionFailure() << s.str() << "certificate path differs";
+        }
+
+        if (expected.getSystemSslCertificatePath() != resulted.getSystemSslCertificatePath())
+        {
+            return ::testing::AssertionFailure() << s.str() << "system ssl certificate path differs";
+        }
+
+        if (expected.getProductSelection() != resulted.getProductSelection())
+        {
+            return ::testing::AssertionFailure() << s.str() << "product selection differs";
+        }
+
+        if (expected.getInstallArguments() != resulted.getInstallArguments())
+        {
+            return ::testing::AssertionFailure() << s.str() << "install arguments differs";
+        }
+
+        return ::testing::AssertionSuccess();
+    }
+
 };
 
 TEST_F( ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
@@ -679,3 +767,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDat
 
 }
 
+TEST_F(ConfigurationDataTest, serializeDeserialize )
+{
+    std::string originalString = createJsonString("","");
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(originalString);
+    ConfigurationData afterSerializer = ConfigurationData::fromJsonSettings( ConfigurationData::toJsonSettings(configurationData));
+
+
+    EXPECT_PRED_FORMAT2( configurationDataIsEquivalent, configurationData, afterSerializer);
+}

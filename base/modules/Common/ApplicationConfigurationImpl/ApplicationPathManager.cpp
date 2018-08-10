@@ -98,11 +98,6 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/mcs/event");
         }
 
-        std::string ApplicationPathManager::getManagementAgentStatusCacheFilePath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/mcs/status/cache");
-        }
-
         std::string ApplicationPathManager::getTempPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "tmp");
@@ -121,6 +116,16 @@ namespace Common
         std::string ApplicationPathManager::getUpdateCertificatesPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/certs");
+        }
+
+        std::string ApplicationPathManager::getBaseLogDirectory() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "logs", "base");
+        }
+
+        std::string ApplicationPathManager::getUpdateCacheCertificateFilePath() const
+        {
+            return Common::FileSystem::join(getUpdateCertificatesPath(), "cache_certificates.crt");
         }
 
     }
