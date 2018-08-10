@@ -4,9 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "StatusCache.h"
+#include "Logger.h"
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include "StatusCache.h"
+#include <Common/FileSystem/IFileSystemException.h>
+
 
 using namespace ManagementAgent::StatusCache;
 
@@ -19,15 +22,21 @@ namespace ManagementAgent
                                         const std::string& statusForComparison)
         {
             auto search = m_statusCache.find(appid);
+
             if (search == m_statusCache.end())
             {
-                return updateStatus(appid, statusForComparison);
+                updateStatus(appid, statusForComparison);
             }
-            if (search->second == statusForComparison)
+            else if (search->second == statusForComparison)
             {
                 return false;
             }
-            return updateStatus(appid, statusForComparison);
+            else
+            {
+                updateStatus(appid, statusForComparison);
+            }
+
+            return true;
         }
 
         void StatusCache::loadCacheFromDisk()
@@ -49,15 +58,22 @@ namespace ManagementAgent
             }
         }
 
-        bool StatusCache::updateStatus(const std::string& appid,
+        void StatusCache::updateStatus(const std::string& appid,
                                        const std::string& statusForComparison)
         {
             m_statusCache[appid] = statusForComparison;
             std::string statusCachePath = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath();
             std::string filename = appid + ".xml";
             std::string statusCacheFullFilePath = Common::FileSystem::join(statusCachePath, filename);
-            Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
-            return true;
+
+            try
+            {
+                Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
+            }
+            catch(Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("Failed to persist status to status cache, path: '" << statusCacheFullFilePath << "' with error, " << e.what());
+            }
         }
 
     }

@@ -1,6 +1,7 @@
 add_library(statuscacheimpl SHARED
         StatusCache.h
         StatusCache.cpp
+        Logger.h
         ../StatusCache/IStatusCache.h
         )
 target_include_directories(statuscacheimpl PUBLIC  ../../Common )

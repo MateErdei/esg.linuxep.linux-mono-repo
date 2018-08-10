@@ -32,9 +32,8 @@ namespace ManagementAgent
              * Update m_statusCache and return true.
              * @param appid
              * @param statusForComparison
-             * @return true
              */
-            bool updateStatus(const std::string& appid, const std::string& statusForComparison);
+            void updateStatus(const std::string& appid, const std::string& statusForComparison);
 
         };
     }
