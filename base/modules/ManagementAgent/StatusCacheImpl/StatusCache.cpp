@@ -52,8 +52,17 @@ namespace ManagementAgent
                 if (pos != std::string::npos)
                 {
                     std::string appId = filename.substr(0, pos);
-                    std::string statusContents = Common::FileSystem::fileSystem()->readFile(file);
-                    m_statusCache[appId] = statusContents;
+                    try
+                    {
+                        std::string statusContents = Common::FileSystem::fileSystem()->readFile(file);
+                        m_statusCache[appId] = statusContents;
+                    }
+                    catch(Common::FileSystem::IFileSystemException& e)
+                    {
+                        LOGERROR("Failed to read status file from status cache, file: '" << file
+                                                                                     << "' with error, "
+                                                                                     << e.what());
+                    }
                 }
             }
         }
