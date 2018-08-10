@@ -7,14 +7,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "ConfigurationData.h"
 #include "SulDownloaderException.h"
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <ConfigurationSettings.pb.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/MessageUtility.h>
 
 #include <google/protobuf/util/json_util.h>
 #include <iostream>
-#include <Common/UtilityImpl/MessageUtility.h>
 
 namespace
 {

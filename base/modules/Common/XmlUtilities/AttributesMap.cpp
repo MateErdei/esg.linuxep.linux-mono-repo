@@ -5,10 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "AttributesMap.h"
 #include "Logger.h"
-#include <expat.h>
 #include <cassert>
 #include <sstream>
 #include <algorithm>
+#include <expat.h>
 
 namespace
 {

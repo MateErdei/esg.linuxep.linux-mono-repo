@@ -3,11 +3,14 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
+#include "UpdatePolicyTranslator.h"
+
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <algorithm>
 #include <Common/UtilityImpl/StringUtils.h>
-#include "UpdatePolicyTranslator.h"
+
+#include <algorithm>
 
 namespace UpdateScheduler
 {
