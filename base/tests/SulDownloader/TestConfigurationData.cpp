@@ -42,7 +42,7 @@ public:
 
     void TearDown() override
     {
-
+        Common::FileSystem::restoreFileSystem();
     }
 
     MockFileSystem& setupFileSystemAndGetMock()

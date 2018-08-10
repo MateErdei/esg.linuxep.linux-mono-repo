@@ -1,4 +1,8 @@
-add_library(updatescheduler SHARED UpdatePolicyTranslator.cpp UpdatePolicyTranslator.h)
+add_library(updatescheduler SHARED
+        UpdatePolicyTranslator.cpp
+        UpdatePolicyTranslator.h
+        UpdateActionParser.cpp
+        UpdateActionParser.h)
 
 
 
