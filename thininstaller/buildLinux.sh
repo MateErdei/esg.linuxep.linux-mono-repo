@@ -1,6 +1,7 @@
 #!/bin/bash
 PRODUCT=sspl-thininstaller
 
+FAILED_TO_COPY_INSTALLED=16
 FAILURE_INPUT_NOT_AVAILABLE=50
 
 source /etc/profile
@@ -118,44 +119,16 @@ function build()
     rm -rf $BASE/installer
     mkdir -p ${BASE}/build
 
-    pushd ${BASE}/build
-    cmake -v -DREDIST="${REDIST}" ..
-    make || exitFailure 15 "Failed to build thininstaller"
-    popd
-
-    # Targets for copying to final distrbutable.
     installer_dir=$BASE/installer
-    bin_dir="$installer_dir/bin"
-    libs_dir="$installer_dir/libs"
-    installer_binary="$bin_dir/installer"
-
-    mkdir -p "$installer_dir"
-    mkdir -p "$libs_dir"
-    mkdir -p "$bin_dir"
-
-    # bin files
-    cp build/thininstaller "$installer_binary" || exitFailure 16 "Failure to copy installer binary"
-
-    cp -a $REDIST/versig/bin64/versig "$bin_dir/"
-
-    # lib files
-    cp -a $REDIST/SUL/lib64/*.so* $libs_dir
-    cp -a $REDIST/curl/lib64/*.so* $libs_dir
-    cp -a $REDIST/boost/lib64/*.so* $libs_dir
-    cp -a $REDIST/openssl/lib64/*.so* $libs_dir
-    cp -a $REDIST/expat/lib64/*.so* $libs_dir
-    cp -a $REDIST/zlib/lib64/*.so* $libs_dir
-
+    output=$BASE/output
+    pushd ${BASE}/build
+    cmake -v -DREDIST="${REDIST}" -DINSTALLERDIR="${installer_dir}" -DOUTPUT="${output}" ..
+    make || exitFailure 15 "Failed to build thininstaller"
+    make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
+    popd
     #TODO LINUXEP-6203 which libs should we ship?
     #cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
     #cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
-    #cp -a redist/sophos-av/sav-linux/x86/64/engine/versig installer/bin64/
-
-    # strip files
-    strip $bin_dir/*
-    strip $libs_dir/*
-
-    cp *rootca* installer/
 
     mkdir -p output
     tar cf partial_installer.tar installer/*
