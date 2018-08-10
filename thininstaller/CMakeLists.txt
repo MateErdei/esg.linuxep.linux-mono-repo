@@ -17,6 +17,7 @@ set(BOOST_INPUT ${REDIST}/boost)
 set(EXPAT_INPUT ${REDIST}/expat)
 set(OPENSSL_INPUT ${REDIST}/openssl)
 set(ZLIB_INPUT ${REDIST}/zlib)
+set(VERSIG_INPUT ${REDIST}/versig)
 set(SUL_LIBRARY_DIR ${SUL_INPUT}/lib64)
 set(SUL_LIBRARY_DIRS ${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${EXPAT_INPUT}/lib64:${OPENSSL_INPUT}/lib64:${ZLIB_INPUT}/lib64)
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
@@ -36,3 +37,34 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 add_executable(thininstaller installer.cpp)
 
 target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY})
+
+if (NOT DEFINED OUTPUT)
+    set(OUTPUT  ${CMAKE_BINARY_DIR}/output)
+endif()
+
+if (NOT DEFINED INSTALLERDIR)
+    set(INSTALLERDIR ${CMAKE_BINARY_DIR}/installer)
+endif()
+
+set(bin_dir ${INSTALLERDIR}/bin)
+set(libs_dir ${INSTALLERDIR}/libs)
+
+add_custom_target(
+        copyInstaller
+        COMMAND mkdir -p "${bin_dir}"
+        COMMAND cp thininstaller ${bin_dir}/installer
+        COMMAND cp -a ${VERSIG_INPUT}/bin64/versig ${bin_dir}/
+        COMMAND strip ${bin_dir}/*
+        COMMAND mkdir -p "${libs_dir}"
+        COMMAND cp -a ${SUL_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${CURL_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${BOOST_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${OPENSSL_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${EXPAT_INPUT}//lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${ZLIB_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND strip ${libs_dir}/*
+        COMMAND cp ${CMAKE_SOURCE_DIR}/rootca.crt ${INSTALLERDIR}/
+        COMMAND cp ${CMAKE_SOURCE_DIR}/ps_rootca.crt ${INSTALLERDIR}/
+        COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/
+)
+
