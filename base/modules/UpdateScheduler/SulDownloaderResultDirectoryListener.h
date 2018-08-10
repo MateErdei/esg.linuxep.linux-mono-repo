@@ -10,7 +10,7 @@ class SulDownloaderResultDirectoryListener : public Common::DirectoryWatcher::ID
 
 public:
     SulDownloaderResultDirectoryListener(const std::string &path)
-            : m_Path(path)
+            : m_Path(path), m_Active(false)
     {}
 
 
@@ -25,16 +25,16 @@ public:
         //m_File = filename;
         //m_HasData = true;
     }
-//
-//    void watcherActive(bool active) override
-//    {
-//        m_Active = active;
-//    }
+
+    void watcherActive(bool active) override
+    {
+        m_Active = active;
+    }
 
 private:
     std::string m_Path;
 //    std::string m_File;
-//    bool m_Active;
+    bool m_Active;
 //    bool m_HasData;
 //    std::mutex m_FilenameMutex;
 };
