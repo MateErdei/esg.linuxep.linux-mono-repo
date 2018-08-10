@@ -1,0 +1,7 @@
+build/
+installer/
+libs/
+log/
+output/
+redist/
+input/
