@@ -38,6 +38,17 @@ add_executable(thininstaller installer.cpp)
 
 target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY})
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libstdc++.so
+        OUTPUT_VARIABLE libstdcpp_path)
+string(STRIP "${libstdcpp_path}" libstdcpp_path )
+
+get_filename_component(libstcpp_name "${libstdcpp_path}" NAME)
+
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libgcc_s.so.1
+        OUTPUT_VARIABLE libgcc_s_path)
+string(STRIP "${libgcc_s_path}" libgcc_s_path )
+
+
 if (NOT DEFINED OUTPUT)
     set(OUTPUT  ${CMAKE_BINARY_DIR}/output)
 endif()
@@ -55,6 +66,7 @@ add_custom_target(
         COMMAND cp thininstaller ${bin_dir}/installer
         COMMAND cp -a ${VERSIG_INPUT}/bin64/versig ${bin_dir}/
         COMMAND strip ${bin_dir}/*
+        COMMAND chmod 700 ${bin_dir}/*
         COMMAND mkdir -p "${libs_dir}"
         COMMAND cp -a ${SUL_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${CURL_INPUT}/lib64/*.so* ${libs_dir}/
@@ -62,7 +74,11 @@ add_custom_target(
         COMMAND cp -a ${OPENSSL_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${EXPAT_INPUT}//lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${ZLIB_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
+        COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
         COMMAND strip ${libs_dir}/*
+        COMMAND chmod 700 ${libs_dir}/*
+        COMMAND ln -snf ${libstcpp_name} ${libs_dir}/libstdc++.so.6
         COMMAND cp ${CMAKE_SOURCE_DIR}/rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/ps_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/
