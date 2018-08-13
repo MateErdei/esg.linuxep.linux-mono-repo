@@ -1,7 +1,11 @@
 build/
 installer/
+cmake-build-debug/
 libs/
 log/
 output/
 redist/
 input/
+.idea/codeStyles/
+.idea/markdown-navigator/
+*.pyc
