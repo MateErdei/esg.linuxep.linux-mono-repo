@@ -53,7 +53,6 @@ file(GLOB_RECURSE pluginapiheaders
 add_custom_target(
         plugintar
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
-        COMMAND mkdir -p /tmp/pluginapitest
         COMMAND ${CMAKE_COMMAND} -E copy ${pluginapiheaders} pluginapi/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
