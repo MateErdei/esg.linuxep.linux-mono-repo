@@ -30,7 +30,7 @@ namespace SulDownloader
 
         void setFinishedTime(time_t m_finishedTime);
 
-        void setSyncTime(time_t m_syncTime);
+        void setSyncTime();
 
     private:
         /**
@@ -43,7 +43,7 @@ namespace SulDownloader
         std::string fromTime(std::time_t) const;
         std::time_t m_startTime = -1;
         std::time_t m_finishedTime = -1;
-        std::time_t m_syncTime = -1;
+        bool m_syncTimeSet = false;
 
     };
 }

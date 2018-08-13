@@ -72,7 +72,6 @@ public:
         currentTime = TimeTracker::getCurrTime();
 
         timeTracker.setStartTime(currentTime - 30);
-        timeTracker.setSyncTime(currentTime -20);
         timeTracker.setFinishedTime(currentTime - 1);
         return timeTracker;
 
@@ -131,6 +130,18 @@ public:
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
             valueToFind = "errorDescription\": \"" + product.errorDescription;
+            EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
+
+            valueToFind = "upgraded\": ";
+            if ( product.productStatus == ProductReport::ProductStatus::Upgraded)
+            {
+                valueToFind += "true";
+            }
+            else
+            {
+                valueToFind += "false";
+            }
+
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
         }
     }
@@ -278,7 +289,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportSuccessW
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -309,7 +320,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -339,7 +350,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
 
@@ -475,7 +486,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -509,7 +520,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -543,7 +554,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -586,7 +597,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -629,7 +640,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -672,7 +683,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -695,7 +706,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     std::vector<SulDownloader::DownloadedProduct> products;
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 

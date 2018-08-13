@@ -20,7 +20,14 @@ namespace SulDownloader
 
     std::string TimeTracker::syncTime() const
     {
-        return fromTime(m_syncTime);
+        if ( m_syncTimeSet)
+        {
+            return fromTime(m_finishedTime);
+        }
+        else
+        {
+            return std::string();
+        }
     }
 
     void TimeTracker::setStartTime(time_t m_startTime)
@@ -31,11 +38,6 @@ namespace SulDownloader
     void TimeTracker::setFinishedTime(time_t m_finishedTime)
     {
         TimeTracker::m_finishedTime = m_finishedTime;
-    }
-
-    void TimeTracker::setSyncTime(time_t m_syncTime)
-    {
-        TimeTracker::m_syncTime = m_syncTime;
     }
 
     std::time_t TimeTracker::getCurrTime()
@@ -53,6 +55,11 @@ namespace SulDownloader
         strftime(formattedTime, 16, "%Y%m%d %H%M%S", std::localtime(&time_));
 
         return formattedTime;
+    }
+
+    void TimeTracker::setSyncTime()
+    {
+        m_syncTimeSet = true;
     }
 
 }

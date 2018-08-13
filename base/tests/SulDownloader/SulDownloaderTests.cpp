@@ -146,11 +146,13 @@ public:
         base.rigidName = "Everest-Base";
         base.downloadedVersion = "10.2.3";
         base.installedVersion = base.downloadedVersion;
+        base.productStatus = ProductReport::ProductStatus::UpToDate;
         SulDownloader::ProductReport plugin;
         plugin.name = "Everest-Plugins-A-Product";
         plugin.rigidName = "Everest-Plugins-A";
         plugin.downloadedVersion = "10.3.5";
         plugin.installedVersion = plugin.downloadedVersion;
+        plugin.productStatus = ProductReport::ProductStatus::UpToDate;
         return std::vector<SulDownloader::ProductReport>{base,plugin};
 
     }
@@ -242,7 +244,7 @@ public:
             stream << "name: " << productReport.name
                    << ", version: " << productReport.downloadedVersion
                    << ", error: " << productReport.errorDescription
-                    << ", upgraded: " << productReport.upgraded
+                    << ", productstatus: " << productReport.statusToString()
                    << '\n';
         }
         std::string serialized = stream.str();
@@ -430,6 +432,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
     productReports[0].errorDescription = productError.Description;
     productReports[0].installedVersion = "";
+    productReports[0].productStatus = ProductReport::ProductStatus::SyncFailed;
 
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)) // connection
@@ -518,6 +521,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
 
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::SyncFailed;
+    productReports[1].productStatus = ProductReport::ProductStatus::SyncFailed;
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
@@ -588,6 +593,10 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     productReports[1].errorDescription = "Product Everest-Plugins-A failed to install";
     productReports[1].installedVersion = "";
 
+    // base upgraded, plugin failed.
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::SyncFailed;
+
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
@@ -655,6 +664,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
 
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
+    productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));

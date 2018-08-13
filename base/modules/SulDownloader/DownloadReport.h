@@ -28,7 +28,9 @@ namespace SulDownloader
         std::string downloadedVersion;
         std::string installedVersion;
         std::string errorDescription;
-        bool upgraded;
+        enum class ProductStatus { SyncFailed, UpToDate, Upgraded };
+        ProductStatus productStatus = ProductStatus::SyncFailed;
+        std::string statusToString() const;
     };
 
     /**
@@ -46,8 +48,9 @@ namespace SulDownloader
     {
         DownloadReport();
     public:
+        enum class VerifyState{VerifyFailed, VerifyCorrect};
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
-        static DownloadReport Report(const std::vector<DownloadedProduct> &, const TimeTracker &  timeTracker);
+        static DownloadReport Report(const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
         static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);

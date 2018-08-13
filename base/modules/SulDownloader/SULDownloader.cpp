@@ -54,7 +54,7 @@ namespace SulDownloader
         // apply product selection and download the needed products
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
         warehouseRepository->synchronize(productSelection);
-        timeTracker.setSyncTime( TimeTracker::getCurrTime());
+
 
         if ( warehouseRepository->hasError())
         {
@@ -78,7 +78,7 @@ namespace SulDownloader
 
         if ( hasError(products))
         {
-            return DownloadReport::Report(products, timeTracker);
+            return DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
         }
 
         // design decision: do not install if any error happens before this time.
@@ -99,7 +99,7 @@ namespace SulDownloader
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
-        return DownloadReport::Report(products, timeTracker);
+        return DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     }
 

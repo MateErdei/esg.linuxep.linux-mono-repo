@@ -38,10 +38,11 @@ namespace SulDownloader
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::vector<DownloadedProduct> & products, const TimeTracker &timeTracker)
+    DownloadReport DownloadReport::Report(const std::vector<DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
     {
+        assert(timeTracker != nullptr);
         DownloadReport report;
-        report.setTimings(timeTracker);
+
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
 
@@ -62,6 +63,21 @@ namespace SulDownloader
 
         report.m_status = report.setProductsInfo(products, report.m_status);
 
+        if ( verifyState == VerifyState::VerifyFailed)
+        {
+            for ( auto & productReport : report.m_productReport)
+            {
+                productReport.productStatus = ProductReport::ProductStatus::SyncFailed;
+            }
+        }
+
+
+        if (report.m_status == WarehouseStatus::SUCCESS)
+        {
+            timeTracker->setSyncTime();
+        }
+
+        report.setTimings(*timeTracker);
         return report;
     }
 
@@ -121,8 +137,15 @@ namespace SulDownloader
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
             productReportEntry.installedVersion = product.getPostUpdateInstalledVersion();
+            productReportEntry.productStatus = product.productHasChanged()? ProductReport::ProductStatus::Upgraded : ProductReport::ProductStatus::UpToDate;
             auto wError = product.getError();
             productReportEntry.errorDescription = wError.Description;
+
+
+            if ( !productReportEntry.errorDescription.empty())
+            {
+                productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
+            }
 
             // ensure that an error status is reported
             if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
@@ -138,6 +161,7 @@ namespace SulDownloader
                 {
                     productReportEntry.errorDescription = errorInfo.str();
                 }
+
             }
 
             m_productReport.push_back(productReportEntry);
@@ -192,6 +216,7 @@ namespace SulDownloader
             productReport->set_downloadversion( product.downloadedVersion);
             productReport->set_installedversion( product.installedVersion);
             productReport->set_errordescription( product.errorDescription);
+            productReport->set_upgraded(product.productStatus == ProductReport::ProductStatus::Upgraded);
         }
 
         return protoReport;
@@ -205,5 +230,17 @@ namespace SulDownloader
     }
 
 
-
+    std::string ProductReport::statusToString() const
+    {
+        switch (productStatus)
+        {
+            case ProductStatus::Upgraded:
+                return "Upgraded";
+            case ProductStatus::SyncFailed:
+                return "SyncFailed";
+            case ProductStatus::UpToDate:
+            default:
+                return "UpToDate";
+        }
+    }
 }
