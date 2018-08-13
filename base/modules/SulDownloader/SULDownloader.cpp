@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-
+#include <cassert>
 
 namespace
 {

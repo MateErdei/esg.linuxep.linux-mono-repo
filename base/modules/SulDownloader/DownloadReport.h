@@ -12,9 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include "WarehouseError.h"
 
-
-#include "DownloadReport.pb.h"
-
 namespace SulDownloader
 {
     class IWarehouseRepository;
@@ -53,7 +50,7 @@ namespace SulDownloader
         static DownloadReport Report(const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
-        static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);
+        static std::string fromReport(const DownloadReport &report);
 
         WarehouseStatus getStatus() const;
         const std::string& getDescription() const;

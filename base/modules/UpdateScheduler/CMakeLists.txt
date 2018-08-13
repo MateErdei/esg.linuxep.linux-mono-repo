@@ -10,7 +10,11 @@ add_library(updatescheduler SHARED
         SulDownloaderResultDirectoryListener.cpp
         SulDownloaderResultDirectoryListener.h
         CronSchedulerThread.h
-        CronSchedulerThread.cpp)
+        CronSchedulerThread.cpp
+        DownloadReportsAnalyser.cpp
+        DownloadReportsAnalyser.h
+        UpdateStatus.h
+        UpdateStatus.cpp UpdateEvent.cpp UpdateEvent.h)
 
 target_link_libraries(updatescheduler PUBLIC suldownloaderimpl filesystemimpl utilityimpl applicationconfigurationimpl xmlutilities suldownloaderdata directorywatcherimpl)
 

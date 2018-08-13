@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TimeTracker.h"
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
+#include <DownloadReport.pb.h>
+
 #include <sstream>
 
 
@@ -197,7 +199,7 @@ namespace SulDownloader
 
 
     // add one return the json content directly.
-    SulDownloaderProto::DownloadStatusReport DownloadReport::fromReport( const DownloadReport & report)
+    std::string DownloadReport::fromReport(const DownloadReport &report)
     {
         SulDownloaderProto::DownloadStatusReport protoReport;
         protoReport.set_starttime(report.getStartTime());
@@ -219,13 +221,13 @@ namespace SulDownloader
             productReport->set_upgraded(product.productStatus == ProductReport::ProductStatus::Upgraded);
         }
 
-        return protoReport;
+        return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
     }
 
     std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport &report)
     {
-            auto protoReport = DownloadReport::fromReport(report);
-            std::string json = Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
+
+            std::string json = DownloadReport::fromReport(report);
             return std::tuple<int, std::string>(report.getExitCode() , json );
     }
 
