@@ -10,6 +10,7 @@ include_directories(.)
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libstdc++.so
         OUTPUT_VARIABLE libstdcpp_path)
 string(STRIP "${libstdcpp_path}" libstdcpp_path )
+get_filename_component(libstdcpp_directory "${libstdcpp_path}" DIRECTORY )
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libgcc_s.so.1
         OUTPUT_VARIABLE libgcc_s_path)
@@ -33,7 +34,7 @@ string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION )
 
 set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
 
-set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${OPENSSL_LIBRARY_DIR} )
+set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64:\$ORIGIN/../libs,-rpath-link,${OPENSSL_LIBRARY_DIR} )
 
 include_directories(BEFORE ${OPENSSL_DIR}/include64)
 
@@ -70,8 +71,9 @@ install(TARGETS versig
 install(FILES
             ${OPENSSL_LIBRARY_DIR}/libcrypto.so.${OPENSSL_LIBVERSION}
             ${libstdcpp_path}
+            ${libstdcpp_directory}/libstdc++.so.6
             ${libgcc_s_path}
-        DESTINATION lib)
+        DESTINATION lib64)
 
 include(GoogleTest)
 enable_testing()
