@@ -20,7 +20,7 @@ namespace UpdateScheduler
         //DirectoryWatcherListener directoryWatcherListener(directoryToWatch);
 
 
-        m_directoryWatcher->addListener(directoryWatcherListener);
+        //m_directoryWatcher->addListener(directoryWatcherListener);
         m_directoryWatcher->startWatch();
 
     }

@@ -1,8 +1,18 @@
-add_library(updatescheduler SHARED UpdatePolicyTranslator.cpp UpdatePolicyTranslator.h SulDownloaderRunner.cpp SulDownloaderRunner.h SchedulerTaskQueue.cpp SchedulerTaskQueue.h SulDownloaderResultDirectoryListener.cpp SulDownloaderResultDirectoryListener.h)
+add_library(updatescheduler SHARED
+        UpdatePolicyTranslator.cpp
+        UpdatePolicyTranslator.h
+        UpdateActionParser.cpp
+        UpdateActionParser.h
+        SulDownloaderRunner.cpp
+        SulDownloaderRunner.h
+        SchedulerTaskQueue.cpp
+        SchedulerTaskQueue.h
+        SulDownloaderResultDirectoryListener.cpp
+        SulDownloaderResultDirectoryListener.h
+        CronSchedulerThread.h
+        CronSchedulerThread.cpp)
 
-
-
-target_link_libraries(updatescheduler PUBLIC suldownloaderimpl filesystemimpl utilityimpl applicationconfigurationimpl xmlutilities suldownloaderdata)
+target_link_libraries(updatescheduler PUBLIC suldownloaderimpl filesystemimpl utilityimpl applicationconfigurationimpl xmlutilities suldownloaderdata directorywatcherimpl)
 
 install(TARGETS updatescheduler
         LIBRARY DESTINATION files/base/lib64)

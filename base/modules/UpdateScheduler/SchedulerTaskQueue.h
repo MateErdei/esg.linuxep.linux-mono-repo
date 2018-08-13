@@ -15,7 +15,7 @@ namespace UpdateScheduler
 {
     struct SchedulerTask
     {
-        enum class TaskType{UpdateNow, Policy, Stop, SulDownloaderFinished, SulDownloaderFailedToStart};
+        enum class TaskType{UpdateNow, ScheduledUpdate, Policy, Stop, SulDownloaderFinished, SulDownloaderFailedToStart};
         TaskType  taskType;
         std::string Content;
     };
