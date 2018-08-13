@@ -59,7 +59,6 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E tar czf pluginapi.tar.gz pluginapi
         COMMAND rm -rf pluginapi
-        COMMAND ${CMAKE_COMMAND} -E copy pluginapi.tar.gz /tmp/pluginapitest/
 )
 
 add_dependencies(pluginapiimpl plugintar)
