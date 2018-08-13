@@ -126,9 +126,6 @@ function build()
     make || exitFailure 15 "Failed to build thininstaller"
     make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
     popd
-    #TODO LINUXEP-6203 which libs should we ship?
-    #cp /opt/toolchain/lib64/libstdc++.so.6 installer/bin64/ || failure "Failure to copy 64 bit libstdc++!"
-    #cp /opt/toolchain/lib64/libgcc_s.so.1 installer/bin64/ || failure "Failure to copy 64 bit libgcc!"
 
     mkdir -p output
     tar cf partial_installer.tar installer/*
