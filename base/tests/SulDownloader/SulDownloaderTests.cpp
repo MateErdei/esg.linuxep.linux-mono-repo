@@ -34,6 +34,7 @@ struct SimplifiedDownloadReport
     SulDownloader::WarehouseStatus Status;
     std::string Description;
     std::vector<SulDownloader::ProductReport> Products;
+    bool shouldContainSyncTime;
 };
 
 class SULDownloaderTest : public ::testing::Test
@@ -214,6 +215,22 @@ public:
                                                  << "\n result: " << resultedProductsSerialized;
         }
 
+        if ( expected.shouldContainSyncTime)
+        {
+            if ( resulted.getSyncTime().empty())
+            {
+                return ::testing::AssertionFailure() << s.str() << " Expected SyncTime not empty. Found it empty. ";
+            }
+        }
+        else
+        {
+            if ( !resulted.getSyncTime().empty())
+            {
+                return ::testing::AssertionFailure() << s.str() << "Expected SyncTime to be empty, but found it: " << resulted.getSyncTime();
+            }
+
+        }
+
         return ::testing::AssertionSuccess();
     }
 
@@ -225,6 +242,7 @@ public:
             stream << "name: " << productReport.name
                    << ", version: " << productReport.downloadedVersion
                    << ", error: " << productReport.errorDescription
+                    << ", upgraded: " << productReport.upgraded
                    << '\n';
         }
         std::string serialized = stream.str();
@@ -273,10 +291,6 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
-/**
- * To be fixed in LINUXEP-6174, it should not call currentdirectory once that ticket has been fixed.
- * Breaks when build dir and /tmp are on different partitions.
- */
 TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
@@ -359,7 +373,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCrea
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
 
-    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}};
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}, false};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -385,7 +399,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShoul
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
 
-    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}};
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}, false};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -427,7 +441,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
-    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,productReports};
+    SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,productReports, false};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -453,7 +467,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
-    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports};
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -512,7 +526,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
-                                                    "Update failed",productReports};
+                                                    "Update failed",productReports, false};
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
     ConfigurationData configurationData = configData(defaultSettings());
@@ -581,7 +595,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
-                                                    "Update failed",productReports};
+                                                    "Update failed",productReports, false};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -649,7 +663,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS,
-                                                    "",productReports};
+                                                    "",productReports, true};
 
     ConfigurationData configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
