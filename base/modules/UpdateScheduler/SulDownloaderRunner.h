@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SchedulerTaskQueue.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
+#include "SulDownloaderResultDirectoryListener.h"
 
 namespace UpdateScheduler
 {
@@ -16,14 +17,13 @@ namespace UpdateScheduler
     {
     public:
         SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch);
-
-        //SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, Common::DirectoryWatcher::IDirectoryWatcher directoryWatcher);
-        int run();
+        void run();
 
     private:
-        //std::unique_ptr<oryListener> m_policyListener;
-        //std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_actionListener;
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
+        SulDownloaderResultDirectoryListener m_listener;
+        std::shared_ptr<SchedulerTaskQueue> m_schedulerTaskQueue;
+        int startService();
     };
 
 }
