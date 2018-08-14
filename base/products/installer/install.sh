@@ -231,6 +231,12 @@ ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so
     --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
     --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
 
+function changedOrAdded()
+{
+    local TARGET="$1"
+    grep -q "^${TARGET}\$" "${SOPHOS_INSTALL}/tmp/addedFiles" "${SOPHOS_INSTALL}/tmp/changedFiles" >/dev/null
+}
+
 for F in $(find "$DIST/files" -type f)
 do
     "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
@@ -265,8 +271,12 @@ then
     ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
 fi
 
-createUpdaterSystemdService
-createWatchdogSystemdService
+if changedOrAdded install.sh
+then
+    createUpdaterSystemdService
+    createWatchdogSystemdService
+fi
+
 waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
