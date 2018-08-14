@@ -24,24 +24,19 @@ TEST(TestStringUtils, endswith) // NOLINT
     EXPECT_FALSE(StringUtils::endswith("stuff.json.other",".json"));
 }
 
-
-
-TEST(TestStringUtils, splitString) // NOLINT
+TEST(TestStringUtils, startswith) //NOLINT
 {
-    std::vector<std::pair<std::string,std::vector<std::string>>> expectedResults{
-            {"a;b;c",{"a","b","c"}},
-            {"a;b;c;",{"a","b","c",""}},
-            {"pear;apple",{"pear", "apple"}},
-            {"pear apple", {"pear apple"}},
-            {"",{""}}
-    };
+    EXPECT_TRUE(StringUtils::startswith("FOOBAR","FOO"));
+    EXPECT_TRUE(StringUtils::startswith("FOOBAR",""));
+    EXPECT_TRUE(StringUtils::startswith("FOOBAR","F"));
+    EXPECT_TRUE(StringUtils::startswith("",""));
+    EXPECT_FALSE(StringUtils::startswith("FOOBAR","BAR"));
+}
 
-
-    for( auto & entry : expectedResults)
-    {
-        std::string & inputString = entry.first;
-        std::vector<std::string> & expectedSplitted = entry.second;
-        EXPECT_EQ(expectedSplitted, StringUtils::splitString(inputString, ";"));
-    }
-
+TEST(TestStringUtils, replace) //NOLINT
+{
+    EXPECT_EQ(StringUtils::replaceAll("FOO","FOO","BAR"),"BAR");
+    EXPECT_EQ(StringUtils::replaceAll("FOO","",""),"FOO");
+    EXPECT_EQ(StringUtils::replaceAll("FOOBARFOO","BAR","FOO"),"FOOFOOFOO");
+    EXPECT_EQ(StringUtils::replaceAll("FOOBARFOOBARBAS","BAR","FOO"),"FOOFOOFOOFOOBAS");
 }
