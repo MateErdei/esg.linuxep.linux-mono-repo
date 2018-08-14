@@ -203,12 +203,20 @@ namespace SulDownloader
         std::vector<std::string> missingProducts = selectedIndexes.missing;
         if ( !missingProducts.empty())
         {
+            std::string listOfSourcesMissing;
             for( const auto & missing: missingProducts)
             {
                 LOGSUPPORT("Product missing from warehouse: " << missing);
+                if ( !listOfSourcesMissing.empty())
+                {
+                    listOfSourcesMissing += ";";
+                }
+                listOfSourcesMissing += missing;
             }
             setError("Missing product from warehouse");
             m_error.status = WarehouseStatus::PACKAGESOURCEMISSING;
+
+            m_error.Description = listOfSourcesMissing;
             return;
         }
 
