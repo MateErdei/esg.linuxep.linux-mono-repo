@@ -234,7 +234,61 @@ namespace UpdateScheduler
 
     ReportCollectionResult DownloadReportsAnalyser::handleFailureReports(const std::vector<SulDownloader::DownloadReport> &reportCollection)
     {
-        return ReportCollectionResult();
+        int lastIndex = reportCollection.size() -1;
+        assert( lastIndex>= 0);
+        int indexOfLastGoodSync = lastGoodSync(reportCollection);
+        int indexOfLastUpgrade = lastUpgrade(reportCollection);
+        ReportCollectionResult collectionResult;
+
+        const SulDownloader::DownloadReport & lastReport = reportCollection.at(lastIndex);
+
+        collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
+
+
+        // the status produced does not handle the following members
+        // LastSyncTime
+        // LastInstallStartedTime;
+        // FirstFailedTime;
+        collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
+
+        collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport);
+        collectionResult.IndicesOfSignificantReports.at(lastIndex) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+
+
+        if ( indexOfLastUpgrade != -1)
+        {
+            // the latest upgrade holds the LastInstallStartedTime
+            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade).getStartTime();
+            collectionResult.IndicesOfSignificantReports[indexOfLastUpgrade] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+        }
+
+        if( indexOfLastGoodSync != -1 )
+        {
+
+            collectionResult.SchedulerStatus.LastSyncTime = reportCollection.at(indexOfLastGoodSync).getSyncTime();
+            // indexOfLastGoodSync + 1 must exists and it must be the first time synchronization failed.
+            collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(indexOfLastGoodSync+1).getStartTime();
+
+            collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+            collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync+1] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+        }
+        else
+        {
+            collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(0).getStartTime();
+        }
+
+        if( reportCollection.size() == 1)
+        {
+            collectionResult.SchedulerEvent.IsRelevantToSend = true;
+            return collectionResult;
+        }
+
+        UpdateEvent previousEvent = extractEventFromSingleReport(reportCollection.at(lastIndex-1));
+
+        collectionResult.SchedulerEvent.IsRelevantToSend = eventsAreDifferent(collectionResult.SchedulerEvent, previousEvent);
+
+
+        return collectionResult;
     }
 
     bool DownloadReportsAnalyser::hasUpgrade(const SulDownloader::DownloadReport &report)
@@ -256,5 +310,37 @@ namespace UpdateScheduler
     {
         auto rind = std::find_if( reports.rbegin(), reports.rend(),[](const SulDownloader::DownloadReport& report){return hasUpgrade(report);  } );
         return std::distance(reports.begin(), rind.base())-1;
+    }
+
+    int DownloadReportsAnalyser::lastGoodSync(const std::vector<SulDownloader::DownloadReport> & reports)
+    {
+        auto rind = std::find_if( reports.rbegin(), reports.rend(),[](const SulDownloader::DownloadReport& report){return report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS;  } );
+        return std::distance(reports.begin(), rind.base())-1;
+    }
+
+    bool DownloadReportsAnalyser::eventsAreDifferent(const UpdateEvent &lhs, const UpdateEvent &rhs)
+    {
+        if( lhs.MessageNumber != rhs.MessageNumber || lhs.UpdateSource != rhs.UpdateSource)
+        {
+            return true;
+        }
+
+        if ( lhs.Messages.size() != rhs.Messages.size())
+        {
+            return true;
+        }
+        for(int i = 0; i< lhs.Messages.size(); i++)
+        {
+            if( lhs.Messages[i].PackageName != rhs.Messages[i].PackageName)
+            {
+                return true;
+            }
+            if( lhs.Messages[i].ErrorDetails != rhs.Messages[i].ErrorDetails)
+            {
+                return true;
+            }
+
+        }
+        return false;
     }
 }

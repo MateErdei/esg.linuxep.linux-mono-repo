@@ -39,8 +39,10 @@ namespace UpdateScheduler
     private:
         static ReportCollectionResult handleSuccessReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
         static ReportCollectionResult handleFailureReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
+        static bool eventsAreDifferent( const UpdateEvent & lhs, const UpdateEvent & rhs);
         static bool hasUpgrade( const SulDownloader::DownloadReport & report);
         static int lastUpgrade( const std::vector<SulDownloader::DownloadReport> &);
+        static int lastGoodSync(const std::vector<SulDownloader::DownloadReport> &);
 
     };
 
