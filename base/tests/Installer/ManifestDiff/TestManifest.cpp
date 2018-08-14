@@ -146,3 +146,14 @@ TEST_F(TestManifest, TestWorkingOutAddition) //NOLINT
 
     EXPECT_EQ(added.begin()->path(),"files/base/bin/manifestdiff");
 }
+
+
+TEST_F(TestManifest, TestWorkingOutRemoval) //NOLINT
+{
+    Installer::ManifestDiff::Manifest old_manifest(manifestFromString(two_entries));
+    Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry));
+
+    Installer::ManifestDiff::ManifestEntrySet removed(new_manifest.calculateRemoved(old_manifest));
+    ASSERT_EQ(removed.size(),1);
+    EXPECT_EQ(removed.begin()->path(),"files/base/bin/manifestdiff");
+}

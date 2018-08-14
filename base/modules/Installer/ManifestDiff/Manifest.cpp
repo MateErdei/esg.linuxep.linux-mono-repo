@@ -106,6 +106,16 @@ ManifestEntrySet Manifest::entries() const
     return Installer::ManifestDiff::ManifestEntrySet(m_entries.begin(),m_entries.end());
 }
 
+PathSet Manifest::paths() const
+{
+    PathSet paths;
+    for (const auto& entry : m_entries)
+    {
+        paths.insert(entry.path());
+    }
+    return paths;
+}
+
 ManifestEntrySet Manifest::calculateAdded(const Manifest& oldManifest) const
 {
     PathSet oldPaths = oldManifest.paths();
@@ -120,12 +130,8 @@ ManifestEntrySet Manifest::calculateAdded(const Manifest& oldManifest) const
     return added;
 }
 
-PathSet Manifest::paths() const
+ManifestEntrySet Manifest::calculateRemoved(const Manifest& oldManifest) const
 {
-    PathSet paths;
-    for (const auto& entry : m_entries)
-    {
-        paths.insert(entry.path());
-    }
-    return paths;
+    // This is just the natural opposite of calculateAdded
+    return oldManifest.calculateAdded(*this);
 }

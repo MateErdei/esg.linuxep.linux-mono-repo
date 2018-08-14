@@ -34,6 +34,14 @@ namespace Installer
              */
             ManifestEntrySet calculateAdded(const Manifest& oldManifest) const;
 
+            /**
+             * Calculate entries that have been removed from this manifest,
+             * compared to the old manifest.
+             * @param oldManifest
+             * @return
+             */
+            ManifestEntrySet calculateRemoved(const Manifest& oldManifest) const;
+
         private:
             ManifestEntryVector m_entries;
         };

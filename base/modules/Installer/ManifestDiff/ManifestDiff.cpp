@@ -37,8 +37,35 @@ int ManifestDiff::manifestDiffMain(const Common::Datatypes::StringVector& argv)
     Manifest newManifest(Manifest::ManifestFromPath(options.m_new));
 
     writeAdded(options.m_added, oldManifest, newManifest);
+    writeRemoved(options.m_removed, oldManifest, newManifest);
 
     return 0;
+}
+
+std::string ManifestDiff::toString(const PathSet& paths)
+{
+    std::ostringstream ost;
+    for (auto& p : paths)
+    {
+        ost << p << std::endl;
+    }
+    return ost.str();
+}
+
+PathSet ManifestDiff::entriesToPaths(const ManifestEntrySet& entries)
+{
+    PathSet paths;
+    for (const auto& entry : entries)
+    {
+        paths.insert(entry.path());
+    }
+    return paths;
+}
+
+void ManifestDiff::writeFile(const std::string& destination, const PathSet& paths)
+{
+    assert(!destination.empty());
+    Common::FileSystem::fileSystem()->writeFile(destination,toString(paths));
 }
 
 void ManifestDiff::writeAdded(const std::string& destination,
@@ -50,12 +77,7 @@ void ManifestDiff::writeAdded(const std::string& destination,
         return;
     }
     PathSet added = calculateAdded(oldManifest, newManifest);
-    std::ostringstream ost(destination);
-    for (auto& a : added)
-    {
-        ost << a << std::endl;
-    }
-    Common::FileSystem::fileSystem()->writeFile(destination,ost.str());
+    writeFile(destination,added);
 }
 
 PathSet ManifestDiff::calculateAdded(const Manifest& oldManifest, const Manifest& newManifest)
@@ -63,12 +85,12 @@ PathSet ManifestDiff::calculateAdded(const Manifest& oldManifest, const Manifest
     return entriesToPaths(newManifest.calculateAdded(oldManifest));
 }
 
-PathSet ManifestDiff::entriesToPaths(const ManifestEntrySet& entries)
+void ManifestDiff::writeRemoved(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)
 {
-    PathSet paths;
-    for (const auto& entry : entries)
+    if (destination.empty())
     {
-        paths.insert(entry.path());
+        return;
     }
-    return paths;
+    PathSet removed = entriesToPaths(newManifest.calculateRemoved(oldManifest));
+    writeFile(destination,removed);
 }

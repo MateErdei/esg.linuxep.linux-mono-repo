@@ -18,11 +18,15 @@ namespace Installer
             static int manifestDiffMain(int argc, char* argv[]);
             static int manifestDiffMain(const Common::Datatypes::StringVector& argv);
 
-            static void writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
+            static PathSet entriesToPaths(const ManifestEntrySet& entries);
+            static std::string toString(const PathSet& paths);
+            static void writeFile(const std::string& destination, const PathSet& paths);
 
+            static void writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
             static std::set<std::string> calculateAdded(const Manifest& oldManifest, const Manifest& newManifest);
 
-            static PathSet entriesToPaths(const ManifestEntrySet& entries);
+            static void writeRemoved(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
+
         };
     }
 }
