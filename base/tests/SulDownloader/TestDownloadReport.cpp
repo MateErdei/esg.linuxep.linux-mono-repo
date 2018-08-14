@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SulDownloader/DownloadReport.h"
 #include "SulDownloader/SulDownloaderException.h"
-#include <Common/UtilityImpl/TimeUtils.h>
+
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/WarehouseRepositoryFactory.h"
 #include "SulDownloader/ProductSelection.h"
@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloader/TimeTracker.h"
 #include "MockWarehouseRepository.h"
 
-using namespace Common::UtilityImpl;
+
 
 using namespace SulDownloader;
 
@@ -53,7 +53,9 @@ public:
 
     SulDownloader::DownloadedProduct createTestDownloadedProduct(SulDownloader::ProductMetadata &metadata)
     {
-        SulDownloader::DownloadedProduct downloadedProduct(createTestProductMetaData());
+
+
+        SulDownloader::DownloadedProduct downloadedProduct(metadata);
 
         // set default data for tests
         downloadedProduct.setProductHasChanged(false);
@@ -64,14 +66,34 @@ public:
         return downloadedProduct;
     }
 
+    SulDownloader::ProductMetadata createTestUninstalledProductMetaData()
+    {
+        SulDownloader::ProductMetadata metadata;
+
+        metadata.setLine("UninstalledProductLine1");
+
+        return metadata;
+    }
+
+    SulDownloader::DownloadedProduct createTestUninstalledProduct(SulDownloader::ProductMetadata &metadata)
+    {
+        SulDownloader::DownloadedProduct downloadedProduct(metadata);
+
+        // set default data for tests
+        downloadedProduct.setProductIsBeingUninstalled(true);
+
+        return downloadedProduct;
+    }
+
     TimeTracker createTimeTracker()
     {
         TimeTracker timeTracker;
 
         time_t currentTime;
-        currentTime = TimeUtils::getCurrTime();
+        currentTime = TimeTracker::getCurrTime();
 
         timeTracker.setStartTime(currentTime - 30);
+        timeTracker.setSyncTime(currentTime -20);
         timeTracker.setFinishedTime(currentTime - 1);
         return timeTracker;
 
@@ -132,16 +154,9 @@ public:
             valueToFind = "errorDescription\": \"" + product.errorDescription;
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-            valueToFind = "upgraded\": ";
-            if ( product.productStatus == ProductReport::ProductStatus::Upgraded)
-            {
-                valueToFind += "true";
-            }
-            else
-            {
-                valueToFind += "false";
-            }
+            std::string productUninstalled = product.uninstalled ? "true" : "false";
 
+            valueToFind = "productUninstalled\": " + productUninstalled;
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
         }
     }
@@ -289,7 +304,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportSuccessW
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -320,7 +335,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -350,7 +365,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
 
@@ -486,7 +501,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -520,7 +535,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -554,7 +569,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -583,7 +598,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     auto metadata2 = createTestProductMetaData();
     metadata2.setLine("ProductLine2");
-    metadata.setName("Linux2");
+    metadata2.setName("Linux2");
 
     SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
     downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
@@ -597,7 +612,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -626,7 +641,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     auto metadata2 = createTestProductMetaData();
     metadata2.setLine("ProductLine2");
-    metadata.setName("Linux2");
+    metadata2.setName("Linux2");
 
     SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
     downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
@@ -640,7 +655,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -669,7 +684,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     auto metadata2 = createTestProductMetaData();
     metadata2.setLine("ProductLine2");
-    metadata.setName("Linux2");
+    metadata2.setName("Linux2");
 
     SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
     downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
@@ -683,7 +698,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -706,7 +721,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     std::vector<SulDownloader::DownloadedProduct> products;
 
-    auto report = DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    auto report = DownloadReport::Report(products, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 
@@ -720,3 +735,163 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 }
 
 
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenReportedVersionsMatchWithInstalledAndUninstalledProductSucceeds)
+{
+    std::string errorString = "";
+    WarehouseError error;
+    error.Description = errorString;
+
+    auto metadata = createTestProductMetaData();
+
+    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    downloadedProduct.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct.setError(error);
+
+    auto metadata2 = createTestProductMetaData();
+    metadata2.setLine("ProductLine2");
+    metadata2.setName("Linux2");
+
+    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct2.setError(error);
+
+    auto metadata3 = createTestUninstalledProductMetaData();
+    metadata3.setLine("ProductLine3");
+
+    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+
+    std::vector<SulDownloader::DownloadedProduct> products;
+
+
+    products.push_back(downloadedProduct);
+    products.push_back(downloadedProduct2);
+    products.push_back(uninstalledProduct);
+
+    TimeTracker timeTracker = createTimeTracker();
+
+    auto report = DownloadReport::Report(products, timeTracker);
+
+    EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
+    EXPECT_STREQ(report.getDescription().c_str(), "");
+
+    EXPECT_EQ(report.getProducts().size(), 3);
+
+    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
+
+    auto jsonReport = DownloadReport::CodeAndSerialize(report);
+
+    std::string jsonString = std::get<1>(jsonReport);
+
+    checkJsonOutput(report, jsonString);
+}
+
+
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenReportedVersionsMatchWithInstalledAndUninstalledProductFails)
+{
+    std::string errorString = "";
+    WarehouseError error;
+    error.Description = errorString;
+
+    auto metadata = createTestProductMetaData();
+
+    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    downloadedProduct.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct.setError(error);
+
+    auto metadata2 = createTestProductMetaData();
+    metadata2.setLine("ProductLine2");
+    metadata2.setName("Linux2");
+
+    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct2.setError(error);
+
+    auto metadata3 = createTestUninstalledProductMetaData();
+    metadata3.setLine("ProductLine3");
+
+    std::string uninstallErrorString = "Uninstall Error";
+    WarehouseError uninstallError;
+    uninstallError.Description = uninstallErrorString;
+
+    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+    uninstalledProduct.setError(uninstallError);
+    std::vector<SulDownloader::DownloadedProduct> products;
+
+
+    products.push_back(downloadedProduct);
+    products.push_back(downloadedProduct2);
+    products.push_back(uninstalledProduct);
+
+    TimeTracker timeTracker = createTimeTracker();
+
+    auto report = DownloadReport::Report(products, timeTracker);
+
+    EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
+    EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
+
+    EXPECT_EQ(report.getProducts().size(), 3);
+
+    EXPECT_STREQ(report.getProducts()[2].errorDescription.c_str(),  uninstallErrorString.c_str());
+
+    auto jsonReport = DownloadReport::CodeAndSerialize(report);
+
+    std::string jsonString = std::get<1>(jsonReport);
+
+    checkJsonOutput(report, jsonString);
+}
+
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstalledProductFailsWithCorrectWHStatus)
+{
+    std::string errorString = "Install Failed";
+    WarehouseError error;
+    error.Description = errorString;
+
+    auto metadata = createTestProductMetaData();
+
+    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    downloadedProduct.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct.setError(error);
+
+    auto metadata2 = createTestProductMetaData();
+    metadata2.setLine("ProductLine2");
+    metadata2.setName("Linux2");
+
+    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    downloadedProduct2.setPostUpdateInstalledVersion("1.1.1.1");
+    downloadedProduct2.setError(error);
+
+    auto metadata3 = createTestUninstalledProductMetaData();
+    metadata3.setLine("ProductLine3");
+
+    std::string uninstallErrorString = "Uninstall Error";
+    WarehouseError uninstallError;
+    uninstallError.Description = uninstallErrorString;
+
+    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+    uninstalledProduct.setError(uninstallError);
+    std::vector<SulDownloader::DownloadedProduct> products;
+
+
+    products.push_back(uninstalledProduct);
+    products.push_back(downloadedProduct);
+    products.push_back(downloadedProduct2);
+
+    TimeTracker timeTracker = createTimeTracker();
+
+    auto report = DownloadReport::Report(products, timeTracker);
+
+    EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
+    EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
+
+    EXPECT_EQ(report.getProducts().size(), 3);
+
+    EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  uninstallErrorString.c_str());
+    EXPECT_STREQ(report.getProducts()[1].errorDescription.c_str(),  errorString.c_str());
+    EXPECT_STREQ(report.getProducts()[2].errorDescription.c_str(),  errorString.c_str());
+
+    auto jsonReport = DownloadReport::CodeAndSerialize(report);
+
+    std::string jsonString = std::get<1>(jsonReport);
+
+    checkJsonOutput(report, jsonString);
+}

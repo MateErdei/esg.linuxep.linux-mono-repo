@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <algorithm>
-#include "UninstallManager.h"
+#include "ProductUninstaller.h"
 #include "Logger.h"
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -18,7 +18,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    std::vector<DownloadedProduct> UninstallManager::performCleanUp(const std::vector<DownloadedProduct> &downloadedProducts)
+    std::vector<DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
+            const std::vector<DownloadedProduct> &downloadedProducts)
     {
         std::vector<std::string> installedProducts = getInstalledProductPathsList();
         std::map<std::string, DownloadedProduct> productsToRemove;
@@ -43,12 +44,12 @@ namespace SulDownloader
         return removeProducts(productsToRemove);
     }
 
-    std::vector<std::string> UninstallManager::getInstalledProductPathsList()
+    std::vector<std::string> ProductUninstaller::getInstalledProductPathsList()
     {
         return Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath());
     }
 
-    std::vector<DownloadedProduct> UninstallManager::removeProducts(std::map<std::string, DownloadedProduct> uninstallProductInfo)
+    std::vector<DownloadedProduct> ProductUninstaller::removeProducts(std::map<std::string, DownloadedProduct> uninstallProductInfo)
     {
         std::vector<DownloadedProduct> productsRemoved;
 

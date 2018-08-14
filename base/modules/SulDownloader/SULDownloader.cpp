@@ -16,7 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
-#include "UninstallManager.h"
+#include "ProductUninstaller.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 
@@ -96,8 +96,11 @@ namespace SulDownloader
             }
         }
 
-        SulDownloader::UninstallManager uninstallManager;
-        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.performCleanUp(products);
+        // Note: Should only get here if Download has been successful, if no products are downloaded then
+        // a warehouse error should have been generated, preventing getting this far, therefore preventing
+        // un-installation of all products.
+        SulDownloader::ProductUninstaller uninstallManager;
+        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.removeProductsNotDownloaded(products);
         for (auto &uninstalledProduct : uninstalledProducts ){
             products.push_back(uninstalledProduct);
         }

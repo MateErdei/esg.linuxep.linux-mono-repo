@@ -28,7 +28,7 @@ namespace SulDownloader
         std::string downloadedVersion;
         std::string installedVersion;
         std::string errorDescription;
-        bool uninstalled;
+        bool uninstalled = false;
     };
 
     /**

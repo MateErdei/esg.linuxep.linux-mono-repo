@@ -13,12 +13,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-    class UninstallManager
+    class ProductUninstaller
     {
     public:
-        UninstallManager() = default;
-        ~UninstallManager() = default;
-        std::vector<DownloadedProduct> performCleanUp(const std::vector<DownloadedProduct> &downloadedProducts);
+        ProductUninstaller() = default;
+        ~ProductUninstaller() = default;
+        std::vector<DownloadedProduct> removeProductsNotDownloaded(const std::vector<DownloadedProduct> &downloadedProducts);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();
