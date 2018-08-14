@@ -39,4 +39,9 @@ TEST(TestStringUtils, replace) //NOLINT
     EXPECT_EQ(StringUtils::replaceAll("FOO","",""),"FOO");
     EXPECT_EQ(StringUtils::replaceAll("FOOBARFOO","BAR","FOO"),"FOOFOOFOO");
     EXPECT_EQ(StringUtils::replaceAll("FOOBARFOOBARBAS","BAR","FOO"),"FOOFOOFOOFOOBAS");
+
+    EXPECT_EQ(
+            StringUtils::replaceAll("ABCDEFGH","D",""),
+            "ABCEFGH"
+            );
 }

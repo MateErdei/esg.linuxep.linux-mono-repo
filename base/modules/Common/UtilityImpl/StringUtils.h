@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <sstream>
 
 namespace Common
 {
@@ -49,18 +50,24 @@ namespace Common
                 {
                     return s;
                 }
+                std::ostringstream ost;
                 unsigned long pos = 0;
+                unsigned long previous_pos = 0;
                 while (true)
                 {
-                    pos = s.find(target,pos);
+                    pos = s.find(target,previous_pos);
                     if (pos == std::string::npos)
                     {
+                        ost << s.substr(previous_pos);
                         break;
                     }
-                    s = s.substr(0,pos) + replacement + s.substr(pos+target.size());
-                    pos += replacement.size();
+
+                    ost << s.substr(previous_pos, pos - previous_pos)
+                        << replacement;
+
+                    previous_pos = pos + target.size();
                 }
-                return s;
+                return ost.str();
             }
         };
     }
