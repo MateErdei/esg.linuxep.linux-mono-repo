@@ -172,7 +172,7 @@ public:
 
     MockFileSystem & setupFileSystemAndGetMock()
     {
-        auto filesystemMock = new MockFileSystem();
+        auto filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(
                 Return(true));
@@ -317,7 +317,50 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
             SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
+    std::vector<std::string> emptyFileList;
+    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
+
+    EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
+
+
+}
+
+TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
+{
+    auto & fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository & mock = warehouseMocked();
+
+    auto products = defaultProducts();
+    products[0].setProductHasChanged(false);
+    products[1].setProductHasChanged(false);
+
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+
+
+    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
+    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
+            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+    ));
+    std::vector<std::string> fileListOfProductsToRemove = {"productRemove1"};
+    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(fileListOfProductsToRemove));
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+                                                                           auto mockProcess = new MockProcess();
+                                                                           EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
+                                                                           EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
+                                                                           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+                                                                           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+                                                                   }
+                                                                   );
 
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
@@ -454,7 +497,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
 
 TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    setupFileSystemAndGetMock();
+    auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
@@ -469,6 +512,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    std::vector<std::string> emptyFileList;
+    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
 
@@ -566,6 +611,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     int counter = 0;
 
@@ -637,6 +684,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
     EXPECT_CALL(fileSystemMock, exists(plugin_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
+    std::vector<std::string> emptyFileList;
+    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     int counter = 0;
 

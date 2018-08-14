@@ -25,6 +25,8 @@ namespace SulDownloader
                 return "CONNECTIONERROR";
             case PACKAGESOURCEMISSING:
                 return "PACKAGESOURCEMISSING";
+            case UNINSTALLFAILED:
+                return "UNINSTALLFAILED";
             case UNSPECIFIED:
             default:
                 return "UNSPECIFIED";

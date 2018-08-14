@@ -35,6 +35,7 @@ public:
 
     MOCK_CONST_METHOD0(getLocalWarehouseRepository, std::string(void));
     MOCK_CONST_METHOD0(getLocalDistributionRepository, std::string(void));
+    MOCK_CONST_METHOD0(getLocalUninstallSymLinkPath, std::string(void));
 
     MOCK_CONST_METHOD0(getUpdateCertificatesPath, std::string(void));
     MOCK_CONST_METHOD0(getUpdateCacheCertificateFilePath, std::string(void));

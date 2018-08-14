@@ -98,6 +98,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/mcs/event");
         }
 
+        std::string ApplicationPathManager::getManagementAgentStatusCacheFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/mcs/status/cache");
+        }
+
         std::string ApplicationPathManager::getTempPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "tmp");
@@ -111,6 +116,11 @@ namespace Common
         std::string ApplicationPathManager::getLocalDistributionRepository() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/cache/primary");
+        }
+
+        std::string ApplicationPathManager::getLocalUninstallSymLinkPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproducts");
         }
 
         std::string ApplicationPathManager::getUpdateCertificatesPath() const
@@ -128,10 +138,6 @@ namespace Common
             return Common::FileSystem::join(getUpdateCertificatesPath(), "cache_certificates.crt");
         }
 
-        std::string ApplicationPathManager::getSulDownloaderReportPath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/var");
-        }
 
     }
 

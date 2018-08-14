@@ -19,7 +19,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
     DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation)
-            : m_state(State::Initialized), m_error(), m_productMetadata(productInformation), m_distributePath(), m_productHasChanged(false)
+            : m_state(State::Initialized)
+            , m_error()
+            , m_productMetadata(productInformation)
+            , m_distributePath()
+            , m_productHasChanged(false)
+            , m_productUninstall(false)
     {
 
     }
@@ -182,7 +187,15 @@ namespace SulDownloader
         m_preUpdateInstalledVersion = preUpdateInstalledVersion;
     }
 
+    void DownloadedProduct::setProductIsBeingUninstalled(bool IsBeingUninstalled)
+    {
+        m_productUninstall = IsBeingUninstalled;
+    }
 
+    bool DownloadedProduct::getProductIsBeingUninstalled() const
+    {
+        return m_productUninstall;
+    }
 
 
 }

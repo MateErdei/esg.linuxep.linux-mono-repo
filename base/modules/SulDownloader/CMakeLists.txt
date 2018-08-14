@@ -47,8 +47,8 @@ add_library(suldownloaderimpl SHARED
     IWarehouseRepository.h
     SULDownloader.cpp
     SulDownloader.h
-
-)
+    UninstallManager.cpp
+    UninstallManager.h)
 
 
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )

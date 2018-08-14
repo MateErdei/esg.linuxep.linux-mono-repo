@@ -106,6 +106,19 @@ namespace SulDownloader
          */
         void setProductHasChanged( bool hasChanged );
 
+        /**
+         *
+         * @param isBeingUninstalled True if the product is being uninstalled false if the product has been installed.
+         */
+        void setProductIsBeingUninstalled(bool IsBeingUninstalled);
+        /**
+         *
+         * @return true if the product is being uninstalled false otherwise.
+         */
+        bool getProductIsBeingUninstalled() const;
+
+
+
         //FIXME: implement the report on installed versions LINUXEP-6124
         const std::string& getPostUpdateInstalledVersion() const;
         const std::string& getPreUpdateInstalledVersion() const ;
@@ -119,6 +132,7 @@ namespace SulDownloader
         ProductMetadata m_productMetadata;
         std::string m_distributePath;
         bool m_productHasChanged;
+        bool m_productUninstall;
 
         std::string m_postUpdateInstalledVersion;
         std::string m_preUpdateInstalledVersion;

@@ -42,6 +42,7 @@ namespace Common
 
             virtual std::string getLocalWarehouseRepository() const = 0;
             virtual std::string getLocalDistributionRepository() const = 0;
+            virtual std::string getLocalUninstallSymLinkPath() const = 0;
 
             virtual std::string getUpdateCertificatesPath() const = 0;
             virtual std::string getUpdateCacheCertificateFilePath() const = 0;

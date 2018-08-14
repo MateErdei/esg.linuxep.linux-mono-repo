@@ -11,6 +11,7 @@ message ProductStatusReport
     optional string downloadVersion = 4;
     optional bool upgraded = 5; // true if the product was upgraded in this run.
     optional string errorDescription = 7;
+    optional bool productUninstalled = 8; // true if if has been uninstalled by SUL Downloader.
 }
 
 //FIXME: add information about the purpose of these entries.

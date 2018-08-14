@@ -16,9 +16,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
+#include "UninstallManager.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <cassert>
 
 
 namespace
@@ -38,13 +37,12 @@ namespace
 
 namespace SulDownloader
 {
-    using namespace Common::UtilityImpl;
     DownloadReport runSULDownloader( const ConfigurationData & configurationData)
     {
         SULInit init;
         assert( configurationData.isVerified());
         TimeTracker timeTracker;
-        timeTracker.setStartTime( TimeUtils::getCurrTime());
+        timeTracker.setStartTime( TimeTracker::getCurrTime());
 
         // connect and read metadata
         auto warehouseRepository = WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
@@ -57,7 +55,7 @@ namespace SulDownloader
         // apply product selection and download the needed products
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
         warehouseRepository->synchronize(productSelection);
-
+        timeTracker.setSyncTime( TimeTracker::getCurrTime());
 
         if ( warehouseRepository->hasError())
         {
@@ -73,7 +71,6 @@ namespace SulDownloader
 
 
         auto products = warehouseRepository->getProducts();
-        std::string sourceURL = warehouseRepository->getSourceURL();
         std::string rootcaPath = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
         for( auto & product: products)
         {
@@ -82,7 +79,7 @@ namespace SulDownloader
 
         if ( hasError(products))
         {
-            return DownloadReport::Report(sourceURL, products, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
+            return DownloadReport::Report(products, timeTracker);
         }
 
         // design decision: do not install if any error happens before this time.
@@ -99,11 +96,17 @@ namespace SulDownloader
             }
         }
 
-        timeTracker.setFinishedTime( TimeUtils::getCurrTime());
+        SulDownloader::UninstallManager uninstallManager;
+        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.performCleanUp(products);
+        for (auto &uninstalledProduct : uninstalledProducts ){
+            products.push_back(uninstalledProduct);
+        }
+
+        timeTracker.setFinishedTime( TimeTracker::getCurrTime());
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
-        return DownloadReport::Report(sourceURL, products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        return DownloadReport::Report(products, timeTracker);
 
     }
 

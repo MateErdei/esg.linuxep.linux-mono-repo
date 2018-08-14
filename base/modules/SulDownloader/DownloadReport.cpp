@@ -8,19 +8,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IWarehouseRepository.h"
 #include "DownloadedProduct.h"
 #include "TimeTracker.h"
-#include <Common/UtilityImpl/MessageUtility.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
-#include "SulDownloaderException.h"
-#include <DownloadReport.pb.h>
-
 #include <sstream>
-#include <google/protobuf/util/json_util.h>
 
 
 namespace SulDownloader
 {
-    using namespace Common::UtilityImpl;
+
     DownloadReport::DownloadReport(): m_status(WarehouseStatus::UNSPECIFIED)
     {
 
@@ -39,19 +34,16 @@ namespace SulDownloader
             report.m_status = WarehouseStatus::SUCCESS;
             report.m_description = "";
         }
-        report.m_urlSource = warehouse.getSourceURL();
         report.m_status = report.setProductsInfo(warehouse.getProducts(), report.m_status);
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
+    DownloadReport DownloadReport::Report(const std::vector<DownloadedProduct> & products, const TimeTracker &timeTracker)
     {
-        assert(timeTracker != nullptr);
         DownloadReport report;
-
+        report.setTimings(timeTracker);
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
-        report.m_urlSource = sourceURL;
 
         if(products.empty())
         {
@@ -61,30 +53,24 @@ namespace SulDownloader
 
         for( const auto & product: products)
         {
-            if ( product.hasError())
+            if ( product.hasError() )
             {
-                report.m_description = "Update failed";
-                report.m_status = WarehouseStatus::INSTALLFAILED;
+                if (!product.getProductIsBeingUninstalled())
+                {
+                    report.m_description = "Update failed";
+                    report.m_status = WarehouseStatus::INSTALLFAILED;
+                    break; // Install failures are a higher error than uninstalled.
+                }
+                else
+                {
+                    report.m_description = "Uninstall failed";
+                    report.m_status = WarehouseStatus::UNINSTALLFAILED;
+                }
             }
         }
 
         report.m_status = report.setProductsInfo(products, report.m_status);
 
-        if ( verifyState == VerifyState::VerifyFailed)
-        {
-            for ( auto & productReport : report.m_productReport)
-            {
-                productReport.productStatus = ProductReport::ProductStatus::SyncFailed;
-            }
-        }
-
-
-        if (report.m_status == WarehouseStatus::SUCCESS)
-        {
-            timeTracker->setSyncTime();
-        }
-
-        report.setTimings(*timeTracker);
         return report;
     }
 
@@ -92,7 +78,7 @@ namespace SulDownloader
     {
         DownloadReport report;
         TimeTracker tt;
-        tt.setStartTime(TimeUtils::getCurrTime());
+        tt.setStartTime(TimeTracker::getCurrTime());
         report.setTimings(tt);
         report.m_description = errorDescription;
         report.m_status = WarehouseStatus::UNSPECIFIED;
@@ -139,23 +125,21 @@ namespace SulDownloader
         for (auto & product : products)
         {
             ProductReport productReportEntry;
-            auto & info = product.getProductMetadata();
+            auto &info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
             productReportEntry.installedVersion = product.getPostUpdateInstalledVersion();
-            productReportEntry.productStatus = product.productHasChanged()? ProductReport::ProductStatus::Upgraded : ProductReport::ProductStatus::UpToDate;
             auto wError = product.getError();
             productReportEntry.errorDescription = wError.Description;
 
-
-            if ( !productReportEntry.errorDescription.empty())
+            if (product.getProductIsBeingUninstalled())
             {
-                productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
+                productReportEntry.uninstalled = true;
             }
 
-            // ensure that an error status is reported
-            if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
+            // ensure that an error status is reported on installed products if version is not matched
+            else if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
                 status == WarehouseStatus::SUCCESS)
             {
                 std::stringstream errorInfo;
@@ -164,11 +148,11 @@ namespace SulDownloader
                           << productReportEntry.installedVersion;
                 LOGERROR(errorInfo.str());
                 status = WarehouseStatus::INSTALLFAILED;
+
                 if (productReportEntry.errorDescription.empty())
                 {
                     productReportEntry.errorDescription = errorInfo.str();
                 }
-
             }
 
             m_productReport.push_back(productReportEntry);
@@ -204,7 +188,7 @@ namespace SulDownloader
 
 
     // add one return the json content directly.
-    std::string DownloadReport::fromReport(const DownloadReport &report)
+    SulDownloaderProto::DownloadStatusReport DownloadReport::fromReport( const DownloadReport & report)
     {
         SulDownloaderProto::DownloadStatusReport protoReport;
         protoReport.set_starttime(report.getStartTime());
@@ -214,7 +198,6 @@ namespace SulDownloader
         protoReport.set_status( toString( report.getStatus()));
         protoReport.set_errordescription(report.getDescription());
         protoReport.set_sulerror(report.getSulError());
-        protoReport.set_urlsource(report.getSourceURL());
 
         for ( auto & product : report.getProducts())
         {
@@ -224,89 +207,19 @@ namespace SulDownloader
             productReport->set_downloadversion( product.downloadedVersion);
             productReport->set_installedversion( product.installedVersion);
             productReport->set_errordescription( product.errorDescription);
-            productReport->set_upgraded(product.productStatus == ProductReport::ProductStatus::Upgraded);
+            productReport->set_productuninstalled(product.uninstalled);
         }
 
-        return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
+        return protoReport;
     }
-
-    DownloadReport DownloadReport::toReport(const std::string &serializedVersion)
-    {
-        using namespace google::protobuf::util;
-        using SulDownloaderProto::DownloadStatusReport;
-
-        DownloadStatusReport protoReport;
-        auto status = JsonStringToMessage(serializedVersion, &protoReport );
-        if ( !status.ok())
-        {
-            LOGERROR("Failed to load SulDownload serialized string");
-            LOGSUPPORT(status.ToString());
-            throw SulDownloaderException( "Failed to load SulDownloadReport from string");
-        }
-
-        DownloadReport report;
-        report.m_startTime = protoReport.starttime();
-        report.m_finishedTime = protoReport.finishtime();
-        report.m_sync_time = protoReport.synctime();
-
-        fromString(protoReport.status(), &report.m_status);
-
-        report.m_description = protoReport.errordescription();
-        report.m_sulError = protoReport.sulerror();
-        report.m_urlSource = protoReport.urlsource();
-
-        for( auto & protoProduct : protoReport.products())
-        {
-            ProductReport productReport;
-            productReport.rigidName = protoProduct.rigidname();
-            productReport.name = protoProduct.productname();
-            productReport.downloadedVersion = protoProduct.downloadversion();
-            productReport.installedVersion = protoProduct.installedversion();
-            productReport.errorDescription = protoProduct.errordescription();
-            if ( protoProduct.upgraded())
-            {
-                productReport.productStatus = ProductReport::ProductStatus::Upgraded;
-            }
-            else if ( productReport.errorDescription.empty())
-            {
-                productReport.productStatus = ProductReport::ProductStatus::UpToDate;
-            }
-            else
-            {
-                productReport.productStatus = ProductReport::ProductStatus::SyncFailed;
-            }
-
-            report.m_productReport.push_back(productReport);
-        }
-        return report;
-    }
-
 
     std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport &report)
     {
-
-            std::string json = DownloadReport::fromReport(report);
+            auto protoReport = DownloadReport::fromReport(report);
+            std::string json = Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
             return std::tuple<int, std::string>(report.getExitCode() , json );
     }
 
-    const std::string DownloadReport::getSourceURL() const
-    {
-        return m_urlSource;
-    }
 
 
-
-    std::string ProductReport::statusToString() const
-    {
-        switch (productStatus)
-        {
-            case ProductStatus::Upgraded:
-                return "Upgraded";
-            case ProductStatus::SyncFailed:
-                return "SyncFailed";
-            case ProductStatus::UpToDate:
-            default:
-                return "UpToDate";
-        }
-    }
 }

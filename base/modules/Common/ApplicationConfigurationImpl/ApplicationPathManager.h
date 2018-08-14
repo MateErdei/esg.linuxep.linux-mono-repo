@@ -31,6 +31,7 @@ namespace Common
 
             std::string getLocalWarehouseRepository() const override;
             std::string getLocalDistributionRepository() const override;
+            std::string getLocalUninstallSymLinkPath() const override;
 
             std::string getUpdateCertificatesPath() const override;
             std::string getUpdateCacheCertificateFilePath() const override;
