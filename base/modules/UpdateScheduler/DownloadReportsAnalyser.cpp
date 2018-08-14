@@ -7,7 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <algorithm>
 #include <cassert>
 
@@ -154,14 +155,46 @@ namespace UpdateScheduler
         }
     }
 
-    ReportCollectionResult DownloadReportsAnalyser::processReports(const std::vector<std::string> &filePaths)
-    {
-        return ReportCollectionResult();
-    }
-
     ReportAndFiles DownloadReportsAnalyser::processReports()
     {
-        return ReportAndFiles();
+        std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
+
+        struct FileAndDonloadReport
+        {
+            std::string filepath;
+            SulDownloader::DownloadReport report;
+            std::string sortKey;
+        };
+
+        std::vector<FileAndDonloadReport> reportCollection;
+
+        for( auto & filepath: listFiles)
+        {
+            try
+            {
+                std::string content = Common::FileSystem::fileSystem()->readFile( filepath );
+                SulDownloader::DownloadReport fileReport = SulDownloader::DownloadReport::toReport(content);
+                reportCollection.push_back(FileAndDonloadReport{filepath, fileReport, fileReport.getStartTime()});
+            }catch (std::exception & ex)
+            {
+                // todo log error
+            }
+        }
+
+        std::sort(reportCollection.begin(), reportCollection.end(), [](const FileAndDonloadReport & lhs, const FileAndDonloadReport & rhs){return lhs.sortKey < rhs.sortKey; });
+
+
+        ReportAndFiles reportAndFiles;
+        std::vector<SulDownloader::DownloadReport> downloaderReports;
+        for( auto & reportEntry: reportCollection)
+        {
+            downloaderReports.push_back(reportEntry.report);
+            reportAndFiles.sortedFilePaths.push_back(reportEntry.filepath);
+        }
+
+        reportAndFiles.reportCollectionResult = processReports( downloaderReports);
+
+        return reportAndFiles;
     }
 
 
@@ -329,7 +362,7 @@ namespace UpdateScheduler
         {
             return true;
         }
-        for(int i = 0; i< lhs.Messages.size(); i++)
+        for(size_t i = 0; i< lhs.Messages.size(); i++)
         {
             if( lhs.Messages[i].PackageName != rhs.Messages[i].PackageName)
             {

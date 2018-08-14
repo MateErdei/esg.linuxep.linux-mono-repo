@@ -6,18 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <SulDownloader/DownloadReport.h>
 #include <UpdateScheduler/DownloadReportsAnalyser.h>
-
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 using namespace UpdateScheduler;
 namespace  SulDownloader
 {
-    static const std::string StartTimeTest{"startTimeTest"};
-    static const std::string FinishTimeTest{"finishTimeTest"};
-    static const std::string PreviousStartTime{"previousStartTime"};
-    static const std::string PreviousFinishTime{"previousFinishTime"};
-    static const std::string PreviousPreviousStartTime{"PreviousPreviousStartTime"};
-    static const std::string PreviousPreviousFinishTime{"PreviousPreviousFinishTime"};
+    static const std::string StartTimeTest{"20180812 10:00:00"};
+    static const std::string FinishTimeTest{"20180812 11:00:00"};
+    static const std::string PreviousStartTime{"20180811 10:00:00"};
+    static const std::string PreviousFinishTime{"20180811 11:00:00"};
+    static const std::string PreviousPreviousStartTime{"20180810 10:00:00"};
+    static const std::string PreviousPreviousFinishTime{"20180810 11:00:00"};
 
 
     class DownloadReportTestBuilder
@@ -84,6 +85,12 @@ namespace  SulDownloader
             return report;
         }
 
+        static std::string goodReportString( UseTime useTime)
+        {
+            SulDownloader::DownloadReport report = goodReport(useTime);
+            return SulDownloader::DownloadReport::fromReport(report);
+        }
+
         static SulDownloader::DownloadReport badReport( UseTime useTime, WarehouseStatus status, std::string errorDescription)
         {
             SulDownloader::DownloadReport report;
@@ -124,6 +131,11 @@ namespace  SulDownloader
 
         }
 
+        static std::string getPluginFailedToInstallReportString( UseTime useTime)
+        {
+            SulDownloader::DownloadReport report = getPluginFailedToInstallReport(useTime);
+            return SulDownloader::DownloadReport::fromReport(report);
+        }
 
         static void setReportNoUpgrade(SulDownloader::DownloadReport * report)
         {
@@ -495,8 +507,6 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
 {
-    auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
-
     std::vector<SulDownloader::DownloadReport> reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious),
             DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Previous),
@@ -522,3 +532,47 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
     // third one is the latest.
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
 }
+
+
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLINT
+{
+    auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
+    std::string file1 = DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    std::string file2 = DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Previous);
+    std::string file3 = DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
+    // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the files in the chronological order.
+    std::vector<std::string> files{"file3","file1","file2"};
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+    EXPECT_CALL(*mockFileSystem, readFile("file1")).WillOnce(Return(file1));
+    EXPECT_CALL(*mockFileSystem, readFile("file2")).WillOnce(Return(file2));
+    EXPECT_CALL(*mockFileSystem, readFile("file3")).WillOnce(Return(file3));
+
+
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+    ReportAndFiles reportAndFiles =  DownloadReportsAnalyser::processReports();
+    ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
+
+    std::vector<std::string> sortedOrder{"file1", "file2", "file3"};
+
+    EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
+
+    // copy from SuccessFollowedBy2Failures
+    UpdateEvent expectedEvent = upgradeEvent();
+    expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
+    expectedEvent.MessageNumber = 103;
+    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 103;
+    expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
+    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.FirstFailedTime = PreviousStartTime;
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
+}
+
