@@ -157,3 +157,31 @@ TEST_F(TestManifest, TestWorkingOutRemoval) //NOLINT
     ASSERT_EQ(removed.size(),1);
     EXPECT_EQ(removed.begin()->path(),"files/base/bin/manifestdiff");
 }
+
+TEST_F(TestManifest, TestWorkingOutChangesWhenNothingChanged) //NOLINT
+{
+    Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
+    Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry));
+
+    Installer::ManifestDiff::ManifestEntrySet removed(new_manifest.calculateChanged(old_manifest));
+    EXPECT_EQ(removed.size(),0);
+}
+
+TEST_F(TestManifest, TestWorkingOutChangesWhenOneFileChanged) //NOLINT
+{
+    Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
+    Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry_changed));
+
+    Installer::ManifestDiff::ManifestEntrySet changed(new_manifest.calculateChanged(old_manifest));
+    ASSERT_EQ(changed.size(),1);
+    EXPECT_EQ(changed.begin()->path(),"files/base/bin/SulDownloader");
+}
+
+TEST_F(TestManifest, TestWorkingOutChangesWhenOneFileAdded) //NOLINT
+{
+    Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
+    Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
+
+    Installer::ManifestDiff::ManifestEntrySet changed(new_manifest.calculateChanged(old_manifest));
+    ASSERT_EQ(changed.size(),0);
+}

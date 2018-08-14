@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 #include <set>
+#include <tuple>
 
 namespace Installer
 {
@@ -18,19 +19,25 @@ namespace Installer
         class ManifestEntry
         {
         public:
-            explicit ManifestEntry(Path path);
-            ManifestEntry& withSHA1(const std::string& hash);
-            ManifestEntry& withSHA256(const std::string& hash);
-            ManifestEntry& withSHA384(const std::string& hash);
-            ManifestEntry& withSize(unsigned long size);
+            using entry_size_t = unsigned long;
+            using hash_t = std::string;
 
-            unsigned long size() const;
-            std::string sha1() const;
-            std::string sha256() const;
-            std::string sha384() const;
+            ManifestEntry();
+            explicit ManifestEntry(Path path);
+            ManifestEntry& withSHA1(const hash_t& hash);
+            ManifestEntry& withSHA256(const hash_t& hash);
+            ManifestEntry& withSHA384(const hash_t& hash);
+            ManifestEntry& withSize(entry_size_t size);
+
+            entry_size_t size() const;
+            hash_t sha1() const;
+            hash_t sha256() const;
+            hash_t sha384() const;
             Path path() const;
 
             bool operator<(const ManifestEntry& other) const;
+            bool operator==(const ManifestEntry& other) const;
+            bool operator!=(const ManifestEntry& other) const;
 
             /**
              * Convert a Manifest path to a posix path (And remove leading ./)
@@ -41,11 +48,16 @@ namespace Installer
              */
             static Path toPosixPath(const Path& p);
         private:
-            unsigned long m_size;
+            entry_size_t m_size;
             Path m_path;
-            std::string m_sha1;
-            std::string m_sha256;
-            std::string m_sha384;
+            hash_t m_sha1;
+            hash_t m_sha256;
+            hash_t m_sha384;
+
+            inline std::tuple<Path,entry_size_t, hash_t, hash_t, hash_t> tie_members() const noexcept
+            {
+                return std::tie(m_path, m_size, m_sha1, m_sha256, m_sha384);
+            }
         };
 
         using ManifestEntryVector = std::vector<ManifestEntry>;

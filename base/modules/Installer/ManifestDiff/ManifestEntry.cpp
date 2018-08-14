@@ -4,9 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/UtilityImpl/StringUtils.h>
+#include <tuple>
 #include "ManifestEntry.h"
 
 using namespace Installer::ManifestDiff;
+
+ManifestEntry::ManifestEntry()
+    : m_size(0)
+{
+}
 
 ManifestEntry::ManifestEntry(std::string path)
     : m_size(0),m_path(toPosixPath(path))
@@ -76,13 +82,15 @@ unsigned long ManifestEntry::size() const
 
 bool ManifestEntry::operator<(const ManifestEntry& other) const
 {
-    if (m_path < other.m_path)
-    {
-        return true;
-    }
-    if (m_size < other.m_size)
-    {
-        return true;
-    }
-    return m_sha1 < other.m_sha1;
+    return tie_members() < other.tie_members();
+}
+
+bool ManifestEntry::operator==(const ManifestEntry& other) const
+{
+    return tie_members() == other.tie_members();
+}
+
+bool ManifestEntry::operator!=(const ManifestEntry& other) const
+{
+    return tie_members() != other.tie_members();
 }

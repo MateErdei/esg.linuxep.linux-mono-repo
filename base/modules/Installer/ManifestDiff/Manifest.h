@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ManifestEntry.h"
 
-#include <vector>
+#include <map>
 
 namespace Installer
 {
@@ -42,7 +42,20 @@ namespace Installer
              */
             ManifestEntrySet calculateRemoved(const Manifest& oldManifest) const;
 
+            /**
+             * Work out which entries have changed, that is they are present in both
+             * the old and new manifests but have change length or hash.
+             * @param oldManifest
+             * @return
+             */
+            ManifestEntrySet calculateChanged(const Manifest& oldManifest) const;
+
         private:
+
+            using ManifestEntryMap = std::map<std::string,ManifestEntry>;
+
+            ManifestEntryMap getEntriesByPath() const;
+
             ManifestEntryVector m_entries;
         };
     }

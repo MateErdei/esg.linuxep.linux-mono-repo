@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <limits>
 #include <cassert>
+#include <map>
 
 using namespace Installer::ManifestDiff;
 
@@ -134,4 +135,32 @@ ManifestEntrySet Manifest::calculateRemoved(const Manifest& oldManifest) const
 {
     // This is just the natural opposite of calculateAdded
     return oldManifest.calculateAdded(*this);
+}
+
+ManifestEntrySet Manifest::calculateChanged(const Manifest& oldManifest) const
+{
+    ManifestEntrySet changed;
+    ManifestEntryMap oldMap = oldManifest.getEntriesByPath();
+
+    for (const auto& entry : m_entries)
+    {
+        if (oldMap.count(entry.path()) > 0)
+        {
+            if (oldMap.at(entry.path()) != entry)
+            {
+                changed.insert(entry);
+            }
+        }
+    }
+    return changed;
+}
+
+Manifest::ManifestEntryMap Manifest::getEntriesByPath() const
+{
+    Manifest::ManifestEntryMap map;
+    for (const auto& entry : m_entries)
+    {
+        map[entry.path()] = entry;
+    }
+    return map;
 }
