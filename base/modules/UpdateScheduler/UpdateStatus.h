@@ -11,6 +11,10 @@ namespace UpdateScheduler
 {
     struct ProductStatus
     {
+        ProductStatus(std::string rigid, std::string name, std::string downversion, std::string installvers):
+                RigidName(std::move(rigid)),ProductName(std::move(name)), DownloadedVersion(std::move(downversion)), InstalledVersion(std::move(installvers))
+        {}
+
         std::string RigidName;
         std::string ProductName;
         std::string DownloadedVersion;
@@ -24,7 +28,7 @@ namespace UpdateScheduler
         std::string LastSyncTime;
         std::string LastInstallStartedTime;
         std::string LastFinishdTime;
-        std::string LastResult;
+        int LastResult;
         std::string FirstFailedTime;
 
         std::vector<ProductStatus> Products;

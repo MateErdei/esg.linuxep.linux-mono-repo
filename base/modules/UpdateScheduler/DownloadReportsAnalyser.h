@@ -36,6 +36,12 @@ namespace UpdateScheduler
 
         static ReportAndFiles processReports();
 
+    private:
+        static ReportCollectionResult handleSuccessReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
+        static ReportCollectionResult handleFailureReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
+        static bool hasUpgrade( const SulDownloader::DownloadReport & report);
+        static int lastUpgrade( const std::vector<SulDownloader::DownloadReport> &);
+
     };
 
 }
