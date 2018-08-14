@@ -1,7 +1,10 @@
+/******************************************************************************************************
 
+Copyright 2018 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
-
 
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 
@@ -9,27 +12,11 @@ class SulDownloaderResultDirectoryListener : public Common::DirectoryWatcher::ID
 {
 
 public:
-    SulDownloaderResultDirectoryListener(const std::string &path)
-            : m_Path(path), m_Active(false)
-    {}
+    SulDownloaderResultDirectoryListener(const std::string &path);
 
-
-    std::string getPath() const override
-    {
-        return m_Path;
-    }
-
-    void fileMoved(const std::string & filename) override
-    {
-        //std::lock_guard<std::mutex> guard(m_FilenameMutex);
-        //m_File = filename;
-        //m_HasData = true;
-    }
-
-    void watcherActive(bool active) override
-    {
-        m_Active = active;
-    }
+    std::string getPath() const override;
+    void fileMoved(const std::string & filename) override;
+    void watcherActive(bool active) override;
 
 private:
     std::string m_Path;

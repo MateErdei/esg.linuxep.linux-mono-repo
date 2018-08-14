@@ -27,6 +27,7 @@ namespace UpdateScheduler
 
     int SulDownloaderRunner::run()
     {
+        system("systemctl start application.service")
         // call systemd start SULDownloader
         // wait with a timeout on download and install
         // once done save item onto queue sayign it is complete.
