@@ -70,7 +70,7 @@ Manifest::Manifest(std::istream& file)
                    >> size >> std::expect(' ')
                    >> match(std::char_class_hex, checksum) >> std::expect('\n');
                 m_entries.emplace_back(path);
-                m_entries.back().withSHA1(checksum);
+                m_entries.back().withSHA1(checksum).withSize(size);
                 continue;
             default:
                 break;

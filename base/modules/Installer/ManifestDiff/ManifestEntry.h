@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <string>
+#include <vector>
 
 namespace Installer
 {
@@ -19,6 +20,9 @@ namespace Installer
             ManifestEntry& withSHA1(const std::string& hash);
             ManifestEntry& withSHA256(const std::string& hash);
             ManifestEntry& withSHA384(const std::string& hash);
+            ManifestEntry& withSize(unsigned long size);
+
+            unsigned long size();
             std::string sha1();
             std::string sha256();
             std::string sha384();
@@ -33,11 +37,14 @@ namespace Installer
              */
             static std::string toPosixPath(const std::string& p);
         private:
+            unsigned long m_size;
             std::string m_path;
             std::string m_sha1;
             std::string m_sha256;
             std::string m_sha384;
         };
+
+        using ManifestEntryVector = std::vector<ManifestEntry>;
     }
 }
 

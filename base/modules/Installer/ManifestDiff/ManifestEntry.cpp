@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Installer::ManifestDiff;
 
 ManifestEntry::ManifestEntry(std::string path)
-    : m_path(std::move(path))
+    : m_size(0),m_path(std::move(path))
 {
 }
 
@@ -61,4 +61,15 @@ std::string ManifestEntry::toPosixPath(const std::string& p)
         result = result.substr(2);
     }
     return result;
+}
+
+ManifestEntry& ManifestEntry::withSize(unsigned long size)
+{
+    m_size = size;
+    return *this;
+}
+
+unsigned long ManifestEntry::size()
+{
+    return m_size;
 }
