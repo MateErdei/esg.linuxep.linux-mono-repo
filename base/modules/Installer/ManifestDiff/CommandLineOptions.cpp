@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "CommandLineOptions.h"
 
 #include <Common/UtilityImpl/StringUtils.h>
+#include <iostream>
 
 using namespace Installer::ManifestDiff;
 
@@ -29,6 +30,11 @@ CommandLineOptions::CommandLineOptions(const Common::Datatypes::StringVector& ar
 {
     for (auto& arg : args)
     {
+        if (arg == args.at(0))
+        {
+            continue;
+        }
+
         std::string key;
         std::string value;
         split(arg,key,value);
@@ -40,7 +46,7 @@ CommandLineOptions::CommandLineOptions(const Common::Datatypes::StringVector& ar
         {
             m_new = value;
         }
-        else if (key == "--diff")
+        else if (key == "--diff" || key == "--changed")
         {
             m_changed = value;
         }
@@ -51,6 +57,10 @@ CommandLineOptions::CommandLineOptions(const Common::Datatypes::StringVector& ar
         else if (key == "--removed")
         {
             m_removed = value;
+        }
+        else
+        {
+            std::cerr << "Unknown command line option: " << arg << std::endl;
         }
     }
 }

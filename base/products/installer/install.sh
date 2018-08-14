@@ -224,6 +224,13 @@ export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
 mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
 
+"$DIST/files/base/bin/manifestdiff" \
+    --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
+    --new="$DIST/manifest.dat" \
+    --added="${SOPHOS_INSTALL}/tmp/addedFiles" \
+    --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
+    --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
+
 for F in $(find "$DIST/files" -type f)
 do
     "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"

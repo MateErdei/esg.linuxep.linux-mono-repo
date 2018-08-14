@@ -38,6 +38,7 @@ int ManifestDiff::manifestDiffMain(const Common::Datatypes::StringVector& argv)
 
     writeAdded(options.m_added, oldManifest, newManifest);
     writeRemoved(options.m_removed, oldManifest, newManifest);
+    writeChanged(options.m_changed, oldManifest, newManifest);
 
     return 0;
 }
