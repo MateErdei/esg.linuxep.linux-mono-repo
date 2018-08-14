@@ -23,3 +23,25 @@ TEST(TestStringUtils, endswith) // NOLINT
     EXPECT_TRUE(StringUtils::endswith("stuff.json.json",".json"));
     EXPECT_FALSE(StringUtils::endswith("stuff.json.other",".json"));
 }
+
+
+
+TEST(TestStringUtils, splitString) // NOLINT
+{
+    std::vector<std::pair<std::string,std::vector<std::string>>> expectedResults{
+            {"a;b;c",{"a","b","c"}},
+            {"a;b;c;",{"a","b","c",""}},
+            {"pear;apple",{"pear", "apple"}},
+            {"pear apple", {"pear apple"}},
+            {"",{""}}
+    };
+
+
+    for( auto & entry : expectedResults)
+    {
+        std::string & inputString = entry.first;
+        std::vector<std::string> & expectedSplitted = entry.second;
+        EXPECT_EQ(expectedSplitted, StringUtils::splitString(inputString, ";"));
+    }
+
+}

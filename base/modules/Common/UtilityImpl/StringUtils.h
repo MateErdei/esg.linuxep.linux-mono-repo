@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace Common
 {
@@ -45,6 +46,28 @@ namespace Common
                 }
 
                 result += pattern.substr(beginPos);
+
+                return result;
+            }
+
+            static std::vector<std::string> splitString( const std::string & originalstring, const std::string & separator)
+            {
+                std::vector<std::string> result;
+                size_t beginPos = 0;
+
+                while(true)
+                {
+                    size_t pos = originalstring.find(separator, beginPos);
+
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    result.emplace_back(originalstring.substr(beginPos, pos - beginPos));
+                    beginPos = pos + separator.length();
+                }
+
+                result.emplace_back(originalstring.substr(beginPos));
 
                 return result;
             }
