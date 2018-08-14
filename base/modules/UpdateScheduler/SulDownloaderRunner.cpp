@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Process/IProcess.h>
 #include "SulDownloaderRunner.h"
 
 namespace UpdateScheduler
@@ -29,11 +30,14 @@ namespace UpdateScheduler
         }
 
         // Wait for the SUL Downloader results file to be created.
-        std::string fileLocation = m_listener.waitForFile(60);
+        std::string fileLocation = m_listener.waitForFile(std::chrono::seconds(6));
+
+
 
         // If the file failed to be created after waiting for the timeout period then report a timeout error and return.
         if (fileLocation.empty())
         {
+            // TODO check for suldownloader process here
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderTimedOut;
             m_schedulerTaskQueue->push(schedulerTask);
             return;
@@ -48,6 +52,19 @@ namespace UpdateScheduler
 
     int SulDownloaderRunner::startService()
     {
-        return system("systemctl start sophos-spl-update.service");
+        auto process = Common::Process::createProcess();
+        try{
+            process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
+            std::string output = process->output();
+            return process->exitCode();
+        }catch (std::exception & ex)
+        {
+            return 2;
+        }
+
+
+        //return system("ls /tmp");
+        //return system("");
     }
+
 }

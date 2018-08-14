@@ -20,8 +20,9 @@ namespace UpdateScheduler
         void run();
 
     private:
-        std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
+
         SulDownloaderResultDirectoryListener m_listener;
+        std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
         std::shared_ptr<SchedulerTaskQueue> m_schedulerTaskQueue;
         int startService();
     };

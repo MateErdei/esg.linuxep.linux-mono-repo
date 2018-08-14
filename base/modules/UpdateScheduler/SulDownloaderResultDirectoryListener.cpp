@@ -6,7 +6,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "SulDownloaderResultDirectoryListener.h"
 
-#pragma once
+
 
 SulDownloaderResultDirectoryListener::SulDownloaderResultDirectoryListener(const std::string &path)
         : m_Path(path), m_Active(false)
@@ -31,10 +31,9 @@ void SulDownloaderResultDirectoryListener::watcherActive(bool active)
     m_Active = active;
 }
 
-std::string SulDownloaderResultDirectoryListener::waitForFile(unsigned timeoutInSeconds)
+std::string SulDownloaderResultDirectoryListener::waitForFile( std::chrono::seconds timeoutInSeconds)
 {
-    std::chrono::seconds duration(timeoutInSeconds);
     std::unique_lock<std::mutex> lock(m_FilenameMutex);
-    m_fileDetected.wait_for(lock, duration);
+    m_fileDetected.wait_for(lock, timeoutInSeconds);
     return m_HasData ? m_File : std::string();
 }

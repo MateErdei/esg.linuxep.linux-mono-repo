@@ -17,7 +17,7 @@ public:
     std::string getPath() const override;
     void fileMoved(const std::string & filename) override;
     void watcherActive(bool active) override;
-    std::string  waitForFile(uint timeout);
+    std::string  waitForFile(std::chrono::seconds timeout);
 
 private:
     std::string m_Path;
