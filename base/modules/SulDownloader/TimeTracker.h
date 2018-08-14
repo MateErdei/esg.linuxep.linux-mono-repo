@@ -19,7 +19,6 @@ namespace SulDownloader
     class TimeTracker
     {
     public:
-        static std::time_t getCurrTime() ;
         std::string startTime() const;
 
         std::string finishedTime() const;
@@ -33,14 +32,7 @@ namespace SulDownloader
         void setSyncTime();
 
     private:
-        /**
-         * Return timestamp formated as required by Timestamp Event
-         * https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
-         *
-         * YYYYMMDD HHMMSS
-         * @return timestamp formated as required above.
-         */
-        std::string fromTime(std::time_t) const;
+
         std::time_t m_startTime = -1;
         std::time_t m_finishedTime = -1;
         bool m_syncTimeSet = false;

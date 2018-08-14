@@ -17,7 +17,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <cassert>
+
 
 namespace
 {
@@ -36,12 +38,13 @@ namespace
 
 namespace SulDownloader
 {
+    using namespace Common::UtilityImpl;
     DownloadReport runSULDownloader( const ConfigurationData & configurationData)
     {
         SULInit init;
         assert( configurationData.isVerified());
         TimeTracker timeTracker;
-        timeTracker.setStartTime( TimeTracker::getCurrTime());
+        timeTracker.setStartTime( TimeUtils::getCurrTime());
 
         // connect and read metadata
         auto warehouseRepository = WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
@@ -95,7 +98,7 @@ namespace SulDownloader
             }
         }
 
-        timeTracker.setFinishedTime( TimeTracker::getCurrTime());
+        timeTracker.setFinishedTime( TimeUtils::getCurrTime());
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.

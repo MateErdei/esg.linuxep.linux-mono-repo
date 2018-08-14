@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SulDownloader/DownloadReport.h"
 #include "SulDownloader/SulDownloaderException.h"
-
+#include <Common/UtilityImpl/TimeUtils.h>
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/WarehouseRepositoryFactory.h"
 #include "SulDownloader/ProductSelection.h"
@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloader/TimeTracker.h"
 #include "MockWarehouseRepository.h"
 
-
+using namespace Common::UtilityImpl;
 
 using namespace SulDownloader;
 
@@ -69,7 +69,7 @@ public:
         TimeTracker timeTracker;
 
         time_t currentTime;
-        currentTime = TimeTracker::getCurrTime();
+        currentTime = TimeUtils::getCurrTime();
 
         timeTracker.setStartTime(currentTime - 30);
         timeTracker.setFinishedTime(currentTime - 1);

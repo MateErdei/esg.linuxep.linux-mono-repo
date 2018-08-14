@@ -44,7 +44,9 @@ namespace SulDownloader
     class DownloadReport
     {
         DownloadReport();
+
     public:
+        friend class DownloadReportTestBuilder;
         enum class VerifyState{VerifyFailed, VerifyCorrect};
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
         static DownloadReport Report(const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
@@ -59,6 +61,7 @@ namespace SulDownloader
         const std::string &getFinishedTime() const;
         const std::string &getSyncTime() const;
         const std::vector<ProductReport>& getProducts() const;
+        const std::string getSourceURL() const;
 
         int getExitCode() const;
 

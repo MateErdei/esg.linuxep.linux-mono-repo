@@ -8,7 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IWarehouseRepository.h"
 #include "DownloadedProduct.h"
 #include "TimeTracker.h"
-#include "Common/UtilityImpl/MessageUtility.h"
+#include <Common/UtilityImpl/MessageUtility.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include "Logger.h"
 #include <DownloadReport.pb.h>
 
@@ -17,7 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-
+    using namespace Common::UtilityImpl;
     DownloadReport::DownloadReport(): m_status(WarehouseStatus::UNSPECIFIED)
     {
 
@@ -87,7 +88,7 @@ namespace SulDownloader
     {
         DownloadReport report;
         TimeTracker tt;
-        tt.setStartTime(TimeTracker::getCurrTime());
+        tt.setStartTime(TimeUtils::getCurrTime());
         report.setTimings(tt);
         report.m_description = errorDescription;
         report.m_status = WarehouseStatus::UNSPECIFIED;
@@ -229,6 +230,12 @@ namespace SulDownloader
 
             std::string json = DownloadReport::fromReport(report);
             return std::tuple<int, std::string>(report.getExitCode() , json );
+    }
+
+    const std::string DownloadReport::getSourceURL() const
+    {
+        //FIXME: implement the get Source
+        return "Sophos";
     }
 
 
