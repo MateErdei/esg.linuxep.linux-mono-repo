@@ -94,3 +94,13 @@ void ManifestDiff::writeRemoved(const std::string& destination, const Manifest& 
     PathSet removed = entriesToPaths(newManifest.calculateRemoved(oldManifest));
     writeFile(destination,removed);
 }
+
+void ManifestDiff::writeChanged(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)
+{
+    if (destination.empty())
+    {
+        return;
+    }
+    PathSet changed = entriesToPaths(newManifest.calculateChanged(oldManifest));
+    writeFile(destination,changed);
+}

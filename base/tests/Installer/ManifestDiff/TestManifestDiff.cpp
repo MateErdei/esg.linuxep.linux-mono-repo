@@ -79,4 +79,20 @@ namespace
 
         EXPECT_NO_THROW(Installer::ManifestDiff::ManifestDiff::writeRemoved(dest, old_manifest, new_manifest)); // NOLINT
     }
+
+    TEST_F(TestManifestDiff, writeChanged) //NOLINT
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+        Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
+        Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry_changed));
+
+        std::string dest = "test";
+
+        EXPECT_CALL(*mockFileSystem, writeFile(dest,"files/base/bin/SulDownloader\n"));
+
+        EXPECT_NO_THROW(Installer::ManifestDiff::ManifestDiff::writeChanged(dest, old_manifest, new_manifest)); // NOLINT
+    }
 }

@@ -26,6 +26,7 @@ namespace Installer
             static std::set<std::string> calculateAdded(const Manifest& oldManifest, const Manifest& newManifest);
 
             static void writeRemoved(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
+            static void writeChanged(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
 
         };
     }
