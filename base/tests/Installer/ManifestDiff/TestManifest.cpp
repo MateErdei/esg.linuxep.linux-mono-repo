@@ -4,8 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/Installer/ManifestDiff/Manifest.h>
-#include "gtest/gtest.h"
+#include <Installer/ManifestDiff/Manifest.h>
+
+#include "ExampleManifests.h"
+
+#include <gtest/gtest.h>
 
 namespace
 {
@@ -14,6 +17,12 @@ namespace
     {
     public:
     };
+
+    Installer::ManifestDiff::Manifest manifestFromString(const std::string& s)
+    {
+        std::stringstream ost(s);
+        return Installer::ManifestDiff::Manifest(ost);
+    }
 }
 
 TEST_F(TestManifest, TestConstructionFromEmptyStream) //NOLINT
@@ -25,7 +34,7 @@ TEST_F(TestManifest, TestConstructionFromEmptyStream) //NOLINT
 
 TEST_F(TestManifest, TestConstructionFromStream) //NOLINT
 {
-    std::stringstream ist(R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
+    std::string example(R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
 #sha256 34ae939f422a460fa58581035b497e869837217fffd1e97f0e8fa36feb0715bb
 #sha384 96dedb1a4a633d63301e8f7aee1f878d6a5222723316a4cb244d37577f4ccbd2f7a801adbb2292749dfc02f7270287ec
 ".\files\base\bin\manifestdiff" 192224 8178a87bae834d7a961f08dddf322eb84d2eded7
@@ -123,6 +132,17 @@ sP1Z9XZZl5f7fOerDon/kkEfmaWjmHDGuRotVKq2STU=
 -----END CERTIFICATE-----
 )");
 
-    Installer::ManifestDiff::Manifest manifest(ist);
+    Installer::ManifestDiff::Manifest manifest(manifestFromString(example));
     EXPECT_EQ(manifest.size(),16);
+}
+
+TEST_F(TestManifest, TestWorkingOutAddition) //NOLINT
+{
+    Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
+    Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
+
+    Installer::ManifestDiff::ManifestEntrySet added(new_manifest.calculateAdded(old_manifest));
+    ASSERT_EQ(added.size(),1);
+
+    EXPECT_EQ(added.begin()->path(),"files/base/bin/manifestdiff");
 }

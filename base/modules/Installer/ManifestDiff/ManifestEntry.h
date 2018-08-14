@@ -8,25 +8,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace Installer
 {
     namespace ManifestDiff
     {
+        using Path = std::string;
         class ManifestEntry
         {
         public:
-            explicit ManifestEntry(std::string path);
+            explicit ManifestEntry(Path path);
             ManifestEntry& withSHA1(const std::string& hash);
             ManifestEntry& withSHA256(const std::string& hash);
             ManifestEntry& withSHA384(const std::string& hash);
             ManifestEntry& withSize(unsigned long size);
 
-            unsigned long size();
-            std::string sha1();
-            std::string sha256();
-            std::string sha384();
-            std::string path();
+            unsigned long size() const;
+            std::string sha1() const;
+            std::string sha256() const;
+            std::string sha384() const;
+            Path path() const;
+
+            bool operator<(const ManifestEntry& other) const;
 
             /**
              * Convert a Manifest path to a posix path (And remove leading ./)
@@ -35,16 +39,18 @@ namespace Installer
              * @param p
              * @return
              */
-            static std::string toPosixPath(const std::string& p);
+            static Path toPosixPath(const Path& p);
         private:
             unsigned long m_size;
-            std::string m_path;
+            Path m_path;
             std::string m_sha1;
             std::string m_sha256;
             std::string m_sha384;
         };
 
         using ManifestEntryVector = std::vector<ManifestEntry>;
+        using ManifestEntrySet = std::set<ManifestEntry>;
+        using PathSet = std::set<Path>;
     }
 }
 

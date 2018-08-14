@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Installer::ManifestDiff;
 
 ManifestEntry::ManifestEntry(std::string path)
-    : m_size(0),m_path(std::move(path))
+    : m_size(0),m_path(toPosixPath(path))
 {
 }
 
@@ -31,22 +31,22 @@ ManifestEntry& ManifestEntry::withSHA384(const std::string& hash)
     return *this;
 }
 
-std::string ManifestEntry::sha1()
+std::string ManifestEntry::sha1() const
 {
     return m_sha1;
 }
 
-std::string ManifestEntry::sha256()
+std::string ManifestEntry::sha256() const
 {
     return m_sha256;
 }
 
-std::string ManifestEntry::sha384()
+std::string ManifestEntry::sha384() const
 {
     return m_sha384;
 }
 
-std::string ManifestEntry::path()
+std::string ManifestEntry::path() const
 {
     return m_path;
 }
@@ -69,7 +69,20 @@ ManifestEntry& ManifestEntry::withSize(unsigned long size)
     return *this;
 }
 
-unsigned long ManifestEntry::size()
+unsigned long ManifestEntry::size() const
 {
     return m_size;
+}
+
+bool ManifestEntry::operator<(const ManifestEntry& other) const
+{
+    if (m_path < other.m_path)
+    {
+        return true;
+    }
+    if (m_size < other.m_size)
+    {
+        return true;
+    }
+    return m_sha1 < other.m_sha1;
 }

@@ -27,6 +27,12 @@ static void parseSHA256comment(const std::string& comment, ManifestEntry& info)
 
 Manifest::Manifest(std::istream& file)
 {
+    if (!file.good())
+    {
+        // Count missing files as empty
+        return;
+    }
+
     file >> std::noskipws;
 
     std::string body;
@@ -82,11 +88,44 @@ Manifest::Manifest(std::istream& file)
 
 Manifest Manifest::ManifestFromPath(const std::string& filepath)
 {
+    if (filepath.empty())
+    {
+        return Manifest();
+    }
     std::ifstream stream(filepath);
     return Manifest(stream);
 }
 
-unsigned long Manifest::size()
+unsigned long Manifest::size() const
 {
     return m_entries.size();
+}
+
+ManifestEntrySet Manifest::entries() const
+{
+    return Installer::ManifestDiff::ManifestEntrySet(m_entries.begin(),m_entries.end());
+}
+
+ManifestEntrySet Manifest::calculateAdded(const Manifest& oldManifest) const
+{
+    PathSet oldPaths = oldManifest.paths();
+    ManifestEntrySet added;
+    for (const auto& entry : m_entries)
+    {
+        if (oldPaths.find(entry.path()) == oldPaths.end())
+        {
+            added.insert(entry);
+        }
+    }
+    return added;
+}
+
+PathSet Manifest::paths() const
+{
+    PathSet paths;
+    for (const auto& entry : m_entries)
+    {
+        paths.insert(entry.path());
+    }
+    return paths;
 }

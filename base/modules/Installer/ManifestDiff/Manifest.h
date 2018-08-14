@@ -19,12 +19,23 @@ namespace Installer
         class Manifest
         {
         public:
+            Manifest() = default;
             explicit Manifest(std::istream& file);
             static Manifest ManifestFromPath(const std::string& filepath);
-            unsigned long size();
+            unsigned long size() const;
+            ManifestEntrySet entries() const;
+            PathSet paths() const;
+
+            /**
+             * Calculate entries that have been added into this manifest,
+             * that didn't exist at all in the old manifest.
+             * @param oldManifest
+             * @return
+             */
+            ManifestEntrySet calculateAdded(const Manifest& oldManifest) const;
 
         private:
-            std::vector<ManifestEntry> m_entries;
+            ManifestEntryVector m_entries;
         };
     }
 }
