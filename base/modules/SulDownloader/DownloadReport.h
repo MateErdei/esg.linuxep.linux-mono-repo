@@ -53,6 +53,7 @@ namespace SulDownloader
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
         static std::string fromReport(const DownloadReport &report);
+        static DownloadReport toReport( const std::string & serializedVersion);
 
         WarehouseStatus getStatus() const;
         const std::string& getDescription() const;

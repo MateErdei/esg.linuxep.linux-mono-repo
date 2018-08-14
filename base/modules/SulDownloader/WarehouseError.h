@@ -24,6 +24,13 @@ namespace SulDownloader
     std::string toString( WarehouseStatus );
 
     /**
+     * Allow DownloadReport to load back the WarehouseStatus from the string representation.
+     * @param serializedStatus
+     * @param status: passed as pointer to make it clear in the calling code that it is an input.
+     */
+    void fromString(const std::string & serializedStatus, WarehouseStatus *status);
+
+    /**
      * Struct to keep track of report of failures both of the SUL library and the SULDownloader.
      *
      */

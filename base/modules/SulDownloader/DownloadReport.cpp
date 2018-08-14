@@ -11,9 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include "Logger.h"
+#include "SulDownloaderException.h"
 #include <DownloadReport.pb.h>
 
 #include <sstream>
+#include <google/protobuf/util/json_util.h>
 
 
 namespace SulDownloader
@@ -225,6 +227,57 @@ namespace SulDownloader
         return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
     }
 
+    DownloadReport DownloadReport::toReport(const std::string &serializedVersion)
+    {
+        using namespace google::protobuf::util;
+        using SulDownloaderProto::DownloadStatusReport;
+
+        DownloadStatusReport protoReport;
+        auto status = JsonStringToMessage(serializedVersion, &protoReport );
+        if ( !status.ok())
+        {
+            LOGERROR("Failed to load SulDownload serialized string");
+            LOGSUPPORT(status.ToString());
+            throw SulDownloaderException( "Failed to load SulDownloadReport from string");
+        }
+
+        DownloadReport report;
+        report.m_startTime = protoReport.starttime();
+        report.m_finishedTime = protoReport.finishtime();
+        report.m_sync_time = protoReport.synctime();
+
+        fromString(protoReport.status(), &report.m_status);
+
+        report.m_description = protoReport.errordescription();
+        report.m_sulError = protoReport.sulerror();
+
+        for( auto & protoProduct : protoReport.products())
+        {
+            ProductReport productReport;
+            productReport.rigidName = protoProduct.rigidname();
+            productReport.name = protoProduct.productname();
+            productReport.downloadedVersion = protoProduct.downloadversion();
+            productReport.installedVersion = protoProduct.installedversion();
+            productReport.errorDescription = protoProduct.errordescription();
+            if ( protoProduct.upgraded())
+            {
+                productReport.productStatus = ProductReport::ProductStatus::Upgraded;
+            }
+            else if ( productReport.errorDescription.empty())
+            {
+                productReport.productStatus = ProductReport::ProductStatus::UpToDate;
+            }
+            else
+            {
+                productReport.productStatus = ProductReport::ProductStatus::SyncFailed;
+            }
+
+            report.m_productReport.push_back(productReport);
+        }
+        return report;
+    }
+
+
     std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport &report)
     {
 
@@ -237,6 +290,7 @@ namespace SulDownloader
         //FIXME: implement the get Source
         return "Sophos";
     }
+
 
 
     std::string ProductReport::statusToString() const

@@ -32,4 +32,36 @@ namespace SulDownloader
         };
 
     }
+    void fromString(const std::string & serializedStatus, WarehouseStatus *status)
+    {
+        if ( serializedStatus == "SUCCESS")
+        {
+            *status = SUCCESS;
+        }
+        else if (serializedStatus == "INSTALLFAILED")
+        {
+            *status = INSTALLFAILED;
+        }
+        else if (serializedStatus == "DOWNLOADFAILED" )
+        {
+            *status = DOWNLOADFAILED;
+        }
+        else if ( serializedStatus == "RESTARTNEEDED")
+        {
+            *status = RESTARTNEEDED;
+        }
+        else if ( serializedStatus == "CONNECTIONERROR")
+        {
+            *status = CONNECTIONERROR;
+        }
+        else if (serializedStatus == "PACKAGESOURCEMISSING" )
+        {
+            *status = PACKAGESOURCEMISSING;
+        }
+        else
+        {
+            *status = UNSPECIFIED;
+        }
+    }
+
 }
