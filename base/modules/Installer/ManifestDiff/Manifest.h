@@ -21,15 +21,8 @@ namespace Installer
         public:
             explicit Manifest(std::istream& file);
             static Manifest ManifestFromPath(const std::string& filepath);
+            unsigned long size();
 
-            /**
-             * Convert a Manifest path to a posix path (And remove leading ./)
-             *
-             * .\install.sh to install.sh
-             * @param p
-             * @return
-             */
-            static std::string toPosixPath(const std::string& p);
         private:
             std::vector<ManifestEntry> m_entries;
         };

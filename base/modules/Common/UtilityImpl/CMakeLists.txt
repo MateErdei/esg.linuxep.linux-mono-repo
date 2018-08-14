@@ -1,6 +1,10 @@
 add_library(utilityimpl SHARED
         MessageUtility.cpp
-        MessageUtility.h RegexUtilities.cpp RegexUtilities.h TimeUtils.cpp TimeUtils.h)
+        MessageUtility.h
+        RegexUtilities.cpp
+        RegexUtilities.h
+        StringUtils.h
+        iostr_utils.h)
 
 target_include_directories(utilityimpl PUBLIC ../../Common ${Protobuf_INCLUDE_DIR})
 target_link_libraries(utilityimpl PUBLIC ${Protobuf_LIBRARIES})

@@ -124,4 +124,5 @@ sP1Z9XZZl5f7fOerDon/kkEfmaWjmHDGuRotVKq2STU=
 )");
 
     Installer::ManifestDiff::Manifest manifest(ist);
+    EXPECT_EQ(manifest.size(),16);
 }

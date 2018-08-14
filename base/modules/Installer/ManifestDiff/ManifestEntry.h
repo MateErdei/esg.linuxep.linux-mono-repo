@@ -23,6 +23,15 @@ namespace Installer
             std::string sha256();
             std::string sha384();
             std::string path();
+
+            /**
+             * Convert a Manifest path to a posix path (And remove leading ./)
+             *
+             * .\install.sh to install.sh
+             * @param p
+             * @return
+             */
+            static std::string toPosixPath(const std::string& p);
         private:
             std::string m_path;
             std::string m_sha1;

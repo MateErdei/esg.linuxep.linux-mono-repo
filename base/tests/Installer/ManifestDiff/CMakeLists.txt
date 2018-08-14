@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(TestManifestDiff
         TestManifest.cpp
-        )
+        TestManifestEntry.cpp)
 target_include_directories(TestManifestDiff SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TestManifestDiff BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${BOOST_INCLUDE}" "${CMAKE_SOURCE_DIR}" )
 

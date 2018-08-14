@@ -3,6 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include <Common/UtilityImpl/StringUtils.h>
 #include "ManifestEntry.h"
 
 using namespace Installer::ManifestDiff;
@@ -48,4 +49,16 @@ std::string ManifestEntry::sha384()
 std::string ManifestEntry::path()
 {
     return m_path;
+}
+
+std::string ManifestEntry::toPosixPath(const std::string& p)
+{
+    std::string result = Common::UtilityImpl::StringUtils::replaceAll(p,
+            "\\",
+            "/");
+    if (Common::UtilityImpl::StringUtils::startswith(result,"./"))
+    {
+        result = result.substr(2);
+    }
+    return result;
 }
