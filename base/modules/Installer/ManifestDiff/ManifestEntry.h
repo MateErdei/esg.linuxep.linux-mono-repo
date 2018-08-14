@@ -1,0 +1,35 @@
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+#pragma once
+
+
+#include <string>
+
+namespace Installer
+{
+    namespace ManifestDiff
+    {
+        class ManifestEntry
+        {
+        public:
+            explicit ManifestEntry(std::string path);
+            ManifestEntry& withSHA1(const std::string& hash);
+            ManifestEntry& withSHA256(const std::string& hash);
+            ManifestEntry& withSHA384(const std::string& hash);
+            std::string sha1();
+            std::string sha256();
+            std::string sha384();
+            std::string path();
+        private:
+            std::string m_path;
+            std::string m_sha1;
+            std::string m_sha256;
+            std::string m_sha384;
+        };
+    }
+}
+
+

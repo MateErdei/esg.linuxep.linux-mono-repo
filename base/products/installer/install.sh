@@ -265,3 +265,5 @@ if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
     waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
 fi
+
+cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
