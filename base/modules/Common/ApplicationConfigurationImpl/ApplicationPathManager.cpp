@@ -128,6 +128,11 @@ namespace Common
             return Common::FileSystem::join(getUpdateCertificatesPath(), "cache_certificates.crt");
         }
 
+        std::string ApplicationPathManager::getSulDownloaderReportPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var");
+        }
+
     }
 
 

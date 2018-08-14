@@ -37,6 +37,7 @@ namespace Common
 
             std::string getTempPath() const override;
 
+            std::string getSulDownloaderReportPath() const override ;
         private:
             std::string socketPath( const std::string & relative) const;
         };
