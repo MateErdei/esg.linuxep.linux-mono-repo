@@ -100,6 +100,15 @@ namespace Tests
         makeDirs(dir_path);
         m_fileSystem->writeFile(abs_path, content);
     }
+    void TempDir::createFileAtomically(const std::string &relativePath, const std::string &content) const
+    {
+        std::string abs_path = absPath(relativePath);
+        std::string filename = Common::FileSystem::basename(abs_path);
+        std::string dir_path = abs_path.substr(m_rootpath.size(), abs_path.size() - filename.size() - m_rootpath.size());
+        makeDirs(dir_path);
+        auto tempDir = TempDir::makeTempDir();
+        m_fileSystem->writeFileAtomically(abs_path, content, tempDir->dirPath());
+    }
 
     std::vector<std::string> TempDir::pathParts(const std::string &relativePath)
     {

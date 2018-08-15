@@ -40,6 +40,7 @@ namespace Common
             ContextHolder m_context;
             std::thread m_thread;
             std::mutex m_threadStarted;
+            bool m_threadStartedFlag;
             std::condition_variable m_ensureThreadStarted;
 
             void announceThreadStarted();

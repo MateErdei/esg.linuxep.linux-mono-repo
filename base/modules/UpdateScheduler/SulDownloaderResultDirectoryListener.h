@@ -17,13 +17,24 @@ public:
     std::string getPath() const override;
     void fileMoved(const std::string & filename) override;
     void watcherActive(bool active) override;
+
+    /// waitForFile will block until m_stop is true, which indicates either the file has been detected or that the
+    /// abort method has been called and this update should be aborted.
+    /// \param timeoutInSeconds
+    /// \return the path to the results file or "" if no file created in time or abort called.
     std::string  waitForFile(std::chrono::seconds timeout);
 
+    void abort();
+    bool wasAborted();
+    bool shouldStop();
+
 private:
-    std::string m_Path;
-    std::string m_File;
-    bool m_Active;
-    bool m_HasData;
-    std::mutex m_FilenameMutex;
+    std::string m_path;
+    std::string m_file;
+    bool m_active;
+    bool m_fileFound;
+    bool m_aborted;
+    std::mutex m_filenameMutex;
     std::condition_variable m_fileDetected;
+
 };

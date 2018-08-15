@@ -9,14 +9,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateScheduler
 {
-    SulDownloaderRunner::SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch)
-            : m_listener(directoryToWatch), m_schedulerTaskQueue(schedulerTaskQueue)
+
+    SulDownloaderRunner::SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch, std::chrono::seconds timeout)
+        :
+            m_listener(directoryToWatch),
+            m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(new Common::DirectoryWatcherImpl::DirectoryWatcher())),
+            m_schedulerTaskQueue(schedulerTaskQueue),
+            m_timeout(timeout)
     {
-        m_directoryWatcher = std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(new Common::DirectoryWatcherImpl::DirectoryWatcher());
         m_directoryWatcher->addListener(m_listener);
     }
 
-    void SulDownloaderRunner::run(std::chrono::seconds timeout)
+    void SulDownloaderRunner::run()
     {
         m_directoryWatcher->startWatch();
         SchedulerTask schedulerTask;
@@ -29,15 +33,23 @@ namespace UpdateScheduler
             return;
         }
 
-        // TODO what happens when we're waiting here and suldownloader kills this process to update base?
-        // Wait for the SUL Downloader results file to be created.
-        std::string fileLocation = m_listener.waitForFile(timeout);
+        // Wait for the SUL Downloader results file to be created or a timeout or abort is called.
+        std::string fileLocation = m_listener.waitForFile(m_timeout);
 
-        // If the file failed to be created after waiting for the timeout period then report a timeout error and return.
+        // If the file failed to be created it means either an abort was called or the wait timed out and no file was found.
         if (fileLocation.empty())
         {
             // TODO check for suldownloader process here
-            schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderTimedOut;
+
+            if (m_listener.wasAborted())
+            {
+                schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderWasAborted;
+            }
+            else
+            {
+                schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderTimedOut;
+            }
+
             m_schedulerTaskQueue->push(schedulerTask);
             return;
         }
@@ -52,11 +64,15 @@ namespace UpdateScheduler
     int SulDownloaderRunner::startService()
     {
         auto process = Common::Process::createProcess();
-        process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
+        //process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
+        process->exec( "systemctl", {"start", "sophos-spl-update.service"} );
         std::string output = process->output();
         return process->exitCode();
-        //return system("ls /tmp");
-        //return system("");
+    }
+
+    void SulDownloaderRunner::abort()
+    {
+        m_listener.abort();
     }
 
 }

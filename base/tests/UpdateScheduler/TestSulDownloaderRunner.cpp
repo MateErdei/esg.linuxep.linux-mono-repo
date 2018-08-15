@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <modules/Common/FileSystem/IFileSystem.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
 #include <tests/Common/TestHelpers/TempDir.h>
+#include <future>
 #include "Common/FileSystem/IFileSystem.h"
 
 using namespace UpdateScheduler;
@@ -40,74 +41,113 @@ public:
     }
 };
 
+TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
+{
+    // Create temp directory to use for the report.json file.
+    std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
+
+    // Mock systemctl call.
+    MockProcess * mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+
+    // Create task queue.
+    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+
+    // Create suldownloader runner and run it.
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), std::chrono::seconds(5));
+    std::thread runnerThread([&runner](){
+        runner.run();
+    });
+
+    // Write a report json file.
+    auto fut = std::async(std::launch::async, [&tempDir](){
+        tempDir->createFileAtomically("report.json", "some json");
+    });
+    runnerThread.join();
+
+    // Check result from suldownloader runner.
+    auto task = queue->pop();
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
+    EXPECT_EQ(task.content, "report.json");
+}
+
+TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
+{
+    // Create temp directory to use for the report.json file.
+    std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
+
+    // Mock systemctl call.
+    MockProcess * mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+
+    // Create task queue.
+    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+
+    // Create suldownloader runner and run it.
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), std::chrono::seconds(3));
+    std::thread runnerThread([&runner](){
+        runner.run();
+    });
+
+    auto fut = std::async(std::launch::async,  [&tempDir](){
+        std::this_thread::sleep_for(std::chrono::milliseconds(500)); tempDir->createFileAtomically("report.json", "some json");
+    });
+
+    runnerThread.join();
+
+    auto task = queue->pop();
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
+    EXPECT_EQ(task.content, "report.json");
+}
+
 
 TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 {
+    // Mock systemctl call.
     MockProcess * mockProcess = setupMockProcess();
-
-    // systemctl call
     EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
+    // Create task queue
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-    SulDownloaderRunner runner(queue, "/tmp");
-    runner.run(std::chrono::seconds(1));
-    auto task = queue->pop();
 
-    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderTimedOut);
-    //std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-    //CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20) );
-}
-
-//class FileSystemImplTest : public ::testing::Test
-//{
-//public:
-//    std::unique_ptr<IFileSystem> m_fileSystem;
-//    void SetUp() override
-//    {
-//        m_fileSystem.reset(new FileSystemImpl());
-//    }
-//};
-
-TEST_F(TestSulDownloaderRunner, SuccessfulRun)
-{
-
-
-//    ////////////////////
-//    using namespace Common::FileSystem;
-//    std::unique_ptr<IFileSystem> fakeFileSystem = std::unique_ptr<IFileSystem>(new FileSystemImpl());
-//
-//    std::string filePath = Common::FileSystem::join(fakeFileSystem->currentWorkingDirectory(), fileName);
-//
-//    //std::string testContent("HelloWorld");
-//
-//    fakeFileSystem->writeFileAtomically(filePath, "Some content", fakeFileSystem->currentWorkingDirectory() );
-//
-//    //EXPECT_EQ(m_fileSystem->readFile(filePath), testContent);
-//    ::remove(filePath.c_str());
-//    //////////////////
-
-
-    std::string fileName = "report.json";
-    std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
-    MockProcess * mockProcess = setupMockProcess();
-
-    // mock systemctl call
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
-    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
-    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-    SulDownloaderRunner runner(queue, tempDir->dirPath());
-    std::thread runnerThread(runner.run, 1);
-    tempDir->createFile(fileName, "Some json");
+    // Create suldownloader runner which will timeout after 1 second of waiting and run it.
+    SulDownloaderRunner runner(queue, "/tmp", std::chrono::seconds(1));
+    std::thread runnerThread([&runner](){
+        runner.run();
+    });
 
     runnerThread.join();
 
     auto task = queue->pop();
     ASSERT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderTimedOut);
-    //std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-    //CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20) );
+}
 
+TEST_F(TestSulDownloaderRunner, Abort) // NOLINT
+{
 
+    // Mock systemctl call
+    MockProcess * mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+
+    // Create task queue
+    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+
+    // Create suldownloader runner and run it.
+    SulDownloaderRunner runner(queue, "/tmp", std::chrono::seconds(10));
+    std::thread runnerThread([&runner](){
+        runner.run();
+    });
+
+    runner.abort();
+    runnerThread.join();
+    auto task = queue->pop();
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderWasAborted);
 }

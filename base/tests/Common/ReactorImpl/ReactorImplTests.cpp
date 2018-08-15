@@ -58,7 +58,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData)
     Tests::TestExecutionSynchronizer testExecutionSynchronizer;
 
     EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
-            Invoke([&testExecutionSynchronizer](data_t){testExecutionSynchronizer.notify(); })
+            Invoke([&testExecutionSynchronizer](data_t){testExecutionSynchronizer.notify();})
     );
 
     reactor->addListener(&readableFd, &mockCallBackListener);

@@ -84,6 +84,7 @@ namespace Common
             NotifyPipe m_notifyPipe;
         private:
             std::thread m_thread;
+            bool m_threadStartedFlag;
         };
     }
 }

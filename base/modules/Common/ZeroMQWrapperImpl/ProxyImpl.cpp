@@ -23,7 +23,7 @@ Common::ZeroMQWrapper::IProxyPtr Common::ZeroMQWrapper::createProxy(const std::s
 }
 
 Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend)
-    : m_frontendAddress(frontend),m_backendAddress(backend)
+    : m_frontendAddress(frontend),m_backendAddress(backend), m_threadStartedFlag(false)
 {
 }
 
@@ -39,7 +39,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
     assert(m_context.ctx() != nullptr);
     std::unique_lock<std::mutex> lock(m_threadStarted);
     m_thread = std::move(std::thread(&ProxyImpl::run,this));
-    m_ensureThreadStarted.wait(lock);
+    m_ensureThreadStarted.wait(lock,[this](){return m_threadStartedFlag;});
 }
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
@@ -55,6 +55,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
 void ProxyImpl::announceThreadStarted()
 {
     std::unique_lock<std::mutex> templock(m_threadStarted);
+    m_threadStartedFlag = true;
     m_ensureThreadStarted.notify_all();
 }
 

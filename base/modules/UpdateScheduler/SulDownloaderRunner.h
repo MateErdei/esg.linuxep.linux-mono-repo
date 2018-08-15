@@ -16,13 +16,15 @@ namespace UpdateScheduler
     class SulDownloaderRunner
     {
     public:
-        SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch);
-        void run(std::chrono::seconds timeout);
+        SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch, std::chrono::seconds timeout);
+        void run();
+        void abort();
 
     private:
         SulDownloaderResultDirectoryListener m_listener;
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
         std::shared_ptr<SchedulerTaskQueue> m_schedulerTaskQueue;
+        std::chrono::seconds m_timeout;
         int startService();
     };
 }

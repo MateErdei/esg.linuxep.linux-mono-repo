@@ -14,7 +14,8 @@ namespace Common
             m_threadStarted(),
             m_ensureThreadStarted(),
             m_notifyPipe(),
-            m_thread()
+            m_thread(),
+            m_threadStartedFlag(false)
         {
 
         }
@@ -32,7 +33,7 @@ namespace Common
         {
             std::unique_lock<std::mutex> lock(m_threadStarted);
             m_thread = std::thread(&AbstractThread::run,this);
-            m_ensureThreadStarted.wait(lock);
+            m_ensureThreadStarted.wait(lock, [this](){return m_threadStartedFlag;});
         }
 
         void AbstractThread::requestStop()
@@ -58,6 +59,7 @@ namespace Common
             // unblock start (waiting on m_ensureThreadStarted
             // this make subsequent calls to hasFinished safe from race-condition.
             std::unique_lock<std::mutex> templock(m_threadStarted);
+            m_threadStartedFlag = true;
             m_ensureThreadStarted.notify_all();
         }
     }

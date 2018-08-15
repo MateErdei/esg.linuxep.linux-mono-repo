@@ -93,6 +93,15 @@ namespace Tests
         void createFile( const std::string& relativePath, const std::string& content) const;
 
         /**
+         * Same as createFile but uses a second temp dir to create the file atomically with a move.
+         * It creates the file pointing to the relative path with its content matching the content string.
+         * If the intermediate directories do not exist, it will be created during this call.
+         * @param relativePath
+         * @param content
+         */
+        void createFileAtomically(const std::string &relativePath, const std::string &content) const;
+
+        /**
          * Helper class. Equivalent to:
          *
          * @code
@@ -129,8 +138,6 @@ namespace Tests
         static std::vector<std::string> pathParts( const std::string & relativePath);
         std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
         std::string m_rootpath;
-
-
     };
 
 }
