@@ -7,12 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 /**
 * Component tests to SULDownloader mocking out WarehouseRepository
 */
-#include <modules/Common/FileSystem/IFileSystemException.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "modules/SulDownloader/ConfigurationData.h"
-#include "modules/Common/UtilityImpl/MessageUtility.h"
+#include "SulDownloader/ConfigurationData.h"
+#include "Common/UtilityImpl/MessageUtility.h"
 #include "tests/Common/ProcessImpl/MockProcess.h"
 #include "tests/Common/FileSystemImpl/MockFileSystem.h"
 #include "MockWarehouseRepository.h"
@@ -318,6 +319,8 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
             SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
     std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
@@ -351,6 +354,8 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
             SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
     std::vector<std::string> fileListOfProductsToRemove = {"productRemove1"};
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(fileListOfProductsToRemove));
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
@@ -513,6 +518,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
@@ -612,6 +619,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     int counter = 0;
@@ -685,6 +694,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
 
     int counter = 0;

@@ -210,7 +210,7 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnA
     EXPECT_EQ(selectedProducts.selected.size(), 3);
 }
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMissingAllProduct)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts)
 {
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
 
@@ -228,10 +228,9 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnM
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
-    EXPECT_EQ(selectedProducts.missing.size(), 3);
+    EXPECT_EQ(selectedProducts.missing.size(), 2);
     EXPECT_EQ(selectedProducts.missing[0].c_str(), metadata1.getLine());
     EXPECT_EQ(selectedProducts.missing[1].c_str(), metadata2.getLine());
-    EXPECT_THAT(selectedProducts.missing[2], ::testing::HasSubstr("1CD8A804"));
     EXPECT_EQ(selectedProducts.notselected.size(), 1);
     EXPECT_EQ(selectedProducts.selected.size(), 0);
 }

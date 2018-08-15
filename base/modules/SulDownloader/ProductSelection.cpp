@@ -106,6 +106,11 @@ namespace SulDownloader
         return m_productName;
     }
 
+    bool ProductSelector::isProductRequired() const
+    {
+        return (m_NamePrefix != NamePrefix::UseNameAsPrefix);
+    }
+
 
     void ProductSelection::appendSelector(std::unique_ptr<ISingleProductSelector> productSelector)
     {
@@ -144,7 +149,9 @@ namespace SulDownloader
         for ( auto & selector : m_selection)
         {
             auto selectedIndexes = selectedProducts(*selector, warehouseProducts);
-            if ( selectedIndexes.empty())
+
+            // if product is not required do not force download failure.
+            if ( selectedIndexes.empty() && selector->isProductRequired())
             {
                 selection.missing.push_back(selector->targetProductName());
             }

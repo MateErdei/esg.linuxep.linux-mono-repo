@@ -46,7 +46,14 @@ namespace SulDownloader
 
     std::vector<std::string> ProductUninstaller::getInstalledProductPathsList()
     {
-        return Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath());
+        std::vector<std::string> fileList;
+        std::string filePath = Common::ApplicationConfiguration::applicationPathManager().getLocalUninstallSymLinkPath();
+        if(Common::FileSystem::fileSystem()->isDirectory(filePath))
+        {
+            fileList = Common::FileSystem::fileSystem()->listFiles(filePath);
+        }
+
+        return fileList;
     }
 
     std::vector<DownloadedProduct> ProductUninstaller::removeProducts(std::map<std::string, DownloadedProduct> uninstallProductInfo)

@@ -18,6 +18,7 @@ namespace SulDownloader
     {
     public:
         virtual bool keepProduct ( const ProductMetadata & ) const =0;
+        virtual bool isProductRequired() const = 0;
         virtual std::string targetProductName() const = 0;
         virtual ~ISingleProductSelector() = default;
     };
@@ -29,6 +30,7 @@ namespace SulDownloader
         ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
         std::string targetProductName() const override ;
         bool keepProduct ( const ProductMetadata & ) const override ;
+        bool isProductRequired() const;
         virtual ~ProductSelector() = default;
     private:
         std::string m_productName;

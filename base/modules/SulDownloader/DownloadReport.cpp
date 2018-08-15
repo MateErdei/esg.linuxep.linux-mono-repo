@@ -139,8 +139,9 @@ namespace SulDownloader
             }
 
             // ensure that an error status is reported on installed products if version is not matched
+            // If uninstall failed, and Install failed, report back install failed overall.
             else if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
-                status == WarehouseStatus::SUCCESS)
+                    (status == WarehouseStatus::SUCCESS || status == WarehouseStatus::UNINSTALLFAILED) )
             {
                 std::stringstream errorInfo;
                 errorInfo << "Downloaded version: " << productReportEntry.downloadedVersion

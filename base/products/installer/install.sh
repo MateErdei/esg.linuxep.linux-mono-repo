@@ -203,11 +203,12 @@ mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 mkdir -p "${SOPHOS_INSTALL}/base/update/certs"
-mkdir -p "${SOPHOS_INSTALL}/base/update/var"
+mkdir -p "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 chmod 700 "${SOPHOS_INSTALL}/base/update/certs"
-chmod 700 "${SOPHOS_INSTALL}/base/update/var"
+chmod 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+
 
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/action"
 mkdir -p "${SOPHOS_INSTALL}/base/mcs/policy"
@@ -223,23 +224,6 @@ INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
 export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
 mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
-
-"$DIST/files/base/bin/manifestdiff" \
-    --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
-    --new="$DIST/manifest.dat" \
-    --added="${SOPHOS_INSTALL}/tmp/addedFiles" \
-    --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
-    --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
-
-
-CLEAN_INSTALL=1
-[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && CLEAN_INSTALL=0
-
-function changedOrAdded()
-{
-    local TARGET="$1"
-    grep -q "^${TARGET}\$" "${SOPHOS_INSTALL}/tmp/addedFiles" "${SOPHOS_INSTALL}/tmp/changedFiles" >/dev/null
-}
 
 for F in $(find "$DIST/files" -type f)
 do
@@ -266,31 +250,19 @@ chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 rm -rf "${INSTALLER_LIB}"
 
-if (( $CLEAN_INSTALL == 1 ))
+if [[ -n "$MCS_CA" ]]
 then
-    if [[ -n "$MCS_CA" ]]
-    then
-        export MCS_CA
-    fi
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
-    then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
-    fi
+    export MCS_CA
+fi
+if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+then
+    ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
 fi
 
-if changedOrAdded install.sh
+createUpdaterSystemdService
+createWatchdogSystemdService
+waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
 then
-    createUpdaterSystemdService
-    createWatchdogSystemdService
+    waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
 fi
-
-if (( $CLEAN_INSTALL == 1 ))
-then
-    waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
-    then
-        waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
-    fi
-fi
-
-cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"

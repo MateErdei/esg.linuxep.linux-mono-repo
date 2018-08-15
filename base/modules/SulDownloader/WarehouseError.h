@@ -15,7 +15,7 @@ namespace SulDownloader
       * Status to enable reporting the expected Message Numbers of ALC events.
       * https://wiki.sophos.net/pages/viewpage.action?spaceKey=SophosCloud&title=EMP%3A+event-alc
       */
-    enum WarehouseStatus{ SUCCESS=0, INSTALLFAILED=-1, DOWNLOADFAILED=-2, RESTARTNEEDED=-3, CONNECTIONERROR=-4, PACKAGESOURCEMISSING=-5, UNINSTALLFAILED = -6, UNSPECIFIED=-7 };
+    enum WarehouseStatus{ SUCCESS=0, INSTALLFAILED=103, DOWNLOADFAILED=107, RESTARTNEEDED=109, CONNECTIONERROR=112, PACKAGESOURCEMISSING=111, UNINSTALLFAILED =120, UNSPECIFIED=121 };
 
     /**
      * Allow DownloadReport to create JSON files from the WarehouseStatus.
