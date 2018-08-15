@@ -39,35 +39,37 @@ namespace Common
             }
 
             /**
-             * Replace all instances of target with replacement in s.
-             * @param s
-             * @param target
-             * @return
+             * Replace all instances of key with replace in pattern.
+             * @param pattern Base string to do replacements in
+             * @param key Target string to replace
+             * @param replace Replacement string
+             * @return pattern with all non-overlapping instances of key replaced with replace
              */
-            static inline std::string replaceAll(std::string s, const std::string& target, const std::string& replacement)
+            static std::string replaceAll(const std::string& pattern, const std::string& key, const std::string& replace)
             {
-                if (target.empty())
+                if (key.empty())
                 {
-                    return s;
+                    return pattern;
                 }
-                std::ostringstream ost;
-                unsigned long pos = 0;
-                unsigned long previous_pos = 0;
-                while (true)
+                std::string result;
+                size_t beginPos = 0;
+
+                while(true)
                 {
-                    pos = s.find(target,previous_pos);
+                    size_t pos = pattern.find(key, beginPos);
+
                     if (pos == std::string::npos)
                     {
-                        ost << s.substr(previous_pos);
                         break;
                     }
-
-                    ost << s.substr(previous_pos, pos - previous_pos)
-                        << replacement;
-
-                    previous_pos = pos + target.size();
+                    result += pattern.substr(beginPos, pos - beginPos);
+                    result += replace;
+                    beginPos = pos + key.length();
                 }
-                return ost.str();
+
+                result += pattern.substr(beginPos);
+
+                return result;
             }
         };
     }
