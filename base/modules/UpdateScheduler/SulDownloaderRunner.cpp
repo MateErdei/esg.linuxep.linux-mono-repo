@@ -16,7 +16,7 @@ namespace UpdateScheduler
         m_directoryWatcher->addListener(m_listener);
     }
 
-    void SulDownloaderRunner::run()
+    void SulDownloaderRunner::run(std::chrono::seconds timeout)
     {
         m_directoryWatcher->startWatch();
         SchedulerTask schedulerTask;
@@ -29,10 +29,9 @@ namespace UpdateScheduler
             return;
         }
 
+        // TODO what happens when we're waiting here and suldownloader kills this process to update base?
         // Wait for the SUL Downloader results file to be created.
-        std::string fileLocation = m_listener.waitForFile(std::chrono::seconds(6));
-
-
+        std::string fileLocation = m_listener.waitForFile(timeout);
 
         // If the file failed to be created after waiting for the timeout period then report a timeout error and return.
         if (fileLocation.empty())
@@ -53,16 +52,9 @@ namespace UpdateScheduler
     int SulDownloaderRunner::startService()
     {
         auto process = Common::Process::createProcess();
-        try{
-            process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
-            std::string output = process->output();
-            return process->exitCode();
-        }catch (std::exception & ex)
-        {
-            return 2;
-        }
-
-
+        process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
+        std::string output = process->output();
+        return process->exitCode();
         //return system("ls /tmp");
         //return system("");
     }

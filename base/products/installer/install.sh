@@ -67,7 +67,6 @@ function failure()
 
 function createWatchdogSystemdService()
 {
-
     if [[ -d /lib/systemd/system ]]
     then
         STARTUP_DIR="/lib/systemd/system"
@@ -100,7 +99,6 @@ EOF
 
 function createUpdaterSystemdService()
 {
-
     if [[ -d /lib/systemd/system ]]
     then
         STARTUP_DIR="/lib/systemd/system"
@@ -118,7 +116,6 @@ function createUpdaterSystemdService()
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}" "LD_LIBRARY_PATH=${SOPHOS_INSTALL}/base/lib64"
 ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/config.json ${SOPHOS_INSTALL}/base/update/var/report.json
 Restart=no
-Type=oneshot
 
 [Unit]
 Description=Sophos Server Protection Update Service
