@@ -9,7 +9,9 @@ fi
 
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 BASEDIR="${ABS_SCRIPTDIR%/*}"
-INSTDIR="${BASEDIR%/*}"
+SOPHOS_INSTALL="${BASEDIR%/*}"
+
+export SOPHOS_FULL_PRODUCT_UNINSTALL=1
 
 function removeUpdaterSystemdService()
 {
@@ -30,7 +32,12 @@ function removeWatchdogSystemdService()
 removeUpdaterSystemdService
 removeWatchdogSystemdService
 
-rm -rf "$INSTDIR"
+for UNINSTALLER in "$SOPHOS_INSTALL/base/update/var/installedproducts/"*
+do
+    bash $UNINSTALLER || echo "Failed to uninstall $(basename $UNINSTALLER): $?"
+done
+
+rm -rf "$SOPHOS_INSTALL"
 
 PATH=$PATH:/usr/sbin:/sbin
 
