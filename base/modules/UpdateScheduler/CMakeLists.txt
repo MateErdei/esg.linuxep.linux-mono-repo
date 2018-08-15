@@ -16,7 +16,14 @@ add_library(updatescheduler SHARED
         UpdateStatus.h
         UpdateStatus.cpp UpdateEvent.cpp UpdateEvent.h IMapHostCacheId.h)
 
-target_link_libraries(updatescheduler PUBLIC suldownloaderimpl filesystemimpl utilityimpl applicationconfigurationimpl xmlutilities suldownloaderdata directorywatcherimpl)
+target_link_libraries(updatescheduler PUBLIC
+        suldownloaderimpl
+        filesystemimpl
+        utilityimpl
+        applicationconfigurationimpl
+        xmlutilities
+        suldownloaderdata
+        directorywatcherimpl)
 
 install(TARGETS updatescheduler
         LIBRARY DESTINATION files/base/lib64)
