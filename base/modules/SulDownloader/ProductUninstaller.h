@@ -6,10 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+
+#include "DownloadedProduct.h"
+
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "DownloadedProduct.h"
 
 namespace SulDownloader
 {
@@ -18,6 +20,12 @@ namespace SulDownloader
     public:
         ProductUninstaller() = default;
         ~ProductUninstaller() = default;
+        /**
+         * @brief This function will run the uninstall scripts for any product installed that is not in
+         *        the list of downloaded products.
+         * @param downloadedProducts
+         * @return List of products that have been uninstalled
+         */
         std::vector<DownloadedProduct> removeProductsNotDownloaded(const std::vector<DownloadedProduct> &downloadedProducts);
 
     private:

@@ -7,26 +7,31 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 /**
 * Component tests to SULDownloader mocking out WarehouseRepository
 */
+
+#include "MockWarehouseRepository.h"
+#include "ConfigurationSettings.pb.h"
+#include "TestWarehouseHelper.h"
+#include "MockVersig.h"
+
+#include <SulDownloader/ConfigurationData.h>
+#include <SulDownloader/DownloadReport.h>
+#include <SulDownloader/SulDownloader.h>
+#include <SulDownloader/SulDownloaderException.h>
+#include <SulDownloader/VersigImpl.h>
+
+#include <Common/ProcessImpl/ArgcAndEnv.h>
+#include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "SulDownloader/ConfigurationData.h"
-#include "Common/UtilityImpl/MessageUtility.h"
-#include "tests/Common/ProcessImpl/MockProcess.h"
-#include "tests/Common/FileSystemImpl/MockFileSystem.h"
-#include "MockWarehouseRepository.h"
-#include "ConfigurationSettings.pb.h"
-#include "SulDownloader/SulDownloader.h"
-#include "Common/ProcessImpl/ArgcAndEnv.h"
-#include "TestWarehouseHelper.h"
-#include "SulDownloader/SulDownloaderException.h"
-#include "SulDownloader/DownloadReport.h"
-#include "Common/ProcessImpl/ProcessImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "SulDownloader/VersigImpl.h"
-#include "MockVersig.h"
 
 using SulDownloaderProto::ConfigurationSettings;
 

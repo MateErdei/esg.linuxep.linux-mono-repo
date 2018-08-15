@@ -8,11 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "gmock/gmock.h"
 
 #include <SulDownloader/ProductUninstaller.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/Process/IProcessException.h>
+
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <modules/Common/Process/IProcessException.h>
 
 using namespace SulDownloader;
 

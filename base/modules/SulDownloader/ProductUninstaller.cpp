@@ -4,14 +4,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <algorithm>
-#include "ProductUninstaller.h"
 #include "Logger.h"
+#include "ProductUninstaller.h"
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/Process/IProcess.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/Process/IProcessException.h>
+
+#include <algorithm>
 #include <map>
 #include <sstream>
 

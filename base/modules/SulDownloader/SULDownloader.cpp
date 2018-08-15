@@ -13,12 +13,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "DownloadedProduct.h"
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"
-#include "Common/FileSystem/IFileSystem.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 #include "ProductUninstaller.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-
+#include <Common/FileSystem/IFileSystem.h>
 
 namespace
 {

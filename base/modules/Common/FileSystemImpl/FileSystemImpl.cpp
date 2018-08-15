@@ -155,8 +155,6 @@ namespace Common
         {
             if(::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
-
-
                 int err = errno;
                 std::string errdesc = ::strerror(err);
 
@@ -225,7 +223,6 @@ namespace Common
                 writeFile(tempFilePath, content);
 
                 moveFile(tempFilePath, path);
-
             }
             catch(IFileSystemException &)
             {
