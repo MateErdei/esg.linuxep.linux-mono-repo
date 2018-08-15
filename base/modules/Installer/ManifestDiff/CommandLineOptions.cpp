@@ -28,12 +28,9 @@ namespace
 
 CommandLineOptions::CommandLineOptions(const Common::Datatypes::StringVector& args)
 {
-    for (auto& arg : args)
+    for (size_t i=1; i<args.size(); ++i)
     {
-        if (arg == args.at(0))
-        {
-            continue;
-        }
+        auto arg = args.at(i);
 
         std::string key;
         std::string value;
