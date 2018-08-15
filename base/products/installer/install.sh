@@ -231,6 +231,10 @@ ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so
     --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
     --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
 
+
+CLEAN_INSTALL=1
+[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && CLEAN_INSTALL=0
+
 function changedOrAdded()
 {
     local TARGET="$1"
@@ -262,13 +266,16 @@ chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 rm -rf "${INSTALLER_LIB}"
 
-if [[ -n "$MCS_CA" ]]
+if (( $CLEAN_INSTALL == 1 ))
 then
-    export MCS_CA
-fi
-if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
-then
-    ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+    if [[ -n "$MCS_CA" ]]
+    then
+        export MCS_CA
+    fi
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+    then
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+    fi
 fi
 
 if changedOrAdded install.sh
@@ -277,10 +284,13 @@ then
     createWatchdogSystemdService
 fi
 
-waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
-if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+if (( $CLEAN_INSTALL == 1 ))
 then
-    waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+    waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+    then
+        waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+    fi
 fi
 
 cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
