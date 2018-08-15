@@ -19,7 +19,7 @@ namespace  SulDownloader
     static const std::string PreviousFinishTime{"20180811 11:00:00"};
     static const std::string PreviousPreviousStartTime{"20180810 10:00:00"};
     static const std::string PreviousPreviousFinishTime{"20180810 11:00:00"};
-
+    static const std::string SophosURL{"http://sophos.net/update"};
 
     class DownloadReportTestBuilder
     {
@@ -62,6 +62,7 @@ namespace  SulDownloader
         {
             SulDownloader::DownloadReport report;
             report.m_status = WarehouseStatus::SUCCESS;
+            report.m_urlSource = SophosURL;
             report.m_description = "";
             report.m_sulError = "";
             switch (useTime)
@@ -96,6 +97,7 @@ namespace  SulDownloader
             SulDownloader::DownloadReport report;
             report.m_status = status;
             report.m_description = errorDescription;
+            report.m_urlSource = SophosURL;
             report.m_sulError = "";
             if ( useTime == UseTime::Later)
             {
@@ -306,7 +308,7 @@ public:
     {
         UpdateEvent event;
         event.IsRelevantToSend = true;
-        event.UpdateSource = "Sophos";
+        event.UpdateSource = SophosURL;
         event.MessageNumber = 0;
         return event;
     }
@@ -574,5 +576,15 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
+}
+
+TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
+{
+    auto report = DownloadReportTestBuilder::goodReport();
+    auto serializedString = SulDownloader::DownloadReport::fromReport(report);
+    auto deserializedReport = SulDownloader::DownloadReport::toReport(serializedString);
+    auto re_serialized = SulDownloader::DownloadReport::fromReport(deserializedReport);
+    EXPECT_EQ( serializedString, re_serialized);
+    EXPECT_THAT( serializedString, ::testing::HasSubstr(SophosURL));
 }
 

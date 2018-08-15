@@ -23,6 +23,7 @@ message DownloadStatusReport
    optional string status =4;
    optional string sulError = 5;
    optional string errorDescription = 6;
-   repeated ProductStatusReport products = 7;
+   optional string urlSource = 7;
+   repeated ProductStatusReport products = 8;
 
 }

@@ -468,5 +468,18 @@ namespace SulDownloader
         m_rootDistributionPath = rootDistributionPath;
     }
 
+    std::string WarehouseRepository::getSourceURL() const
+    {
+        if( m_connectionSetup)
+        {
+            return m_connectionSetup->getUpdateLocationURL();
+        }
+        else
+        {
+            return "";
+        }
+
+    }
+
 
 }

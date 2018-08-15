@@ -114,6 +114,9 @@ namespace SulDownloader
          */
         std::vector<DownloadedProduct> getProducts() const override ;
 
+        std::string getSourceURL() const override ;
+
+
     private:
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 

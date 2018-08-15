@@ -39,17 +39,19 @@ namespace SulDownloader
             report.m_status = WarehouseStatus::SUCCESS;
             report.m_description = "";
         }
+        report.m_urlSource = warehouse.getSourceURL();
         report.m_status = report.setProductsInfo(warehouse.getProducts(), report.m_status);
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::vector<DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
+    DownloadReport DownloadReport::Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
     {
         assert(timeTracker != nullptr);
         DownloadReport report;
 
         report.m_status = WarehouseStatus::SUCCESS;
         report.m_description = "";
+        report.m_urlSource = sourceURL;
 
         if(products.empty())
         {
@@ -212,6 +214,7 @@ namespace SulDownloader
         protoReport.set_status( toString( report.getStatus()));
         protoReport.set_errordescription(report.getDescription());
         protoReport.set_sulerror(report.getSulError());
+        protoReport.set_urlsource(report.getSourceURL());
 
         for ( auto & product : report.getProducts())
         {
@@ -250,6 +253,7 @@ namespace SulDownloader
 
         report.m_description = protoReport.errordescription();
         report.m_sulError = protoReport.sulerror();
+        report.m_urlSource = protoReport.urlsource();
 
         for( auto & protoProduct : protoReport.products())
         {
@@ -287,8 +291,7 @@ namespace SulDownloader
 
     const std::string DownloadReport::getSourceURL() const
     {
-        //FIXME: implement the get Source
-        return "Sophos";
+        return m_urlSource;
     }
 
 

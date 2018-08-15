@@ -49,7 +49,7 @@ namespace SulDownloader
         friend class DownloadReportTestBuilder;
         enum class VerifyState{VerifyFailed, VerifyCorrect};
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
-        static DownloadReport Report(const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
+        static DownloadReport Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
         static std::string fromReport(const DownloadReport &report);
@@ -73,6 +73,7 @@ namespace SulDownloader
         std::string m_startTime;
         std::string m_finishedTime;
         std::string m_sync_time;
+        std::string m_urlSource;
 
         std::vector<ProductReport> m_productReport;
 
