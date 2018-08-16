@@ -18,9 +18,18 @@ namespace UpdateScheduler
     class SulDownloaderRunner
     {
     public:
-        SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& directoryToWatch, const std::string& nameOfFileToWaitFor, std::chrono::seconds timeout);
+        SulDownloaderRunner(
+                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+                const std::string& directoryToWatch,
+                const std::string& nameOfFileToWaitFor,
+                std::chrono::seconds timeout);
+
+        /// Run the systemd update service and block until suldownloader outputs a report file or the timeout is reached.
         void run();
-        void abort();
+
+        /// Stop waiting for the update service to finish.
+        /// The service will not be terminated and the report file may still be created.
+        void abortWaitingForReport();
 
     private:
         SulDownloaderResultDirectoryListener m_listener;

@@ -37,10 +37,10 @@ namespace UpdateScheduler
             return;
         }
 
-        // Wait for the SUL Downloader results file to be created or a timeout or abort is called.
+        // Wait for the SUL Downloader results file to be created or a timeout or abortWaitingForReport is called.
         std::string reportFileLocation = m_listener.waitForFile(m_timeout);
 
-        // If the file failed to be created it means either an abort was called or the wait timed out and no file was found.
+        // If the file failed to be created it means either an abortWaitingForReport was called or the wait timed out and no file was found.
         if (reportFileLocation.empty())
         {
             if (m_listener.wasAborted())
@@ -73,7 +73,7 @@ namespace UpdateScheduler
         return process->exitCode();
     }
 
-    void SulDownloaderRunner::abort()
+    void SulDownloaderRunner::abortWaitingForReport()
     {
         m_listener.abort();
     }
