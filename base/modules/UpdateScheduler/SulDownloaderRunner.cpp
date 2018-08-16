@@ -35,7 +35,7 @@ namespace UpdateScheduler
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFailedToStart;
             schedulerTask.content = std::get<1>(startUpdateServiceResult);
             m_schedulerTaskQueue->push(schedulerTask);
-            LOGINFO("Update Service failed to start.");
+            LOGINFO("Update Service failed to start with error: " + std::get<1>(startUpdateServiceResult));
             return;
         }
 
