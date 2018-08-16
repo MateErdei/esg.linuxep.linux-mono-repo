@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/Process/IProcess.h>
 #include "SulDownloaderRunner.h"
 
 namespace UpdateScheduler
@@ -34,6 +33,7 @@ namespace UpdateScheduler
         {
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFailedToStart;
             m_schedulerTaskQueue->push(schedulerTask);
+            LOGINFO("Update Service failed to start.");
             return;
         }
 
@@ -46,10 +46,12 @@ namespace UpdateScheduler
             if (m_listener.wasAborted())
             {
                 schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderWasAborted;
+                LOGINFO("Update Service was aborted.");
             }
             else
             {
                 schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderTimedOut;
+                LOGWARN("Update Service timed out.");
             }
 
             m_schedulerTaskQueue->push(schedulerTask);
@@ -59,8 +61,8 @@ namespace UpdateScheduler
         // If update result was successfully generated within timeout period then report file location and return.
         schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFinished;
         schedulerTask.content = reportFileLocation;
-
         m_schedulerTaskQueue->push(schedulerTask);
+        LOGINFO("Update Service finished.");
     }
 
     int SulDownloaderRunner::startUpdateService()
