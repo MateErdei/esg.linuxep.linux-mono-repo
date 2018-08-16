@@ -44,4 +44,13 @@ TEST(TestStringUtils, replace) //NOLINT
             StringUtils::replaceAll("ABCDEFGH","D",""),
             "ABCEFGH"
             );
+
+    EXPECT_EQ(
+            StringUtils::replaceAll("","FOO","BAR"),
+            ""
+            );
+    EXPECT_EQ(
+            StringUtils::replaceAll("","",""),
+            ""
+            );
 }
