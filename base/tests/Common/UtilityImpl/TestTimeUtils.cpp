@@ -46,7 +46,7 @@ TEST(TestTimeUtils, DISABLED_getCurrTime) // NOLINT
 }
 
 /**
- * Disabled becasue we should not be running continuously these google tests. 
+ * Disabled becasue we should not be running continuously these google tests.
  */
 TEST(TestTimeUtils, DISABLED_getBootTime) // NOLINT
 {
