@@ -28,6 +28,7 @@ namespace Common
         public:
             static std::time_t getCurrTime() ;
             static std::string getBootTime();
+            static std::time_t getBootTimeAsTimet();
 
             /**
              * Return timestamp formated as required by Timestamp Event

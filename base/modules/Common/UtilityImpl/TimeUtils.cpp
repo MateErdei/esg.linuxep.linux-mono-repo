@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "TimeUtils.h"
+#include <sys/sysinfo.h>
 namespace  Common
 {
     namespace UtilityImpl
@@ -30,9 +31,19 @@ namespace  Common
 
         std::string TimeUtils::getBootTime()
         {
-            return std::__cxx11::string();
+            return  fromTime( getBootTimeAsTimet());
         }
 
+        std::time_t TimeUtils::getBootTimeAsTimet()
+        {
+            struct sysinfo info;
+            if( sysinfo( &info) != 0)
+            {
+                return 0; // error
+            }
+            auto curr = getCurrTime();
+            return curr - info.uptime;
+        }
 
 
         std::string FormatedTime::currentTime() const
