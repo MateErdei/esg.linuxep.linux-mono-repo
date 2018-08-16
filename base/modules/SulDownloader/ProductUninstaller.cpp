@@ -71,7 +71,7 @@ namespace SulDownloader
 
             try
             {
-                process->exec(uninstallProduct.first, {uninstallProduct.first}, {});
+                process->exec(uninstallProduct.first, {}, {});
                 auto output = process->output();
                 LOGSUPPORT(output);
                 exitCode = process->exitCode();
