@@ -78,7 +78,7 @@ std::string UpdateScheduler::SerializeUpdateStatus(const UpdateScheduler::Update
             {"@@lastFinishedTime@@", status.LastFinishdTime},
             {"@@firstfailedTimeElement@@", firstFailedElement},
             {"@@lastResult@@", std::to_string(status.LastResult)},
-            {"@@endpointid@@", "NotImplemented"}, //FIXME
+            {"@@endpointid@@", "NotImplemented"}, //FIXME LINUXEP-6474
             {"@@subscriptionsElement@@", subscriptionsElement}
     });
 }
