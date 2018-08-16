@@ -6,14 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <UpdateScheduler/SulDownloaderRunner.h>
 #include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 #include <modules/Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <modules/Common/FileSystem/IFileSystem.h>
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
 #include <tests/Common/TestHelpers/TempDir.h>
 #include <future>
-#include "Common/FileSystem/IFileSystem.h"
 
 using namespace UpdateScheduler;
 
@@ -130,7 +126,6 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 
 TEST_F(TestSulDownloaderRunner, Abort) // NOLINT
 {
-
     // Mock systemctl call
     MockProcess * mockProcess = setupMockProcess();
     EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);

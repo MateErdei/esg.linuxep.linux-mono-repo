@@ -25,6 +25,6 @@ namespace UpdateScheduler
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
         std::shared_ptr<SchedulerTaskQueue> m_schedulerTaskQueue;
         std::chrono::seconds m_timeout;
-        int startService();
+        int startUpdateService();
     };
 }

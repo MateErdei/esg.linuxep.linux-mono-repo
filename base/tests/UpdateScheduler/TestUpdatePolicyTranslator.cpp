@@ -8,9 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <modules/UpdateScheduler/UpdatePolicyTranslator.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-
-#include "gtest/gtest.h"
 
 static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">

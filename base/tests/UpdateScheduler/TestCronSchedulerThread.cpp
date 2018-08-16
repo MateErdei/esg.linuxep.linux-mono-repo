@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <UpdateScheduler/CronSchedulerThread.h>
 #include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
+
 using namespace UpdateScheduler;
 using milliseconds = std::chrono::milliseconds;
 using minutes = std::chrono::minutes;

@@ -8,8 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <modules/UpdateScheduler/UpdateActionParser.h>
 
-#include "gtest/gtest.h"
-
 static std::string updateAction{R"sophos(<?xml version='1.0'?>
 
 <action type="sophos.mgt.action.ALCForceUpdate"/>)sophos"};

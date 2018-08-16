@@ -26,7 +26,7 @@ namespace UpdateScheduler
         SchedulerTask schedulerTask;
 
         // Run SUL Downloader service, report error and return if it fails to start.
-        if (startService() != 0)
+        if (startUpdateService() != 0)
         {
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFailedToStart;
             m_schedulerTaskQueue->push(schedulerTask);
@@ -34,13 +34,11 @@ namespace UpdateScheduler
         }
 
         // Wait for the SUL Downloader results file to be created or a timeout or abort is called.
-        std::string fileLocation = m_listener.waitForFile(m_timeout);
+        std::string reportFileLocation = m_listener.waitForFile(m_timeout);
 
         // If the file failed to be created it means either an abort was called or the wait timed out and no file was found.
-        if (fileLocation.empty())
+        if (reportFileLocation.empty())
         {
-            // TODO check for suldownloader process here
-
             if (m_listener.wasAborted())
             {
                 schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderWasAborted;
@@ -56,15 +54,14 @@ namespace UpdateScheduler
 
         // If update result was successfully generated within timeout period then report file location and return.
         schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFinished;
-        schedulerTask.content = fileLocation;
+        schedulerTask.content = reportFileLocation;
 
         m_schedulerTaskQueue->push(schedulerTask);
     }
 
-    int SulDownloaderRunner::startService()
+    int SulDownloaderRunner::startUpdateService()
     {
         auto process = Common::Process::createProcess();
-        //process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
         process->exec( "systemctl", {"start", "sophos-spl-update.service"} );
         std::string output = process->output();
         return process->exitCode();
