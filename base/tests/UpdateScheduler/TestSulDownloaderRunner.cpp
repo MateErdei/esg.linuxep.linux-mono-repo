@@ -53,17 +53,16 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(5));
-    std::thread runnerThread([&runner]() {
+    auto futureRunner = std::async(std::launch::async, [&runner]() {
         runner.run();
     });
 
     // Write a report json file.
-    auto fut = std::async(std::launch::async, [&tempDir]() {
+    auto futureTempDir = std::async(std::launch::async, [&tempDir]() {
         tempDir->createFileAtomically("report.json", "some json");
     });
-    runnerThread.join();
 
-    // Check result from suldownloader runner.
+    // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
     EXPECT_EQ(task.content, "report.json");
