@@ -8,7 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <SulDownloader/ConfigurationData.h>
 #include "IMapHostCacheId.h"
-#include "IRevId.h"
 
 namespace UpdateScheduler
 {
@@ -19,12 +18,12 @@ namespace UpdateScheduler
         std::string updateCacheCertificatesContent;
     };
 
-    class UpdatePolicyTranslator : public virtual  IMapHostCacheId, public virtual IRevId
+    class UpdatePolicyTranslator : public virtual  IMapHostCacheId
     {
     public:
         SettingsHolder translatePolicy(const std::string &policyXml);
         std::string cacheID(const std::string & hostname) const override ;
-        std::string revID() const override ;
+        std::string revID() const ;
     private:
         struct Cache
         {

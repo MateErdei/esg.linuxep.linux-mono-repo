@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 #include "DownloadReportTestBuilder.h"
 #include "MockMapHostCacheId.h"
-#include "MockRevId.h"
 #include "gtest/gtest.h"
 
 

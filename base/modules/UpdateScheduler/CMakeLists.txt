@@ -14,7 +14,7 @@ add_library(updatescheduler SHARED
         DownloadReportsAnalyser.cpp
         DownloadReportsAnalyser.h
         UpdateStatus.h
-        UpdateStatus.cpp UpdateEvent.cpp UpdateEvent.h IMapHostCacheId.h IRevId.h)
+        UpdateStatus.cpp UpdateEvent.cpp UpdateEvent.h IMapHostCacheId.h)
 
 target_link_libraries(updatescheduler PUBLIC suldownloaderimpl filesystemimpl utilityimpl applicationconfigurationimpl xmlutilities suldownloaderdata directorywatcherimpl)
 
