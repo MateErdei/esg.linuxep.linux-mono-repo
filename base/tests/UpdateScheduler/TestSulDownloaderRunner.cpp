@@ -5,10 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <UpdateScheduler/SulDownloaderRunner.h>
-#include <gmock/gmock-matchers.h>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/TestHelpers/TempDir.h>
+#include <gmock/gmock-matchers.h>
 #include <future>
 
 using namespace UpdateScheduler;
