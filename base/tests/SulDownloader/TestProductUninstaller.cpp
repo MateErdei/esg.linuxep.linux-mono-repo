@@ -128,7 +128,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_ExpectToUninstallProd
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
-                                                                       auto mockProcess = new MockProcess();
+                                                                       auto mockProcess = new StrictMock<MockProcess>();
                                                                        EXPECT_CALL(*mockProcess, exec(fileList[2], _, _)).Times(1);
                                                                        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
                                                                        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -154,7 +154,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
-                                                                       auto mockProcess = new MockProcess();
+                                                                       auto mockProcess = new StrictMock<MockProcess>();
                                                                        EXPECT_CALL(*mockProcess, exec(fileList[2], _, _)).WillOnce(Throw(Common::Process::IProcessException("ProcessThrow")));
                                                                        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
                                                                    }
@@ -179,7 +179,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
-                                                                       auto mockProcess = new MockProcess();
+                                                                       auto mockProcess = new StrictMock<MockProcess>();
                                                                        EXPECT_CALL(*mockProcess, exec(fileList[2], _, _)).Times(1);
                                                                        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product failed"));
                                                                        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));

@@ -327,7 +327,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
@@ -362,10 +362,10 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     std::vector<std::string> fileListOfProductsToRemove = {"productRemove1"};
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(fileListOfProductsToRemove));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
-                                                                           auto mockProcess = new MockProcess();
+                                                                           auto mockProcess = new StrictMock<MockProcess>();
                                                                            EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
                                                                            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
                                                                            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -526,7 +526,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
 
@@ -627,14 +627,14 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     int counter = 0;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter](){
         if ( counter++ == 0 )
         {
-            auto mockProcess = new MockProcess();
+            auto mockProcess = new StrictMock<MockProcess>();
             EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -642,7 +642,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
 
         } else
         {
-            auto mockProcess = new MockProcess();
+            auto mockProcess = new StrictMock<MockProcess>();
             EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin\nsimulate failure"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
@@ -702,14 +702,14 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(_)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     int counter = 0;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter](){
            if ( counter++ == 0 )
            {
-               auto mockProcess = new MockProcess();
+               auto mockProcess = new StrictMock<MockProcess>();
                EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -717,7 +717,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
 
            } else
            {
-               auto mockProcess = new MockProcess();
+               auto mockProcess = new StrictMock<MockProcess>();
                EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));

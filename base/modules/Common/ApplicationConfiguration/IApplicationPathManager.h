@@ -42,6 +42,11 @@ namespace Common
 
             virtual std::string getLocalWarehouseRepository() const = 0;
             virtual std::string getLocalDistributionRepository() const = 0;
+
+            /**
+             * @brief gets the directory containing the symlinks to the plugin/product uninstallers <ProductLine>.sh for each product <ProductLine> installed.
+             * @return the full path of the directory
+             */
             virtual std::string getLocalUninstallSymLinkPath() const = 0;
 
             virtual std::string getUpdateCertificatesPath() const = 0;

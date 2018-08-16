@@ -69,6 +69,7 @@ namespace SulDownloader
 
             uninstallProduct.second.setProductIsBeingUninstalled(true);
 
+            std::stringstream errorMessage;
             try
             {
                 process->exec(uninstallProduct.first, {}, {});
@@ -78,13 +79,16 @@ namespace SulDownloader
 
                 if (exitCode != 0)
                 {
-                    throw Common::Process::IProcessException("Process did not complete successfully");
+                    errorMessage << "Failed to uninstall product '" << uninstallProduct.first << "', code '" << exitCode << "' with error, Process did not complete successfully";
                 }
             }
             catch (Common::Process::IProcessException &ex)
             {
-                std::stringstream errorMessage;
-                errorMessage << "Failed to uninstall product '" << uninstallProduct.first << "', code '" << exitCode << "' with error, " << ex.what();
+                errorMessage << "Failed to uninstall product '" << uninstallProduct.first << "' with error, " << ex.what();
+            }
+
+            if (!errorMessage.str().empty())
+            {
                 WarehouseError error;
                 error.status = WarehouseStatus::UNINSTALLFAILED;
                 error.Description = errorMessage.str();
