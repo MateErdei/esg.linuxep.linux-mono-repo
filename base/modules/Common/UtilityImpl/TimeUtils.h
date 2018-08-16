@@ -20,6 +20,7 @@ namespace Common
         public:
             virtual ~IFormattedTime() = default;
             virtual std::string currentTime() const = 0;
+            virtual std::string bootTime() const = 0;
         };
 
         class TimeUtils
@@ -42,6 +43,7 @@ namespace Common
         {
         public:
             std::string currentTime() const override ;
+            std::string bootTime() const override ;
         };
 
     }

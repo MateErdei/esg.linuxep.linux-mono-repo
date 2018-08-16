@@ -39,5 +39,10 @@ namespace  Common
         {
             return TimeUtils::fromTime( TimeUtils::getCurrTime());
         }
+
+        std::string FormatedTime::bootTime() const
+        {
+            return TimeUtils::getBootTime();
+        }
     }
 }

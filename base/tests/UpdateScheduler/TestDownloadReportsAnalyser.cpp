@@ -438,8 +438,24 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
 }
 
+TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError)
+{
+    std::vector<SulDownloader::DownloadReport> twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(twoReports);
+
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 112;
+    expectedStatus.LastSyncTime = PreviousFinishTime;
+    expectedStatus.LastInstallStartedTime= PreviousStartTime;
+    expectedStatus.FirstFailedTime = StartTimeTest;
+
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+
+}
+
 TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 {
+
     auto report = DownloadReportTestBuilder::goodReport();
     auto serializedString = SulDownloader::DownloadReport::fromReport(report);
     auto deserializedReport = SulDownloader::DownloadReport::toReport(serializedString);
@@ -447,4 +463,6 @@ TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
     EXPECT_EQ( serializedString, re_serialized);
     EXPECT_THAT( serializedString, ::testing::HasSubstr(SophosURL));
 }
+
+
 

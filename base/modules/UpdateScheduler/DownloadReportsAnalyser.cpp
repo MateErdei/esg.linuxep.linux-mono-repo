@@ -321,6 +321,14 @@ namespace UpdateScheduler
         collectionResult.SchedulerEvent.IsRelevantToSend = eventsAreDifferent(collectionResult.SchedulerEvent, previousEvent);
 
 
+        // if the current report does not report products, we still need to list them, but we can do it only if there is at least one LastGoodSync
+        if ( collectionResult.SchedulerStatus.Products.empty() &&  indexOfLastGoodSync != -1)
+        {
+            auto statusWithProducts = extractStatusFromSingleReport(reportCollection.at(indexOfLastGoodSync), previousEvent);
+            collectionResult.SchedulerStatus.Products = statusWithProducts.Products;
+        }
+
+
         return collectionResult;
     }
 

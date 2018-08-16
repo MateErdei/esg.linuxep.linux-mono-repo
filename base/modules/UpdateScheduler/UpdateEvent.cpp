@@ -51,7 +51,7 @@ std::string getMessageContent(const UpdateScheduler::UpdateEvent & event)
             {
                 insertEntry += "\n";
             }
-            //FIXME LINUXEEP-6473 Get the correct error code to send to Central. 
+            //FIXME LINUXEEP-6473 Get the correct error code to send to Central.
             insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@", "CodeErrorA"}});
         }
 

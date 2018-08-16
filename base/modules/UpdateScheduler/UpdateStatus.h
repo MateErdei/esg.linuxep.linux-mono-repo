@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include <Common/UtilityImpl/TimeUtils.h>
 namespace UpdateScheduler
 {
     struct ProductStatus
@@ -35,7 +36,7 @@ namespace UpdateScheduler
     };
 
 
-    std::string SerializeUpdateStatus( const UpdateStatus & status, const std::string & revID);
+    std::string SerializeUpdateStatus( const UpdateStatus & status, const std::string & revID, const std::string & versionId, const Common::UtilityImpl::IFormattedTime & iFormattedTime );
 
 }
 
