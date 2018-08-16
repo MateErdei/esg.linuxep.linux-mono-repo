@@ -29,9 +29,11 @@ namespace UpdateScheduler
         SchedulerTask schedulerTask;
 
         // Run SUL Downloader service, report error and return if it fails to start.
-        if (startUpdateService() != 0)
+        std::tuple<int, std::string> startUpdateServiceResult = startUpdateService();
+        if (std::get<0>(startUpdateServiceResult) != 0)
         {
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFailedToStart;
+            schedulerTask.content = std::get<1>(startUpdateServiceResult);
             m_schedulerTaskQueue->push(schedulerTask);
             LOGINFO("Update Service failed to start.");
             return;
@@ -65,12 +67,11 @@ namespace UpdateScheduler
         LOGINFO("Update Service finished.");
     }
 
-    int SulDownloaderRunner::startUpdateService()
+    std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()
     {
         auto process = Common::Process::createProcess();
         process->exec( "systemctl", {"start", "sophos-spl-update.service"} );
-        std::string output = process->output();
-        return process->exitCode();
+        return std::make_tuple(process->exitCode(), process->output());
     }
 
     void SulDownloaderRunner::abortWaitingForReport()

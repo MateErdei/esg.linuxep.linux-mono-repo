@@ -124,7 +124,7 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
     ASSERT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderTimedOut);
 }
 
-TEST_F(TestSulDownloaderRunner, Abort) // NOLINT
+TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 {
     // Mock systemctl call
     MockProcess * mockProcess = setupMockProcess();
@@ -145,4 +145,30 @@ TEST_F(TestSulDownloaderRunner, Abort) // NOLINT
     runnerThread.join();
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderWasAborted);
+}
+
+TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
+{
+    std::string errorMessage = "bad thing happened";
+
+    // Mock systemctl call
+    MockProcess * mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(errorMessage));
+    EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+
+    // Create task queue
+    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+
+    // Create suldownloader runner and run it.
+    SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
+    std::thread runnerThread([&runner]() {
+        runner.run();
+    });
+
+    runner.abortWaitingForReport();
+    runnerThread.join();
+    auto task = queue->pop();
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFailedToStart);
+    EXPECT_EQ(task.content, errorMessage);
 }
