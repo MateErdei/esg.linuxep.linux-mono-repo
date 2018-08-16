@@ -7,6 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include "IMapHostCacheId.h"
+#include  <Common/UtilityImpl/TimeUtils.h>
 
 namespace UpdateScheduler
 {
@@ -27,7 +29,7 @@ namespace UpdateScheduler
         std::string UpdateSource;
     };
 
-    std::string serializeUpdateEvent( const UpdateEvent & );
+    std::string serializeUpdateEvent( const UpdateEvent & updateEvent, const IMapHostCacheId & iMapHostCacheId, const Common::UtilityImpl::IFormattedTime & iFormattedTime);
 }
 
 

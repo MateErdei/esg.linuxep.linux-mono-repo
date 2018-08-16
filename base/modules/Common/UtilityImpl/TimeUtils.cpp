@@ -32,5 +32,12 @@ namespace  Common
         {
             return std::__cxx11::string();
         }
+
+
+
+        std::string FormatedTime::currentTime() const
+        {
+            return TimeUtils::fromTime( TimeUtils::getCurrTime());
+        }
     }
 }

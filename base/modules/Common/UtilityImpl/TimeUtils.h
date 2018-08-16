@@ -12,6 +12,16 @@ namespace Common
 {
     namespace UtilityImpl
     {
+        /**
+         * To enable tests that need to provide some fixed timestamp.
+         */
+        class IFormattedTime
+        {
+        public:
+            virtual ~IFormattedTime() = default;
+            virtual std::string currentTime() const = 0;
+        };
+
         class TimeUtils
         {
         public:
@@ -27,6 +37,13 @@ namespace Common
              */
             static std::string fromTime(std::time_t);
         };
+
+        class FormatedTime : public virtual IFormattedTime
+        {
+        public:
+            std::string currentTime() const override ;
+        };
+
     }
 }
 
