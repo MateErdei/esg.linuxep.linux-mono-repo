@@ -40,15 +40,14 @@ std::string SulDownloaderResultDirectoryListener::waitForFile(std::chrono::secon
     {
         return m_foundFilePath;
     }
-    m_fileDetected.wait_for(lock, timeoutInSeconds,[this]() {
-        return shouldStop();
-    });
+    m_fileDetected.wait_for(lock, timeoutInSeconds,[this]() { return shouldStop(); });
     return m_foundFilePath;
 }
 
 void SulDownloaderResultDirectoryListener::abort()
 {
     m_aborted = true;
+    m_fileDetected.notify_all();
 }
 
 bool SulDownloaderResultDirectoryListener::wasAborted()
