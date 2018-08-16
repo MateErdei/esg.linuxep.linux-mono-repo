@@ -70,7 +70,7 @@ namespace UpdateScheduler
     std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()
     {
         auto process = Common::Process::createProcess();
-        process->exec( "systemctl", {"start", "sophos-spl-update.service"} );
+        process->exec( "/bin/systemctl", {"start", "sophos-spl-update.service"} );
         return std::make_tuple(process->exitCode(), process->output());
     }
 
