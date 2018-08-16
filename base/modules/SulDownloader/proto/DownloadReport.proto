@@ -9,9 +9,16 @@ message ProductStatusReport
     optional string productName = 2;
     optional string installedVersion = 3;
     optional string downloadVersion = 4;
-    optional bool upgraded = 5; // true if the product was upgraded in this run.
     optional string errorDescription = 7;
-    optional bool productUninstalled = 8; // true if if has been uninstalled by SUL Downloader.
+
+    enum ProductStatus
+    {
+       SYNCFAILED = 0;
+       UPTODATE = 1;
+       UPGRADED = 2;
+       UNINSTALLED = 3;
+    }
+    optional ProductStatus productStatus = 9 [default=UPTODATE];
 }
 
 //FIXME: add information about the purpose of these entries.

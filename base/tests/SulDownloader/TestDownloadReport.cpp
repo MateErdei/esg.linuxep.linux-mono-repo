@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SulDownloader/DownloadReport.h"
 #include "SulDownloader/SulDownloaderException.h"
-
+#include <Common/UtilityImpl/TimeUtils.h>
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/WarehouseRepositoryFactory.h"
 #include "SulDownloader/ProductSelection.h"
@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloader/TimeTracker.h"
 #include "MockWarehouseRepository.h"
 
-
+using namespace Common::UtilityImpl;
 
 using namespace SulDownloader;
 
@@ -53,8 +53,6 @@ public:
 
     SulDownloader::DownloadedProduct createTestDownloadedProduct(SulDownloader::ProductMetadata &metadata)
     {
-
-
         SulDownloader::DownloadedProduct downloadedProduct(metadata);
 
         // set default data for tests
@@ -90,10 +88,9 @@ public:
         TimeTracker timeTracker;
 
         time_t currentTime;
-        currentTime = TimeTracker::getCurrTime();
+        currentTime = TimeUtils::getCurrTime();
 
         timeTracker.setStartTime(currentTime - 30);
-        timeTracker.setSyncTime(currentTime -20);
         timeTracker.setFinishedTime(currentTime - 1);
         return timeTracker;
 
@@ -154,9 +151,9 @@ public:
             valueToFind = "errorDescription\": \"" + product.errorDescription;
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-            std::string productUninstalled = product.uninstalled ? "true" : "false";
+            EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-            valueToFind = "productUninstalled\": " + productUninstalled;
+            valueToFind = std::string("\"productStatus\": \"") + product.jsonString() + "\"";
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
         }
     }
@@ -213,6 +210,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
 
@@ -240,6 +238,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
 
@@ -272,6 +271,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
     EXPECT_CALL(mockWarehouseRepository, getError()).WillOnce(Return(error));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
 
     TimeTracker timeTracker = createTimeTracker();
@@ -304,7 +304,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportSuccessW
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -335,7 +335,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -365,7 +365,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
 
@@ -391,6 +391,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
 
@@ -427,6 +428,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
     EXPECT_CALL(mockWarehouseRepository, getError()).WillOnce(Return(error));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
 
@@ -462,6 +464,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
     EXPECT_CALL(mockWarehouseRepository, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mockWarehouseRepository, getSourceURL()).WillOnce(Return(""));
 
     TimeTracker timeTracker = createTimeTracker();
 
@@ -501,7 +504,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -535,7 +538,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -569,7 +572,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -612,7 +615,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -655,7 +658,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_EQ(report.getDescription(), "");
@@ -698,7 +701,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl",products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -721,7 +724,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     std::vector<SulDownloader::DownloadedProduct> products;
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 

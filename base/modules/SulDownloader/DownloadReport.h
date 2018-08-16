@@ -12,9 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include "WarehouseError.h"
 
-
-#include "DownloadReport.pb.h"
-
 namespace SulDownloader
 {
     class IWarehouseRepository;
@@ -28,7 +25,10 @@ namespace SulDownloader
         std::string downloadedVersion;
         std::string installedVersion;
         std::string errorDescription;
-        bool uninstalled = false;
+        enum class ProductStatus { SyncFailed, UpToDate, Upgraded, Uninstalled };
+        ProductStatus productStatus = ProductStatus::SyncFailed;
+        std::string statusToString() const;
+        std::string jsonString() const;
     };
 
     /**
@@ -45,12 +45,16 @@ namespace SulDownloader
     class DownloadReport
     {
         DownloadReport();
+
     public:
+        friend class DownloadReportTestBuilder;
+        enum class VerifyState{VerifyFailed, VerifyCorrect};
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
-        static DownloadReport Report(const std::vector<DownloadedProduct> &, const TimeTracker &  timeTracker);
+        static DownloadReport Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
-        static SulDownloaderProto::DownloadStatusReport fromReport( const DownloadReport & report);
+        static std::string fromReport(const DownloadReport &report);
+        static DownloadReport toReport( const std::string & serializedVersion);
 
         WarehouseStatus getStatus() const;
         const std::string& getDescription() const;
@@ -59,6 +63,7 @@ namespace SulDownloader
         const std::string &getFinishedTime() const;
         const std::string &getSyncTime() const;
         const std::vector<ProductReport>& getProducts() const;
+        const std::string getSourceURL() const;
 
         int getExitCode() const;
 
@@ -69,6 +74,7 @@ namespace SulDownloader
         std::string m_startTime;
         std::string m_finishedTime;
         std::string m_sync_time;
+        std::string m_urlSource;
 
         std::vector<ProductReport> m_productReport;
 
