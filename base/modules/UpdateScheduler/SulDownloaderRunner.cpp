@@ -10,9 +10,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace UpdateScheduler
 {
 
-    SulDownloaderRunner::SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch, std::chrono::seconds timeout)
+    SulDownloaderRunner::SulDownloaderRunner(
+            std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+            const std::string& directoryToWatch,
+            const std::string& nameOfFileToWaitFor,
+            std::chrono::seconds timeout)
         :
-            m_listener(directoryToWatch),
+            m_listener(directoryToWatch, nameOfFileToWaitFor),
             m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(new Common::DirectoryWatcherImpl::DirectoryWatcher())),
             m_schedulerTaskQueue(schedulerTaskQueue),
             m_timeout(timeout)

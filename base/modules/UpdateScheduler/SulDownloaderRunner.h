@@ -16,7 +16,7 @@ namespace UpdateScheduler
     class SulDownloaderRunner
     {
     public:
-        SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, std::string directoryToWatch, std::chrono::seconds timeout);
+        SulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& directoryToWatch, const std::string& nameOfFileToWaitFor, std::chrono::seconds timeout);
         void run();
         void abort();
 

@@ -12,7 +12,7 @@ class SulDownloaderResultDirectoryListener : public Common::DirectoryWatcher::ID
 {
 
 public:
-    explicit SulDownloaderResultDirectoryListener(const std::string &path);
+    explicit SulDownloaderResultDirectoryListener(const std::string &directory, const std::string &nameOfFileToWaitFor);
 
     std::string getPath() const override;
     void fileMoved(const std::string & filename) override;
@@ -29,8 +29,9 @@ public:
     bool shouldStop();
 
 private:
-    std::string m_path;
-    std::string m_file;
+    std::string m_directoryToWatch;
+    std::string m_foundFilePath;
+    std::string m_nameOfFileToWaitFor;
     bool m_active;
     bool m_fileFound;
     bool m_aborted;
