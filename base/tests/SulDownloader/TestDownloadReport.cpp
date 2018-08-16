@@ -769,7 +769,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -824,7 +824,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
@@ -878,7 +878,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     TimeTracker timeTracker = createTimeTracker();
 
-    auto report = DownloadReport::Report(products, timeTracker);
+    auto report = DownloadReport::Report(products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
