@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+shopt -s nullglob
+
 STARTINGDIR="$(pwd)"
 SCRIPTDIR="${0%/*}"
 if [[ "$SCRIPTDIR" == "$0" ]]
@@ -32,10 +34,17 @@ function removeWatchdogSystemdService()
 removeUpdaterSystemdService
 removeWatchdogSystemdService
 
-for UNINSTALLER in "$SOPHOS_INSTALL/base/update/var/installedproducts/"*
-do
-    bash $UNINSTALLER || echo "Failed to uninstall $(basename $UNINSTALLER): $?"
-done
+PLUGIN_UNINSTALL_DIR="${SOPHOS_INSTALL}/base/update/var/installedproducts"
+if [[ -d "$PLUGIN_UNINSTALL_DIR" ]]
+then
+    for UNINSTALLER in "$PLUGIN_UNINSTALL_DIR"/*
+    do
+        UNINSTALLER_BASE=${UNINSTALLER##*/}
+        bash "$UNINSTALLER" || echo "Failed to uninstall $(UNINSTALLER_BASE): $?"
+    done
+else
+    echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
+fi
 
 rm -rf "$SOPHOS_INSTALL"
 
