@@ -7,7 +7,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "SulDownloaderResultDirectoryListener.h"
 
 SulDownloaderResultDirectoryListener::SulDownloaderResultDirectoryListener(const std::string& directory, const std::string& nameOfFileToWaitFor)
-        : m_foundFilePath(""), m_directoryToWatch(directory), m_active(false), m_fileFound(false), m_aborted(false), m_nameOfFileToWaitFor(nameOfFileToWaitFor)
+        : m_directoryToWatch(directory), m_foundFilePath(""),  m_nameOfFileToWaitFor(nameOfFileToWaitFor), m_active(false), m_fileFound(false), m_aborted(false)
 {
 }
 
