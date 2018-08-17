@@ -1,6 +1,8 @@
 #!/bin/bash
 PRODUCT=sspl-base
 
+FAILURE_INPUT_NOT_AVAILABLE=50
+
 source /etc/profile
 set -ex
 set -o pipefail
@@ -15,6 +17,27 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 export NO_REMOVE_GCC=1
+
+INPUT=$BASE/input
+ALLEGRO_REDIST=/redist/binaries/linux11/input
+
+function untar_or_link_to_redist()
+{
+    local input=$1
+    local tar=${INPUT}/${input}.tar
+
+    if [[ -f "$tar" ]]
+    then
+        echo "Untaring $tar"
+        tar xf "$tar" -C "$REDIST"
+    elif [[ -d "${ALLEGRO_REDIST}/$input" ]]
+    then
+        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
+        ln -snf "${ALLEGRO_REDIST}/$input" "${REDIST}/$input"
+    else
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
+    fi
+}
 
 function build()
 {
@@ -44,9 +67,6 @@ function build()
         cat .git/config
         exitFailure 33 "Failed to get googletest via git"
     }
-
-    local INPUT=$BASE/input
-    local ALLEGRO_REDIST=/redist/binaries/linux11/input
 
     if [[ -d $INPUT ]]
     then
@@ -81,90 +101,25 @@ function build()
             echo "WARNING: using system cmake"
         fi
 
-        local VERSIG_TAR=$INPUT/versig.tar
-        if [[ -f $VERSIG_TAR ]]
-        then
-            tar xf "$VERSIG_TAR" -C "$REDIST"
-        else
-            ln -snf $ALLEGRO_REDIST/versig $REDIST/versig
-        fi
-
-        local CURL_TAR=$INPUT/curl.tar
-        if [[ -f "$CURL_TAR" ]]
-        then
-            tar xf "$CURL_TAR" -C "$REDIST"
-        else
-            ln -snf $ALLEGRO_REDIST/curl $REDIST/curl
-        fi
-
-        local SUL_TAR=$INPUT/SUL.tar
-        if [[ -f "$SUL_TAR" ]]
-        then
-            tar xf "$SUL_TAR" -C "$REDIST"
-        else
-            ln -snf $ALLEGRO_REDIST/SUL $REDIST/SUL
-        fi
-
-        local BOOST_TAR=$INPUT/boost.tar
-        if [[ -f "$BOOST_TAR" ]]
-        then
-            tar xf "$BOOST_TAR" -C "$REDIST"
-        else
-            ln -snf $ALLEGRO_REDIST/boost $REDIST/boost
-        fi
-
-        local EXPAT_TAR=$INPUT/expat.tar
-        if [[ -f "$EXPAT_TAR" ]]
-        then
-            tar xf "$EXPAT_TAR" -C "$REDIST"
-        elif [[ -d $ALLEGRO_REDIST ]]
-        then
-            ln -snf $ALLEGRO_REDIST/expat $REDIST/expat
-        else
-            exitFailure 13 "Failed to find expat"
-        fi
-
-        ## Google protobuf
-        local PROTOBUF_TAR=$INPUT/protobuf.tar
-        if [[ -f "$PROTOBUF_TAR" ]]
-        then
-            tar xf "$PROTOBUF_TAR" -C "$REDIST"
-        elif [[ -d $ALLEGRO_REDIST ]]
-        then
-            ln -snf $ALLEGRO_REDIST/protobuf $REDIST/protobuf
-        else
-            exitFailure 13 "Failed to find protobuf"
-        fi
+        untar_or_link_to_redist versig
+        untar_or_link_to_redist curl
+        untar_or_link_to_redist SUL
+        untar_or_link_to_redist boost
+        untar_or_link_to_redist expat
+        untar_or_link_to_redist log4cplus
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
+        untar_or_link_to_redist zeromq
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
+        untar_or_link_to_redist protobuf
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
-        ## ZeroMQ
-        local ZEROMQ_TAR=$INPUT/zeromq.tar
-        if [[ -f "$ZEROMQ_TAR" ]]
-        then
-            tar xf "$ZEROMQ_TAR" -C "$REDIST"
-        elif [[ -d $ALLEGRO_REDIST ]]
-        then
-            ln -snf $ALLEGRO_REDIST/zeromq $REDIST/zeromq
-        else
-            exitFailure 13 "Failed to find zeromq"
-        fi
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
-
-        local LOG4CPLUS_TAR=$INPUT/log4cplus.tar
-        if [[ -f "$LOG4CPLUS_TAR" ]]
-        then
-            tar xf "$LOG4CPLUS_TAR" -C "$REDIST"
-        elif [[ -d "$ALLEGRO_REDIST" ]]
-        then
-            ln -snf $ALLEGRO_REDIST/log4cplus $REDIST/log4cplus
-        else
-            exitFailure 13 "Failed to find log4cplus"
-        fi
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
-    else
+    elif [[ -d "$ALLEGRO_REDIST" ]]
+    then
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
+    else
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
     fi
 
     ZIP=$(which zip 2>/dev/null || true)
