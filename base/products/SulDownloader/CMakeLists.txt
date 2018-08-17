@@ -13,3 +13,12 @@ SET_TARGET_PROPERTIES( SulDownloader
 
 install(TARGETS SulDownloader
         DESTINATION files/base/bin)
+
+
+set( CERTIFICATES ${INPUT}/certificates )
+
+install(FILES
+        ${CERTIFICATES}/ps_rootca.crt
+        ${CERTIFICATES}/rootca.crt
+        DESTINATION files/base/update/certs
+        PERMISSIONS OWNER_READ)

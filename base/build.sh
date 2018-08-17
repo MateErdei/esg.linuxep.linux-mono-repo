@@ -114,6 +114,31 @@ function build()
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
+        mkdir -p ${REDIST}/certificates
+        if [[ -f ${INPUT}/ps_certificates/ps_rootca.crt ]]
+        then
+            cp ${INPUT}/ps_certificates/ps_rootca.crt ${REDIST}/certificates
+        elif [[ -f "$ALLEGRO_REDIST/certificates/ps_rootca.crt" ]]
+        then
+            cp "$ALLEGRO_REDIST/certificates/ps_rootca.crt" ${REDIST}/certificates
+        else
+            exitFailure $FAILURE_INPUT_NOT_AVAILABLE "ps_rootca.crt not available"
+        fi
+
+        if [[ -f ${INPUT}/manifest_certificates/rootca.crt ]]
+        then
+            cp "${INPUT}/manifest_certificates/rootca.crt" "${REDIST}/certificates/"
+        elif [[ -f ${INPUT}/ps_certificates/ps_rootca.crt ]]
+        then
+            ## Use ps_rootca.crt as rootca.crt since they are the same in practice
+            cp "${INPUT}/ps_certificates/ps_rootca.crt" "${REDIST}/certificates/rootca.crt"
+        elif [[ -f "$ALLEGRO_REDIST/certificates/rootca.crt" ]]
+        then
+            cp "$ALLEGRO_REDIST/certificates/rootca.crt" "${REDIST}/certificates"
+        else
+            exitFailure $FAILURE_INPUT_NOT_AVAILABLE "rootca.crt not available"
+        fi
+
     elif [[ -d "$ALLEGRO_REDIST" ]]
     then
         echo "WARNING: No input available; using system or /redist files"

@@ -37,7 +37,9 @@
         <package name="log4cpluslinux11" version="master/%LASTGOODCOMPONENTBUILD%/log4cpluslinux11/1.2.0/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
-
+        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
+            <include src="ps_rootca.crt" dest="ps_certificates"/>
+        </package>
     </inputs>
     <buildcommands>
         <command>
