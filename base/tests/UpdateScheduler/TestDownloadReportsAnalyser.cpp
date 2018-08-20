@@ -465,4 +465,153 @@ TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 }
 
 
+/**Acceptance criteria LINUXEP-6391 **/
+
+TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents)
+{
+    std::vector<SulDownloader::DownloadReport> reports{
+            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+            DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
+    };
+
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent = upgradeEvent();
+    // event must be sent
+    expectedEvent.IsRelevantToSend = true;
+    expectedEvent.MessageNumber = 103;
+    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 103;
+    expectedStatus.LastSyncTime = PreviousFinishTime;
+    expectedStatus.LastInstallStartedTime= PreviousStartTime;
+    expectedStatus.FirstFailedTime = StartTimeTest;
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // keep first as the most relevant (upgrade) and last as the most recent and the first failure
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true}));
+}
+
+
+TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents)
+{
+    std::vector<SulDownloader::DownloadReport> reports{
+            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
+    };
+
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent = upgradeEvent();
+    // event must be sent
+    expectedEvent.IsRelevantToSend = true;
+    expectedEvent.MessageNumber = 0;
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 0;
+    expectedStatus.LastSyncTime = FinishTimeTest;
+    expectedStatus.LastInstallStartedTime= StartTimeTest;
+    expectedStatus.FirstFailedTime.clear();
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // keep only the later as the first is not necessary any more.
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({false, true}));
+}
+
+
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache)
+{
+    auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    // flag upgraded = false
+    auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false);
+    auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false);
+
+    std::vector<SulDownloader::DownloadReport> reports{
+            upgradeReport, updateReport, lastUpdateReport
+    };
+
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent = upgradeEvent();
+    // no event to be sent as update followed by upgrade
+    expectedEvent.IsRelevantToSend = false;
+    expectedEvent.MessageNumber = 0;
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 0;
+    expectedStatus.LastSyncTime = FinishTimeTest;
+    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.FirstFailedTime.clear();
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // first is the upgrade and the later the last one the second one is not necessary
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+}
+
+
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache)
+{
+    auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
+    // flag upgraded = false
+    auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
+    auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache1");
+
+    std::vector<SulDownloader::DownloadReport> reports{
+            upgradeReport, updateReport, lastUpdateReport
+    };
+
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent = upgradeEvent();
+    // no event to be sent as update followed by upgrade
+    expectedEvent.IsRelevantToSend = false;
+    expectedEvent.MessageNumber = 0;
+    expectedEvent.UpdateSource = "cache1";
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 0;
+    expectedStatus.LastSyncTime = FinishTimeTest;
+    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.FirstFailedTime.clear();
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // first is the upgrade and the later the last one the second one is not necessary
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+}
+
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged)
+{
+    auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
+    // flag upgraded = false
+    auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
+    auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache2");
+
+    std::vector<SulDownloader::DownloadReport> reports{
+            upgradeReport, updateReport, lastUpdateReport
+    };
+
+    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent = upgradeEvent();
+    // send event because cache changed
+    expectedEvent.IsRelevantToSend = true;
+    expectedEvent.MessageNumber = 0;
+    expectedEvent.UpdateSource = "cache2";
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 0;
+    expectedStatus.LastSyncTime = FinishTimeTest;
+    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.FirstFailedTime.clear();
+
+    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // first is the upgrade and the later the last one the second one is not necessary
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+}
+
+
+
+
+
 

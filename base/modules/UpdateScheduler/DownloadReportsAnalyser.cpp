@@ -260,6 +260,8 @@ namespace UpdateScheduler
         // if previous one was an error, send event, otherwise do not send.
         collectionResult.SchedulerEvent.IsRelevantToSend = reportCollection.at(previousIndex).getStatus() != SulDownloader::WarehouseStatus::SUCCESS;
 
+        // if previous one had source url different from current, send event
+        collectionResult.SchedulerEvent.IsRelevantToSend = reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
 
         return collectionResult;
     }
