@@ -1,35 +1,45 @@
-//
-// Created by pair on 07/08/18.
-//
+/******************************************************************************************************
 
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <iostream>
+Copyright 2018 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #include "UpdateScheduler.h"
-#include "QueueTask.h"
-#include "PluginCallback.h"
-#include "PluginAdapter.h"
 #include "Logger.h"
-#include "LoggingSetup.h"
-
-log4cplus::Logger GL_UPDSCH_LOGGER; //NOLINT
+#include "SchedulerTaskQueue.h"
 
 namespace UpdateScheduler
 {
-    int main_entry()
+    UpdateScheduler::UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask, std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService, std::shared_ptr<SchedulerPluginCallback> callback)
+    : m_queueTask(queueTask), m_baseService(std::move(baseService)), m_callback(callback)
     {
-        LoggingSetup logging;
 
-        std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
+    }
 
-        std::shared_ptr<QueueTask> queueTask = std::make_shared<QueueTask>();
-        auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
+    void UpdateScheduler::mainLoop()
+    {
+        LOGINFO("Update Scheduler Starting");
+        while(true)
+        {
+            SchedulerTask task = m_queueTask->pop();
+            switch(task.taskType)
+            {
+                case SchedulerTask::TaskType::UpdateNow:
+                case SchedulerTask::TaskType::ScheduledUpdate:
+                case SchedulerTask::TaskType::Policy:
+                case SchedulerTask::TaskType::Stop:
+                case SchedulerTask::TaskType::SulDownloaderFinished:
+                case SchedulerTask::TaskType::SulDownloaderFailedToStart:
+                case SchedulerTask::TaskType::SulDownloaderTimedOut:
+                case SchedulerTask::TaskType::SulDownloaderWasAborted:
+                    return;
+            }
+        }
+    }
 
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(
-                "UpdateScheduler", sharedPluginCallBack
-        );
-        PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
-        pluginAdapter.mainLoop();
-        LOGINFO("Update Scheduler Finished.");
-        return 0;
+
+    void UpdateScheduler::processPolicy(const std::string & policyXml)
+    {
+
     }
 }

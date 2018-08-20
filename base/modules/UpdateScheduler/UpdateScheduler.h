@@ -1,10 +1,26 @@
-//
-// Created by pair on 07/08/18.
-//
+/******************************************************************************************************
+
+Copyright 2018 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
+#include <Common/PluginApiImpl/PluginApiImpl.h>
+#include "SchedulerTaskQueue.h"
+#include "SchedulerPluginCallback.h"
+
 namespace UpdateScheduler
 {
-    int main_entry();
+    class UpdateScheduler
+    {
+        std::shared_ptr<SchedulerTaskQueue> m_queueTask;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
+        std::shared_ptr<SchedulerPluginCallback> m_callback;
+    public:
+        UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask, std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService, std::shared_ptr<SchedulerPluginCallback> callback);
+        void mainLoop();
+    private:
+        void processPolicy(const std::string & policyXml);
+    };
 }

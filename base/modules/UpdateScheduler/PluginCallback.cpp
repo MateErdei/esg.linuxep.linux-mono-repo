@@ -4,49 +4,48 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginCallback.h"
+#include "SchedulerPluginCallback.h"
 #include "Logger.h"
-#include "Telemetry.h"
 
 namespace UpdateScheduler
 {
 
-    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) :
+    SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
         m_task(task), m_statusInfo()
     {
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string &policyXml)
+    void SchedulerPluginCallback::applyNewPolicy(const std::string &policyXml)
     {
         LOGSUPPORT("Applying new policy");
     }
 
-    void PluginCallback::queueAction(const std::string &actionXml)
+    void SchedulerPluginCallback::queueAction(const std::string &actionXml)
     {
         LOGSUPPORT("Queueing action");
 
     }
 
-    void PluginCallback::onShutdown()
+    void SchedulerPluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
 
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string &appId)
+    Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string &appId)
     {
         LOGSUPPORT("Received get status request");
         return m_statusInfo;
     }
 
-    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
+    void SchedulerPluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
         LOGSUPPORT("Setting status");
 
     }
 
-    std::string PluginCallback::getTelemetry()
+    std::string SchedulerPluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
         return std::string();

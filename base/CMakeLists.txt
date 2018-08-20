@@ -78,6 +78,13 @@ find_library(EXPAT_LIBRARY
         NO_DEFAULT_PATH
         )
 
+set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
+
+find_library(LOG4CPLUS_LIBRARY
+        NAMES log4cplus
+        PATHS ${LOG4CPLUS_INPUT}/lib
+        )
+
 include_directories(modules)
 
 set(REL_DIST distribution)

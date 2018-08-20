@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/fileappender.h>
+#include <log4cplus/consoleappender.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 namespace
@@ -51,11 +52,29 @@ namespace
         GL_UPDSCH_LOGGER.addAppender(appender);
 
     }
+
+    void consoleSetupLogging()
+    {
+
+        log4cplus::initialize();
+
+        GL_UPDSCH_LOGGER = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("updatescheduler"));
+        log4cplus::SharedAppenderPtr appender(
+                new log4cplus::ConsoleAppender()
+        );
+        GL_UPDSCH_LOGGER.addAppender(appender);
+    }
 }
 UpdateScheduler::LoggingSetup::LoggingSetup()
 {
     setupLogging();
 }
+
+UpdateScheduler::LoggingSetup::LoggingSetup(int)
+{
+    consoleSetupLogging();
+}
+
 
 UpdateScheduler::LoggingSetup::~LoggingSetup()
 {

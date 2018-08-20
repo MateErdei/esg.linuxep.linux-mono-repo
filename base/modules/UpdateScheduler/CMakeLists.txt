@@ -1,25 +1,48 @@
-
-add_library(updateschedulerimpl main.cpp
-        PluginCallback.cpp
-        PluginCallback.h
-        QueueTask.cpp
-        QueueTask.h
+add_library(updateschedulerimpl SHARED
+        UpdatePolicyTranslator.cpp
+        UpdatePolicyTranslator.h
+        UpdateActionParser.cpp
+        UpdateActionParser.h
+        SulDownloaderRunner.cpp
+        SulDownloaderRunner.h
+        SchedulerTaskQueue.cpp
+        SchedulerTaskQueue.h
+        SulDownloaderResultDirectoryListener.cpp
+        SulDownloaderResultDirectoryListener.h
+        CronSchedulerThread.h
+        CronSchedulerThread.cpp
+        DownloadReportsAnalyser.cpp
+        DownloadReportsAnalyser.h
+        UpdateStatus.h
+        UpdateStatus.cpp
+        UpdateEvent.cpp
+        UpdateEvent.h
+        IMapHostCacheId.h
+        SchedulerPluginCallback.h
+        SchedulerPluginCallback.cpp
         Logger.h
-        LoggingSetup.cpp
         LoggingSetup.h
-        PluginAdapter.cpp
-        PluginAdapter.h
-        Telemetry.cpp
-        Telemetry.h
+        LoggingSetup.cpp
+        UpdateScheduler.h
         UpdateScheduler.cpp
-        UpdateScheduler.h)
+        UpdateSchedulerBootstrap.h
+        UpdateSchedulerBootstrap.cpp)
 
-set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
-
-find_library(LOG4CPLUS_LIBRARY
-        NAMES log4cplus
-        PATHS ${LOG4CPLUS_INPUT}/lib
-        )
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(updateschedulerimpl pluginapiimpl ${LOG4CPLUS_LIBRARY})
+target_link_libraries(updateschedulerimpl PUBLIC
+        suldownloaderimpl
+        filesystemimpl
+        utilityimpl
+        applicationconfigurationimpl
+        xmlutilities
+        suldownloaderdata
+        directorywatcherimpl
+        pluginapiimpl
+        ${LOG4CPLUS_LIBRARY} )
+
+SET_TARGET_PROPERTIES( updateschedulerimpl
+        PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(TARGETS updateschedulerimpl
+        LIBRARY DESTINATION files/base/lib64)

@@ -3,7 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "UpdateScheduler.h"
+#include "UpdateSchedulerBootstrap.h"
 
 int main()
 {

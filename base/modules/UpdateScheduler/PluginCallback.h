@@ -6,18 +6,18 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/PluginApiImpl/PluginCallBackHandler.h>
-#include "QueueTask.h"
+#include <Common/PluginApi/IPluginCallbackApi.h>
+#include "SchedulerTaskQueue.h"
 
 namespace UpdateScheduler
 {
-    class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
+    class SchedulerPluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<QueueTask> m_task;
+        std::shared_ptr<SchedulerTaskQueue> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
     public:
 
-        explicit PluginCallback( std::shared_ptr<QueueTask> task );
+        explicit SchedulerPluginCallback( std::shared_ptr<SchedulerTaskQueue> task );
 
         void applyNewPolicy(const std::string &policyXml) override;
 
