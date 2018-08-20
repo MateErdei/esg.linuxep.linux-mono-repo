@@ -10,12 +10,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "DownloadReportTestBuilder.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+#include <modules/UpdateScheduler/LoggingSetup.h>
+
 using namespace UpdateScheduler;
 using namespace SulDownloader;
 
 class TestDownloadReportAnalyser : public  ::testing::Test
 {
 public:
+
+
+    TestDownloadReportAnalyser()
+            : m_loggingSetup(new UpdateScheduler::LoggingSetup(1))
+    {
+    }
 
     ::testing::AssertionResult insertMessagesAreEquivalent( const char* m_expr,
                                                            const char* n_expr,
@@ -204,6 +212,8 @@ public:
         }
         return marks;
     }
+
+    std::unique_ptr<UpdateScheduler::LoggingSetup> m_loggingSetup;
 };
 
 
