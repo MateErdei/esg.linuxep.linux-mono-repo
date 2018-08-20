@@ -159,14 +159,14 @@ namespace UpdateScheduler
     {
         std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
-        struct FileAndDonloadReport
+        struct FileAndDownloadReport
         {
             std::string filepath;
             SulDownloader::DownloadReport report;
             std::string sortKey;
         };
 
-        std::vector<FileAndDonloadReport> reportCollection;
+        std::vector<FileAndDownloadReport> reportCollection;
 
         for( auto & filepath: listFiles)
         {
@@ -174,14 +174,14 @@ namespace UpdateScheduler
             {
                 std::string content = Common::FileSystem::fileSystem()->readFile( filepath );
                 SulDownloader::DownloadReport fileReport = SulDownloader::DownloadReport::toReport(content);
-                reportCollection.push_back(FileAndDonloadReport{filepath, fileReport, fileReport.getStartTime()});
+                reportCollection.push_back(FileAndDownloadReport{filepath, fileReport, fileReport.getStartTime()});
             }catch (std::exception & ex)
             {
                 // todo log error
             }
         }
 
-        std::sort(reportCollection.begin(), reportCollection.end(), [](const FileAndDonloadReport & lhs, const FileAndDonloadReport & rhs){return lhs.sortKey < rhs.sortKey; });
+        std::sort(reportCollection.begin(), reportCollection.end(), [](const FileAndDownloadReport & lhs, const FileAndDownloadReport & rhs){return lhs.sortKey < rhs.sortKey; });
 
 
         ReportAndFiles reportAndFiles;
