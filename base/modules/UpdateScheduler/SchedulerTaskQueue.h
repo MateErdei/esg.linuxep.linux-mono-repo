@@ -20,6 +20,7 @@ namespace UpdateScheduler
             ScheduledUpdate,
             Policy,
             Stop,
+            ShutdownReceived,
             SulDownloaderFinished,
             SulDownloaderFailedToStart,
             SulDownloaderTimedOut,

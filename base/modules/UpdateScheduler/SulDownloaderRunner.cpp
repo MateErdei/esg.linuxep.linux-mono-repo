@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SulDownloaderRunner.h"
 #include "Logger.h"
-#include <functional>
 namespace UpdateScheduler
 {
 

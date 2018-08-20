@@ -25,20 +25,74 @@ namespace UpdateScheduler
             switch(task.taskType)
             {
                 case SchedulerTask::TaskType::UpdateNow:
+                    processUpdateNow();
+                    break;
                 case SchedulerTask::TaskType::ScheduledUpdate:
+                    processScheduleUpdate();
+                    break;
                 case SchedulerTask::TaskType::Policy:
+                    processPolicy(task.content);
+                    break;
                 case SchedulerTask::TaskType::Stop:
-                case SchedulerTask::TaskType::SulDownloaderFinished:
-                case SchedulerTask::TaskType::SulDownloaderFailedToStart:
-                case SchedulerTask::TaskType::SulDownloaderTimedOut:
-                case SchedulerTask::TaskType::SulDownloaderWasAborted:
                     return;
+                case SchedulerTask::TaskType::SulDownloaderFinished:
+                    processSulDownloaderFinished(task.content);
+                    break;
+                case SchedulerTask::TaskType::SulDownloaderFailedToStart:
+                    processSulDownloaderFailedToStart(task.content);
+                    break;
+                case SchedulerTask::TaskType::SulDownloaderTimedOut:
+                    processSulDownloaderTimedOut();
+                    break;
+                case SchedulerTask::TaskType::SulDownloaderWasAborted:
+                    processSulDownloaderWasAborted();
+                    break;
+                case SchedulerTask::TaskType::ShutdownReceived:
+                    processShutdownReceived();
+                    break;
+                default:
+                    break;
             }
         }
     }
 
 
     void UpdateScheduler::processPolicy(const std::string & policyXml)
+    {
+
+    }
+
+    void UpdateScheduler::processUpdateNow()
+    {
+
+    }
+
+    void UpdateScheduler::processScheduleUpdate()
+    {
+
+    }
+
+    void UpdateScheduler::processShutdownReceived()
+    {
+
+    }
+
+    void UpdateScheduler::processSulDownloaderFinished(const std::string& reportFileLocation)
+    {
+
+    }
+
+    void UpdateScheduler::processSulDownloaderFailedToStart(const std::string& errorMessage)
+    {
+
+    }
+
+    void UpdateScheduler::processSulDownloaderTimedOut()
+    {
+
+    }
+
+    void UpdateScheduler::processSulDownloaderWasAborted()
     {
 
     }

@@ -8,10 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SchedulerTaskQueue.h"
 #include "ISulDownloaderRunner.h"
-#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
-#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include "SulDownloaderResultDirectoryListener.h"
+#include <Common/DirectoryWatcher/IDirectoryWatcher.h>
+#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/Process/IProcess.h>
+#include <functional>
 
 
 namespace UpdateScheduler
