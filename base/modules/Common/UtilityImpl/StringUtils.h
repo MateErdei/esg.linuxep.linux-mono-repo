@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 namespace Common
 {
@@ -71,6 +72,68 @@ namespace Common
 
                 return result;
             }
+
+            static std::vector<std::string> splitString( const std::string & originalstring, const std::string & separator)
+            {
+                std::vector<std::string> result;
+                size_t beginPos = 0;
+
+                while(true)
+                {
+                    size_t pos = originalstring.find(separator, beginPos);
+
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    result.emplace_back(originalstring.substr(beginPos, pos - beginPos));
+                    beginPos = pos + separator.length();
+                }
+
+                result.emplace_back(originalstring.substr(beginPos));
+
+                return result;
+            }
+
+            using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
+
+            /**
+             * Ordered String Replace allows a very efficient string pattern replace by enforcing that the keys come in the
+             * order that they must be replaced in the pattern.
+             * @param pattern: string containing the template with the keys to be replaced by the values. For example: Hello name. Good greeting!
+             * @param keyvalues: vector of pairs containing key|value. For example: {{"name", "sophos"},{"greeting","morning"}}
+             * @return The string where keys were replaced for their respective value: For example: Hello sophos. Good morning!
+             *
+             * @attention If the keyvalues are given in the incorrect value the keys will not be replaced!
+             *
+             * For example: pattern = Hello name. Good greeting!
+             * keyvalues = {{"greeting","morning"}, {"name", "sophos"}}
+             * Result = Hello name. Good morning!
+             *              *
+             */
+            static std::string orderedStringReplace(const std::string& pattern, const KeyValueCollection& keyvalues)
+            {
+                std::string result;
+                size_t beginPos = 0;
+
+                for (auto & keyvalue : keyvalues)
+                {
+                    auto & key = keyvalue.first;
+                    size_t pos = pattern.find(key, beginPos);
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    result += pattern.substr(beginPos, pos-beginPos);
+                    result += keyvalue.second;
+                    beginPos = pos + key.length();
+                }
+
+                result += pattern.substr(beginPos);
+                return result;
+            }
+
         };
+
     }
 }
