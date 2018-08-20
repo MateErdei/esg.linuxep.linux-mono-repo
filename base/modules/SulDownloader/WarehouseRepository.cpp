@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <cassert>
+#include <sstream>
 
 #include "WarehouseRepository.h"
 #include "DownloadedProduct.h"
@@ -194,7 +195,7 @@ namespace SulDownloader
         {
             LOGERROR("Failed to synchronise warehouse");
             setError("Failed to Sync warehouse");
-            //FIXME: setError and m_error.status = DownloadError
+            m_error.status = WarehouseStatus::DOWNLOADFAILED;
             return;
         }
 
@@ -221,16 +222,28 @@ namespace SulDownloader
         }
 
         m_products.clear();
+        bool syncSucceeded = true;
+        std::stringstream failedProductErrorMessage;
+        failedProductErrorMessage << "Failed to synchronise product:";
+
         for (int index : selectedIndexes.selected)
         {
             auto & productPair = productInformationList[index];
+
             if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
-                LOGERROR("Failed to synchronise product: " << productPair.second.getLine());
-                //FIXME: setError and m_error.status = DownloadError
+                syncSucceeded = false;
+                failedProductErrorMessage << " '" << productPair.second.getLine() << "'";
             }
 
             m_products.emplace_back(productPair.first, DownloadedProduct(productPair.second));
+        }
+
+        if (!syncSucceeded)
+        {
+            LOGERROR(failedProductErrorMessage.str());
+            setError(failedProductErrorMessage.str());
+            m_error.status = WarehouseStatus::DOWNLOADFAILED;
         }
     }
 
@@ -256,14 +269,28 @@ namespace SulDownloader
         }
 
 
+        bool distSucceeded = true;
+        std::stringstream failedProductErrorMessage;
+        failedProductErrorMessage << "Failed to synchronise product:";
+
         for (auto & product : m_products)
         {
             verifyDistributeProduct(product);
+
             if (product.second.hasError())
             {
-                m_error.status = WarehouseStatus ::DOWNLOADFAILED;
+                distSucceeded = false;
+                failedProductErrorMessage << " '" << product.second.getLine() << "'";
             }
         }
+
+        if (!distSucceeded)
+        {
+            LOGERROR(failedProductErrorMessage.str());
+            setError(failedProductErrorMessage.str());
+            m_error.status = WarehouseStatus::DOWNLOADFAILED;
+        }
+
         SULUtils::displayLogs(session());
     }
 

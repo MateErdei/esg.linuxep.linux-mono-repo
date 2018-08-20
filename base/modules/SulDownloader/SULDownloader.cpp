@@ -18,6 +18,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ProductUninstaller.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <cassert>
+#include <algorithm>
+
 
 namespace
 {
@@ -36,12 +40,36 @@ namespace
 
 namespace SulDownloader
 {
-    DownloadReport runSULDownloader( const ConfigurationData & configurationData)
+    using namespace Common::UtilityImpl;
+
+    bool forceInstallOfProduct(const DownloadedProduct& product, const DownloadReport& previousDownloadReport)
+    {
+        //If the previous install failed with unspecified or download failed we have no clear
+        //information on the state of the distribution folder. Therefore safest approach is to force a reinstall.
+        if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED || previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED )
+        {
+            return true;
+        }
+        const std::vector<ProductReport>& productReports = previousDownloadReport.getProducts();
+        auto productReportItr = std::find_if(productReports.begin(), productReports.end(), [&product](const ProductReport & report){return report.rigidName == product.getLine();});
+        if (productReportItr != productReports.end())
+        {
+            if (productReportItr->productStatus == ProductReport::ProductStatus::InstallFailed ||
+                productReportItr->productStatus == ProductReport::ProductStatus::SyncFailed)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    DownloadReport runSULDownloader( const ConfigurationData & configurationData, const DownloadReport& previousDownloadReport)
     {
         SULInit init;
         assert( configurationData.isVerified());
         TimeTracker timeTracker;
-        timeTracker.setStartTime( TimeTracker::getCurrTime());
+        timeTracker.setStartTime( TimeUtils::getCurrTime());
 
         // connect and read metadata
         auto warehouseRepository = WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
@@ -54,7 +82,7 @@ namespace SulDownloader
         // apply product selection and download the needed products
         auto productSelection = ProductSelection::CreateProductSelection(configurationData);
         warehouseRepository->synchronize(productSelection);
-        timeTracker.setSyncTime( TimeTracker::getCurrTime());
+
 
         if ( warehouseRepository->hasError())
         {
@@ -70,22 +98,37 @@ namespace SulDownloader
 
 
         auto products = warehouseRepository->getProducts();
+        std::string sourceURL = warehouseRepository->getSourceURL();
         std::string rootcaPath = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
+
+        // Mark which products need to be forced to re/install.
+        for(auto & product : products)
+        {
+            if(configurationData.getForceReinstallAllProducts() || forceInstallOfProduct(product, previousDownloadReport))
+            {
+                product.setForceProductReinstall(true);
+            }
+        }
+
+        // Only need to verify the products which the install.sh will be called on.
         for( auto & product: products)
         {
-            product.verify(rootcaPath);
+            if(product.productHasChanged() || product.forceProductReinstall())
+            {
+                product.verify(rootcaPath);
+            }
         }
 
         if ( hasError(products))
         {
-            return DownloadReport::Report(products, timeTracker);
+            return DownloadReport::Report(sourceURL, products, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
         }
 
         // design decision: do not install if any error happens before this time.
         // try to install all products and report error for those that failed (if any)
         for( auto & product: products)
         {
-            if (product.productHasChanged())
+            if (product.productHasChanged() || product.forceProductReinstall())
             {
                 product.install(configurationData.getInstallArguments());
             }
@@ -104,15 +147,15 @@ namespace SulDownloader
             products.push_back(uninstalledProduct);
         }
 
-        timeTracker.setFinishedTime( TimeTracker::getCurrTime());
+        timeTracker.setFinishedTime( TimeUtils::getCurrTime());
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
-        return DownloadReport::Report(products, timeTracker);
+        return DownloadReport::Report(sourceURL, products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     }
 
-    std::tuple<int, std::string> configAndRunDownloader( const std::string & settingsString)
+    std::tuple<int, std::string> configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData)
     {
         try
         {
@@ -122,7 +165,25 @@ namespace SulDownloader
             {
                 throw SulDownloaderException("Configuration data is invalid");
             }
-            auto report = runSULDownloader(configurationData);
+
+            // If there is no previous download report, or if the download report fails to be read correctly
+            // assume default download and install behaviour. i.e. install if file set has changed.
+            // If overriding is required then add code to set configurationData.setForceReinstallAllProducts(true)
+            DownloadReport previousDownloadReport =  DownloadReport::Report("Not assigned");
+
+            try
+            {
+                if(!previousReportData.empty())
+                {
+                    previousDownloadReport = DownloadReport::toReport(previousReportData);
+                }
+            }
+            catch(SulDownloaderException &ex)
+            {
+                LOGWARN("Failed to load previous report data");
+            }
+
+            auto report = runSULDownloader(configurationData, previousDownloadReport);
 
             return DownloadReport::CodeAndSerialize(report);
 
@@ -135,6 +196,22 @@ namespace SulDownloader
         }
 
     };
+
+    std::string getPreviousDownloadReportData(const std::string& outputParentPath)
+    {
+        std::vector<std::string> previousReportFiles = Common::FileSystem::fileSystem()->listFiles(outputParentPath);
+
+        std::string previousDownloadReport;
+
+        if(!previousReportFiles.empty())
+        {
+            std::sort(previousReportFiles.begin(), previousReportFiles.end());
+
+            std::string previousReportFileName = *(--previousReportFiles.end()); // get last entry
+            previousDownloadReport = Common::FileSystem::fileSystem()->readFile(previousReportFileName);
+        }
+        return previousDownloadReport;
+    }
 
     int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath )
     {
@@ -156,7 +233,9 @@ namespace SulDownloader
             throw SulDownloaderException( "The directory to write the output file must exist.");
         }
 
-        auto result = configAndRunDownloader(settingsString);
+        std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
+
+        auto result = configAndRunDownloader(settingsString, previousReportData);
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGSUPPORT("Generate the report file: " << outputFilePath << " using temp directory " << tempDir);
 
@@ -165,8 +244,6 @@ namespace SulDownloader
 
         return std::get<0>(result);
     }
-
-
 
     int main_entry( int argc, char * argv[])
     {
@@ -180,6 +257,7 @@ namespace SulDownloader
 
         std::string inputPath = argv[1];
         std::string outputPath = argv[2];
+
         try
         {
             return fileEntriesAndRunDownloader(inputPath, outputPath);

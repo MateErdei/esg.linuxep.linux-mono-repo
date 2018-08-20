@@ -23,8 +23,8 @@ namespace {
         {
             std::string subscriptionLine = StringUtils::orderedStringReplace(subscriptionTemplate, {
                 {"@@rigidName@@", product.RigidName},
-                {"@@version@@", product.InstalledVersion},
-                {"@@displayversion@@", product.InstalledVersion}
+                {"@@version@@", product.DownloadedVersion},
+                {"@@displayversion@@", product.DownloadedVersion}
             });
             subscriptions += subscriptionLine;
         }

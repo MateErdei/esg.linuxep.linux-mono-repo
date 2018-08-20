@@ -23,9 +23,8 @@ namespace SulDownloader
         std::string name;
         std::string rigidName;
         std::string downloadedVersion;
-        std::string installedVersion;
         std::string errorDescription;
-        enum class ProductStatus { SyncFailed, UpToDate, Upgraded, Uninstalled };
+        enum class ProductStatus { SyncFailed, InstallFailed, UninstallFailed, VerifyFailed, UpToDate, Upgraded, Uninstalled };
         ProductStatus productStatus = ProductStatus::SyncFailed;
         std::string statusToString() const;
         std::string jsonString() const;
@@ -78,7 +77,7 @@ namespace SulDownloader
 
         std::vector<ProductReport> m_productReport;
 
-        WarehouseStatus setProductsInfo(const std::vector<DownloadedProduct> &products, WarehouseStatus status);
+        void setProductsInfo(const std::vector<DownloadedProduct> &products,const WarehouseStatus& warehouseStatus);
         void setError( const WarehouseError & error);
         void setTimings( const TimeTracker & );
     };

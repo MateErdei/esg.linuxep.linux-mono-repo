@@ -31,10 +31,15 @@ namespace
                 return ProductStatusReport_ProductStatus_UPGRADED;
             case ProductStatus::Uninstalled:
                 return ProductStatusReport_ProductStatus_UNINSTALLED;
+            case ProductStatus::VerifyFailed:
+                return ProductStatusReport_ProductStatus_VERIFYFAILED;
+            case ProductStatus::InstallFailed:
+                return ProductStatusReport_ProductStatus_INSTALLFAILED;
+            case ProductStatus::UninstallFailed:
+                return ProductStatusReport_ProductStatus_UNINSTALLFAILED;
             case ProductStatus::SyncFailed:
             default:
                 return ProductStatusReport_ProductStatus_SYNCFAILED;
-
         }
     }
 
@@ -52,6 +57,12 @@ namespace
                 return ProductStatus::Upgraded;
             case ProductStatusReport_ProductStatus_UNINSTALLED:
                 return ProductStatus::Uninstalled;
+            case ProductStatusReport_ProductStatus_VERIFYFAILED:
+                return ProductStatus::VerifyFailed;
+            case ProductStatusReport_ProductStatus_INSTALLFAILED:
+                return ProductStatus::InstallFailed;
+            case ProductStatusReport_ProductStatus_UNINSTALLFAILED:
+                return ProductStatus::UninstallFailed;
             case ProductStatusReport_ProductStatus_SYNCFAILED:
             default:
                 return ProductStatus::SyncFailed;
@@ -82,7 +93,7 @@ namespace SulDownloader
             report.m_description = "";
         }
         report.m_urlSource = warehouse.getSourceURL();
-        report.m_status = report.setProductsInfo(warehouse.getProducts(), report.m_status);
+        report.setProductsInfo(warehouse.getProducts(), report.m_status);
         return report;
     }
 
@@ -119,13 +130,13 @@ namespace SulDownloader
             }
         }
 
-        report.m_status = report.setProductsInfo(products, report.m_status);
+        report.setProductsInfo(products, report.m_status);
 
         if ( verifyState == VerifyState::VerifyFailed)
         {
             for ( auto & productReport : report.m_productReport)
             {
-                productReport.productStatus = ProductReport::ProductStatus::SyncFailed;
+                productReport.productStatus = ProductReport::ProductStatus::VerifyFailed;
             }
         }
 
@@ -183,55 +194,48 @@ namespace SulDownloader
         return m_productReport;
     }
 
-    WarehouseStatus DownloadReport::setProductsInfo(const std::vector<DownloadedProduct> &products, WarehouseStatus status)
+    void DownloadReport::setProductsInfo(const std::vector<DownloadedProduct>& products,
+                                         const WarehouseStatus& warehouseStatus)
     {
-
         m_productReport.clear();
-        for (auto & product : products)
+        for (auto& product : products)
         {
             ProductReport productReportEntry;
-            auto &info = product.getProductMetadata();
+            auto& info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
-            productReportEntry.installedVersion = product.getPostUpdateInstalledVersion();
-            productReportEntry.productStatus = product.productHasChanged()? ProductReport::ProductStatus::Upgraded : ProductReport::ProductStatus::UpToDate;
             auto wError = product.getError();
             productReportEntry.errorDescription = wError.Description;
 
-            if ( !productReportEntry.errorDescription.empty())
+            //Set product status appropriately
+            if ( (warehouseStatus == WarehouseStatus::DOWNLOADFAILED) || (warehouseStatus == WarehouseStatus::PACKAGESOURCEMISSING) )
             {
                 productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
             }
-
-            if (product.getProductIsBeingUninstalled())
+            else
             {
-                productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
-            }
-
-            // ensure that an error status is reported on installed products if version is not matched
-            // If uninstall failed, and Install failed, report back install failed overall.
-            else if (productReportEntry.downloadedVersion != productReportEntry.installedVersion &&
-                    (status == WarehouseStatus::SUCCESS || status == WarehouseStatus::UNINSTALLFAILED) )
-            {
-                std::stringstream errorInfo;
-                errorInfo << "Downloaded version: " << productReportEntry.downloadedVersion
-                          << " differs from the installed version: "
-                          << productReportEntry.installedVersion;
-                LOGERROR(errorInfo.str());
-                status = WarehouseStatus::INSTALLFAILED;
-
-                if (productReportEntry.errorDescription.empty())
+                productReportEntry.productStatus = product.productHasChanged() ? ProductReport::ProductStatus::Upgraded
+                                                                               : ProductReport::ProductStatus::UpToDate;
+                if (!productReportEntry.errorDescription.empty())
                 {
-                    productReportEntry.errorDescription = errorInfo.str();
+                    if (!product.getProductIsBeingUninstalled())
+                    {
+                        productReportEntry.productStatus = ProductReport::ProductStatus::InstallFailed;
+                    }
+                    else
+                    {
+                        productReportEntry.productStatus = ProductReport::ProductStatus::UninstallFailed;
+                    }
+                }
+                else if (product.getProductIsBeingUninstalled())
+                {
+                    productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
             }
 
             m_productReport.push_back(productReportEntry);
         }
-
-        return status;
-
     }
 
     void DownloadReport::setTimings(const TimeTracker &timeTracker)
@@ -277,7 +281,6 @@ namespace SulDownloader
             productReport->set_productname( product.name);
             productReport->set_rigidname( product.rigidName);
             productReport->set_downloadversion( product.downloadedVersion);
-            productReport->set_installedversion( product.installedVersion);
             productReport->set_errordescription( product.errorDescription);
 
             productReport->set_productstatus( convert(product.productStatus));
@@ -317,7 +320,6 @@ namespace SulDownloader
             productReport.rigidName = protoProduct.rigidname();
             productReport.name = protoProduct.productname();
             productReport.downloadedVersion = protoProduct.downloadversion();
-            productReport.installedVersion = protoProduct.installedversion();
             productReport.errorDescription = protoProduct.errordescription();
             productReport.productStatus = convert(protoProduct.productstatus());
 
@@ -349,6 +351,14 @@ namespace SulDownloader
                 return "Upgraded";
             case ProductStatus::SyncFailed:
                 return "SyncFailed";
+            case ProductStatus::VerifyFailed:
+                return "VerifyFailed";
+            case ProductStatus::InstallFailed:
+                return "InstallFailed";
+            case ProductStatus::UninstallFailed:
+                return "UninstallFailed";
+            case ProductStatus::Uninstalled:
+                return "Uninstalled";
             case ProductStatus::UpToDate:
             default:
                 return "UpToDate";
@@ -363,13 +373,17 @@ namespace SulDownloader
                 return "UPGRADED";
             case ProductStatus::SyncFailed:
                 return "SYNCFAILED";
-            case ProductStatus::UpToDate:
-
-                return "UPTODATE";
+            case ProductStatus::VerifyFailed:
+                return "VERIFYFAILED";
+            case ProductStatus::InstallFailed:
+                return "INSTALLFAILED";
+            case ProductStatus::UninstallFailed:
+                return "UNINSTALLFAILED";
             case ProductStatus::Uninstalled:
                 return "UNINSTALLED";
+            case ProductStatus::UpToDate:
             default:
-                return "SYNCFAILED";
+                return "UPTODATE";
         }
     }
 }

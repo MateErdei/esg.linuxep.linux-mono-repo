@@ -25,25 +25,27 @@ namespace SulDownloader
      *
      *
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
+     * @param previousDownloadReport if one exists (if not it will be null or empty
      * @return DownloadReport which in case of failure will conatain description of the problem,
      *         and usually also contain the list of products installed with relevant information for each product.
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
-    DownloadReport runSULDownloader( const ConfigurationData & configurationData);
+    DownloadReport runSULDownloader( const ConfigurationData & configurationData, const DownloadReport& previousDownloadReport);
 
 
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
      *
      * @param settingsString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
+     * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
      * @return Pair containing the exit code and the serialized (json) version of  SulDownloaderProto::DownloadStatusReport
      *         The exit code follows the convention of 0 for success, otherwise failure
      * @pre settingsString is a valid serialized version of SulDownloaderProto::ConfigurationSettings.
      * @note If either the json parser fails to de-serialize settingsString or the ConfigurationData produced does not pass the ::verifySettingsAreValid
-     *       it will not runSULDownloader and return the failure directly.
+     *       it will not runSULDownloader and return the failure directly.s
      */
-    std::tuple<int, std::string> configAndRunDownloader( const std::string & settingsString);
+    std::tuple<int, std::string> configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData);
 
 
     /**
@@ -58,6 +60,11 @@ namespace SulDownloader
      * @throws If it cannot read or write the files safely it will throw exception.
      */
     int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath );
+
+
+
+    std::string getPreviousDownloadReportData(const std::string& outputParentPath);
+
 
 
     /**

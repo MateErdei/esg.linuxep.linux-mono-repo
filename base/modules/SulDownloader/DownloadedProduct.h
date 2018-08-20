@@ -117,13 +117,16 @@ namespace SulDownloader
          */
         bool getProductIsBeingUninstalled() const;
 
+        /**
+         * set forceReInstall if product failed to successfully install on the previous update
+         * @param forceRinstall
+         */
+        void setForceProductReinstall(bool forceReinstall);
 
-
-        //FIXME: implement the report on installed versions LINUXEP-6124
-        const std::string& getPostUpdateInstalledVersion() const;
-        const std::string& getPreUpdateInstalledVersion() const ;
-        void setPreUpdateInstalledVersion(const std::string & preUpdateInstalledVersion);
-        void setPostUpdateInstalledVersion(const std::string & postUpdateInstalledVersion);
+        /**
+         * @return true of the product needs to be reinstalled, false otherwise
+         */
+        bool forceProductReinstall();
 
 
     private :
@@ -133,10 +136,7 @@ namespace SulDownloader
         std::string m_distributePath;
         bool m_productHasChanged;
         bool m_productUninstall;
-
-        std::string m_postUpdateInstalledVersion;
-        std::string m_preUpdateInstalledVersion;
-
+        bool m_forceProductReinstall;
     };
 }
 

@@ -14,9 +14,12 @@ message ProductStatusReport
     enum ProductStatus
     {
        SYNCFAILED = 0;
-       UPTODATE = 1;
-       UPGRADED = 2;
-       UNINSTALLED = 3;
+       INSTALLFAILED = 1;
+       UNINSTALLFAILED = 2;
+       VERIFYFAILED = 3;
+       UPTODATE = 4;
+       UPGRADED = 5;
+       UNINSTALLED = 6;
     }
     optional ProductStatus productStatus = 9 [default=UPTODATE];
 }

@@ -350,6 +350,16 @@ namespace SulDownloader
         m_logLevel = level;
     }
 
+    void ConfigurationData::setForceReinstallAllProducts(const bool forceReinstallAllProducts)
+    {
+        m_forceReinstallAllProducts = forceReinstallAllProducts;
+    }
+
+    bool ConfigurationData::getForceReinstallAllProducts() const
+    {
+        return m_forceReinstallAllProducts;
+    }
+
 
     ConfigurationData ConfigurationData::fromJsonSettings( const std::string & settingsString )
     {
@@ -422,6 +432,9 @@ namespace SulDownloader
         LogLevel level = ( settings.loglevel() ==
                 ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL) ? LogLevel::NORMAL : LogLevel::VERBOSE;
         configurationData.setLogLevel(level);
+
+        configurationData.setForceReinstallAllProducts(settings.forcereinstallallproducts());
+
         return configurationData;
     }
 
@@ -520,6 +533,7 @@ namespace SulDownloader
         return  Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
 
     }
+
 
 
 

@@ -87,10 +87,6 @@ public:
             {
                 return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ";
             }
-            if ( expectedInsert.InstalledVersion != resultedInsert.InstalledVersion)
-            {
-                return ::testing::AssertionFailure() << s.str() << " InstallVersion differ";
-            }
         }
         return ::testing::AssertionSuccess();
 
@@ -199,8 +195,8 @@ public:
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
         status.Products = {
-                {"BaseRigidName", "BaseName", "0.5.0", "0.5.0"},
-                {"PluginRigidName", "PluginName", "0.5.0", "0.5.0"}
+                {"BaseRigidName", "BaseName", "0.5.0"},
+                {"PluginRigidName", "PluginName", "0.5.0"}
         };
         return status;
     }

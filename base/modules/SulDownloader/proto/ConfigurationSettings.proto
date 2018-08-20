@@ -40,5 +40,6 @@ message ConfigurationSettings
        VERBOSE = 1;
     }
     optional LogLevelOption logLevel = 15 [default=NORMAL];
+    optional bool forceReinstallAllProducts = 16 [default=false];
 
 }

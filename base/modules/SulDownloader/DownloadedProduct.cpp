@@ -25,6 +25,7 @@ namespace SulDownloader
             , m_distributePath()
             , m_productHasChanged(false)
             , m_productUninstall(false)
+            , m_forceProductReinstall(false)
     {
 
     }
@@ -167,26 +168,6 @@ namespace SulDownloader
         m_productHasChanged = productHasChanged;
     }
 
-    const std::string& DownloadedProduct::getPostUpdateInstalledVersion() const
-    {
-        return m_postUpdateInstalledVersion;
-    }
-
-    void DownloadedProduct::setPostUpdateInstalledVersion(const std::string &postUpdateInstalledVersion)
-    {
-        m_postUpdateInstalledVersion = postUpdateInstalledVersion;
-    }
-
-    const std::string& DownloadedProduct::getPreUpdateInstalledVersion() const
-    {
-        return m_preUpdateInstalledVersion;
-    }
-
-    void DownloadedProduct::setPreUpdateInstalledVersion(const std::string &preUpdateInstalledVersion)
-    {
-        m_preUpdateInstalledVersion = preUpdateInstalledVersion;
-    }
-
     void DownloadedProduct::setProductIsBeingUninstalled(bool IsBeingUninstalled)
     {
         m_productUninstall = IsBeingUninstalled;
@@ -195,6 +176,16 @@ namespace SulDownloader
     bool DownloadedProduct::getProductIsBeingUninstalled() const
     {
         return m_productUninstall;
+    }
+
+    void DownloadedProduct::setForceProductReinstall(bool forceReinstall)
+    {
+        m_forceProductReinstall = forceReinstall;
+    }
+
+    bool DownloadedProduct::forceProductReinstall()
+    {
+        return m_forceProductReinstall;
     }
 
 

@@ -206,6 +206,19 @@ namespace SulDownloader
          */
         void setLogLevel( LogLevel level);
 
+        /**
+         * Set flag to force running the install scripts for all products
+         * @param forceReinstallAllProducts
+         */
+        void setForceReinstallAllProducts(const bool forceReinstallAllProducts);
+
+
+        /**
+         * Get flag used to indicate install.sh scripts for all products should be invoked during update.
+         * @return true if set, false otherwise.
+         */
+        bool getForceReinstallAllProducts() const;
+
 
         /**
          * Gets the list of arguments that need to be passed to all product install.sh scripts.
@@ -271,6 +284,7 @@ namespace SulDownloader
         std::vector<ProductGUID> m_productSelection;
         std::vector<std::string> m_installArguments;
         LogLevel m_logLevel;
+        bool m_forceReinstallAllProducts;
 
     };
 }
