@@ -79,4 +79,48 @@ namespace UpdateScheduler
         m_listener.abort();
     }
 
+
+    /**Factory */
+
+    SulDownloaderRunnerFactory::SulDownloaderRunnerFactory()
+    {
+        restoreCreator();
+    }
+
+    SulDownloaderRunnerFactory& SulDownloaderRunnerFactory::instance()
+    {
+        static SulDownloaderRunnerFactory factory;
+        return factory;
+    }
+
+    std::unique_ptr<ISulDownloaderRunner> SulDownloaderRunnerFactory::createSulDownloaderRunner(
+            std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+            const std::string& directoryToWatch,
+            const std::string& nameOfFileToWaitFor,
+            std::chrono::seconds timeout)
+    {
+        return m_creator(schedulerTaskQueue, directoryToWatch, nameOfFileToWaitFor, timeout);
+    }
+
+    void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator)
+    {
+        m_creator = creator;
+    }
+
+    void SulDownloaderRunnerFactory::restoreCreator()
+    {
+        m_creator = [](std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+                       const std::string& directoryToWatch,
+                       const std::string& nameOfFileToWaitFor,
+                       std::chrono::seconds timeout){ return std::unique_ptr<ISulDownloaderRunner>(new SulDownloaderRunner(schedulerTaskQueue, directoryToWatch, nameOfFileToWaitFor, timeout));   };
+    }
+
+
+    std::unique_ptr<ISulDownloaderRunner> createSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+                                                                                     const std::string& directoryToWatch,
+                                                                                     const std::string& nameOfFileToWaitFor,
+                                                                                     std::chrono::seconds timeout)
+    {
+        return SulDownloaderRunnerFactory::instance().createSulDownloaderRunner(schedulerTaskQueue, directoryToWatch, nameOfFileToWaitFor, timeout);
+    }
 }

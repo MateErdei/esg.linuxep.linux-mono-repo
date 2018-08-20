@@ -26,7 +26,8 @@ add_library(updateschedulerimpl SHARED
         UpdateScheduler.h
         UpdateScheduler.cpp
         UpdateSchedulerBootstrap.h
-        UpdateSchedulerBootstrap.cpp)
+        UpdateSchedulerBootstrap.cpp
+        ISulDownloaderRunner.h)
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
