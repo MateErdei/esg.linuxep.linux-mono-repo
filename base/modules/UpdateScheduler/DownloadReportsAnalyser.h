@@ -5,11 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
-#include <vector>
-#include <SulDownloader/DownloadReport.h>
 #include "UpdateEvent.h"
 #include "UpdateStatus.h"
+#include <SulDownloader/DownloadReport.h>
+#include <string>
+#include <vector>
+
+
 namespace UpdateScheduler
 {
 
@@ -17,7 +19,10 @@ namespace UpdateScheduler
     {
         UpdateEvent SchedulerEvent;
         UpdateStatus SchedulerStatus;
-        enum class SignificantReportMark {MustKeepReport, RedundantReport};
+        enum class SignificantReportMark
+        {
+            MustKeepReport, RedundantReport
+        };
         std::vector<SignificantReportMark> IndicesOfSignificantReports;
     };
 
@@ -40,26 +45,34 @@ namespace UpdateScheduler
          * @param reportCollection
          * @return ReportCollectionResult
          */
-        static ReportCollectionResult processReports( const std::vector<SulDownloader::DownloadReport> & reportCollection);
+        static ReportCollectionResult
+        processReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
 
 
         /**
          * Indirect call to the processReports that use the directory of suldownloader reports to list the reports.
          *
-         * It loads the SulDownloads from the directory path getSulDownloaderReportPath. Load the files into DownloadReport, sort them in chronological order before passing them to the
-         * overloaded method that handles vector of DownloadReport.
+         * It loads the SulDownloads from the directory path getSulDownloaderReportPath. Load the files into DownloadReport,
+         * sort them in chronological order before passing them to the overloaded method that handles vector of DownloadReport.
          *
          * @return ReportAndFiles
          */
         static ReportAndFiles processReports();
 
     private:
-        static ReportCollectionResult handleSuccessReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
-        static ReportCollectionResult handleFailureReports(const std::vector<SulDownloader::DownloadReport> & reportCollection);
-        static bool eventsAreDifferent( const UpdateEvent & lhs, const UpdateEvent & rhs);
-        static bool hasUpgrade( const SulDownloader::DownloadReport & report);
-        static int lastUpgrade( const std::vector<SulDownloader::DownloadReport> &);
-        static int lastGoodSync(const std::vector<SulDownloader::DownloadReport> &);
+        static ReportCollectionResult
+        handleSuccessReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
+
+        static ReportCollectionResult
+        handleFailureReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
+
+        static bool eventsAreDifferent(const UpdateEvent& lhs, const UpdateEvent& rhs);
+
+        static bool hasUpgrade(const SulDownloader::DownloadReport& report);
+
+        static int lastUpgrade(const std::vector<SulDownloader::DownloadReport>&);
+
+        static int lastGoodSync(const std::vector<SulDownloader::DownloadReport>&);
 
     };
 

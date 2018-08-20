@@ -4,26 +4,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "DownloadReportsAnalyser.h"
-
+#include "Logger.h"
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <algorithm>
 #include <cassert>
-#include "Logger.h"
+
+
 using namespace Common::UtilityImpl;
 namespace
 {
-    enum EventMessageNumber{SUCCESS=0, INSTALLFAILED=103, INSTALLCAUGHTERROR=106, DOWNLOADFAILED=107,
-            UPDATECANCELLED=108, RESTARTEDNEEDED=109, UPDATESOURCEMISSING=110,
-            SINGLEPACKAGEMISSING=111, CONNECTIONERROR=112, MULTIPLEPACKAGEMISSING=113  };
+    enum EventMessageNumber
+    {
+        SUCCESS = 0, INSTALLFAILED = 103, INSTALLCAUGHTERROR = 106, DOWNLOADFAILED = 107,
+        UPDATECANCELLED = 108, RESTARTEDNEEDED = 109, UPDATESOURCEMISSING = 110,
+        SINGLEPACKAGEMISSING = 111, CONNECTIONERROR = 112, MULTIPLEPACKAGEMISSING = 113
+    };
 
 
     void buildMessagesInsertFromDownloadReport(std::vector<UpdateScheduler::MessageInsert>* messages,
                                                const SulDownloader::DownloadReport& report)
     {
-        for ( auto & product : report.getProducts())
+        for (auto& product : report.getProducts())
         {
             if (!product.errorDescription.empty())
             {
@@ -46,21 +49,23 @@ namespace
 
     void handlePackageSourceMissing(UpdateScheduler::UpdateEvent* event, const SulDownloader::DownloadReport& report)
     {
-        std::vector<std::string> splittedEntries = Common::UtilityImpl::StringUtils::splitString(report.getDescription(), ";");
-        if ( splittedEntries.empty())
+        std::vector<std::string> splittedEntries = Common::UtilityImpl::StringUtils::splitString(
+                report.getDescription(), ";"
+        );
+        if (splittedEntries.empty())
         {
             event->MessageNumber = EventMessageNumber::SINGLEPACKAGEMISSING;
             return;
         }
-        if ( splittedEntries.size() == 1)
+        if (splittedEntries.size() == 1)
         {
             event->MessageNumber = EventMessageNumber::SINGLEPACKAGEMISSING;
-            event->Messages.emplace_back(splittedEntries[0],"");
+            event->Messages.emplace_back(splittedEntries[0], "");
         }
         else
         {
             event->MessageNumber = EventMessageNumber::MULTIPLEPACKAGEMISSING;
-            for(auto & entry: splittedEntries)
+            for (auto& entry: splittedEntries)
             {
                 event->Messages.emplace_back(entry, "");
             }
@@ -73,20 +78,20 @@ namespace
         switch (report.getStatus())
         {
             case SulDownloader::WarehouseStatus::SUCCESS:
-                event.MessageNumber =  EventMessageNumber::SUCCESS;
+                event.MessageNumber = EventMessageNumber::SUCCESS;
                 break;
             case SulDownloader::WarehouseStatus::CONNECTIONERROR:
-                event.MessageNumber =  EventMessageNumber::CONNECTIONERROR;
+                event.MessageNumber = EventMessageNumber::CONNECTIONERROR;
                 // no package name, just the error details
                 event.Messages.emplace_back("", report.getDescription());
                 break;
             case SulDownloader::WarehouseStatus::DOWNLOADFAILED:
                 event.MessageNumber = EventMessageNumber::DOWNLOADFAILED;
-                buildMessagesFromReport( &event.Messages, report);
+                buildMessagesFromReport(&event.Messages, report);
                 break;
             case SulDownloader::WarehouseStatus::INSTALLFAILED:
                 event.MessageNumber = EventMessageNumber::INSTALLFAILED;
-                buildMessagesFromReport( & event.Messages, report);
+                buildMessagesFromReport(&event.Messages, report);
                 break;
             case SulDownloader::WarehouseStatus::UNSPECIFIED:
                 event.MessageNumber = EventMessageNumber::INSTALLCAUGHTERROR;
@@ -96,7 +101,7 @@ namespace
                 handlePackageSourceMissing(&event, report);
                 break;
             default:
-                event.MessageNumber =  EventMessageNumber::INSTALLCAUGHTERROR;
+                event.MessageNumber = EventMessageNumber::INSTALLCAUGHTERROR;
                 event.Messages.emplace_back("", report.getDescription());
                 break;
         }
@@ -116,19 +121,18 @@ namespace
         status.LastResult = event.MessageNumber;
 
 
-        for ( auto & product: report.getProducts())
+        for (auto& product: report.getProducts())
         {
-            status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion, product.installedVersion);
+            status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion,
+                                         product.installedVersion
+            );
         }
         return status;
 
     }
 
 
-
-
 }
-
 
 
 namespace UpdateScheduler
@@ -139,27 +143,28 @@ namespace UpdateScheduler
     DownloadReportsAnalyser::processReports(const std::vector<SulDownloader::DownloadReport>& reportCollection)
     {
 
-        if ( reportCollection.empty())
+        if (reportCollection.empty())
         {
             return ReportCollectionResult();
         }
 
-        const SulDownloader::DownloadReport & lastReport = reportCollection.at(reportCollection.size()-1);
+        const SulDownloader::DownloadReport& lastReport = reportCollection.at(reportCollection.size() - 1);
 
-        if ( lastReport.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
+        if (lastReport.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
         {
-            return handleSuccessReports( reportCollection);
+            return handleSuccessReports(reportCollection);
         }
         else
         {
-            return handleFailureReports( reportCollection);
+            return handleFailureReports(reportCollection);
         }
     }
 
     ReportAndFiles DownloadReportsAnalyser::processReports()
     {
 
-        std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
+        std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(
+                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
         LOGSUPPORT("Process " << listFiles.size() << " suldownloader reports");
         struct FileAndDownloadReport
         {
@@ -170,14 +175,15 @@ namespace UpdateScheduler
 
         std::vector<FileAndDownloadReport> reportCollection;
 
-        for( auto & filepath: listFiles)
+        for (auto& filepath: listFiles)
         {
             try
             {
-                std::string content = Common::FileSystem::fileSystem()->readFile( filepath );
+                std::string content = Common::FileSystem::fileSystem()->readFile(filepath);
                 SulDownloader::DownloadReport fileReport = SulDownloader::DownloadReport::toReport(content);
                 reportCollection.push_back(FileAndDownloadReport{filepath, fileReport, fileReport.getStartTime()});
-            }catch (std::exception & ex)
+            }
+            catch (std::exception& ex)
             {
                 LOGERROR("Failed to process file: " << filepath);
                 LOGERROR(ex.what());
@@ -193,20 +199,21 @@ namespace UpdateScheduler
 
         ReportAndFiles reportAndFiles;
         std::vector<SulDownloader::DownloadReport> downloaderReports;
-        for( auto & reportEntry: reportCollection)
+        for (auto& reportEntry: reportCollection)
         {
             downloaderReports.push_back(reportEntry.report);
             reportAndFiles.sortedFilePaths.push_back(reportEntry.filepath);
         }
 
-        reportAndFiles.reportCollectionResult = processReports( downloaderReports);
+        reportAndFiles.reportCollectionResult = processReports(downloaderReports);
 
 
-        for( size_t i =0; i< downloaderReports.size(); i++)
+        for (size_t i = 0; i < downloaderReports.size(); i++)
         {
-            if ( reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] == ReportCollectionResult::SignificantReportMark::RedundantReport)
+            if (reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] ==
+                ReportCollectionResult::SignificantReportMark::RedundantReport)
             {
-                LOGSUPPORT("Report "<< reportAndFiles.sortedFilePaths[i] << " marked to be removed");
+                LOGSUPPORT("Report " << reportAndFiles.sortedFilePaths[i] << " marked to be removed");
             }
         }
 
@@ -226,12 +233,12 @@ namespace UpdateScheduler
     ReportCollectionResult
     DownloadReportsAnalyser::handleSuccessReports(const std::vector<SulDownloader::DownloadReport>& reportCollection)
     {
-        int lastIndex = reportCollection.size() -1;
-        assert( lastIndex>= 0);
+        int lastIndex = reportCollection.size() - 1;
+        assert(lastIndex >= 0);
         int indexOfLastUpgrade = lastUpgrade(reportCollection);
         ReportCollectionResult collectionResult;
 
-        const SulDownloader::DownloadReport & lastReport = reportCollection.at(lastIndex);
+        const SulDownloader::DownloadReport& lastReport = reportCollection.at(lastIndex);
 
         collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
 
@@ -249,14 +256,17 @@ namespace UpdateScheduler
         collectionResult.SchedulerStatus.FirstFailedTime.clear();
 
 
+        collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(
+                reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport
+        );
+        collectionResult.IndicesOfSignificantReports.at(lastIndex
+        ) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
 
-        collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport);
-        collectionResult.IndicesOfSignificantReports.at(lastIndex) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
-
-        if ( indexOfLastUpgrade != -1)
+        if (indexOfLastUpgrade != -1)
         {
             // the latest upgrade holds the LastInstallStartedTime
-            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade).getStartTime();
+            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade
+            ).getStartTime();
         }
 
         // cover the following cases: No upgrade, only one element, the last element has upgrade.
@@ -268,18 +278,22 @@ namespace UpdateScheduler
 
         // last one was not an upgrade
 
-        collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade).getStartTime();
+        collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade
+        ).getStartTime();
 
-        collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+        collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade
+        ) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
 
         // is the event relevant?
         // there is at least two elements.
-        int previousIndex = lastIndex -1;
+        int previousIndex = lastIndex - 1;
         // if previous one was an error, send event, otherwise do not send.
-        collectionResult.SchedulerEvent.IsRelevantToSend = reportCollection.at(previousIndex).getStatus() != SulDownloader::WarehouseStatus::SUCCESS;
+        collectionResult.SchedulerEvent.IsRelevantToSend =
+                reportCollection.at(previousIndex).getStatus() != SulDownloader::WarehouseStatus::SUCCESS;
 
         // if previous one had source url different from current, send event
-        collectionResult.SchedulerEvent.IsRelevantToSend = reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
+        collectionResult.SchedulerEvent.IsRelevantToSend =
+                reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
 
         return collectionResult;
     }
@@ -288,13 +302,13 @@ namespace UpdateScheduler
     ReportCollectionResult
     DownloadReportsAnalyser::handleFailureReports(const std::vector<SulDownloader::DownloadReport>& reportCollection)
     {
-        int lastIndex = reportCollection.size() -1;
-        assert( lastIndex>= 0);
+        int lastIndex = reportCollection.size() - 1;
+        assert(lastIndex >= 0);
         int indexOfLastGoodSync = lastGoodSync(reportCollection);
         int indexOfLastUpgrade = lastUpgrade(reportCollection);
         ReportCollectionResult collectionResult;
 
-        const SulDownloader::DownloadReport & lastReport = reportCollection.at(lastIndex);
+        const SulDownloader::DownloadReport& lastReport = reportCollection.at(lastIndex);
 
         collectionResult.SchedulerEvent = extractEventFromSingleReport(lastReport);
 
@@ -305,47 +319,57 @@ namespace UpdateScheduler
         // FirstFailedTime;
         collectionResult.SchedulerStatus = extractStatusFromSingleReport(lastReport, collectionResult.SchedulerEvent);
 
-        collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport);
-        collectionResult.IndicesOfSignificantReports.at(lastIndex) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+        collectionResult.IndicesOfSignificantReports = std::vector<ReportCollectionResult::SignificantReportMark>(
+                reportCollection.size(), ReportCollectionResult::SignificantReportMark::RedundantReport
+        );
+        collectionResult.IndicesOfSignificantReports.at(lastIndex
+        ) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
 
 
-        if ( indexOfLastUpgrade != -1)
+        if (indexOfLastUpgrade != -1)
         {
             // the latest upgrade holds the LastInstallStartedTime
-            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade).getStartTime();
+            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade
+            ).getStartTime();
             collectionResult.IndicesOfSignificantReports[indexOfLastUpgrade] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
         }
 
-        if( indexOfLastGoodSync != -1 )
+        if (indexOfLastGoodSync != -1)
         {
 
             collectionResult.SchedulerStatus.LastSyncTime = reportCollection.at(indexOfLastGoodSync).getSyncTime();
             // indexOfLastGoodSync + 1 must exists and it must be the first time synchronization failed.
-            collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(indexOfLastGoodSync+1).getStartTime();
+            collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(indexOfLastGoodSync + 1
+            ).getStartTime();
 
             collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
-            collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync+1] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+            collectionResult.IndicesOfSignificantReports[indexOfLastGoodSync +
+                                                         1] = ReportCollectionResult::SignificantReportMark::MustKeepReport;
         }
         else
         {
             collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(0).getStartTime();
         }
 
-        if( reportCollection.size() == 1)
+        if (reportCollection.size() == 1)
         {
             collectionResult.SchedulerEvent.IsRelevantToSend = true;
             return collectionResult;
         }
 
-        UpdateEvent previousEvent = extractEventFromSingleReport(reportCollection.at(lastIndex-1));
+        UpdateEvent previousEvent = extractEventFromSingleReport(reportCollection.at(lastIndex - 1));
 
-        collectionResult.SchedulerEvent.IsRelevantToSend = eventsAreDifferent(collectionResult.SchedulerEvent, previousEvent);
+        collectionResult.SchedulerEvent.IsRelevantToSend = eventsAreDifferent(collectionResult.SchedulerEvent,
+                                                                              previousEvent
+        );
 
 
         // if the current report does not report products, we still need to list them, but we can do it only if there is at least one LastGoodSync
-        if ( collectionResult.SchedulerStatus.Products.empty() &&  indexOfLastGoodSync != -1)
+        if (collectionResult.SchedulerStatus.Products.empty() && indexOfLastGoodSync != -1)
         {
-            auto statusWithProducts = extractStatusFromSingleReport(reportCollection.at(indexOfLastGoodSync), previousEvent);
+            auto statusWithProducts = extractStatusFromSingleReport(reportCollection.at(indexOfLastGoodSync),
+                                                                    previousEvent
+            );
             collectionResult.SchedulerStatus.Products = statusWithProducts.Products;
         }
 
@@ -355,11 +379,11 @@ namespace UpdateScheduler
 
     bool DownloadReportsAnalyser::hasUpgrade(const SulDownloader::DownloadReport& report)
     {
-        if ( report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
+        if (report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
         {
-            for( auto & product: report.getProducts())
+            for (auto& product: report.getProducts())
             {
-                if ( product.productStatus == SulDownloader::ProductReport::ProductStatus::Upgraded)
+                if (product.productStatus == SulDownloader::ProductReport::ProductStatus::Upgraded)
                 {
                     return true;
                 }
@@ -368,36 +392,41 @@ namespace UpdateScheduler
         return false;
     }
 
-    int DownloadReportsAnalyser::lastUpgrade(const std::vector<SulDownloader::DownloadReport> & reports)
+    int DownloadReportsAnalyser::lastUpgrade(const std::vector<SulDownloader::DownloadReport>& reports)
     {
-        auto rind = std::find_if( reports.rbegin(), reports.rend(),[](const SulDownloader::DownloadReport& report){return hasUpgrade(report);  } );
-        return std::distance(reports.begin(), rind.base())-1;
+        auto rind = std::find_if(reports.rbegin(), reports.rend(),
+                                 [](const SulDownloader::DownloadReport& report) { return hasUpgrade(report); }
+        );
+        return std::distance(reports.begin(), rind.base()) - 1;
     }
 
-    int DownloadReportsAnalyser::lastGoodSync(const std::vector<SulDownloader::DownloadReport> & reports)
+    int DownloadReportsAnalyser::lastGoodSync(const std::vector<SulDownloader::DownloadReport>& reports)
     {
-        auto rind = std::find_if( reports.rbegin(), reports.rend(),[](const SulDownloader::DownloadReport& report){return report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS;  } );
-        return std::distance(reports.begin(), rind.base())-1;
+        auto rind = std::find_if(reports.rbegin(), reports.rend(), [](const SulDownloader::DownloadReport& report) {
+                                     return report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS;
+                                 }
+        );
+        return std::distance(reports.begin(), rind.base()) - 1;
     }
 
-    bool DownloadReportsAnalyser::eventsAreDifferent(const UpdateEvent &lhs, const UpdateEvent &rhs)
+    bool DownloadReportsAnalyser::eventsAreDifferent(const UpdateEvent& lhs, const UpdateEvent& rhs)
     {
-        if( lhs.MessageNumber != rhs.MessageNumber || lhs.UpdateSource != rhs.UpdateSource)
+        if (lhs.MessageNumber != rhs.MessageNumber || lhs.UpdateSource != rhs.UpdateSource)
         {
             return true;
         }
 
-        if ( lhs.Messages.size() != rhs.Messages.size())
+        if (lhs.Messages.size() != rhs.Messages.size())
         {
             return true;
         }
-        for(size_t i = 0; i< lhs.Messages.size(); i++)
+        for (size_t i = 0; i < lhs.Messages.size(); i++)
         {
-            if( lhs.Messages[i].PackageName != rhs.Messages[i].PackageName)
+            if (lhs.Messages[i].PackageName != rhs.Messages[i].PackageName)
             {
                 return true;
             }
-            if( lhs.Messages[i].ErrorDetails != rhs.Messages[i].ErrorDetails)
+            if (lhs.Messages[i].ErrorDetails != rhs.Messages[i].ErrorDetails)
             {
                 return true;
             }
