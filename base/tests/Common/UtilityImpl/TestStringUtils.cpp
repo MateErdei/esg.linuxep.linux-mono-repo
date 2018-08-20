@@ -54,3 +54,27 @@ TEST(TestStringUtils, replace) //NOLINT
             ""
             );
 }
+
+TEST(TestStringUtils, orderedStringReplace) //NOLINT
+{
+    EXPECT_EQ(StringUtils::orderedStringReplace("Hello @@name@@",{{"@@name@@","sophos"}}),"Hello sophos");
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @b@",{{"@a@","first"}, {"@b@", "second"}}),"first second");
+    // it is ordered. It will only replace @a@ that it shown after @b@
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @b@",{{"@b@", "second"}, {"@a@","first"}}),"@a@ second");
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @b@ @a@",{{"@b@", "second"}, {"@a@","first"}}),"@a@ second first");
+    // only first match is replaced
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @a@",{{"@a@","first"}}),"first @a@");
+
+    // if the first element is not present, nothing changes
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @a@",{{"@b@","not there"}, {"@a@","first"}}),"@a@ @a@");
+
+
+    // key may be repeated
+    EXPECT_EQ(StringUtils::orderedStringReplace("@a@ @a@",{{"@a@","first"}, {"@a@","other"}}),"first other");
+
+
+    //empty always produces empty
+    EXPECT_EQ(StringUtils::orderedStringReplace("",{{"@a@","first"}, {"@a@","other"}}),"");
+
+}
+
