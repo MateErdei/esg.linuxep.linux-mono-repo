@@ -11,13 +11,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <algorithm>
 #include <cassert>
-
+#include "Logger.h"
 using namespace Common::UtilityImpl;
 namespace
 {
     enum EventMessageNumber{SUCCESS=0, INSTALLFAILED=103, INSTALLCAUGHTERROR=106, DOWNLOADFAILED=107,
             UPDATECANCELLED=108, RESTARTEDNEEDED=109, UPDATESOURCEMISSING=110,
-            PACKAGESOURCEMISSING=111, CONNECTIONERROR=112, PACKAGESSOURCESMISSING=113  };
+            SINGLEPACKAGEMISSING=111, CONNECTIONERROR=112, MULTIPLEPACKAGEMISSING=113  };
 
 
 
@@ -50,17 +50,17 @@ namespace
         std::vector<std::string> splittedEntries = Common::UtilityImpl::StringUtils::splitString(report.getDescription(), ";");
         if ( splittedEntries.empty())
         {
-            event->MessageNumber = EventMessageNumber::PACKAGESOURCEMISSING;
+            event->MessageNumber = EventMessageNumber::SINGLEPACKAGEMISSING;
             return;
         }
         if ( splittedEntries.size() == 1)
         {
-            event->MessageNumber = EventMessageNumber::PACKAGESOURCEMISSING;
+            event->MessageNumber = EventMessageNumber::SINGLEPACKAGEMISSING;
             event->Messages.emplace_back(splittedEntries[0],"");
         }
         else
         {
-            event->MessageNumber = EventMessageNumber::PACKAGESSOURCESMISSING;
+            event->MessageNumber = EventMessageNumber::MULTIPLEPACKAGEMISSING;
             for(auto & entry: splittedEntries)
             {
                 event->Messages.emplace_back(entry, "");
@@ -157,8 +157,9 @@ namespace UpdateScheduler
 
     ReportAndFiles DownloadReportsAnalyser::processReports()
     {
-        std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
+        std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
+        LOGSUPPORT("Process " << listFiles.size() << " suldownloader reports");
         struct FileAndDownloadReport
         {
             std::string filepath;
@@ -177,7 +178,8 @@ namespace UpdateScheduler
                 reportCollection.push_back(FileAndDownloadReport{filepath, fileReport, fileReport.getStartTime()});
             }catch (std::exception & ex)
             {
-                // todo log error
+                LOGERROR("Failed to process file: " << filepath);
+                LOGERROR(ex.what());
             }
         }
 
@@ -193,6 +195,16 @@ namespace UpdateScheduler
         }
 
         reportAndFiles.reportCollectionResult = processReports( downloaderReports);
+
+
+        for( size_t i =0; i< downloaderReports.size(); i++)
+        {
+            if ( reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] == ReportCollectionResult::SignificantReportMark::RedundantReport)
+            {
+                LOGSUPPORT("Report "<< reportAndFiles.sortedFilePaths[i] << " marked to be removed");
+            }
+        }
+
 
         return reportAndFiles;
     }
