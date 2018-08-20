@@ -12,23 +12,41 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace Common::UtilityImpl;
 
+int advanceFromLocalToUTC()
+{
+    time_t current = time(nullptr);
+    struct tm localTime;
+    struct tm utcTime;
+    localtime_r(&current, &localTime );
+    gmtime_r(&current, &utcTime);
+    utcTime.tm_isdst = 0;
+
+    time_t recoverLocal = mktime(&localTime);
+    time_t recoverUTC = mktime(&utcTime);
+    if( utcTime.tm_isdst >0 )
+    {
+        recoverUTC += 3600;
+    }
+    return recoverUTC - recoverLocal;
+}
+
+
 time_t extractTimeFromString( const std::string & stringRepresentedTime)
 {
     assert(stringRepresentedTime.size() == 15);
-    struct tm tm;
-    strptime(stringRepresentedTime.data(), "%Y%m%d %H%M%S", &tm);
-    time_t t = mktime(&tm);
-    if( tm.tm_isdst)
-    {
-        t -= 3600;
-    }
-    return t;
+    struct tm localtimeTM;
+    strptime(stringRepresentedTime.data(), "%Y%m%d %H%M%S", &localtimeTM);
+
+    time_t localTimeT = mktime(&localtimeTM);
+    time_t utcTime = localTimeT - advanceFromLocalToUTC();
+    return utcTime;
+
 }
 
 
 TEST(TestTimeUtils, extractTimeFromString) // NOLINT
 {
-    std::string timestamp = "20180816 153800";
+    std::string timestamp = "20180816 153800"; // local time in uk
     time_t time1 = 1534430280;
     ASSERT_EQ( extractTimeFromString(timestamp),  time1);
     ASSERT_EQ( TimeUtils::fromTime(time1), timestamp);
