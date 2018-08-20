@@ -48,7 +48,6 @@ TEST(TestTimeUtils, extractTimeFromString) // NOLINT
 {
     std::string timestamp = "20180816 153800"; // local time in uk
     time_t time1 = 1534430280;
-    EXPECT_EQ( extractTimeFromString(timestamp),  time1);
     EXPECT_EQ( TimeUtils::fromTime(time1), timestamp);
 }
 /**
