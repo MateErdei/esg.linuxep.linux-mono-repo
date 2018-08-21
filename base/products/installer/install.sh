@@ -28,6 +28,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
+MCS_MESSAGE_RELAYS=${MCS_MESSAGE_RELAYS:-}
 MCS_CA=${MCS_CA:-}
 
 while [[ $# -ge 1 ]] ; do
@@ -36,7 +37,6 @@ while [[ $# -ge 1 ]] ; do
             shift
             export SOPHOS_INSTALL=$1
             ;;
-
         --mcs-token)
             shift
             MCS_TOKEN=$1
@@ -200,10 +200,12 @@ mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 mkdir -p "${SOPHOS_INSTALL}/base/update/certs"
+mkdir -p "${SOPHOS_INSTALL}/base/update/var"
 mkdir -p "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
 chmod 700 "${SOPHOS_INSTALL}/base/update/certs"
+chmod 700 "${SOPHOS_INSTALL}/base/update/var"
 chmod 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 
 
@@ -222,6 +224,24 @@ export LD_LIBRARY_PATH="$DIST/files/base/lib64:${INSTALLER_LIB}"
 mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
 
+chmod u+x "$DIST/files/base/bin"/*
+"$DIST/files/base/bin/manifestdiff" \
+    --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
+    --new="$DIST/manifest.dat" \
+    --added="${SOPHOS_INSTALL}/tmp/addedFiles" \
+    --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
+    --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
+
+
+CLEAN_INSTALL=1
+[[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && CLEAN_INSTALL=0
+
+function changedOrAdded()
+{
+    local TARGET="$1"
+    grep -q "^${TARGET}\$" "${SOPHOS_INSTALL}/tmp/addedFiles" "${SOPHOS_INSTALL}/tmp/changedFiles" >/dev/null
+}
+
 for F in $(find "$DIST/files" -type f)
 do
     "$DIST/files/base/bin/versionedcopy" "$F" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
@@ -238,10 +258,7 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 for F in "$DIST/installer/plugins"/*
 do
-    if changedOrAdded ${F#"$DIST"/}
-    then
-       "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
-    fi
+    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
 done
 
 chmod 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
@@ -250,19 +267,31 @@ chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 rm -rf "${INSTALLER_LIB}"
 
-if [[ -n "$MCS_CA" ]]
+if (( $CLEAN_INSTALL == 1 ))
 then
-    export MCS_CA
-fi
-if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
-then
-    ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+    if [[ -n "$MCS_CA" ]]
+    then
+        export MCS_CA
+    fi
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+    then
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+    fi
 fi
 
-createUpdaterSystemdService
-createWatchdogSystemdService
-waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
-if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+if changedOrAdded install.sh
 then
-    waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+    createUpdaterSystemdService
+    createWatchdogSystemdService
 fi
+
+if (( $CLEAN_INSTALL == 1 ))
+then
+    waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+    then
+        waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+    fi
+fi
+
+cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
