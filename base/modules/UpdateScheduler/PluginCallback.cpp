@@ -4,6 +4,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/PluginApi/ApiException.h>
 #include "SchedulerPluginCallback.h"
 #include "Logger.h"
 
@@ -19,29 +20,36 @@ namespace UpdateScheduler
     void SchedulerPluginCallback::applyNewPolicy(const std::string &policyXml)
     {
         LOGSUPPORT("Applying new policy");
+        m_task->push(SchedulerTask{SchedulerTask::TaskType::Policy, policyXml});
     }
 
     void SchedulerPluginCallback::queueAction(const std::string &actionXml)
     {
         LOGSUPPORT("Queueing action");
-
+        m_task->push(SchedulerTask{SchedulerTask::TaskType::UpdateNow, actionXml});
     }
 
     void SchedulerPluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
+        m_task->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
 
     }
 
     Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string &appId)
     {
         LOGSUPPORT("Received get status request");
+        if (m_statusInfo.statusXml.empty())
+        {
+            throw Common::PluginApi::ApiException("Status not set yet. ");
+        }
         return m_statusInfo;
     }
 
     void SchedulerPluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
         LOGSUPPORT("Setting status");
+        m_statusInfo = statusInfo;
 
     }
 
