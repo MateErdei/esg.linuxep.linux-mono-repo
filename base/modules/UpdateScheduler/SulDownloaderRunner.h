@@ -7,17 +7,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "SchedulerTaskQueue.h"
-#include "ISulDownloaderRunner.h"
+
 #include "SulDownloaderResultDirectoryListener.h"
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/Process/IProcess.h>
-#include <functional>
 
 
 namespace UpdateScheduler
 {
-    class SulDownloaderRunner : public  virtual ISulDownloaderRunner
+    class SulDownloaderRunner
     {
     public:
         SulDownloaderRunner(
@@ -41,26 +40,5 @@ namespace UpdateScheduler
         std::tuple<int, std::string> startUpdateService();
     };
 
-    class SulDownloaderRunnerFactory
-    {
-        SulDownloaderRunnerFactory();
 
-    public:
-        using FunctionType = std::function<std::unique_ptr<ISulDownloaderRunner>(std::shared_ptr<SchedulerTaskQueue>, const std::string& ,
-                                                                                 const std::string&, std::chrono::seconds)>;
-
-        static SulDownloaderRunnerFactory & instance();
-        std::unique_ptr<ISulDownloaderRunner> createSulDownloaderRunner(
-                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
-                const std::string& directoryToWatch,
-                const std::string& nameOfFileToWaitFor,
-                std::chrono::seconds timeout);
-        // for tests only
-        void replaceCreator(FunctionType creator);
-
-        void restoreCreator();
-
-    private:
-        FunctionType m_creator;
-    };
 }

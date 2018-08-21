@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateScheduler/ISulDownloaderRunner.h>
+#include <UpdateScheduler/SulDownloaderRunner.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/TestHelpers/TempDir.h>
@@ -56,9 +56,9 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    auto runner = createSulDownloaderRunner (queue, tempDir->dirPath(), "report.json", std::chrono::seconds(5));
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(5));
     auto futureRunner = std::async(std::launch::async, [&runner]() {
-        runner->run();
+        runner.run();
     });
 
     // Write a report json file.
@@ -87,9 +87,9 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    auto runner = createSulDownloaderRunner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(3));
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(3));
     std::thread runnerThread([&runner]() {
-        runner->run();
+        runner.run();
     });
 
     auto fut = std::async(std::launch::async,  [&tempDir]() {
@@ -116,9 +116,9 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner which will timeout after 1 second of waiting and run it.
-    auto runner = createSulDownloaderRunner(queue, "/tmp", "some-string", std::chrono::seconds(1));
+    SulDownloaderRunner runner(queue, "/tmp", "some-string", std::chrono::seconds(1));
     std::thread runnerThread([&runner]() {
-        runner->run();
+        runner.run();
     });
 
     runnerThread.join();
@@ -139,12 +139,12 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    auto runner = createSulDownloaderRunner(queue, "/tmp", "report.json", std::chrono::seconds(10));
+    SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
     std::thread runnerThread([&runner]() {
-        runner->run();
+        runner.run();
     });
 
-    runner->abortWaitingForReport();
+    runner.abortWaitingForReport();
     runnerThread.join();
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderWasAborted);
@@ -164,12 +164,12 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    auto runner = createSulDownloaderRunner(queue, "/tmp", "report.json", std::chrono::seconds(10));
+    SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
     std::thread runnerThread([&runner]() {
-        runner->run();
+        runner.run();
     });
 
-    runner->abortWaitingForReport();
+    runner.abortWaitingForReport();
     runnerThread.join();
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFailedToStart);

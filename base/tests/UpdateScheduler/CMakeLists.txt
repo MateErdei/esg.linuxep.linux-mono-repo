@@ -3,7 +3,14 @@ add_executable(UpdateSchedulerTests
         TestUpdatePolicyTranslator.cpp
         TestUpdateActionParser.cpp
         TestCronSchedulerThread.cpp
-        TestSulDownloaderRunner.cpp)
+        TestDownloadReportsAnalyser.cpp
+        TestUpdateEvent.cpp
+        DownloadReportTestBuilder.h
+        MockMapHostCacheId.h
+        TestUpdateStatus.cpp
+        TestSulDownloaderRunner.cpp TestAsyncSulDownloaderRunner.cpp)
+
+set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 
 target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(UpdateSchedulerTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")

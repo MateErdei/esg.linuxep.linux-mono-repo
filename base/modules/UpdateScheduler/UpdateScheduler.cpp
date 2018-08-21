@@ -8,7 +8,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "SchedulerTaskQueue.h"
 #include "UpdatePolicyTranslator.h"
-#include "ISulDownloaderRunner.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 
