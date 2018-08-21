@@ -206,9 +206,11 @@ namespace Common
                         std::string fileContent = FileSystem::fileSystem()->readFile(pluginInfoFile);
                         pluginInfoList.emplace_back(deserializeFromString(fileContent, pluginName));
                     }
-                    catch(PluginRegistryException &)
+                    catch (PluginRegistryException& ex)
                     {
                         LOGWARN("Failed to load plugin information from file: " << pluginInfoFile);
+                        std::string reason = ex.what();
+                        LOGSUPPORT(reason);
                         continue;
                     }
                     catch(Common::FileSystem::IFileSystemException &)

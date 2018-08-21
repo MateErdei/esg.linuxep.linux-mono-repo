@@ -29,7 +29,7 @@ namespace UpdateScheduler
         auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>(queueTask);
 
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(
-                "UpdateScheduler", sharedPluginCallBack
+                "updatescheduler", sharedPluginCallBack
         );
         // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);

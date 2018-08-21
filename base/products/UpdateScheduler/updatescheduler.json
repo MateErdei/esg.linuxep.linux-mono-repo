@@ -5,6 +5,6 @@
   "statusAppIds": [
     "ALC"
   ],
-  "pluginName": "UpdateScheduler",
+  "pluginName": "updatescheduler",
   "executableFullPath": "base/bin/UpdateScheduler"
 }
