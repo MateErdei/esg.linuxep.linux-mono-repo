@@ -169,9 +169,10 @@ namespace UpdateScheduler
 
     ReportAndFiles DownloadReportsAnalyser::processReports()
     {
-
         std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
+        std::string configFile = Common::ApplicationConfiguration::applicationPathManager()
+                .getSulDownloaderConfigFilePath();
         LOGSUPPORT("Process " << listFiles.size() << " suldownloader reports");
         struct FileAndDownloadReport
         {
@@ -186,6 +187,10 @@ namespace UpdateScheduler
         {
             try
             {
+                if (filepath == configFile)
+                {
+                    continue;
+                }
                 std::string content = Common::FileSystem::fileSystem()->readFile(filepath);
                 SulDownloader::DownloadReport fileReport = SulDownloader::DownloadReport::toReport(content);
                 reportCollection.push_back(FileAndDownloadReport{filepath, fileReport, fileReport.getStartTime()});

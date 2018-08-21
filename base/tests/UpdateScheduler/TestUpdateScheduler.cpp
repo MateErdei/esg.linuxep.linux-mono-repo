@@ -16,6 +16,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <future>
+#include <modules/Common/ProcessImpl/ProcessImpl.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
 
 namespace
 {
@@ -181,6 +183,35 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
   <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>
 )sophos"};
+
+    std::string updateAction{R"sophos(<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>)sophos"};
+    std::string downloadReport{R"sophos({ "startTime": "20180810 10:00:00",
+ "finishTime": "20180810 11:00:00",
+ "syncTime": "20180810 11:00:00",
+ "status": "SUCCESS",
+ "sulError": "",
+ "errorDescription": "",
+ "urlSource": "cache1",
+ "products": [
+  {
+   "rigidName": "BaseRigidName",
+   "productName": "BaseName",
+   "installedVersion": "0.5.0",
+   "downloadVersion": "0.5.0",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  },
+  {
+   "rigidName": "PluginRigidName",
+   "productName": "PluginName",
+   "installedVersion": "0.5.0",
+   "downloadVersion": "0.5.0",
+   "errorDescription": "",
+   "productStatus": "UPGRADED"
+  }
+ ]
+}
+)sophos"};
 }
 
 
@@ -201,11 +232,18 @@ public:
                 Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot"
         );
 
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+                                                                           auto mockProcess = new StrictMock<MockProcess>();
+                                                                           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+                                                                       }
+        );
+
     }
 
     void TearDown() override
     {
         Common::FileSystem::restoreFileSystem();
+        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }
 
     MockFileSystem& setupFileSystemMock()
@@ -230,6 +268,7 @@ TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
     EXPECT_CALL(*cron, start());
+    EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
     UpdateScheduler::UpdateSchedulerProcessor
@@ -256,6 +295,7 @@ TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
+    EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
     UpdateScheduler::UpdateSchedulerProcessor
@@ -287,6 +327,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
+    EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
     UpdateScheduler::UpdateSchedulerProcessor
@@ -309,4 +350,61 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
 
 }
 
+
+TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setPeriodTime(time));
+    // update now restart the chron time
+    EXPECT_CALL(*cron, reset());
+    EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*runner, triggerSulDownloader());
+
+    UpdateScheduler::UpdateSchedulerProcessor
+    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
+                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    std::string reportPath = Common::ApplicationConfiguration::applicationPathManager()
+            .getSulDownloaderReportGeneratedFilePath();
+
+    auto& fileSystemMock = setupFileSystemMock();
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
+            .WillOnce(Return(false)) // after policy no report exist
+            .WillOnce(Return(true))  // after the first report is created
+            .WillOnce(Return(false)); // after checking if it is safe to move file
+    EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
+    // the real name would be different as the file has been moved. But, ignoring here.
+    std::vector<std::string> files{reportPath, "/installroot/base/update/var/config.json"};
+    std::vector<std::string> noReportFiles{"/installroot/base/update/var/config.json"};
+    EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
+            .WillOnce(Return(noReportFiles)) // after policy it process current reports (empty)
+            .WillOnce(Return(files)); // report generated by suldownloader
+    EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReport));
+
+    EXPECT_CALL(*api, sendEvent("ALC", _));
+    EXPECT_CALL(*api, sendStatus("ALC", _, _));
+
+    std::future<void> schedulerRunHandle = std::async(std::launch::async,
+                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
+    );
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithProxy});
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::UpdateNow, updateAction});
+
+    // on success... runner will add task to the queue
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::SulDownloaderFinished, ""});
+
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    schedulerRunHandle.get(); // synchronize stop
+
+}
 

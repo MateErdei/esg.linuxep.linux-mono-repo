@@ -602,7 +602,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     };
 
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
-
+    std::string d = SulDownloader::DownloadReport::fromReport(reports.at(0));
     UpdateEvent expectedEvent = upgradeEvent();
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
