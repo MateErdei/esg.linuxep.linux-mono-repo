@@ -126,7 +126,7 @@ namespace SulDownloader
         /**
          * @return true of the product needs to be reinstalled, false otherwise
          */
-        bool forceProductReinstall();
+        bool forceProductReinstall() const;
 
 
     private :

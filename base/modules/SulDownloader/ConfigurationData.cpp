@@ -41,6 +41,7 @@ namespace SulDownloader
     , m_proxy(proxy)
     , m_state(State::Initialized)
     , m_logLevel( LogLevel::NORMAL)
+    , m_forceReinstallAllProducts(false)
     {
         setSophosUpdateUrls(sophosLocationURL);
     }

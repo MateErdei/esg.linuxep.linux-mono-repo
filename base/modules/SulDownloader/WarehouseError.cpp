@@ -60,6 +60,10 @@ namespace SulDownloader
         {
             *status = PACKAGESOURCEMISSING;
         }
+        else if (serializedStatus == "UNINSTALLFAILED" )
+        {
+            *status = UNINSTALLFAILED;
+        }
         else
         {
             *status = UNSPECIFIED;

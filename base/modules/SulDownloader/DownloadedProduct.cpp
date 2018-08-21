@@ -183,7 +183,7 @@ namespace SulDownloader
         m_forceProductReinstall = forceReinstall;
     }
 
-    bool DownloadedProduct::forceProductReinstall()
+    bool DownloadedProduct::forceProductReinstall() const
     {
         return m_forceProductReinstall;
     }

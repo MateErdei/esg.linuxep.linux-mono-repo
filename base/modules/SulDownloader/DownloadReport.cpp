@@ -215,8 +215,8 @@ namespace SulDownloader
             }
             else
             {
-                productReportEntry.productStatus = product.productHasChanged() ? ProductReport::ProductStatus::Upgraded
-                                                                               : ProductReport::ProductStatus::UpToDate;
+                productReportEntry.productStatus = (product.productHasChanged() || product.forceProductReinstall())?   ProductReport::ProductStatus::Upgraded
+                                                                                                                     : ProductReport::ProductStatus::UpToDate;
                 if (!productReportEntry.errorDescription.empty())
                 {
                     if (!product.getProductIsBeingUninstalled())
