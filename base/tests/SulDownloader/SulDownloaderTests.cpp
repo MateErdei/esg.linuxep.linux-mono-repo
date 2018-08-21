@@ -20,20 +20,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/DownloadReport.h>
 #include <SulDownloader/SulDownloader.h>
 #include <SulDownloader/SulDownloaderException.h>
-
+#include <SulDownloader/TimeTracker.h>
 #include <SulDownloader/VersigImpl.h>
+
 #include <Common/ProcessImpl/ArgcAndEnv.h>
 #include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
 
+#include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/SulDownloader/TimeTracker.h>
+
 
 using SulDownloaderProto::ConfigurationSettings;
 
@@ -359,12 +359,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessWhileForcingUpdateAsPreviousDownl
                                                                    }
     );
 
-
-
-
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
-
-
 }
 
 
@@ -410,10 +405,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
-
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
-
-
 }
 
 TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
@@ -468,12 +460,9 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
                                                                    }
                                                                    );
 
-
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
-
-
 }
 
 TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
@@ -526,12 +515,9 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedUn
                                                                    }
     );
 
-
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), SulDownloader::WarehouseStatus::UNINSTALLFAILED);
-
-
 }
 
 
@@ -747,8 +733,6 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
         return std::unique_ptr<SulDownloader::IVersig>(versig);
     });
 
-
-
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
     productReports[0].productStatus = ProductReport::ProductStatus::VerifyFailed;
     productReports[1].productStatus = ProductReport::ProductStatus::VerifyFailed;
@@ -823,9 +807,6 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
         }
     }
     );
-
-
-
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
     productReports[1].errorDescription = "Product Everest-Plugins-A failed to install";
@@ -902,9 +883,6 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
            }
        }
     );
-
-
-
 
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
     productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;

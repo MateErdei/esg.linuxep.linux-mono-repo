@@ -3,8 +3,6 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <cassert>
-#include <sstream>
 
 #include "WarehouseRepository.h"
 #include "DownloadedProduct.h"
@@ -12,8 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULUtils.h"
 #include "SULRaii.h"
 #include "Logger.h"
-
 #include "SulDownloaderException.h"
+#include <cassert>
+#include <sstream>
 
 namespace
 {
