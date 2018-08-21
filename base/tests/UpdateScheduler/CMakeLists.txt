@@ -8,7 +8,7 @@ add_executable(UpdateSchedulerTests
         DownloadReportTestBuilder.h
         MockMapHostCacheId.h
         TestUpdateStatus.cpp
-        TestSulDownloaderRunner.cpp TestAsyncSulDownloaderRunner.cpp)
+        TestSulDownloaderRunner.cpp TestAsyncSulDownloaderRunner.cpp TestUpdateScheduler.cpp MockAsyncDownloaderRunner.h MockCronSchedulerThread.h)
 
 set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
 

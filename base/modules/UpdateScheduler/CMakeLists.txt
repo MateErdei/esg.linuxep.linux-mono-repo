@@ -23,8 +23,8 @@ add_library(updateschedulerimpl SHARED
         Logger.h
         LoggingSetup.h
         LoggingSetup.cpp
-        UpdateScheduler.h
-        UpdateScheduler.cpp
+        UpdateSchedulerProcessor.h
+        UpdateSchedulerProcessor.cpp
         UpdateSchedulerBootstrap.h
         UpdateSchedulerBootstrap.cpp
         SulDownloaderRunnerFactory.cpp SulDownloaderRunnerFactory.h AsyncSulDownloaderRunner.cpp AsyncSulDownloaderRunner.h IAsyncSulDownloaderRunner.h ICronSchedulerThread.h)

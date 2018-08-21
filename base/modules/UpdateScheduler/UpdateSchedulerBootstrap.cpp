@@ -3,13 +3,15 @@
 //
 
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <iostream>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include "UpdateSchedulerBootstrap.h"
 #include "SchedulerTaskQueue.h"
 #include "SchedulerPluginCallback.h"
 #include "CronSchedulerThread.h"
-#include "UpdateScheduler.h"
+#include "AsyncSulDownloaderRunner.h"
+#include "UpdateSchedulerProcessor.h"
 #include "Logger.h"
 #include "LoggingSetup.h"
 
@@ -37,7 +39,14 @@ namespace UpdateScheduler
                 new CronSchedulerThread(
                         queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60))
         );
-        UpdateScheduler updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack, std::move(cronThread));
+        std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
+        std::unique_ptr<IAsyncSulDownloaderRunner> runner = std::unique_ptr<IAsyncSulDownloaderRunner>(new
+                                                                                                               AsyncSulDownloaderRunner(
+                queueTask, dirPath
+        ));
+
+        UpdateSchedulerProcessor updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack, std::move
+                (cronThread), std::move(runner));
         updateScheduler.mainLoop();
         LOGINFO("Update Scheduler Finished.");
         return 0;

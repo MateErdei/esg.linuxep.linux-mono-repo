@@ -4,7 +4,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "UpdateScheduler.h"
+#include "UpdateSchedulerProcessor.h"
 #include "Logger.h"
 #include "SchedulerTaskQueue.h"
 #include "UpdatePolicyTranslator.h"
@@ -13,20 +13,22 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 namespace UpdateScheduler
 {
-    UpdateScheduler::UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask,
-                                     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-                                     std::shared_ptr<SchedulerPluginCallback> callback,
-                                     std::unique_ptr<ICronSchedulerThread> cronThread)
+    UpdateSchedulerProcessor::UpdateSchedulerProcessor(std::shared_ptr<SchedulerTaskQueue> queueTask,
+                                                       std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+                                                       std::shared_ptr<SchedulerPluginCallback> callback,
+                                                       std::unique_ptr<ICronSchedulerThread> cronThread,
+                                                       std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner)
             : m_queueTask(queueTask)
               , m_baseService(std::move(baseService))
               , m_callback(callback)
               , m_cronThread(std::move(cronThread))
+              , m_sulDownloaderRunner(std::move(sulDownloaderRunner))
               , m_policyTranslator()
     {
 
     }
 
-    void UpdateScheduler::mainLoop()
+    void UpdateSchedulerProcessor::mainLoop()
     {
         LOGINFO("Update Scheduler Starting");
         while(true)
@@ -67,7 +69,7 @@ namespace UpdateScheduler
     }
 
 
-    void UpdateScheduler::processPolicy(const std::string & policyXml)
+    void UpdateSchedulerProcessor::processPolicy(const std::string& policyXml)
     {
         SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
         if (!settingsHolder.updateCacheCertificatesContent.empty())
@@ -80,49 +82,49 @@ namespace UpdateScheduler
         writeConfigurationData(settingsHolder.configurationData);
     }
 
-    void UpdateScheduler::processUpdateNow()
+    void UpdateSchedulerProcessor::processUpdateNow()
     {
         m_cronThread->reset();
         processScheduleUpdate();
     }
 
-    void UpdateScheduler::processScheduleUpdate()
+    void UpdateSchedulerProcessor::processScheduleUpdate()
     {
 
 
     }
 
-    void UpdateScheduler::processShutdownReceived()
+    void UpdateSchedulerProcessor::processShutdownReceived()
     {
 
     }
 
-    void UpdateScheduler::processSulDownloaderFinished(const std::string& reportFileLocation)
+    void UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& reportFileLocation)
     {
 
     }
 
-    void UpdateScheduler::processSulDownloaderFailedToStart(const std::string& errorMessage)
+    void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)
     {
 
     }
 
-    void UpdateScheduler::processSulDownloaderTimedOut()
+    void UpdateSchedulerProcessor::processSulDownloaderTimedOut()
     {
 
     }
 
-    void UpdateScheduler::processSulDownloaderWasAborted()
+    void UpdateSchedulerProcessor::processSulDownloaderWasAborted()
     {
 
     }
 
-    void UpdateScheduler::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
+    void UpdateSchedulerProcessor::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
     {
 
     }
 
-    void UpdateScheduler::writeConfigurationData(const SulDownloader::ConfigurationData&)
+    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::ConfigurationData&)
     {
 
     }

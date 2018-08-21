@@ -11,16 +11,18 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "SchedulerPluginCallback.h"
 #include "ICronSchedulerThread.h"
 #include "UpdatePolicyTranslator.h"
+#include "IAsyncSulDownloaderRunner.h"
 
 namespace UpdateScheduler
 {
-    class UpdateScheduler
+    class UpdateSchedulerProcessor
     {
     public:
-        UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask,
-                        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-                        std::shared_ptr<SchedulerPluginCallback> callback,
-                        std::unique_ptr<ICronSchedulerThread> cronThread);
+        UpdateSchedulerProcessor(std::shared_ptr<SchedulerTaskQueue> queueTask,
+                                 std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+                                 std::shared_ptr<SchedulerPluginCallback> callback,
+                                 std::unique_ptr<ICronSchedulerThread> cronThread,
+                                 std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
     private:
         void processPolicy(const std::string & policyXml);
@@ -41,6 +43,7 @@ namespace UpdateScheduler
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<SchedulerPluginCallback> m_callback;
         std::unique_ptr<ICronSchedulerThread> m_cronThread;
+        std::unique_ptr<IAsyncSulDownloaderRunner> m_sulDownloaderRunner;
         UpdatePolicyTranslator m_policyTranslator;
 
     };
