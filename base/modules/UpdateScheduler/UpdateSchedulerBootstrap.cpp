@@ -27,7 +27,10 @@ namespace UpdateScheduler
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(
                 "UpdateScheduler", sharedPluginCallBack
         );
-        UpdateScheduler updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack);
+        std::unique_ptr<CronSchedulerThread> cronThread = std::unique_ptr<CronSchedulerThread>(new
+                                                                                                       CronSchedulerThread(
+                queueTask, std::chrono::minutes(10), std::chrono::minutes(60)));
+        UpdateScheduler updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack, std::move(cronThread));
         updateScheduler.mainLoop();
         LOGINFO("Update Scheduler Finished.");
         return 0;

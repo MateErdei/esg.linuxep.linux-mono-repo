@@ -7,11 +7,22 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "UpdateScheduler.h"
 #include "Logger.h"
 #include "SchedulerTaskQueue.h"
+#include "UpdatePolicyTranslator.h"
+#include "ISulDownloaderRunner.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+
 
 namespace UpdateScheduler
 {
-    UpdateScheduler::UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask, std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService, std::shared_ptr<SchedulerPluginCallback> callback)
-    : m_queueTask(queueTask), m_baseService(std::move(baseService)), m_callback(callback)
+    UpdateScheduler::UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask,
+                                     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+                                     std::shared_ptr<SchedulerPluginCallback> callback,
+                                     std::unique_ptr<CronSchedulerThread> cronThread)
+            : m_queueTask(queueTask)
+              , m_baseService(std::move(baseService))
+              , m_callback(callback)
+              , m_cronThread(std::move(cronThread))
+              , m_policyTranslator()
     {
 
     }
@@ -59,16 +70,26 @@ namespace UpdateScheduler
 
     void UpdateScheduler::processPolicy(const std::string & policyXml)
     {
+        SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
+        if (!settingsHolder.updateCacheCertificatesContent.empty())
+        {
+            saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
+        }
 
+        //FIXME handle frequency
+
+        writeConfigurationData(settingsHolder.configurationData);
     }
 
     void UpdateScheduler::processUpdateNow()
     {
-
+        m_cronThread->reset();
+        processScheduleUpdate();
     }
 
     void UpdateScheduler::processScheduleUpdate()
     {
+
 
     }
 
@@ -93,6 +114,16 @@ namespace UpdateScheduler
     }
 
     void UpdateScheduler::processSulDownloaderWasAborted()
+    {
+
+    }
+
+    void UpdateScheduler::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
+    {
+
+    }
+
+    void UpdateScheduler::writeConfigurationData(const SulDownloader::ConfigurationData&)
     {
 
     }
