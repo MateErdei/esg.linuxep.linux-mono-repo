@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <watchdog/watchdogimpl/PluginProxy.h>
-
+#include <watchdog/watchdogimpl/LoggingSetup.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/Common/ProcessImpl/ProcessImpl.h>
@@ -17,7 +17,12 @@ namespace
     class TestPluginProxy
             : public ::testing::Test
     {
+        std::unique_ptr<watchdog::watchdogimpl::LoggingSetup> m_loggingSetup;
     public:
+        TestPluginProxy()
+                : m_loggingSetup(
+                std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
+        {}
     };
 }
 

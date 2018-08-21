@@ -4,17 +4,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef WATCHDOG_WATCHDOGIMPL_LOGGER_H
-#define WATCHDOG_WATCHDOGIMPL_LOGGER_H
+#pragma once
 
-#include <iostream>
+#include <log4cplus/logger.h>
+#include <log4cplus/loggingmacros.h>
 
-//TODO: To incorporate the log facility after LINUXEP-5909 is completed.
+extern log4cplus::Logger GL_WATCHDOG_LOGGER;
 
-#define LOGDEBUG(x) std::cout << x << std::endl // NOLINT
-#define LOGINFO(x) std::cout << x << std::endl // NOLINT
-#define LOGSUPPORT(x) std::cout << x << std::endl // NOLINT
-#define LOGWARN(x) std::cerr << x << std::endl // NOLINT
-#define LOGERROR(x) std::cerr << x << std::endl // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(GL_WATCHDOG_LOGGER, x) // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(GL_WATCHDOG_LOGGER, x) // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_INFO(GL_WATCHDOG_LOGGER, x) // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(GL_WATCHDOG_LOGGER, x) // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(GL_WATCHDOG_LOGGER, x) // NOLINT
 
-#endif //WATCHDOG_WATCHDOGIMPL_LOGGER_H
+

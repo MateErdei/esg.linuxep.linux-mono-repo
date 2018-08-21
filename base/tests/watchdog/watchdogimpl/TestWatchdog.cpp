@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-
+#include <watchdog/watchdogimpl/LoggingSetup.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -18,7 +18,12 @@ namespace
     class TestWatchdog
             : public ::testing::Test
     {
+        std::unique_ptr<watchdog::watchdogimpl::LoggingSetup> m_loggingSetup;
     public:
+        TestWatchdog()
+                : m_loggingSetup(
+                std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
+        {}
     };
 
     class TestableWatchdog

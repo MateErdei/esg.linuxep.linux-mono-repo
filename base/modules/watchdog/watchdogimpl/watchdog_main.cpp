@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #endif
 
 using namespace watchdog::watchdogimpl;
-
+log4cplus::Logger GL_WATCHDOG_LOGGER;
 namespace
 {
     std::string work_out_install_directory()
