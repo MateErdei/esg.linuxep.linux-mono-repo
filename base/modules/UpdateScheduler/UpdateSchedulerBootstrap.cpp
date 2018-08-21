@@ -4,6 +4,7 @@
 
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <iostream>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
 #include "UpdateSchedulerBootstrap.h"
 #include "SchedulerTaskQueue.h"
 #include "SchedulerPluginCallback.h"
@@ -27,9 +28,14 @@ namespace UpdateScheduler
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(
                 "UpdateScheduler", sharedPluginCallBack
         );
-        std::unique_ptr<CronSchedulerThread> cronThread = std::unique_ptr<CronSchedulerThread>(new
-                                                                                                       CronSchedulerThread(
-                queueTask, std::chrono::minutes(10), std::chrono::minutes(60)));
+        // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
+        Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
+
+
+        std::unique_ptr<CronSchedulerThread> cronThread = std::unique_ptr<CronSchedulerThread>(
+                new CronSchedulerThread(
+                        queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60))
+        );
         UpdateScheduler updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack, std::move(cronThread));
         updateScheduler.mainLoop();
         LOGINFO("Update Scheduler Finished.");
