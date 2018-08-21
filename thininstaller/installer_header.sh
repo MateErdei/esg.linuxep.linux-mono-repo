@@ -152,7 +152,7 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-REGISTER_CENTRAL="${INSTALL_LOCATION}/bin/registerCentral"
+REGISTER_CENTRAL="${INSTALL_LOCATION}/base/bin/registerCentral"
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
@@ -349,12 +349,6 @@ then
     update_caches="--UpdateCacheLocations=$UPDATE_CACHES --UpdateCacheSSLCA=$UPDATE_CACHE_CERT"
 fi
 
-installer_args=""
-if [ -n "$DEBUG_THIN_INSTALLER" ]
-then
-    installer_args="-v5 --debug"
-fi
-
 cd distribute
 
 chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
@@ -370,18 +364,11 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 #cd ..
 
 echo "Running base installer (this may take some time)"
-./install.sh ${installer_args}
+MCS_TOKEN=$CLOUD_TOKEN MCS_URL=$CLOUD_URL MCS_MESSAGE_RELAYS=$MESSAGE_RELAYS ./install.sh
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
     failure ${EXITCODE_BASE_INSTALL_FAILED} "ERROR: Installer returned $inst_ret (see above messages)"
-fi
-
-${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
-ret=$?
-if [ ${ret} -ne 0 ]
-then
-    failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central - error $ret"
 fi
 
 cleanup_and_exit ${inst_ret}
