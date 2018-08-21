@@ -5,8 +5,11 @@ target_include_directories(TestVersionedCopy BEFORE PUBLIC "${gtest_SOURCE_DIR}"
 
 set (BOOST_LIB_DIRS "${BOOST_INPUT}/lib64")
 
-set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${BOOST_LIB_DIRS} )
-
+SET_TARGET_PROPERTIES( TestVersionedCopy
+        PROPERTIES
+        INSTALL_RPATH "${BOOST_LIB_DIRS}"
+        BUILD_RPATH "${BOOST_LIB_DIRS}"
+        )
 
 target_link_libraries(TestVersionedCopy gtest gtest_main gmock )
 target_link_libraries(TestVersionedCopy versionedcopylib testhelpers -L"${BOOST_LIB_DIRS}" -lboost_filesystem -lboost_system )

@@ -21,8 +21,12 @@ target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)
 
-#/redist/binaries/linux10/input/SUL
-set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS})
+SET_TARGET_PROPERTIES( SulDownloaderTests
+        PROPERTIES
+        INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
+
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)

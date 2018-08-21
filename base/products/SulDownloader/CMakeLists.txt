@@ -3,12 +3,13 @@ add_executable(SulDownloader main.cpp)
 add_dependencies(SulDownloader suldownloaderimpl)
 target_include_directories(SulDownloader  PUBLIC ${PROJECT_SOURCE_DIR}/modules/SulDownloader)
 
-set (CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,${SUL_LIBRARY_DIRS} )
-
 target_link_libraries(SulDownloader  suldownloaderimpl)
 
 SET_TARGET_PROPERTIES( SulDownloader
-        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN/../lib64"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
 
 
 install(TARGETS SulDownloader
