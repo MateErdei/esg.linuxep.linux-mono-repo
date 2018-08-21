@@ -69,7 +69,8 @@ TEST(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
     schedulerThread.start();
 
     ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate) ;
-    schedulerThread.resetTime(milliseconds(200));
+    schedulerThread.setPeriodTime(milliseconds(200));
+    schedulerThread.reset();
 
     ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate) ;
     ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate) ;

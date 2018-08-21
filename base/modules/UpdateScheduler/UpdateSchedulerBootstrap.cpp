@@ -8,6 +8,7 @@
 #include "UpdateSchedulerBootstrap.h"
 #include "SchedulerTaskQueue.h"
 #include "SchedulerPluginCallback.h"
+#include "CronSchedulerThread.h"
 #include "UpdateScheduler.h"
 #include "Logger.h"
 #include "LoggingSetup.h"
@@ -32,7 +33,7 @@ namespace UpdateScheduler
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
 
 
-        std::unique_ptr<CronSchedulerThread> cronThread = std::unique_ptr<CronSchedulerThread>(
+        std::unique_ptr<ICronSchedulerThread> cronThread = std::unique_ptr<ICronSchedulerThread>(
                 new CronSchedulerThread(
                         queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60))
         );

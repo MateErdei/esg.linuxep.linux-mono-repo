@@ -16,7 +16,7 @@ namespace UpdateScheduler
     UpdateScheduler::UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask,
                                      std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
                                      std::shared_ptr<SchedulerPluginCallback> callback,
-                                     std::unique_ptr<CronSchedulerThread> cronThread)
+                                     std::unique_ptr<ICronSchedulerThread> cronThread)
             : m_queueTask(queueTask)
               , m_baseService(std::move(baseService))
               , m_callback(callback)

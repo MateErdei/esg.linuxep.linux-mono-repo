@@ -9,7 +9,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApiImpl/PluginApiImpl.h>
 #include "SchedulerTaskQueue.h"
 #include "SchedulerPluginCallback.h"
-#include "CronSchedulerThread.h"
+#include "ICronSchedulerThread.h"
 #include "UpdatePolicyTranslator.h"
 
 namespace UpdateScheduler
@@ -20,7 +20,7 @@ namespace UpdateScheduler
         UpdateScheduler(std::shared_ptr<SchedulerTaskQueue> queueTask,
                         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
                         std::shared_ptr<SchedulerPluginCallback> callback,
-                        std::unique_ptr<CronSchedulerThread> cronThread);
+                        std::unique_ptr<ICronSchedulerThread> cronThread);
         void mainLoop();
     private:
         void processPolicy(const std::string & policyXml);
@@ -40,7 +40,7 @@ namespace UpdateScheduler
         std::shared_ptr<SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<SchedulerPluginCallback> m_callback;
-        std::unique_ptr<CronSchedulerThread> m_cronThread;
+        std::unique_ptr<ICronSchedulerThread> m_cronThread;
         UpdatePolicyTranslator m_policyTranslator;
 
     };

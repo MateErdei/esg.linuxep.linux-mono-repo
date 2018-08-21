@@ -42,12 +42,10 @@ namespace UpdateScheduler
         Common::Threads::AbstractThread::requestStop();
     }
 
-    void CronSchedulerThread::resetTime(CronSchedulerThread::DurationTime repeatPeriod)
+    void CronSchedulerThread::setPeriodTime(CronSchedulerThread::DurationTime repeatPeriod)
     {
         std::lock_guard<std::mutex> lock(m_sharedState);
-        m_actionOnInterrupt = ActionOnInterrupt::RESET;
         m_periodTick = repeatPeriod;
-        Common::Threads::AbstractThread::requestStop();
     }
 
     void CronSchedulerThread::run()
@@ -107,6 +105,11 @@ namespace UpdateScheduler
         ActionOnInterrupt copyAction = m_actionOnInterrupt;
         m_actionOnInterrupt = ActionOnInterrupt::NOTHING;
         return copyAction;
+    }
+
+    void CronSchedulerThread::start()
+    {
+        AbstractThread::start();
     }
 
 }
