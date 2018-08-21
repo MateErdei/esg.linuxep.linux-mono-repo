@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <SulDownloader/ConfigurationData.h>
+#include <chrono>
 #include "IMapHostCacheId.h"
 
 namespace UpdateScheduler
@@ -16,6 +17,7 @@ namespace UpdateScheduler
     {
         SulDownloader::ConfigurationData configurationData;
         std::string updateCacheCertificatesContent;
+        std::chrono::minutes schedulerPeriod;
     };
 
     class UpdatePolicyTranslator : public virtual  IMapHostCacheId

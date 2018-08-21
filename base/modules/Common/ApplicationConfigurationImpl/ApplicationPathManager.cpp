@@ -139,6 +139,16 @@ namespace Common
         }
 
 
+        std::string ApplicationPathManager::getSulDownloaderConfigFilePath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "config.json");
+        }
+
+        std::string ApplicationPathManager::getSulDownloaderReportGeneratedFilePath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "report.json");
+        }
+
     }
 
 

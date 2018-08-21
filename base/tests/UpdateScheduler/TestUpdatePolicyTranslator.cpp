@@ -22,7 +22,7 @@ static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
 
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
@@ -144,7 +144,7 @@ static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
@@ -288,6 +288,9 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 
     EXPECT_TRUE(config.getProxy().empty());
+
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
+
 }
 
 TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
@@ -339,6 +342,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                SulDownloader::Credentials{"TestUser",
                                                           "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="}};
     EXPECT_EQ(config.getProxy(), expectedProxy);
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)

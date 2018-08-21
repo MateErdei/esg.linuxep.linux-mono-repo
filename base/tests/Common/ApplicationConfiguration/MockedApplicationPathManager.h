@@ -42,5 +42,9 @@ public:
     MOCK_CONST_METHOD0(getTempPath, std::string(void));
     MOCK_CONST_METHOD0(getBaseLogDirectory, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderReportPath, std::string (void));
+
+    MOCK_CONST_METHOD0(getSulDownloaderConfigFilePath, std::string(void));
+
+    MOCK_CONST_METHOD0(getSulDownloaderReportGeneratedFilePath, std::string(void));
 };
 

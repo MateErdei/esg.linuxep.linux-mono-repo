@@ -9,6 +9,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "SchedulerTaskQueue.h"
 #include "UpdatePolicyTranslator.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 
 namespace UpdateScheduler
@@ -31,6 +32,14 @@ namespace UpdateScheduler
     void UpdateSchedulerProcessor::mainLoop()
     {
         LOGINFO("Update Scheduler Starting");
+
+        m_cronThread->start();
+
+        // ensure that recent results 'if available' are processed.
+        // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
+        // there is no new results to be processed.
+        m_queueTask->push(SchedulerTask{SchedulerTask::TaskType::SulDownloaderFinished, "report.json"});
+
         while(true)
         {
             SchedulerTask task = m_queueTask->pop();
@@ -77,9 +86,10 @@ namespace UpdateScheduler
             saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
         }
 
-        //FIXME handle frequency
+        m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
 
         writeConfigurationData(settingsHolder.configurationData);
+
     }
 
     void UpdateSchedulerProcessor::processUpdateNow()
@@ -96,7 +106,11 @@ namespace UpdateScheduler
 
     void UpdateSchedulerProcessor::processShutdownReceived()
     {
-
+        if (m_sulDownloaderRunner->isRunning())
+        {
+            m_sulDownloaderRunner->triggerAbort();
+        }
+        m_queueTask->pushStop();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& reportFileLocation)
@@ -121,11 +135,14 @@ namespace UpdateScheduler
 
     void UpdateSchedulerProcessor::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
     {
-
+        std::string configFilePath = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
+        Common::FileSystem::fileSystem()->writeFile(configFilePath, cacheCertificateContent);
     }
 
-    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::ConfigurationData&)
+    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::ConfigurationData& configurationData)
     {
-
+        std::string serializedConfigData = SulDownloader::ConfigurationData::toJsonSettings(configurationData);
+        std::string configFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+        Common::FileSystem::fileSystem()->writeFile(configFilePath, serializedConfigData);
     }
 }
