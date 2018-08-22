@@ -19,8 +19,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <cassert>
 #include <algorithm>
+
 
 
 namespace
@@ -50,8 +52,10 @@ namespace SulDownloader
         {
             return true;
         }
+
         const std::vector<ProductReport>& productReports = previousDownloadReport.getProducts();
         auto productReportItr = std::find_if(productReports.begin(), productReports.end(), [&product](const ProductReport & report){return report.rigidName == product.getLine();});
+
         if (productReportItr != productReports.end())
         {
             if (productReportItr->productStatus == ProductReport::ProductStatus::InstallFailed ||
@@ -199,7 +203,24 @@ namespace SulDownloader
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath)
     {
-        std::vector<std::string> previousReportFiles = Common::FileSystem::fileSystem()->listFiles(outputParentPath);
+        std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(outputParentPath);
+
+
+        // Filter file list to make sure all the files are report files based on file name
+        std::vector<std::string>previousReportFiles;
+        std::string startPattern("report");
+        std::string endPattern(".json");
+
+        for(auto& file : filesInReportDirectory)
+        {
+            std::string fileName = Common::FileSystem::basename(file);
+
+            // make sure file name begins with 'report' and ends with .'json'
+            if(fileName.find(startPattern) == 0 && fileName.find(endPattern) == (fileName.length() - endPattern.length()))
+            {
+                previousReportFiles.push_back(file);
+            }
+        }
 
         std::string previousDownloadReport;
 
@@ -207,9 +228,17 @@ namespace SulDownloader
         {
             std::sort(previousReportFiles.begin(), previousReportFiles.end());
 
-            std::string previousReportFileName = *(--previousReportFiles.end()); // get last entry
-            previousDownloadReport = Common::FileSystem::fileSystem()->readFile(previousReportFileName);
+            std::string previousReportFileName = previousReportFiles.back();
+            try
+            {
+                previousDownloadReport = Common::FileSystem::fileSystem()->readFile(previousReportFileName);
+            }
+            catch(Common::FileSystem::IFileSystemException ex)
+            {
+                LOGERROR("Failed to load previous download report file: " << previousReportFileName);
+            }
         }
+
         return previousDownloadReport;
     }
 

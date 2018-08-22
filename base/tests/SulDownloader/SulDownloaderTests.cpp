@@ -383,8 +383,53 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     timeTracker.setFinishedTime(  std::time_t(0));
     DownloadReport downloadReport = DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "previousReport.json";
+    std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = {previousReportFilename};
+    std::vector<std::string> emptyFileList;
+    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
+    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+
+    EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
+    EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+
+    EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
+            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+    ));
+
+    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
+
+    EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
+}
+
+TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResultEnsuringInvalidPreviousReportFilesAreIgnored)
+{
+    auto & fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository & mock = warehouseMocked();
+
+    auto products = defaultProducts();
+    products[0].setProductHasChanged(false);
+    products[1].setProductHasChanged(false);
+
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime( std::time_t(0));
+    timeTracker.setFinishedTime(  std::time_t(0));
+    DownloadReport downloadReport = DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+    std::string previousReportFilename = "report-previous.json";
+    std::vector<std::string> previousReportFileList = {previousReportFilename, "invalid_file_name1.txt", "invalid_file_name2.json", "report_invalid_file_name3.txt"};
     std::vector<std::string> emptyFileList;
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
     EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
@@ -428,7 +473,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     timeTracker.setFinishedTime(  std::time_t(0));
     DownloadReport downloadReport = DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "previousReport.json";
+    std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = {previousReportFilename};
     std::vector<std::string> emptyFileList;
 
@@ -485,7 +530,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedUn
     timeTracker.setFinishedTime(  std::time_t(0));
     DownloadReport downloadReport = DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "previousReport.json";
+    std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = {previousReportFilename};
     std::vector<std::string> emptyFileList;
 
