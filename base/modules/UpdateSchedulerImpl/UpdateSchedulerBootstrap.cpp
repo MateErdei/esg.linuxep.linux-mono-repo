@@ -41,10 +41,8 @@ namespace UpdateSchedulerImpl
                         queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60))
         );
         std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-        std::unique_ptr<IAsyncSulDownloaderRunner> runner = std::unique_ptr<IAsyncSulDownloaderRunner>(new
-                                                                                                               AsyncSulDownloaderRunner(
-                queueTask, dirPath
-        ));
+        std::unique_ptr<IAsyncSulDownloaderRunner> runner = std::unique_ptr<IAsyncSulDownloaderRunner>(
+                new runnerModule::AsyncSulDownloaderRunner(queueTask, dirPath));
 
         UpdateSchedulerProcessor updateScheduler(queueTask, std::move(baseService), sharedPluginCallBack, std::move
                 (cronThread), std::move(runner));

@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
-
+using SulDownloaderRunner = UpdateSchedulerImpl::runnerModule::SulDownloaderRunner; 
 class TestSulDownloaderRunner : public ::testing::Test
 {
 

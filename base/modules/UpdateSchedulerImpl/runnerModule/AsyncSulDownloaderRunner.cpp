@@ -7,58 +7,63 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-    using namespace UpdateScheduler;
-    AsyncSulDownloaderRunner::AsyncSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> taskQueue,
-                                                       const std::string& dirPath)
-            : m_dirPath(dirPath)
-              , m_taskQueue(taskQueue)
-              , m_sulDownloaderRunner()
-              , m_sulDownloaderExecHandle()
+    namespace runnerModule
     {
+        using namespace UpdateScheduler;
 
-    }
-
-    void AsyncSulDownloaderRunner::triggerSulDownloader()
-    {
-        if (m_sulDownloaderRunner)
+        AsyncSulDownloaderRunner::AsyncSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> taskQueue,
+                                                           const std::string& dirPath)
+                : m_dirPath(dirPath)
+                  , m_taskQueue(taskQueue)
+                  , m_sulDownloaderRunner()
+                  , m_sulDownloaderExecHandle()
         {
-            if (m_sulDownloaderExecHandle.valid())
+
+        }
+
+        void AsyncSulDownloaderRunner::triggerSulDownloader()
+        {
+            if (m_sulDownloaderRunner)
             {
-                // synchronize and expect the current instance of suldownloader to finish.
-                m_sulDownloaderExecHandle.get();
+                if (m_sulDownloaderExecHandle.valid())
+                {
+                    // synchronize and expect the current instance of suldownloader to finish.
+                    m_sulDownloaderExecHandle.get();
+                }
+                // clear the current sulDownloader
+                m_sulDownloaderRunner.reset();
             }
-            // clear the current sulDownloader
-            m_sulDownloaderRunner.reset();
+
+            m_sulDownloaderRunner.reset(new SulDownloaderRunner(
+                    m_taskQueue,
+                    m_dirPath,
+                    "report.json",
+                    std::chrono::minutes(10)
+            ));
+            m_sulDownloaderExecHandle = std::async(std::launch::async,
+                                                   [this]() { m_sulDownloaderRunner->run(); }
+            );
+
         }
 
-        m_sulDownloaderRunner.reset(new SulDownloaderRunner(
-                m_taskQueue,
-                m_dirPath,
-                "report.json",
-                std::chrono::minutes(10)
-        ));
-        m_sulDownloaderExecHandle = std::async(std::launch::async,
-                                               [this]() { m_sulDownloaderRunner->run(); }
-        );
-
-    }
-
-    bool AsyncSulDownloaderRunner::isRunning()
-    {
-        if (!m_sulDownloaderRunner || !m_sulDownloaderExecHandle.valid())
+        bool AsyncSulDownloaderRunner::isRunning()
         {
-            return false;
+            if (!m_sulDownloaderRunner || !m_sulDownloaderExecHandle.valid())
+            {
+                return false;
+            }
+
+            std::future_status waitResult = m_sulDownloaderExecHandle.wait_for(std::chrono::seconds(0));
+            return (waitResult != std::future_status::ready);
         }
 
-        std::future_status waitResult = m_sulDownloaderExecHandle.wait_for(std::chrono::seconds(0));
-        return (waitResult != std::future_status::ready);
-    }
-
-    void AsyncSulDownloaderRunner::triggerAbort()
-    {
-        if (m_sulDownloaderRunner)
+        void AsyncSulDownloaderRunner::triggerAbort()
         {
-            m_sulDownloaderRunner->abortWaitingForReport();
+            if (m_sulDownloaderRunner)
+            {
+                m_sulDownloaderRunner->abortWaitingForReport();
+            }
         }
     }
+
 }
