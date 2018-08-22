@@ -238,7 +238,10 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 for F in "$DIST/installer/plugins"/*
 do
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
+    if changedOrAdded ${F#"$DIST"/}
+    then
+       "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
+    fi
 done
 
 chmod 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
