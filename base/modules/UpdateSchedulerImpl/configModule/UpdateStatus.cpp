@@ -9,14 +9,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using StringUtils = Common::UtilityImpl::StringUtils;
 namespace {
-
+    using ProductStatus = UpdateSchedulerImpl::configModule::ProductStatus;
     std::string subscriptionTemplate{R"sophos(
         <subscription rigidName="@@rigidName@@" version="@@version@@" displayVersion="@@displayversion@@" />)sophos"};
 
     std::string firstFailedTemplate{R"sophos(
         <firstFailedTime>@@failedTime@@</firstFailedTime>)sophos"};
 
-    std::string getsubscriptionsElement(const std::vector<UpdateSchedulerImpl::ProductStatus>& products)
+    std::string getsubscriptionsElement(const std::vector<ProductStatus>& products)
     {
         std::string subscriptions;
         for( auto & product: products)
@@ -59,27 +59,35 @@ namespace {
 
 }
 
-
-std::string
-UpdateSchedulerImpl::SerializeUpdateStatus(const UpdateSchedulerImpl::UpdateStatus& status, const std::string& revID,
-                                           const std::string &versionId,
-                                           const Common::UtilityImpl::IFormattedTime &iFormattedTime)
+namespace UpdateSchedulerImpl
 {
+    namespace configModule
+    {
+        std::string SerializeUpdateStatus(const UpdateSchedulerImpl::configModule::UpdateStatus& status,
+                                          const std::string& revID,
+                                          const std::string& versionId,
+                                          const Common::UtilityImpl::IFormattedTime& iFormattedTime)
+        {
 
-    std::string subscriptionsElement = getsubscriptionsElement(status.Products);
-    std::string firstFailedElement = getFirstFailedElement(status.FirstFailedTime);
-    std::string bootTime = iFormattedTime.bootTime();
-    return StringUtils::orderedStringReplace(statusTemplate, {
-            {"@@revid@@", revID},
-            {"@@version@@", versionId},
-            {"@@boottime@@", bootTime },
-            {"@@lastStartedTime@@", status.LastStartTime},
-            {"@@lastSyncTime@@", status.LastSyncTime},
-            {"@@lastInstallStartedTime@@", status.LastInstallStartedTime},
-            {"@@lastFinishedTime@@", status.LastFinishdTime},
-            {"@@firstfailedTimeElement@@", firstFailedElement},
-            {"@@lastResult@@", std::to_string(status.LastResult)},
-            {"@@endpointid@@", "NotImplemented"}, //FIXME LINUXEP-6474
-            {"@@subscriptionsElement@@", subscriptionsElement}
-    });
+            std::string subscriptionsElement = getsubscriptionsElement(status.Products);
+            std::string firstFailedElement = getFirstFailedElement(status.FirstFailedTime);
+            std::string bootTime = iFormattedTime.bootTime();
+            return StringUtils::orderedStringReplace(statusTemplate, {
+                                                             {  "@@revid@@"                 , revID}
+                                                             , {"@@version@@"               , versionId}
+                                                             , {"@@boottime@@"              , bootTime}
+                                                             , {"@@lastStartedTime@@"       , status.LastStartTime}
+                                                             , {"@@lastSyncTime@@"          , status.LastSyncTime}
+                                                             , {"@@lastInstallStartedTime@@", status.LastInstallStartedTime}
+                                                             , {"@@lastFinishedTime@@"      , status.LastFinishdTime}
+                                                             , {"@@firstfailedTimeElement@@", firstFailedElement}
+                                                             , {"@@lastResult@@"            , std::to_string(status.LastResult)}
+                                                             , {"@@endpointid@@"            , "NotImplemented"}
+                                                             , //FIXME LINUXEP-6474
+                                                             {  "@@subscriptionsElement@@"  , subscriptionsElement}
+                                                     }
+            );
+        }
+
+    }
 }

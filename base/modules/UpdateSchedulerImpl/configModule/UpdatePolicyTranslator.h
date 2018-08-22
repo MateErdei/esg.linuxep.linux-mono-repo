@@ -12,32 +12,34 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
-    struct SettingsHolder
+    namespace configModule
     {
-        SulDownloader::ConfigurationData configurationData;
-        std::string updateCacheCertificatesContent;
-        std::chrono::minutes schedulerPeriod;
-    };
-
-    class UpdatePolicyTranslator
-            : public virtual UpdateScheduler::IMapHostCacheId
-    {
-    public:
-        SettingsHolder translatePolicy(const std::string &policyXml);
-        std::string cacheID(const std::string & hostname) const override ;
-        std::string revID() const ;
-    private:
-        struct Cache
+        struct SettingsHolder
         {
-            std::string hostname;
-            std::string priority;
-            std::string id;
+            SulDownloader::ConfigurationData configurationData;
+            std::string updateCacheCertificatesContent;
+            std::chrono::minutes schedulerPeriod;
         };
-        std::vector<Cache> m_Caches;
-        std::string m_revID;
-    };
+
+        class UpdatePolicyTranslator
+                : public virtual UpdateScheduler::IMapHostCacheId
+        {
+        public:
+            SettingsHolder translatePolicy(const std::string& policyXml);
+
+            std::string cacheID(const std::string& hostname) const override;
+
+            std::string revID() const;
+
+        private:
+            struct Cache
+            {
+                std::string hostname;
+                std::string priority;
+                std::string id;
+            };
+            std::vector<Cache> m_Caches;
+            std::string m_revID;
+        };
+    }
 }
-
-
-

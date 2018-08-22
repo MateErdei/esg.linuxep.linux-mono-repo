@@ -9,7 +9,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-    bool isUpdateNowAction(const std::string & actionXml);
+    namespace configModule
+    {
+        bool isUpdateNowAction(const std::string& actionXml);
+
+    }
 }
 
 

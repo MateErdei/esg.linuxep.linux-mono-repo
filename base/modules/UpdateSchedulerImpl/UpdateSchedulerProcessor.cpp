@@ -19,6 +19,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
+    using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
+    using ReportAndFiles = UpdateSchedulerImpl::configModule::ReportAndFiles;
+    using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
     using namespace UpdateScheduler;
     std::string UpdateSchedulerProcessor::ALC_API("ALC");
     std::string UpdateSchedulerProcessor::VERSIONID("1");
@@ -124,7 +127,7 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::processUpdateNow(const std::string& actionXML)
     {
-        if (!isUpdateNowAction(actionXML))
+        if (!configModule::isUpdateNowAction(actionXML))
         {
             LOGWARN("Unexpected action xml received: " << actionXML);
             return;;
@@ -173,7 +176,7 @@ namespace UpdateSchedulerImpl
         }
 
         LOGSUPPORT("Process reports to get events and status.");
-        ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
+        ReportAndFiles reportAndFiles = configModule::DownloadReportsAnalyser::processReports();
 
         if (reportAndFiles.sortedFilePaths.empty())
         {
@@ -184,7 +187,7 @@ namespace UpdateSchedulerImpl
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
         {
             if (reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] ==
-                ReportCollectionResult::SignificantReportMark::RedundantReport)
+                configModule::ReportCollectionResult::SignificantReportMark::RedundantReport)
             {
                 LOGSUPPORT("Remove File: " << reportAndFiles.sortedFilePaths[i]);
                 iFileSystem->removeFile(reportAndFiles.sortedFilePaths[i]);
@@ -214,7 +217,7 @@ namespace UpdateSchedulerImpl
         // blank the timestamp that changes for every report.
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
-        std::string statusWithoutTimeStamp = SerializeUpdateStatus(
+        std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
                 copyStatus,
                 m_policyTranslator.revID(),
                 VERSIONID,

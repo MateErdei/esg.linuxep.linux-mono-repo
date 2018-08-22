@@ -49,7 +49,7 @@ namespace UpdateSchedulerImpl
         std::shared_ptr<SchedulerPluginCallback> m_callback;
         std::unique_ptr<UpdateScheduler::ICronSchedulerThread> m_cronThread;
         std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> m_sulDownloaderRunner;
-        UpdatePolicyTranslator m_policyTranslator;
+        configModule::UpdatePolicyTranslator m_policyTranslator;
         std::string m_reportfilePath;
         std::string m_configfilePath;
         Common::UtilityImpl::FormatedTime m_formattedTime;

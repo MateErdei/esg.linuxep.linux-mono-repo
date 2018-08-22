@@ -50,7 +50,7 @@ static std::string errorReportedStatusXML{R"sophos(<?xml version="1.0" encoding=
 </status>)sophos"};
 
 
-using namespace UpdateSchedulerImpl;
+using namespace UpdateSchedulerImpl::configModule;
 using namespace SulDownloader;
 using namespace Common::UtilityImpl;
 using namespace ::testing;

@@ -12,9 +12,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
-using namespace UpdateSchedulerImpl;
+using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
 using namespace SulDownloader;
+
 
 class TestDownloadReportAnalyser : public  ::testing::Test
 {

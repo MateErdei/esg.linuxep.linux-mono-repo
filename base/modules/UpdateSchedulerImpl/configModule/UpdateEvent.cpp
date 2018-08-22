@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
-
+    using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
 std::string insertTemplate{
 "        <insert>@@entryname@@</insert>"
 };
@@ -31,7 +31,7 @@ std::string eventTemplate{R"sophos(<?xml version="1.0"?>
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
 </event>)sophos"};
 
-    std::string getMessageContent(const UpdateSchedulerImpl::UpdateEvent& event)
+    std::string getMessageContent(const UpdateEvent& event)
 {
     if ( event.Messages.empty())
     {
@@ -80,15 +80,20 @@ std::string eventXML( const std::string & timestamp, const std::string & message
 
 namespace UpdateSchedulerImpl
 {
-    using namespace UpdateScheduler;
-    std::string serializeUpdateEvent(const UpdateEvent &updateEvent, const IMapHostCacheId &iMapHostCacheId,
-                                     const Common::UtilityImpl::IFormattedTime &iFormattedTime)
+    namespace configModule
     {
-        std::string timestamp = iFormattedTime.currentTime();
-        std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
-        std::string messageContent = getMessageContent(updateEvent);
-        std::string messageNumber = std::to_string(updateEvent.MessageNumber);
 
-        return eventXML(timestamp, messageNumber, messageContent, updateSource);
+        using namespace UpdateScheduler;
+
+        std::string serializeUpdateEvent(const UpdateEvent& updateEvent, const IMapHostCacheId& iMapHostCacheId,
+                                         const Common::UtilityImpl::IFormattedTime& iFormattedTime)
+        {
+            std::string timestamp = iFormattedTime.currentTime();
+            std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
+            std::string messageContent = getMessageContent(updateEvent);
+            std::string messageNumber = std::to_string(updateEvent.MessageNumber);
+
+            return eventXML(timestamp, messageNumber, messageContent, updateSource);
+        }
     }
 }

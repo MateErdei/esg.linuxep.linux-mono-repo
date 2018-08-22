@@ -121,10 +121,11 @@ static std::string packagesSourceMissingEventXML{R"sophos(<?xml version="1.0"?>
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
 </event>)sophos"};
 
-using namespace UpdateSchedulerImpl;
+using namespace UpdateSchedulerImpl::configModule;
 using namespace SulDownloader;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
+
 UpdateEvent getEvent( SulDownloader::DownloadReport report )
 {
     std::vector<SulDownloader::DownloadReport> singleReport{report};

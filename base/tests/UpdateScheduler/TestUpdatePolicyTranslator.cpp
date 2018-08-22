@@ -247,10 +247,10 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos"};
 
-
+using namespace UpdateSchedulerImpl::configModule;
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
-    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -295,7 +295,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
-    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -306,7 +306,7 @@ TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
-    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -347,6 +347,6 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
 {
-    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
     EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
 }

@@ -11,34 +11,41 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-    struct ProductStatus
+    namespace configModule
     {
-        ProductStatus(std::string rigid, std::string name, std::string downversion, std::string installvers):
-                RigidName(std::move(rigid)),ProductName(std::move(name)), DownloadedVersion(std::move(downversion)), InstalledVersion(std::move(installvers))
-        {}
+        struct ProductStatus
+        {
+            ProductStatus(std::string rigid, std::string name, std::string downversion, std::string installvers)
+                    :
+                    RigidName(std::move(rigid))
+                    , ProductName(std::move(name))
+                    , DownloadedVersion(std::move(downversion))
+                    , InstalledVersion(std::move(installvers))
+            {}
 
-        std::string RigidName;
-        std::string ProductName;
-        std::string DownloadedVersion;
-        std::string InstalledVersion;
-    };
+            std::string RigidName;
+            std::string ProductName;
+            std::string DownloadedVersion;
+            std::string InstalledVersion;
+        };
 
-    struct UpdateStatus
-    {
-        std::string LastBootTime;
-        std::string LastStartTime;
-        std::string LastSyncTime;
-        std::string LastInstallStartedTime;
-        std::string LastFinishdTime;
-        int LastResult;
-        std::string FirstFailedTime;
+        struct UpdateStatus
+        {
+            std::string LastBootTime;
+            std::string LastStartTime;
+            std::string LastSyncTime;
+            std::string LastInstallStartedTime;
+            std::string LastFinishdTime;
+            int LastResult;
+            std::string FirstFailedTime;
 
-        std::vector<ProductStatus> Products;
-    };
+            std::vector<ProductStatus> Products;
+        };
 
 
-    std::string SerializeUpdateStatus( const UpdateStatus & status, const std::string & revID, const std::string & versionId, const Common::UtilityImpl::IFormattedTime & iFormattedTime );
+        std::string
+        SerializeUpdateStatus(const UpdateStatus& status, const std::string& revID, const std::string& versionId,
+                              const Common::UtilityImpl::IFormattedTime& iFormattedTime);
 
+    }
 }
-
-

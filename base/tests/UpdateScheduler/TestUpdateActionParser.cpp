@@ -17,8 +17,9 @@ static std::string invalidUpdateAction{R"sophos(<?xml version='1.0'?>
 
 TEST(TestUpdatePolicyTranslator, ParseUpdateAction) // NOLINT
 {
-    EXPECT_TRUE(UpdateSchedulerImpl::isUpdateNowAction(updateAction));
-    EXPECT_FALSE(UpdateSchedulerImpl::isUpdateNowAction(invalidUpdateAction));
+    using namespace UpdateSchedulerImpl::configModule;
+    EXPECT_TRUE(isUpdateNowAction(updateAction));
+    EXPECT_FALSE(isUpdateNowAction(invalidUpdateAction));
     //Invalid XML
-    EXPECT_FALSE(UpdateSchedulerImpl::isUpdateNowAction(""));
+    EXPECT_FALSE(isUpdateNowAction(""));
 }
