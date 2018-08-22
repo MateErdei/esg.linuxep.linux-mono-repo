@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gmock/gmock-matchers.h>
-#include <UpdateScheduler/UpdateStatus.h>
-#include <UpdateScheduler/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/UpdateStatus.h>
+#include <UpdateSchedulerImpl/DownloadReportsAnalyser.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 #include "DownloadReportTestBuilder.h"
 #include "gtest/gtest.h"
@@ -50,7 +50,7 @@ static std::string errorReportedStatusXML{R"sophos(<?xml version="1.0" encoding=
 </status>)sophos"};
 
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 using namespace SulDownloader;
 using namespace Common::UtilityImpl;
 using namespace ::testing;

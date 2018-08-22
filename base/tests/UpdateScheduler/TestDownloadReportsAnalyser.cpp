@@ -4,15 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateScheduler/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/DownloadReportsAnalyser.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include "DownloadReportTestBuilder.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <modules/UpdateScheduler/LoggingSetup.h>
+#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 using namespace SulDownloader;
 
 class TestDownloadReportAnalyser : public  ::testing::Test
@@ -21,7 +21,7 @@ public:
 
 
     TestDownloadReportAnalyser()
-            : m_loggingSetup(new UpdateScheduler::LoggingSetup(1))
+            : m_loggingSetup(new UpdateSchedulerImpl::LoggingSetup(1))
     {
     }
 
@@ -213,7 +213,7 @@ public:
         return marks;
     }
 
-    std::unique_ptr<UpdateScheduler::LoggingSetup> m_loggingSetup;
+    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
 };
 
 

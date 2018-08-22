@@ -7,13 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <gmock/gmock.h>
-#include <UpdateScheduler/ICronSchedulerThread.h>
+#include <UpdateSchedulerImpl/ICronSchedulerThread.h>
 
 using namespace ::testing;
 
 
 class MockCronSchedulerThread
-        : public UpdateScheduler::ICronSchedulerThread
+        : public UpdateSchedulerImpl::ICronSchedulerThread
 {
 public:
     MOCK_METHOD0(start, void());
@@ -22,5 +22,5 @@ public:
 
     MOCK_METHOD0(reset, void());
 
-    MOCK_METHOD1(setPeriodTime, void(UpdateScheduler::ICronSchedulerThread::DurationTime));
+    MOCK_METHOD1(setPeriodTime, void(UpdateSchedulerImpl::ICronSchedulerThread::DurationTime));
 };

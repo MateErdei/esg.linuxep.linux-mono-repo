@@ -4,10 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateScheduler/CronSchedulerThread.h>
+#include <UpdateSchedulerImpl/CronSchedulerThread.h>
 #include <gmock/gmock-matchers.h>
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 using milliseconds = std::chrono::milliseconds;
 using minutes = std::chrono::minutes;
 using time_point = std::chrono::steady_clock::time_point;

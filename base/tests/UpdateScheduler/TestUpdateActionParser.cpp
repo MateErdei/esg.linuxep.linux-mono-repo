@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateScheduler/UpdateActionParser.h>
+#include <modules/UpdateSchedulerImpl/UpdateActionParser.h>
 
 static std::string updateAction{R"sophos(<?xml version='1.0'?>
 
@@ -17,8 +17,8 @@ static std::string invalidUpdateAction{R"sophos(<?xml version='1.0'?>
 
 TEST(TestUpdatePolicyTranslator, ParseUpdateAction) // NOLINT
 {
-    EXPECT_TRUE(UpdateScheduler::isUpdateNowAction(updateAction));
-    EXPECT_FALSE(UpdateScheduler::isUpdateNowAction(invalidUpdateAction));
+    EXPECT_TRUE(UpdateSchedulerImpl::isUpdateNowAction(updateAction));
+    EXPECT_FALSE(UpdateSchedulerImpl::isUpdateNowAction(invalidUpdateAction));
     //Invalid XML
-    EXPECT_FALSE(UpdateScheduler::isUpdateNowAction(""));
+    EXPECT_FALSE(UpdateSchedulerImpl::isUpdateNowAction(""));
 }

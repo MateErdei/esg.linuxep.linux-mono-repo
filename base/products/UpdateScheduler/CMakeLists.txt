@@ -1,5 +1,5 @@
 add_executable(UpdateScheduler main.cpp)
-target_include_directories(UpdateScheduler PUBLIC ${PROJECT_SOURCE_DIR}/modules/UpdateScheduler)
+target_include_directories(UpdateScheduler PUBLIC ${PROJECT_SOURCE_DIR}/modules/UpdateSchedulerImpl)
 
 target_link_libraries(UpdateScheduler PUBLIC updateschedulerimpl)
 

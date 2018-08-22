@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateScheduler/UpdatePolicyTranslator.h>
+#include <modules/UpdateSchedulerImpl/UpdatePolicyTranslator.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
@@ -250,7 +250,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -295,7 +295,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -306,7 +306,7 @@ TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -347,6 +347,6 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdateSchedulerImpl::UpdatePolicyTranslator translator;
     EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
 }

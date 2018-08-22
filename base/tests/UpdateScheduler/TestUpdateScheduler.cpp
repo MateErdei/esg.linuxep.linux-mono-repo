@@ -4,13 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateScheduler/UpdateSchedulerProcessor.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
 #include "MockAsyncDownloaderRunner.h"
 #include "MockCronSchedulerThread.h"
 #include <tests/Common/PluginApiImpl/MockApiBaseServices.h>
-#include <UpdateScheduler/Logger.h>
+#include <UpdateSchedulerImpl/Logger.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateScheduler/LoggingSetup.h>
+#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -215,7 +215,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 }
 
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 using namespace Common::PluginApi;
 
 class TestUpdateScheduler
@@ -224,7 +224,8 @@ class TestUpdateScheduler
 
 public:
     TestUpdateScheduler()
-            : m_loggingSetup(std::unique_ptr<UpdateScheduler::LoggingSetup>(new UpdateScheduler::LoggingSetup(1)))
+            : m_loggingSetup(
+            std::unique_ptr<UpdateSchedulerImpl::LoggingSetup>(new UpdateSchedulerImpl::LoggingSetup(1)))
               , m_queue(std::make_shared<SchedulerTaskQueue>())
               , m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
     {
@@ -256,7 +257,7 @@ public:
     }
 
 
-    std::unique_ptr<UpdateScheduler::LoggingSetup> m_loggingSetup;
+    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
     std::shared_ptr<SchedulerTaskQueue> m_queue;
     std::shared_ptr<SchedulerPluginCallback> m_pluginCallback;
 };
@@ -271,7 +272,7 @@ TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
-    UpdateScheduler::UpdateSchedulerProcessor
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
     updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
                     std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
@@ -298,7 +299,7 @@ TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
-    UpdateScheduler::UpdateSchedulerProcessor
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
     updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
                     std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
@@ -330,7 +331,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
 
-    UpdateScheduler::UpdateSchedulerProcessor
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
     updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
                     std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
@@ -366,7 +367,7 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*runner, triggerSulDownloader());
 
-    UpdateScheduler::UpdateSchedulerProcessor
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
     updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
                     std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 

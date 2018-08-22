@@ -3,9 +3,14 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "UpdateSchedulerBootstrap.h"
+#pragma once
 
-int main()
+#include <string>
+
+namespace UpdateSchedulerImpl
 {
-    return UpdateSchedulerImpl::main_entry();
+    bool isUpdateNowAction(const std::string & actionXml);
 }
+
+
+

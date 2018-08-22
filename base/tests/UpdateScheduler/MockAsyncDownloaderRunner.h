@@ -7,13 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include "gmock/gmock.h"
-#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
+#include <UpdateSchedulerImpl/IAsyncSulDownloaderRunner.h>
 
 using namespace ::testing;
 
 
 class MockAsyncDownloaderRunner
-        : public UpdateScheduler::IAsyncSulDownloaderRunner
+        : public UpdateSchedulerImpl::IAsyncSulDownloaderRunner
 {
 public:
     MOCK_METHOD0(triggerSulDownloader, void());

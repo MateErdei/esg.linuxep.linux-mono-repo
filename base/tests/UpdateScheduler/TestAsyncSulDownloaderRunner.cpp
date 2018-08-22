@@ -4,16 +4,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
+#include <UpdateSchedulerImpl/IAsyncSulDownloaderRunner.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/TestHelpers/TempDir.h>
-#include <UpdateScheduler/Logger.h>
+#include <UpdateSchedulerImpl/Logger.h>
 #include <gmock/gmock-matchers.h>
 #include <future>
-#include <modules/UpdateScheduler/LoggingSetup.h>
+#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 
 class TestAsyncSulDownloaderRunner
         : public ::testing::Test
@@ -23,7 +23,7 @@ public:
 
     void SetUp() override
     {
-        m_loggingSetup.reset(new UpdateScheduler::LoggingSetup(1));
+        m_loggingSetup.reset(new UpdateSchedulerImpl::LoggingSetup(1));
     }
 
     void TearDown() override
@@ -41,7 +41,7 @@ public:
         return mockProcess;
     }
 
-    std::unique_ptr<UpdateScheduler::LoggingSetup> m_loggingSetup;
+    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT

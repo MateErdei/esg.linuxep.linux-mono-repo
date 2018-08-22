@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gmock/gmock-matchers.h>
-#include <UpdateScheduler/UpdateEvent.h>
-#include <UpdateScheduler/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/UpdateEvent.h>
+#include <UpdateSchedulerImpl/DownloadReportsAnalyser.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 #include "DownloadReportTestBuilder.h"
 #include "MockMapHostCacheId.h"
@@ -121,7 +121,7 @@ static std::string packagesSourceMissingEventXML{R"sophos(<?xml version="1.0"?>
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
 </event>)sophos"};
 
-using namespace UpdateScheduler;
+using namespace UpdateSchedulerImpl;
 using namespace SulDownloader;
 using namespace Common::UtilityImpl;
 using namespace ::testing;

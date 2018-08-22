@@ -3,9 +3,17 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "UpdateSchedulerBootstrap.h"
+#pragma once
 
-int main()
+#include <string>
+
+
+namespace UpdateSchedulerImpl
 {
-    return UpdateSchedulerImpl::main_entry();
+    class IMapHostCacheId
+    {
+    public:
+        virtual  ~IMapHostCacheId() = default;
+        virtual std::string cacheID(const std::string & hostname) const = 0;
+    };
 }
