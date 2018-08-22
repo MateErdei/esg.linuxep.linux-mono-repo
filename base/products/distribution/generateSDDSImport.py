@@ -8,7 +8,7 @@ import xml.dom.minidom
 TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <ComponentData>
   <Component>
-    <Name>SSPL-BASE</Name>
+    <Name>Sophos Server Protection Linux - Base</Name>
     <RigidName></RigidName>
     <Version></Version>
     <Build>1</Build>
@@ -95,7 +95,7 @@ def generate_sdds_import(dist, file_objects):
     tidyXml(doc)
 
     fullVersion = os.environ.get("FULL_VERSION", "0.5.0.0")
-    rigidName = os.environ.get("RIGID_NAME", "SSPL-BASE")
+    rigidName = os.environ.get("RIGID_NAME", "ServerProtectionLinux-Base")
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
