@@ -14,10 +14,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace UpdateSchedulerImpl
 {
     class AsyncSulDownloaderRunner
-            : public virtual IAsyncSulDownloaderRunner
+            : public virtual UpdateScheduler::IAsyncSulDownloaderRunner
     {
     public:
-        AsyncSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue>, const std::string& dirPath);
+        AsyncSulDownloaderRunner(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue>, const std::string& dirPath);
 
         void triggerSulDownloader() override;
 
@@ -27,7 +27,7 @@ namespace UpdateSchedulerImpl
 
     private:
         std::string m_dirPath;
-        std::shared_ptr<SchedulerTaskQueue> m_taskQueue;
+        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_taskQueue;
         std::unique_ptr<SulDownloaderRunner> m_sulDownloaderRunner;
         std::future<void> m_sulDownloaderExecHandle;
     };

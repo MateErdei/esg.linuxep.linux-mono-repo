@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 
 using namespace UpdateSchedulerImpl;
+using namespace UpdateScheduler;
 using milliseconds = std::chrono::milliseconds;
 using minutes = std::chrono::minutes;
 using time_point = std::chrono::steady_clock::time_point;

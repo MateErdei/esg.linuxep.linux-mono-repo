@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
 using namespace UpdateSchedulerImpl;
+using namespace UpdateScheduler;
 
 class TestSulDownloaderRunner : public ::testing::Test
 {

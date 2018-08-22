@@ -13,7 +13,7 @@ using namespace ::testing;
 
 
 class MockCronSchedulerThread
-        : public UpdateSchedulerImpl::ICronSchedulerThread
+        : public UpdateScheduler::ICronSchedulerThread
 {
 public:
     MOCK_METHOD0(start, void());
@@ -22,5 +22,5 @@ public:
 
     MOCK_METHOD0(reset, void());
 
-    MOCK_METHOD1(setPeriodTime, void(UpdateSchedulerImpl::ICronSchedulerThread::DurationTime));
+    MOCK_METHOD1(setPeriodTime, void(UpdateScheduler::ICronSchedulerThread::DurationTime));
 };

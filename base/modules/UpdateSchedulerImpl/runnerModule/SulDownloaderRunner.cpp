@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
+    using namespace UpdateScheduler;
     SulDownloaderRunner::SulDownloaderRunner(
             std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
             const std::string& directoryToWatch,

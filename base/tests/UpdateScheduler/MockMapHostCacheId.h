@@ -12,7 +12,7 @@ using namespace ::testing;
 
 
 class MockMapHostCacheId
-        : public UpdateSchedulerImpl::IMapHostCacheId
+        : public UpdateScheduler::IMapHostCacheId
 {
 public:
 

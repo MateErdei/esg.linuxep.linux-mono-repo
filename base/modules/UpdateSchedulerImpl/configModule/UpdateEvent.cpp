@@ -80,7 +80,7 @@ std::string eventXML( const std::string & timestamp, const std::string & message
 
 namespace UpdateSchedulerImpl
 {
-
+    using namespace UpdateScheduler;
     std::string serializeUpdateEvent(const UpdateEvent &updateEvent, const IMapHostCacheId &iMapHostCacheId,
                                      const Common::UtilityImpl::IFormattedTime &iFormattedTime)
     {

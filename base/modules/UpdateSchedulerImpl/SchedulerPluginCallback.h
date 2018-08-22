@@ -13,11 +13,11 @@ namespace UpdateSchedulerImpl
 {
     class SchedulerPluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<SchedulerTaskQueue> m_task;
+        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
     public:
 
-        explicit SchedulerPluginCallback( std::shared_ptr<SchedulerTaskQueue> task );
+        explicit SchedulerPluginCallback(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> task);
 
         void applyNewPolicy(const std::string &policyXml) override;
 

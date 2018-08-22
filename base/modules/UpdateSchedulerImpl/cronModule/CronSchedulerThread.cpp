@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
+    using namespace UpdateScheduler;
     CronSchedulerThread::CronSchedulerThread(std::shared_ptr<SchedulerTaskQueue> schedulerQueue,
                                                        CronSchedulerThread::DurationTime firstTick,
                                                        CronSchedulerThread::DurationTime repeatPeriod):

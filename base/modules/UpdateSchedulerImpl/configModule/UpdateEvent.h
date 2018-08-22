@@ -29,7 +29,9 @@ namespace UpdateSchedulerImpl
         std::string UpdateSource;
     };
 
-    std::string serializeUpdateEvent( const UpdateEvent & updateEvent, const IMapHostCacheId & iMapHostCacheId, const Common::UtilityImpl::IFormattedTime & iFormattedTime);
+    std::string
+    serializeUpdateEvent(const UpdateEvent& updateEvent, const UpdateScheduler::IMapHostCacheId& iMapHostCacheId,
+                         const Common::UtilityImpl::IFormattedTime& iFormattedTime);
 }
 
 

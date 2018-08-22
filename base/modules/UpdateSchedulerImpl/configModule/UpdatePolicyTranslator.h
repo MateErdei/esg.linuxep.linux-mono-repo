@@ -20,7 +20,8 @@ namespace UpdateSchedulerImpl
         std::chrono::minutes schedulerPeriod;
     };
 
-    class UpdatePolicyTranslator : public virtual  IMapHostCacheId
+    class UpdatePolicyTranslator
+            : public virtual UpdateScheduler::IMapHostCacheId
     {
     public:
         SettingsHolder translatePolicy(const std::string &policyXml);

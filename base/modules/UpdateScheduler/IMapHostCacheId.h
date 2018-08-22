@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 
 
-namespace UpdateSchedulerImpl
+namespace UpdateScheduler
 {
     class IMapHostCacheId
     {

@@ -10,7 +10,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
+    using namespace UpdateScheduler;
     SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
         m_task(task), m_statusInfo()
     {

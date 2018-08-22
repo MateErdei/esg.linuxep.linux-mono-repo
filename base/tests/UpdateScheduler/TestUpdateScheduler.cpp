@@ -216,6 +216,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 
 
 using namespace UpdateSchedulerImpl;
+using namespace UpdateScheduler;
 using namespace Common::PluginApi;
 
 class TestUpdateScheduler

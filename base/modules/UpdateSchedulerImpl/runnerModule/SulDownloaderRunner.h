@@ -20,7 +20,7 @@ namespace UpdateSchedulerImpl
     {
     public:
         SulDownloaderRunner(
-                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+                std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue,
                 const std::string& directoryToWatch,
                 const std::string& nameOfFileToWaitFor,
                 std::chrono::seconds timeout);
@@ -35,7 +35,7 @@ namespace UpdateSchedulerImpl
     private:
         SulDownloaderResultDirectoryListener m_listener;
         std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
-        std::shared_ptr<SchedulerTaskQueue> m_schedulerTaskQueue;
+        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerTaskQueue;
         std::chrono::seconds m_timeout;
         std::tuple<int, std::string> startUpdateService();
     };

@@ -11,7 +11,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <mutex>
 #include <list>
 
-namespace UpdateSchedulerImpl
+namespace UpdateScheduler
 {
     struct SchedulerTask
     {

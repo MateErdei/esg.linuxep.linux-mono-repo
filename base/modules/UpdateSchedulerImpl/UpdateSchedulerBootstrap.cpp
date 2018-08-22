@@ -19,6 +19,7 @@ log4cplus::Logger GL_UPDSCH_LOGGER; //NOLINT
 
 namespace UpdateSchedulerImpl
 {
+    using namespace UpdateScheduler;
     int main_entry()
     {
         LoggingSetup logging;

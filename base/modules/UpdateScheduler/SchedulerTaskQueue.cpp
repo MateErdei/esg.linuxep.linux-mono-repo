@@ -6,7 +6,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "SchedulerTaskQueue.h"
 
-namespace UpdateSchedulerImpl
+namespace UpdateScheduler
 {
 
     void SchedulerTaskQueue::push(SchedulerTask task)

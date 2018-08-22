@@ -21,11 +21,11 @@ namespace UpdateSchedulerImpl
         static std::string ALC_API;
         static std::string VERSIONID;
     public:
-        UpdateSchedulerProcessor(std::shared_ptr<SchedulerTaskQueue> queueTask,
+        UpdateSchedulerProcessor(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> queueTask,
                                  std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
                                  std::shared_ptr<SchedulerPluginCallback> callback,
-                                 std::unique_ptr<ICronSchedulerThread> cronThread,
-                                 std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner);
+                                 std::unique_ptr<UpdateScheduler::ICronSchedulerThread> cronThread,
+                                 std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
     private:
         void processPolicy(const std::string & policyXml);
@@ -43,11 +43,12 @@ namespace UpdateSchedulerImpl
         void safeMoveDownloaderConfigFile(const std::string& originalJsonFilePath) const;
 
         void ensureSulDownloaderNotRunning();
-        std::shared_ptr<SchedulerTaskQueue> m_queueTask;
+
+        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<SchedulerPluginCallback> m_callback;
-        std::unique_ptr<ICronSchedulerThread> m_cronThread;
-        std::unique_ptr<IAsyncSulDownloaderRunner> m_sulDownloaderRunner;
+        std::unique_ptr<UpdateScheduler::ICronSchedulerThread> m_cronThread;
+        std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> m_sulDownloaderRunner;
         UpdatePolicyTranslator m_policyTranslator;
         std::string m_reportfilePath;
         std::string m_configfilePath;

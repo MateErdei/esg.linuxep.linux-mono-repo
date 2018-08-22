@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
+    using namespace UpdateScheduler;
 
 /**Factory */
 
@@ -40,11 +41,15 @@ namespace UpdateSchedulerImpl
                     new AsyncSulDownloaderRunner(schedulerTaskQueue, dirPath));
         };
     }
-
+}
+namespace UpdateScheduler
+{
 
     std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue>
                                                                          schedulerTaskQueue, std::string dirPath)
     {
-        return SulDownloaderRunnerFactory::instance().createSulDownloaderRunner(schedulerTaskQueue, dirPath);
+        return UpdateSchedulerImpl::SulDownloaderRunnerFactory::instance().createSulDownloaderRunner(schedulerTaskQueue,
+                                                                                                     dirPath
+        );
     }
 }

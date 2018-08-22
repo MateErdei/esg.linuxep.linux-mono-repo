@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SchedulerTaskQueue.h"
 #include <chrono>
 
-namespace UpdateSchedulerImpl
+namespace UpdateScheduler
 {
 
     class ICronSchedulerThread

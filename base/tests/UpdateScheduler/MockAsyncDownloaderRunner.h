@@ -13,7 +13,7 @@ using namespace ::testing;
 
 
 class MockAsyncDownloaderRunner
-        : public UpdateSchedulerImpl::IAsyncSulDownloaderRunner
+        : public UpdateScheduler::IAsyncSulDownloaderRunner
 {
 public:
     MOCK_METHOD0(triggerSulDownloader, void());

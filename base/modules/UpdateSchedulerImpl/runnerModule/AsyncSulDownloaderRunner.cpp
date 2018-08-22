@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
+    using namespace UpdateScheduler;
     AsyncSulDownloaderRunner::AsyncSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> taskQueue,
                                                        const std::string& dirPath)
             : m_dirPath(dirPath)

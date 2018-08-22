@@ -19,12 +19,13 @@ namespace UpdateSchedulerImpl
 
     public:
         using FunctionType = std::function<
-                std::unique_ptr<IAsyncSulDownloaderRunner>(std::shared_ptr<SchedulerTaskQueue>, const std::string&)>;
+                std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner>(
+                        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue>, const std::string&)>;
 
         static SulDownloaderRunnerFactory& instance();
 
-        std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(
-                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath);
+        std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> createSulDownloaderRunner(
+                std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath);
 
         // for tests only
         void replaceCreator(FunctionType creator);
