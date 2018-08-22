@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "DownloadReportsAnalyser.h"
-#include "Logger.h"
+#include "../Logger.h"
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>

@@ -8,11 +8,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApiImpl/PluginApiImpl.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include "SchedulerTaskQueue.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include "SchedulerPluginCallback.h"
-#include "ICronSchedulerThread.h"
-#include "UpdatePolicyTranslator.h"
-#include "IAsyncSulDownloaderRunner.h"
+#include <UpdateScheduler/ICronSchedulerThread.h>
+#include "configModule/UpdatePolicyTranslator.h"
+#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 
 namespace UpdateSchedulerImpl
 {

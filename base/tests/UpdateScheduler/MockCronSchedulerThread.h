@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <gmock/gmock.h>
-#include <UpdateSchedulerImpl/ICronSchedulerThread.h>
+#include <UpdateScheduler/ICronSchedulerThread.h>
 
 using namespace ::testing;
 

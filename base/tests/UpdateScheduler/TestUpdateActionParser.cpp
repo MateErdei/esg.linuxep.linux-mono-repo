@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateSchedulerImpl/UpdateActionParser.h>
+#include <UpdateSchedulerImpl/configModule/UpdateActionParser.h>
 
 static std::string updateAction{R"sophos(<?xml version='1.0'?>
 

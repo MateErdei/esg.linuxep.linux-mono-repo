@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateSchedulerImpl/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include "DownloadReportTestBuilder.h"

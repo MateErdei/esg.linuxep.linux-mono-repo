@@ -7,10 +7,10 @@
 #include <iostream>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include "UpdateSchedulerBootstrap.h"
-#include "SchedulerTaskQueue.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include "SchedulerPluginCallback.h"
-#include "CronSchedulerThread.h"
-#include "AsyncSulDownloaderRunner.h"
+#include "cronModule/CronSchedulerThread.h"
+#include "runnerModule/AsyncSulDownloaderRunner.h"
 #include "UpdateSchedulerProcessor.h"
 #include "Logger.h"
 #include "LoggingSetup.h"

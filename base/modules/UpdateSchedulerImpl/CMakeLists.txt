@@ -1,23 +1,23 @@
 add_library(updateschedulerimpl SHARED
-        UpdatePolicyTranslator.cpp
-        UpdatePolicyTranslator.h
-        UpdateActionParser.cpp
-        UpdateActionParser.h
-        SulDownloaderRunner.cpp
-        SulDownloaderRunner.h
-        SchedulerTaskQueue.cpp
-        SchedulerTaskQueue.h
-        SulDownloaderResultDirectoryListener.cpp
-        SulDownloaderResultDirectoryListener.h
-        CronSchedulerThread.h
-        CronSchedulerThread.cpp
-        DownloadReportsAnalyser.cpp
-        DownloadReportsAnalyser.h
-        UpdateStatus.h
-        UpdateStatus.cpp
-        UpdateEvent.cpp
-        UpdateEvent.h
-        IMapHostCacheId.h
+        configModule/UpdatePolicyTranslator.cpp
+        configModule/UpdatePolicyTranslator.h
+        configModule/UpdateActionParser.cpp
+        configModule/UpdateActionParser.h
+        runnerModule/SulDownloaderRunner.cpp
+        runnerModule/SulDownloaderRunner.h
+        ../UpdateScheduler/SchedulerTaskQueue.cpp
+        ../UpdateScheduler/SchedulerTaskQueue.h
+        runnerModule/SulDownloaderResultDirectoryListener.cpp
+        runnerModule/SulDownloaderResultDirectoryListener.h
+        cronModule/CronSchedulerThread.h
+        cronModule/CronSchedulerThread.cpp
+        configModule/DownloadReportsAnalyser.cpp
+        configModule/DownloadReportsAnalyser.h
+        configModule/UpdateStatus.h
+        configModule/UpdateStatus.cpp
+        configModule/UpdateEvent.cpp
+        configModule/UpdateEvent.h
+        ../UpdateScheduler/IMapHostCacheId.h
         SchedulerPluginCallback.h
         SchedulerPluginCallback.cpp
         Logger.h
@@ -27,7 +27,7 @@ add_library(updateschedulerimpl SHARED
         UpdateSchedulerProcessor.cpp
         UpdateSchedulerBootstrap.h
         UpdateSchedulerBootstrap.cpp
-        SulDownloaderRunnerFactory.cpp SulDownloaderRunnerFactory.h AsyncSulDownloaderRunner.cpp AsyncSulDownloaderRunner.h IAsyncSulDownloaderRunner.h ICronSchedulerThread.h)
+        runnerModule/SulDownloaderRunnerFactory.cpp runnerModule/SulDownloaderRunnerFactory.h runnerModule/AsyncSulDownloaderRunner.cpp runnerModule/AsyncSulDownloaderRunner.h ../UpdateScheduler/IAsyncSulDownloaderRunner.h ../UpdateScheduler/ICronSchedulerThread.h)
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 

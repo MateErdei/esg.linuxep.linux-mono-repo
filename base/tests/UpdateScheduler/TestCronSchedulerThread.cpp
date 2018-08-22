@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateSchedulerImpl/CronSchedulerThread.h>
+#include <UpdateSchedulerImpl/cronModule/CronSchedulerThread.h>
 #include <gmock/gmock-matchers.h>
 
 using namespace UpdateSchedulerImpl;

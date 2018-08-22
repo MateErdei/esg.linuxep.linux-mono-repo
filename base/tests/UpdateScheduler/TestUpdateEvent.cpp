@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gmock/gmock-matchers.h>
-#include <UpdateSchedulerImpl/UpdateEvent.h>
-#include <UpdateSchedulerImpl/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 #include "DownloadReportTestBuilder.h"
 #include "MockMapHostCacheId.h"

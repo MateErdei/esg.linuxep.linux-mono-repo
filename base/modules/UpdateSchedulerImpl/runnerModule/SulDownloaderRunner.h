@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "SchedulerTaskQueue.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include "SulDownloaderResultDirectoryListener.h"
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>

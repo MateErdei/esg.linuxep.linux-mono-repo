@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateSchedulerImpl/UpdatePolicyTranslator.h>
+#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>

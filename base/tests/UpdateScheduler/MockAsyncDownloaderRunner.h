@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include "gmock/gmock.h"
-#include <UpdateSchedulerImpl/IAsyncSulDownloaderRunner.h>
+#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 
 using namespace ::testing;
 

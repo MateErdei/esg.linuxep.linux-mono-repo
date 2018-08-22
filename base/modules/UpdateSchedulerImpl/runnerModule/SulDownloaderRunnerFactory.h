@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "IAsyncSulDownloaderRunner.h"
-#include "SchedulerTaskQueue.h"
+#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <functional>
 
 namespace UpdateSchedulerImpl

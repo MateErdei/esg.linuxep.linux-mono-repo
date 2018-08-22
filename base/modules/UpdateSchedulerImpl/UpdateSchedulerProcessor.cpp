@@ -5,11 +5,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UpdateSchedulerProcessor.h"
-#include "DownloadReportsAnalyser.h"
+#include "configModule/DownloadReportsAnalyser.h"
 #include "Logger.h"
-#include "SchedulerTaskQueue.h"
-#include "UpdatePolicyTranslator.h"
-#include "UpdateActionParser.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include "configModule/UpdatePolicyTranslator.h"
+#include "configModule/UpdateActionParser.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>

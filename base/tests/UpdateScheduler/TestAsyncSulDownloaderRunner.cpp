@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateSchedulerImpl/IAsyncSulDownloaderRunner.h>
+#include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/TestHelpers/TempDir.h>
