@@ -52,38 +52,46 @@ namespace UpdateScheduler
 
         while(true)
         {
-            SchedulerTask task = m_queueTask->pop();
-            switch(task.taskType)
+            try
             {
-                case SchedulerTask::TaskType::UpdateNow:
-                    processUpdateNow(task.content);
-                    break;
-                case SchedulerTask::TaskType::ScheduledUpdate:
-                    processScheduleUpdate();
-                    break;
-                case SchedulerTask::TaskType::Policy:
-                    processPolicy(task.content);
-                    break;
-                case SchedulerTask::TaskType::Stop:
-                    return;
-                case SchedulerTask::TaskType::SulDownloaderFinished:
-                    processSulDownloaderFinished(task.content);
-                    break;
-                case SchedulerTask::TaskType::SulDownloaderFailedToStart:
-                    processSulDownloaderFailedToStart(task.content);
-                    break;
-                case SchedulerTask::TaskType::SulDownloaderTimedOut:
-                    processSulDownloaderTimedOut();
-                    break;
-                case SchedulerTask::TaskType::SulDownloaderWasAborted:
-                    processSulDownloaderWasAborted();
-                    break;
-                case SchedulerTask::TaskType::ShutdownReceived:
-                    processShutdownReceived();
-                    break;
-                default:
-                    break;
+                SchedulerTask task = m_queueTask->pop();
+                switch (task.taskType)
+                {
+                    case SchedulerTask::TaskType::UpdateNow:
+                        processUpdateNow(task.content);
+                        break;
+                    case SchedulerTask::TaskType::ScheduledUpdate:
+                        processScheduleUpdate();
+                        break;
+                    case SchedulerTask::TaskType::Policy:
+                        processPolicy(task.content);
+                        break;
+                    case SchedulerTask::TaskType::Stop:
+                        return;
+                    case SchedulerTask::TaskType::SulDownloaderFinished:
+                        processSulDownloaderFinished(task.content);
+                        break;
+                    case SchedulerTask::TaskType::SulDownloaderFailedToStart:
+                        processSulDownloaderFailedToStart(task.content);
+                        break;
+                    case SchedulerTask::TaskType::SulDownloaderTimedOut:
+                        processSulDownloaderTimedOut();
+                        break;
+                    case SchedulerTask::TaskType::SulDownloaderWasAborted:
+                        processSulDownloaderWasAborted();
+                        break;
+                    case SchedulerTask::TaskType::ShutdownReceived:
+                        processShutdownReceived();
+                        break;
+                    default:
+                        break;
+                }
             }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Unexpected error: " << ex.what());
+            }
+
         }
     }
 
