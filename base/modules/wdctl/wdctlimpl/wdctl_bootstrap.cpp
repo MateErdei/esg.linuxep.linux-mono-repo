@@ -31,6 +31,14 @@ log4cplus::Logger GL_WDCTL_LOGGER; //NOLINT
 
 int wdctl_bootstrap::main(int argc, char **argv)
 {
+    LoggingSetup logging;
+
+    if (argc != 3)
+    {
+        LOGERROR("Error: Wrong number of arguments expected 2");
+        return 2;
+    }
+
     StringVector args = convertArgv(static_cast<unsigned int>(argc), argv);
     return main(args);
 }
@@ -95,7 +103,7 @@ int wdctl_bootstrap::main(const StringVector& args)
             SOPHOS_INSTALL
     );
 
-    LoggingSetup logging;
+
 
     m_args.parseArguments(args);
 
