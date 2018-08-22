@@ -58,8 +58,7 @@ namespace SulDownloader
 
         auto fileSystem = ::Common::FileSystem::fileSystem();
 
-        std::string installShFile = Common::FileSystem::join(distributionFolderName(), "install.sh");
-        installShFile = Common::FileSystem::join(m_distributePath, installShFile);
+        std::string installShFile = Common::FileSystem::join(m_distributePath, distributionFolderName(), "install.sh");
 
         if( fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile) )
         {

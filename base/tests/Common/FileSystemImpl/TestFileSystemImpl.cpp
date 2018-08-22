@@ -62,17 +62,20 @@ namespace
 
     TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath2StartingWithSeporator) //NOLINT
     {
+        // python -c 'import os; print os.path.join("/foo","/bar")' -> "/bar
+
         std::string path1("/tmp");
         std::string path2("/tempfile.txt");
-        std::string expectedValue("/tmp/tempfile.txt");
+        std::string expectedValue("/tempfile.txt");
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
     TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath1TrailingSeporatorAndPath2StartingWithSeporator) //NOLINT
     {
+        // python -c 'import os; print os.path.join("/tmp/","/tempfile.txt")' -> /tempfile.txt
         std::string path1("/tmp/");
         std::string path2("/tempfile.txt");
-        std::string expectedValue("/tmp/tempfile.txt");
+        std::string expectedValue("/tempfile.txt");
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
@@ -84,11 +87,24 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
+    TEST_F(FileSystemImplTest, joinWithDotSlashSlashReturnsExpectedPath) //NOLINT
+    {
+        // python -c 'import os; print os.path.join("/tmp/",".//tempfile.txt")' -> /tmp/.//tempfile.txt
+        // python doesn't have any special handling for ./ in join
+        // python -c 'import os; print os.path.normpath(os.path.join("/tmp/",".//tempfile.txt"))' -> /tmp/tempfile.txt
+
+        std::string path1("/tmp/");
+        std::string path2(".//tempfile.txt");
+        std::string expectedValue("/tmp/tempfile.txt");
+        EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
+    }
+
     TEST_F(FileSystemImplTest, joinWithEmptyStringsReturnsExpectedPath) //NOLINT
     {
+        // python -c 'import os; print os.path.join("","")' -> ""
         std::string path1;
         std::string path2;
-        std::string expectedValue("/"); // ?? differs from C++17 and python
+        std::string expectedValue;
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
@@ -102,9 +118,28 @@ namespace
 
     TEST_F(FileSystemImplTest, joinWithEmptyPath1AndRelativePath2ReturnsExpectedPath) //NOLINT
     {
+        // python -c 'import os; print os.path.join("","foo/bar")' -> foo/bar
         Path path1;
         Path path2("foo/bar");
-        Path expectedValue("/foo/bar");  // ?? differs from C++17 and python
+        Path expectedValue("foo/bar");
+        EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithEmptyPath2ReturnsExpectedPath) //NOLINT
+    {
+        // python -c 'import os; print os.path.join("foo/bar","")' -> foo/bar
+        Path path1("foo/bar");
+        Path path2;
+        Path expectedValue("foo/bar");
+        EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
+    }
+
+    TEST_F(FileSystemImplTest, joinWithTwoRelativePathsReturnsARelativePath) //NOLINT
+    {
+        // python -c 'import os; print os.path.join("foo","bar")'
+        Path path1("foo");
+        Path path2("bar");
+        Path expectedValue("foo/bar");
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 

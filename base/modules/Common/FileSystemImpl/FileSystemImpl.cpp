@@ -37,6 +37,12 @@ namespace Common
 
         Path join(const Path& path1, const Path& path2)
         {
+            if (path2.find('/') == 0)
+            {
+                // If path2 is absolute then use that only
+                return path2;
+            }
+
             std::string subPath2;
 
             if (path2.find("./") == 0)
@@ -46,6 +52,16 @@ namespace Common
             else
             {
                 subPath2 = path2;
+            }
+
+            if (path1.empty())
+            {
+                return subPath2;
+            }
+
+            if (subPath2.empty())
+            {
+                return path1;
             }
 
             if (path1.back() != '/' && subPath2.front() != '/')
