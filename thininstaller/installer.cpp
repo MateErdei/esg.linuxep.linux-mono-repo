@@ -15,8 +15,7 @@
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
-// TODO Add GUID for base warehouse files
-static const char * g_Guid = "SSPL-RIGIDNAME";
+static const char * g_Guid = "ServerProtectionLinux-Base";
 
 #define BIGBUF 81920
 
