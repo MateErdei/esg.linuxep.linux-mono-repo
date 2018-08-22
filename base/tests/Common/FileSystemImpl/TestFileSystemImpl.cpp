@@ -286,6 +286,24 @@ namespace
         EXPECT_EQ(content,"FOOBAR");
     }
 
+    TEST_F( FileSystemImplTest, copyFileDoesNotExist) // NOLINT
+    {
+        Tests::TempDir tempdir("","FileSystemImplTest_copyFile");
+        Path A = tempdir.absPath("A");
+        Path B = tempdir.absPath("B");
+        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B));
+        EXPECT_FALSE(m_fileSystem->exists(B));
+    }
+
+    TEST_F( FileSystemImplTest, copyFileNonAccessibleDest) // NOLINT
+    {
+        Tests::TempDir tempdir("","FileSystemImplTest_copyFile");
+        Path A = tempdir.absPath("A");
+        Path B = Common::FileSystem::join("NotADirectory", "NotAFile");
+        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B));
+        EXPECT_FALSE(m_fileSystem->exists(B));
+    }
+
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");

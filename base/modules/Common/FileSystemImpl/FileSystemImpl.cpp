@@ -278,10 +278,27 @@ namespace Common
 
         void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
         {
-            std::ifstream ifs(src);
-            std::ofstream ofs(dest);
 
-            ofs << ifs.rdbuf();
+            if (!FileSystem::fileSystem()->exists(src))
+            {
+                throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
+            }
+            {
+                std::ifstream ifs(src);
+                if (!ifs.good())
+                {
+                    throw IFileSystemException(
+                            "Failed to copy file: '" + src + "' to '" + dest + "', ifstream had errors."
+                    );
+                }
+
+                std::ofstream ofs(dest);
+                ofs << ifs.rdbuf();
+            }
+            if (!FileSystem::fileSystem()->exists(dest))
+            {
+                throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
+            }
         }
 
         std::vector<Path> FileSystemImpl::listFiles(const Path &directoryPath) const
