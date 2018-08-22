@@ -12,40 +12,50 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
-
-    // uses private inheritance to abstractThread because it wants to have a different meaning for requestStop and also to be able to
-    // override the run method.
-    class CronSchedulerThread
-            : public virtual UpdateScheduler::ICronSchedulerThread, private Common::Threads::AbstractThread
+    namespace cronModule
     {
-    public:
-        using DurationTime = UpdateScheduler::ICronSchedulerThread::DurationTime;
+        // uses private inheritance to abstractThread because it wants to have a different meaning for requestStop and also to be able to
+        // override the run method.
+        class CronSchedulerThread
+                : public virtual UpdateScheduler::ICronSchedulerThread, private Common::Threads::AbstractThread
+        {
+        public:
+            using DurationTime = UpdateScheduler::ICronSchedulerThread::DurationTime;
 
-        CronSchedulerThread(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerQueue, DurationTime firstTick,
-                            DurationTime repeatPeriod);
-        ~CronSchedulerThread();
+            CronSchedulerThread(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerQueue,
+                                DurationTime firstTick,
+                                DurationTime repeatPeriod);
 
-        void start() override;
+            ~CronSchedulerThread();
 
-        void requestStop() override;
+            void start() override;
 
-        void reset() override;
+            void requestStop() override;
 
-        void setPeriodTime(DurationTime repeatPeriod);
+            void reset() override;
 
-    private:
-        void run() override ;
-        enum  class ActionOnInterrupt{NOTHING, RESET, STOP};
+            void setPeriodTime(DurationTime repeatPeriod);
 
-        std::chrono::milliseconds getPeriodTick() ;
-        ActionOnInterrupt getActionOnInterruptAndReset();
+        private:
+            void run() override;
 
-        std::mutex m_sharedState;
-        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerQueue;
-        DurationTime m_firstTick;
-        DurationTime m_periodTick;
-        ActionOnInterrupt m_actionOnInterrupt;
-    };
+            enum class ActionOnInterrupt
+            {
+                NOTHING, RESET, STOP
+            };
+
+            std::chrono::milliseconds getPeriodTick();
+
+            ActionOnInterrupt getActionOnInterruptAndReset();
+
+            std::mutex m_sharedState;
+            std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerQueue;
+            DurationTime m_firstTick;
+            DurationTime m_periodTick;
+            ActionOnInterrupt m_actionOnInterrupt;
+        };
+    }
+
 }
 
 

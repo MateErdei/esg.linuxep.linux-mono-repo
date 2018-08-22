@@ -37,7 +37,7 @@ namespace UpdateSchedulerImpl
 
 
         std::unique_ptr<ICronSchedulerThread> cronThread = std::unique_ptr<ICronSchedulerThread>(
-                new CronSchedulerThread(
+                new cronModule::CronSchedulerThread(
                         queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60))
         );
         std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();

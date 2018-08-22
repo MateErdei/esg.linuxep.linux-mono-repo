@@ -12,7 +12,7 @@ using namespace UpdateScheduler;
 using milliseconds = std::chrono::milliseconds;
 using minutes = std::chrono::minutes;
 using time_point = std::chrono::steady_clock::time_point;
-
+using CronSchedulerThread = cronModule::CronSchedulerThread;
 namespace
 {
     time_point now()
