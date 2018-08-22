@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
-#include "IMapHostCacheId.h"
+#include <UpdateScheduler/IMapHostCacheId.h>
 #include  <Common/UtilityImpl/TimeUtils.h>
 
 namespace UpdateSchedulerImpl
