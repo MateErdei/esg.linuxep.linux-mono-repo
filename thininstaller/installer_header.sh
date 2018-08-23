@@ -88,7 +88,7 @@ check_free_storage()
     then
         return 0
     fi
-    echo "Not enough space in $mountpoint to install Sophos Anti-Virus for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
+    echo "Not enough space in $mountpoint to install SSPL. You can install elsewhere by re-running this installer with the --instdir argument."
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
