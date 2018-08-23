@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
+#include <modules/UpdateScheduler/UpdatePolicyTranslator.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
@@ -22,7 +22,7 @@ static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
 
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
@@ -144,7 +144,7 @@ static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
@@ -247,10 +247,10 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos"};
 
-using namespace UpdateSchedulerImpl::configModule;
+
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
-    UpdatePolicyTranslator translator;
+    UpdateScheduler::UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -281,21 +281,18 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 
     EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin-");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
 
     EXPECT_TRUE(config.getProxy().empty());
-
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
-
 }
 
 TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
-    UpdatePolicyTranslator translator;
+    UpdateScheduler::UpdatePolicyTranslator translator;
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -306,7 +303,7 @@ TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
-    UpdatePolicyTranslator translator;
+    UpdateScheduler::UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -333,7 +330,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
 
     EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin-");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
@@ -342,11 +339,10 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                SulDownloader::Credentials{"TestUser",
                                                           "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="}};
     EXPECT_EQ(config.getProxy(), expectedProxy);
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }
 
-TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
+TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT
 {
-    UpdatePolicyTranslator translator;
+    UpdateScheduler::UpdatePolicyTranslator translator;
     EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
 }
