@@ -179,7 +179,7 @@ namespace UpdateSchedulerImpl
                     Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
             std::string configFile = Common::ApplicationConfiguration::applicationPathManager()
                     .getSulDownloaderConfigFilePath();
-            LOGSUPPORT("Process " << listFiles.size() << " suldownloader reports");
+
             struct FileAndDownloadReport
             {
                 std::string filepath;
@@ -207,12 +207,17 @@ namespace UpdateSchedulerImpl
                     LOGERROR(ex.what());
                 }
             }
-
+            LOGSUPPORT("Process " << reportCollection.size() << " suldownloader reports");
             std::sort(reportCollection.begin(), reportCollection.end(),
                       [](const FileAndDownloadReport& lhs, const FileAndDownloadReport& rhs) {
                           return lhs.sortKey < rhs.sortKey;
                       }
             );
+
+            for (auto& entry : reportCollection)
+            {
+                LOGSUPPORT("Sorted Listed files: " << entry.filepath << " key: " << entry.sortKey);
+            }
 
 
             ReportAndFiles reportAndFiles;

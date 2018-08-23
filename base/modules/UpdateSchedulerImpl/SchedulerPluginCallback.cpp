@@ -25,7 +25,7 @@ namespace UpdateSchedulerImpl
 
     void SchedulerPluginCallback::queueAction(const std::string &actionXml)
     {
-        LOGSUPPORT("Queueing action");
+        LOGSUPPORT("API received action");
         m_task->push(SchedulerTask{SchedulerTask::TaskType::UpdateNow, actionXml});
     }
 
