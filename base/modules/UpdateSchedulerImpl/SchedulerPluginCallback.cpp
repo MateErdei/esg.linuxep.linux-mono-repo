@@ -41,7 +41,7 @@ namespace UpdateSchedulerImpl
         LOGSUPPORT("Received get status request");
         if (m_statusInfo.statusXml.empty())
         {
-            LOGWARN("Status has not been configured yet.")
+            LOGWARN("Status has not been configured yet.");
             throw Common::PluginApi::ApiException("Status not set yet. ");
         }
         return m_statusInfo;
