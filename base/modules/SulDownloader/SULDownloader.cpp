@@ -242,7 +242,7 @@ namespace SulDownloader
             {
                 previousDownloadReport = Common::FileSystem::fileSystem()->readFile(previousReportFileName);
             }
-            catch (Common::FileSystem::IFileSystemException& ex)
+            catch (const Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to load previous download report file: " << previousReportFileName);
                 LOGSUPPORT(ex.what());
