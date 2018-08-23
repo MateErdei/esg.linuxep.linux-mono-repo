@@ -619,6 +619,63 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
 }
 
 
+TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
+{
+    static std::string reportExample{R"sophos({
+        "finishTime": "20180822 121220",
+        "status": "INSTALLFAILED",
+        "sulError": "",
+        "products": [
+        {
+            "errorDescription": "",
+            "rigidName": "SSPL-RIGIDNAME",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "SSPL-RIGIDNAME#0.5.0"
+        },
+        {
+            "rigidName": "SSPL-RIGIDNAME-PLUGIN",
+            "errorDescription": "Failed to install",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "SSPL-RIGIDNAME-PLUGIN#0.5"
+        }
+        ],
+        "startTime": "20180822 121220",
+        "errorDescription": "",
+        "urlSource": "Sophos",
+        "syncTime": "20180821 121220"
+    })sophos"};
+    SulDownloader::DownloadReport report = SulDownloader::DownloadReport::toReport(reportExample);
+    std::vector<SulDownloader::DownloadReport> reports{report};
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
+
+
+    UpdateEvent expectedEvent;
+    // send event because cache changed
+    expectedEvent.IsRelevantToSend = true;
+    expectedEvent.MessageNumber = 103;
+    expectedEvent.UpdateSource = "Sophos";
+    expectedEvent.Messages.push_back({"SSPL-RIGIDNAME-PLUGIN#0.5", "Failed to install"});//FIXME: LINUXEEP-6473
+
+    UpdateStatus expectedStatus;
+    expectedStatus.LastResult = 103;
+    expectedStatus.LastStartTime = "20180822 121220";
+    expectedStatus.LastFinishdTime = "20180822 121220";
+    expectedStatus.LastSyncTime.clear();
+    expectedStatus.LastInstallStartedTime.clear();
+    expectedStatus.FirstFailedTime = "20180822 121220";
+    expectedStatus.Products.push_back(ProductStatus{"SSPL-RIGIDNAME", "SSPL-RIGIDNAME#0.5.0", "0.5.0"});
+    expectedStatus.Products.push_back(ProductStatus{"SSPL-RIGIDNAME-PLUGIN", "SSPL-RIGIDNAME-PLUGIN#0.5", "0.5.0"});
+
+
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // first is the upgrade and the later the last one the second one is not necessary
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true}));
+}
+
+
 
 
 
