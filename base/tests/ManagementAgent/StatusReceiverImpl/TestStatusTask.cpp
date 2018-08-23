@@ -97,7 +97,8 @@ TEST(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
     std::string fullPath =
             Common::FileSystem::join(
                     Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(),
-                    appId + ".xml");
+                    appId + ".xml"
+            );
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml","","tempDir")).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));

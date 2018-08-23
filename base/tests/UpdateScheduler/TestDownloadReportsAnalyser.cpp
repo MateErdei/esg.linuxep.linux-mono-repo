@@ -628,17 +628,17 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
         "products": [
         {
             "errorDescription": "",
-            "rigidName": "SSPL-RIGIDNAME",
+            "rigidName": "ServerProtectionLinux-Base",
             "downloadVersion": "0.5.0",
             "productStatus": "UPTODATE",
-            "productName": "SSPL-RIGIDNAME#0.5.0"
+            "productName": "ServerProtectionLinux-Base#0.5.0"
         },
         {
-            "rigidName": "SSPL-RIGIDNAME-PLUGIN",
+            "rigidName": "ServerProtectionLinux-Plugin",
             "errorDescription": "Failed to install",
             "downloadVersion": "0.5.0",
             "productStatus": "UPTODATE",
-            "productName": "SSPL-RIGIDNAME-PLUGIN#0.5"
+            "productName": "ServerProtectionLinux-Plugin#0.5"
         }
         ],
         "startTime": "20180822 121220",
@@ -656,7 +656,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
     expectedEvent.UpdateSource = "Sophos";
-    expectedEvent.Messages.push_back({"SSPL-RIGIDNAME-PLUGIN#0.5", "Failed to install"});//FIXME: LINUXEEP-6473
+    expectedEvent.Messages.push_back({"ServerProtectionLinux-Plugin#0.5", "Failed to install"});//FIXME: LINUXEEP-6473
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 103;
@@ -665,8 +665,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Products.push_back(ProductStatus{"SSPL-RIGIDNAME", "SSPL-RIGIDNAME#0.5.0", "0.5.0"});
-    expectedStatus.Products.push_back(ProductStatus{"SSPL-RIGIDNAME-PLUGIN", "SSPL-RIGIDNAME-PLUGIN#0.5", "0.5.0"});
+    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0"});
+    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0"});
 
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);

@@ -129,8 +129,8 @@ namespace UpdateSchedulerImpl
 //            std::string releaseTag;
 //            std::string baseVersion;
 //        };
-            config.addProductSelection({"SSPL-RIGIDNAME", true, false, "RECOMMENDED", "0.5"});
-            config.addProductSelection({"SSPL-RIGIDNAME-PLUGIN", false, true, "RECOMMENDED", "0.5"});
+            config.addProductSelection({"ServerProtectionLinux-Base", true, false, "RECOMMENDED", "0.5"});
+            config.addProductSelection({"ServerProtectionLinux-Plugin", false, true, "RECOMMENDED", "0.5"});
 
 
             config.setInstallArguments({"--instdir", applicationPathManager().sophosInstall()});
