@@ -51,8 +51,6 @@ add_library(suldownloaderimpl SHARED
     ProductUninstaller.h)
 
 
-set( SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)
-
 target_link_libraries(suldownloaderdata PUBLIC ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl)
 
 target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} )
