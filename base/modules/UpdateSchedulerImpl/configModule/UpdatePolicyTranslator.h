@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <SulDownloader/ConfigurationData.h>
-#include <chrono>
 #include <UpdateScheduler/IMapHostCacheId.h>
+#include <chrono>
 
 namespace UpdateSchedulerImpl
 {
