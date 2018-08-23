@@ -88,7 +88,7 @@ check_free_storage()
     then
         return 0
     fi
-    echo "Not enough space in $mountpoint to install SSPL. You can install elsewhere by re-running this installer with the --instdir argument."
+    echo "Not enough space in $mountpoint to install Sophos Server Protection for Linux. You can install elsewhere by re-running this installer with the --instdir argument."
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
@@ -276,7 +276,7 @@ then
         cleanup_and_exit ${EXITCODE_SUCCESS}
     elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
     then
-        echo "Please uninstall SSPL before using this installer." >&2
+        echo "Please uninstall Sophos Server Protection for Linux before using this installer." >&2
         cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
     fi
 fi
