@@ -22,7 +22,7 @@ namespace UpdateSchedulerImpl
                 m_listener(directoryToWatch, nameOfFileToWaitFor)
                 , m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(
                 new Common::DirectoryWatcherImpl::DirectoryWatcher()))
-                , m_schedulerTaskQueue(schedulerTaskQueue)
+                , m_schedulerTaskQueue(std::move(schedulerTaskQueue))
                 , m_timeout(timeout)
         {
             m_directoryWatcher->addListener(m_listener);

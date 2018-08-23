@@ -7,7 +7,9 @@ add_library(utilityimpl SHARED
         StringUtils.h
         iostr_utils.h
         TimeUtils.cpp
-        TimeUtils.h UniformIntDistribution.cpp UniformIntDistribution.h)
+        TimeUtils.h
+        UniformIntDistribution.cpp
+        UniformIntDistribution.h)
 
 target_include_directories(utilityimpl PUBLIC ../../Common ${Protobuf_INCLUDE_DIR})
 target_link_libraries(utilityimpl PUBLIC ${Protobuf_LIBRARIES})

@@ -51,12 +51,11 @@ add_library(suldownloaderimpl SHARED
     ProductUninstaller.h)
 
 
-target_link_libraries(suldownloaderdata PUBLIC ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl)
-
+set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
 target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} )
 
 
-include_directories(BEFORE ${SUL_INPUT}/include)
+include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include)
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES
@@ -64,6 +63,7 @@ SET_TARGET_PROPERTIES( suldownloaderimpl
         BUILD_RPATH "${SUL_LIBRARY_DIRS}"
         )
 
+target_link_libraries(suldownloaderdata PUBLIC ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl)
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION files/base/lib64)
 
