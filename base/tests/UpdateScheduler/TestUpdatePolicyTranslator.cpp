@@ -330,7 +330,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
 
     EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin-");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
