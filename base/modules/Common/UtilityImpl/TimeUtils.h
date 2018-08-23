@@ -40,7 +40,8 @@ namespace Common
             static std::string fromTime(std::time_t);
         };
 
-        class FormatedTime : public virtual IFormattedTime
+        class FormattedTime
+                : public virtual IFormattedTime
         {
         public:
             std::string currentTime() const override ;

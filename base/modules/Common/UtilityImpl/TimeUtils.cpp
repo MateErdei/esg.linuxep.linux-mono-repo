@@ -46,12 +46,12 @@ namespace  Common
         }
 
 
-        std::string FormatedTime::currentTime() const
+        std::string FormattedTime::currentTime() const
         {
             return TimeUtils::fromTime( TimeUtils::getCurrTime());
         }
 
-        std::string FormatedTime::bootTime() const
+        std::string FormattedTime::bootTime() const
         {
             return TimeUtils::getBootTime();
         }
