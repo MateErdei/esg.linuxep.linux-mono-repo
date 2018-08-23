@@ -342,22 +342,22 @@ TEST_F(SULDownloaderTest,
     int counter = 0;
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&counter]() {
         if (counter++ == 0)
-                                                                       {
-                                                                           auto mockProcess = new StrictMock<MockProcess>();
-                                                                           EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
-                                                                           EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
-                                                                           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-                                                                           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
 
-                                                                       }
+        }
         else
-                                                                       {
-                                                                           auto mockProcess = new StrictMock<MockProcess>();
-                                                                           EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
-                                                                           EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
-                                                                           EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-                                                                           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-                                                                       }
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        }
                                                                    }
     );
 
