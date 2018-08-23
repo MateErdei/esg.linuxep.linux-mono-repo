@@ -12,6 +12,7 @@ namespace SulDownloader
 {
     class DownloadReport;
     class ConfigurationData;
+
     /**
      * Executes the core functionality of SULDownloader.
      *
@@ -31,7 +32,8 @@ namespace SulDownloader
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
-    DownloadReport runSULDownloader( const ConfigurationData & configurationData, const DownloadReport& previousDownloadReport);
+    DownloadReport
+    runSULDownloader(const ConfigurationData& configurationData, const DownloadReport& previousDownloadReport);
 
 
     /**
@@ -45,7 +47,8 @@ namespace SulDownloader
      * @note If either the json parser fails to de-serialize settingsString or the ConfigurationData produced does not pass the ::verifySettingsAreValid
      *       it will not runSULDownloader and return the failure directly.s
      */
-    std::tuple<int, std::string> configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData);
+    std::tuple<int, std::string>
+    configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData);
 
 
     /**
@@ -60,7 +63,6 @@ namespace SulDownloader
      * @throws If it cannot read or write the files safely it will throw exception.
      */
     int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath );
-
 
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath);

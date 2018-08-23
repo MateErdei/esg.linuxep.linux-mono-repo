@@ -20,12 +20,12 @@ namespace SulDownloader
 {
     DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation)
             : m_state(State::Initialized)
-            , m_error()
-            , m_productMetadata(productInformation)
-            , m_distributePath()
-            , m_productHasChanged(false)
-            , m_productUninstall(false)
-            , m_forceProductReinstall(false)
+              , m_error()
+              , m_productMetadata(productInformation)
+              , m_distributePath()
+              , m_productHasChanged(false)
+              , m_productUninstall(false)
+              , m_forceProductReinstall(false)
     {
 
     }

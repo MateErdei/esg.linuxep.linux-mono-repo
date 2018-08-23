@@ -15,18 +15,16 @@ namespace UpdateSchedulerImpl
     {
         struct ProductStatus
         {
-            ProductStatus(std::string rigid, std::string name, std::string downversion, std::string installvers)
+            ProductStatus(std::string rigid, std::string name, std::string downversion)
                     :
                     RigidName(std::move(rigid))
                     , ProductName(std::move(name))
                     , DownloadedVersion(std::move(downversion))
-                    , InstalledVersion(std::move(installvers))
             {}
 
             std::string RigidName;
             std::string ProductName;
             std::string DownloadedVersion;
-            std::string InstalledVersion;
         };
 
         struct UpdateStatus

@@ -216,7 +216,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportFailedOnError)
+TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportFailedOnError)
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
@@ -249,7 +249,8 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportSyncFailedForAllProductsOnMissingPackage)
+TEST_F(DownloadReportTest,
+       fromReportWarehouseRepositoryAndTimeTrackerShouldReportSyncFailedForAllProductsOnMissingPackage)
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
@@ -282,7 +283,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportNoProductsOnAUnspecifiedError)
+TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportNoProductsOnAUnspecifiedError)
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
@@ -499,7 +500,8 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 }
 
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
+TEST_F(DownloadReportTest,
+       fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
 {
     std::string errorString = "";
     WarehouseError error;
@@ -550,7 +552,8 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 }
 
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
+TEST_F(DownloadReportTest,
+       fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
 {
     std::string errorString = "";
     WarehouseError error;
@@ -604,7 +607,8 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
+TEST_F(DownloadReportTest,
+       fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
 {
     std::string errorString = "Install Failed";
     WarehouseError error;

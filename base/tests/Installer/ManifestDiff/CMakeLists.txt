@@ -7,7 +7,7 @@ target_include_directories(TestManifestDiff BEFORE PUBLIC "${gtest_SOURCE_DIR}" 
 
 set (BOOST_LIB_DIRS "${BOOST_INPUT}/lib64")
 
-SET_TARGET_PROPERTIES( TestManifestDiff
+SET_TARGET_PROPERTIES(TestManifestDiff
         PROPERTIES
         INSTALL_RPATH "${BOOST_LIB_DIRS}"
         BUILD_RPATH "${BOOST_LIB_DIRS}"

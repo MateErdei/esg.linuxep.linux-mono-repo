@@ -209,14 +209,16 @@ namespace SulDownloader
             productReportEntry.errorDescription = wError.Description;
 
             //Set product status appropriately
-            if ( (warehouseStatus == WarehouseStatus::DOWNLOADFAILED) || (warehouseStatus == WarehouseStatus::PACKAGESOURCEMISSING) )
+            if ((warehouseStatus == WarehouseStatus::DOWNLOADFAILED) ||
+                (warehouseStatus == WarehouseStatus::PACKAGESOURCEMISSING))
             {
                 productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
             }
             else
             {
-                productReportEntry.productStatus = (product.productHasChanged() || product.forceProductReinstall())?   ProductReport::ProductStatus::Upgraded
-                                                                                                                     : ProductReport::ProductStatus::UpToDate;
+                productReportEntry.productStatus = (product.productHasChanged() || product.forceProductReinstall())
+                                                   ? ProductReport::ProductStatus::Upgraded
+                                                   : ProductReport::ProductStatus::UpToDate;
                 if (!productReportEntry.errorDescription.empty())
                 {
                     if (!product.getProductIsBeingUninstalled())

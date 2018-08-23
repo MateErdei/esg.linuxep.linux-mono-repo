@@ -57,8 +57,7 @@ namespace
         }
     }
 
-    void
-    handlePackageSourceMissing(UpdateEvent* event, const SulDownloader::DownloadReport& report)
+    void handlePackageSourceMissing(UpdateEvent* event, const SulDownloader::DownloadReport& report)
     {
         std::vector<std::string> splittedEntries = Common::UtilityImpl::StringUtils::splitString(
                 report.getDescription(), ";"
@@ -134,9 +133,7 @@ namespace
 
         for (auto& product: report.getProducts())
         {
-            status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion,
-                                         product.installedVersion
-            );
+            status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion);
         }
         return status;
 

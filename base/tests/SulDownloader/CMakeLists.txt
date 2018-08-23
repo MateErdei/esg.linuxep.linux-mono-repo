@@ -21,7 +21,7 @@ target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)
 
-SET_TARGET_PROPERTIES( SulDownloaderTests
+SET_TARGET_PROPERTIES(SulDownloaderTests
         PROPERTIES
         INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
         BUILD_RPATH "${SUL_LIBRARY_DIRS}"

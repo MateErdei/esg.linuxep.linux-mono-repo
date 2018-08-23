@@ -1,7 +1,5 @@
 include(GoogleTest)
 
-set (UpdateSchedulerTests_RPATH  ${SUL_LIBRARY_DIRS})
-
 add_executable(UpdateSchedulerTests
         TestUpdatePolicyTranslator.cpp
         TestUpdateActionParser.cpp
@@ -11,16 +9,14 @@ add_executable(UpdateSchedulerTests
         DownloadReportTestBuilder.h
         MockMapHostCacheId.h
         TestUpdateStatus.cpp
-        TestSulDownloaderRunner.cpp)
+        TestSulDownloaderRunner.cpp
+        TestAsyncSulDownloaderRunner.cpp
+        TestUpdateScheduler.cpp
+        MockAsyncDownloaderRunner.h
+        MockCronSchedulerThread.h)
 
-target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(UpdateSchedulerTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")
-target_link_libraries(UpdateSchedulerTests gtest gmock gtest_main updatescheduler filesystemimpl testhelpers )
+target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${LOG4CPLUS_INCLUDE_DIR} "${PROJECT_SOURCE_DIR}")
+target_link_libraries(UpdateSchedulerTests gtest gmock gtest_main updateschedulerimpl filesystemimpl testhelpers processimpl suldownloaderdata)
 
-SET_TARGET_PROPERTIES(UpdateSchedulerTests
-        PROPERTIES
-        INSTALL_RPATH "${UpdateSchedulerTests_RPATH}"
-        BUILD_RPATH   "${UpdateSchedulerTests_RPATH}"
-        )
 
 gtest_discover_tests(UpdateSchedulerTests)

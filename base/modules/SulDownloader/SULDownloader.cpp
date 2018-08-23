@@ -48,13 +48,18 @@ namespace SulDownloader
     {
         //If the previous install failed with unspecified or download failed we have no clear
         //information on the state of the distribution folder. Therefore safest approach is to force a reinstall.
-        if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED || previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED )
+        if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED ||
+            previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED)
         {
             return true;
         }
 
         const std::vector<ProductReport>& productReports = previousDownloadReport.getProducts();
-        auto productReportItr = std::find_if(productReports.begin(), productReports.end(), [&product](const ProductReport & report){return report.rigidName == product.getLine();});
+        auto productReportItr = std::find_if(productReports.begin(), productReports.end(),
+                                             [&product](const ProductReport& report) {
+                                                 return report.rigidName == product.getLine();
+                                             }
+        );
 
         if (productReportItr != productReports.end())
         {
@@ -68,7 +73,8 @@ namespace SulDownloader
     }
 
 
-    DownloadReport runSULDownloader( const ConfigurationData & configurationData, const DownloadReport& previousDownloadReport)
+    DownloadReport
+    runSULDownloader(const ConfigurationData& configurationData, const DownloadReport& previousDownloadReport)
     {
         SULInit init;
         assert( configurationData.isVerified());
@@ -106,18 +112,19 @@ namespace SulDownloader
         std::string rootcaPath = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
 
         // Mark which products need to be forced to re/install.
-        for(auto & product : products)
+        for (auto& product : products)
         {
-            if(configurationData.getForceReinstallAllProducts() || forceInstallOfProduct(product, previousDownloadReport))
+            if (configurationData.getForceReinstallAllProducts() ||
+                forceInstallOfProduct(product, previousDownloadReport))
             {
                 product.setForceProductReinstall(true);
             }
         }
 
         // Only need to verify the products which the install.sh will be called on.
-        for( auto & product: products)
+        for (auto& product: products)
         {
-            if(product.productHasChanged() || product.forceProductReinstall())
+            if (product.productHasChanged() || product.forceProductReinstall())
             {
                 product.verify(rootcaPath);
             }
@@ -159,7 +166,8 @@ namespace SulDownloader
 
     }
 
-    std::tuple<int, std::string> configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData)
+    std::tuple<int, std::string>
+    configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData)
     {
         try
         {
@@ -173,16 +181,16 @@ namespace SulDownloader
             // If there is no previous download report, or if the download report fails to be read correctly
             // assume default download and install behaviour. i.e. install if file set has changed.
             // If overriding is required then add code to set configurationData.setForceReinstallAllProducts(true)
-            DownloadReport previousDownloadReport =  DownloadReport::Report("Not assigned");
+            DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
             try
             {
-                if(!previousReportData.empty())
+                if (!previousReportData.empty())
                 {
                     previousDownloadReport = DownloadReport::toReport(previousReportData);
                 }
             }
-            catch(SulDownloaderException &ex)
+            catch (SulDownloaderException& ex)
             {
                 LOGWARN("Failed to load previous report data");
             }
@@ -207,16 +215,17 @@ namespace SulDownloader
 
 
         // Filter file list to make sure all the files are report files based on file name
-        std::vector<std::string>previousReportFiles;
+        std::vector<std::string> previousReportFiles;
         std::string startPattern("report");
         std::string endPattern(".json");
 
-        for(auto& file : filesInReportDirectory)
+        for (auto& file : filesInReportDirectory)
         {
             std::string fileName = Common::FileSystem::basename(file);
 
             // make sure file name begins with 'report' and ends with .'json'
-            if(fileName.find(startPattern) == 0 && fileName.find(endPattern) == (fileName.length() - endPattern.length()))
+            if (fileName.find(startPattern) == 0 &&
+                fileName.find(endPattern) == (fileName.length() - endPattern.length()))
             {
                 previousReportFiles.push_back(file);
             }
@@ -224,7 +233,7 @@ namespace SulDownloader
 
         std::string previousDownloadReport;
 
-        if(!previousReportFiles.empty())
+        if (!previousReportFiles.empty())
         {
             std::sort(previousReportFiles.begin(), previousReportFiles.end());
 
@@ -233,9 +242,10 @@ namespace SulDownloader
             {
                 previousDownloadReport = Common::FileSystem::fileSystem()->readFile(previousReportFileName);
             }
-            catch(Common::FileSystem::IFileSystemException ex)
+            catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to load previous download report file: " << previousReportFileName);
+                LOGSUPPORT(ex.what());
             }
         }
 

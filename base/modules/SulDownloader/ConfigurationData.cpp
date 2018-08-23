@@ -37,11 +37,11 @@ namespace SulDownloader
     ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, const Credentials &credentials,
                                          const std::vector<std::string> &updateCache, const Proxy & proxy)
     : m_credentials(credentials)
-    , m_localUpdateCacheUrls(updateCache)
-    , m_proxy(proxy)
-    , m_state(State::Initialized)
-    , m_logLevel( LogLevel::NORMAL)
-    , m_forceReinstallAllProducts(false)
+      , m_localUpdateCacheUrls(updateCache)
+      , m_proxy(proxy)
+      , m_state(State::Initialized)
+      , m_logLevel(LogLevel::NORMAL)
+      , m_forceReinstallAllProducts(false)
     {
         setSophosUpdateUrls(sophosLocationURL);
     }
@@ -534,8 +534,6 @@ namespace SulDownloader
         return  Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
 
     }
-
-
 
 
 }
