@@ -26,6 +26,16 @@ namespace
         ASSERT_EQ(ret,0);
     }
 
+    void makedir(const std::string& path, mode_t mode)
+    {
+        int ret = ::mkdir(path.c_str(),mode);
+        if (ret == -1 && errno == EEXIST)
+        {
+            return;
+        }
+        ASSERT_EQ(ret,0);
+    }
+
     class FileSystemImplTest : public ::testing::Test
     {
     public:
@@ -223,7 +233,7 @@ namespace
     {
         std::string directroryPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
-        mkdir(directroryPath.c_str(), 0700);
+        makedir(directroryPath, 0700);
 
         std::string testContent("HelloWorld");
 
@@ -243,7 +253,7 @@ namespace
     {
         std::string directroryPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
-        mkdir(directroryPath.c_str(), 0700);
+        makedir(directroryPath, 0700);
         EXPECT_THROW(m_fileSystem->readFile(directroryPath), IFileSystemException); //NOLINT
 
         ::rmdir(directroryPath.c_str());
