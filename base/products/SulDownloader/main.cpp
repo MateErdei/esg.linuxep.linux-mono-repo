@@ -4,7 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "SulDownloader.h"
-int main(int argc, char * argv[])
+
+#include <Common/UtilityImpl/Main.h>
+
+static int sul_downloader_main(int argc, char * argv[])
 {
     return SulDownloader::main_entry(argc, argv);
 }
+
+MAIN(sul_downloader_main(argc,argv))
