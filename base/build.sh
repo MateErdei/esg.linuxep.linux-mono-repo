@@ -163,8 +163,10 @@ function build()
     cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     make CTEST_OUTPUT_ON_FAILURE=1 test || {
+        local EXITCODE=$?
+        echo "Unit tests failed with $EXITCODE"
         cat Testing/Temporary/LastTest.log || true
-        exitFailure 16 "Unit tests failed for $PRODUCT: $?"
+        exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
     }
     make install || exitFailure 17 "Failed to install $PRODUCT"
     make dist || exitFailure 18 "Failed to create distribution"
