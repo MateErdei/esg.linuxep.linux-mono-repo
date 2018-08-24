@@ -4,15 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
-#include <modules/ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
+#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 
 class TestStatusReceiverImpl : public ::testing::Test

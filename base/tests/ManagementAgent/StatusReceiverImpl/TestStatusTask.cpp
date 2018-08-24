@@ -4,18 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 class TestStatusTask : public ::testing::Test
 {
