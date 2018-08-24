@@ -13,7 +13,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Common::Process;
 namespace
 {
-    TEST( ProcessImpl, SimpleEchoShouldReturnExpectedString)
+    void removeFile(const std::string& path)
+    {
+        int ret = ::remove(path.c_str());
+        if (ret == -1 && errno == ENOENT)
+        {
+            return;
+        }
+        ASSERT_EQ(ret,0);
+    }
+
+    TEST( ProcessImpl, SimpleEchoShouldReturnExpectedString) //NOLINT
     {
         auto process = createProcess();
         process->exec( "/bin/echo", {"hello"});
@@ -21,14 +31,14 @@ namespace
         ASSERT_EQ(process->output(), "hello\n");
     }
 
-    TEST( ProcessImpl, SupportMultiplesArgs)
+    TEST( ProcessImpl, SupportMultiplesArgs) //NOLINT
     {
         auto process = createProcess();
         process->exec( "/bin/echo", {"hello","world"});
         ASSERT_EQ(process->output(), "hello world\n");
     }
 
-    TEST( ProcessImpl, OutputBlockForResult)
+    TEST( ProcessImpl, OutputBlockForResult) //NOLINT
     {
         for ( int i = 0; i< 10; i++)
         {
@@ -39,11 +49,11 @@ namespace
     }
 
 
-    TEST( ProcessImpl, SupportAddingEnvironmentVariables)
+    TEST( ProcessImpl, SupportAddingEnvironmentVariables) //NOLINT
     {
         std::string testFilename("envTestGood.sh");
 
-        ::remove( testFilename.c_str());
+        removeFile(testFilename);
         std::fstream out( testFilename, std::ofstream::out );
         out << "echo ${os} is ${adj}\n";
         out.close();
@@ -54,39 +64,39 @@ namespace
         process = createProcess();
         process->exec( "/bin/bash", {testFilename}, {{"os","linux"},{"adj","great"}} );
         EXPECT_EQ(process->output(), "linux is great\n");
-        ::remove( testFilename.c_str());
+        removeFile(testFilename);
 
     }
 
-    TEST( ProcessImpl, AddingInvalidEnvironmentVariableShouldFail)
+    TEST( ProcessImpl, AddingInvalidEnvironmentVariableShouldFail) //NOLINT
     {
         std::string testFilename("envTestBad.sh");
 
-        ::remove( testFilename.c_str());
+        removeFile(testFilename);
         std::fstream out( testFilename, std::ofstream::out );
         out << "echo ${os} is ${adj}\n";
         out.close();
         auto process = createProcess();
-        EXPECT_THROW(process->exec( "/bin/bash", {testFilename}, {{"","linux"},{"adj","great"}} ), Common::Process::IProcessException) ;
+        EXPECT_THROW(process->exec( "/bin/bash", {testFilename}, {{"","linux"},{"adj","great"}} ), Common::Process::IProcessException) ;  //NOLINT
 
-        ::remove( testFilename.c_str());
+        removeFile(testFilename);
 
     }
 
-    TEST( ProcessImpl, TouchFileCommandShouldCreateFile)
+    TEST( ProcessImpl, TouchFileCommandShouldCreateFile) //NOLINT
     {
         auto process = createProcess();
-        ::remove( "success.txt");
+        removeFile("success.txt");
 
         process->exec( "/usr/bin/touch", {"success.txt"});
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);
         EXPECT_EQ( process->exitCode(), 0);
         std::ifstream ifs2( "success.txt", std::ifstream::in);
         EXPECT_TRUE( ifs2);
-        ::remove( "success.txt");
+        removeFile("success.txt");
     }
 
-    TEST( ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail)
+    TEST( ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail) //NOLINT
     {
         auto process = createProcess();
 
@@ -98,7 +108,7 @@ namespace
         EXPECT_EQ( process->exitCode(), 1);
     }
 
-    TEST( ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail_WithoutCallingWait)
+    TEST( ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail_WithoutCallingWait) //NOLINT
     {
         auto process = createProcess();
         process->exec( "/usr/bin/touch", {""});
@@ -108,7 +118,7 @@ namespace
     }
 
 
-    TEST( ProcessImpl, NonExistingCommandShouldFail)
+    TEST( ProcessImpl, NonExistingCommandShouldFail) //NOLINT
     {
         auto process = createProcess();
         process->exec( "/bin/command_does_not_exists", {"fake_argument"});
@@ -119,7 +129,7 @@ namespace
 
 
 
-    TEST( ProcessImpl, LongCommandExecutionShouldTimeout)
+    TEST( ProcessImpl, LongCommandExecutionShouldTimeout) //NOLINT
     {
         std::fstream out( "test.sh", std::ofstream::out );
         out << "while true; do echo 'continue'; sleep 1; done\n";
@@ -135,10 +145,10 @@ namespace
         auto output = process->output();
 
         EXPECT_THAT( output, ::testing::HasSubstr("continue"));
-        ::remove( "test.sh");
+        removeFile("test.sh");
     }
 
-    TEST( ProcessImpl, SupportOutputWithMultipleLines)
+    TEST( ProcessImpl, SupportOutputWithMultipleLines) //NOLINT
     {
         std::string targetfile = "/etc/passwd";
 
@@ -151,15 +161,15 @@ namespace
         ASSERT_EQ(process->output(), content);
     }
 
-    TEST( ProcessImpl, OutputCannotBeCalledBeforeExec)
+    TEST( ProcessImpl, OutputCannotBeCalledBeforeExec) //NOLINT
     {
         auto process = createProcess();
-        EXPECT_THROW(process->output(), IProcessException);
+        EXPECT_THROW(process->output(), IProcessException); //NOLINT
     }
-    TEST( ProcessImpl, ExitCodeCannotBeCalledBeforeExec)
+    TEST( ProcessImpl, ExitCodeCannotBeCalledBeforeExec) //NOLINT
     {
         auto process = createProcess();
-        EXPECT_THROW(process->exitCode(), IProcessException);
+        EXPECT_THROW(process->exitCode(), IProcessException); //NOLINT
     }
 
 
