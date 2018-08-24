@@ -2,6 +2,7 @@
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -13,6 +14,7 @@ class TestPluginProxy : public ::testing::Test
 {
 public:
     TestPluginProxy()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
         m_mockSocketRequester = new StrictMock<MockSocketRequester>();
 
@@ -44,6 +46,9 @@ public:
 
         return dataMessage;
     }
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 // Reply error cases

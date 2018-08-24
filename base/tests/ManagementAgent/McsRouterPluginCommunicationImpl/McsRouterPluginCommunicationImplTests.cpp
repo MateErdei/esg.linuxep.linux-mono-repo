@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 #include "TempDir.h"
 #include "MockPluginManager.h"
@@ -21,6 +22,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {
 public:
+    McsRouterPluginCommunicationImplTests()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
 
     void SetUp() override
     {
@@ -67,6 +73,8 @@ public:
 
     std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
     std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories)

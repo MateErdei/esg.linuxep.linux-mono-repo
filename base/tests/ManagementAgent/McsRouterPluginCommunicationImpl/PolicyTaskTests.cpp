@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
 #include "tests/Common/FileSystemImpl/MockFileSystem.h"
@@ -16,6 +17,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 class PolicyTaskTests : public ::testing::Test
 {
 public:
+    PolicyTaskTests()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
 
     void SetUp() override
     {
@@ -27,6 +33,8 @@ public:
 
     }
     StrictMock<MockPluginManager> m_mockPluginManager;
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT

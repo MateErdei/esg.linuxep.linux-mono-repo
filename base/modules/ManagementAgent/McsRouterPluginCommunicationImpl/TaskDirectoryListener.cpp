@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TaskDirectoryListener.h"
 #include "PolicyTask.h"
 #include "ActionTask.h"
-#include "Logger.h"
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <cassert>

@@ -10,8 +10,26 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-TEST(TestEventReceiverImpl, Construction) //NOLINT
+class TestEventReceiverImpl : public ::testing::Test
+{
+
+public:
+
+    TestEventReceiverImpl()
+            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+
+};
+
+
+TEST_F(TestEventReceiverImpl, Construction) //NOLINT
 {
     std::string mcs_dir = "test/mcs";
     Common::TaskQueue::ITaskQueueSharedPtr queue(
@@ -25,7 +43,7 @@ TEST(TestEventReceiverImpl, Construction) //NOLINT
         );
 }
 
-TEST(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued) //NOLINT
+TEST_F(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued) //NOLINT
 {
     std::shared_ptr<FakeQueue> queue(
             new FakeQueue

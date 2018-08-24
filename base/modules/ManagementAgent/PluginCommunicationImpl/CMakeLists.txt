@@ -15,12 +15,11 @@ add_library(plugincommunicationimpl SHARED
         PluginProxy.h
         PluginServerCallback.cpp
         PluginServerCallback.h
-        Logger.h
         AppIdCollection.cpp
         AppIdCollection.h
         )
-target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ../PluginCommunication)
-target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl pluginregistryimpl)
+target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ../PluginCommunication ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl pluginregistryimpl managementagentloggerimpl)
 
 SET_TARGET_PROPERTIES( plugincommunicationimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

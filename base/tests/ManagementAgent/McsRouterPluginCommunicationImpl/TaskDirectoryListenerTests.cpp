@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 #include "MockPluginManager.h"
 #include "MockTaskQueue.h"
@@ -20,6 +21,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 class TaskDirectoryListenerTests : public ::testing::Test
 {
 public:
+    TaskDirectoryListenerTests()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
 
     void SetUp() override
     {
@@ -33,6 +39,8 @@ public:
 
     StrictMock<MockPluginManager> m_mockPluginManager;
     std::shared_ptr<StrictMock<MockTaskQueue>> m_mockTaskQueue;
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles)

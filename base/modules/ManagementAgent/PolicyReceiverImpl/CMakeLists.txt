@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 add_library(policyreceiverimpl SHARED
         PolicyReceiverImpl.cpp
         PolicyReceiverImpl.h
-        Logger.h)
-target_include_directories(policyreceiverimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication)
-target_link_libraries(policyreceiverimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl utilityimpl)
+        )
+target_include_directories(policyreceiverimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(policyreceiverimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl utilityimpl managementagentloggerimpl)
 
 SET_TARGET_PROPERTIES( policyreceiverimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 #include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
 #include "tests/Common/FileSystemImpl/MockFileSystem.h"
@@ -17,7 +18,11 @@ using ::testing::_;
 class ActionTaskTests : public ::testing::Test
 {
 public:
+    ActionTaskTests()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
 
+    }
     void SetUp() override
     {
 
@@ -29,6 +34,8 @@ public:
     }
 
     StrictMock<MockPluginManager> m_mockPluginManager;
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT

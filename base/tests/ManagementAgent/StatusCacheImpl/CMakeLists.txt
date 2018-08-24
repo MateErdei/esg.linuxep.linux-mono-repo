@@ -5,5 +5,5 @@ add_executable(TestStatusCacheImpl
 target_include_directories(TestStatusCacheImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TestStatusCacheImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" ../../../)
 target_link_libraries(TestStatusCacheImpl gtest gtest_main gmock)
-target_link_libraries(TestStatusCacheImpl statuscacheimpl testhelpers applicationconfigurationimpl)
+target_link_libraries(TestStatusCacheImpl statuscacheimpl testhelpers applicationconfigurationimpl managementagentloggerimpl)
 gtest_discover_tests(TestStatusCacheImpl)

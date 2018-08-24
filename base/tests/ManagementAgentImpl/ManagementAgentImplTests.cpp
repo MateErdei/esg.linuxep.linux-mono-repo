@@ -20,6 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 namespace
 {
@@ -27,6 +28,8 @@ namespace
             : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
     {
     public:
+        TestManagementAgent() = default;
+
         void initialiseWrapper(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
         {
             initialise(pluginManager);
@@ -46,8 +49,9 @@ namespace
     class ManagementAgentImplTests : public ::testing::Test
     {
     public:
-        ManagementAgentImplTests()
-            : m_mockApplicationManager(nullptr)
+        ManagementAgentImplTests() :
+                m_mockApplicationManager(nullptr),
+                m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
         {
         }
 
@@ -66,7 +70,7 @@ namespace
 
         void TearDown() override
         {
-
+            Common::ApplicationConfiguration::restoreApplicationPathManager();
         }
 
         std::string createJsonString()
@@ -96,6 +100,8 @@ namespace
 
         StrictMock<MockPluginManager> m_mockPluginManager;
         NiceMock<MockedApplicationPathManager>* m_mockApplicationManager;
+    private:
+        std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
     };
 
     TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
@@ -141,6 +147,7 @@ namespace
         TestManagementAgent managementAgent;
 
         EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
+        EXPECT_EQ(1,1);
 
      }
 

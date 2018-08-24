@@ -9,8 +9,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-TEST(TestEventTask, Construction) //NOLINT
+
+class TestEventTask : public ::testing::Test
+{
+
+public:
+
+    TestEventTask()
+            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+
+};
+
+
+TEST_F(TestEventTask, Construction) //NOLINT
 {
     EXPECT_NO_THROW(
     ManagementAgent::EventReceiverImpl::EventTask task
@@ -27,7 +46,7 @@ StrictMock<MockFileSystem>* createMockFileSystem()
     return filesystemMock;
 }
 
-TEST(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
+TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
 {
     ManagementAgent::EventReceiverImpl::EventTask task
             (
@@ -51,7 +70,7 @@ TEST(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
     Common::FileSystem::restoreFileSystem();
 }
 
-TEST(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) //NOLINT
+TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) //NOLINT
 {
 
     ManagementAgent::EventReceiverImpl::EventTask task

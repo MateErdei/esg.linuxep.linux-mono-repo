@@ -15,8 +15,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-TEST(TestStatusTask, Construction) //NOLINT
+class TestStatusTask : public ::testing::Test
+{
+
+public:
+
+    TestStatusTask()
+            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+
+};
+
+TEST_F(TestStatusTask, Construction) //NOLINT
 {
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     EXPECT_NO_THROW // NOLINT
@@ -32,7 +49,7 @@ TEST(TestStatusTask, Construction) //NOLINT
     );
 }
 
-TEST(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
+TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml","StatusWithTimestamp","tempDir")).WillOnce(Return());
@@ -53,7 +70,7 @@ TEST(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
     Common::FileSystem::restoreFileSystem();
 }
 
-TEST(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
+TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
 {
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
@@ -89,7 +106,7 @@ TEST(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
     Common::FileSystem::restoreFileSystem();
 }
 
-TEST(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
+TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::string appId;

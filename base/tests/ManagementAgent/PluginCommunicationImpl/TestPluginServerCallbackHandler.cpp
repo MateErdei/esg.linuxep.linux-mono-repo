@@ -6,6 +6,7 @@
 #include "gmock/gmock.h"
 #include "MockPluginServerCallback.h"
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include "tests/Common/PluginApiImpl/TestCompare.h"
 #include "Common/PluginApi/ApiException.h"
 
@@ -13,6 +14,7 @@ class TestPluginServerCallbackHandler : public TestCompare
 {
 public:
     TestPluginServerCallbackHandler()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
         m_mockServerCallback = std::make_shared<StrictMock<MockPluginServerCallback>>();
         MockedApplicationPathManager *mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
@@ -66,6 +68,8 @@ public:
 
     }
 
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent) //NOLINT

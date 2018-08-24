@@ -1,9 +1,22 @@
 add_library(managementagentimpl SHARED
-        Logger.h
         ManagementAgentMain.h
-        ManagementAgentMain.cpp)
-target_include_directories(managementagentimpl PUBLIC  ../../Common )
-target_link_libraries(managementagentimpl PUBLIC pluginapiimpl applicationconfigurationimpl plugincommunicationimpl)
+        ManagementAgentMain.cpp
+        ../LoggerImpl/Logger.h
+        ../LoggerImpl/LoggingSetup.h
+        )
+target_include_directories(managementagentimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(managementagentimpl PUBLIC
+        pluginapiimpl
+        applicationconfigurationimpl
+        plugincommunicationimpl
+        policyreceiverimpl
+        directorywatcherimpl
+        statusreceiverimpl
+        eventreceiverimpl
+        taskqueueimpl
+        mcsrouterplugincommunicationimpl
+        managementagentloggerimpl
+        )
 
 SET_TARGET_PROPERTIES( managementagentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

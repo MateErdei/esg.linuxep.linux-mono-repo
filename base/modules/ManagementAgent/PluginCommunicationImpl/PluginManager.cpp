@@ -5,14 +5,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include "IPluginCommunicationException.h"
 #include "PluginManager.h"
 #include "PluginProxy.h"
 #include "PluginServerCallback.h"
-#include "Logger.h"
+
+#include <ManagementAgent/LoggerImpl/Logger.h>
+
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+
 #include <thread>
 
 namespace ManagementAgent

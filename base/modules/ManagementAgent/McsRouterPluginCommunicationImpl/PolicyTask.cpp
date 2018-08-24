@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "PolicyTask.h"
-#include "Logger.h"
+#include <ManagementAgent/LoggerImpl/Logger.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/RegexUtilities.h>

@@ -6,7 +6,6 @@ option(test "Build all tests." ON) # Makes boolean 'test' available.
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")
-set(CMAKE_INSTALL_RPATH "$ORIGIN")
 enable_testing()
 
 find_package(PkgConfig)
@@ -28,6 +27,12 @@ set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
+
+set( BOOST_INCLUDE ${BOOST_INPUT}/include )
+
+if(NOT DEFINED VERSIG_INPUT)
+    set( VERSIG_INPUT ${INPUT}/versig)
+endif()
 
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
@@ -85,6 +90,7 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
+
 
 include_directories(modules)
 

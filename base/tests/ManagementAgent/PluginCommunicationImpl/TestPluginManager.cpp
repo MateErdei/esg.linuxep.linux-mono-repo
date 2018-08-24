@@ -14,6 +14,7 @@
 
 #include <thread>
 #include <modules/Common/PluginApi/ApiException.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 
@@ -21,6 +22,7 @@ class TestPluginManager : public ::testing::Test
 {
 public:
     TestPluginManager()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
         plugin_one_name = "plugin_one";
         plugin_two_name = "plugin_two";
@@ -104,7 +106,8 @@ public:
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApi;
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApiTwo;
-
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
 
 TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)  // NOLINT

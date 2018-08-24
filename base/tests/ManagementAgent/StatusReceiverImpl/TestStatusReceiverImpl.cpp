@@ -12,8 +12,26 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-TEST(TestStatusReceiverImpl, Construction) //NOLINT
+
+class TestStatusReceiverImpl : public ::testing::Test
+{
+
+public:
+
+    TestStatusReceiverImpl()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+
+};
+
+TEST_F(TestStatusReceiverImpl, Construction) //NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     EXPECT_NO_THROW
@@ -24,7 +42,7 @@ TEST(TestStatusReceiverImpl, Construction) //NOLINT
     );
 }
 
-TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
+TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(
             new FakeQueue
@@ -36,7 +54,7 @@ TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
     EXPECT_NE(task.get(),nullptr);
 }
 
-TEST(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile) //NOLINT
+TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAStatusFile) //NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();

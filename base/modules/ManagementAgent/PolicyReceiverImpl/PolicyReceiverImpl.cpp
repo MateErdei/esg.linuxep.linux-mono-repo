@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "PolicyReceiverImpl.h"
-#include "Logger.h"
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>

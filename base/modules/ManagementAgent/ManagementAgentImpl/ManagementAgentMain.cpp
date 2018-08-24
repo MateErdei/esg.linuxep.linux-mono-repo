@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ManagementAgentMain.h"
-#include "Logger.h"
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <signal.h>
-
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 
 using namespace Common;
@@ -31,7 +31,6 @@ namespace
 
     static void s_signal_handler (int signal_value)
     {
-        LOGDEBUG( "Signal received: " << signal_value );
         if ( !GL_signalPipe)
         {
             return;
@@ -48,14 +47,12 @@ namespace ManagementAgent
         int ManagementAgentMain::main(int argc, char **argv)
         {
             static_cast<void>(argv); // unused
-
+            ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
             if(argc > 1)
             {
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");
                 return -1;
             }
-
-
 
             std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager = std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
                     new ManagementAgent::PluginCommunicationImpl::PluginManager());

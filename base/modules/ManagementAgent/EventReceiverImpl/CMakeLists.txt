@@ -3,8 +3,8 @@ add_library(eventreceiverimpl SHARED
         ../PluginCommunication/IEventReceiver.h
         EventTask.cpp
         EventTask.h)
-target_include_directories(eventreceiverimpl PUBLIC  ../../Common )
-target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl)
+target_include_directories(eventreceiverimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl managementagentloggerimpl)
 
 SET_TARGET_PROPERTIES( eventreceiverimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

@@ -14,10 +14,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 class PolicyReceiverImplTests : public ::testing::Test
 {
 public:
+
+    PolicyReceiverImplTests()
+    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    {
+
+    }
 
     void SetUp() override
     {
@@ -29,7 +36,12 @@ public:
 
     }
     StrictMock<MockPluginManager> m_mockPluginManager;
+
+private:
+    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
+
+
 
 TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThrow) // NOLINT
 {

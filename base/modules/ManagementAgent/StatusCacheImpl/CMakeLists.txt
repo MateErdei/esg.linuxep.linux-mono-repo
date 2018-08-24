@@ -1,10 +1,9 @@
 add_library(statuscacheimpl SHARED
         StatusCache.h
         StatusCache.cpp
-        Logger.h
         ../StatusCache/IStatusCache.h
         )
-target_include_directories(statuscacheimpl PUBLIC  ../../Common )
+target_include_directories(statuscacheimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 
 SET_TARGET_PROPERTIES( statuscacheimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
