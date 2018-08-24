@@ -62,10 +62,12 @@ namespace
 
     Path get_executable_path()
     {
-        char path[PATH_MAX];
+        char path[PATH_MAX+1];
         ssize_t ret = ::readlink("/proc/self/exe", path, PATH_MAX); // $SOPHOS_INSTALL/bin/wdctl.x
         if (ret > 0)
         {
+            path[ret] = 0;
+            path[PATH_MAX] = 0;
             return make_absolute(path);
         }
         return Path();
