@@ -13,7 +13,9 @@ target_link_libraries(sophos_managementagent
         pluginregistryimpl)
 
 SET_TARGET_PROPERTIES(sophos_managementagent
-        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
 
 install(TARGETS sophos_managementagent
         DESTINATION files/base/bin)
