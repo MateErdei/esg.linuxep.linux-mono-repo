@@ -242,7 +242,9 @@ namespace Common
             }
             catch(IFileSystemException &)
             {
-                remove(tempFilePath.c_str());
+                int ret = ::remove(tempFilePath.c_str());
+                // Prefer to throw the original exception rather than anything related to failing to delete the temp file
+                static_cast<void>(ret);
                 throw;
             }
         }
