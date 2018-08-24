@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ManagementAgentMain.h"
 #include <ManagementAgent/LoggerImpl/Logger.h>
-
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
@@ -19,8 +19,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
+
 #include <signal.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 
 using namespace Common;
