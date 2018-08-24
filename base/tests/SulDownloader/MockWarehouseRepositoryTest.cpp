@@ -14,11 +14,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloader/ConfigurationData.h"
 #include "MockWarehouseRepository.h"
 
-TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse)
+TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
 {
     MockWarehouseRepository mock;
     WarehouseError error;
     error.Description = "Nothing";
+    error.status = SulDownloader::SUCCESS;
     ConfigurationData configurationData({"https://sophos.com/warehouse"});
     ProductGUID productGUID{"ProductName",true,false,"ReleaseTag","BaseVersion"};
     configurationData.addProductSelection(productGUID);
@@ -45,10 +46,10 @@ TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse)
     ASSERT_EQ(mock.getProducts().at(0).getLine(),"");
 }
 
-TEST( MockWarehouseRepositoryTest, ReplaceWarehouseRepository)
+TEST( MockWarehouseRepositoryTest, ReplaceWarehouseRepository) //NOLINT
 {
-    MockWarehouseRepository * mockptr = new MockWarehouseRepository();
-    MockWarehouseRepository & mock = *mockptr;
+    auto mockptr = new MockWarehouseRepository();
+    MockWarehouseRepository& mock = *mockptr;
 
     TestWarehouseHelper helper;
     helper.replaceWarehouseCreator([&mockptr](const ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(mockptr);});
