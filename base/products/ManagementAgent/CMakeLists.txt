@@ -3,19 +3,12 @@ add_executable(sophos_managementagent
 add_dependencies(sophos_managementagent managementagentimpl)
 target_link_libraries(sophos_managementagent
         managementagentimpl
-        policyreceiverimpl
-        directorywatcherimpl
-        eventreceiverimpl
-        statusreceiverimpl
-        applicationconfigurationimpl
-        mcsrouterplugincommunicationimpl
-        taskqueueimpl
-        pluginregistryimpl)
+        pluginregistryimpl
+        pluginprotocol
+        )
 
 SET_TARGET_PROPERTIES(sophos_managementagent
-        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
-        )
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
 install(TARGETS sophos_managementagent
         DESTINATION files/base/bin)
