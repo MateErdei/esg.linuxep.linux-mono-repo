@@ -20,7 +20,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 
-#include <signal.h>
+#include <csignal>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 
 using namespace Common;
@@ -46,6 +48,7 @@ namespace ManagementAgent
     {
         int ManagementAgentMain::main(int argc, char **argv)
         {
+            umask(S_IRWXG | S_IRWXO);  //Read and write for the owner
             static_cast<void>(argv); // unused
             ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
             if(argc > 1)
