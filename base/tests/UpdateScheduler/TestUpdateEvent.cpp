@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
 /******************************************************************************************************
 
 Copyright 2018, Sophos Limited.  All rights reserved.
@@ -126,7 +128,7 @@ using namespace SulDownloader;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
 
-UpdateEvent getEvent( SulDownloader::DownloadReport report )
+UpdateEvent getEvent( const SulDownloader::DownloadReport& report )
 {
     std::vector<SulDownloader::DownloadReport> singleReport{report};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(singleReport);
@@ -214,3 +216,4 @@ TEST_F(TestSerializeEvent, connectionError) // NOLINT
     UpdateEvent event = getEvent(DownloadReportTestBuilder::connectionError() );
     EXPECT_EQ( serializeUpdateEvent(event,*m_hostCacheId, *m_formattedTime), connectionErrorEventXML);
 }
+#pragma clang diagnostic pop
