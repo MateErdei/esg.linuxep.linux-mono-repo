@@ -44,6 +44,7 @@ public:
         dataMessage.ApplicationId = defaultAppId;
         dataMessage.PluginName = defaultPluginName;
         dataMessage.MessageId = "";
+        dataMessage.Command = Common::PluginProtocol::Commands::UNKNOWN;
         return dataMessage;
     }
 
