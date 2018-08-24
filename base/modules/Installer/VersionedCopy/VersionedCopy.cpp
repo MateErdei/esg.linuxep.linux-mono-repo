@@ -117,7 +117,7 @@ namespace
             }
             if (Common::FileSystem::fileSystem()->exists(target))
             {
-                unlink(target.c_str());
+                ::unlink(target.c_str());
             }
             i++;
         }
@@ -134,7 +134,8 @@ namespace
         int ret = symlink(target.c_str(), tempDest.c_str());
         if (ret == 0)
         {
-            rename(tempDest.c_str(), destination.c_str());
+            ret = ::rename(tempDest.c_str(), destination.c_str());
+            assert(ret == 0);
         }
     }
 
