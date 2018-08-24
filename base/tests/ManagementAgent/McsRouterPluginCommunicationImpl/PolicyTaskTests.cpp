@@ -38,7 +38,7 @@ TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask task(m_mockPluginManager,"/tmp/policy/SAV-11.xml");
+    ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask task(m_mockPluginManager,"/tmp/policy/SAV-11_policy.xml");
     task.run();
 
     Common::FileSystem::restoreFileSystem();
