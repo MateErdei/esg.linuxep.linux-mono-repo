@@ -25,6 +25,8 @@ namespace ManagementAgent
                     PluginCommunication::IPluginManager& pluginManager,
                     std::string filePath
                     );
+            
+            static std::string ExtractAppIdFromPolicyFile(const std::string& policyPath);
         private:
 
             PluginCommunication::IPluginManager& m_pluginManager;

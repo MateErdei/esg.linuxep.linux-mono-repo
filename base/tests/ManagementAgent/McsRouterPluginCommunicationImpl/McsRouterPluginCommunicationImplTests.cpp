@@ -71,11 +71,11 @@ public:
 
 TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories)
 {
-    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-policy.txt");
-    std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.txt");
+    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-1_policy.xml");
+    std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.xml");
 
-    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, "appId1_action_.txt");
-    std::string actionFileTmp1 = Common::FileSystem::join(m_actionFilePath, "actionFileTmp1.txt");
+    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, "appId1_action_.xml");
+    std::string actionFileTmp1 = Common::FileSystem::join(m_actionFilePath, "actionFileTmp1.xml");
 
     m_tempDir->createFile(policyFileTmp1, "Hello");
     m_tempDir->createFile(actionFileTmp1, "Hello");
@@ -108,13 +108,13 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
 TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessMultipleFilesFromMultipleDirectoriesAndWillNotThrowForUnknownFiles)
 {
-    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-policy.txt");
-    std::string policyFile2 = Common::FileSystem::join(m_policyFilePath, "appId2-policy.txt");
-    std::string policyFile3 = Common::FileSystem::join(m_policyFilePath, "appId3-unknown.txt");
+    std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1_policy.xml");
+    std::string policyFile2 = Common::FileSystem::join(m_policyFilePath, "appId2-3_policy.xml");
+    std::string policyFile3 = Common::FileSystem::join(m_policyFilePath, "appId3_unknown.xml");
 
-    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, "appId1_action_.txt");
-    std::string actionFile2 = Common::FileSystem::join(m_actionFilePath, "appId2_action_.txt");
-    std::string actionFile3 = Common::FileSystem::join(m_actionFilePath, "appId3-unknown.txt");
+    std::string actionFile1 = Common::FileSystem::join(m_actionFilePath, "appId1_action_.xml");
+    std::string actionFile2 = Common::FileSystem::join(m_actionFilePath, "appId2_action_.xml");
+    std::string actionFile3 = Common::FileSystem::join(m_actionFilePath, "appId3-unknown.xml");
 
 
     std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.txt");
