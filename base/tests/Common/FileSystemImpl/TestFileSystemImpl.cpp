@@ -16,6 +16,16 @@ using namespace Common::FileSystem;
 namespace
 {
 
+    void removeFile(const std::string& path)
+    {
+        int ret = ::remove(path.c_str());
+        if (ret == -1 && errno == ENOENT)
+        {
+            return;
+        }
+        ASSERT_EQ(ret,0);
+    }
+
     class FileSystemImplTest : public ::testing::Test
     {
     public:
@@ -206,7 +216,7 @@ namespace
         m_fileSystem->writeFile(filePath, testContent);
 
         EXPECT_EQ(m_fileSystem->readFile(filePath), testContent);
-        ::remove(filePath.c_str());
+        removeFile(filePath);
     }
 
     TEST_F(FileSystemImplTest, writeFileUsingDirectoryPathShouldThrow) // NOLINT
@@ -217,7 +227,7 @@ namespace
 
         std::string testContent("HelloWorld");
 
-        EXPECT_THROW(m_fileSystem->writeFile(directroryPath, testContent), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->writeFile(directroryPath, testContent), IFileSystemException); //NOLINT
 
         ::rmdir(directroryPath.c_str());
     }
@@ -225,7 +235,7 @@ namespace
     TEST_F(FileSystemImplTest, readFileThatDoesNotExistsShouldThrow) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadFileTest.txt");
-        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileSystemException); //NOLINT
 
     }
 
@@ -234,7 +244,7 @@ namespace
         std::string directroryPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
         mkdir(directroryPath.c_str(), 0700);
-        EXPECT_THROW(m_fileSystem->readFile(directroryPath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(directroryPath), IFileSystemException); //NOLINT
 
         ::rmdir(directroryPath.c_str());
     }
@@ -248,7 +258,7 @@ namespace
         m_fileSystem->writeFileAtomically(filePath, testContent, m_fileSystem->currentWorkingDirectory() );
 
         EXPECT_EQ(m_fileSystem->readFile(filePath), testContent);
-        ::remove(filePath.c_str());
+        removeFile(filePath);
     }
 
     TEST_F( FileSystemImplTest, dirNameReturnsCorrectMatchingValue) // NOLINT
@@ -326,7 +336,7 @@ namespace
         Tests::TempDir tempdir("","FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
-        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B));
+        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B)); //NOLINT
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
@@ -335,7 +345,7 @@ namespace
         Tests::TempDir tempdir("","FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = Common::FileSystem::join("NotADirectory", "NotAFile");
-        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B));
+        EXPECT_ANY_THROW(m_fileSystem->copyFile(A,B)); //NOLINT
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
@@ -358,7 +368,7 @@ namespace
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
         ASSERT_FALSE(m_fileSystem->exists(filePath));
-        EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException); //NOLINT
     }
 
     TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
