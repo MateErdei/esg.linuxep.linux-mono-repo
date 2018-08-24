@@ -9,7 +9,7 @@
 
 #include <Common/UtilityImpl/Main.h>
 
-int watchdog_main(int argc, char* argv[])
+static int watchdog_main(int argc, char* argv[])
 {
     return watchdog::watchdogimpl::watchdog_main::main(argc,argv);
 }
