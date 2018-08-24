@@ -4,13 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 class TestEventReceiverImpl : public ::testing::Test
 {

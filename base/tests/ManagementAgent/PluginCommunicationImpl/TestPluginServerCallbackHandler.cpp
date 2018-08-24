@@ -1,14 +1,16 @@
 
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include "Common/ZeroMQWrapper/IContext.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include "MockPluginServerCallback.h"
+
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include "tests/Common/PluginApiImpl/TestCompare.h"
-#include "Common/PluginApi/ApiException.h"
+#include <tests/Common/PluginApiImpl/TestCompare.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/PluginApi/ApiException.h>
 
 class TestPluginServerCallbackHandler : public TestCompare
 {

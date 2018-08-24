@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/PluginApi/ApiException.h>
 #include "PluginServerCallback.h"
 #include <ManagementAgent/LoggerImpl/Logger.h>
+#include <Common/PluginApi/ApiException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 
 namespace ManagementAgent

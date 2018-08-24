@@ -4,22 +4,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <modules/ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 
 
 class TestStatusCache : public ::testing::Test
 {
 
 public:
-    TestStatusCache():
-    m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    TestStatusCache()
+        : m_mockFileSystem(nullptr)
+        , m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
 
     }
@@ -47,7 +49,6 @@ public:
 private:
     std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
 };
-
 
 TEST_F(TestStatusCache, testConstruction) // NOLINT
 {
@@ -117,7 +118,8 @@ TEST_F(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
-    std::string appId("APPID"), contents("");
+    std::string appId("APPID");
+    std::string contents; // Empty string
     std::string fullPath = Common::FileSystem::join(m_statusCachePath, appId) + ".xml";
     EXPECT_CALL(*m_mockFileSystem, writeFile(fullPath, contents));
     bool v = cache.statusChanged(appId, contents);
@@ -129,8 +131,9 @@ TEST_F(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
 
-    std::string appId(""), contents("StatusXML");
-    std::string fullPath = Common::FileSystem::join(m_statusCachePath, appId) + ".xml";
+    std::string appId; // Empty string
+    std::string contents("StatusXML");
+    std::string fullPath = Common::FileSystem::join(m_statusCachePath, appId+ ".xml") ;
     EXPECT_CALL(*m_mockFileSystem, writeFile(fullPath, contents));
     bool v = cache.statusChanged(appId, contents);
     EXPECT_TRUE(v);
@@ -149,12 +152,13 @@ TEST_F(TestStatusCache, loadStatusCache_WithEmptyCacheDoesNotThrow) // NOLINT
 TEST_F(TestStatusCache, loadStatusCache_WithOneCachedFileLoadsSuccessfully) // NOLINT
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;
-    std::string appId("APPID"), contents("StatusWithoutTimeStamp");
-    std::string fullPath = Common::FileSystem::join(m_statusCachePath, appId) + ".xml";
+    std::string appId("APPID");
+    std::string contents("StatusWithoutTimeStamp");
+    std::string fullPath = Common::FileSystem::join(m_statusCachePath, appId + ".xml");
     std::vector<std::string> fileNames = {fullPath};
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_statusCachePath)).WillOnce(Return(fileNames));
     EXPECT_CALL(*m_mockFileSystem, readFile(fullPath)).WillOnce(Return(contents));
-    EXPECT_NO_THROW(cache.loadCacheFromDisk());
+    EXPECT_NO_THROW(cache.loadCacheFromDisk()); // NOLINT
     bool v = cache.statusChanged(appId, contents);
     EXPECT_FALSE(v);
 }

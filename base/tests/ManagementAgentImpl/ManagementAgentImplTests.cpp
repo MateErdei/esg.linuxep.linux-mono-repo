@@ -4,23 +4,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
+#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 
 namespace
 {

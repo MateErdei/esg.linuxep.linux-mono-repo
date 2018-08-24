@@ -1,20 +1,19 @@
 
-#include "ManagementAgent/PluginCommunicationImpl/PluginManager.h"
-#include "ManagementAgent/PluginCommunicationImpl/PluginProxy.h"
-#include "ManagementAgent/PluginCommunication/IPluginCommunicationException.h"
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include "Common/ZeroMQWrapper/IContext.h"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
-#include "tests/Common/PluginApiImpl/MockedPluginApiCallback.h"
-#include "tests/Common/FileSystemImpl/MockFileSystem.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/PluginApiImpl/MockedPluginApiCallback.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/PluginApi/ApiException.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <thread>
-#include <modules/Common/PluginApi/ApiException.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 

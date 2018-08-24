@@ -7,12 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-#include "ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h"
-#include "tests/Common/FileSystemImpl/MockFileSystem.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
 #include "MockPluginManager.h"
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 class PolicyTaskTests : public ::testing::Test
 {

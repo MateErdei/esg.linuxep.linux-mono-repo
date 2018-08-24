@@ -1,12 +1,15 @@
 
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include "MockSocketRequester.h"
+
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include "Common/ZeroMQWrapper/IContext.h"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "MockSocketRequester.h"
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 

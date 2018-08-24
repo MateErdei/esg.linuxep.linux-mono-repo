@@ -6,18 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include "TempDir.h"
+#include "MockPluginManager.h"
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueue/ITaskProcessor.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
-
-#include "TempDir.h"
-#include "MockPluginManager.h"
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {

@@ -6,12 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
 
-#include "ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h"
-#include "tests/Common/FileSystemImpl/MockFileSystem.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
 #include "MockPluginManager.h"
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 using ::testing::_;
 

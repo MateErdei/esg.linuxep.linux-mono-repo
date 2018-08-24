@@ -5,16 +5,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
-
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 
 class PolicyReceiverImplTests : public ::testing::Test
 {

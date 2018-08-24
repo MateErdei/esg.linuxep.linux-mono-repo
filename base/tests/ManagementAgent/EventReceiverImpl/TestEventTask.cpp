@@ -4,12 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/EventReceiverImpl/EventTask.h>
-
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/EventReceiverImpl/EventTask.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 
 class TestEventTask : public ::testing::Test
