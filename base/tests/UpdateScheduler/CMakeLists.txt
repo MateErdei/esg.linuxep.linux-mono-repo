@@ -19,4 +19,10 @@ target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SO
 target_link_libraries(UpdateSchedulerTests gtest gmock gtest_main updateschedulerimpl filesystemimpl testhelpers processimpl suldownloaderdata)
 
 
+SET_TARGET_PROPERTIES(UpdateSchedulerTests
+        PROPERTIES
+        INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
+
 gtest_discover_tests(UpdateSchedulerTests)
