@@ -13,8 +13,10 @@ namespace
     void setNonBlocking(int fd)
     {
         assert(fd >= 0);
-        ::fcntl(fd, F_SETFL, O_NONBLOCK);
-        ::fcntl(fd, F_SETFD, O_CLOEXEC);
+        int ret = ::fcntl(fd, F_SETFL, O_NONBLOCK);
+        assert(ret == 0);
+        ret = ::fcntl(fd, F_SETFD, O_CLOEXEC);
+        assert(ret == 0);
     }
 
     int addFD(fd_set* fds, int fd, int maxfd)
