@@ -8,7 +8,9 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/updatescheduler.json
         PERMISSIONS OWNER_READ )
 
 SET_TARGET_PROPERTIES( UpdateScheduler
-        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
 
 install(TARGETS UpdateScheduler
         DESTINATION files/base/bin)
