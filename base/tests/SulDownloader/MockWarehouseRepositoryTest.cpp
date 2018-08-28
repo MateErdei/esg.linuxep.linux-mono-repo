@@ -23,7 +23,7 @@ TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
     suldownloaderdata::ConfigurationData configurationData({"https://sophos.com/warehouse"});
     suldownloaderdata::ProductGUID productGUID{"ProductName",true,false,"ReleaseTag","BaseVersion"};
     configurationData.addProductSelection(productGUID);
-    SulDownloader::ProductSelection selection = SulDownloader::ProductSelection::CreateProductSelection(configurationData);
+    auto selection = SulDownloader::suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
     SulDownloader::suldownloaderdata::ProductMetadata metadata;
     SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);

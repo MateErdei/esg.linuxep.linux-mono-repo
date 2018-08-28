@@ -20,7 +20,7 @@ class MockWarehouseRepository: public SulDownloader::suldownloaderdata::IWarehou
 public:
     MOCK_CONST_METHOD0(hasError, bool(void));
     MOCK_CONST_METHOD0(getError, WarehouseError(void));
-    MOCK_METHOD1(synchronize, void(SulDownloader::ProductSelection&));
+    MOCK_METHOD1(synchronize, void(SulDownloader::suldownloaderdata::ProductSelection&));
     MOCK_METHOD0(distribute, void(void));
     MOCK_CONST_METHOD0(getProducts, std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>(void));
     MOCK_CONST_METHOD0(getSourceURL, std::string(void));

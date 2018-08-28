@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 class ProductSelectionTest : public ::testing::Test
 {
@@ -181,7 +182,7 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNo
 {
     suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
-    ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
+    auto productSelection  = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
     std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
 
@@ -192,7 +193,7 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnA
 {
     auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
-    ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
+    auto productSelection  = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
     std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
     SulDownloader::suldownloaderdata::ProductMetadata metadata1 =  createTestProductMetaData(1);

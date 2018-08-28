@@ -13,12 +13,12 @@
 
 namespace SulDownloader
 {
-    class ProductSelection;
     struct WarehouseError;
 
     namespace suldownloaderdata
     {
         class DownloadedProduct;
+        class ProductSelection;
 
         /**
          * Interface for WarehouseRepository to enable tests.

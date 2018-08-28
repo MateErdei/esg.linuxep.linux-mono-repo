@@ -22,8 +22,8 @@ namespace SulDownloader
     namespace suldownloaderdata
     {
         class DownloadedProduct;
+        class ProductSelection;
     }
-    class ProductSelection;
     class SULSession;
 
     /**
@@ -95,7 +95,7 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
          *
          * @param productSelection: is responsible to define which are the products to be downloaded.
          */
-        void synchronize( ProductSelection & productSelection) override ;
+        void synchronize( suldownloaderdata::ProductSelection & productSelection) override ;
 
         /**
          * Extract the file content from the local warehouse repository and create real product file structure required.
