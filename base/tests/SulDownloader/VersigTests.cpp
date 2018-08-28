@@ -27,7 +27,7 @@ public:
         fileSystemMock = new MockFileSystem();
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
     }
-    ~VersigTests()
+    ~VersigTests() override
     {
         Common::FileSystem::restoreFileSystem();
     }
@@ -37,10 +37,11 @@ public:
     std::string manifestdat;
     MockFileSystem * fileSystemMock;
 };
-using VS = SulDownloader::IVersig::VerifySignature;
+using VS = SulDownloader::suldownloaderdata::IVersig::VerifySignature;
+
 TEST_F( VersigTests, verifyReturnsInvalidForInvalidCertificatePath ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(false));
 
@@ -49,7 +50,7 @@ TEST_F( VersigTests, verifyReturnsInvalidForInvalidCertificatePath ) // NOLINT
 
 TEST_F( VersigTests, verifyReturnsInvalidForInvalidDirectory ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(false));
@@ -59,7 +60,7 @@ TEST_F( VersigTests, verifyReturnsInvalidForInvalidDirectory ) // NOLINT
 
 TEST_F( VersigTests, returnInvalidIfFailsToFindVersigExecutable ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
@@ -71,7 +72,7 @@ TEST_F( VersigTests, returnInvalidIfFailsToFindVersigExecutable ) // NOLINT
 
 TEST_F( VersigTests, returnInvalidIfNoManitestDatIsFound ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
@@ -85,7 +86,7 @@ TEST_F( VersigTests, returnInvalidIfNoManitestDatIsFound ) // NOLINT
 
 TEST_F( VersigTests, passTheCorrectParametersToProcess ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
@@ -117,7 +118,7 @@ TEST_F( VersigTests, passTheCorrectParametersToProcess ) // NOLINT
 
 TEST_F( VersigTests, signatureFailureIsReportedAsFailure ) // NOLINT
 {
-    auto versig = SulDownloader::createVersig();
+    auto versig = SulDownloader::suldownloaderdata::createVersig();
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));

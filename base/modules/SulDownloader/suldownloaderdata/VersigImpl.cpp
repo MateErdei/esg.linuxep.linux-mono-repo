@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    IVersig::VerifySignature
+    suldownloaderdata::IVersig::VerifySignature
     VersigImpl::verify(const std::string& certificate_path, const std::string& productDirectoryPath) const
     {
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -81,24 +81,28 @@ namespace SulDownloader
         return instance;
     }
 
-    std::unique_ptr<IVersig> VersigFactory::createVersig()
+    IVersigPtr VersigFactory::createVersig()
     {
         return m_creator();
     }
 
-    void VersigFactory::replaceCreator(std::function<std::unique_ptr<IVersig>(void)> creator)
+    void VersigFactory::replaceCreator(VersigCreatorFunc creator)
     {
         m_creator = std::move(creator);
     }
 
     void VersigFactory::restoreCreator()
     {
-        m_creator = [](){return std::unique_ptr<IVersig>(new VersigImpl());};
+        m_creator = [](){return IVersigPtr(new VersigImpl());};
     }
-    std::unique_ptr<IVersig> createVersig()
+
+
+    /**
+     * Implement factory function
+     * @return
+     */
+    IVersigPtr suldownloaderdata::createVersig()
     {
         return VersigFactory::instance().createVersig();
     }
-
-
 }

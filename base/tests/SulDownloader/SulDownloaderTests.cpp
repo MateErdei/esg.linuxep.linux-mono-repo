@@ -64,8 +64,8 @@ public:
 
         SulDownloader::VersigFactory::instance().replaceCreator([](){
             auto versig = new NiceMock<MockVersig>();
-            ON_CALL(*versig, verify(_,_)).WillByDefault(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_VERIFIED));
-            return std::unique_ptr<SulDownloader::IVersig>(versig);
+            ON_CALL(*versig, verify(_,_)).WillByDefault(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
+            return std::unique_ptr<SulDownloader::suldownloaderdata::IVersig>(versig);
         });
         m_mockptr = nullptr;
     }
@@ -795,18 +795,18 @@ TEST_F( SULDownloaderTest, //NOLINT
             EXPECT_CALL(*versig, verify("/installroot/base/update/certificates/rootca.crt",
                                         "/installroot/base/update/cache/primary/everest"
             ))
-                    .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_VERIFIED));
+                    .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
         }
         else
         {
             EXPECT_CALL(*versig, verify("/installroot/base/update/certificates/rootca.crt",
                                         "/installroot/base/update/cache/primary/everest-plugin-a"
             ))
-                    .WillOnce(Return(SulDownloader::IVersig::VerifySignature::SIGNATURE_FAILED));
+                    .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_FAILED));
         }
 
 
-        return std::unique_ptr<SulDownloader::IVersig>(versig);
+        return std::unique_ptr<SulDownloader::suldownloaderdata::IVersig>(versig);
     });
 
     ProductReportVector productReports = defaultProductReports();
