@@ -13,8 +13,8 @@ namespace SulDownloader
 {
     struct Tag
     {
-        Tag(const std::string &t, const std::string &b, const std::string &l)
-                : tag(t), baseversion(b), label(l)
+        Tag(std::string t, std::string b, std::string l)
+                : tag(std::move(t)), baseversion(std::move(b)), label(std::move(l))
         {
         }
 

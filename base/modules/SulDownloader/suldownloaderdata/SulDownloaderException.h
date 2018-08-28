@@ -13,7 +13,7 @@ namespace SulDownloader
     class SulDownloaderException : public std::exception
     {
     public:
-        SulDownloaderException( std::string  message);
+        explicit SulDownloaderException( std::string  message);
         const char * what() const noexcept override ;
     private:
         std::string m_message;

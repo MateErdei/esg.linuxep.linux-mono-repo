@@ -30,8 +30,8 @@ namespace SulDownloader
         ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
         std::string targetProductName() const override ;
         bool keepProduct ( const ProductMetadata & ) const override ;
-        bool isProductRequired() const;
-        virtual ~ProductSelector() = default;
+        bool isProductRequired() const override;
+        ~ProductSelector() override = default;
     private:
         std::string m_productName;
         NamePrefix m_NamePrefix;

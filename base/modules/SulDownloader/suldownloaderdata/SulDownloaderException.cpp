@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
     SulDownloaderException::SulDownloaderException(std::string message)
-    : m_message( message)
+    : m_message( std::move(message) )
     {
 
     }

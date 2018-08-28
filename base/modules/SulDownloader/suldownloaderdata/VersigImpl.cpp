@@ -88,7 +88,7 @@ namespace SulDownloader
 
     void VersigFactory::replaceCreator(std::function<std::unique_ptr<IVersig>(void)> creator)
     {
-        m_creator = creator;
+        m_creator = std::move(creator);
     }
 
     void VersigFactory::restoreCreator()

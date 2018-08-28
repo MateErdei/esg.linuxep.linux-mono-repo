@@ -21,7 +21,7 @@ namespace
         std::vector<bool> m_trackIndexes;
         std::vector<size_t> m_indexes;
     public:
-        StableSetIndex( int capacity ): m_trackIndexes(capacity,false), m_indexes()
+        explicit StableSetIndex( size_t capacity ): m_trackIndexes(capacity,false), m_indexes()
         {
 
         }

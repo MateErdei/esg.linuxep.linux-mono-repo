@@ -34,11 +34,13 @@ namespace SulDownloader
     const std::string ConfigurationData::DoNotSetSslSystemPath(":system:");
     const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{"http://dci.sophosupd.com/update", "http://dci.sophosupd.net/update"};
 
-    ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL, const Credentials &credentials,
-                                         const std::vector<std::string> &updateCache, const Proxy & proxy)
-    : m_credentials(credentials)
+    ConfigurationData::ConfigurationData(const std::vector<std::string> &sophosLocationURL,
+                                         Credentials credentials,
+                                         const std::vector<std::string> &updateCache,
+                                         Proxy proxy)
+    : m_credentials(std::move(credentials))
       , m_localUpdateCacheUrls(updateCache)
-      , m_proxy(proxy)
+      , m_proxy(std::move(proxy))
       , m_state(State::Initialized)
       , m_logLevel(LogLevel::NORMAL)
       , m_forceReinstallAllProducts(false)

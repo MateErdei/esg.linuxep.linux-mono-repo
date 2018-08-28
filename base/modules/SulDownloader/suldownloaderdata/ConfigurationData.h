@@ -58,8 +58,10 @@ namespace SulDownloader
         static const std::vector<std::string> DefaultSophosLocationsURL;
 
         enum class LogLevel{NORMAL, VERBOSE};
-        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,  const Credentials& credentials = Credentials(),
-                const std::vector<std::string> & updateCache = std::vector<std::string>(), const Proxy& proxy = Proxy());
+        explicit ConfigurationData(const std::vector<std::string> & sophosLocationURL,
+                Credentials credentials = Credentials(),
+                const std::vector<std::string> & updateCache = std::vector<std::string>(),
+                Proxy proxy = Proxy());
 
         /**
          * Gets the credentials used to connect to the remote warehouse repository.
