@@ -16,7 +16,7 @@ namespace UpdateSchedulerImpl
     {
         struct SettingsHolder
         {
-            SulDownloader::ConfigurationData configurationData;
+            SulDownloader::suldownloaderdata::ConfigurationData configurationData;
             std::string updateCacheCertificatesContent;
             std::chrono::minutes schedulerPeriod;
         };

@@ -18,7 +18,10 @@
 namespace SulDownloader
 {
 
-    class ConfigurationData;
+    namespace suldownloaderdata
+    {
+        class ConfigurationData;
+    }
     /**
      * This class exists to enable an indirection on creating the WarehouseRepository to allow Mocking it out on tests.
      * The WarehouseRepository is the class that encapsulates what SUL lib provides and as such, needs a real remote
@@ -47,7 +50,7 @@ namespace SulDownloader
          *
          * @return
          */
-        std::unique_ptr<IWarehouseRepository> fetchConnectedWarehouseRepository(const ConfigurationData& );
+        std::unique_ptr<IWarehouseRepository> fetchConnectedWarehouseRepository(const suldownloaderdata::ConfigurationData& );
 
     private:
         /**
@@ -64,12 +67,12 @@ namespace SulDownloader
          * It is to be used in test only via the TestWarehouseHelper.
          * @param creatorMethod
          */
-        void replaceCreator(std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData&)> creatorMethod);
+        void replaceCreator(std::function<std::unique_ptr<IWarehouseRepository>(const suldownloaderdata::ConfigurationData&)> creatorMethod);
 
         /**
          * The real creator method that is triggered on ::fetchConnectedWarehouseRepository
          */
-        std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData&)> m_creatorMethod;
+        std::function<std::unique_ptr<IWarehouseRepository>(const suldownloaderdata::ConfigurationData&)> m_creatorMethod;
     };
 }
 

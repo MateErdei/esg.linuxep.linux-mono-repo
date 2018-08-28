@@ -9,6 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloaderException.h"
 #include "Logger.h"
 
+using namespace SulDownloader::suldownloaderdata;
+
 namespace
 {
     /**

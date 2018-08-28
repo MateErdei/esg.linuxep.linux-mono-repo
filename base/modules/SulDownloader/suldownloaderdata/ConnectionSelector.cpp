@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ConnectionSelector.h"
 
-
+using namespace SulDownloader::suldownloaderdata;
 
 namespace SulDownloader
 {

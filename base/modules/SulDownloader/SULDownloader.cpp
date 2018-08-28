@@ -26,7 +26,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <algorithm>
 
-
+using namespace SulDownloader::suldownloaderdata;
 
 namespace
 {

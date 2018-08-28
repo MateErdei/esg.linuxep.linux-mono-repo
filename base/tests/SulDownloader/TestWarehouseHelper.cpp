@@ -9,9 +9,9 @@
 
 void SulDownloader::TestWarehouseHelper::replaceWarehouseCreator(
         std::function<std::unique_ptr<SulDownloader::IWarehouseRepository>(
-                const SulDownloader::ConfigurationData &)> creator)
+                const SulDownloader::suldownloaderdata::ConfigurationData &)> creator)
 {
-    SulDownloader::WarehouseRepositoryFactory::instance().replaceCreator(creator);
+    SulDownloader::WarehouseRepositoryFactory::instance().replaceCreator(std::move(creator));
 }
 
 void SulDownloader::TestWarehouseHelper::restoreWarehouseFactory()

@@ -17,9 +17,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <sstream>
 
+using namespace SulDownloader::suldownloaderdata;
+
 namespace
 {
-    static std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
+    std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
     {
         std::vector<SulDownloader::Tag> tags;
         int index = 0;
@@ -439,7 +441,7 @@ namespace SulDownloader
 
         if ( connectionSetup.isCacheUpdate())
         {
-            std::string cacheURL = connectionSetup.getUpdateLocationURL();
+            const std::string& cacheURL = connectionSetup.getUpdateLocationURL();
             for (std::string externalURL : {"d1.sophosupd.com/update",
                                             "d1.sophosupd.net/update",
                                             "d2.sophosupd.com/update",

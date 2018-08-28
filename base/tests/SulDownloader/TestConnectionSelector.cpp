@@ -120,9 +120,9 @@ public:
 };
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidData)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidData) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -146,7 +146,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 }
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfo)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfo) //NOLINT
 {
 
     std::string oldString = R"("proxy": {
@@ -157,9 +157,9 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                 }
                                },)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -181,7 +181,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 }
 
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidDataNoProxyInfoButEnvironmentVariable) //NOLINT
 {
 
     std::string oldString = R"("proxy": {
@@ -192,9 +192,9 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                 }
                                },)";
 
-    std::string newString = "";
+    std::string newString; // = "";
     setenv( "HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -224,7 +224,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 
 }
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySet)
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySet) //NOLINT
 {
 
     std::string oldString = R"("proxy": {
@@ -243,7 +243,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                 }
                                },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);

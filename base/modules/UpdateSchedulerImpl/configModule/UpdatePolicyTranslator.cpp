@@ -37,14 +37,14 @@ namespace UpdateSchedulerImpl
             auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
 
             std::string connectionAddress = primaryLocation.value("ConnectionAddress");
-            std::vector<std::string> defaultLocations{SulDownloader::ConfigurationData::DefaultSophosLocationsURL};
+            std::vector<std::string> defaultLocations{SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL};
             if (!connectionAddress.empty())
             {
                 defaultLocations.insert(begin(defaultLocations), connectionAddress);
             }
 
 
-            SulDownloader::ConfigurationData config{defaultLocations};
+            SulDownloader::suldownloaderdata::ConfigurationData config{defaultLocations};
             config.setCredentials(
                     SulDownloader::Credentials{primaryLocation.value("UserName"), primaryLocation.value("UserPassword")}
             );
@@ -134,7 +134,7 @@ namespace UpdateSchedulerImpl
 
 
             config.setInstallArguments({"--instdir", applicationPathManager().sophosInstall()});
-            config.setLogLevel(SulDownloader::ConfigurationData::LogLevel::VERBOSE);
+            config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;

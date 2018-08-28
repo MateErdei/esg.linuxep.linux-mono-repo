@@ -59,14 +59,14 @@ namespace SulDownloader
          * @param configurationData containing required parameters for SUL to perform a download from a warehouse repository
          * @return pointer to successfully connected WarehouseRepository
          */
-        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse( const ConfigurationData & configurationData );
+        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse( const suldownloaderdata::ConfigurationData & configurationData );
 
         WarehouseRepository() = delete;
         WarehouseRepository( const WarehouseRepository & ) = delete;
         WarehouseRepository &operator = (const WarehouseRepository & ) = delete;
         WarehouseRepository& operator = (WarehouseRepository && ) = default;
         WarehouseRepository( WarehouseRepository&& ) = default;
-        ~WarehouseRepository();
+        ~WarehouseRepository() override;
 
         /**
          * Used to check if the WarehouseRepository reported an error
@@ -122,8 +122,8 @@ namespace SulDownloader
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 
         void setError( const std::string & );
-        void setConnectionSetup( const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData);
-        int  logLevel( ConfigurationData::LogLevel );
+        void setConnectionSetup( const ConnectionSetup & connectionSetup, const suldownloaderdata::ConfigurationData& configurationData);
+        int  logLevel( suldownloaderdata::ConfigurationData::LogLevel );
         explicit  WarehouseRepository( bool createSession  );
 
         void distributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair, const  std::string & distributePath );

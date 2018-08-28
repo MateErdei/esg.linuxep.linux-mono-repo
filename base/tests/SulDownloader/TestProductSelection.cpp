@@ -177,20 +177,20 @@ public:
     }
 };
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
     std::vector<ProductMetadata> warehouseProducts;
 
-    EXPECT_NO_THROW(productSelection.selectProducts(warehouseProducts));
+    EXPECT_NO_THROW(productSelection.selectProducts(warehouseProducts)); //NOLINT
 }
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAllProductsFound)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAllProductsFound) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
@@ -210,9 +210,9 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnA
     EXPECT_EQ(selectedProducts.selected.size(), 3);
 }
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
@@ -235,9 +235,9 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnM
     EXPECT_EQ(selectedProducts.selected.size(), 0);
 }
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMixOfSelectedAndMissingProducts)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMixOfSelectedAndMissingProducts) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
@@ -259,9 +259,9 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnM
     EXPECT_EQ(selectedProducts.selected.size(), 2);
 }
 
-TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnCorrectProductsWhenWarehouseContainsMoreThanOneVersion)
+TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnCorrectProductsWhenWarehouseContainsMoreThanOneVersion) //NOLINT
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 

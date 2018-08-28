@@ -31,9 +31,9 @@ namespace UpdateSchedulerImpl
                                                        std::shared_ptr<SchedulerPluginCallback> callback,
                                                        std::unique_ptr<ICronSchedulerThread> cronThread,
                                                        std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner)
-            : m_queueTask(queueTask)
+            : m_queueTask(std::move(queueTask))
               , m_baseService(std::move(baseService))
-              , m_callback(callback)
+              , m_callback(std::move(callback))
               , m_cronThread(std::move(cronThread))
               , m_sulDownloaderRunner(std::move(sulDownloaderRunner))
               , m_policyTranslator()
@@ -251,9 +251,9 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(configFilePath, cacheCertificateContent);
     }
 
-    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::ConfigurationData& configurationData)
+    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData& configurationData)
     {
-        std::string serializedConfigData = SulDownloader::ConfigurationData::toJsonSettings(configurationData);
+        std::string serializedConfigData = SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 

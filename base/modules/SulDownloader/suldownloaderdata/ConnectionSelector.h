@@ -20,7 +20,7 @@ namespace SulDownloader
     class ConnectionSelector
     {
     public:
-        std::vector<ConnectionSetup> getConnectionCandidates( const ConfigurationData & configurationData);
+        std::vector<ConnectionSetup> getConnectionCandidates( const suldownloaderdata::ConfigurationData & configurationData);
         //void setLastSuccessfullConnection( const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData);
     };
 

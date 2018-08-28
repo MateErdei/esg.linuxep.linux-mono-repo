@@ -34,7 +34,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
-
+using namespace SulDownloader::suldownloaderdata;
 using SulDownloaderProto::ConfigurationSettings;
 
 struct SimplifiedDownloadReport
@@ -107,10 +107,10 @@ public:
         return Common::UtilityImpl::MessageUtility::protoBuf2Json( configSettings );
     }
 
-    SulDownloader::ConfigurationData configData( const ConfigurationSettings & configSettings)
+    SulDownloader::suldownloaderdata::ConfigurationData configData( const ConfigurationSettings & configSettings)
     {
         std::string json_output = jsonSettings( configSettings );
-        return SulDownloader::ConfigurationData::fromJsonSettings(json_output);
+        return SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(json_output);
     }
 
     std::vector<SulDownloader::DownloadedProduct> defaultProducts()
@@ -169,7 +169,7 @@ public:
         {
             m_mockptr = new StrictMock<MockWarehouseRepository>();
             TestWarehouseHelper helper;
-            helper.replaceWarehouseCreator([this](const ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(this->m_mockptr);});
+            helper.replaceWarehouseCreator([this](const suldownloaderdata::ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(this->m_mockptr);});
         }
         return *m_mockptr;
     }
@@ -264,15 +264,15 @@ protected:
     MockWarehouseRepository * m_mockptr = nullptr;
 };
 
-TEST_F( SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue )
+TEST_F( SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue ) //NOLINT
 {
     setupFileSystemAndGetMock();
-    SulDownloader::ConfigurationData confData = configData( defaultSettings());
+    SulDownloader::suldownloaderdata::ConfigurationData confData = configData( defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE( confData.isVerified());
 }
 
-TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
+TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) //NOLINT
 {
     auto filesystemMock = new MockFileSystem();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -298,7 +298,7 @@ TEST_F( SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
 
-TEST_F(SULDownloaderTest,
+TEST_F(SULDownloaderTest,  //NOLINT
        main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -365,7 +365,7 @@ TEST_F(SULDownloaderTest,
 }
 
 
-TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult)
+TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult) //NOLINT
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -412,7 +412,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F(SULDownloaderTest,
+TEST_F(SULDownloaderTest, //NOLINT
        main_entry_onSuccessCreatesReportContainingExpectedSuccessResultEnsuringInvalidPreviousReportFilesAreIgnored)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -461,7 +461,8 @@ TEST_F(SULDownloaderTest,
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
+TEST_F( SULDownloaderTest, //NOLINT
+        main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -519,7 +520,8 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     EXPECT_EQ( SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
+TEST_F(SULDownloaderTest, //NOLINT
+        main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
@@ -579,7 +581,8 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedUni
 
 
 // the other execution paths were covered in main_entry_* tests.
-TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
+TEST_F( SULDownloaderTest, //NOLINT
+        fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
     auto filesystemMock = new MockFileSystem();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -593,7 +596,8 @@ TEST_F( SULDownloaderTest, fileEntriesAndRunDownloaderThrowIfCannotCreateOutputF
 }
 
 // configAndRunDownloader
-TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
+TEST_F( SULDownloaderTest, //NOLINT
+        configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
 {
     auto filesystemMock = new MockFileSystem();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -612,7 +616,8 @@ TEST_F( SULDownloaderTest, configAndRunDownloaderInvalidSettingsReportError_Ware
 }
 
 // runSULDownloader
-TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -629,7 +634,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCrea
 
     SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}, false};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -638,7 +643,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseConnectionFailureShouldCrea
 }
 
 
-TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -658,7 +664,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShoul
 
     SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,{}, false};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -670,7 +676,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationFailureShoul
 /**
  * Simulate the error in distributing only one of the products
  */
-TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
+TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure) //NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -707,7 +713,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
 
     SimplifiedDownloadReport expectedDownloadReport{wError.status, wError.Description,productReports, false};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -715,7 +721,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure)
                         SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
 }
 
-TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -741,7 +748,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
 
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
 
     TimeTracker timeTracker;
@@ -758,7 +765,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_WarehouseSynchronizationResultingInN
  * Simulate invalid signature
  *
  */
-TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_UpdateFailForInvalidSignature)
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -810,7 +818,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
                                                     "Update failed",productReports, false};
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
     auto result = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
@@ -822,7 +830,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_UpdateFailForInvalidSignature)
 /**
  * Simulate error in installing base successfully but fail to install plugin
  */
-TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
 
@@ -887,7 +896,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
                                                     "Update failed",productReports, false};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -900,7 +909,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_PluginInstallationFailureShouldResul
  * Simulate successful full update
  *
  */
-TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
@@ -961,7 +971,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
     SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS,
                                                     "",productReports, true};
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -969,7 +979,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_SuccessfulFullUpdateShouldResultInVa
                         SulDownloader::runSULDownloader(configurationData, previousDownloadReport));
 }
 
-TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_checkLogVerbosityVERBOSE)
 {
     setupFileSystemAndGetMock();
     testing::internal::CaptureStdout();
@@ -979,7 +990,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
     settings.clear_cacheupdatesslpath();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel( ConfigurationSettings::VERBOSE);
-    ConfigurationData configurationData = configData(settings);
+    suldownloaderdata::ConfigurationData configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
     auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
@@ -989,7 +1000,8 @@ TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityVERBOSE)
     ASSERT_THAT( errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
 }
 
-TEST_F( SULDownloaderTest, runSULDownloader_checkLogVerbosityNORMAL)
+TEST_F( SULDownloaderTest, //NOLINT
+        runSULDownloader_checkLogVerbosityNORMAL)
 {
     setupFileSystemAndGetMock();
     testing::internal::CaptureStdout();

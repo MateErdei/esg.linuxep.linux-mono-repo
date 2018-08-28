@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 class ConfigurationDataTest : public ::testing::Test
 {
@@ -127,8 +128,8 @@ public:
 
     ::testing::AssertionResult configurationDataIsEquivalent( const char* m_expr,
                                                       const char* n_expr,
-                                                      const SulDownloader::ConfigurationData & expected,
-                                                      const SulDownloader::ConfigurationData & resulted)
+                                                      const SulDownloader::suldownloaderdata::ConfigurationData & expected,
+                                                      const SulDownloader::suldownloaderdata::ConfigurationData & resulted)
     {
         std::stringstream s;
         s<< m_expr << " and " << n_expr << " failed: ";

@@ -57,7 +57,7 @@ namespace SulDownloader
     {
         ProductSelection() = default;
     public:
-        static ProductSelection CreateProductSelection( const ConfigurationData & );
+        static ProductSelection CreateProductSelection( const suldownloaderdata::ConfigurationData & );
         void appendSelector(std::unique_ptr<ISingleProductSelector> );
         SelectedResultsIndexes selectProducts( const std::vector<ProductMetadata> & warehouseProducts) const;
     private:

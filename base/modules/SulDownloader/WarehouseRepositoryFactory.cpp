@@ -6,6 +6,10 @@
 ///////////////////////////////////////////////////////////
 #include "WarehouseRepositoryFactory.h"
 #include "WarehouseRepository.h"
+
+
+using namespace SulDownloader::suldownloaderdata;
+
 namespace SulDownloader
 {
     WarehouseRepositoryFactory &WarehouseRepositoryFactory::instance()
@@ -28,7 +32,7 @@ namespace SulDownloader
     void WarehouseRepositoryFactory::replaceCreator(
             std::function<std::unique_ptr<IWarehouseRepository>(const ConfigurationData &)> creatorMethod)
     {
-        m_creatorMethod = creatorMethod;
+        m_creatorMethod = std::move(creatorMethod);
     }
 
     void WarehouseRepositoryFactory::restoreCreator()

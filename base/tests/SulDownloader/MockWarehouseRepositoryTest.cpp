@@ -20,8 +20,8 @@ TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
     WarehouseError error;
     error.Description = "Nothing";
     error.status = SulDownloader::SUCCESS;
-    ConfigurationData configurationData({"https://sophos.com/warehouse"});
-    ProductGUID productGUID{"ProductName",true,false,"ReleaseTag","BaseVersion"};
+    suldownloaderdata::ConfigurationData configurationData({"https://sophos.com/warehouse"});
+    suldownloaderdata::ProductGUID productGUID{"ProductName",true,false,"ReleaseTag","BaseVersion"};
     configurationData.addProductSelection(productGUID);
     SulDownloader::ProductSelection selection = SulDownloader::ProductSelection::CreateProductSelection(configurationData);
 
@@ -52,11 +52,11 @@ TEST( MockWarehouseRepositoryTest, ReplaceWarehouseRepository) //NOLINT
     MockWarehouseRepository& mock = *mockptr;
 
     TestWarehouseHelper helper;
-    helper.replaceWarehouseCreator([&mockptr](const ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(mockptr);});
+    helper.replaceWarehouseCreator([&mockptr](const suldownloaderdata::ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(mockptr);});
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)).WillOnce(Return(true));
 
 
-    ConfigurationData configurationData({"https://sophos.com/warehouse"});
+    suldownloaderdata::ConfigurationData configurationData({"https://sophos.com/warehouse"});
     auto warehouseFromFactory = SulDownloader::WarehouseRepositoryFactory::instance().fetchConnectedWarehouseRepository(configurationData);
     ASSERT_FALSE(warehouseFromFactory->hasError());
     ASSERT_TRUE(warehouseFromFactory->hasError());
