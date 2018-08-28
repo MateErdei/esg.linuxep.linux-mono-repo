@@ -14,12 +14,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-    class IWarehouseRepository;
     class TimeTracker;
 
     namespace suldownloaderdata
     {
         class DownloadedProduct;
+        class IWarehouseRepository;
 
         struct ProductReport
         {

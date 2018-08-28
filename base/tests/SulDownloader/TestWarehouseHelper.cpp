@@ -8,7 +8,7 @@
 #include "SulDownloader/WarehouseRepositoryFactory.h"
 
 void SulDownloader::TestWarehouseHelper::replaceWarehouseCreator(
-        std::function<std::unique_ptr<SulDownloader::IWarehouseRepository>(
+        std::function<suldownloaderdata::IWarehouseRepositoryPtr(
                 const SulDownloader::suldownloaderdata::ConfigurationData &)> creator)
 {
     SulDownloader::WarehouseRepositoryFactory::instance().replaceCreator(std::move(creator));

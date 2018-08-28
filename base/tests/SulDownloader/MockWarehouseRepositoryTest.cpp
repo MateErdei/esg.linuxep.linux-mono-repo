@@ -52,7 +52,8 @@ TEST( MockWarehouseRepositoryTest, ReplaceWarehouseRepository) //NOLINT
     MockWarehouseRepository& mock = *mockptr;
 
     TestWarehouseHelper helper;
-    helper.replaceWarehouseCreator([&mockptr](const suldownloaderdata::ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(mockptr);});
+    helper.replaceWarehouseCreator(
+            [&mockptr](const suldownloaderdata::ConfigurationData & ){return suldownloaderdata::IWarehouseRepositoryPtr(mockptr);});
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)).WillOnce(Return(true));
 
 

@@ -48,7 +48,7 @@ namespace SulDownloader
      *
      *
      */
-    class WarehouseRepository : public virtual IWarehouseRepository
+class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
     {
     public:
         /**

@@ -175,7 +175,8 @@ public:
         {
             m_mockptr = new StrictMock<MockWarehouseRepository>();
             TestWarehouseHelper helper;
-            helper.replaceWarehouseCreator([this](const suldownloaderdata::ConfigurationData & ){return std::unique_ptr<SulDownloader::IWarehouseRepository>(this->m_mockptr);});
+            helper.replaceWarehouseCreator(
+                    [this](const suldownloaderdata::ConfigurationData & ){return suldownloaderdata::IWarehouseRepositoryPtr(this->m_mockptr);});
         }
         return *m_mockptr;
     }

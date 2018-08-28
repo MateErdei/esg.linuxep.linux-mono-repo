@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace ::testing;
 using namespace SulDownloader;
 
-class MockWarehouseRepository: public SulDownloader::IWarehouseRepository
+class MockWarehouseRepository: public SulDownloader::suldownloaderdata::IWarehouseRepository
 {
 public:
     MOCK_CONST_METHOD0(hasError, bool(void));

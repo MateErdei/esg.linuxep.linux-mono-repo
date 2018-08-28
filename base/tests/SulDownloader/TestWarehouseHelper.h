@@ -17,7 +17,7 @@ namespace SulDownloader
     class TestWarehouseHelper
     {
     public:
-        void replaceWarehouseCreator( std::function<std::unique_ptr<IWarehouseRepository>(const suldownloaderdata::ConfigurationData&)> creator);
+        void replaceWarehouseCreator( std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)> creator);
         void restoreWarehouseFactory();
     };
 
