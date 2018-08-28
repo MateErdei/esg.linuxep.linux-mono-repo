@@ -113,7 +113,7 @@ namespace UpdateSchedulerImpl
                 }
 
                 config.setProxy(
-                        SulDownloader::Proxy{proxyAddress, SulDownloader::suldownloaderdata::Credentials{proxyUser, proxyPassword}}
+                        SulDownloader::suldownloaderdata::Proxy{proxyAddress, SulDownloader::suldownloaderdata::Credentials{proxyUser, proxyPassword}}
                 );
             }
 
