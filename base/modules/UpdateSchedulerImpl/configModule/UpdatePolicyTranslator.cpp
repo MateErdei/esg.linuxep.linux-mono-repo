@@ -46,7 +46,7 @@ namespace UpdateSchedulerImpl
 
             SulDownloader::suldownloaderdata::ConfigurationData config{defaultLocations};
             config.setCredentials(
-                    SulDownloader::Credentials{primaryLocation.value("UserName"), primaryLocation.value("UserPassword")}
+                    SulDownloader::suldownloaderdata::Credentials{primaryLocation.value("UserName"), primaryLocation.value("UserPassword")}
             );
 
 
@@ -113,7 +113,7 @@ namespace UpdateSchedulerImpl
                 }
 
                 config.setProxy(
-                        SulDownloader::Proxy{proxyAddress, SulDownloader::Credentials{proxyUser, proxyPassword}}
+                        SulDownloader::Proxy{proxyAddress, SulDownloader::suldownloaderdata::Credentials{proxyUser, proxyPassword}}
                 );
             }
 

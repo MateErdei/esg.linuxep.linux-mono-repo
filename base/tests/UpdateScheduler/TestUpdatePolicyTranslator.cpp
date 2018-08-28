@@ -6,10 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gmock/gmock-matchers.h>
-#include <modules/UpdateScheduler/UpdatePolicyTranslator.h>
+#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
-static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
+static const std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <AUConfig platform="Linux">
@@ -22,7 +22,7 @@ static std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="0" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
 
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
@@ -131,7 +131,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 </AUConfigurations>
 )sophos"};
 
-static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
+static const std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
@@ -144,7 +144,7 @@ static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
       <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
       <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
     </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
@@ -173,13 +173,13 @@ static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
 </AUConfigurations>
 )sophos"};
 
-static std::string incorrectPolicyTypeXml{R"sophos(<?xml version="1.0"?>
+static const std::string incorrectPolicyTypeXml{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
 </AUConfigurations>
 )sophos"};
 
-std::string cacheCertificates{R"sophos(-----BEGIN CERTIFICATE-----
+static const std::string cacheCertificates{R"sophos(-----BEGIN CERTIFICATE-----
 MIIDxDCCAqygAwIBAgIQEFgFEJ0SYXZx+dHI2UTIVzANBgkqhkiG9w0BAQsFADBh
 MQswCQYDVQQGEwJHQjEPMA0GA1UEBwwGT3hmb3JkMQ8wDQYDVQQKDAZTb3Bob3Mx
 EjAQBgNVBAsMCUhlYXJ0YmVhdDEcMBoGA1UEAwwTSGVhcnRiZWF0LWV1LXdlc3Qt
@@ -247,10 +247,11 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos"};
 
+using namespace UpdateSchedulerImpl::configModule;
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -281,18 +282,21 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
 
     EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin-");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
 
     EXPECT_TRUE(config.getProxy().empty());
+
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
+
 }
 
 TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
@@ -303,7 +307,7 @@ TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
+    UpdatePolicyTranslator translator;
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -336,13 +340,14 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
     SulDownloader::Proxy expectedProxy{"uk-abn-wpan-1.green.sophos:8080",
-                               SulDownloader::Credentials{"TestUser",
+                               SulDownloader::suldownloaderdata::Credentials{"TestUser",
                                                           "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="}};
     EXPECT_EQ(config.getProxy(), expectedProxy);
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT
 {
-    UpdateScheduler::UpdatePolicyTranslator translator;
-    EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
+    UpdatePolicyTranslator translator;
+    EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error); //NOLINT
 }
