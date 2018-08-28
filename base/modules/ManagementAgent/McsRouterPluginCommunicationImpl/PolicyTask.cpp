@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "PolicyTask.h"
 #include <ManagementAgent/LoggerImpl/Logger.h>
+#include <ManagementAgent/UtilityImpl/PolicyFileUtilities.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/RegexUtilities.h>
@@ -21,7 +22,7 @@ namespace ManagementAgent
         {
             LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
 
-            std::string appId = PolicyTask::ExtractAppIdFromPolicyFile(m_filePath);
+            std::string appId = UtilityImpl::extractAppIdFromPolicyFile(m_filePath);
 
             if (appId.empty())
             {
@@ -52,18 +53,7 @@ namespace ManagementAgent
         {
         }
 
-/**
- * The policy file pattern currently implemented by mcsrouter: GenericAdapter::__processPolicy
- * is as follow: AppID[-PolicyType]_policy.xml
- */
-        std::string PolicyTask::ExtractAppIdFromPolicyFile(
-                const std::string& policyPath)
-        {
-            std::string policyFileName = Common::FileSystem::basename(policyPath);
-            std::string PolicyPattern{R"sophos(([\w]+)(-[\w]+)?_policy.xml)sophos"};
-            return Common::UtilityImpl::returnFirstMatch(PolicyPattern, policyFileName);
 
-        }
 
     }
 

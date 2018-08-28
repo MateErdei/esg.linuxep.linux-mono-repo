@@ -9,27 +9,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/LoggerImpl/Logger.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/UtilityImpl/PolicyFileUtilities.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/RegexUtilities.h>
-
-namespace
-{
-
-    /**
-     * The policy file pattern currently implemented by mcsrouter: GenericAdapter::__processPolicy
-     * is as follow: AppID[-PolicyType]_policy.xml
-     */
-    std::string extractAppIdFromPolicyFile(const std::string& policyPath)
-    {
-        std::string policyFileName = Common::FileSystem::basename(policyPath);
-        std::string PolicyPattern{R"sophos(([\w]+)(-[\w]+)?_policy.xml)sophos"};
-        return Common::UtilityImpl::returnFirstMatch(PolicyPattern, policyFileName);
-
-    }
-}
-
 
 using namespace ManagementAgent::McsRouterPluginCommunicationImpl;
 
@@ -62,11 +45,10 @@ namespace ManagementAgent
                 return false;
             }
 
-
             for(auto& policyFile : policyFiles)
             {
                 LOGSUPPORT("Checking policyFile: " << policyFile << " for appid: " << appId);
-                std::string appid_file = extractAppIdFromPolicyFile(policyFile);
+                std::string appid_file = UtilityImpl::extractAppIdFromPolicyFile(policyFile);
                 if (!appid_file.empty() && appid_file == appId)
                 {
 

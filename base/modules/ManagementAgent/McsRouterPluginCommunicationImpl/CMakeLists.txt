@@ -7,7 +7,7 @@ add_library(mcsrouterplugincommunicationimpl SHARED
         ActionTask.h
         ActionTask.cpp)
 target_include_directories(mcsrouterplugincommunicationimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication ${LOG4CPLUS_INCLUDE_DIR})
-target_link_libraries(mcsrouterplugincommunicationimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl managementagentloggerimpl taskqueueimpl directorywatcherimpl)
+target_link_libraries(mcsrouterplugincommunicationimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl managementagentloggerimpl taskqueueimpl directorywatcherimpl managementagentutilityimpl)
 
 SET_TARGET_PROPERTIES( mcsrouterplugincommunicationimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

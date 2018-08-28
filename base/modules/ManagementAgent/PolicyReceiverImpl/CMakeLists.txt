@@ -4,7 +4,7 @@ add_library(policyreceiverimpl SHARED
         PolicyReceiverImpl.h
         )
 target_include_directories(policyreceiverimpl PUBLIC  ../../Common filesystemimpl ../PluginCommunication ${LOG4CPLUS_INCLUDE_DIR})
-target_link_libraries(policyreceiverimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl utilityimpl managementagentloggerimpl mcsrouterplugincommunicationimpl taskqueueimpl)
+target_link_libraries(policyreceiverimpl PUBLIC threads filesystemimpl pluginapiimpl plugincommunicationimpl utilityimpl managementagentloggerimpl mcsrouterplugincommunicationimpl taskqueueimpl managementagentutilityimpl)
 
 SET_TARGET_PROPERTIES( policyreceiverimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
