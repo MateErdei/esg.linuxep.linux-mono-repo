@@ -597,9 +597,9 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
-    EXPECT_THROW(SulDownloader::fileEntriesAndRunDownloader(
+    EXPECT_THROW(SulDownloader::fileEntriesAndRunDownloader( //NOLINT
                  "/dir/input.json", "/dir/path/that/cannot/be/created/output.json"),
-            SulDownloader::SulDownloaderException);
+            SulDownloader::suldownloaderdata::SulDownloaderException);
 }
 
 // configAndRunDownloader

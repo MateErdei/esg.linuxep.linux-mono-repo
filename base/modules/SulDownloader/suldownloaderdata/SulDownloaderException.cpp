@@ -5,16 +5,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SulDownloaderException.h"
-namespace SulDownloader
+
+using namespace SulDownloader::suldownloaderdata;
+
+SulDownloaderException::SulDownloaderException(std::string message)
+        : m_message(std::move(message))
 {
-    SulDownloaderException::SulDownloaderException(std::string message)
-    : m_message( std::move(message) )
-    {
+}
 
-    }
-
-    const char *SulDownloaderException::what() const noexcept
-    {
-        return m_message.c_str();
-    }
+const char* SulDownloaderException::what() const noexcept
+{
+    return m_message.c_str();
 }

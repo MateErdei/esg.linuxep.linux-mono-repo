@@ -10,15 +10,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 namespace SulDownloader
 {
-    class SulDownloaderException : public std::exception
+    namespace suldownloaderdata
     {
-    public:
-        explicit SulDownloaderException( std::string  message);
-        const char * what() const noexcept override ;
-    private:
-        std::string m_message;
-    };
+        class SulDownloaderException
+                : public std::exception
+        {
+        public:
+            explicit SulDownloaderException(std::string message);
 
+            const char* what() const noexcept override;
 
+        private:
+            std::string m_message;
+        };
+
+    }
 }
 
