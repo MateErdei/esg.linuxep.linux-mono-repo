@@ -11,17 +11,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-    struct Tag
+    namespace suldownloaderdata
     {
-        Tag(std::string t, std::string b, std::string l)
-                : tag(std::move(t)), baseversion(std::move(b)), label(std::move(l))
+        struct Tag
         {
-        }
+            Tag(std::string t, std::string b, std::string l)
+                    : tag(std::move(t))
+                      , baseversion(std::move(b))
+                      , label(std::move(l))
+            {
+            }
 
-        std::string tag;
-        std::string baseversion;
-        std::string label;
-    };
+            std::string tag;
+            std::string baseversion;
+            std::string label;
+        };
+    }
 }
 
 

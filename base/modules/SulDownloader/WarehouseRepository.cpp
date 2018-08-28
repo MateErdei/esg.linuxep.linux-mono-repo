@@ -21,9 +21,11 @@ using namespace SulDownloader::suldownloaderdata;
 
 namespace
 {
-    std::vector<SulDownloader::Tag> getTags(SU_PHandle &product)
+    using TagVector = std::vector<Tag>;
+
+    TagVector getTags(SU_PHandle &product)
     {
-        std::vector<SulDownloader::Tag> tags;
+        TagVector tags;
         int index = 0;
 
         while (true)
