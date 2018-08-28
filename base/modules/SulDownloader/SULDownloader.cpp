@@ -6,20 +6,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "SULRaii.h"
-#include "DownloadReport.h"
-#include "ConfigurationData.h"
 #include "WarehouseRepository.h"
-#include "ProductSelection.h"
-#include "DownloadedProduct.h"
-#include "SulDownloaderException.h"
-#include "TimeTracker.h"
 #include "WarehouseRepositoryFactory.h"
 #include "Logger.h"
 #include "ProductUninstaller.h"
+
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/ProductSelection.h>
+#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <SulDownloader/suldownloaderdata/TimeTracker.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
+
 #include <cassert>
 #include <algorithm>
 

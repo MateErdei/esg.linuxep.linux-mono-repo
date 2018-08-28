@@ -16,7 +16,9 @@ add_executable(SulDownloaderTests
 
 target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/modules/SulDownloader")
+target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
+        "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
+        )
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)

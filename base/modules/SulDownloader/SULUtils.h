@@ -6,13 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+
 extern "C" {
 #include <SUL.h>
 }
+
 #include <string>
 #include <vector>
-#include "WarehouseError.h"
-
 
 namespace SulDownloader
 {

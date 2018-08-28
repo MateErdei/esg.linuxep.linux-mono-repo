@@ -7,14 +7,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "SulDownloader/DownloadReport.h"
-#include "SulDownloader/SulDownloaderException.h"
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <SulDownloader/WarehouseRepositoryFactory.h>
+#include <SulDownloader/suldownloaderdata/ProductSelection.h>
+#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
+#include <SulDownloader/suldownloaderdata/TimeTracker.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+
 #include "TestWarehouseHelper.h"
-#include "SulDownloader/WarehouseRepositoryFactory.h"
-#include "SulDownloader/ProductSelection.h"
-#include "SulDownloader/DownloadedProduct.h"
-#include "SulDownloader/TimeTracker.h"
 #include "MockWarehouseRepository.h"
 
 using namespace Common::UtilityImpl;

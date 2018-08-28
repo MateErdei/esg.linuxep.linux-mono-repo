@@ -16,12 +16,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TestWarehouseHelper.h"
 
 #include "MockVersig.h"
-#include <SulDownloader/ConfigurationData.h>
-#include <SulDownloader/DownloadReport.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <SulDownloader/SulDownloader.h>
-#include <SulDownloader/SulDownloaderException.h>
-#include <SulDownloader/TimeTracker.h>
-#include <SulDownloader/VersigImpl.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <SulDownloader/suldownloaderdata/TimeTracker.h>
+#include <SulDownloader/suldownloaderdata/VersigImpl.h>
 
 #include <Common/ProcessImpl/ArgcAndEnv.h>
 #include <Common/UtilityImpl/MessageUtility.h>

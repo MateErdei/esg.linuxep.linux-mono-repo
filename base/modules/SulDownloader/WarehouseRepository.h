@@ -6,14 +6,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/Tag.h>
+#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+
 extern "C" {
 #include <SUL.h>
 }
-#include "ConnectionSelector.h"
-#include "ConfigurationData.h"
-#include "Tag.h"
-#include "WarehouseError.h"
-#include "IWarehouseRepository.h"
 #include <memory>
 
 namespace SulDownloader

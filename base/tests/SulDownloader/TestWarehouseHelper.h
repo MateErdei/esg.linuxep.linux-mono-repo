@@ -6,8 +6,8 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-#include "SulDownloader/IWarehouseRepository.h"
-#include "SulDownloader/ConfigurationData.h"
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 
 #include <memory>
 #include <functional>

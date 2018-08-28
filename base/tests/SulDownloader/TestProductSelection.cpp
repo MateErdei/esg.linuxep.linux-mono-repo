@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
-#include "SulDownloader/ProductSelection.h"
+#include <SulDownloader/suldownloaderdata/ProductSelection.h>
 
 #include "../Common/TestHelpers/TempDir.h"
 

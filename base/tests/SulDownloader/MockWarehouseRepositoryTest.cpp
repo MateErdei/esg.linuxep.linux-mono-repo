@@ -8,10 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "gmock/gmock.h"
 #include "TestWarehouseHelper.h"
 #include "SulDownloader/WarehouseRepositoryFactory.h"
-#include "SulDownloader/WarehouseError.h"
-#include "SulDownloader/ProductSelection.h"
-#include "SulDownloader/DownloadedProduct.h"
-#include "SulDownloader/ConfigurationData.h"
+#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/ProductSelection.h>
+#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include "MockWarehouseRepository.h"
 
 TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT

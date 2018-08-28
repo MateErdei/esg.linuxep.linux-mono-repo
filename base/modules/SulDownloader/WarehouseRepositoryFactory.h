@@ -7,11 +7,14 @@
 #pragma once
 
 #include "WarehouseRepositoryFactory.h"
-#include "ConfigurationData.h"
-#include "IWarehouseRepository.h"
-#include "ConfigurationData.h"
+
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+
 #include <memory>
 #include <functional>
+
 namespace SulDownloader
 {
 

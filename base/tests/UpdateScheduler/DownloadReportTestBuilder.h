@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <string>
-#include <SulDownloader/DownloadReport.h>
 
 namespace  SulDownloader
 {

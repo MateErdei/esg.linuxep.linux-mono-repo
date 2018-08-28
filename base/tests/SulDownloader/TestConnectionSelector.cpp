@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-#include "SulDownloader/ConnectionSelector.h"
+#include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include "../Common/TestHelpers/TempDir.h"
 
 

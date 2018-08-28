@@ -7,10 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "SulDownloader/IWarehouseRepository.h"
-#include "SulDownloader/WarehouseError.h"
-#include "SulDownloader/DownloadedProduct.h"
-#include "SulDownloader/ProductSelection.h"
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
+#include <SulDownloader/suldownloaderdata/ProductSelection.h>
+
 using namespace ::testing;
 using namespace SulDownloader;
 

@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "SulDownloader/IVersig.h"
+#include <SulDownloader/suldownloaderdata/IVersig.h>
 #include "gmock/gmock.h"
 
 class MockVersig : public SulDownloader::IVersig

@@ -6,14 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-#include "SulDownloader/ConfigurationData.h"
-#include "SulDownloader/SulDownloaderException.h"
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/UtilityImpl/StringUtils.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 using namespace SulDownloader;
 

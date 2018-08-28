@@ -3,14 +3,17 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
+#include <SulDownloader/suldownloaderdata/IVersig.h>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "SulDownloader/IVersig.h"
-#include "tests/Common/FileSystemImpl/MockFileSystem.h"
+
+#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
 class VersigTests : public ::testing::Test
 {
 

@@ -7,7 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "UpdateEvent.h"
 #include "UpdateStatus.h"
-#include <SulDownloader/DownloadReport.h>
+
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
+
 #include <string>
 #include <vector>
 

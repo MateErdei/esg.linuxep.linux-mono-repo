@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include <SulDownloader/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateScheduler/IMapHostCacheId.h>
 #include <chrono>
 
