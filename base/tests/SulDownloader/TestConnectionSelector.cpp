@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 class ConnectionSelectorTest : public ::testing::Test
 {
@@ -117,12 +118,18 @@ public:
 
         return jsonString;
     }
+
+
+    ConfigurationData configFromJson(const std::string & oldPartString, const std::string & newPartString)
+    {
+        return ConfigurationData::fromJsonSettings(createJsonString(oldPartString, newPartString));
+    }
 };
 
 
 TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidData) //NOLINT
 {
-    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = configFromJson("", "");
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -159,7 +166,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 
     std::string newString; // = "";
 
-    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = configFromJson(oldString, newString);
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
@@ -194,7 +201,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 
     std::string newString; // = "";
     setenv( "HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
-    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = configFromJson(oldString, newString);
 
     ConnectionSelector selector;
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
