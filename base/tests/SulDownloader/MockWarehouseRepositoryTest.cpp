@@ -25,7 +25,7 @@ TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
     configurationData.addProductSelection(productGUID);
     SulDownloader::ProductSelection selection = SulDownloader::ProductSelection::CreateProductSelection(configurationData);
 
-    SulDownloader::ProductMetadata metadata;
+    SulDownloader::suldownloaderdata::ProductMetadata metadata;
     SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
     std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
     products.push_back(downloadedProduct);

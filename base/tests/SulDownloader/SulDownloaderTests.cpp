@@ -131,23 +131,23 @@ public:
         return products;
     }
 
-    std::vector<SulDownloader::ProductMetadata> defaultMetadata()
+    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> defaultMetadata()
     {
-        SulDownloader::ProductMetadata base;
+        SulDownloader::suldownloaderdata::ProductMetadata base;
         base.setDefaultHomePath("everest");
         base.setLine("Everest-Base");
         base.setName("Everest-Base-Product");
         base.setVersion("10.2.3");
         base.setTags({{"RECOMMENDED","10", "Base-label"}});
 
-        SulDownloader::ProductMetadata plugin;
+        SulDownloader::suldownloaderdata::ProductMetadata plugin;
         plugin.setDefaultHomePath("everest-plugin-a");
         plugin.setLine("Everest-Plugins-A");
         plugin.setName("Everest-Plugins-A-Product");
         plugin.setVersion("10.3.5");
         plugin.setTags({{"RECOMMENDED","10", "Plugin-label"}});
 
-        return std::vector<SulDownloader::ProductMetadata>{base,plugin};
+        return std::vector<SulDownloader::suldownloaderdata::ProductMetadata>{base,plugin};
 
 
     }

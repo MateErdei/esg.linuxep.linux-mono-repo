@@ -108,9 +108,9 @@ public:
         return jsonString;
     }
 
-    SulDownloader::ProductMetadata createTestProductMetaData(int productItem)
+    SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem)
     {
-        SulDownloader::ProductMetadata metadata;
+        SulDownloader::suldownloaderdata::ProductMetadata metadata;
 
         if(productItem == 1)
         {
@@ -183,7 +183,7 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNo
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<ProductMetadata> warehouseProducts;
+    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
 
     EXPECT_NO_THROW(productSelection.selectProducts(warehouseProducts)); //NOLINT
 }
@@ -194,10 +194,10 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnA
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<ProductMetadata> warehouseProducts;
-    SulDownloader::ProductMetadata metadata1 =  createTestProductMetaData(1);
-    SulDownloader::ProductMetadata metadata2 =  createTestProductMetaData(2);
-    SulDownloader::ProductMetadata metadata3 =  createTestProductMetaData(3);
+    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+    SulDownloader::suldownloaderdata::ProductMetadata metadata1 =  createTestProductMetaData(1);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata2 =  createTestProductMetaData(2);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata3 =  createTestProductMetaData(3);
 
     warehouseProducts.push_back(metadata1);
     warehouseProducts.push_back(metadata2);
@@ -216,14 +216,14 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnM
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<ProductMetadata> warehouseProducts;
-    SulDownloader::ProductMetadata metadata =  createTestProductMetaData(4);
+    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+    SulDownloader::suldownloaderdata::ProductMetadata metadata =  createTestProductMetaData(4);
     warehouseProducts.push_back(metadata);
 
     // missing warehouse products
-    SulDownloader::ProductMetadata metadata1 =  createTestProductMetaData(1);
-    SulDownloader::ProductMetadata metadata2 =  createTestProductMetaData(2);
-    SulDownloader::ProductMetadata metadata3 =  createTestProductMetaData(3);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata1 =  createTestProductMetaData(1);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata2 =  createTestProductMetaData(2);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata3 =  createTestProductMetaData(3);
 
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
@@ -241,11 +241,11 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnM
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<ProductMetadata> warehouseProducts;
-    SulDownloader::ProductMetadata metadata1 =  createTestProductMetaData(1);
-    SulDownloader::ProductMetadata metadata2 =  createTestProductMetaData(2);
-    SulDownloader::ProductMetadata metadata3 =  createTestProductMetaData(3);
-    SulDownloader::ProductMetadata metadata4 =  createTestProductMetaData(4);
+    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+    SulDownloader::suldownloaderdata::ProductMetadata metadata1 =  createTestProductMetaData(1);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata2 =  createTestProductMetaData(2);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata3 =  createTestProductMetaData(3);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata4 =  createTestProductMetaData(4);
 
     warehouseProducts.push_back(metadata1);
     warehouseProducts.push_back(metadata3);
@@ -265,13 +265,13 @@ TEST_F (ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnC
 
     ProductSelection productSelection  = ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<ProductMetadata> warehouseProducts;
-    SulDownloader::ProductMetadata metadata1 =  createTestProductMetaData(1);
-    SulDownloader::ProductMetadata metadata2 =  createTestProductMetaData(2);
-    SulDownloader::ProductMetadata metadata3 =  createTestProductMetaData(3);
-    SulDownloader::ProductMetadata metadata4 =  createTestProductMetaData(4);
-    SulDownloader::ProductMetadata metadata5 =  createTestProductMetaData(5);
-    SulDownloader::ProductMetadata metadata6 =  createTestProductMetaData(6);
+    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+    SulDownloader::suldownloaderdata::ProductMetadata metadata1 =  createTestProductMetaData(1);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata2 =  createTestProductMetaData(2);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata3 =  createTestProductMetaData(3);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata4 =  createTestProductMetaData(4);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata5 =  createTestProductMetaData(5);
+    SulDownloader::suldownloaderdata::ProductMetadata metadata6 =  createTestProductMetaData(6);
 
     warehouseProducts.push_back(metadata1);
     warehouseProducts.push_back(metadata2);

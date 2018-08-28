@@ -48,7 +48,7 @@ public:
         {
             std::stringstream productLine;
             productLine << "product" << i;
-            ProductMetadata metadata;
+            suldownloaderdata::ProductMetadata metadata;
             metadata.setLine(productLine.str());
             suldownloaderdata::DownloadedProduct product(metadata);
             productList.push_back(product);

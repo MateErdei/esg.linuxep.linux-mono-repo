@@ -36,7 +36,7 @@ namespace SulDownloader
 
             if(productItr == downloadedProducts.end())
             {
-                ProductMetadata metadata;
+                suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
                 suldownloaderdata::DownloadedProduct product(metadata);
                 productsToRemove.insert(std::pair<std::string, suldownloaderdata::DownloadedProduct>(installedProduct, product));

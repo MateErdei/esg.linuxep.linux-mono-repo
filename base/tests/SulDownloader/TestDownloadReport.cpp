@@ -39,9 +39,9 @@ public:
 
     }
 
-    SulDownloader::ProductMetadata createTestProductMetaData()
+    SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData()
     {
-        SulDownloader::ProductMetadata metadata;
+        SulDownloader::suldownloaderdata::ProductMetadata metadata;
 
         metadata.setLine("ProductLine1");
         metadata.setDefaultHomePath("Linux");
@@ -53,7 +53,7 @@ public:
         return metadata;
     }
 
-    SulDownloader::suldownloaderdata::DownloadedProduct createTestDownloadedProduct(SulDownloader::ProductMetadata &metadata)
+    SulDownloader::suldownloaderdata::DownloadedProduct createTestDownloadedProduct(SulDownloader::suldownloaderdata::ProductMetadata &metadata)
     {
         SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
 
@@ -64,16 +64,16 @@ public:
         return downloadedProduct;
     }
 
-    SulDownloader::ProductMetadata createTestUninstalledProductMetaData()
+    SulDownloader::suldownloaderdata::ProductMetadata createTestUninstalledProductMetaData()
     {
-        SulDownloader::ProductMetadata metadata;
+        SulDownloader::suldownloaderdata::ProductMetadata metadata;
 
         metadata.setLine("UninstalledProductLine1");
 
         return metadata;
     }
 
-    SulDownloader::suldownloaderdata::DownloadedProduct createTestUninstalledProduct(SulDownloader::ProductMetadata &metadata)
+    SulDownloader::suldownloaderdata::DownloadedProduct createTestUninstalledProduct(SulDownloader::suldownloaderdata::ProductMetadata &metadata)
     {
         SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
 
@@ -96,7 +96,7 @@ public:
 
     }
 
-    void checkReportValue(DownloadReport &report, SulDownloader::ProductMetadata &metadata, SulDownloader::suldownloaderdata::DownloadedProduct &downloadedProduct)
+    void checkReportValue(DownloadReport &report, SulDownloader::suldownloaderdata::ProductMetadata &metadata, SulDownloader::suldownloaderdata::DownloadedProduct &downloadedProduct)
     {
         EXPECT_EQ(report.getProducts().size(), 1);
 

@@ -17,21 +17,35 @@ namespace SulDownloader
     class ISingleProductSelector
     {
     public:
-        virtual bool keepProduct ( const ProductMetadata & ) const =0;
+        virtual bool keepProduct(const suldownloaderdata::ProductMetadata&) const = 0;
+
         virtual bool isProductRequired() const = 0;
+
         virtual std::string targetProductName() const = 0;
+
         virtual ~ISingleProductSelector() = default;
     };
 
-    class ProductSelector : public virtual ISingleProductSelector
+    class ProductSelector
+            : public virtual ISingleProductSelector
     {
     public:
-        enum NamePrefix{UseFullName, UseNameAsPrefix};
-        ProductSelector( const std::string & productPrefix , NamePrefix namePrefix, const std::string &releaseTag, const std::string &baseVersion );
-        std::string targetProductName() const override ;
-        bool keepProduct ( const ProductMetadata & ) const override ;
+        enum NamePrefix
+        {
+            UseFullName, UseNameAsPrefix
+        };
+
+        ProductSelector(const std::string& productPrefix, NamePrefix namePrefix, const std::string& releaseTag,
+                        const std::string& baseVersion);
+
+        std::string targetProductName() const override;
+
+        bool keepProduct(const suldownloaderdata::ProductMetadata&) const override;
+
         bool isProductRequired() const override;
+
         ~ProductSelector() override = default;
+
     private:
         std::string m_productName;
         NamePrefix m_NamePrefix;
@@ -56,15 +70,23 @@ namespace SulDownloader
     class ProductSelection
     {
         ProductSelection() = default;
-    public:
-        static ProductSelection CreateProductSelection( const suldownloaderdata::ConfigurationData & );
-        void appendSelector(std::unique_ptr<ISingleProductSelector> );
-        SelectedResultsIndexes selectProducts( const std::vector<ProductMetadata> & warehouseProducts) const;
-    private:
-        std::vector<std::unique_ptr<ISingleProductSelector>> m_selection;
-        std::vector<size_t> selectedProducts( const ISingleProductSelector & , const std::vector<ProductMetadata> & warehouseProducts ) const;
-    };
 
+    public:
+        using ProductMetaDataVector = std::vector<suldownloaderdata::ProductMetadata>;
+        using ISingleProductSelectorPtr = std::unique_ptr<ISingleProductSelector>;
+
+        static ProductSelection CreateProductSelection(const suldownloaderdata::ConfigurationData&);
+
+        void appendSelector(ISingleProductSelectorPtr selector);
+
+        SelectedResultsIndexes selectProducts(const ProductMetaDataVector& warehouseProducts) const;
+
+    private:
+        std::vector<ISingleProductSelectorPtr> m_selection;
+
+        std::vector<size_t>
+        selectedProducts(const ISingleProductSelector&, const ProductMetaDataVector& warehouseProducts) const;
+    };
 
 
 }
