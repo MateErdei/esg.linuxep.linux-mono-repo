@@ -62,7 +62,7 @@ public:
     {
         Test::SetUp();
 
-        SulDownloader::VersigFactory::instance().replaceCreator([](){
+        SulDownloader::suldownloaderdata::VersigFactory::instance().replaceCreator([](){
             auto versig = new NiceMock<MockVersig>();
             ON_CALL(*versig, verify(_,_)).WillByDefault(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
             return std::unique_ptr<SulDownloader::suldownloaderdata::IVersig>(versig);
@@ -76,7 +76,7 @@ public:
     void TearDown() override
     {
         Common::FileSystem::restoreFileSystem();
-        SulDownloader::VersigFactory::instance().restoreCreator();
+        SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();
         Test::TearDown();
@@ -789,7 +789,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     std::string plugin_installer = "/installroot/base/update/cache/primary/everest-plugin-a/install.sh";
     int counter = 0;
 
-    SulDownloader::VersigFactory::instance().replaceCreator([&counter](){
+    SulDownloader::suldownloaderdata::VersigFactory::instance().replaceCreator([&counter](){
         auto versig = new StrictMock<MockVersig>();
         if ( counter++ == 0 )
         {
