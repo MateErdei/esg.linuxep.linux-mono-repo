@@ -17,9 +17,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
 {
     MockWarehouseRepository mock;
-    WarehouseError error;
+    suldownloaderdata::WarehouseError error;
     error.Description = "Nothing";
-    error.status = SulDownloader::SUCCESS;
+    error.status = SulDownloader::suldownloaderdata::SUCCESS;
     suldownloaderdata::ConfigurationData configurationData({"https://sophos.com/warehouse"});
     suldownloaderdata::ProductGUID productGUID{"ProductName",true,false,"ReleaseTag","BaseVersion"};
     configurationData.addProductSelection(productGUID);

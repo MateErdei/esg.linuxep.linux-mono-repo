@@ -89,8 +89,8 @@ namespace SulDownloader
 
             if (!errorMessage.str().empty())
             {
-                WarehouseError error;
-                error.status = WarehouseStatus::UNINSTALLFAILED;
+                suldownloaderdata::WarehouseError error;
+                error.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
                 error.Description = errorMessage.str();
                 uninstallProduct.second.setError(error);
                 LOGERROR(errorMessage.str());

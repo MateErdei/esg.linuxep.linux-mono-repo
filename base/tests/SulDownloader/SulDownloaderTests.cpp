@@ -39,7 +39,7 @@ using SulDownloaderProto::ConfigurationSettings;
 
 struct SimplifiedDownloadReport
 {
-    SulDownloader::WarehouseStatus Status;
+    SulDownloader::suldownloaderdata::WarehouseStatus Status;
     std::string Description;
     std::vector<ProductReport> Products;
     bool shouldContainSyncTime;
@@ -209,8 +209,8 @@ public:
         if ( expected.Status != resulted.getStatus())
         {
             return ::testing::AssertionFailure() << s.str() << " status differ: \n expected: "
-                                                 <<  SulDownloader::toString(expected.Status)
-                                                 << "\n result: " <<  SulDownloader::toString(resulted.getStatus());
+                                                 <<  SulDownloader::suldownloaderdata::toString(expected.Status)
+                                                 << "\n result: " <<  SulDownloader::suldownloaderdata::toString(resulted.getStatus());
         }
         if( expected.Description != resulted.getDescription())
         {
@@ -329,7 +329,7 @@ TEST_F(SULDownloaderTest,  //NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
     std::string baseInstallPath = "/installroot/base/update/cache/primary/everest/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
@@ -407,7 +407,7 @@ TEST_F( SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSu
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
 
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -456,7 +456,7 @@ TEST_F(SULDownloaderTest, //NOLINT
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
 
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -505,7 +505,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS)), "/installroot/tmp"
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)), "/installroot/tmp"
     ));
     std::vector<std::string> fileListOfProductsToRemove = {"productRemove1"};
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -564,7 +564,7 @@ TEST_F(SULDownloaderTest, //NOLINT
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
     EXPECT_CALL(fileSystemMock, writeFileAtomically("/dir/output.json", ::testing::HasSubstr(
-            SulDownloader::toString(SulDownloader::WarehouseStatus::UNINSTALLFAILED)), "/installroot/tmp"
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED)), "/installroot/tmp"
     ));
     std::vector<std::string> fileListOfProductsToRemove = {"productRemove1"};
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -582,7 +582,7 @@ TEST_F(SULDownloaderTest, //NOLINT
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", {"/dir/input.json", "/dir/output.json"}, {});
 
-    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), SulDownloader::WarehouseStatus::UNINSTALLFAILED);
+    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED);
 }
 
 
@@ -618,8 +618,8 @@ TEST_F( SULDownloaderTest, //NOLINT
     std::tie(exitCode, reportContent) = SulDownloader::configAndRunDownloader(settingsString, previousReportData);
 
     EXPECT_NE(exitCode, 0 );
-    EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::SUCCESS))));
-    EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::toString(SulDownloader::WarehouseStatus::UNSPECIFIED)));
+    EXPECT_THAT( reportContent, ::testing::Not(::testing::HasSubstr( SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS))));
+    EXPECT_THAT( reportContent, ::testing::HasSubstr( SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNSPECIFIED)));
 }
 
 // runSULDownloader
@@ -628,10 +628,10 @@ TEST_F( SULDownloaderTest, //NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
-    SulDownloader::WarehouseError wError;
+    SulDownloader::suldownloaderdata::WarehouseError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::WarehouseStatus::CONNECTIONERROR;
-    std::string statusError = SulDownloader::toString(wError.status);
+    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
@@ -655,10 +655,10 @@ TEST_F( SULDownloaderTest, //NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
-    SulDownloader::WarehouseError wError;
+    SulDownloader::suldownloaderdata::WarehouseError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING;
-    std::string statusError = SulDownloader::toString(wError.status);
+    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::PACKAGESOURCEMISSING;
+    std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)) // connection
@@ -687,15 +687,15 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure) //NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
-    SulDownloader::WarehouseError wError;
+    SulDownloader::suldownloaderdata::WarehouseError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::WarehouseStatus::DOWNLOADFAILED;
-    std::string statusError = SulDownloader::toString(wError.status);
+    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
+    std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector products = defaultProducts();
 
-    SulDownloader::WarehouseError productError;
+    SulDownloader::suldownloaderdata::WarehouseError productError;
     productError.Description = "Product Error description";
-    productError.status = SulDownloader::WarehouseStatus::DOWNLOADFAILED;
+    productError.status = SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
 
     products[0].setError(productError);
     products[1].setError(productError);
@@ -753,7 +753,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
-    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS, "", productReports, true};
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true};
 
     auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -821,7 +821,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED,
                                                     "Update failed",productReports, false};
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
@@ -900,7 +900,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::INSTALLFAILED,
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED,
                                                     "Update failed",productReports, false};
 
     auto configurationData = configData(defaultSettings());
@@ -975,7 +975,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
                                                     "",productReports, true};
 
     auto configurationData = configData(defaultSettings());

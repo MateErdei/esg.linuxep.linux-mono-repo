@@ -7,6 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <string>
 
+using SulDownloader::suldownloaderdata::WarehouseStatus;
+
 namespace  SulDownloader
 {
     namespace suldownloaderdata
@@ -128,7 +130,7 @@ namespace  SulDownloader
                 }
                 report.m_sync_time = report.m_finishedTime;
 
-                if (status != SulDownloader::WarehouseStatus::CONNECTIONERROR)
+                if (status != WarehouseStatus::CONNECTIONERROR)
                 {
                     report.m_productReport = goodProducts();
                     for (auto& product: report.m_productReport)

@@ -84,7 +84,7 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
          *
          * @return struct containing the error description, sul error and status
          */
-        WarehouseError getError() const override ;
+        suldownloaderdata::WarehouseError getError() const override ;
 
         /**
          * Configure sul to download/synchronize the selection of products
@@ -132,13 +132,13 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
         void distributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair, const  std::string & distributePath );
         void verifyDistributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair);
 
-        WarehouseError fetchSulError(const std::string & description ) const;
+        suldownloaderdata::WarehouseError fetchSulError(const std::string & description ) const;
 
         std::string getRootDistributionPath() const;
         void setRootDistributionPath(const std::string &rootDistributionPath);
 
         SU_Handle session() const;
-        WarehouseError m_error;
+        suldownloaderdata::WarehouseError m_error;
         std::vector<std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;

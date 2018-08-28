@@ -121,7 +121,7 @@ public:
         valueToFind = "syncTime\": \"" + report.getSyncTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-        valueToFind = "status\": \"" + SulDownloader::toString(report.getStatus());
+        valueToFind = "status\": \"" + SulDownloader::suldownloaderdata::toString(report.getStatus());
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "sulError\": \"" + report.getSulError();
@@ -170,7 +170,7 @@ public:
         valueToFind = "syncTime\": \"" + report.getSyncTime();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-        valueToFind = "status\": \"" + SulDownloader::toString(report.getStatus());
+        valueToFind = "status\": \"" + SulDownloader::suldownloaderdata::toString(report.getStatus());
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
         valueToFind = "sulError\": \"" + report.getSulError();

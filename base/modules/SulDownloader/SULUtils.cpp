@@ -47,25 +47,25 @@ namespace
 
     };
 
-    SulDownloader::WarehouseStatus fromSulCode( SU_Result sulCode)
+    SulDownloader::suldownloaderdata::WarehouseStatus fromSulCode( SU_Result sulCode)
     {
         switch (sulCode)
         {
             case SU_Result_OK:
             case SU_Result_continue:
-                return SulDownloader::WarehouseStatus::SUCCESS;
+                return SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
             case SU_Result_proxyAuthenticationFailure:
             case SU_Result_credentialsInvalid:
-                return SulDownloader::WarehouseStatus::CONNECTIONERROR;
+                return SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
             case SU_Result_cancelled:
             case SU_Result_corruptData:
             case SU_Result_sourceOutOfDate:
-                return SulDownloader::WarehouseStatus::DOWNLOADFAILED;
+                return SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
             case SU_Result_productNotFound:
             case SU_Result_productMissing:
             case SU_Result_noPackages:
             case SU_Result_fixedVersionMissing:
-                return SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING;
+                return SulDownloader::suldownloaderdata::WarehouseStatus::PACKAGESOURCEMISSING;
             case SU_Result_invalid:
             case SU_Result_notSupported:
             case SU_Result_unspecifiedFailure:
@@ -74,7 +74,7 @@ namespace
             case SU_Result_failed:
             case SU_Result_nullSuccess:
             default:
-                return SulDownloader::WarehouseStatus::UNSPECIFIED;
+                return SulDownloader::suldownloaderdata::WarehouseStatus::UNSPECIFIED;
         }
     }
 
@@ -138,9 +138,9 @@ namespace  SulDownloader
         return logs;
     }
 
-    std::pair<WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session)
+    std::pair<suldownloaderdata::WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session)
     {
-        std::pair<WarehouseStatus, std::string> sulStatus(WarehouseStatus::UNSPECIFIED, "");
+        std::pair<suldownloaderdata::WarehouseStatus, std::string> sulStatus(suldownloaderdata::WarehouseStatus::UNSPECIFIED, "");
         if ( session == nullptr)
         {
             return sulStatus;

@@ -87,27 +87,27 @@ namespace
         UpdateEvent event;
         switch (report.getStatus())
         {
-            case SulDownloader::WarehouseStatus::SUCCESS:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS:
                 event.MessageNumber = EventMessageNumber::SUCCESS;
                 break;
-            case SulDownloader::WarehouseStatus::CONNECTIONERROR:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR:
                 event.MessageNumber = EventMessageNumber::CONNECTIONERROR;
                 // no package name, just the error details
                 event.Messages.emplace_back("", report.getDescription());
                 break;
-            case SulDownloader::WarehouseStatus::DOWNLOADFAILED:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED:
                 event.MessageNumber = EventMessageNumber::DOWNLOADFAILED;
                 buildMessagesFromReport(&event.Messages, report);
                 break;
-            case SulDownloader::WarehouseStatus::INSTALLFAILED:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED:
                 event.MessageNumber = EventMessageNumber::INSTALLFAILED;
                 buildMessagesFromReport(&event.Messages, report);
                 break;
-            case SulDownloader::WarehouseStatus::UNSPECIFIED:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::UNSPECIFIED:
                 event.MessageNumber = EventMessageNumber::INSTALLCAUGHTERROR;
                 event.Messages.emplace_back("", report.getDescription());
                 break;
-            case SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING:
+            case SulDownloader::suldownloaderdata::WarehouseStatus::PACKAGESOURCEMISSING:
                 handlePackageSourceMissing(&event, report);
                 break;
             default:
@@ -160,7 +160,7 @@ namespace UpdateSchedulerImpl
 
             const SulDownloader::suldownloaderdata::DownloadReport& lastReport = reportCollection.at(reportCollection.size() - 1);
 
-            if (lastReport.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
+            if (lastReport.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
                 return handleSuccessReports(reportCollection);
             }
@@ -309,7 +309,7 @@ namespace UpdateSchedulerImpl
             int previousIndex = lastIndex - 1;
             // if previous one was an error, send event, otherwise do not send.
             collectionResult.SchedulerEvent.IsRelevantToSend =
-                    reportCollection.at(previousIndex).getStatus() != SulDownloader::WarehouseStatus::SUCCESS;
+                    reportCollection.at(previousIndex).getStatus() != SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
 
             // if previous one had source url different from current, send event
             collectionResult.SchedulerEvent.IsRelevantToSend =
@@ -400,7 +400,7 @@ namespace UpdateSchedulerImpl
 
         bool DownloadReportsAnalyser::hasUpgrade(const DownloadReport& report)
         {
-            if (report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS)
+            if (report.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
                 for (auto& product: report.getProducts())
                 {
@@ -426,7 +426,7 @@ namespace UpdateSchedulerImpl
                 const DownloadReportVector& reports)
         {
             auto rind = std::find_if(reports.rbegin(), reports.rend(), [](const DownloadReport& report) {
-                                         return report.getStatus() == SulDownloader::WarehouseStatus::SUCCESS;
+                                         return report.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
                                      }
             );
             return std::distance(reports.begin(), rind.base()) - 1;
