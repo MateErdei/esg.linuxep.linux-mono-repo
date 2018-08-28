@@ -213,7 +213,7 @@ public:
 
 };
 
-TEST_F( ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
+TEST_F( ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows) //NOLINT
 {
     try
     {
@@ -226,7 +226,7 @@ TEST_F( ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow ) //NOLINT
 {
     try
     {
@@ -238,7 +238,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject ) //NOLINT
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
@@ -248,7 +248,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData ) //NOLINT
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
@@ -293,7 +293,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject ) //NOLINT
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"("https://cache.sophos.com/latest/warehouse")", ""));
@@ -303,7 +303,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShould
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(R"(https://cache.sophos.com/latest/warehouse)", ""));
@@ -314,7 +314,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCach
 }
 
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow ) //NOLINT
 {
     setupFileSystemAndGetMock();
     try
@@ -327,7 +327,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldT
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("https://sophosupdate.sophos.com/latest/warehouse", ""));
@@ -338,7 +338,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlV
 }
 
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -358,7 +358,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailVal
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -377,7 +377,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShoul
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -385,7 +385,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailV
                                "password": "password"
                                },)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -396,7 +396,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailV
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("proxy": {
@@ -407,7 +407,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
                                 }
                                },)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -416,12 +416,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne)
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = m_absCertificatePath;
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -434,13 +434,13 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificat
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOnde)
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOnde) //NOLINT
 {
     setupFileSystemAndGetMock();
 
     std::string oldString = R"("certificatePath": ")" + m_absCertificatePath + R"(",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -452,11 +452,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertific
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslCertPathShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslCertPathShouldFailValidation ) //NOLINT
 {
     std::string oldString = m_absSystemSslPath;
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -465,12 +465,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslC
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSslCertPathShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSslCertPathShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("systemSslPath": ")" + m_absSystemSslPath + R"(",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -480,12 +480,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSs
 }
 
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = m_absCacheUpdatePath;
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -494,12 +494,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCach
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -508,12 +508,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCa
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = m_absCacheUpdatePath;
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -522,13 +522,13 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCach
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches ) //NOLINT
 {
 
     setupFileSystemAndGetMock();
     std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -538,12 +538,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingUpdateCa
 }
 
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyReleaseTagShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyReleaseTagShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = "RECOMMENDED";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -553,12 +553,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyReleaseTag
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingReleaseTagShouldNotFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingReleaseTagShouldNotFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("releaseTag": "RECOMMENDED",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -568,12 +568,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingReleaseT
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyBaseVersionShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyBaseVersionShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = "9";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -584,12 +584,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyBaseVersio
 
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVersionShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVersionShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("baseVersion": "9",)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -598,12 +598,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVers
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimaryShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimaryShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = "FD6C1066-E190-4F44-AD0E-F107F36D9D40";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -612,11 +612,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimarySho
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",)";
-    std::string newString = "";
+    std::string newString; //  = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -625,12 +625,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryS
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesShouldNotFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesShouldNotFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
 
     std::string oldString = R"("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2")";
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -639,13 +639,13 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesS
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullNamesShouldNotFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullNamesShouldNotFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("fullNames": [
                                "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
                                ],)";
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -654,11 +654,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullName
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesValueShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesValueShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2";
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -667,11 +667,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesV
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNamesShouldNotFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNamesShouldNotFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("1CD8A803")";
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -680,14 +680,14 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixName
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNamesShouldNotFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNamesShouldNotFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("prefixNames": [
                                "1CD8A803"
                                ],)";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -696,7 +696,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNa
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNameValueShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNameValueShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("1CD8A803")";
@@ -709,14 +709,14 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixName
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
 
     std::string oldString = R"("--install-dir",
                                "/opt/sophos-av")";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -725,7 +725,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArg
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallArgumentsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallArgumentsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("installArguments": [
@@ -733,7 +733,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallA
                                "/opt/sophos-av"
                                ])";
 
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -742,11 +742,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallA
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyValueInInstallArgumentsShouldFailValidation )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyValueInInstallArgumentsShouldFailValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = "--install-dir";
-    std::string newString = "";
+    std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -755,7 +755,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyValueInIns
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDataShouldThrow )
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDataShouldThrow ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("baseVersion": "9",)";
@@ -763,11 +763,11 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDat
     std::string newString = R"("baseVersion": "9",
             "UnknownDataItem": "UnknownString",)";
 
-    EXPECT_THROW(ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)), SulDownloaderException);
+    EXPECT_THROW(ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)), SulDownloaderException); //NOLINT
 
 }
 
-TEST_F(ConfigurationDataTest, serializeDeserialize )
+TEST_F(ConfigurationDataTest, serializeDeserialize ) //NOLINT
 {
     std::string originalString = createJsonString("","");
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(originalString);
