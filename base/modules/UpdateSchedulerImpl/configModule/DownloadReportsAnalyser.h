@@ -38,6 +38,9 @@ namespace UpdateSchedulerImpl
         class DownloadReportsAnalyser
         {
         public:
+            using DownloadReport = SulDownloader::suldownloaderdata::DownloadReport;
+            using DownloadReportVector = std::vector<DownloadReport>;
+            using DownloadReportVectorDifferenceType = DownloadReportVector::difference_type;
             /**
              * Produces a ReportCollectionResult from the list of DownloadReports.
              * @pre It requires the DownloadReport to be given in chronological order with the most recent as the latest one.
@@ -48,8 +51,7 @@ namespace UpdateSchedulerImpl
              * @param reportCollection
              * @return ReportCollectionResult
              */
-            static ReportCollectionResult
-            processReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
+            static ReportCollectionResult processReports(const DownloadReportVector& reportCollection);
 
 
             /**
@@ -64,18 +66,18 @@ namespace UpdateSchedulerImpl
 
         private:
             static ReportCollectionResult
-            handleSuccessReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
+            handleSuccessReports(const DownloadReportVector& reportCollection);
 
             static ReportCollectionResult
-            handleFailureReports(const std::vector<SulDownloader::DownloadReport>& reportCollection);
+            handleFailureReports(const DownloadReportVector& reportCollection);
 
             static bool eventsAreDifferent(const UpdateEvent& lhs, const UpdateEvent& rhs);
 
-            static bool hasUpgrade(const SulDownloader::DownloadReport& report);
+            static bool hasUpgrade(const DownloadReport& report);
 
-            static int lastUpgrade(const std::vector<SulDownloader::DownloadReport>&);
+            static DownloadReportVectorDifferenceType lastUpgrade(const DownloadReportVector&);
 
-            static int lastGoodSync(const std::vector<SulDownloader::DownloadReport>&);
+            static DownloadReportVectorDifferenceType lastGoodSync(const DownloadReportVector&);
 
         };
 

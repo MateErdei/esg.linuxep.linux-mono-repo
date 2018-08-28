@@ -52,6 +52,7 @@ static std::string errorReportedStatusXML{R"sophos(<?xml version="1.0" encoding=
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
 
@@ -83,14 +84,14 @@ public:
 
 UpdateStatus getGoodStatus(  )
 {
-    std::vector<SulDownloader::DownloadReport> singleReport{DownloadReportTestBuilder::goodReport()};
+    DownloadReportsAnalyser::DownloadReportVector singleReport{DownloadReportTestBuilder::goodReport()};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(singleReport);
     return  collectionResult.SchedulerStatus;
 }
 
 UpdateStatus getErrorStatus(  )
 {
-    std::vector<SulDownloader::DownloadReport> twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
+    DownloadReportsAnalyser::DownloadReportVector twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(twoReports);
     return  collectionResult.SchedulerStatus;
 }

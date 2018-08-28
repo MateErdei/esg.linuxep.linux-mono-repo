@@ -10,11 +10,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 namespace SulDownloader
 {
-    class DownloadReport;
-
     namespace suldownloaderdata
     {
         class ConfigurationData;
+        class DownloadReport;
     }
 
     /**
@@ -36,7 +35,9 @@ namespace SulDownloader
      * @pre Require that configurationData is already verified configurationData::verifySettingsAreValid
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
-    DownloadReport runSULDownloader(const suldownloaderdata::ConfigurationData& configurationData, const DownloadReport& previousDownloadReport);
+    suldownloaderdata::DownloadReport runSULDownloader(
+            const suldownloaderdata::ConfigurationData& configurationData,
+            const suldownloaderdata::DownloadReport& previousDownloadReport);
 
 
     /**

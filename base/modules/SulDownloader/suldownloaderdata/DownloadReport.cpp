@@ -17,11 +17,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <google/protobuf/util/json_util.h>
 
+using namespace SulDownloader::suldownloaderdata;
+
 namespace
 {
-    SulDownloaderProto::ProductStatusReport_ProductStatus convert(SulDownloader::ProductReport::ProductStatus  productStatus)
+    SulDownloaderProto::ProductStatusReport_ProductStatus convert(ProductReport::ProductStatus  productStatus)
     {
-        using ProductStatus = SulDownloader::ProductReport::ProductStatus;
+        using ProductStatus = ProductReport::ProductStatus;
         using namespace SulDownloaderProto;
         switch(productStatus)
         {
@@ -43,9 +45,9 @@ namespace
         }
     }
 
-    SulDownloader::ProductReport::ProductStatus convert(SulDownloaderProto::ProductStatusReport_ProductStatus protoProductStatus)
+    ProductReport::ProductStatus convert(SulDownloaderProto::ProductStatusReport_ProductStatus protoProductStatus)
     {
-        using ProductStatus = SulDownloader::ProductReport::ProductStatus;
+        using ProductStatus = ProductReport::ProductStatus;
         using namespace SulDownloaderProto;
 
         switch (protoProductStatus)

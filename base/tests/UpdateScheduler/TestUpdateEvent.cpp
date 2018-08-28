@@ -125,12 +125,13 @@ static std::string packagesSourceMissingEventXML{R"sophos(<?xml version="1.0"?>
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
 
-UpdateEvent getEvent( const SulDownloader::DownloadReport& report )
+UpdateEvent getEvent( const DownloadReportsAnalyser::DownloadReport& report )
 {
-    std::vector<SulDownloader::DownloadReport> singleReport{report};
+    DownloadReportsAnalyser::DownloadReportVector singleReport{report};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(singleReport);
     return  collectionResult.SchedulerEvent;
 }

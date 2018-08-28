@@ -41,13 +41,14 @@ struct SimplifiedDownloadReport
 {
     SulDownloader::WarehouseStatus Status;
     std::string Description;
-    std::vector<SulDownloader::ProductReport> Products;
+    std::vector<ProductReport> Products;
     bool shouldContainSyncTime;
 };
 
 namespace
 {
     using DownloadedProductVector = std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>;
+    using ProductReportVector = std::vector<SulDownloader::suldownloaderdata::ProductReport>;
 }
 
 class SULDownloaderTest : public ::testing::Test
@@ -151,19 +152,19 @@ public:
 
     }
 
-    std::vector<SulDownloader::ProductReport> defaultProductReports()
+    ProductReportVector defaultProductReports()
     {
-        SulDownloader::ProductReport base;
+        SulDownloader::suldownloaderdata::ProductReport base;
         base.name = "Everest-Base-Product";
         base.rigidName = "Everest-Base";
         base.downloadedVersion = "10.2.3";
         base.productStatus = ProductReport::ProductStatus::UpToDate;
-        SulDownloader::ProductReport plugin;
+        SulDownloader::suldownloaderdata::ProductReport plugin;
         plugin.name = "Everest-Plugins-A-Product";
         plugin.rigidName = "Everest-Plugins-A";
         plugin.downloadedVersion = "10.3.5";
         plugin.productStatus = ProductReport::ProductStatus::UpToDate;
-        return std::vector<SulDownloader::ProductReport>{base,plugin};
+        return ProductReportVector{base,plugin};
 
     }
 
@@ -199,7 +200,7 @@ public:
     ::testing::AssertionResult downloadReportSimilar( const char* m_expr,
                                                       const char* n_expr,
                                                       const SimplifiedDownloadReport & expected,
-                                                      const SulDownloader::DownloadReport & resulted)
+                                                      const SulDownloader::suldownloaderdata::DownloadReport & resulted)
     {
         std::stringstream s;
         s<< m_expr << " and " << n_expr << " failed: ";
@@ -246,7 +247,7 @@ public:
         return ::testing::AssertionSuccess();
     }
 
-    std::string productsToString(const std::vector<SulDownloader::ProductReport> & productsReport)
+    std::string productsToString(const ProductReportVector & productsReport)
     {
         std::stringstream stream;
         for( auto & productReport : productsReport)
@@ -698,7 +699,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure) //NOLINT
     products[0].setError(productError);
     products[1].setError(productError);
 
-    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    ProductReportVector productReports = defaultProductReports();
     productReports[0].errorDescription = productError.Description;
     productReports[0].productStatus = ProductReport::ProductStatus::SyncFailed;
 
@@ -732,7 +733,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
     DownloadedProductVector products = defaultProducts();
-    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    ProductReportVector productReports = defaultProductReports();
 
     for ( auto & product : products)
     {
@@ -808,7 +809,7 @@ TEST_F( SULDownloaderTest, //NOLINT
         return std::unique_ptr<SulDownloader::IVersig>(versig);
     });
 
-    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    ProductReportVector productReports = defaultProductReports();
     productReports[0].productStatus = ProductReport::ProductStatus::VerifyFailed;
     productReports[1].productStatus = ProductReport::ProductStatus::VerifyFailed;
 
@@ -884,7 +885,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     }
     );
 
-    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    ProductReportVector productReports = defaultProductReports();
     productReports[1].errorDescription = "Product Everest-Plugins-A failed to install";
 
     // base upgraded, plugin failed.
@@ -962,7 +963,7 @@ TEST_F( SULDownloaderTest, //NOLINT
        }
     );
 
-    std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
+    ProductReportVector productReports = defaultProductReports();
     productReports[0].productStatus = ProductReport::ProductStatus::Upgraded;
     productReports[1].productStatus = ProductReport::ProductStatus::Upgraded;
 

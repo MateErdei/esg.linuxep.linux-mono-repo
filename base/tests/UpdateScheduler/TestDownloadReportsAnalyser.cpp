@@ -15,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 
 class TestDownloadReportAnalyser : public  ::testing::Test
@@ -217,7 +218,7 @@ public:
 
 TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpgrade) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> singleReport{SulDownloader::DownloadReportTestBuilder::goodReport()};
+    DownloadReportsAnalyser::DownloadReportVector singleReport{DownloadReportTestBuilder::goodReport()};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(singleReport);
 
     // send upgrade successful.
@@ -231,7 +232,7 @@ TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpg
 
 TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
         DownloadReportTestBuilder::goodReport(),
         DownloadReportTestBuilder::goodReport()
     };
@@ -250,7 +251,7 @@ TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly) // NOL
 
 TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
     };
@@ -273,7 +274,7 @@ TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLIN
 
 TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
@@ -299,7 +300,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
 {
     auto report = DownloadReportTestBuilder::badReport(DownloadReportTestBuilder::UseTime::Later, SulDownloader::WarehouseStatus::CONNECTIONERROR, "failed2connect");
 
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
         report
     };
 
@@ -327,7 +328,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
 
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             report
     };
 
@@ -352,7 +353,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
     };
@@ -377,7 +378,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious),
             DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
@@ -446,9 +447,9 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
 }
 
-TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError)
+TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) //NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
+    DownloadReportsAnalyser::DownloadReportVector twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(twoReports);
 
     UpdateStatus expectedStatus = upgradeStatus();
@@ -465,9 +466,9 @@ TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 {
 
     auto report = DownloadReportTestBuilder::goodReport();
-    auto serializedString = SulDownloader::DownloadReport::fromReport(report);
-    auto deserializedReport = SulDownloader::DownloadReport::toReport(serializedString);
-    auto re_serialized = SulDownloader::DownloadReport::fromReport(deserializedReport);
+    auto serializedString = DownloadReportsAnalyser::DownloadReport::fromReport(report);
+    auto deserializedReport = DownloadReportsAnalyser::DownloadReport::toReport(serializedString);
+    auto re_serialized = DownloadReportsAnalyser::DownloadReport::fromReport(deserializedReport);
     EXPECT_EQ( serializedString, re_serialized);
     EXPECT_THAT( serializedString, ::testing::HasSubstr(SophosURL));
 }
@@ -475,9 +476,9 @@ TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 
 /**Acceptance criteria LINUXEP-6391 **/
 
-TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents)
+TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) //NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
     };
@@ -502,9 +503,9 @@ TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents)
 }
 
 
-TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents)
+TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) //NOLINT
 {
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
             DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
     };
@@ -528,14 +529,14 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents)
 }
 
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache)
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache) //NOLINT
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious);
     // flag upgraded = false
     auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false);
     auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false);
 
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             upgradeReport, updateReport, lastUpdateReport
     };
 
@@ -558,14 +559,14 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
 }
 
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache)
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache) //NOLINT
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
     // flag upgraded = false
     auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
     auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache1");
 
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             upgradeReport, updateReport, lastUpdateReport
     };
 
@@ -588,19 +589,19 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
 }
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged)
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged) //NOLINT
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
     // flag upgraded = false
     auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
     auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache2");
 
-    std::vector<SulDownloader::DownloadReport> reports{
+    DownloadReportsAnalyser::DownloadReportVector reports{
             upgradeReport, updateReport, lastUpdateReport
     };
 
     ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
-    std::string d = SulDownloader::DownloadReport::fromReport(reports.at(0));
+    std::string d = DownloadReportsAnalyser::DownloadReport::fromReport(reports.at(0));
     UpdateEvent expectedEvent = upgradeEvent();
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
@@ -619,7 +620,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
 }
 
 
-TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
+TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
 {
     static std::string reportExample{R"sophos({
         "finishTime": "20180822 121220",
@@ -646,8 +647,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
         "urlSource": "Sophos",
         "syncTime": "20180821 121220"
     })sophos"};
-    SulDownloader::DownloadReport report = SulDownloader::DownloadReport::toReport(reportExample);
-    std::vector<SulDownloader::DownloadReport> reports{report};
+    DownloadReportsAnalyser::DownloadReport report = DownloadReportsAnalyser::DownloadReport::toReport(reportExample);
+    DownloadReportsAnalyser::DownloadReportVector reports{report};
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
 
@@ -656,7 +657,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
     expectedEvent.UpdateSource = "Sophos";
-    expectedEvent.Messages.push_back({"ServerProtectionLinux-Plugin#0.5", "Failed to install"});//FIXME: LINUXEEP-6473
+    expectedEvent.Messages.emplace_back("ServerProtectionLinux-Plugin#0.5", "Failed to install");//FIXME: LINUXEEP-6473
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 103;
@@ -665,8 +666,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport)
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0"});
-    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0"});
+    expectedStatus.Products.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
+    expectedStatus.Products.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
