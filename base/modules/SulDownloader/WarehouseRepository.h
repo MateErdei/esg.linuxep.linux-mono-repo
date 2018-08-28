@@ -122,7 +122,7 @@ namespace SulDownloader
         enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
 
         void setError( const std::string & );
-        void setConnectionSetup( const ConnectionSetup & connectionSetup, const suldownloaderdata::ConfigurationData& configurationData);
+        void setConnectionSetup( const suldownloaderdata::ConnectionSetup & connectionSetup, const suldownloaderdata::ConfigurationData& configurationData);
         int  logLevel( suldownloaderdata::ConfigurationData::LogLevel );
         explicit  WarehouseRepository( bool createSession  );
 
@@ -138,7 +138,7 @@ namespace SulDownloader
         WarehouseError m_error;
         std::vector<std::pair<SU_PHandle, DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session ;
-        std::unique_ptr<ConnectionSetup> m_connectionSetup;
+        std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;
         std::string m_rootDistributionPath;
 
     };

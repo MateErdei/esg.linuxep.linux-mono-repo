@@ -13,42 +13,45 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    /**
-     * Holds enough information to setup a SUL connection required by the WarehouseRepository.
-     */
-    class ConnectionSetup
+    namespace suldownloaderdata
     {
+        /**
+         * Holds enough information to setup a SUL connection required by the WarehouseRepository.
+         */
+        class ConnectionSetup
+        {
 
-    public:
-        explicit  ConnectionSetup ( const std::string & updateLocationURL, const Credentials & credentials = Credentials(), bool isCacheUpdate = false
-                , const Proxy&  proxy = Proxy());
+        public:
+            explicit ConnectionSetup(const std::string& updateLocationURL,
+                                     const Credentials& credentials = Credentials(), bool isCacheUpdate = false,
+                                     const Proxy& proxy = Proxy());
 
-        const Credentials &getCredentials() const;
+            const Credentials& getCredentials() const;
 
-        void setCredentials(const Credentials &credentials);
+            void setCredentials(const Credentials& credentials);
 
-        const Proxy &getProxy() const;
+            const Proxy& getProxy() const;
 
-        void setProxy(const Proxy &proxy);
+            void setProxy(const Proxy& proxy);
 
-        const std::string & getUpdateLocationURL() const;
+            const std::string& getUpdateLocationURL() const;
 
-        void setUpdateLocationURL(const std::string & updateLocationURL);
+            void setUpdateLocationURL(const std::string& updateLocationURL);
 
-        std::string toString() const;
+            std::string toString() const;
 
-        bool isCacheUpdate() const;
+            bool isCacheUpdate() const;
 
-    private:
-        std::string m_updateLocationURL;
-        Credentials m_credentials;
-        bool m_isUpdateCache;
-        Proxy m_proxy;
-
-
-    };
+        private:
+            std::string m_updateLocationURL;
+            Credentials m_credentials;
+            bool m_isUpdateCache;
+            Proxy m_proxy;
 
 
+        };
+
+    }
 }
 
 
