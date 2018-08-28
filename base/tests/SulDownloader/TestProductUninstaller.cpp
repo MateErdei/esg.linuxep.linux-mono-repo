@@ -20,6 +20,7 @@ using namespace SulDownloader;
 
 class ProductUninstallerTest : public ::testing::Test
 {
+
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
@@ -34,9 +35,14 @@ class ProductUninstallerTest : public ::testing::Test
     }
 
 public:
-    std::vector<DownloadedProduct> createDefaultDownloadProductList(int numberProducts)
+    ProductUninstallerTest()
+        : m_fileSystemMock(nullptr)
     {
-        std::vector<DownloadedProduct> productList;
+    }
+
+    std::vector<suldownloaderdata::DownloadedProduct> createDefaultDownloadProductList(int numberProducts)
+    {
+        std::vector<suldownloaderdata::DownloadedProduct> productList;
 
         for(int i = 1; i <= numberProducts; i++)
         {
@@ -44,7 +50,7 @@ public:
             productLine << "product" << i;
             ProductMetadata metadata;
             metadata.setLine(productLine.str());
-            DownloadedProduct product(metadata);
+            suldownloaderdata::DownloadedProduct product(metadata);
             productList.push_back(product);
         }
 
@@ -65,19 +71,19 @@ public:
         return fileList;
     }
 
-    MockFileSystem* m_fileSystemMock;
+    MockFileSystem* m_fileSystemMock; //BORROWED
 
 };
 
-TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow)
+TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow) //NOLINT
 {
-    EXPECT_NO_THROW(ProductUninstaller uninstallManager;);
+    EXPECT_NO_THROW(ProductUninstaller uninstallManager;); //NOLINT
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenNoProductsInstalled)
+TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenNoProductsInstalled) //NOLINT
 {
     std::vector<std::string> emptyList;
-    std::vector<DownloadedProduct> emptyProductList;
+    std::vector<suldownloaderdata::DownloadedProduct> emptyProductList;
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(emptyList));
     ProductUninstaller uninstallManager;
@@ -85,10 +91,11 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninst
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList).size(), 0);
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenInstalledProductDirectoryDoesNotExist)
+TEST_F(ProductUninstallerTest, //NOLINT
+        removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenInstalledProductDirectoryDoesNotExist)
 {
     std::vector<std::string> emptyList;
-    std::vector<DownloadedProduct> emptyProductList;
+    std::vector<suldownloaderdata::DownloadedProduct> emptyProductList;
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(false));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).Times(0);
     ProductUninstaller uninstallManager;
@@ -96,10 +103,11 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninst
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList).size(), 0);
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenOnlyInstalledProductsInList)
+TEST_F(ProductUninstallerTest, //NOLINT
+        removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenOnlyInstalledProductsInList)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
-    std::vector<DownloadedProduct> productList = createDefaultDownloadProductList(3);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(3);
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     ProductUninstaller uninstallManager;
@@ -107,10 +115,11 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninst
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(productList).size(), 0);
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenMoreProductsAreInDownloadListThanInstalled)
+TEST_F(ProductUninstallerTest, //NOLINT
+        removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenMoreProductsAreInDownloadListThanInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(1);
-    std::vector<DownloadedProduct> productList = createDefaultDownloadProductList(3);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(3);
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     ProductUninstaller uninstallManager;
@@ -119,10 +128,11 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloadedDoesNotAttemptToUninst
 }
 
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_ExpectToUninstallProductWhenProductNotInDownloadListButIsInstalled)
+TEST_F(ProductUninstallerTest, //NOLINT
+        removeProductsNotDownloaded_ExpectToUninstallProductWhenProductNotInDownloadListButIsInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
-    std::vector<DownloadedProduct> productList = createDefaultDownloadProductList(2);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     ProductUninstaller uninstallManager;
@@ -136,8 +146,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_ExpectToUninstallProd
                                                                    }
     );
 
-    std::vector<DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList););
+    std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList);); //NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
 
@@ -145,10 +155,10 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_ExpectToUninstallProd
 }
 
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductThrowsAndIsHandled)
+TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductThrowsAndIsHandled) //NOLINT
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
-    std::vector<DownloadedProduct> productList = createDefaultDownloadProductList(2);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     ProductUninstaller uninstallManager;
@@ -160,8 +170,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
                                                                    }
     );
 
-    std::vector<DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList););
+    std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList);); //NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
@@ -170,10 +180,10 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getError().SulError, "");
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductReturnsNonZeroErrorCode)
+TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductReturnsNonZeroErrorCode) //NOLINT
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
-    std::vector<DownloadedProduct> productList = createDefaultDownloadProductList(2);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock,isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     ProductUninstaller uninstallManager;
@@ -187,8 +197,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
                                                                    }
     );
 
-    std::vector<DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList););
+    std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList);); //NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));

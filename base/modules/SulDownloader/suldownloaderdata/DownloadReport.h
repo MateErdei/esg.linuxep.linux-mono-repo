@@ -14,8 +14,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
+    namespace suldownloaderdata
+    {
+        class DownloadedProduct;
+    }
+
     class IWarehouseRepository;
-    class DownloadedProduct;
     class TimeTracker;
 
     struct ProductReport
@@ -52,7 +56,7 @@ namespace SulDownloader
         friend class DownloadReportTestBuilder;
         enum class VerifyState{VerifyFailed, VerifyCorrect};
         static DownloadReport Report( const IWarehouseRepository & , const TimeTracker & timeTracker);
-        static DownloadReport Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
+        static DownloadReport Report(const std::string & sourceURL, const std::vector<suldownloaderdata::DownloadedProduct> & products,  TimeTracker *  timeTracker, VerifyState verify);
         static DownloadReport Report(const std::string & errorDescription);
         static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport &report);
         static std::string fromReport(const DownloadReport &report);
@@ -80,7 +84,7 @@ namespace SulDownloader
 
         std::vector<ProductReport> m_productReport;
 
-        void setProductsInfo(const std::vector<DownloadedProduct>& products, const WarehouseStatus& warehouseStatus);
+        void setProductsInfo(const std::vector<suldownloaderdata::DownloadedProduct>& products, const WarehouseStatus& warehouseStatus);
         void setError( const WarehouseError & error);
         void setTimings( const TimeTracker & );
     };

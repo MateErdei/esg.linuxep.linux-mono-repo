@@ -19,7 +19,10 @@ extern "C" {
 
 namespace SulDownloader
 {
-    class DownloadedProduct;
+    namespace suldownloaderdata
+    {
+        class DownloadedProduct;
+    }
     class ProductSelection;
     class SULSession;
 
@@ -113,7 +116,7 @@ namespace SulDownloader
          *
          * @return list of products
          */
-        std::vector<DownloadedProduct> getProducts() const override ;
+        std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override ;
 
         std::string getSourceURL() const override ;
 
@@ -126,8 +129,8 @@ namespace SulDownloader
         int  logLevel( suldownloaderdata::ConfigurationData::LogLevel );
         explicit  WarehouseRepository( bool createSession  );
 
-        void distributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair, const  std::string & distributePath );
-        void verifyDistributeProduct( std::pair<SU_PHandle, DownloadedProduct> & productPair);
+        void distributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair, const  std::string & distributePath );
+        void verifyDistributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair);
 
         WarehouseError fetchSulError(const std::string & description ) const;
 
@@ -136,7 +139,7 @@ namespace SulDownloader
 
         SU_Handle session() const;
         WarehouseError m_error;
-        std::vector<std::pair<SU_PHandle, DownloadedProduct>> m_products;
+        std::vector<std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session ;
         std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;
         std::string m_rootDistributionPath;

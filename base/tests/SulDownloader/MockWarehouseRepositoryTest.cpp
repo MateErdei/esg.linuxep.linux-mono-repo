@@ -26,8 +26,8 @@ TEST( MockWarehouseRepositoryTest, DemonstrateMockWarehouse) //NOLINT
     SulDownloader::ProductSelection selection = SulDownloader::ProductSelection::CreateProductSelection(configurationData);
 
     SulDownloader::ProductMetadata metadata;
-    SulDownloader::DownloadedProduct downloadedProduct(metadata);
-    std::vector<SulDownloader::DownloadedProduct> products;
+    SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
+    std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
     products.push_back(downloadedProduct);
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false));

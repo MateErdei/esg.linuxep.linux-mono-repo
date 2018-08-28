@@ -21,6 +21,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Common::UtilityImpl;
 
 using namespace SulDownloader;
+using namespace SulDownloader::suldownloaderdata;
 
 
 class DownloadReportTest : public ::testing::Test
@@ -52,9 +53,9 @@ public:
         return metadata;
     }
 
-    SulDownloader::DownloadedProduct createTestDownloadedProduct(SulDownloader::ProductMetadata &metadata)
+    SulDownloader::suldownloaderdata::DownloadedProduct createTestDownloadedProduct(SulDownloader::ProductMetadata &metadata)
     {
-        SulDownloader::DownloadedProduct downloadedProduct(metadata);
+        SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
 
         // set default data for tests
         downloadedProduct.setProductHasChanged(false);
@@ -72,9 +73,9 @@ public:
         return metadata;
     }
 
-    SulDownloader::DownloadedProduct createTestUninstalledProduct(SulDownloader::ProductMetadata &metadata)
+    SulDownloader::suldownloaderdata::DownloadedProduct createTestUninstalledProduct(SulDownloader::ProductMetadata &metadata)
     {
-        SulDownloader::DownloadedProduct downloadedProduct(metadata);
+        SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct(metadata);
 
         // set default data for tests
         downloadedProduct.setProductIsBeingUninstalled(true);
@@ -95,7 +96,7 @@ public:
 
     }
 
-    void checkReportValue(DownloadReport &report, SulDownloader::ProductMetadata &metadata, SulDownloader::DownloadedProduct &downloadedProduct)
+    void checkReportValue(DownloadReport &report, SulDownloader::ProductMetadata &metadata, SulDownloader::suldownloaderdata::DownloadedProduct &downloadedProduct)
     {
         EXPECT_EQ(report.getProducts().size(), 1);
 
@@ -148,7 +149,7 @@ public:
 
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
-            valueToFind = "\"productStatus\": \"" + product.jsonString() + "\"";
+            valueToFind = R"("productStatus": ")" + product.jsonString() + "\"";
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
         }
     }
@@ -184,22 +185,22 @@ public:
 
 };
 
-TEST_F( DownloadReportTest, fromReportWithReportCreatedFromErrorDescriptionShouldNotThrow)
+TEST_F( DownloadReportTest, fromReportWithReportCreatedFromErrorDescriptionShouldNotThrow) //NOLINT
 {
     auto report = DownloadReport::Report("Test Failed example");
 
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportSuccess)
+TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportSuccess) //NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     WarehouseError error;
     error.Description = "";
 
     auto metadata = createTestProductMetaData();
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
-    std::vector<SulDownloader::DownloadedProduct> products;
+    SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
     products.push_back(downloadedProduct);
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(false));
@@ -214,10 +215,10 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     checkReportValue(report, metadata, downloadedProduct);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  "");
 
-    EXPECT_NO_THROW(DownloadReport::fromReport(report));
+    EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
 }
 
-TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportFailedOnError)
+TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportFailedOnError) //NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
@@ -227,9 +228,9 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
 
     products.push_back(downloadedProduct);
 
@@ -247,10 +248,10 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
     checkReportValue(report, metadata, downloadedProduct);
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
-    EXPECT_NO_THROW(DownloadReport::fromReport(report));
+    EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
 }
 
-TEST_F(DownloadReportTest,
+TEST_F(DownloadReportTest, //NOLINT
        fromReportWarehouseRepositoryAndTimeTrackerShouldReportSyncFailedForAllProductsOnMissingPackage)
 {
     MockWarehouseRepository mockWarehouseRepository;
@@ -261,9 +262,9 @@ TEST_F(DownloadReportTest,
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
     products.push_back(downloadedProduct);
 
@@ -284,7 +285,7 @@ TEST_F(DownloadReportTest,
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
 }
 
-TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportNoProductsOnAUnspecifiedError)
+TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportNoProductsOnAUnspecifiedError) //NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
@@ -296,11 +297,11 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::UNSPECIFIED);
     EXPECT_EQ(report.getProducts().size(), 0);
-    EXPECT_NO_THROW(DownloadReport::fromReport(report));
+    EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
 }
 
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalledFailedWhenProductHasErrors)
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalledFailedWhenProductHasErrors) //NOLINT
 {
     std::string errorString = "Update failed";
     WarehouseError error;
@@ -308,11 +309,11 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(downloadedProduct);
@@ -327,20 +328,20 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
 
-    EXPECT_NO_THROW(DownloadReport::fromReport(report));
+    EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
 }
 
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCreateAValidReportForSuccess)
+TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCreateAValidReportForSuccess) //NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     WarehouseError error;
     error.Description = "";
 
     auto metadata = createTestProductMetaData();
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(downloadedProduct);
@@ -364,7 +365,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCreateAValidReportForFailed)
+TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCreateAValidReportForFailed) //NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
 
@@ -375,10 +376,10 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     error.status = WarehouseStatus::DOWNLOADFAILED;
 
     auto metadata = createTestProductMetaData();
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
     products.push_back(downloadedProduct);
 
     EXPECT_CALL(mockWarehouseRepository, hasError()).WillOnce(Return(true));
@@ -403,7 +404,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
 
 }
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFails)
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFails) //NOLINT
 {
     std::string errorString = "Update failed";
     WarehouseError error;
@@ -411,11 +412,11 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> products;
 
     products.push_back(downloadedProduct);
 
@@ -436,7 +437,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFailsWithMultipleProducts)
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFailsWithMultipleProducts) //NOLINT
 {
     std::string errorString = "Update failed";
     WarehouseError error;
@@ -444,7 +445,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
@@ -452,11 +453,11 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     metadata2.setLine("ProductLine2");
     metadata2.setName("Linux2");
 
-    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
 
     downloadedProduct2.setError(error);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(downloadedProduct);
@@ -478,14 +479,14 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFailsNoProducts)
+TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFailsNoProducts) //NOLINT
 {
 
     auto metadata = createTestProductMetaData();
 
     TimeTracker timeTracker = createTimeTracker();
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
     auto report = DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
@@ -501,16 +502,16 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 }
 
 
-TEST_F(DownloadReportTest,
+TEST_F(DownloadReportTest, //NOLINT
        fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
 {
-    std::string errorString = "";
+    std::string errorString; // = "";
     WarehouseError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
@@ -518,16 +519,16 @@ TEST_F(DownloadReportTest,
     metadata2.setLine("ProductLine2");
     metadata2.setName("Linux2");
 
-    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
 
     downloadedProduct2.setError(error);
 
     auto metadata3 = createTestUninstalledProductMetaData();
     metadata3.setLine("ProductLine3");
 
-    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+    DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
 
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(downloadedProduct);
@@ -553,16 +554,16 @@ TEST_F(DownloadReportTest,
 }
 
 
-TEST_F(DownloadReportTest,
+TEST_F(DownloadReportTest, // NOLINT
        fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
 {
-    std::string errorString = "";
+    std::string errorString; // = "";
     WarehouseError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
@@ -570,7 +571,7 @@ TEST_F(DownloadReportTest,
     metadata2.setLine("ProductLine2");
     metadata2.setName("Linux2");
 
-    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
 
     downloadedProduct2.setError(error);
 
@@ -581,9 +582,9 @@ TEST_F(DownloadReportTest,
     WarehouseError uninstallError;
     uninstallError.Description = uninstallErrorString;
 
-    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+    DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
     uninstalledProduct.setError(uninstallError);
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(downloadedProduct);
@@ -608,7 +609,7 @@ TEST_F(DownloadReportTest,
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F(DownloadReportTest,
+TEST_F(DownloadReportTest, //NOLINT
        fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
 {
     std::string errorString = "Install Failed";
@@ -617,7 +618,7 @@ TEST_F(DownloadReportTest,
 
     auto metadata = createTestProductMetaData();
 
-    SulDownloader::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
+    DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
 
     downloadedProduct.setError(error);
 
@@ -625,7 +626,7 @@ TEST_F(DownloadReportTest,
     metadata2.setLine("ProductLine2");
     metadata2.setName("Linux2");
 
-    SulDownloader::DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
+    DownloadedProduct downloadedProduct2 = createTestDownloadedProduct(metadata2);
 
     downloadedProduct2.setError(error);
 
@@ -636,9 +637,9 @@ TEST_F(DownloadReportTest,
     WarehouseError uninstallError;
     uninstallError.Description = uninstallErrorString;
 
-    SulDownloader::DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
+    DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
     uninstalledProduct.setError(uninstallError);
-    std::vector<SulDownloader::DownloadedProduct> products;
+    std::vector<DownloadedProduct> products;
 
 
     products.push_back(uninstalledProduct);

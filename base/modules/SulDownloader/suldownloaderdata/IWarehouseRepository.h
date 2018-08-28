@@ -11,7 +11,10 @@
 #include <string>
 namespace SulDownloader
 {
-    class DownloadedProduct;
+    namespace suldownloaderdata
+    {
+        class DownloadedProduct;
+    }
     class ProductSelection;
     struct WarehouseError;
     /**
@@ -30,7 +33,7 @@ namespace SulDownloader
 
         virtual void distribute() = 0;
 
-        virtual std::vector<DownloadedProduct> getProducts() const = 0;
+        virtual std::vector<suldownloaderdata::DownloadedProduct> getProducts() const = 0;
 
         virtual std::string getSourceURL() const = 0;
 

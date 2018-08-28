@@ -20,11 +20,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace SulDownloader
 {
 
-    std::vector<DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
-            const std::vector<DownloadedProduct> &downloadedProducts)
+    std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
+            const std::vector<suldownloaderdata::DownloadedProduct> &downloadedProducts)
     {
         std::vector<std::string> installedProducts = getInstalledProductPathsList();
-        std::map<std::string, DownloadedProduct> productsToRemove;
+        std::map<std::string, suldownloaderdata::DownloadedProduct> productsToRemove;
 
         for(auto& installedProduct : installedProducts)
         {
@@ -32,14 +32,14 @@ namespace SulDownloader
             productLine = productLine.substr(0, productLine.find(".sh"));
 
             auto productItr = std::find_if(downloadedProducts.begin(), downloadedProducts.end(),
-                    [&productLine](const DownloadedProduct& product) {return product.getLine() == productLine;});
+                    [&productLine](const suldownloaderdata::DownloadedProduct& product) {return product.getLine() == productLine;});
 
             if(productItr == downloadedProducts.end())
             {
                 ProductMetadata metadata;
                 metadata.setLine(productLine);
-                DownloadedProduct product(metadata);
-                productsToRemove.insert(std::pair<std::string, DownloadedProduct>(installedProduct, product));
+                suldownloaderdata::DownloadedProduct product(metadata);
+                productsToRemove.insert(std::pair<std::string, suldownloaderdata::DownloadedProduct>(installedProduct, product));
             }
         }
 
@@ -58,9 +58,9 @@ namespace SulDownloader
         return fileList;
     }
 
-    std::vector<DownloadedProduct> ProductUninstaller::removeProducts(std::map<std::string, DownloadedProduct> uninstallProductInfo)
+    std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProducts(std::map<std::string, suldownloaderdata::DownloadedProduct> uninstallProductInfo)
     {
-        std::vector<DownloadedProduct> productsRemoved;
+        std::vector<suldownloaderdata::DownloadedProduct> productsRemoved;
 
         for (auto &uninstallProduct : uninstallProductInfo)
         {

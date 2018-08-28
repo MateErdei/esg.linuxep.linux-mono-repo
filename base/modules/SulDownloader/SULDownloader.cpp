@@ -30,7 +30,7 @@ using namespace SulDownloader::suldownloaderdata;
 
 namespace
 {
-    bool hasError( const std::vector<SulDownloader::DownloadedProduct> & products )
+    bool hasError( const std::vector<SulDownloader::suldownloaderdata::DownloadedProduct> & products )
     {
         for( const auto & product: products)
         {

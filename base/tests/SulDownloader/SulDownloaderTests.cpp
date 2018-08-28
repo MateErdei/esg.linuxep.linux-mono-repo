@@ -45,6 +45,11 @@ struct SimplifiedDownloadReport
     bool shouldContainSyncTime;
 };
 
+namespace
+{
+    using DownloadedProductVector = std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>;
+}
+
 class SULDownloaderTest : public ::testing::Test
 {
 public:
@@ -113,12 +118,12 @@ public:
         return SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(json_output);
     }
 
-    std::vector<SulDownloader::DownloadedProduct> defaultProducts()
+    DownloadedProductVector defaultProducts()
     {
-        std::vector<SulDownloader::DownloadedProduct> products;
+        DownloadedProductVector products;
         for( auto & metadata: defaultMetadata())
         {
-            SulDownloader::DownloadedProduct product(metadata);
+            SulDownloader::suldownloaderdata::DownloadedProduct product(metadata);
             product.setDistributePath("/installroot/base/update/cache/primary");
             products.push_back(product);
         }
@@ -625,7 +630,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     wError.Description = "Error description";
     wError.status = SulDownloader::WarehouseStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::toString(wError.status);
-    std::vector<SulDownloader::DownloadedProduct> emptyProducts;
+    DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
     EXPECT_CALL(mock, getError()).WillOnce(Return(wError));
@@ -652,7 +657,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     wError.Description = "Error description";
     wError.status = SulDownloader::WarehouseStatus::PACKAGESOURCEMISSING;
     std::string statusError = SulDownloader::toString(wError.status);
-    std::vector<SulDownloader::DownloadedProduct> emptyProducts;
+    DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(false)) // connection
                                  .WillOnce(Return(true)) // synchronization
@@ -684,7 +689,7 @@ TEST_F( SULDownloaderTest, runSULDownloader_onDistributeFailure) //NOLINT
     wError.Description = "Error description";
     wError.status = SulDownloader::WarehouseStatus::DOWNLOADFAILED;
     std::string statusError = SulDownloader::toString(wError.status);
-    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    DownloadedProductVector products = defaultProducts();
 
     SulDownloader::WarehouseError productError;
     productError.Description = "Product Error description";
@@ -726,7 +731,7 @@ TEST_F( SULDownloaderTest, //NOLINT
 {
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
-    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    DownloadedProductVector products = defaultProducts();
     std::vector<SulDownloader::ProductReport> productReports = defaultProductReports();
 
     for ( auto & product : products)
@@ -771,7 +776,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
 
-    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    DownloadedProductVector products = defaultProducts();
 
     for ( auto & product : products)
     {
@@ -837,7 +842,7 @@ TEST_F( SULDownloaderTest, //NOLINT
 
     MockWarehouseRepository & mock = warehouseMocked();
 
-    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    DownloadedProductVector products = defaultProducts();
 
     for ( auto & product : products)
     {
@@ -915,7 +920,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     auto & fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
 
-    std::vector<SulDownloader::DownloadedProduct> products = defaultProducts();
+    DownloadedProductVector products = defaultProducts();
 
     for ( auto & product : products)
     {

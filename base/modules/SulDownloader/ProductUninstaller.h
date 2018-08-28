@@ -26,11 +26,11 @@ namespace SulDownloader
          * @param downloadedProducts
          * @return List of products that have been uninstalled
          */
-        std::vector<DownloadedProduct> removeProductsNotDownloaded(const std::vector<DownloadedProduct> &downloadedProducts);
+        std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(const std::vector<suldownloaderdata::DownloadedProduct> &downloadedProducts);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();
-        std::vector<DownloadedProduct> removeProducts(std::map<std::string, DownloadedProduct> uninstallProductInfo);
+        std::vector<suldownloaderdata::DownloadedProduct> removeProducts(std::map<std::string, suldownloaderdata::DownloadedProduct> uninstallProductInfo);
 
     };
 

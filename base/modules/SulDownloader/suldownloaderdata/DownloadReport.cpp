@@ -97,7 +97,7 @@ namespace SulDownloader
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::string & sourceURL, const std::vector<DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
+    DownloadReport DownloadReport::Report(const std::string & sourceURL, const std::vector<suldownloaderdata::DownloadedProduct> & products, TimeTracker *timeTracker, VerifyState verifyState)
     {
         assert(timeTracker != nullptr);
         DownloadReport report;
@@ -194,7 +194,7 @@ namespace SulDownloader
         return m_productReport;
     }
 
-    void DownloadReport::setProductsInfo(const std::vector<DownloadedProduct>& products,
+    void DownloadReport::setProductsInfo(const std::vector<suldownloaderdata::DownloadedProduct>& products,
                                          const WarehouseStatus& warehouseStatus)
     {
         m_productReport.clear();

@@ -43,7 +43,7 @@ namespace
         return tags;
     }
 
-    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::DownloadedProduct>> & products)
+    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::suldownloaderdata::DownloadedProduct>> & products)
     {
 
         for ( const auto & product : products)
