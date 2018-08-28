@@ -7,6 +7,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ApiException.h>
 #include "SchedulerPluginCallback.h"
 #include "Logger.h"
+#include "UpdateSchedulerProcessor.h"
 
 namespace UpdateSchedulerImpl
 {
@@ -14,6 +15,15 @@ namespace UpdateSchedulerImpl
     SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
         m_task(task), m_statusInfo()
     {
+        std::string noPolicySetStatus{
+            R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+                    <status xmlns="com.sophos\mansys\status" type="sau">
+                        <CompRes xmlns="com.sophos\msys\csc" Res="NoRef" RevID="" policyType="1" />
+                    </status>)sophos"};
+
+        m_statusInfo = Common::PluginApi::StatusInfo{
+            noPolicySetStatus, noPolicySetStatus, UpdateSchedulerProcessor::getAppId()};
+
         LOGDEBUG("Plugin Callback Started");
     }
 

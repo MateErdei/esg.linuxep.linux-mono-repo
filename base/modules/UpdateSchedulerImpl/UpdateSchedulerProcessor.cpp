@@ -292,4 +292,9 @@ namespace UpdateSchedulerImpl
         std::string result = process->output();
         LOGSUPPORT("Killall suldownloader produced message: " << result);
     }
+
+    std::string UpdateSchedulerProcessor::getAppId()
+    {
+        return ALC_API;
+    }
 }

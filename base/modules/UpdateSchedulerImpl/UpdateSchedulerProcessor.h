@@ -27,6 +27,8 @@ namespace UpdateSchedulerImpl
                                  std::unique_ptr<UpdateScheduler::ICronSchedulerThread> cronThread,
                                  std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
+        static std::string getAppId();
+
     private:
         void processPolicy(const std::string & policyXml);
 
