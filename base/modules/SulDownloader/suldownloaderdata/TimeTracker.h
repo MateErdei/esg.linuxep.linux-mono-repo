@@ -11,32 +11,35 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 namespace SulDownloader
 {
-    /**
-     * Keep track of important time events required by ALC status.
-     * https://wiki.sophos.net/display/SophosCloud/EMP%3A+status-alc
-     * Proposed Changes for 2018-Q2
-     */
-    class TimeTracker
+    namespace suldownloaderdata
     {
-    public:
-        std::string startTime() const;
+        /**
+         * Keep track of important time events required by ALC status.
+         * https://wiki.sophos.net/display/SophosCloud/EMP%3A+status-alc
+         * Proposed Changes for 2018-Q2
+         */
+        class TimeTracker
+        {
+        public:
+            std::string startTime() const;
 
-        std::string finishedTime() const;
+            std::string finishedTime() const;
 
-        std::string syncTime() const;
+            std::string syncTime() const;
 
-        void setStartTime(time_t m_startTime);
+            void setStartTime(time_t m_startTime);
 
-        void setFinishedTime(time_t m_finishedTime);
+            void setFinishedTime(time_t m_finishedTime);
 
-        void setSyncTime();
+            void setSyncTime();
 
-    private:
+        private:
 
-        std::time_t m_startTime = -1;
-        std::time_t m_finishedTime = -1;
-        bool m_syncTimeSet = false;
+            std::time_t m_startTime = -1;
+            std::time_t m_finishedTime = -1;
+            bool m_syncTimeSet = false;
 
-    };
+        };
+    }
 }
 

@@ -81,7 +81,7 @@ namespace SulDownloader
 
     }
 
-    DownloadReport DownloadReport::Report(const suldownloaderdata::IWarehouseRepository & warehouse, const TimeTracker &timeTracker)
+    DownloadReport DownloadReport::Report(const suldownloaderdata::IWarehouseRepository & warehouse, const suldownloaderdata::TimeTracker &timeTracker)
     {
         DownloadReport report;
         report.setTimings(timeTracker);
