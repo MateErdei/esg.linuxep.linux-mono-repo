@@ -10,8 +10,15 @@ then
 fi
 
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
-BASEDIR="${ABS_SCRIPTDIR%/*}"
-SOPHOS_INSTALL="${BASEDIR%/*}"
+SOPHOS_INSTALL="${ABS_SCRIPTDIR%/bin*}"
+
+echo ${SOPHOS_INSTALL}
+
+if [ ! -f "${SOPHOS_INSTALL}/.sophos" ]
+then
+   echo "Uninstaller being run from unknown location."
+   exit 1
+fi
 
 export SOPHOS_FULL_PRODUCT_UNINSTALL=1
 

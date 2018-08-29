@@ -5,7 +5,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/install.sh
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
-        DESTINATION files/base/bin
+        DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
 add_executable(versionedcopy

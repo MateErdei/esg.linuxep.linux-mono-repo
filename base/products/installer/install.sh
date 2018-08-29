@@ -26,6 +26,8 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
+
+
 MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
 MCS_MESSAGE_RELAYS=${MCS_MESSAGE_RELAYS:-}
@@ -165,6 +167,9 @@ GROUPADD="$(which groupadd)"
 mkdir -p $SOPHOS_INSTALL || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
 chmod 711 "$SOPHOS_INSTALL"
 chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
+
+# Adds a hidden file to mark the install directory which is used by the uninstaller.
+touch "${SOPHOS_INSTALL}/.sophos"
 
 USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
