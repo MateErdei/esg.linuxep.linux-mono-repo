@@ -59,10 +59,4 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
     Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
     log4cplus::Logger::getRoot().addAppender(stderr_appender);
 
-    // Log everything to stdout - TODO remove this once product tests updated
-    log4cplus::SharedAppenderPtr stdout_appender(
-            new log4cplus::ConsoleAppender(false)
-    );
-    Common::Logging::LoggingSetup::applyPattern(stdout_appender, "%m%n");
-    log4cplus::Logger::getRoot().addAppender(stdout_appender);
 }
