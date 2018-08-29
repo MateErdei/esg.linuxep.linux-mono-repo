@@ -5,8 +5,7 @@ add_library(managementagentloggerimpl SHARED
 target_include_directories(managementagentloggerimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(managementagentloggerimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
-        filesystemimpl
-        applicationconfigurationimpl
+        logging
         )
 
 SET_TARGET_PROPERTIES( managementagentloggerimpl
