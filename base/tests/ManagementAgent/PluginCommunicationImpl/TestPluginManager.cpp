@@ -196,6 +196,15 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins)  // NOLINT
     applyAction.join();
 }
 
+TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread)  // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
+    m_pluginApiTwo = m_mgmtCommon->createPluginAPI(plugin_two_name, m_mockedPluginApiCallback);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_two_name, "testactiontwo"), 1);
+}
+
 TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(plugin_one_name)).Times(1);
@@ -219,7 +228,7 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)  // NOLINT
         m_pluginManagerPtr->removePlugin(plugin_one_name);
     });
     getStatus.join();
-    EXPECT_THROW(m_pluginManagerPtr->getStatus(plugin_one_name),
+    EXPECT_THROW(m_pluginManagerPtr->getStatus(plugin_one_name), //NOLINT
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -232,9 +241,9 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)  // NOLINT
     getTelemetry.join();
 }
 
-TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows)
+TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows) //NOLINT
 {
-    EXPECT_THROW(m_pluginManagerPtr->getTelemetry("plugin_not_registered"),
+    EXPECT_THROW(m_pluginManagerPtr->getTelemetry("plugin_not_registered"), //NOLINT
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -246,7 +255,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)  // NOLINT
         m_pluginManagerPtr->removePlugin(plugin_one_name);
     });
     getTelemetry.join();
-    EXPECT_THROW(m_pluginManagerPtr->getTelemetry(plugin_one_name),
+    EXPECT_THROW(m_pluginManagerPtr->getTelemetry(plugin_one_name), //NOLINT
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -259,7 +268,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)  // N
         EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
 
         // the system will fail to create a plugin to bind to the same address.
-        ASSERT_THROW( m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback), Common::PluginApi::ApiException);
+        ASSERT_THROW( m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback), Common::PluginApi::ApiException); //NOLINT
         // shutdown the plugin
         m_pluginApi.reset();
 

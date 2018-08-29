@@ -3,21 +3,24 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <cassert>
-#include <signal.h>
-#include <memory>
-#include <iostream>
+
 #include "ReactorImpl.h"
 #include "IPoller.h"
+
+#include <cassert>
+#include <csignal>
+#include <memory>
+#include <iostream>
 
 #define LOGERROR(x) std::cerr << x << '\n'
 #define LOGDEBUG(x) std::cerr << x << '\n'
 
 namespace
 {
-    static std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
+    std::mutex GL_signalMutex;
+    std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
 
-    static void s_signal_handler (int signal_value)
+    void s_signal_handler (int signal_value)
     {
         LOGDEBUG( "Signal received: " << signal_value );
         if ( !GL_signalPipe)
@@ -43,18 +46,14 @@ namespace Common
         ReactorThreadImpl::~ReactorThreadImpl()
         {
             m_callbackListeners.clear();
-            if ( GL_signalPipe )
-            {
-                GL_signalPipe.reset(nullptr);
-            }
-
         }
 
         void ReactorThreadImpl::addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback)
         {
-            ReaderListener entry;
-            entry.reader = readable;
-            entry.listener = callback;
+            ReaderListener entry{
+                .reader = readable,
+                .listener = callback
+            };
             //LOGDEBUG("add listeners: " << entry.reader->fd());
             m_callbackListeners.push_back(entry);
         };
@@ -85,21 +84,25 @@ namespace Common
 
             if (m_shutdownListener)
             {
+                std::lock_guard<std::mutex> mutexLock(GL_signalMutex);
                 if (GL_signalPipe != nullptr)
                 {
-                    LOGERROR("FATAL: Attempting to configure shutdown monitor in ReactorThread while another ReactorThread is running");
+                    LOGERROR("Attempting to configure shutdown monitor in ReactorThread while another ReactorThread is running");
                 }
-                // add the onShutdown listener
-                GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>(new Common::Threads::NotifyPipe());
-                struct sigaction action;
-                action.sa_handler = s_signal_handler;
-                action.sa_flags = 0;
-                sigemptyset(&action.sa_mask);
-                sigaction(SIGINT, &action, NULL);
-                sigaction(SIGTERM, &action, NULL);
+                else
+                {
+                    // add the onShutdown listener
+                    GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>(new Common::Threads::NotifyPipe());
+                    struct sigaction action;
+                    action.sa_handler = s_signal_handler;
+                    action.sa_flags = 0;
+                    sigemptyset(&action.sa_mask);
+                    sigaction(SIGINT, &action, NULL);
+                    sigaction(SIGTERM, &action, NULL);
 
-                shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-                monitorForSignalsForShutdown = true;
+                    shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+                    monitorForSignalsForShutdown = true;
+                }
             }
 
             //LOGDEBUG("add pipe call back");
@@ -111,7 +114,7 @@ namespace Common
                 auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(-1));
 
                 //LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
-                if (monitorForSignalsForShutdown && GL_signalPipe && GL_signalPipe->notified())
+                if (monitorForSignalsForShutdown && GL_signalPipe->notified())
                 {
                     m_shutdownListener->notifyShutdownRequested();
                     break;
@@ -145,8 +148,6 @@ namespace Common
             }
 
             // Clear signal handlers
-            GL_signalPipe.reset();
-
             if (monitorForSignalsForShutdown)
             {
                 // Reset signal handlers if we set them before
@@ -156,6 +157,8 @@ namespace Common
                 sigemptyset(&action.sa_mask);
                 sigaction(SIGINT, &action, NULL);
                 sigaction(SIGTERM, &action, NULL);
+
+                GL_signalPipe.reset();
             }
         }
 

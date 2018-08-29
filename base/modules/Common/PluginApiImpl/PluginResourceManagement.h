@@ -17,7 +17,7 @@ namespace Common
         {
         public:
             PluginResourceManagement();
-            PluginResourceManagement(Common::ZeroMQWrapper::IContext*);
+            explicit PluginResourceManagement(Common::ZeroMQWrapper::IContext*);
 
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
             std::unique_ptr<Common::PluginApi::ISensorDataPublisher> createSensorDataPublisher(const std::string & pluginName) override ;

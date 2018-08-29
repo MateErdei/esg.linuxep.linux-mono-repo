@@ -23,7 +23,7 @@ void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(const std::string &
                                                              std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
                                                              Common::ZeroMQWrapper::ISocketReplierPtr replier)
 {
-    m_pluginCallbackHandler.reset(new PluginCallBackHandler(pluginName, std::move(replier), pluginCallback));
+    m_pluginCallbackHandler.reset(new PluginCallBackHandler(pluginName, std::move(replier), std::move(pluginCallback)));
     m_pluginCallbackHandler->start();
 }
 

@@ -18,7 +18,7 @@ namespace Common
                                                      std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback):
                 AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::HANDLESHUTDOWN),
                 m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
-                , m_pluginCallback(pluginCallback)
+                , m_pluginCallback(std::move(pluginCallback))
         {
         }
 
