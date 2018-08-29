@@ -8,6 +8,7 @@ EXIT_FAIL_ADDUSER=14
 EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_NOT_ROOT=17
+EXIT_FAIL_DIR_MARKER=18
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
@@ -167,7 +168,7 @@ chmod 711 "$SOPHOS_INSTALL"
 chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
 
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
-touch "${SOPHOS_INSTALL}/.sophos"
+touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to create install directory marker file"
 
 USER_NAME=sophos-spl-user
 USERADD="$(which useradd)"
