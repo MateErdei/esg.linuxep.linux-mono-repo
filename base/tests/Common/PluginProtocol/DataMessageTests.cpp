@@ -27,14 +27,14 @@ public:
     }
 };
 
-TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully)
+TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully) //NOLINT
 {
     std::string protocolVersion = "ProtocolVersion";
     std::string messageId = "MessageId";
     std::string applicationId = "ApplicationId";
     std::string errorMessage  = "errorMessage";
     std::vector<std::string> payload;
-    payload.push_back("payloadItem");
+    payload.emplace_back("payloadItem");
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
 
     DataMessage dataMessage;
@@ -54,7 +54,7 @@ TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully)
     EXPECT_EQ(dataMessage.Command,command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_EVENTCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_EVENTCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
     std::string commandString = "SendEvent";
@@ -62,7 +62,7 @@ TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_EVENTCanBeConvertedCorrec
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_STATUSCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_STATUSCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
     std::string commandString = "SendStatus";
@@ -70,7 +70,7 @@ TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_STATUSCanBeConvertedCorre
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_REGISTERCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_REGISTERCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
     std::string commandString = "Registration";
@@ -78,7 +78,7 @@ TEST_F(DataMessageTests, DataMessageCommandPLUGIN_SEND_REGISTERCanBeConvertedCor
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_APPLY_POLICYCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_APPLY_POLICYCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
     std::string commandString = "ApplyPolicy";
@@ -86,7 +86,7 @@ TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_APPLY_POLICYCanBeConve
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_DO_ACTIONCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_DO_ACTIONCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
     std::string commandString = "DoAction";
@@ -94,7 +94,7 @@ TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_DO_ACTIONCanBeConverte
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_STATUSCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_STATUSCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
     std::string commandString = "RequestStatus";
@@ -102,7 +102,7 @@ TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_STATUSCanBeConvertedCo
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_TELEMETRYCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_TELEMETRYCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string commandString = "Telemetry";
@@ -110,7 +110,7 @@ TEST_F(DataMessageTests, DataMessageCommandREQUEST_PLUGIN_TELEMETRYCanBeConverte
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandPLUGIN_QUERY_CURRENT_POLICYCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandPLUGIN_QUERY_CURRENT_POLICYCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
     std::string commandString = "RequestCurrentPolicy";
@@ -118,7 +118,7 @@ TEST_F(DataMessageTests, DataMessageCommandPLUGIN_QUERY_CURRENT_POLICYCanBeConve
     EXPECT_EQ(Common::PluginProtocol::DeserializeCommand(commandString), command);
 }
 
-TEST_F(DataMessageTests, DataMessageCommandUNKNOWNCanBeConvertedCorrectly)
+TEST_F(DataMessageTests, DataMessageCommandUNKNOWNCanBeConvertedCorrectly) //NOLINT
 {
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::UNKNOWN;
     std::string commandString = "InvalidCommand";

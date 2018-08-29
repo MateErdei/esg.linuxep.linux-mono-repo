@@ -7,47 +7,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unordered_map>
 #include <thread>
 #include <mutex>
-namespace
-{
-    using namespace Common::PluginProtocol;
-    using CommandMap = std::unordered_map<std::string, Common::PluginProtocol::Commands >;
-    void setupMapString ( CommandMap & commandMap)
-    {
-        for ( auto command: {Commands::PLUGIN_SEND_EVENT,
-                             Commands::PLUGIN_SEND_STATUS,
-                             Commands::PLUGIN_SEND_REGISTER,
-                             Commands::PLUGIN_QUERY_CURRENT_POLICY,
-                             Commands::REQUEST_PLUGIN_APPLY_POLICY,
-                             Commands::REQUEST_PLUGIN_DO_ACTION,
-                             Commands::REQUEST_PLUGIN_STATUS,
-                             Commands::REQUEST_PLUGIN_TELEMETRY})
-        {
-            commandMap[SerializeCommand(command)] = command;
-        }
-    }
-    const CommandMap& mapStringCommand()
-    {
-        static std::mutex mutex;
-        static  CommandMap mapStringCommand;
-
-        if ( mapStringCommand.empty())
-        {
-            std::lock_guard<std::mutex> lock(mutex);
-            if( mapStringCommand.empty())
-            {
-                setupMapString(mapStringCommand);
-            }
-        }
-        return mapStringCommand;
-    }
-
-}
 
 namespace Common
 {
     namespace PluginProtocol
     {
-        std::string SerializeCommand( Commands  command)
+        std::string SerializeCommand(Commands command)
         {
             switch (command)
             {
@@ -74,12 +39,39 @@ namespace Common
             }
         }
 
-        Commands DeserializeCommand( const std::string & command_str)
+        Commands DeserializeCommand(const std::string& command_str)
         {
-            auto found = mapStringCommand().find(command_str);
-            if (found != mapStringCommand().end() )
+            if (command_str == SerializeCommand(Commands::PLUGIN_SEND_EVENT))
             {
-                return found->second;
+                return Commands::PLUGIN_SEND_EVENT;
+            }
+            else if (command_str == SerializeCommand(Commands::PLUGIN_SEND_STATUS))
+            {
+                return Commands::PLUGIN_SEND_STATUS;
+            }
+            else if (command_str == SerializeCommand(Commands::PLUGIN_SEND_REGISTER))
+            {
+                return Commands::PLUGIN_SEND_REGISTER;
+            }
+            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_APPLY_POLICY))
+            {
+                return Commands::REQUEST_PLUGIN_APPLY_POLICY;
+            }
+            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_DO_ACTION))
+            {
+                return Commands::REQUEST_PLUGIN_DO_ACTION;
+            }
+            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_STATUS))
+            {
+                return Commands::REQUEST_PLUGIN_STATUS;
+            }
+            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_TELEMETRY))
+            {
+                return Commands::REQUEST_PLUGIN_TELEMETRY;
+            }
+            else if (command_str == SerializeCommand(Commands::PLUGIN_QUERY_CURRENT_POLICY))
+            {
+                return Commands::PLUGIN_QUERY_CURRENT_POLICY;
             }
             return Commands::UNKNOWN;
         }

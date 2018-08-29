@@ -8,10 +8,11 @@ add_executable(PluginApiImplTests
         PluginApiCallbackTests.cpp
         MockSensorDataCallback.h
         SensorDataCallbackTests.cpp
-        DataMessageTests.cpp
         MessageBuilderTests.cpp
         TestCompare.h
-        TestCompare.cpp MockApiBaseServices.h)
+        TestCompare.cpp
+        MockApiBaseServices.h
+        )
 target_include_directories(PluginApiImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
 message( "check"  "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
 target_include_directories(PluginApiImplTests
