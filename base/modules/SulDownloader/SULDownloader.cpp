@@ -22,6 +22,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/Logging/FileLoggingSetup.h>
 
 #include <cassert>
 #include <algorithm>
@@ -279,6 +280,8 @@ namespace SulDownloader
 
     int main_entry( int argc, char * argv[])
     {
+        // Configure logging
+        Common::Logging::FileLoggingSetup loggerSetup("suldownloader");
 
         //Process command line args
         if(argc < 3)

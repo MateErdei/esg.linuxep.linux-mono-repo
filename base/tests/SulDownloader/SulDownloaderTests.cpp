@@ -33,6 +33,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <modules/Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace SulDownloader::suldownloaderdata;
 using SulDownloaderProto::ConfigurationSettings;
@@ -53,6 +54,7 @@ namespace
 
 class SULDownloaderTest : public ::testing::Test
 {
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 public:
     /**
      * Setup directories and files expected by SULDownloader to enable its execution.
@@ -1003,8 +1005,8 @@ TEST_F( SULDownloaderTest, //NOLINT
     auto downloadReport = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
-    ASSERT_THAT( output, ::testing::HasSubstr("Proxy used was"));
     ASSERT_THAT( errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
+    ASSERT_THAT( errStd, ::testing::HasSubstr("Proxy used was"));
 }
 
 TEST_F( SULDownloaderTest, //NOLINT
@@ -1025,6 +1027,7 @@ TEST_F( SULDownloaderTest, //NOLINT
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT( output, ::testing::Not( ::testing::HasSubstr("Proxy used was")));
+    ASSERT_THAT( errStd, ::testing::Not( ::testing::HasSubstr("Proxy used was")));
     ASSERT_THAT( errStd, ::testing::HasSubstr("Failed to connect to the warehouse"));
 }
 

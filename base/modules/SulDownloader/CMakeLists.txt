@@ -2,6 +2,7 @@
 add_subdirectory(suldownloaderdata)
 
 add_library(suldownloaderimpl SHARED
+    Logger.cpp
     SULRaii.h
     SULUtils.cpp
     SULUtils.h
@@ -16,18 +17,17 @@ add_library(suldownloaderimpl SHARED
     ProductUninstaller.h)
 
 
+include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include ${LOG4CPLUS_INCLUDE_DIR})
+
+
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
-target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} )
-
-
-include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include)
+target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata logging ${SUL_LIBRARY} )
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "${SUL_LIBRARY_DIRS}"
         )
-
 
 install(TARGETS suldownloaderimpl
         LIBRARY DESTINATION files/base/lib64)
