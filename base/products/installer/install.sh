@@ -256,7 +256,7 @@ ln -snf "liblog4cplus-1.2.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
-chmod 700 "$SOPHOS_INSTALL/base/bin/uninstall.sh."*
+chmod 700 "$SOPHOS_INSTALL/bin/uninstall.sh."*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
