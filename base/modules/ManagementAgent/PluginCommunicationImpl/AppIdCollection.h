@@ -14,7 +14,7 @@ namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        // TODO: move to utilities
+        // TODO LINUXEP-6536: move to utilities
         class VectorAsSet
         {
             std::vector<std::string> m_entries;

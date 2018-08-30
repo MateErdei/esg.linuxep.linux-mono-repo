@@ -42,7 +42,7 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
         }
     }
 
-    // TODO: sort to improve chances of using the best candidates first. LINUXEP-6117
+    // TODO LINUXEP-6117: sort to improve chances of using the best candidates first.
 
     return candidates;
 }

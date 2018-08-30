@@ -285,14 +285,14 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
     }
 
     std::string installationDir = getDirname(fullInstallFilename);
-    makedirs(installationDir); // TODO: Permissions and ownership
+    makedirs(installationDir); // TODO LINUXEP-6535: Permissions and ownership
 
     // Find appropriate extension name
     Path extensionName = findAppropriateExtensionName(fullInstallFilename);
     Path extensionBase = Common::FileSystem::basename(extensionName);
 
     // Copy file
-    copyFile(filename, extensionName); // TODO: Permissions and ownership
+    copyFile(filename, extensionName); // TODO LINUXEP-6535: Permissions and ownership
 
     // Change/create symlink
     createSymbolicLink(extensionBase, fullInstallFilename);

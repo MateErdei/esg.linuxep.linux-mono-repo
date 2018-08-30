@@ -50,7 +50,6 @@ namespace ManagementAgent
         {
             LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
             m_pluginManager.registerPlugin(pluginName);
-            // TODO: load information from registry about this plugin Name
             Common::PluginRegistryImpl::PluginInfo pluginInfo;
             bool validPlugin;
             std::tie(pluginInfo, validPlugin) = Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(

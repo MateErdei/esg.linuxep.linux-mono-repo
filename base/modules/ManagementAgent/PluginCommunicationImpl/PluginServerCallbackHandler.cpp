@@ -40,7 +40,6 @@ namespace ManagementAgent
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                         {
-                            // FIXME: return the number of policies to expect.
                             if (m_serverCallback->receivedGetPolicyRequest(request.ApplicationId))
                             {
                                 return m_messageBuilder.replyAckMessage(request);

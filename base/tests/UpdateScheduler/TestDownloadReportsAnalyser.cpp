@@ -659,7 +659,9 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
     expectedEvent.UpdateSource = "Sophos";
-    expectedEvent.Messages.emplace_back("ServerProtectionLinux-Plugin#0.5", "Failed to install");//FIXME: LINUXEEP-6473
+
+    //FIXME: LINUXEP-6473
+    expectedEvent.Messages.emplace_back("ServerProtectionLinux-Plugin#0.5", "Failed to install");
 
     UpdateStatus expectedStatus;
     expectedStatus.LastResult = 103;

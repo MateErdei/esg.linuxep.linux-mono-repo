@@ -54,6 +54,7 @@ namespace ManagementAgent
                     std::string appId = filename.substr(0, pos);
                     try
                     {
+                        // TODO LINUXEP-6540: Is loading unvalidated content leaving us open to compromise?
                         std::string statusContents = Common::FileSystem::fileSystem()->readFile(file);
                         m_statusCache[appId] = statusContents;
                     }

@@ -15,7 +15,7 @@ namespace SulDownloader
 
     };
 }
-//TODO: To incomporate the log facility after LINUXEP-5909 is completed.
+//TODO LINUXEP-5909: To incomporate the log facility.
 
 #define LOGDEBUG(x) std::cout <<  x << '\n'
 #define LOGINFO(x) std::cout << x << '\n'

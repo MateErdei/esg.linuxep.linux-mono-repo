@@ -126,7 +126,6 @@ TEST_F(TestStatusCache, checkEmptyStatusIsAccepted) // NOLINT
     EXPECT_TRUE(v);
 }
 
-//TODO Should this actually fail or throw without appId?!?!
 TEST_F(TestStatusCache, checkEmptyAppIDIsAccepted) // NOLINT
 {
     ManagementAgent::StatusCacheImpl::StatusCache cache;

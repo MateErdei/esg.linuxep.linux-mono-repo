@@ -35,7 +35,7 @@ namespace Common
              *
              * @attention the policy may be applied at a later time after the method returns.
              * @param policyXml: either the policy xml content or its translation.
-             * @todo add information about 'translating xml'
+             * @todo LINUXEP-5950: add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in applying new policy.
              */
             virtual void applyNewPolicy(const std::string& policyXml) = 0;
@@ -45,7 +45,7 @@ namespace Common
              *
              * @attention the action request is queued to be executed at a later time after the method returns.
              * @param actionXml: either the action xml content or its translation.
-             * @todo add information about 'translating xml'
+             * @todo LINUXEP-5950: add information about 'translating xml'
              * @throw Implementers of IPluginCallback may decide to throw ApiException to report error in the requested action.
              */
             virtual void queueAction(const std::string& actionXml) = 0;

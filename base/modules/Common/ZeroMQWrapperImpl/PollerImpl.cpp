@@ -78,8 +78,8 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
 
     for (size_t i=0; i<m_entries.size(); ++i)
     {
-        // FIXME - Need to handle the case where there is an error condition present on socket specified by the fd.
-        // Potentially need to remove bad fd. Note this is rarely seen. See ticket LINUXEP-6155
+        // FIXME LINUXEP-6155: Need to handle the case where there is an error condition present on socket
+        // specified by the fd. Potentially need to remove bad fd. Note this is rarely seen.
         if (items[i].revents != 0 && items[i].revents != ZMQ_POLLERR)
         {
             results.push_back(m_entries[i].entry);
