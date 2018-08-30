@@ -217,16 +217,20 @@ namespace UpdateSchedulerImpl
             }
 
 
-            ReportAndFiles reportAndFiles;
+            std::vector<std::string> sortedFilePaths;
             std::vector<SulDownloader::suldownloaderdata::DownloadReport> downloaderReports;
+
             for (auto& reportEntry: reportCollection)
             {
                 downloaderReports.push_back(reportEntry.report);
-                reportAndFiles.sortedFilePaths.push_back(reportEntry.filepath);
+                sortedFilePaths.push_back(reportEntry.filepath);
             }
 
-            reportAndFiles.reportCollectionResult = processReports(downloaderReports);
-
+            ReportAndFiles reportAndFiles
+                    {
+                      .reportCollectionResult = processReports(downloaderReports),
+                      .sortedFilePaths = std::move(sortedFilePaths)
+                    };
 
             for (size_t i = 0; i < downloaderReports.size(); i++)
             {
@@ -320,8 +324,9 @@ namespace UpdateSchedulerImpl
         ReportCollectionResult
         DownloadReportsAnalyser::handleFailureReports(const std::vector<SulDownloader::suldownloaderdata::DownloadReport>& reportCollection)
         {
+            assert(!reportCollection.empty());
             size_t lastIndex = reportCollection.size() - 1;
-            assert(lastIndex >= 0);
+
             DownloadReportVectorDifferenceType indexOfLastGoodSync = lastGoodSync(reportCollection);
             DownloadReportVectorDifferenceType indexOfLastUpgrade = lastUpgrade(reportCollection);
             ReportCollectionResult collectionResult;

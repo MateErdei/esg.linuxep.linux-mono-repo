@@ -29,6 +29,10 @@ namespace UpdateSchedulerImpl
 
         struct UpdateStatus
         {
+            UpdateStatus()
+                : LastResult(0)
+            {}
+
             std::string LastBootTime;
             std::string LastStartTime;
             std::string LastSyncTime;
