@@ -6,31 +6,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-#include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <tests/Common/TestHelpers/TempDir.h>
-#include <future>
 #include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 #include <modules/Common/PluginApi/IPluginResourceManagement.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <modules/UpdateSchedulerImpl/SchedulerPluginCallback.h>
 #include <modules/Common/UtilityImpl/StringUtils.h>
 #include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
+#include <future>
+
 namespace
 {
 
