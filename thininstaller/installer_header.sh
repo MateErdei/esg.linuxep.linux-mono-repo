@@ -224,7 +224,8 @@ tail -n+${ARCHIVE} $0 > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
 
 cd ${SOPHOS_TEMP_DIRECTORY}
 
-# Check if SAV is installed. TODO we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
+# Check if SAV is installed.
+# TODO LINUXEP-6541: we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
 
@@ -292,7 +293,6 @@ rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "E
 
 export LD_LIBRARY_PATH=installer/bin64:installer/bin32
 
-#todo what do these need changing to?
 # Make necessary directories
 mkdir distribute
 mkdir cache
@@ -353,13 +353,8 @@ cd distribute
 
 chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
 
-# todo add this back once we know what libs we need to symlink (if any)
-#if [ $MACHINE_TYPE = "x86_64" ]
-#then
-#    cd lib64
-#else
-#    cd lib32
-#fi
+# FIXME LINUXEP-6542: add this back once we know what libs we need to symlink (if any)
+#cd lib64
 #create_symlinks
 #cd ..
 
