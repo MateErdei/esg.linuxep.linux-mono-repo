@@ -144,6 +144,7 @@ function build()
     then
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
+        addpath "$REDIST/cmake/bin"
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib${BITS}
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
