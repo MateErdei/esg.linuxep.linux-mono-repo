@@ -20,26 +20,13 @@ namespace ManagementAgent
 
         void PolicyTask::run()
         {
-            distributePolicy(m_pluginManager, m_filePath);
-        }
+            LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
 
-        PolicyTask::PolicyTask(
-                ManagementAgent::PluginCommunication::IPluginManager& pluginManager, std::string filePath)
-                : m_pluginManager(pluginManager)
-                  , m_filePath(std::move(filePath))
-        {
-        }
-
-
-        void PolicyTask::distributePolicy(PluginCommunication::IPluginManager& pluginManager, const std::string& filepath)
-        {
-            LOGSUPPORT("Process new policy from mcsrouter: " << filepath);
-
-            std::string appId = UtilityImpl::extractAppIdFromPolicyFile(filepath);
+            std::string appId = UtilityImpl::extractAppIdFromPolicyFile(m_filePath);
 
             if (appId.empty())
             {
-                LOGWARN("Got an invalid file name for policy detection: "<<filepath);
+                LOGWARN("Got an invalid file name for policy detection: "<<m_filePath);
                 return;
             }
 
@@ -47,17 +34,24 @@ namespace ManagementAgent
 
             try
             {
-                payload = Common::FileSystem::fileSystem()->readFile(filepath);
+                payload = Common::FileSystem::fileSystem()->readFile(m_filePath);
             }
             catch (Common::FileSystem::IFileSystemException& e)
             {
-                LOGERROR("Failed to read " << filepath << " with error: " << e.what());
+                LOGERROR("Failed to read " << m_filePath << " with error: " << e.what());
                 throw;
             }
 
-            int newPolicyResult = pluginManager.applyNewPolicy(appId, payload);
-            LOGINFO("Policy " << filepath << " applied to " << newPolicyResult << " plugins");
+            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, payload);
+            LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
 
+        }
+
+        PolicyTask::PolicyTask(
+                ManagementAgent::PluginCommunication::IPluginManager& pluginManager, std::string filePath)
+                : m_pluginManager(pluginManager)
+                  , m_filePath(std::move(filePath))
+        {
         }
 
 

@@ -25,6 +25,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 
 
 using namespace Common;
@@ -82,6 +83,7 @@ namespace ManagementAgent
             std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
             sendCurrentPluginPolicies(registeredPlugins);
             sendCurrentPluginsStatus(registeredPlugins);
+            sendCurrentActions(registeredPlugins);
 
         }
 
@@ -174,10 +176,26 @@ namespace ManagementAgent
         {
             std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
 
-            auto policies = std::vector<std::string>{};// Common::FileSystem::fileSystem()->listFiles(mcsDir);
+            auto policies = Common::FileSystem::fileSystem()->listFiles(mcsDir);
             for( auto & filePath : policies)
             {
-                McsRouterPluginCommunicationImpl::PolicyTask::distributePolicy(*m_pluginManager, filePath);
+                std::unique_ptr<Common::TaskQueue::ITask>
+                        task( new McsRouterPluginCommunicationImpl::PolicyTask(*m_pluginManager, filePath) );
+                m_taskQueue->queueTask(task);
+
+            }
+        }
+
+        void ManagementAgentMain::sendCurrentActions(const std::vector<std::string>& registeredPlugins)
+        {
+            std::string actionDir = ApplicationConfiguration::applicationPathManager().getMcsActionFilePath();
+
+            auto actions = Common::FileSystem::fileSystem()->listFiles(actionDir);
+            for( auto & filePath : actions)
+            {
+                Common::TaskQueue::ITaskPtr task(new  McsRouterPluginCommunicationImpl::ActionTask(*m_pluginManager, filePath));
+                m_taskQueue->queueTask(task);
+
             }
 
         }

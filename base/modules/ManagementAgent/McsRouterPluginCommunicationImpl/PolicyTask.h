@@ -20,8 +20,6 @@ namespace ManagementAgent
             : public virtual Common::TaskQueue::ITask
         {
         public:
-            static void distributePolicy(  PluginCommunication::IPluginManager& m_pluginManager, const std::string & filepath);
-
             void run() override;
             PolicyTask(
                     PluginCommunication::IPluginManager& pluginManager,

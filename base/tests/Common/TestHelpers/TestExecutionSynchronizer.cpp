@@ -18,18 +18,20 @@ namespace Tests
 
     void TestExecutionSynchronizer::notify()
     {
-        std::unique_lock<std::mutex> lock(mutex);
         m_calledNTimes++;
         if (m_calledNTimes >= m_expectedCall)
         {
-            m_waitCondition.notify_all();
+            m_promise.set_value();
         }
     }
 
-    void TestExecutionSynchronizer::waitfor(int ms)
+    bool TestExecutionSynchronizer::waitfor(int ms)
     {
-        std::unique_lock<std::mutex> lock(mutex);
-        m_waitCondition.wait_for(lock, std::chrono::milliseconds(ms));
+        return waitfor(std::chrono::milliseconds(ms));
+    }
+    bool TestExecutionSynchronizer::waitfor(std::chrono::milliseconds ms)
+    {
+        return m_promise.get_future().wait_for(ms) == std::future_status::ready;
 
     }
 }

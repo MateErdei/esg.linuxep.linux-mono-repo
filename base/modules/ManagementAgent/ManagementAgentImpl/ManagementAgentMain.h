@@ -30,6 +30,7 @@ namespace ManagementAgent
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
             void sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins);
+            void sendCurrentActions(const std::vector<std::string>& registeredPlugins);
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
             int run();
             // to be used in tests

@@ -7,24 +7,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
-#include <mutex>
-#include <condition_variable>
-
+#include <future>
 
 namespace Tests
 {
     class TestExecutionSynchronizer
     {
-        std::mutex mutex;
-        std::condition_variable m_waitCondition;
+        std::promise<void> m_promise;
         int m_calledNTimes;
         int m_expectedCall;
     public:
         explicit TestExecutionSynchronizer(int toBeNotifiedNTimes = 1);
         void notify();
-        void waitfor(int ms = 500);
+        bool waitfor(int ms = 500);
+        bool waitfor( std::chrono::milliseconds ms);
     };
 
 }
