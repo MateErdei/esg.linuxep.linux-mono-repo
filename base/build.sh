@@ -150,6 +150,7 @@ function build()
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/gcc/lib${BITS}
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
     fi
