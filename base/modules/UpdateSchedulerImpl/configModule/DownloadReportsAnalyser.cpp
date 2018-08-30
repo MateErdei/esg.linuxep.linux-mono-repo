@@ -289,20 +289,18 @@ namespace UpdateSchedulerImpl
                 ).getStartTime();
             }
 
-            // cover the following cases: No upgrade, only one element, the last element has upgrade.
-            if (indexOfLastUpgrade == -1 || indexOfLastUpgrade == lastIndex)
+            // cover the following cases: only one element, the last element has upgrade.
+            if (lastIndex == 0 || indexOfLastUpgrade == lastIndex)
             {
                 collectionResult.SchedulerEvent.IsRelevantToSend = true;
                 return collectionResult;
             }
+            if( indexOfLastUpgrade != -1)
+            {
+                collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade).getStartTime();
 
-            // last one was not an upgrade
-
-            collectionResult.SchedulerStatus.LastInstallStartedTime = reportCollection.at(indexOfLastUpgrade
-            ).getStartTime();
-
-            collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade
-            ) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+                collectionResult.IndicesOfSignificantReports.at(indexOfLastUpgrade) = ReportCollectionResult::SignificantReportMark::MustKeepReport;
+            }
 
             // is the event relevant?
             // there is at least two elements.

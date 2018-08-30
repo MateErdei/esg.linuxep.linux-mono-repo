@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <stdexcept>
 #include <iostream>
+#include <typeinfo>
 
 #define MAIN(TARGET)                                                                                \
 int main(int argc, char* argv[], char* envp[])                                                      \

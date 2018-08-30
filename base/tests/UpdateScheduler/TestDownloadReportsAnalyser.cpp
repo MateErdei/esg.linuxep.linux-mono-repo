@@ -680,6 +680,81 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
 
 
 
+TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport)
+{
+    std::string firstReport{R"sophos({ "finishTime": "20180821 121220",
+"status": "SUCCESS",
+"sulError": "",
+"products": [ { "errorDescription": "",
+"rigidName": "ServerProtectionLinux-Base",
+"downloadVersion": "0.5.0",
+"productStatus": "UPTODATE",
+"productName": "ServerProtectionLinux-Base#0.5.0" },
+{ "errorDescription": "",
+"rigidName": "ServerProtectionLinux-Plugin",
+"downloadVersion": "0.5.0",
+"productStatus": "UPTODATE",
+"productName": "ServerProtectionLinux-Plugin#0.5" } ],
+"startTime": "20180821 121220",
+"errorDescription": "",
+"urlSource": "Sophos",
+"syncTime": "20180821 121220" })sophos"};
+    std::string lastReport{R"sophos({
+    "finishTime": "20180822 121220",
+    "status": "SUCCESS",
+    "sulError": "",
+    "products": [
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Base",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Base#0.5.0"
+        },
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Plugin",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Plugin#0.5"
+        }
+    ],
+    "startTime": "20180822 121220",
+    "errorDescription": "",
+    "urlSource": "Sophos",
+    "syncTime": "20180821 121220"
+})sophos"};
+    suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
+    suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
+
+    std::vector<suldownloaderdata::DownloadReport> reports{report1, report2};
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
+
+    UpdateEvent expectedEvent;
+    // send event because cache changed
+    expectedEvent.IsRelevantToSend = false;
+    expectedEvent.MessageNumber = 0;
+    expectedEvent.UpdateSource = "Sophos";
+
+    UpdateStatus expectedStatus;
+    expectedStatus.LastResult = 0;
+    expectedStatus.LastStartTime = "20180822 121220";
+    expectedStatus.LastFinishdTime = "20180822 121220";
+    expectedStatus.LastSyncTime = "20180821 121220";
+    expectedStatus.LastInstallStartedTime.clear();
+    expectedStatus.FirstFailedTime.clear();
+    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0"});
+    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0"});
+
+
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    // first is the upgrade and the later the last one the second one is not necessary
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({false, true}));
+}
+
+
+
 
 
 

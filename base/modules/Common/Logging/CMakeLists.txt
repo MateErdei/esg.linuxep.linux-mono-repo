@@ -8,11 +8,7 @@ add_library(logging SHARED
         FileLoggingSetup.h
         )
 
-target_link_libraries(logging PUBLIC
-        applicationconfigurationimpl
-        filesystemimpl
-        ${LOG4CPLUS_LIBRARY}
-        )
+target_link_libraries(logging PUBLIC ${LOG4CPLUS_LIBRARY} applicationconfigurationimpl)
 target_include_directories(logging SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
 SET_TARGET_PROPERTIES( logging
