@@ -23,6 +23,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <csignal>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 
 
 using namespace Common;
@@ -77,7 +79,9 @@ namespace ManagementAgent
             initialiseTaskQueue();
             initialiseDirectoryWatcher();
             initialisePluginReceivers();
-            sendCurrentPluginsStatus();
+            std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
+            sendCurrentPluginPolicies(registeredPlugins);
+            sendCurrentPluginsStatus(registeredPlugins);
 
         }
 
@@ -127,11 +131,9 @@ namespace ManagementAgent
             m_pluginManager->setEventReceiver(m_eventReceiver);
         }
 
-        void ManagementAgentMain::sendCurrentPluginsStatus()
+        void ManagementAgentMain::sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins )
         {
-            std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
 
-            std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
             std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();
             std::string statusDir = ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
 
@@ -167,6 +169,20 @@ namespace ManagementAgent
                 }
             }
         }
+
+        void ManagementAgentMain::sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins)
+        {
+            std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+
+            auto policies = std::vector<std::string>{};// Common::FileSystem::fileSystem()->listFiles(mcsDir);
+            for( auto & filePath : policies)
+            {
+                McsRouterPluginCommunicationImpl::PolicyTask::distributePolicy(*m_pluginManager, filePath);
+            }
+
+        }
+
+
 
         int ManagementAgentMain::run()
         {
@@ -211,6 +227,10 @@ namespace ManagementAgent
             return 0;
         }
 
+        void ManagementAgentMain::test_request_stop()
+        {
+            GL_signalPipe->notify();
+        }
 
 
 

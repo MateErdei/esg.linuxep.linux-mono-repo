@@ -20,30 +20,7 @@ namespace ManagementAgent
 
         void PolicyTask::run()
         {
-            LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
-
-            std::string appId = UtilityImpl::extractAppIdFromPolicyFile(m_filePath);
-
-            if (appId.empty())
-            {
-                LOGWARN("Got an invalid file name for policy detection: "<<m_filePath);
-                return;
-            }
-
-            std::string payload;
-
-            try
-            {
-                payload = Common::FileSystem::fileSystem()->readFile(m_filePath);
-            }
-            catch (Common::FileSystem::IFileSystemException& e)
-            {
-                LOGERROR("Failed to read " << m_filePath << " with error: " << e.what());
-                throw;
-            }
-
-            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, payload);
-            LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
+            distributePolicy(m_pluginManager, m_filePath);
         }
 
         PolicyTask::PolicyTask(
@@ -53,6 +30,35 @@ namespace ManagementAgent
         {
         }
 
+
+        void PolicyTask::distributePolicy(PluginCommunication::IPluginManager& pluginManager, const std::string& filepath)
+        {
+            LOGSUPPORT("Process new policy from mcsrouter: " << filepath);
+
+            std::string appId = UtilityImpl::extractAppIdFromPolicyFile(filepath);
+
+            if (appId.empty())
+            {
+                LOGWARN("Got an invalid file name for policy detection: "<<filepath);
+                return;
+            }
+
+            std::string payload;
+
+            try
+            {
+                payload = Common::FileSystem::fileSystem()->readFile(filepath);
+            }
+            catch (Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("Failed to read " << filepath << " with error: " << e.what());
+                throw;
+            }
+
+            int newPolicyResult = pluginManager.applyNewPolicy(appId, payload);
+            LOGINFO("Policy " << filepath << " applied to " << newPolicyResult << " plugins");
+
+        }
 
 
     }

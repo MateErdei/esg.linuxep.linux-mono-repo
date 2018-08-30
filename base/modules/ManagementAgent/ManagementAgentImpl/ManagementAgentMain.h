@@ -29,9 +29,11 @@ namespace ManagementAgent
             void initialiseTaskQueue();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
-            void sendCurrentPluginsStatus();
+            void sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins);
+            void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
             int run();
-
+            // to be used in tests
+            void test_request_stop();
 
             ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
 
