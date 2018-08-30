@@ -1,3 +1,6 @@
+
+set( ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs )
+
 include(GoogleTest)
 add_executable(SulDownloaderTests
         TestConfigurationData.cpp
@@ -25,10 +28,8 @@ gtest_discover_tests(SulDownloaderTests)
 
 SET_TARGET_PROPERTIES(SulDownloaderTests
         PROPERTIES
-        INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
-
-set(SUL_LIBRARY -L${SUL_LIBRARY_DIR}  -lSUL)

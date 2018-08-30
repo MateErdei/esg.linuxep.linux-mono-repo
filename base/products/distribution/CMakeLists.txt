@@ -7,9 +7,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-install(FILES ${libstdcpp_path} ${libgcc_s_path}
-        DESTINATION files/base/lib64
-        )
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path})
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
@@ -32,8 +30,6 @@ add_custom_target(
 #            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
 #        )
 #")
-
-set(third_party_libs)
 
 function(add_third_party_library LIB LIBRARY_PATH)
     FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
@@ -67,3 +63,10 @@ install(FILES ${third_party_libs}
 
 install(FILES ${VERSIG_INPUT}/bin64/versig
         DESTINATION files/base/update)
+
+add_custom_target(
+        copy_libs
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
+)
+

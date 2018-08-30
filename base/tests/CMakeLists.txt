@@ -11,3 +11,4 @@ add_subdirectory(ManagementAgentImpl)
 add_subdirectory(UpdateScheduler)
 add_subdirectory(watchdog)
 add_subdirectory(wdctl)
+
