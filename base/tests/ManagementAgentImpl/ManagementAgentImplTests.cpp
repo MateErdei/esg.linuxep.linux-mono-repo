@@ -126,9 +126,9 @@ namespace
 
         EXPECT_CALL(*m_mockApplicationManager, getPluginRegistryPath()).WillRepeatedly(Return(pluginPath));
         EXPECT_CALL(*m_mockApplicationManager, getManagementAgentStatusCacheFilePath()).WillRepeatedly(Return(statusCachePath));
-
         EXPECT_CALL(*filesystemMock, listFiles(pluginPath)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, listFiles(statusCachePath)).WillOnce(Return(statusCacheFiles));
+        EXPECT_CALL(*filesystemMock, listFiles("/tmp")).WillRepeatedly(Return(std::vector<std::string>{}));
         EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
@@ -171,6 +171,7 @@ namespace
 
         EXPECT_CALL(*filesystemMock, listFiles(pluginPath)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, listFiles(statusCachePath)).WillOnce(Return(statusCacheFiles));
+        EXPECT_CALL(*filesystemMock, listFiles("/tmp")).WillRepeatedly(Return(std::vector<std::string>{}));
 
         EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(jsonContent));
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));

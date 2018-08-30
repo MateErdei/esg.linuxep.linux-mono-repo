@@ -146,6 +146,7 @@ namespace
 
         void wait_policy( const std::string & content)
         {
+
             while (true)
             {
                 auto task = queueTask->pop();
@@ -153,9 +154,12 @@ namespace
                 {
                     if( task.content != content)
                     {
-                        std::string info = "Expected policy received has wrong content: ";
-                        info += content;
-                        throw std::runtime_error(info);
+                        std::stringstream info ;
+                        info << "Expected policy received has wrong content: "
+                            << content.substr(0, 400)
+                            <<  "\nExpected content: "
+                            << task.content.substr(0,400);
+                        throw std::runtime_error(info.str());
                     }
                     else
                     {
@@ -179,6 +183,15 @@ namespace
                 {
                     throw std::runtime_error("Unexpected task received ");
                 }
+            }
+
+        }
+        void clearQueue()
+        {
+            queueTask->pushStop();
+            while (queueTask->pop().taskType != UpdateScheduler::SchedulerTask::TaskType::Stop)
+            {
+
             }
 
         }
@@ -212,8 +225,12 @@ namespace
     class ManagementAgentIntegrationTests : public ::testing::Test
     {
     public:
-        ManagementAgentIntegrationTests() : m_tempDir("/tmp"), loggerSetup(1)
+        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), loggerSetup(1)
         {
+            if( m_tempDir.exists("base/mcs/action/ALC_action_1.xml"))
+            {
+                throw std::runtime_error("Directory already existed. Can not run test. ");
+            }
             m_tempDir.makeDirs({
                                        {"var/ipc/plugins"},
                                        {"base/mcs/status/cache"},
@@ -224,6 +241,7 @@ namespace
                                        {"tmp"},
                                        {"base/pluginRegistry"}
                                });
+
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
         }
 
@@ -339,10 +357,10 @@ namespace
     {
         std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
-        TestManagementAgent agent;
-        Tests::TestExecutionSynchronizer synchronizer;
+        std::unique_ptr<TestManagementAgent> agent( new TestManagementAgent());
+                Tests::TestExecutionSynchronizer synchronizer;
         auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
-            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
+            return agent->runWrapper(synchronizer, std::chrono::milliseconds(3000));
         });
 
         FakeSchedulerPlugin plugin;
@@ -360,16 +378,16 @@ namespace
 
         synchronizer.notify();
         ASSERT_EQ(0, futureRunner.get());
-
+        plugin.clearQueue();
+        agent.reset();
         // while management agent is not running
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml",updateAction);
         m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml",updatePolicyWithProxy);
-
-        TestManagementAgent agentRestart;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        agent.reset(new TestManagementAgent());
         Tests::TestExecutionSynchronizer newAgentsynchronizer;
         auto secondFutureRunner = std::async(std::launch::async, [&agent, &newAgentsynchronizer]() {
-            return agent.runWrapper(newAgentsynchronizer, std::chrono::milliseconds(3000));
+            return agent->runWrapper(newAgentsynchronizer, std::chrono::milliseconds(3000));
         });
         plugin.wait_policy(updatePolicyWithProxy);
         plugin.wait_action();

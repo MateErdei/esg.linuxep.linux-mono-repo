@@ -31,6 +31,8 @@ namespace Tests
     }
     bool TestExecutionSynchronizer::waitfor(std::chrono::milliseconds ms)
     {
+        // Effective Modern C++
+        // Item39: Consider void futures for one-shot event communication
         return m_promise.get_future().wait_for(ms) == std::future_status::ready;
 
     }
