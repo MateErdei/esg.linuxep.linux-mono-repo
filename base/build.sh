@@ -51,8 +51,8 @@ function build()
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
-    echo "PATH=$PATH"
-    echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
+    echo "Initial PATH=$PATH"
+    echo "Initial LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
 
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
@@ -103,6 +103,7 @@ function build()
 
         untar_or_link_to_redist versig
         untar_or_link_to_redist curl
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib64
         untar_or_link_to_redist SUL
         untar_or_link_to_redist boost
         untar_or_link_to_redist expat
@@ -143,6 +144,11 @@ function build()
     then
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib${BITS}
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
     fi
@@ -153,12 +159,19 @@ function build()
         sudo yum install -y zip unzip </dev/null
     }
 
+
+    echo "After setup: PATH=$PATH"
+    echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
+
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
 
     mkdir -p build${BITS}
     cd build${BITS}
+    echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env
+    echo "export PATH=$PATH" >>env
+
     [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
