@@ -96,7 +96,7 @@ namespace SulDownloader
             {
                 continue;
             }
-
+            LOGSUPPORT( "Try connection: " << connectionSetup.toString());
             warehouse->setConnectionSetup(connectionSetup, configurationData);
 
             if ( warehouse->hasError())
