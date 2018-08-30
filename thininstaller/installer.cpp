@@ -251,7 +251,6 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
 
 static int downloadInstaller(std::string location, bool updateCache)
 {
-    //Todo tidy this up to make it only https
     SU_init();
     SU_Result ret;
     SU_Handle session = SU_beginSession();
@@ -440,7 +439,6 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
         }
     }
 
-    // Go direct, always https
     return downloadInstaller(sophosLocation, false);
 }
 
