@@ -127,6 +127,10 @@ namespace Common
 
             /**
              * Create a directory tree
+             *
+             * Ignore errors due to existing directories.
+             * Recursively create parent directories as required
+             *
              * @param path, the directory path that will be created
              */
             virtual void makedirs(const Path& path) const =0;

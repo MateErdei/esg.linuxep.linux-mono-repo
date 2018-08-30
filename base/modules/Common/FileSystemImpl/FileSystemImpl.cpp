@@ -15,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 
 #include <sys/stat.h>
+#include <sstream>
 
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
@@ -290,7 +291,22 @@ namespace Common
             if (path != p2)
             {
                 makedirs(p2);
-                ::mkdir(path.c_str(),0700);
+                int ret = ::mkdir(path.c_str(),0700);
+                if (ret == -1)
+                {
+                    if (errno == EEXIST)
+                    {
+                        return;
+                    }
+
+                    std::ostringstream ost;
+                    ost << "Failed to create directory "
+                        << path
+                        << " error "
+                        << strerror(errno) << " (" << errno << ")";
+
+                    throw IFileSystemException(ost.str());
+                }
             }
         }
 
