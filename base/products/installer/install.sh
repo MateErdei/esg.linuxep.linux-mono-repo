@@ -299,3 +299,4 @@ then
 fi
 
 cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
+chmod 600 "${SOPHOS_INSTALL}/base/update/manifest.dat"
