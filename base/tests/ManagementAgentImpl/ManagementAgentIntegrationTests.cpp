@@ -262,7 +262,7 @@ namespace
 
     };
 
-    TEST_F( ManagementAgentIntegrationTests, startWithoutAnyPlugin )
+    TEST_F( ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly )
     {
         TestManagementAgent agent;
         Tests::TestExecutionSynchronizer synchronizer;
@@ -270,7 +270,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, noPolicyAvailableToUpdateScheduler )
+    TEST_F( ManagementAgentIntegrationTests, ifNoPolicyIsAvailableToAPluginManagementAgentShouldNotSendAnyPolicy )
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
 
@@ -285,7 +285,7 @@ namespace
         ASSERT_FALSE(plugin.queue_has_policy());
     }
 
-    TEST_F( ManagementAgentIntegrationTests, sendPolicyAndActionToUpdateScheduler )
+    TEST_F( ManagementAgentIntegrationTests, ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler )
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         TestManagementAgent agent;
@@ -315,7 +315,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, scanForPolicyAndActionOnStartup )
+    TEST_F( ManagementAgentIntegrationTests, onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins )
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml",updatePolicyWithProxy);
@@ -345,7 +345,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, afterCrashManagementAgentWillSendPendingPoliciesAndActions )
+    TEST_F( ManagementAgentIntegrationTests, afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins )
     {
         std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
