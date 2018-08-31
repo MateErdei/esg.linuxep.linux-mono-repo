@@ -194,7 +194,7 @@ function(PROTOBUF_GENERATE_CPP SRCS HDRS)
       OUTPUT "${_protobuf_protoc_src}"
              "${_protobuf_protoc_hdr}"
              ${_protobuf_protoc_desc}
-      COMMAND  protobuf::protoc
+      COMMAND  ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${Protobuf_LD_LIBRARY_PATH} "${Protobuf_PROTOC_EXECUTABLE}"
                "--cpp_out=${DLL_EXPORT_DECL}${CMAKE_CURRENT_BINARY_DIR}"
                ${_protobuf_protoc_flags}
                ${_protobuf_include_path} ${ABS_FIL}
@@ -258,7 +258,8 @@ function(PROTOBUF_GENERATE_PYTHON SRCS)
     list(APPEND ${SRCS} "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}_pb2.py")
     add_custom_command(
       OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}_pb2.py"
-      COMMAND  protobuf::protoc --python_out ${CMAKE_CURRENT_BINARY_DIR} ${_protobuf_include_path} ${ABS_FIL}
+      COMMAND  ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=${Protobuf_LD_LIBRARY_PATH} "${Protobuf_PROTOC_EXECUTABLE}"
+            --python_out ${CMAKE_CURRENT_BINARY_DIR} ${_protobuf_include_path} ${ABS_FIL}
       DEPENDS ${ABS_FIL} protobuf::protoc
       COMMENT "Running Python protocol buffer compiler on ${FIL}"
       VERBATIM )
