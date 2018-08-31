@@ -15,6 +15,8 @@ SET_TARGET_PROPERTIES( SulDownloader
 install(TARGETS SulDownloader
         DESTINATION files/base/bin)
 
+add_dependencies(SulDownloader copy_libs)
+
 
 set( CERTIFICATES ${INPUT}/certificates )
 

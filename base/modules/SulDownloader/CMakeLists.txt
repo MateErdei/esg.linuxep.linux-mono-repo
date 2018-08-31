@@ -26,7 +26,7 @@ target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata logging ${SUL_L
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs:${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
         )
 
 install(TARGETS suldownloaderimpl
