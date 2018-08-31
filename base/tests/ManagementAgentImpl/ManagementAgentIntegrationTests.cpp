@@ -4,22 +4,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
+#include <tests/Common/TestHelpers/TempDir.h>
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/LoggingSetup.h>
+#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <tests/Common/TestHelpers/TempDir.h>
-#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
-#include <modules/Common/PluginApi/IPluginResourceManagement.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <modules/UpdateSchedulerImpl/SchedulerPluginCallback.h>
-#include <modules/Common/UtilityImpl/StringUtils.h>
-#include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
+
 #include <future>
 
 namespace
