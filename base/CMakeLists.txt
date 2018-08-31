@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(everest_base CXX)
 
 option(test "Build all tests." ON) # Makes boolean 'test' available.
