@@ -105,7 +105,6 @@ namespace
     {
     public:
         FakeSchedulerPlugin():
-                logging(1),
                 resourceManagement(Common::PluginApi::createPluginResourceManagement()),
                 queueTask(std::make_shared<UpdateScheduler::SchedulerTaskQueue>()),
                 sharedPluginCallBack(std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(queueTask)),
@@ -113,7 +112,7 @@ namespace
         {
 
         }
-        UpdateSchedulerImpl::LoggingSetup logging;
+
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement;
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> queueTask;
         std::shared_ptr<UpdateSchedulerImpl::SchedulerPluginCallback> sharedPluginCallBack;
@@ -217,7 +216,7 @@ namespace
     class ManagementAgentIntegrationTests : public ::testing::Test
     {
     public:
-        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), loggerSetup(1)
+        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), loggerSetup(1), pluginLogging(1)
         {
             if( m_tempDir.exists("base/mcs/action/ALC_action_1.xml"))
             {
@@ -259,7 +258,7 @@ namespace
         }
         Tests::TempDir m_tempDir;
         ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
-
+        UpdateSchedulerImpl::LoggingSetup pluginLogging;
     };
 
     TEST_F( ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly )
@@ -388,6 +387,74 @@ namespace
         ASSERT_EQ(0, secondFutureRunner.get());
 
     }
+
+    //disabled only because the timings depend on the socket timeout and need the logging to verify.
+    // Keeping it can be run manually. 
+    TEST_F( ManagementAgentIntegrationTests, DISABLED_ifPluginIsNotAvailableManagementAgentShouldNotCrash )
+    {
+        testing::internal::CaptureStderr();
+
+        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+        TestManagementAgent agent;
+        Tests::TestExecutionSynchronizer synchronizer;
+        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+            return agent.runWrapper(synchronizer, std::chrono::milliseconds(2000));
+        });
+
+        std::unique_ptr<FakeSchedulerPlugin>  plugin(new FakeSchedulerPlugin());
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml",updatePolicyWithProxy);
+        plugin->wait_policy(updatePolicyWithProxy);
+
+        // simulate plugin crashed.
+        plugin.reset();
+
+        // drop an action and management agent should not crash
+        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml",updateAction);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        synchronizer.notify();
+
+        ASSERT_EQ(0, futureRunner.get());
+        std::string errStd = testing::internal::GetCapturedStderr();
+        ASSERT_THAT( errStd, ::testing::HasSubstr("Failure on sending action to updatescheduler"));
+
+    }
+
+
+    TEST_F( ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler )
+    {
+        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+        std::string notWantedPolicy="notWantedPolicy";
+
+        TestManagementAgent agent;
+        Tests::TestExecutionSynchronizer synchronizer;
+        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
+        });
+
+        FakeSchedulerPlugin plugin;
+        Tests::TestExecutionSynchronizer pluginSynchronizer;
+        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
+            if(!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
+            {
+                // if timeout
+                plugin.stop_test();
+            }
+        });
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        m_tempDir.createFileAtomically("base/mcs/policy/NOALC-1_policy.xml",notWantedPolicy);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml",updatePolicyWithProxy);
+        plugin.wait_policy(updatePolicyWithProxy);
+        synchronizer.notify();
+        pluginSynchronizer.notify();
+        ASSERT_EQ(0, futureRunner.get());
+    }
+
 
 
 
