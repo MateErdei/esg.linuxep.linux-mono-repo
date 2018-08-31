@@ -62,6 +62,7 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
     }
 
     int rc = zmq_poll(items.get(), size, timeoutMs);
+
     if (rc == 0)
     {
         return results;
@@ -73,16 +74,32 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
         {
             return results;
         }
-        throw ZeroMQWrapperException("Failed to poll");
+        std::string info = "Failed to poll. ";
+        int z_err = zmq_errno();
+        if ( z_err != 0)
+        {
+            info += zmq_strerror(z_err);
+        }
+
+        throw ZeroMQPollerException(info);
     }
 
     for (size_t i=0; i<m_entries.size(); ++i)
     {
-        // FIXME LINUXEP-6155: Need to handle the case where there is an error condition present on socket
-        // specified by the fd. Potentially need to remove bad fd. Note this is rarely seen.
-        if (items[i].revents != 0 && items[i].revents != ZMQ_POLLERR)
+        if (items[i].revents != 0)
         {
-            results.push_back(m_entries[i].entry);
+            if ( items[i].revents & ZMQ_POLLERR )
+            {
+                std::string info = "Error while polling associated to file descriptor ";
+                info += std::to_string(items[i].fd);
+                throw ZeroMQPollerException(info);
+
+            }
+            else
+            {
+                results.push_back(m_entries[i].entry);
+            }
+
         }
     }
 

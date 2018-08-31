@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/inotify.h>
 #include <thread>
 #include <unistd.h>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
@@ -119,7 +120,17 @@ namespace DirectoryWatcherImpl
             the inotify file descriptor should have the same alignment as
             struct inotify_event. */;
             const struct inotify_event *event;
-            auto entries = poller->poll(std::chrono::milliseconds(-1));
+            Common::ZeroMQWrapper::IPoller::poll_result_t entries;
+            try
+            {
+                entries = poller->poll(std::chrono::milliseconds(-1));
+            }catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException & ex)
+            {
+                LOGWARN( ex.what());
+                entries.clear();
+                exit = true;
+            }
+
             //Only two file descriptors being polled and the notify pipe is only used for stopping thread
 
             if (stopRequested())

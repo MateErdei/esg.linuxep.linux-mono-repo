@@ -13,6 +13,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#include <Common/Threads/NotifyPipe.h>
+#include <future>
+#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
+#include <zmq.h>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 
 using namespace Common::ZeroMQWrapper;
 
@@ -107,4 +112,68 @@ namespace
 
         EXPECT_EQ(input2,output2);
     }
+
+    TEST(TestPollerImpl, PollerShouldThrowExceptionIfFileDescriptorCloses) // NOLINT
+    {
+        using Common::Threads::NotifyPipe;
+        IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+        std::unique_ptr<NotifyPipe> notifyPipe(new NotifyPipe());
+        NotifyPipe notifyPipe1;
+        auto pipeFD = poller->addEntry(notifyPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+        auto pipe2FD = poller->addEntry(notifyPipe1.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+
+        auto notifyFuture = std::async(std::launch::async, [&notifyPipe](){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            notifyPipe->notify();
+        });
+
+        auto result = poller->poll(Common::ZeroMQWrapper::ms(200));
+        EXPECT_EQ(result.size(),1);
+        EXPECT_EQ(result.at(0)->fd(), notifyPipe->readFd());
+        EXPECT_TRUE(notifyPipe->notified());
+
+        // timeout
+        result = poller->poll(Common::ZeroMQWrapper::ms(10));
+        EXPECT_EQ(result.size(),0);
+
+        // close notifyPipe
+        notifyPipe.reset();
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+
+    }
+
+    TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT
+    {
+        using Common::Threads::NotifyPipe;
+        IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+
+        auto context = Common::ZeroMQWrapper::createContext();
+        auto replier = context->getReplier();
+        auto requester = context->getRequester();
+        replier->listen("inproc://REPSocketNotified");
+        requester->setTimeout(200);
+        requester->connect("inproc://REPSocketNotified");
+        poller->addEntry(*replier,Common::ZeroMQWrapper::IPoller::POLLIN);
+
+        auto notifyFuture = std::async(std::launch::async, [&requester](){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            requester->write({"hello1"});
+
+        });
+        auto result = poller->poll(Common::ZeroMQWrapper::ms(200));
+        EXPECT_EQ(result.size(),1);
+
+        EXPECT_EQ(result.at(0)->fd(), replier->fd());
+        EXPECT_EQ(replier->read(), std::vector<std::string>{"hello1"});
+        replier->write({"world"});
+        EXPECT_EQ(requester->read(), std::vector<std::string>{"world"});
+
+        auto socket = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(replier.get());
+        ASSERT_TRUE(socket != nullptr);
+        auto zmqsocket = socket->skt();
+        ASSERT_EQ(zmq_close(zmqsocket), 0);
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+    }
+
+
 }

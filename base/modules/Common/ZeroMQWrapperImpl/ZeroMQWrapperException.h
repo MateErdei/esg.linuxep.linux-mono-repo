@@ -24,6 +24,14 @@ namespace Common
                     : Common::ZeroMQWrapper::IIPCException(message)
             {}
         };
+
+        class ZeroMQPollerException
+                : public ZeroMQWrapperException
+        {
+        public:
+            //inherits the constructor
+            using ZeroMQWrapperException::ZeroMQWrapperException;
+        };
     }
 }
 

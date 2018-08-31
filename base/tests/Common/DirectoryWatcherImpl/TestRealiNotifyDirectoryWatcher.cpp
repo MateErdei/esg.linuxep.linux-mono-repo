@@ -61,6 +61,46 @@ namespace
     }
 }
 
+TEST(DirectoryWatcherTest, LimitationOfDirectoryWatcher_IfADirectoryIsDeletedAndRecreatedDirectoryWatcherWillNotRealise) //NOLINT
+{
+    auto tempDir = Tests::TempDir::makeTempDir("temp1");
+    tempDir->makeDirs("innerdir");
+    auto listener1Ptr = std::unique_ptr<DirectoryWatcherListener>( new DirectoryWatcherListener(tempDir->absPath("innerdir")));
+    auto watcherPtr = std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher());
+    watcherPtr->addListener((*listener1Ptr));
+    watcherPtr->startWatch();
+    std::string relPath  = "innerdir/path1.log";
+    tempDir->createFileAtomically(relPath, "any content");
+    int retries = 0;
+    while (!(listener1Ptr->hasData()) && retries < 1000)
+    {
+        retries++;
+        usleep(1000);
+    }
+
+    //File creation shouldn't trigger an event
+    EXPECT_EQ(listener1Ptr->popFile(), "path1.log");
+
+    // delete the directory
+    auto fsystem = Common::FileSystem::fileSystem();
+    fsystem->removeFile(tempDir->absPath(relPath));
+    std::string dirPath = tempDir->absPath("innerdir");
+    ASSERT_EQ(::rmdir( dirPath.c_str()), 0);
+
+    tempDir->makeDirs("innerdir");
+    tempDir->createFileAtomically(relPath, "any content");
+    retries = 0;
+    while (!(listener1Ptr->hasData()) && retries < 100)
+    {
+        retries++;
+        usleep(1000);
+    }
+    EXPECT_EQ(retries, 100);
+    EXPECT_TRUE( listener1Ptr->m_Active);
+
+}
+
+
 
 TEST_F(RealiNotifyDirectoryWatcherTests, FileCreationDoesNotTriggerEvent) //NOLINT
 {
