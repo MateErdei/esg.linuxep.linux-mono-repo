@@ -12,20 +12,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
-
 #include <csignal>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 
 
 using namespace Common;
