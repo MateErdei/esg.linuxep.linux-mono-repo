@@ -160,7 +160,7 @@ namespace
             requester->write({"hello1"});
 
         });
-        auto result = poller->poll(Common::ZeroMQWrapper::ms(200));
+        auto result = poller->poll(Common::ZeroMQWrapper::ms(1000));
         EXPECT_EQ(result.size(),1);
 
         EXPECT_EQ(result.at(0)->fd(), replier->fd());
@@ -172,6 +172,7 @@ namespace
         ASSERT_TRUE(socket != nullptr);
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
+        requester->write({"another request"}); 
         EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
     }
 

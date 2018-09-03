@@ -257,8 +257,9 @@ TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets)
         ASSERT_EQ(zmq_close(zmqsocket), 0);
 
         requester->write({"hello1"});
-
+        auto fut = std::async(std::launch::async, [&reactor](){std::this_thread::sleep_for(std::chrono::milliseconds(1000)); reactor->stop();});
         reactor->join();
+        fut.get();
     };
 
     ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associcated with the poller");
