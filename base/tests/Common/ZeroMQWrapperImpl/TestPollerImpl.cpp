@@ -161,6 +161,7 @@ namespace
 
         });
         auto result = poller->poll(Common::ZeroMQWrapper::ms(1000));
+        notifyFuture.get(); 
         EXPECT_EQ(result.size(),1);
 
         EXPECT_EQ(result.at(0)->fd(), replier->fd());
