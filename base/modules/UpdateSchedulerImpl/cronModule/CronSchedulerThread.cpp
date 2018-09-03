@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <cassert>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include "CronSchedulerThread.h"
 #include "Common/ZeroMQWrapper/IPoller.h"
 
@@ -59,12 +60,24 @@ namespace UpdateSchedulerImpl
             std::chrono::milliseconds timeToWait = m_firstTick;
             announceThreadStarted();
             auto poller = Common::ZeroMQWrapper::createPoller();
+
             auto pipePollerEntry = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
 
             while (true)
             {
-                auto poll_result = poller->poll(timeToWait);
+                using poll_result_t = Common::ZeroMQWrapper::IPoller::poll_result_t;
+                poll_result_t poll_result;
+                try
+                {
+                    poll_result = poller->poll(timeToWait);
+                }
+                catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException & ex)
+                {
+                    // the poller will not work anymore and the CronSchedulerThread must stop.
+                    // This may happen on shutdown.
+                    break;
+                }
 
                 timeToWait = getPeriodTick();
 
