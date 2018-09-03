@@ -105,18 +105,18 @@ namespace
     {
     public:
         FakeSchedulerPlugin():
-                resourceManagement(Common::PluginApi::createPluginResourceManagement()),
-                queueTask(std::make_shared<UpdateScheduler::SchedulerTaskQueue>()),
-                sharedPluginCallBack(std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(queueTask)),
-                baseService( resourceManagement->createPluginAPI("updatescheduler", sharedPluginCallBack))
+                m_resourceManagement(Common::PluginApi::createPluginResourceManagement()),
+                m_queueTask(std::make_shared<UpdateScheduler::SchedulerTaskQueue>()),
+                m_sharedPluginCallBack(std::make_shared<UpdateSchedulerImpl::SchedulerPluginCallback>(m_queueTask)),
+                m_baseService( m_resourceManagement->createPluginAPI("updatescheduler", m_sharedPluginCallBack))
         {
 
         }
 
-        std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement;
-        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> queueTask;
-        std::shared_ptr<UpdateSchedulerImpl::SchedulerPluginCallback> sharedPluginCallBack;
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
+        std::unique_ptr<Common::PluginApi::IPluginResourceManagement> m_resourceManagement;
+        std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
+        std::shared_ptr<UpdateSchedulerImpl::SchedulerPluginCallback> m_sharedPluginCallBack;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         bool queue_has_policy()
         {
             return  queue_has_all_tasks({UpdateScheduler::SchedulerTask::TaskType::Policy});
@@ -132,7 +132,7 @@ namespace
         }
         void stop_test()
         {
-            queueTask->pushStop();
+            m_queueTask->pushStop();
         }
 
         void wait_policy( const std::string & content)
@@ -140,7 +140,7 @@ namespace
 
             while (true)
             {
-                auto task = queueTask->pop();
+                auto task = m_queueTask->pop();
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::Policy)
                 {
                     if( task.content != content)
@@ -165,7 +165,7 @@ namespace
         {
             while (true)
             {
-                auto task = queueTask->pop();
+                auto task = m_queueTask->pop();
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::UpdateNow)
                 {
                     return ;
@@ -179,8 +179,8 @@ namespace
         }
         void clearQueue()
         {
-            queueTask->pushStop();
-            while (queueTask->pop().taskType != UpdateScheduler::SchedulerTask::TaskType::Stop)
+            m_queueTask->pushStop();
+            while (m_queueTask->pop().taskType != UpdateScheduler::SchedulerTask::TaskType::Stop)
             {
 
             }
@@ -191,10 +191,10 @@ namespace
         bool queue_has_all_tasks( std::vector<UpdateScheduler::SchedulerTask::TaskType> tasks)
         {
             std::vector<bool> values(tasks.size(), false);
-            queueTask->pushStop();
+            m_queueTask->pushStop();
             while (true)
             {
-                auto task = queueTask->pop();
+                auto task = m_queueTask->pop();
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::Stop)
                 {
                     break;
@@ -216,7 +216,7 @@ namespace
     class ManagementAgentIntegrationTests : public ::testing::Test
     {
     public:
-        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), loggerSetup(1), pluginLogging(1)
+        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), m_loggerSetup(1), m_pluginLogging(1)
         {
             if( m_tempDir.exists("base/mcs/action/ALC_action_1.xml"))
             {
@@ -257,11 +257,11 @@ namespace
             return jsonString;
         }
         Tests::TempDir m_tempDir;
-        ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
-        UpdateSchedulerImpl::LoggingSetup pluginLogging;
+        ManagementAgent::LoggerImpl::LoggingSetup m_loggerSetup;
+        UpdateSchedulerImpl::LoggingSetup m_pluginLogging;
     };
 
-    TEST_F( ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly )
+    TEST_F( ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly ) // NOLINT
     {
         TestManagementAgent agent;
         Tests::TestExecutionSynchronizer synchronizer;
@@ -269,7 +269,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, ifNoPolicyIsAvailableToAPluginManagementAgentShouldNotSendAnyPolicy )
+    TEST_F( ManagementAgentIntegrationTests, ifNoPolicyIsAvailableToAPluginManagementAgentShouldNotSendAnyPolicy ) // NOLINT
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
 
@@ -284,7 +284,7 @@ namespace
         ASSERT_FALSE(plugin.queue_has_policy());
     }
 
-    TEST_F( ManagementAgentIntegrationTests, ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler )
+    TEST_F( ManagementAgentIntegrationTests, ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler ) // NOLINT
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         TestManagementAgent agent;
@@ -314,7 +314,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins )
+    TEST_F( ManagementAgentIntegrationTests, onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins ) // NOLINT
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml",updatePolicyWithProxy);
@@ -344,7 +344,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins )
+    TEST_F( ManagementAgentIntegrationTests, afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins ) // NOLINT
     {
         std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
@@ -390,7 +390,7 @@ namespace
 
     //disabled only because the timings depend on the socket timeout and need the logging to verify.
     // Keeping it can be run manually. 
-    TEST_F( ManagementAgentIntegrationTests, DISABLED_ifPluginIsNotAvailableManagementAgentShouldNotCrash )
+    TEST_F( ManagementAgentIntegrationTests, DISABLED_ifPluginIsNotAvailableManagementAgentShouldNotCrash ) // NOLINT
     {
         testing::internal::CaptureStderr();
 
@@ -424,7 +424,7 @@ namespace
     }
 
 
-    TEST_F( ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler )
+    TEST_F( ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler ) // NOLINT
     {
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         std::string notWantedPolicy="notWantedPolicy";
