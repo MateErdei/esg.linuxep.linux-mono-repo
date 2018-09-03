@@ -18,10 +18,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PipeForTests.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
 #include "FakeServer.h"
 #include "FakeClient.h"
 #include "Common/Process/IProcess.h"
 #include "ReactorImplTestsPath.h"
+#include <zmq.h>
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
@@ -198,6 +202,71 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     ASSERT_TRUE(callbackExecuted);
     reactor->stop();
 }
+
+
+TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks)
+{
+    auto lambdaThatClosesPipeBeforeStopingReactor = []()
+    {
+        using ::testing::Invoke;
+        MockCallBackListener mockCallBackListener;
+        std::unique_ptr<PipeForTests> pipe(new PipeForTests());
+        ReadableFd readableFd(pipe->readFd(), false);
+        auto reactor = Common::Reactor::createReactor();
+
+        reactor->addListener(&readableFd, &mockCallBackListener);
+
+        reactor->start();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        pipe.reset();
+        reactor->join();
+    };
+
+    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associcated with the poller");
+
+}
+
+
+TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets)
+{
+    auto lambdaThatClosesSocketBeforeStopingReactor = []()
+    {
+        using ::testing::Invoke;
+        auto context = Common::ZeroMQWrapper::createContext();
+        auto replier = context->getReplier();
+        auto requester = context->getRequester();
+        requester->setTimeout(200);
+        requester->connect("inproc://REPSocketNotified");
+
+        replier->setTimeout(100);
+        replier->listen("inproc://REPSocketNotified");
+        MockCallBackListener mockCallBackListener;
+        auto reactor = Common::Reactor::createReactor();
+        reactor->addListener(replier.get(), &mockCallBackListener);
+
+        reactor->start();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
+
+        // closes the socket to generate the error in the poller.
+        auto socket = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(replier.get());
+        ASSERT_TRUE(socket != nullptr);
+        auto zmqsocket = socket->skt();
+        ASSERT_EQ(zmq_close(zmqsocket), 0);
+
+        requester->write({"hello1"});
+
+        reactor->join();
+    };
+
+    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associcated with the poller");
+
+}
+
+
+
 #ifndef NDEBUG
 /**
  * Test fucntion can only be called in debug mode.
