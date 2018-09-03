@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <Common/ReactorImpl/ReadableFd.h>
 #include <future>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include "TempDir.h"
 #include "TestExecutionSynchronizer.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
@@ -40,6 +41,7 @@ public:
     }
 
     std::unique_ptr<PipeForTests> m_pipe;
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 };
 
 

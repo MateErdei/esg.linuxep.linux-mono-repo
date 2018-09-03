@@ -6,14 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ReactorImpl.h"
 #include "IPoller.h"
-
+#include "Logger.h"
 #include <cassert>
 #include <csignal>
 #include <memory>
 #include <iostream>
-
-#define LOGERROR(x) std::cerr << x << '\n'
-#define LOGDEBUG(x) std::cerr << x << '\n'
 
 namespace
 {
