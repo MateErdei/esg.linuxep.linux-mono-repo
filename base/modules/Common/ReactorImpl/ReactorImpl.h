@@ -36,6 +36,7 @@ namespace Common
 
         private:
             void run() override ;
+            void main_loop();
             std::vector<ReaderListener> m_callbackListeners;
             Reactor::IShutdownListener *m_shutdownListener;
 

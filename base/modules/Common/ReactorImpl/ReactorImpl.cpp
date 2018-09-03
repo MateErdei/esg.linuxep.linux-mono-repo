@@ -7,10 +7,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ReactorImpl.h"
 #include "IPoller.h"
 #include "Logger.h"
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include <memory>
 #include <cassert>
 #include <csignal>
-#include <memory>
-#include <iostream>
 
 namespace
 {
@@ -19,7 +19,6 @@ namespace
 
     void s_signal_handler (int signal_value)
     {
-        LOGDEBUG( "Signal received: " << signal_value );
         if ( !GL_signalPipe)
         {
             return;
@@ -63,7 +62,7 @@ namespace Common
             m_shutdownListener =  shutdownListener;
         }
 
-        void ReactorThreadImpl::run()
+        void ReactorThreadImpl::main_loop()
         {
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
             //LOGERROR("Running Thread Impl");
@@ -156,6 +155,24 @@ namespace Common
                 sigaction(SIGTERM, &action, NULL);
 
                 GL_signalPipe.reset();
+            }
+        }
+
+        void ReactorThreadImpl::run()
+        {
+            try
+            {
+                main_loop();
+                // since the reactor run in a different thread, the safest option when the system fails is to terminate.
+            }catch ( Common::ZeroMQWrapperImpl::ZeroMQPollerException & ex)
+            {
+                LOGERROR("Error associcated with the poller: " << ex.what());
+                std::terminate();
+            }
+            catch ( std::exception & ex)
+            {
+                LOGERROR(ex.what());
+                std::terminate();
             }
         }
 
