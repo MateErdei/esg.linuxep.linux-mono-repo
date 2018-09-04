@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-
+#include <iostream>
 
 #define LOGDEBUG(x) std::cout << x << '\n'
 #define LOGINFO(x) std::cout << x << '\n'

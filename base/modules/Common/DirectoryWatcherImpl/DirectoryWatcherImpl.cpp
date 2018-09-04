@@ -4,20 +4,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <cstring>
-#include <iostream>
-#include <sys/inotify.h>
-#include <thread>
-#include <unistd.h>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
-
-#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
-#include "Common/ZeroMQWrapper/IPoller.h"
-
 #include "Logger.h"
 #include "DirectoryWatcherImpl.h"
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include <Common/ZeroMQWrapper/IPoller.h>
+#include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
+#include <algorithm>
+#include <thread>
+#include <cassert>
+#include <cstring>
+#include <unistd.h>
+#include <sys/inotify.h>
 
 namespace Common
 {

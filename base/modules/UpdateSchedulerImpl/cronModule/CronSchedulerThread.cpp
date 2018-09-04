@@ -3,10 +3,10 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <cassert>
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include "CronSchedulerThread.h"
-#include "Common/ZeroMQWrapper/IPoller.h"
+#include <Common/ZeroMQWrapper/IPoller.h>
+#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include <cassert>
 
 namespace UpdateSchedulerImpl
 {
