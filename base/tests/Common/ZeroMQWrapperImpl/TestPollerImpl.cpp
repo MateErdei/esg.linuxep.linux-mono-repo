@@ -178,4 +178,43 @@ namespace
     }
 
 
+    TEST(TestPollerImpl, AddToPollerAnInvalidFileDescriptorShouldThrowException) // NOLINT
+    {
+        using Common::Threads::NotifyPipe;
+        IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+        std::unique_ptr<NotifyPipe> notifyPipe(new NotifyPipe());
+        NotifyPipe notifyPipe1;
+        int invalidFD = notifyPipe->readFd();
+        notifyPipe.reset();
+        auto pipeFD = poller->addEntry(invalidFD, Common::ZeroMQWrapper::IPoller::POLLIN);
+        auto pipe2FD = poller->addEntry(notifyPipe1.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+    }
+
+
+    TEST(TestPollerImpl, AddToPollerAnInvalidSocketShouldThrowException) // NOLINT
+    {
+        using Common::Threads::NotifyPipe;
+        IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+
+        auto context = Common::ZeroMQWrapper::createContext();
+        auto replier = context->getReplier();
+        auto requester = context->getRequester();
+        replier->listen("inproc://REPSocketNotified");
+        requester->setTimeout(200);
+        requester->connect("inproc://REPSocketNotified");
+
+        auto socket = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(replier.get());
+        ASSERT_TRUE(socket != nullptr);
+        auto zmqsocket = socket->skt();
+        ASSERT_EQ(zmq_close(zmqsocket), 0);
+
+
+        poller->addEntry(*replier,Common::ZeroMQWrapper::IPoller::POLLIN);
+
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+    }
+
+
 }
