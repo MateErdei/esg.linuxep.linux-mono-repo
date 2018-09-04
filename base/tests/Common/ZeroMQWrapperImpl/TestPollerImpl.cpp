@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include <gtest/gtest.h>
 
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/IContext.h>
@@ -13,11 +12,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <Common/Threads/NotifyPipe.h>
-#include <future>
 #include <Common/ZeroMQWrapperImpl/SocketImpl.h>
-#include <zmq.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include <Common/Threads/NotifyPipe.h>
+#include <gtest/gtest.h>
+
+#include <future>
+#include <zmq.h>
 
 using namespace Common::ZeroMQWrapper;
 
