@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Common/PluginApi/ApiException.h"
 #include "PluginCallBackHandler.h"
-#include "Common/PluginProtocol/Logger.h"
+#include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/Logger.h>
 
 namespace Common
 {
