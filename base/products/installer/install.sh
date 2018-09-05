@@ -186,6 +186,10 @@ chmod 700 "$SOPHOS_INSTALL/var/ipc/plugins"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc/plugins"
 
+mkdir -p "$SOPHOS_INSTALL/var/lock-sophosspl"
+chmod 600 "$SOPHOS_INSTALL/var/lock-sophosspl"
+chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/lock-sophosspl"
+
 mkdir -p "${SOPHOS_INSTALL}/logs/base/sophosspl"
 chmod 711 "${SOPHOS_INSTALL}/logs"
 chmod 711 "${SOPHOS_INSTALL}/logs/base"
