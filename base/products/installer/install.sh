@@ -78,10 +78,9 @@ function createWatchdogSystemdService()
         failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
     fi
 
-    #TODO LINUXEP-6538: LD_LIBRARY_PATH is being set here until we have a SUL build with rpath set.
     cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 [Service]
-Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}" "LD_LIBRARY_PATH=${SOPHOS_INSTALL}/base/lib64"
+Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 Restart=always
 
@@ -111,10 +110,9 @@ function createUpdaterSystemdService()
     fi
     local service_name="sophos-spl-update.service"
 
-    #TODO LINUXEP-6538: LD_LIBRARY_PATH is being set here until we have a SUL build with rpath set.
     cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
-Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}" "LD_LIBRARY_PATH=${SOPHOS_INSTALL}/base/lib64"
+Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/config.json ${SOPHOS_INSTALL}/base/update/var/report.json
 Restart=no
 
