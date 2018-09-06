@@ -5,10 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SensorDataSubscriber.h"
+#include "Logger.h"
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/PluginApi/ISensorDataSubscriber.h>
-#include <Common/PluginApi/Logger.h>
 
 
 

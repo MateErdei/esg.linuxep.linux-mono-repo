@@ -6,8 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProtocolSerializer.h"
 #include "ProtocolSerializerFactory.h"
-#include <Common/PluginApi/Logger.h>
-
+#include "Logger.h"
 
 namespace Common
 {

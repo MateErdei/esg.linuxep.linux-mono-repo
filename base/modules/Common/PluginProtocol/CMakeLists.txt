@@ -1,7 +1,7 @@
 add_library(pluginprotocolobject OBJECT
         DataMessage.h
         DataMessage.cpp
-        ../PluginApi/Logger.h
+        ../PluginApiImpl/Logger.h
         AbstractListenerServer.cpp
         AbstractListenerServer.h
         MessageBuilder.cpp
