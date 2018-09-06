@@ -5,12 +5,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
+#include "TestCompare.h"
+#include <Common/PluginProtocol/ProtocolSerializerFactory.h>
+#include <Common/PluginProtocol/MessageBuilder.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 #include <memory>
-#include <Common/PluginProtocol/ProtocolSerializerFactory.h>
-#include "Common/PluginProtocol/MessageBuilder.h"
-#include "TestCompare.h"
+
+
 
 using Common::PluginProtocol::MessageBuilder;
 using Common::PluginProtocol::DataMessage;
@@ -47,7 +50,7 @@ public:
         dataMessage.Command = Common::PluginProtocol::Commands::UNKNOWN;
         return dataMessage;
     }
-
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
     std::string defaultAppId;
     std::string defaultPluginName;
     std::unique_ptr<MessageBuilder> m_messageBuilder;

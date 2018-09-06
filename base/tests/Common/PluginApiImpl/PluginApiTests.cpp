@@ -3,18 +3,20 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
 #include "MockedPluginApiCallback.h"
-#include "SingleResponseServer.h"
 
+#include "SingleResponseServer.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/PluginApi/IBaseServiceApi.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include <thread>
+
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include <thread>
 
 namespace
 {
@@ -65,7 +67,7 @@ namespace
 
             return dataMessage;
         }
-
+        Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         PluginResourceManagement pluginResourceManagement;
         SingleResponseServer responseServer;
         std::thread server;
@@ -157,7 +159,7 @@ namespace
 
     TEST( PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable)
     {
-
+        Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
         MockedApplicationPathManager &mock(*mockAppManager);
         ON_CALL(mock, getManagementAgentSocketAddress()).WillByDefault(Return("inproc://management.ipc"));

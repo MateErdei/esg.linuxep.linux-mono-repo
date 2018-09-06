@@ -4,15 +4,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/PluginProtocol/DataMessage.h>
+#include <Common/PluginProtocol/Protocol.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
-#include "gmock/gmock-matchers.h"
-#include "Common/PluginProtocol/DataMessage.h"
-#include "Common/PluginProtocol/Protocol.h"
+#include <gmock/gmock-matchers.h>
 
 using namespace Common::PluginProtocol;
 using DataMessage = Common::PluginProtocol::DataMessage;
 class TestProtocol : public ::testing::Test
 {
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 public:
 
 

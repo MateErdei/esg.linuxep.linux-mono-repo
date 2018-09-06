@@ -4,23 +4,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
 #include "MockSensorDataCallback.h"
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "Common/PluginApi/IBaseServiceApi.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
-#include "Common/PluginProtocol/Protocol.h"
-#include "Common/ZeroMQWrapper/IContext.h"
 #include "TestExecutionSynchronizer.h"
-#include "Common/Threads/NotifyPipe.h"
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/PluginProtocol/MessageBuilder.h>
+#include <Common/PluginProtocol/Protocol.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/Threads/NotifyPipe.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <thread>
 
 
@@ -60,7 +60,7 @@ public:
         sensorDataPublisher.reset();
         sensorDataSubscriber.reset();
     }
-
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
      PluginResourceManagement pluginResourceManagement;
 
     std::shared_ptr<MockSensorDataCallback> mockSensorDataCallback;

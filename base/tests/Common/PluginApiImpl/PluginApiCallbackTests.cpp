@@ -4,19 +4,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
 #include "MockedPluginApiCallback.h"
-#include "SingleManagementRequest.h"
 
-#include "Common/PluginApi/IBaseServiceApi.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
+#include "SingleManagementRequest.h"
 #include "TestCompare.h"
+
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/PluginProtocol/MessageBuilder.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <thread>
 
 namespace
@@ -101,7 +102,7 @@ namespace
             MockedPluginApiCallback * mockPtr = mockPluginCallback.get();
             return *mockPtr;
         }
-
+        Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         std::string defaultAppId;
         std::string defaultPluginName;
         PluginResourceManagement pluginResourceManagement;

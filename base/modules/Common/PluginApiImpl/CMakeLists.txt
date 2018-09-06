@@ -17,12 +17,14 @@ add_library(pluginapiobjects OBJECT
         SensorDataSubscriber.h
         PluginResourceManagement.cpp
         PluginResourceManagement.h
+        Logger.cpp
+        Logger.h
         )
 
-target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common )
+target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
 
-target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol )
+target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol ${LOG4CPLUS_LIBRARY})
 
 SET_TARGET_PROPERTIES( pluginapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -40,7 +42,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         )
 
-target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} )
+target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY})
 SET_TARGET_PROPERTIES( pluginapi
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
