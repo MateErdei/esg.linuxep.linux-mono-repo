@@ -9,7 +9,7 @@
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
-                 version="master/%LASTGOODCOMPONENTBUILD%/cmakelinux/3.11.2/cmakelinux" dest="input">
+                 version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
         <package name="versig"
