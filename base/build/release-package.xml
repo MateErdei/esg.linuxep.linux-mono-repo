@@ -2,10 +2,10 @@
 <package name="sspl-base" version="0.5.0.0">
     <inputs>
         <workingdir>sspl-base-build</workingdir>
-        <package name="gcclinux" version="master/%LASTGOODCOMPONENTBUILD%/gcclinux/8.1.0/gcclinux" dest="input">
+        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="LINUXEP-6060-create_openssl_build/%LASTGOODCOMPONENTBUILD%/openssllinux11/1.0.2n/openssllinux11" dest="input">
+        <package name="openssllinux11" version="1-0-2p-8/213064/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
