@@ -59,5 +59,5 @@ namespace Common
 //std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> Common::PluginApi::ISensorDataSubscriber::newSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
 //                                                                      std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
 //{
-//    return std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> (new Common::PluginApiImpl::SensorDataSubscriber(sensorDataCategorySubscription, sensorDataCallback));
+//    return std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> (new Common::BaseServiceAPI::SensorDataSubscriber(sensorDataCategorySubscription, sensorDataCallback));
 //}

@@ -19,12 +19,12 @@ namespace Common
     namespace PluginApiImpl
     {
 
-    class PluginApiImpl : public virtual Common::PluginApi::IBaseServiceApi
+    class BaseServiceAPI : public virtual Common::PluginApi::IBaseServiceApi
         {
         public:
 
-            PluginApiImpl(const std::string& pluginName, Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester );
-            ~PluginApiImpl() override ;
+            BaseServiceAPI(const std::string& pluginName, Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester );
+            ~BaseServiceAPI() override ;
 
         void setPluginCallback(const std::string &pluginName,
                                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,

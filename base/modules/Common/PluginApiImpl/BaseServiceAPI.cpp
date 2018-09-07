@@ -4,13 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginApiImpl.h"
+#include "BaseServiceAPI.h"
 #include "Logger.h"
 #include <Common/PluginApi/ApiException.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 
-Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginName,
+Common::PluginApiImpl::BaseServiceAPI::BaseServiceAPI(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
         : m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler(),
           m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
@@ -19,7 +19,7 @@ Common::PluginApiImpl::PluginApiImpl::PluginApiImpl(const std::string &pluginNam
     LOGSUPPORT("Uses protocol version :" << Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
 }
 
-void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(const std::string &pluginName,
+void Common::PluginApiImpl::BaseServiceAPI::setPluginCallback(const std::string &pluginName,
                                                              std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
                                                              Common::ZeroMQWrapper::ISocketReplierPtr replier)
 {
@@ -27,7 +27,7 @@ void Common::PluginApiImpl::PluginApiImpl::setPluginCallback(const std::string &
     m_pluginCallbackHandler->start();
 }
 
-Common::PluginApiImpl::PluginApiImpl::~PluginApiImpl()
+Common::PluginApiImpl::BaseServiceAPI::~BaseServiceAPI()
 {
     if( m_pluginCallbackHandler)
     {
@@ -37,7 +37,7 @@ Common::PluginApiImpl::PluginApiImpl::~PluginApiImpl()
 
 
 
-void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, const std::string &eventXml) const
+void Common::PluginApiImpl::BaseServiceAPI::sendEvent(const std::string &appId, const std::string &eventXml) const
 {
     LOGSUPPORT("Send Event for AppId: " << appId);
 
@@ -56,7 +56,7 @@ void Common::PluginApiImpl::PluginApiImpl::sendEvent(const std::string &appId, c
     }
 }
 
-void Common::PluginApiImpl::PluginApiImpl::sendStatus(const std::string &appId, const std::string &statusXml,
+void Common::PluginApiImpl::BaseServiceAPI::sendStatus(const std::string &appId, const std::string &statusXml,
                                                       const std::string &statusWithoutTimestampsXml) const
 {
     LOGSUPPORT("Change status message for AppId: " << appId);
@@ -76,7 +76,7 @@ void Common::PluginApiImpl::PluginApiImpl::sendStatus(const std::string &appId, 
     }
 }
 
-void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
+void Common::PluginApiImpl::BaseServiceAPI::registerWithManagementAgent() const
 {
     LOGSUPPORT("Registering '" << m_pluginName << "' with management agent");
 
@@ -92,7 +92,7 @@ void Common::PluginApiImpl::PluginApiImpl::registerWithManagementAgent() const
 }
 
 
-void Common::PluginApiImpl::PluginApiImpl::requestPolicies(const std::string& appId) const
+void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& appId) const
 {
     LOGSUPPORT("Request policy message for AppId: " << appId);
 
@@ -112,7 +112,7 @@ void Common::PluginApiImpl::PluginApiImpl::requestPolicies(const std::string& ap
 }
 
 
-Common::PluginProtocol::DataMessage Common::PluginApiImpl::PluginApiImpl::getReply(const Common::PluginProtocol::DataMessage &request) const
+Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getReply(const Common::PluginProtocol::DataMessage &request) const
 {
     Common::PluginProtocol::Protocol protocol;
     Common::PluginProtocol::DataMessage reply;

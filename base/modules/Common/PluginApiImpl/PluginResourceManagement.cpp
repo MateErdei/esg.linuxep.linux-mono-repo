@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/ApiException.h>
 #include "PluginResourceManagement.h"
-#include "PluginApiImpl.h"
+#include "BaseServiceAPI.h"
 #include "SensorDataPublisher.h"
 #include "SensorDataSubscriber.h"
 
@@ -56,7 +56,7 @@ namespace Common
                 requester->connect(mng_address);
                 replier->listen(plugin_address);
 
-                std::unique_ptr<Common::PluginApiImpl::PluginApiImpl> plugin( new PluginApiImpl(pluginName, std::move(requester)));
+                std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));
 
 
                 plugin->setPluginCallback(pluginName, pluginCallback, std::move(replier));

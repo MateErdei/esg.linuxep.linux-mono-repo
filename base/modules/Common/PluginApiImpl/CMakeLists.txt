@@ -7,8 +7,8 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/IPluginResourceManagement.h
         ../PluginApi/IPluginCallbackApi.h
         ../PluginApi/StatusInfo.h
-        PluginApiImpl.cpp
-        PluginApiImpl.h
+        BaseServiceAPI.cpp
+        BaseServiceAPI.h
         PluginCallBackHandler.cpp
         PluginCallBackHandler.h
         SensorDataPublisher.cpp

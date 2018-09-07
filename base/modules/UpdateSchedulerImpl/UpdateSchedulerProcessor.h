@@ -5,13 +5,12 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-
-#include <Common/PluginApiImpl/PluginApiImpl.h>
+#include "SchedulerPluginCallback.h"
+#include "configModule/UpdatePolicyTranslator.h"
+#include <Common/PluginApiImpl/BaseServiceAPI.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
-#include "SchedulerPluginCallback.h"
 #include <UpdateScheduler/ICronSchedulerThread.h>
-#include "configModule/UpdatePolicyTranslator.h"
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 
 namespace UpdateSchedulerImpl
