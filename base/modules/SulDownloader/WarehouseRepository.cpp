@@ -444,13 +444,31 @@ namespace SulDownloader
         if ( connectionSetup.isCacheUpdate())
         {
             const std::string& cacheURL = connectionSetup.getUpdateLocationURL();
+
+            std::string updateCacheCustomerLocation = cacheURL + "sophos/customer";
+
+            if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateCacheCustomerLocation.c_str())))
+            {
+                LOGSUPPORT ("Adding update cache location failed: " << updateCacheCustomerLocation);
+                setError("invalid location");
+                return;
+            }
+
+            std::string redirectAddress = cacheURL + "sophos/warehouse";
+
             for (std::string externalURL : {"d1.sophosupd.com/update",
                                             "d1.sophosupd.net/update",
                                             "d2.sophosupd.com/update",
                                             "d2.sophosupd.net/update",
                                             "d3.sophosupd.com/update",
-                                            "d3.sophosupd.net/update"}) {
-                SU_addRedirect(session(), externalURL.c_str(), cacheURL.c_str());
+                                            "d3.sophosupd.net/update"})
+            {
+                if(!SULUtils::isSuccess(SU_addRedirect(session(), externalURL.c_str(), redirectAddress.c_str())))
+                {
+                    LOGSUPPORT ("Adding update cache re direct failed: " << redirectAddress << ", for : " << externalURL);
+                    setError("invalid redirect");
+                    return;
+                }
             }
         }
     }
