@@ -1,7 +1,7 @@
 library "standardPipeline"
 
 project = 'sspl-base'
-version = '0.5.0.0'
+version_key = '0.5.0'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
 project_builddir = 'everest-base'
 project_release_xml = 'build/release-package.xml'
@@ -16,7 +16,7 @@ properties([
 
 skipDefaultCheckout()
 try{
-	version_number = GetVersionNumber(version, project)
+	version_number = GetVersionNumber(version_key, project)
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     parallel Build:{
