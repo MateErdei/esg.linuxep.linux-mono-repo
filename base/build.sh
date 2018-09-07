@@ -16,10 +16,31 @@ OUTPUT=$BASE/output
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
+CLEAN=0
 export NO_REMOVE_GCC=1
-
-INPUT=$BASE/input
 ALLEGRO_REDIST=/redist/binaries/linux11/input
+INPUT=$BASE/input
+
+while [ $# -ge 1 ]; do
+    case $1 in
+        --clean)
+            CLEAN=1
+            ;;
+        --remove-gcc)
+            NO_REMOVE_GCC=0
+            ;;
+        --allegro-redist)
+            shift
+            ALLEGRO_REDIST=$1
+            ;;
+        --input)
+            shift
+            INPUT=$1
+            ;;
+    esac
+    shift
+done
+
 
 function untar_or_link_to_redist()
 {
@@ -169,6 +190,7 @@ function build()
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
 
+    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env

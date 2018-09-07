@@ -1,5 +1,10 @@
+library "standardPipeline"
 
-library "standardPipeline@develop"
+project = 'sspl-base'
+version = '0.5.0.0'
+project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest_base.git'
+project_builddir = 'sspl-base-build'
+project_release_xml = 'build/release-package.xml'
 
 properties([
   parameters([
@@ -11,26 +16,34 @@ properties([
 
 skipDefaultCheckout()
 try{
-    // PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+	version_number = GetVersionNumber(version, project)
+    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     parallel Build:{
         ArtisanBuild(
             params.CommitHash,
             params.PortalId,
-            'sspl-base',
-            'sspl-base-build',
-            'build/release-package.xml',
-            'Linux Test',
-            "0.5.0.0",
-            "develop",
-            '',
-            '',
-            ''
-              )
+            'Release',
+            project_builddir,
+            project_release_xml,
+            'JenkinsLinuxTemplate1',
+			version_number,
+            'master',
+            project_gitrepo,
+            "${env.BRANCH_NAME}",
+            'release')
         }
 
-    // SuccessfulBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    SuccessfulBuild(
+		params.CommitHash,
+		params.PortalId,
+		params.PortalAddress,
+		'master',
+		project_gitrepo,
+		"${env.BRANCH_NAME}",
+		project_release_xml)
+
 } catch(e){
-    // FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
-    error('Failed Build')
+    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    error("Build failed: " + e.toString())
 }

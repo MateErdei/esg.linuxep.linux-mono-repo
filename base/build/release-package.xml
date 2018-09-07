@@ -44,7 +44,7 @@
     <buildcommands>
         <command>
           <program>/bin/bash</program>
-          <args>./build.sh</args>
+          <args>./build.sh --clean</args>
           <workingdir>sspl-base-build</workingdir>
         </command>
     </buildcommands>
