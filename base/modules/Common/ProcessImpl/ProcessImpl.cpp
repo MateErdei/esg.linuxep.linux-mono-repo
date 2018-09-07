@@ -21,6 +21,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <unistd.h>
 #include <wait.h>
+#include <pwd.h>
+#include <grp.h>
 
 
 namespace
@@ -144,12 +146,17 @@ namespace ProcessImpl
 
     void ProcessImpl::exec(const std::string& path, const std::vector<std::string>& arguments)
     {
-        this->exec(path, arguments, std::vector<Process::EnvironmentPair>{});
+        this->exec(path, arguments, std::vector<Process::EnvironmentPair>{}, ::getuid(), ::getgid());
     }
-
 
     void ProcessImpl::exec(const std::string &path, const std::vector<std::string> &arguments,
                            const std::vector<Process::EnvironmentPair> &extraEnvironment)
+    {
+        this->exec(path, arguments, extraEnvironment, ::getuid(), ::getgid());
+    }
+
+    void ProcessImpl::exec(const std::string &path, const std::vector<std::string> &arguments,
+                           const std::vector<Process::EnvironmentPair> &extraEnvironment, uid_t uid, gid_t gid)
     {
 
         if (m_pid != -1)
@@ -184,6 +191,15 @@ namespace ProcessImpl
 
                 closeFileDescriptors(fileDescriptorsToPreserveAfterFork);
 
+                // Must set group first whilst still root
+                if (::setgid(gid) != 0)
+                {
+                    _exit(errno);
+                }
+                if (::setuid(uid) != 0)
+                {
+                    _exit(errno);
+                }
 
                 // redirect stdout
                 if (dup2(m_pipe->writeFd(), STDOUT_FILENO) == -1)
@@ -198,6 +214,7 @@ namespace ProcessImpl
                 }
                 // close the read pipe as child is supposed to be only for writing (stderr,stdout)
                 m_pipe->closeRead();
+
                 if ( extraEnvironment.empty())
                 {
                     (void) execv(argcAndEnv.path(), argcAndEnv.argc());

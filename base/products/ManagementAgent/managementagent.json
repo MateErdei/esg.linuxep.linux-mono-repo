@@ -1,3 +1,4 @@
 {
-  "executableFullPath": "base/bin/sophos_managementagent"
+  "executableFullPath": "base/bin/sophos_managementagent",
+  "executableUserGroup": "sophos-spl-user:sophos-spl-group"
 }

@@ -18,4 +18,5 @@ message PluginInfo
     optional string executableFullPath = 5;
     repeated string executableArguments = 6;
     repeated EnvironmentVariablesT environmentVariables = 7;
+    optional string executableUserGroup = 8;
 }

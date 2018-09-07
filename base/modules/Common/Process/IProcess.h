@@ -37,7 +37,9 @@ namespace Common
              * @pre Require extraEnvironment to have a non empty key.
              */
             virtual void exec( const std::string & path, const std::vector<std::string> & arguments,
-                                const EnvPairVector& extraEnvironment) = 0;
+                               const EnvPairVector& extraEnvironment, uid_t uid, gid_t gid) = 0;
+            virtual void exec(const std::string &path, const std::vector<std::string> &arguments,
+                              const std::vector<Process::EnvironmentPair> &extraEnvironment) = 0;
             virtual void exec( const std::string & path, const std::vector<std::string> & arguments) = 0;
 
             /**

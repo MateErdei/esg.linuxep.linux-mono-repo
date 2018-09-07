@@ -14,6 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <pwd.h>
+#include <grp.h>
 
 namespace Common
 {
@@ -53,6 +55,16 @@ namespace Common
         std::string PluginInfo::getExecutableFullPath() const
         {
             return m_executableFullPath;
+        }
+
+        uid_t PluginInfo::getExecutableUser() const
+        {
+            return m_executableUser;
+        }
+
+        gid_t PluginInfo::getExecutableGroup() const
+        {
+            return m_executableGroup;
         }
 
         void PluginInfo::setPolicyAppIds(const std::vector<std::string> &appIDs)
@@ -98,6 +110,33 @@ namespace Common
         void PluginInfo::addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue)
         {
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
+        }
+
+        void PluginInfo::setExecutableUserGroup(const std::string &executableUserGroup)
+        {
+            size_t pos = executableUserGroup.find(':');
+
+            struct passwd *pw;
+            pw = getpwnam(executableUserGroup.substr(0, pos).c_str());
+            if (pw)
+            {
+                m_executableUser = pw->pw_uid;
+
+                if (pos == std::string::npos)
+                {
+                    m_executableGroup = pw->pw_gid;
+                }
+                else
+                {
+                    struct group* gr = getgrnam(executableUserGroup.substr(pos + 1).c_str());
+                    m_executableGroup = gr ? gr->gr_gid : 0;
+                }
+            }
+            else
+            {
+                m_executableUser = 0;
+                m_executableGroup = 0;
+            }
         }
 
         std::string PluginInfo::serializeToString(const PluginInfo & pluginInfo)
@@ -174,6 +213,7 @@ namespace Common
             }
             pluginInfo.setPluginName(pluginname);
             pluginInfo.setXmlTranslatorPath(protoPluginInfo.xmltranslatorpath());
+            pluginInfo.setExecutableUserGroup(protoPluginInfo.executableusergroup());
             pluginInfo.setExecutableFullPath(protoPluginInfo.executablefullpath());
 
             for( const auto & argv : protoPluginInfo.executablearguments())

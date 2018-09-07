@@ -272,6 +272,7 @@ done
 
 ln -snf "liblog4cplus-1.2.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*

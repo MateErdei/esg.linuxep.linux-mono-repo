@@ -41,9 +41,11 @@ void PluginProxy::start()
     LOGINFO("Starting "<<m_exe);
     assert(m_process != nullptr);
     m_process->exec(m_exe,
-        m_info.getExecutableArguments(),
-        m_info.getExecutableEnvironmentVariables()
-        );
+                    m_info.getExecutableArguments(),
+                    m_info.getExecutableEnvironmentVariables(),
+                    m_info.getExecutableUser(),
+                    m_info.getExecutableGroup()
+    );
     m_running = true;
 }
 

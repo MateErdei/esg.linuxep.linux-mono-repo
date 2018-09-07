@@ -14,6 +14,7 @@ using namespace ::testing;
 class MockProcess: public Common::Process::IProcess
 {
 public:
+    MOCK_METHOD5( exec, void (const std::string & , const std::vector<std::string> & , const std::vector<Common::Process::EnvironmentPair>&, uid_t, gid_t));
     MOCK_METHOD3( exec, void (const std::string & , const std::vector<std::string> & , const std::vector<Common::Process::EnvironmentPair>& ));
     MOCK_METHOD2( exec, void (const std::string & , const std::vector<std::string> & ));
     MOCK_METHOD2( wait, Common::Process::ProcessStatus(Common::Process::Milliseconds, int ));

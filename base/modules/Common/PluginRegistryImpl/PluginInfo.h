@@ -75,6 +75,9 @@ namespace Common
              */
             EnvPairs getExecutableEnvironmentVariables() const;
 
+            uid_t getExecutableUser() const;
+            gid_t getExecutableGroup() const;
+
             /**
              * Used to store the given Policy AppIds the plugin is interested in.
              * @param list of appIDs
@@ -142,6 +145,7 @@ namespace Common
              */
             void addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue);
 
+            void setExecutableUserGroup(const std::string& executableUserGroup);
             /**
              * Serialize pluginInfo object into protobuf message.
              * @param pluginInfo object to be serialized
@@ -208,10 +212,9 @@ namespace Common
             std::string m_executableFullPath;
             std::vector<std::string> m_executableArguments;
             EnvPairs m_executableEnvironmentVariables;
-
-
+            uid_t m_executableUser;
+            gid_t m_executableGroup;
         };
-
     }
 }
 
