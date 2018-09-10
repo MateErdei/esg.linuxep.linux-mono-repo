@@ -49,6 +49,7 @@
         <command>
             <program>/bin/ls</program>
             <args>-R</args>
+            <args>..</args>
             <workingdir>sspl-base-build</workingdir>
         </command>
         <command>
