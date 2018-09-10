@@ -37,7 +37,6 @@ add_library(updateschedulerimpl SHARED
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
 target_link_libraries(updateschedulerimpl PUBLIC
-        suldownloaderimpl
         filesystemimpl
         utilityimpl
         applicationconfigurationimpl
