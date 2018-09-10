@@ -43,16 +43,6 @@
     </inputs>
     <buildcommands>
         <command>
-            <program>/bin/pwd</program>
-            <workingdir>sspl-base-build</workingdir>
-        </command>
-        <command>
-            <program>/bin/ls</program>
-            <args>-R</args>
-            <args>..</args>
-            <workingdir>sspl-base-build</workingdir>
-        </command>
-        <command>
           <program>/bin/bash</program>
           <args>./build.sh --clean</args>
           <workingdir>sspl-base-build</workingdir>
