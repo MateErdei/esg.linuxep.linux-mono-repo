@@ -48,6 +48,7 @@ SET_TARGET_PROPERTIES( pluginapi
 
 INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
+FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 file(GLOB_RECURSE pluginapiheaders
         ../PluginApi/* )
@@ -58,6 +59,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${pluginapiheaders} pluginapi/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E tar czf pluginapi.tar.gz pluginapi
         COMMAND rm -rf pluginapi
 )
