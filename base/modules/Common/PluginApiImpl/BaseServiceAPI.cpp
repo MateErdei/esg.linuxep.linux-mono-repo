@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ApiException.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 Common::PluginApiImpl::BaseServiceAPI::BaseServiceAPI(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
@@ -145,5 +146,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
 }
 
-
-
+std::string Common::PluginApi::getInstallRoot()
+{
+    return Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+}
