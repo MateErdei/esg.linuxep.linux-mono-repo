@@ -146,7 +146,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
 }
 
-const std::string Common::PluginApi::getInstallRoot() const
+const std::string Common::PluginApi::getInstallRoot()
 {
     return Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
 }

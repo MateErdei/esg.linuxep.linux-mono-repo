@@ -86,7 +86,7 @@ namespace Common
             virtual void requestPolicies(const std::string& appId) const = 0;
 
         };
-        const std::string getInstallRoot() const;
+        const std::string getInstallRoot();
 
         //std::string getLibraryVersion();
     }
