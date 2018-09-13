@@ -66,19 +66,30 @@ function failure()
     exit $CODE
 }
 
+function isServiceInstalled()
+{
+    local TARGET="$1"
+    systemctl list-unit-files | grep -q "^${TARGET}\$" >/dev/null
+}
+
 function createWatchdogSystemdService()
 {
-    if [[ -d /lib/systemd/system ]]
+    if isServiceInstalled sophos-spl.service
     then
-        STARTUP_DIR="/lib/systemd/system"
-    elif [[ -d /usr/lib/systemd/system ]]
-    then
-        STARTUP_DIR="/usr/lib/systemd/system"
+        systemctl restart sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
     else
-        failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
-    fi
 
-    cat > ${STARTUP_DIR}/sophos-spl.service << EOF
+        if [[ -d /lib/systemd/system ]]
+        then
+            STARTUP_DIR="/lib/systemd/system"
+        elif [[ -d /usr/lib/systemd/system ]]
+        then
+            STARTUP_DIR="/usr/lib/systemd/system"
+        else
+            failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
+        fi
+
+        cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
@@ -91,26 +102,29 @@ WantedBy=multi-user.target
 Description=Sophos Server Protection for Linux
 RequiresMountsFor=${SOPHOS_INSTALL}
 EOF
-    chmod 644 ${STARTUP_DIR}/sophos-spl.service
-    systemctl daemon-reload
-    systemctl enable --quiet sophos-spl.service
-    systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
+        chmod 644 ${STARTUP_DIR}/sophos-spl.service
+        systemctl daemon-reload
+        systemctl enable --quiet sophos-spl.service
+        systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
+    fi
 }
 
 function createUpdaterSystemdService()
 {
-    if [[ -d /lib/systemd/system ]]
+    if ! isServiceInstalled sophos-spl-update.service
     then
-        STARTUP_DIR="/lib/systemd/system"
-    elif [[ -d /usr/lib/systemd/system ]]
-    then
-        STARTUP_DIR="/usr/lib/systemd/system"
-    else
-        failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl update service"
-    fi
-    local service_name="sophos-spl-update.service"
+        if [[ -d /lib/systemd/system ]]
+        then
+            STARTUP_DIR="/lib/systemd/system"
+        elif [[ -d /usr/lib/systemd/system ]]
+        then
+            STARTUP_DIR="/usr/lib/systemd/system"
+        else
+            failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl update service"
+        fi
+        local service_name="sophos-spl-update.service"
 
-    cat > ${STARTUP_DIR}/${service_name} << EOF
+        cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/config.json ${SOPHOS_INSTALL}/base/update/var/report.json
@@ -120,8 +134,9 @@ Restart=no
 Description=Sophos Server Protection Update Service
 RequiresMountsFor=${SOPHOS_INSTALL}
 EOF
-    chmod 644 ${STARTUP_DIR}/${service_name}
-    systemctl daemon-reload
+        chmod 644 ${STARTUP_DIR}/${service_name}
+        systemctl daemon-reload
+    fi
 }
 
 function confirmProcessRunning()
@@ -139,7 +154,6 @@ function waitForProcess()
 
     return 1
 }
-
 
 if [[ $(id -u) != 0 ]]
 then
@@ -301,3 +315,4 @@ fi
 
 cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
 chmod 600 "${SOPHOS_INSTALL}/base/update/manifest.dat"
+
