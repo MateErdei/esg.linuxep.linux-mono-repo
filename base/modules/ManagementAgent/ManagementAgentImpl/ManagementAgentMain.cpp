@@ -53,9 +53,10 @@ namespace ManagementAgent
             umask(S_IRWXG | S_IRWXO);  //Read and write for the owner
             static_cast<void>(argv); // unused
 
+            ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
+
             LOGINFO("Starting Management Agent Version 999");
 
-            ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
             if(argc > 1)
             {
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-base" version="1.1.4">
-    <versioning>
-        <workingdir>sspl-base-build/products/distribution/include/AutoVersioningHeaders</workingdir>
-    </versioning>
-
+<package name="sspl-base" version="9.99">
     <inputs>
         <workingdir>sspl-base-build</workingdir>
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
+        <package name="openssllinux11" version="1-0-2p-8/213064/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
@@ -17,130 +13,48 @@
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
         <package name="versig"
-                 version="2-0-0-72/219560/output" dest="input">
+                 version="2-0-0-3/213093/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
+        <package name="curllinux10" version="7-59-0/212805/curllinux10" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-59/220764/output" dest="input">
+        <package name="sullinux10" version="1-0-0/212833/sullinux" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
+        <package name="boostlinux10" version="1-66-0/211773/boostlinux10" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
+        <package name="expatlinux11" version="2-2-5-3/213092/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
-        <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
+        <package name="protobuflinux11" version="3-5-1-3/213079/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
+        <package name="zeromqlinux11" version="4-2-5-3/213082/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
-        <package name="log4cpluslinux11" version="2-0-5-19/220731/output" dest="input">
+        <package name="log4cpluslinux11" version="1-2-0-3/213106/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
-        <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
-            <include src="zlib.tar" dest="."/>
-        </package>
         <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
-            <include src="ps_rootca.crt" dest="."/>
+            <include src="ps_rootca.crt" dest="ps_certificates"/>
         </package>
-        <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
-            <include src="capnproto.tar" dest="."/>
-        </package>
-        <package name="pythonlinux11" version="3-7-7-28/219665/output" dest="input">
-            <include src="python.tar" dest="." />
-        </package>
-        <package name="python-watchdog" version="0-10-2-2/218866/watchdog" dest="input">
-            <include src="python-watchdog.tar" dest="." />
-        </package>
-        <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
-            <include src="python-pathtools.tar" dest="." />
-        </package>
-        <package name="pycryptodomelinux11" version="3-9-0-4/218828/pycryptodome" dest="input">
-            <include src="pycryptodome.tar" dest="." />
-        </package>
-        <package name="googletest" version="1-8-1/EES-8928" dest="input">
-            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
-        </package>
-        <package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0" dest="input/telemetry">
-            <include src="telemetry-config.json" dest="." />
-        </package>
-        <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
-            <include src="telemetry-config.json" dest="." />
-        </package>
-        <package name="python-certifi" version="2020-4-5-2-1/220359/certifi" dest="input">
-            <include src="python-certifi.tar" dest="."/>
-        </package>
-        <package name="python-urllib3" version="1-25-8-13/218622/urllib3" dest="input">
-            <include src="python-urllib3.tar" dest="."/>
-        </package>
-        <package name="python-six" version="1-14-0-14/218620/six" dest="input">
-            <include src="python-six.tar" dest="."/>
-        </package>
-        <package name="python-requests" version="2-22-0-10/218619/requests" dest="input">
-            <include src="python-requests.tar" dest="."/>
-        </package>
-        <package name="python-idna" version="2-8-0-1/218618/idna" dest="input">
-            <include src="python-idna.tar" dest="."/>
-        </package>
-        <package name="python-chardet" version="3-0-4-3/218617/chardet" dest="input">
-            <include src="python-chardet.tar" dest="."/>
-        </package>
-        <package name="python-sseclient" version="0-0-23-19/218716/sseclient" dest="input">
-            <include src="python-sseclient.tar" dest="."/>
-        </package>
-
     </inputs>
     <buildcommands>
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
-        <!--<command  buildtype="prod"> -->
-        <command mode="release">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean</args>
-            <workingdir>sspl-base-build</workingdir>
+        <command>
+          <program>/bin/bash</program>
+          <args>./build.sh --clean</args>
+          <workingdir>sspl-base-build</workingdir>
         </command>
-
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --bullseye</args>
-            <workingdir>sspl-base-build</workingdir>
-        </command>
-
-        <command mode="analysis">
-            <program>/bin/bash</program>
-            <args>./build.sh --no-build --analysis</args>
-            <workingdir>sspl-base-build</workingdir>
-        </command>
-
-        <!--<command buildtype="dev">
-            <program>/bin/bash</program>
-            <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'
-            <workingdir>sspl-base-build</workingdir>
-        </command> -->
     </buildcommands>
     <publish>
         <workingdir>sspl-base-build</workingdir>
         <destdir>sspl-base</destdir>
         <buildoutputs>
-            <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="release"></output>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release"></output>
-            <output name="build_log" srcfolder="log" mode="release"></output>
-
-            <!-- coverage(bullseye) -->
-            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>
-            <output name="coverage_build_log" srcfolder="log" artifactpath="coverage/build_log"
-                    mode="coverage"></output>
-
-            <!-- Analysis -->
-            <output name="analysis" srcfolder="output" artifactpath="analysis" mode="analysis"></output>
-            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log"
-                    mode="analysis"></output>
-
+            <output name="output" srcfolder="output"> </output>
+            <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>

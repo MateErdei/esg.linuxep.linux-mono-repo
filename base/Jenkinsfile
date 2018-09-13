@@ -1,79 +1,47 @@
 library "standardPipeline"
 
 project = 'sspl-base'
-version_key = '1.1.4'
+version_key = '9.99'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
 project_builddir = 'sspl-base-build'
 project_release_xml = 'build/release-package.xml'
-buildAgentTemplate = 'JenkinsLinuxTemplate5'
 
 properties([
   parameters([
     string(name: 'CommitHash', defaultValue: ''),
     string(name: 'PortalId', defaultValue: ''),
-    string(name: 'PortalAddress', defaultValue: ''),
-    string(name: 'mode', defaultValue: 'release')
+    string(name: 'PortalAddress', defaultValue: '')
   ])
 ])
 
 skipDefaultCheckout()
- try{
-     version_number = GetVersionNumber(version_key, project)
-     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+try{
+	version_number = GetVersionNumber(version_key, project)
+    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
-     git_branch = "${env.BRANCH_NAME}"
-     if ( params.mode == 'coverage' || git_branch.endsWith('coverage') )
-     {
-         //run all three builds to ensure warehouse build is happy when looking for release build in output folder
-         parallel release:
-         {
-             echo 'Starting everest-base ' + params.mode + ' ' + git_branch + ' build'
-             ArtisanBuild(
-                 buildAgentTemplate,
-                 project_release_xml,
-                 "release",
-                 version_number,
-                 project_builddir
-                 )
-             echo 'Finished everest-base  ' + params.mode + ' ' + git_branch + ' build'
-         },
-         coverage_build:
-         {
-             echo 'Starting everest-base coverage build  on ' + git_branch
-             ArtisanBuild(
-                 buildAgentTemplate,
-                 project_release_xml,
-                 'coverage',
-                 version_number,
-                 project_builddir)
-             echo 'Finished everest-base coverage build'
-         },
-         analysis_build:
-         {
-             echo 'Starting everest-base cppcheck build on ' + git_branch
-             ArtisanBuild(
-                 buildAgentTemplate,
-                 project_release_xml,
-                 'analysis',
-                 version_number,
-                 project_builddir)
-             echo 'Finished everest-base cppcheck build'
-         }
-     }
-     else
-     {
-         echo 'Starting everest-base ' + params.mode + ' ' + git_branch + ' build'
-         ArtisanBuild(
-             buildAgentTemplate,
-             project_release_xml,
-             params.mode,
-             version_number,
-             project_builddir
-             )
-         echo 'Finished everest-base  ' + params.mode + ' ' + git_branch + ' build'
-     }
+    parallel Build:{
+        ArtisanBuild(
+            params.CommitHash,
+            params.PortalId,
+            'Release',
+            project_builddir,
+            project_release_xml,
+            'JenkinsLinuxTemplate1',
+			version_number,
+            'master',
+            project_gitrepo,
+            "${env.BRANCH_NAME}",
+            'release')
+        }
 
-     SuccessfulBuild(project_release_xml)
+    SuccessfulBuild(
+		params.CommitHash,
+		params.PortalId,
+		params.PortalAddress,
+		'master',
+		project_gitrepo,
+		"${env.BRANCH_NAME}",
+		project_release_xml)
 
 } catch(e){
     FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
