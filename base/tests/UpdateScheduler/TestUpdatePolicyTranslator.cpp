@@ -274,14 +274,14 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getLocalUpdateCacheUrls()[1], "2k12-64-ld55-df.eng.sophos:8191");
     EXPECT_EQ(config.getLocalUpdateCacheUrls()[2], "w2k8r2-std-en-df.eng.sophos:8191");
 
-    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
     EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
     EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
     EXPECT_EQ(config.getProductSelection()[0].Primary, true);
     EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
 
 
-    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
     EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
@@ -327,13 +327,13 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
     EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
 
-    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
     EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
     EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
     EXPECT_EQ(config.getProductSelection()[0].Primary, true);
     EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
 
-    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0.5");
+    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
     EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
     EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);

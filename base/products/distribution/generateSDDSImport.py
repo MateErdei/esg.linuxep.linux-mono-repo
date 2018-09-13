@@ -94,7 +94,7 @@ def generate_sdds_import(dist, file_objects):
     doc = xml.dom.minidom.parseString(TEMPLATE)
     tidyXml(doc)
 
-    fullVersion = os.environ.get("FULL_VERSION", "0.5.0.0")
+    fullVersion = os.environ.get("FULL_VERSION", "0.5.0")
     rigidName = os.environ.get("RIGID_NAME", "ServerProtectionLinux-Base")
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
