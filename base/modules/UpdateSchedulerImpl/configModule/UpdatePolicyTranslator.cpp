@@ -129,8 +129,8 @@ namespace UpdateSchedulerImpl
 //            std::string releaseTag;
 //            std::string baseVersion;
 //        };
-            config.addProductSelection({"ServerProtectionLinux-Base", true, false, "RECOMMENDED", "0.5"});
-            config.addProductSelection({"ServerProtectionLinux-Plugin", false, true, "RECOMMENDED", "0.5"});
+            config.addProductSelection({"ServerProtectionLinux-Base", true, false, "RECOMMENDED", "0"});
+            config.addProductSelection({"ServerProtectionLinux-Plugin", false, true, "RECOMMENDED", "0"});
 
 
             config.setInstallArguments({"--instdir", applicationPathManager().sophosInstall()});
