@@ -55,7 +55,7 @@ namespace ManagementAgent
 
             ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
 
-            LOGINFO("Starting Management Agent Version 999");
+            reportMy999Version();
 
             if(argc > 1)
             {
@@ -260,7 +260,9 @@ namespace ManagementAgent
             GL_signalPipe->notify();
         }
 
-
-
+        void reportMy999Version()
+        {
+            LOGINFO("Starting Management Agent Version 999");
+        }
     }
 }

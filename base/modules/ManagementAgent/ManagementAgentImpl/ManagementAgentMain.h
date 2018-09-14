@@ -6,33 +6,33 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/TaskQueue/ITaskProcessor.h>
-#include <Common/TaskQueue/ITaskQueue.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
+#include <Common/TaskQueue/ITaskQueue.h>
+#include <Common/TaskQueue/ITaskProcessor.h>
 
 namespace ManagementAgent
 {
     namespace ManagementAgentImpl
     {
+
         class ManagementAgentMain
         {
         public:
-            static int main(int argc, char* argv[]);
-            static int mainForValidArguments(bool withPersistentTelemetry=true);
+            static int main(int argc, char *argv[]);
+
         protected:
             void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             void loadPlugins();
             void initialiseTaskQueue();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
-            void sendCurrentPluginPolicies();
-            void sendCurrentActions();
+            void sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins);
+            void sendCurrentActions(const std::vector<std::string>& registeredPlugins);
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
-            int run(bool withPersistentTelemetry);
+            int run();
             // to be used in tests
             void test_request_stop();
 
@@ -50,10 +50,15 @@ namespace ManagementAgent
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
             std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
 
+
             /**
              * Remember the original parent PID so that we can exit if it changes.
              */
             pid_t m_ppid;
+
         };
-    } // namespace ManagementAgentImpl
-} // namespace ManagementAgent
+        
+        // Design decision to create a binary incompatible version of ManagementAgent
+        void reportMy999Version();
+    }
+}
