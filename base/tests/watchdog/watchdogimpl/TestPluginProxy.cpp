@@ -50,7 +50,7 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
             [absolutePath](){
                 std::vector<std::string> args;
                 auto mockProcess = new StrictMock<MockProcess>();
-                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
                 EXPECT_CALL(*mockProcess, kill()).Times(1); // In the destructor of PluginProxy
                 EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
                 return std::unique_ptr<Common::Process::IProcess>(mockProcess);
@@ -75,7 +75,7 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
             [absolutePath](){
                 std::vector<std::string> args;
                 auto mockProcess = new StrictMock<MockProcess>();
-                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _)).Times(1);
+                EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
                 EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
                 EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                 EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
