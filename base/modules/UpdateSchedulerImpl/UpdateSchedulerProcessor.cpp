@@ -171,7 +171,7 @@ namespace UpdateSchedulerImpl
         if (iFileSystem->isFile(m_reportfilePath))
         {
             LOGINFO("SulDownloader Finished.");
-            safeMoveDownloaderConfigFile(m_reportfilePath);
+            safeMoveDownloaderReportFile(m_reportfilePath);
             remainingReportToProcess = true;
         }
 
@@ -257,7 +257,7 @@ namespace UpdateSchedulerImpl
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
-    void UpdateSchedulerProcessor::safeMoveDownloaderConfigFile(const std::string& originalJsonFilePath) const
+    void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
     {
         auto iFileSystem = Common::FileSystem::fileSystem();
         std::string dirPath = Common::FileSystem::dirName(originalJsonFilePath);

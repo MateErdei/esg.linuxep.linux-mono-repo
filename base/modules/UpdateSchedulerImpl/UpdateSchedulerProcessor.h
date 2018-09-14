@@ -41,7 +41,7 @@ namespace UpdateSchedulerImpl
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
         void writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData&);
 
-        void safeMoveDownloaderConfigFile(const std::string& originalJsonFilePath) const;
+        void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
 
         void ensureSulDownloaderNotRunning();
 

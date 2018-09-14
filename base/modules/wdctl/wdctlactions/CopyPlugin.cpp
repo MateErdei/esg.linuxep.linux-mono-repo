@@ -10,6 +10,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <grp.h>
+
+
 using namespace wdctl::wdctlactions;
 
 CopyPlugin::CopyPlugin(const Action::Arguments& args)
@@ -28,6 +34,10 @@ int CopyPlugin::run()
 
     LOGDEBUG("Copying "<< m_args.m_argument << " to "<< destination);
     Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
+
+    group* sophosSplGroup = getgrnam("sophos-spl-group");
+    chown(destination.c_str(), 0, sophosSplGroup->gr_gid);
+    chmod(destination.c_str(), S_IRUSR | S_IWUSR | S_IRGRP);
 
     return 0;
 }

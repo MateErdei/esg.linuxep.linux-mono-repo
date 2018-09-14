@@ -201,7 +201,8 @@ mkdir -p "${SOPHOS_INSTALL}/base/etc"
 chmod 711 "${SOPHOS_INSTALL}/base/etc"
 
 mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
-
+chmod 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
+chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primary"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
@@ -262,14 +263,12 @@ chmod 700 "$SOPHOS_INSTALL/bin/uninstall.sh."*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
+
+
 for F in "$DIST/installer/plugins"/*
 do
     "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
 done
-
-chmod 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
-chmod 640 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
-chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 rm -rf "${INSTALLER_LIB}"
 
