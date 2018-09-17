@@ -275,10 +275,11 @@ namespace ProcessImpl
     {
         if (m_pid > 0)
         {
-            LOGSUPPORT("Killing process "<<m_pid);
+            LOGSUPPORT("Terminating process "<<m_pid);
             ::kill(m_pid, SIGTERM);
             if ( wait( Process::milli(2), 10) == Process::ProcessStatus::TIMEOUT)
             {
+                LOGSUPPORT("Killing process "<<m_pid);
                 ::kill(m_pid, SIGKILL);
             }
             m_pid = -1;

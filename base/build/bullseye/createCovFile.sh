@@ -7,6 +7,11 @@
 ## is created
 #~ rm -f $COVFILE
 
+[[ -n $COVFILE ]] || {
+    echo "COVFILE not set!"
+    exit 2
+}
+
 covlmgr -f /root/BullseyeCoverageLicenseManager --use
 
 CLEAN=0
@@ -15,7 +20,13 @@ then
     mkdir -p $(dirname $COVFILE)
     covmgr -l -c
     cov01 -1
+
+    [[ -f $COVFILE ]] || {
+        echo "Failed to create COVFILE: $?"
+        exit 1
+    }
     CLEAN=1
+
 fi
 
 covselect --deleteAll
