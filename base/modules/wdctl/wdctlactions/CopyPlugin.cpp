@@ -41,19 +41,19 @@ int CopyPlugin::run()
     {
         if (chown(destination.c_str(), 0, sophosSplGroup->gr_gid) != 0)
         {
-            LOGERROR("chown failed to set group owner on file " << destination << " to sophos-spl-group");
+            LOGFATAL("chown failed to set group owner on file " << destination << " to sophos-spl-group");
             return 1;
         }
     }
     else
     {
-        LOGERROR("Group sophos-spl-group does not exist");
+        LOGFATAL("Group sophos-spl-group does not exist");
         return 1;
     }
 
     if (chmod(destination.c_str(), S_IRUSR | S_IWUSR | S_IRGRP) != 0)
     {
-        LOGERROR("chmod failed to set file permissions to 0640 on " << destination);
+        LOGFATAL("chmod failed to set file permissions to 0640 on " << destination);
         return 1;
     }
 
