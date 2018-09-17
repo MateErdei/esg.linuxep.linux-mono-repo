@@ -136,7 +136,7 @@ namespace
         out.close();
         auto process = createProcess();
         process->exec( "/bin/bash", {"test.sh"});
-        EXPECT_EQ(process->wait(milli(100), 1), ProcessStatus::TIMEOUT);
+        EXPECT_EQ(process->wait(milli(200), 1), ProcessStatus::TIMEOUT);
 
         process->kill();
 
