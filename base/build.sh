@@ -17,6 +17,7 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 CLEAN=0
+BULLSEYE=1
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
@@ -36,6 +37,9 @@ while [ $# -ge 1 ]; do
         --input)
             shift
             INPUT=$1
+            ;;
+        --bullseye)
+            BULLSEYE=1
             ;;
     esac
     shift
@@ -182,6 +186,13 @@ function build()
         sudo yum install -y zip unzip </dev/null
     }
 
+    if [[ ${BULLSEYE} == 1 ]]
+    then
+        BULLSEYE_DIR=/usr/local/bullseye
+        addpath ${BULLSEYE_DIR}/bin:$PATH
+        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
+        export COVFILE=bullseye_env['COVFILE'] = "/tmp/root/sspl.cov"
+    fi
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
