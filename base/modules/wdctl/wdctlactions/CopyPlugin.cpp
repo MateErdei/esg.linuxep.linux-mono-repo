@@ -36,8 +36,26 @@ int CopyPlugin::run()
     Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
 
     group* sophosSplGroup = getgrnam("sophos-spl-group");
-    chown(destination.c_str(), 0, sophosSplGroup->gr_gid);
-    chmod(destination.c_str(), S_IRUSR | S_IWUSR | S_IRGRP);
+
+    if (sophosSplGroup)
+    {
+        if (chown(destination.c_str(), 0, sophosSplGroup->gr_gid) != 0)
+        {
+            LOGERROR("chown failed to set group owner on file " << destination << " to sophos-spl-group");
+            return 1;
+        }
+    }
+    else
+    {
+        LOGERROR("Group sophos-spl-group does not exist");
+        return 1;
+    }
+
+    if (chmod(destination.c_str(), S_IRUSR | S_IWUSR | S_IRGRP) != 0)
+    {
+        LOGERROR("chmod failed to set file permissions to 0640 on " << destination);
+        return 1;
+    }
 
     return 0;
 }
