@@ -69,15 +69,13 @@ function failure()
 function isServiceInstalled()
 {
     local TARGET="$1"
-    systemctl list-unit-files | grep -q "^${TARGET}\$" >/dev/null
+    systemctl list-unit-files | grep -q "^${TARGET}\b" >/dev/null
 }
 
 function createWatchdogSystemdService()
 {
-    if isServiceInstalled sophos-spl.service
+    if ! isServiceInstalled sophos-spl.service
     then
-        systemctl restart sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
-    else
 
         if [[ -d /lib/systemd/system ]]
         then
@@ -107,6 +105,11 @@ EOF
         systemctl enable --quiet sophos-spl.service
         systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to start sophos-spl service"
     fi
+}
+
+function restartSsplService()
+{
+    systemctl restart sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
 }
 
 function createUpdaterSystemdService()
@@ -302,6 +305,18 @@ if changedOrAdded install.sh
 then
     createUpdaterSystemdService
     createWatchdogSystemdService
+fi
+
+function ssplChanged()
+{
+    [ -s "${SOPHOS_INSTALL}/tmp/addedFiles" ] || \
+    [ -s "${SOPHOS_INSTALL}/tmp/changedFiles" ] || \
+    [ -s "${SOPHOS_INSTALL}/tmp/removedFiles" ]
+}
+
+if ssplChanged
+then
+    restartSsplService
 fi
 
 if (( $CLEAN_INSTALL == 1 ))
