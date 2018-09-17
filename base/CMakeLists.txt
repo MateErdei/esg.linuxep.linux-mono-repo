@@ -90,6 +90,20 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
+set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
+find_library(OPENSSL_LIBRARY
+        NAMES ssl
+        PATHS ${OPENSSL_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+find_library(OPENSSLCRYPTO_LIBRARY
+        NAMES crypto
+        PATHS ${OPENSSL_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+
+
+message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
 
 include_directories(modules)
