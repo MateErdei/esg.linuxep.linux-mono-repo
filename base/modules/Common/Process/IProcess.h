@@ -50,10 +50,14 @@ namespace Common
             virtual ProcessStatus wait(Milliseconds period, int attempts ) = 0;
 
             /**
-            *
-            * Kill / terminate child process.
+             *
+             * Kill / terminate child process.
+             * Returns False if the SIGTERM was enough
+             *
+             * @return true if we have to SIGKILL the process.
+             *
             */
-            virtual void kill() = 0;
+            virtual bool kill() = 0;
 
             /**
              *

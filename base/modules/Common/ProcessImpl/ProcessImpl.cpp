@@ -271,8 +271,9 @@ namespace ProcessImpl
         throw Process::IProcessException( "Output can be called only after exec.");
     }
 
-    void ProcessImpl::kill()
+    bool ProcessImpl::kill()
     {
+        bool requiredKill = false;
         if (m_pid > 0)
         {
             LOGSUPPORT("Terminating process "<<m_pid);
@@ -281,6 +282,7 @@ namespace ProcessImpl
             {
                 LOGSUPPORT("Killing process "<<m_pid);
                 ::kill(m_pid, SIGKILL);
+                requiredKill = true;
             }
             m_pid = -1;
         }
@@ -288,6 +290,7 @@ namespace ProcessImpl
         {
             m_pipeThread->requestStop();
         }
+        return requiredKill;
     }
 
     Process::ProcessStatus ProcessImpl::getStatus()

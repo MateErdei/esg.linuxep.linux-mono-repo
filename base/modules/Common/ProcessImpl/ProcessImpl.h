@@ -32,7 +32,7 @@ namespace Common
             void exec( const std::string & path, const std::vector<std::string> & arguments) override;
             int exitCode() override;
             std::string output() override ;
-            void kill() override ;
+            bool kill() override ;
 
             Process::ProcessStatus getStatus() override;
 
