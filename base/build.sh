@@ -2,6 +2,7 @@
 PRODUCT=sspl-base
 
 FAILURE_INPUT_NOT_AVAILABLE=50
+FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 
 source /etc/profile
 set -ex
@@ -191,7 +192,8 @@ function build()
         BULLSEYE_DIR=/usr/local/bullseye
         addpath ${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
-        export COVFILE=bullseye_env['COVFILE'] = "/tmp/root/sspl.cov"
+        export COVFILE="/tmp/root/sspl.cov"
+        bash "$BASE/build/bullseye/createCovFile.sh" || exitFilaure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
     fi
 
     echo "After setup: PATH=$PATH"
