@@ -26,10 +26,19 @@ add_executable(manifestdiff
         ../../modules/Installer/ManifestDiff/ManifestDiff.h
         )
 
+add_executable(machineid
+        MachineIDMain.cpp
+        )
+
+
 target_link_libraries(manifestdiff PUBLIC manifestdifflib)
+target_link_libraries(machineid PUBLIC osutilities)
 
 SET_TARGET_PROPERTIES( manifestdiff
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
 install(TARGETS manifestdiff
+        DESTINATION files/base/bin)
+
+install(TARGETS machineid
         DESTINATION files/base/bin)

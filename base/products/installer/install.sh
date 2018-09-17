@@ -249,6 +249,10 @@ mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
 
 chmod u+x "$DIST/files/base/bin"/*
+
+# generate machine id if necessary
+"$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
+
 "$DIST/files/base/bin/manifestdiff" \
     --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
     --new="$DIST/manifest.dat" \
