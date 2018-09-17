@@ -7,17 +7,17 @@
 ## is created
 #~ rm -f $COVFILE
 
+covlmgr -f /root/BullseyeCoverageLicenseManager --use
+
 CLEAN=0
 if [[ ! -f $COVFILE ]]
 then
     mkdir -p $(dirname $COVFILE)
     covmgr -l -c
-    covlmgr -f /root/BullseyeCoverageLicenseManager --use
     cov01 -1
     CLEAN=1
 fi
 
-covlmgr -f /root/BullseyeCoverageLicenseManager --use
 covselect --deleteAll
 
 ## cov exclusions need to be relative to the COVFILE
