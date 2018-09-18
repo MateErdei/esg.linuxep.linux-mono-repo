@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-base" version="9.99">
+<package name="sspl-base" version="0.99.9">
+    <versioning>
+        <workingdir>sspl-base-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+    </versioning>
+
     <inputs>
         <workingdir>sspl-base-build</workingdir>
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
