@@ -18,6 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <future>
 #include <modules/Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace
 {
@@ -257,6 +258,15 @@ public:
         EXPECT_CALL(*pointer, isFile("/installroot/base/etc/machine_id.txt")).WillOnce(Return(true));
         EXPECT_CALL(*pointer, readFile("/installroot/base/etc/machine_id.txt")).Times(1).WillOnce(Return("machineId"));
 
+        // required to pass general validation of configuration data
+        EXPECT_CALL(*pointer, isDirectory("/installroot")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primary")).WillRepeatedly(Return(true));
+
+        EXPECT_CALL(*pointer, exists("/installroot/base/update/certs")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/rootca.crt")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/ps_rootca.crt")).WillRepeatedly(Return(true));
+
         Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
@@ -346,7 +356,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/certs/cache_certificates.crt", _));
-
+    EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
 
     std::future<void> schedulerRunHandle = std::async(std::launch::async,
                                                       [&updateScheduler]() { updateScheduler.mainLoop(); }
@@ -417,3 +427,44 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
 
 }
 
+TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+
+    EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
+
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
+    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
+                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    // no config will be created when an invalid policy is given
+    EXPECT_CALL(*cron, setPeriodTime(time)).Times(0);
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(0);
+
+
+    std::future<void> schedulerRunHandle = std::async(std::launch::async,
+                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
+    );
+
+
+    std::string invalidPolicyEmptyUserName = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithProxy,{{"UserPassword=\"54m5ung\"","UserPassword=\"\""}} );
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName});
+
+    std::string invalidPolicyPeriod = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithProxy,
+            {{R"sophos(SchedEnable="true" Frequency="50")sophos", R"sophos(SchedEnable="true" Frequency="50000000")sophos" }} );
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyPeriod});
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    schedulerRunHandle.get(); // synchronize stop
+
+}
