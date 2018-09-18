@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <algorithm>
+#include <regex>
 
 namespace UpdateSchedulerImpl
 {
@@ -180,10 +181,18 @@ namespace UpdateSchedulerImpl
                 throw PolicyValidationException( "Invalid update period given. It must be between 1 minutes and 3 months.");
             }
 
+            if ( !settingsHolder.updateCacheCertificatesContent.empty())
+            {
+                // pattern: group of begin/endcertificates of the size bigger than 1000 characters and smaller than 6000.
+                std::regex regexPattern{"(-----BEGIN CERTIFICATE-----[^-]{1000,6000}-----END CERTIFICATE-----)+", std::regex::extended};
+                std::string content = Common::UtilityImpl::StringUtils::replaceAll(settingsHolder.updateCacheCertificatesContent, "\\n", "");
+                content = Common::UtilityImpl::StringUtils::replaceAll(content, "\\r", "");
+                if ( !std::regex_match(content.begin(), content.end(), regexPattern))
+                {
+                    throw PolicyValidationException("Certificate content is invalid");
+                }
 
-
-
-            // void
+            }
         }
     }
 }
