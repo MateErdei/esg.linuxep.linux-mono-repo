@@ -20,19 +20,29 @@ using ListInputOutput = std::vector<PairResult >;
 TEST(TestMacInfo, MacsShouldBeAvailableInIfconfig) // NOLINT
 {
     auto fSystem = Common::FileSystem::fileSystem();
-    if( !fSystem->isExecutable("/sbin/ifconfig") )
+    std::string ipconfigInfo = "/sbin/ifconfig";
+    std::vector<std::string> arguments;
+
+    if( !fSystem->isExecutable(ipconfigInfo) )
     {
-        std::cout << "[  SKIPPED ] /sbin/ifconfig not present " << std::endl;
-        return;
+        ipconfigInfo = "/usr/sbin/ip";
+        arguments.push_back("address");
+        if( !fSystem->isExecutable(ipconfigInfo))
+        {
+
+            std::cout << "[  SKIPPED ] /sbin/ifconfig or /usr/sbin/ip not present " << std::endl;
+            return;
+        }
     }
     auto process = Common::Process::createProcess();
-    process->exec("/sbin/ifconfig", std::vector<std::string>());
+    process->exec(ipconfigInfo, arguments);
     std::string ifconfigOutput = process->output();
 
     std::vector<std::string> macs = sortedSystemMACs();
-    for( auto & mac : macs)
+    for( auto &  mac : macs)
     {
-        EXPECT_THAT( ifconfigOutput, ::testing::HasSubstr(mac));
+        std::string fullmacword = " " + mac + " ";
+        EXPECT_THAT( ifconfigOutput, ::testing::HasSubstr(fullmacword));
     }
 
 }
