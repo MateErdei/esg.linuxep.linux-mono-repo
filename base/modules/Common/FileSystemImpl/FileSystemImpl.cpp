@@ -181,12 +181,18 @@ namespace Common
 
         std::string FileSystemImpl::readFile(const Path &path) const
         {
+            return readFile(path,1024*1024*10);
+
+        }
+
+        std::string FileSystemImpl::readFile(const Path& path, unsigned long maxSize) const
+        {
             if(isDirectory(path))
             {
                 throw IFileSystemException("Error, Failed to read file: '" + path + "', is a directory");
             }
 
-            std::ifstream inFileStream(path);
+            std::ifstream inFileStream(path, std::ios::binary);
 
             if (!inFileStream.good())
             {
@@ -195,8 +201,22 @@ namespace Common
 
             try
             {
-                std::string content((std::istreambuf_iterator<char>(inFileStream)),
-                        std::istreambuf_iterator<char>());
+                inFileStream.seekg(0, std::istream::end);
+                std::ifstream::pos_type size(inFileStream.tellg());
+
+                if (size < 0)
+                {
+                    throw IFileSystemException("Error, Failed to read file: '" + path + "', failed to get file size");
+                }
+                else if (static_cast<unsigned long>(size) > maxSize)
+                {
+                    throw IFileSystemException("Error, Failed to read file: '" + path + "', file too large");
+                }
+
+                inFileStream.seekg(0, std::istream::beg);
+
+                std::string content(static_cast<std::size_t>(size), 0);
+                inFileStream.read(&content[0], size);
                 return content;
             }
             catch( std::system_error & ex)
@@ -204,8 +224,8 @@ namespace Common
                 LOGSUPPORT(ex.what());
                 throw IFileSystemException(std::string("Error, Failed to read from file '") + path + "'");
             }
-
         }
+
 
         void FileSystemImpl::writeFile(const Path &path, const std::string &content) const
         {

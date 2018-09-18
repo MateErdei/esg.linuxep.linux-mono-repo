@@ -90,10 +90,21 @@ namespace Common
 
             /**
              * Reads a given file content into string.
+             *
+             * Limits the file read to 10 MiB
+             *
              * @param path, location of the file to read.
              * @return the content of the read file.
              */
             virtual std::string readFile(const Path& path) const =0;
+
+            /**
+             * Reads a given file content into string.
+             * @param path, location of the file to read.
+             * @param maxSize The maximum file size to read, throws exception if the file is larger than that
+             * @return the content of the read file.
+             */
+            virtual std::string readFile(const Path& path, unsigned long maxSize) const =0;
 
             /**
              * Writes the given string content into a new file.

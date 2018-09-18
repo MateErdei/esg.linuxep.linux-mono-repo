@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_FILESYSTEM_H
-#define EVEREST_BASE_FILESYSTEM_H
+#pragma once
+
 
 #include "Common/FileSystem/IFileSystem.h"
 
@@ -47,6 +47,10 @@ namespace Common
 
 
             std::vector<Path> listFiles( const Path & directoryPath ) const override;
+
+            std::string readFile(const Path& path, unsigned long maxSize) const override;
+
+            void removeFile(const Path &path) const override;
         };
 
         /** To be used in tests only */
@@ -57,4 +61,4 @@ namespace Common
 }
 
 
-#endif //EVEREST_BASE_FILESYSTEM_H
+

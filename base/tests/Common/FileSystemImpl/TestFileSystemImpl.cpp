@@ -229,6 +229,20 @@ namespace
         removeFile(filePath);
     }
 
+    TEST_F(FileSystemImplTest, readThrowsForTooLargeFile) //NOLINT
+    {
+
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "readThrowsForTooLargeFile.txt");
+
+        std::string testContent("HelloWorld");
+
+        m_fileSystem->writeFile(filePath, testContent);
+
+        EXPECT_THROW(m_fileSystem->readFile(filePath, 2), IFileSystemException); //NOLINT
+
+        removeFile(filePath);
+    }
+
     TEST_F(FileSystemImplTest, writeFileUsingDirectoryPathShouldThrow) // NOLINT
     {
         std::string directroryPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
