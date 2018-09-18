@@ -42,7 +42,7 @@ namespace Common
          * @param argv: program-name , sophos_install
          * @return 0 for success, otherwise error code
          */
-        int mainEntry(int argc, char * argv[]);
+        int mainEntry(int argc, char* argv[]);
     }
 }
 

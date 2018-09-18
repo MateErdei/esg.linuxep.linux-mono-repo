@@ -58,7 +58,7 @@ namespace Common
         }
 
         //It is meant to be used in the installer, hence, it does not use log but standard error
-        int mainEntry(int argc, char * argv[])
+        int mainEntry(int argc, char* argv[])
         {
             if( argc != 2)
             {
@@ -83,7 +83,7 @@ namespace Common
                     sxlMachineID.createMachineID();
                 }
 
-            }catch (std::exception & ex)
+            }catch (std::exception& ex)
             {
                 std::cerr << "Failed to create machine id. Error: " << ex.what() << std::endl;
                 return 3;
