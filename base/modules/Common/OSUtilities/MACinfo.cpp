@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MACinfo.h"
 #include <algorithm>
 #include <sstream>
+#include <iomanip>
 #include <cstring>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -13,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <netinet/in.h>
 #include <net/if.h>
 #include <unistd.h>
+
 
 namespace
 {
@@ -48,7 +50,7 @@ namespace Common
                 {
                     s << ':';
                 }
-                s << std::hex << (int) macAddress[i];
+                s <<  std::hex <<  std::setw(2) << std::setfill('0') << (int) macAddress[i]  ;
             }
             return s.str();
         }
