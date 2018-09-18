@@ -89,12 +89,24 @@ def getXmlText(node):
         text += n.data
     return text
 
+def readVersionIniFile():
+    scriptPath = os.path.dirname(os.path.realpath(__file__))
+    autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
+    if os.path.isfile(autoVersionFile):
+        print ("Reading version file from {}".format(autoVersionFile))
+        with open(autoVersionFile,"r") as f:
+            for line in f.readlines():
+                if "ComponentAutoVersion=" in line:
+                    return line.strip().split("=")[1]
+    print ("Failed to get AutoVersion from {}".format(autoVersionFile))
+    return "0.5.0"
+
 def generate_sdds_import(dist, file_objects):
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
     doc = xml.dom.minidom.parseString(TEMPLATE)
     tidyXml(doc)
 
-    fullVersion = os.environ.get("FULL_VERSION", "0.5.0")
+    fullVersion = readVersionIniFile()
     rigidName = os.environ.get("RIGID_NAME", "ServerProtectionLinux-Base")
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
