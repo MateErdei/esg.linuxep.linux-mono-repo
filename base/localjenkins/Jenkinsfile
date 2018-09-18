@@ -1,6 +1,7 @@
 def buildAndTest()
 {
-    withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']){
+    withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin',
+             'LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/cmake/lib64:$LD_LIBRARY_PATH']){
         checkout scm
         sh 'rm -rf /tmp/temp*'
         sh 'rm -rf build64 && ./build.sh'
