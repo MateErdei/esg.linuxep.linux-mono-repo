@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UpdatePolicyTranslator.h"
-
+#include "../Logger.h"
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -162,6 +162,28 @@ namespace UpdateSchedulerImpl
         std::string UpdatePolicyTranslator::revID() const
         {
             return m_revID;
+        }
+
+
+        void PolicyValidationException::validateOrThrow(SettingsHolder& settingsHolder)
+        {
+            if( !settingsHolder.configurationData.verifySettingsAreValid())
+            {
+                LOGWARN("Configuration for the connection to the warehouse is invalid. Can not be used. ");
+                throw PolicyValidationException( "Invalid ConfigurationData");
+            }
+
+            long updatePeriod = settingsHolder.schedulerPeriod.count();
+            constexpr long fourMonths = 4 * 30 * 24 * 60;
+            if( updatePeriod < 1 || updatePeriod > fourMonths)
+            {
+                throw PolicyValidationException( "Invalid update period given. It must be between 1 minutes and 3 months.");
+            }
+
+
+
+
+            // void
         }
     }
 }

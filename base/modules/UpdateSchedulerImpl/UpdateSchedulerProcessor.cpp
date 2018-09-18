@@ -103,25 +103,35 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::processPolicy(const std::string& policyXml)
     {
         LOGINFO("New policy received");
-        SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
-        if (!settingsHolder.updateCacheCertificatesContent.empty())
+        try
         {
-            saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
+            SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
+            UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
+            if (!settingsHolder.updateCacheCertificatesContent.empty())
+            {
+                saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
+            }
+
+            m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
+
+            writeConfigurationData(settingsHolder.configurationData);
+
+            if (!m_policyReceived)
+            {
+                // ensure that recent results 'if available' are processed.
+                // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
+                // there is no new results to be processed.
+                processSulDownloaderFinished("report.json");
+
+            }
+            m_policyReceived = true;
+
+        }
+        catch ( UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
+        {
+            LOGWARN("Invalid policy received: " << ex.what());
         }
 
-        m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
-
-        writeConfigurationData(settingsHolder.configurationData);
-
-        if (!m_policyReceived)
-        {
-            // ensure that recent results 'if available' are processed.
-            // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
-            // there is no new results to be processed.
-            processSulDownloaderFinished("report.json");
-
-        }
-        m_policyReceived = true;
 
     }
 

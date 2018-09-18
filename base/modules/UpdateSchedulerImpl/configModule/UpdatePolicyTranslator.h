@@ -5,9 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateScheduler/IMapHostCacheId.h>
+#include <Common/Exceptions/IException.h>
 #include <chrono>
 
 namespace UpdateSchedulerImpl
@@ -21,10 +21,18 @@ namespace UpdateSchedulerImpl
             std::chrono::minutes schedulerPeriod;
         };
 
+        class PolicyValidationException : public Common::Exceptions::IException
+        {
+        public:
+            static void validateOrThrow( SettingsHolder & settingsHolder);
+            using Common::Exceptions::IException::IException;
+        };
+
         class UpdatePolicyTranslator
                 : public virtual UpdateScheduler::IMapHostCacheId
         {
         public:
+            // may throw PolicyValidationException if the policy does not pass the validation criteria.
             SettingsHolder translatePolicy(const std::string& policyXml);
 
             std::string cacheID(const std::string& hostname) const override;
