@@ -183,10 +183,10 @@ namespace UpdateSchedulerImpl
 
             if ( !settingsHolder.updateCacheCertificatesContent.empty())
             {
-                // pattern: group of begin/endcertificates of the size bigger than 1000 characters and smaller than 6000.
-                std::regex regexPattern{"(-----BEGIN CERTIFICATE-----[^-]{1000,6000}-----END CERTIFICATE-----)+", std::regex::extended};
-                std::string content = Common::UtilityImpl::StringUtils::replaceAll(settingsHolder.updateCacheCertificatesContent, "\\n", "");
-                content = Common::UtilityImpl::StringUtils::replaceAll(content, "\\r", "");
+                // pattern: group of begin/endcertificates of the size bigger than 1000 characters and smaller than 6000. The characters can not be -,"?
+                std::regex regexPattern{R"sophos((-----BEGIN CERTIFICATE-----[^-,"?]{1000,6000}=+-----END CERTIFICATE-----)+)sophos", std::regex::extended};
+                std::string removeNewLine = Common::UtilityImpl::StringUtils::replaceAll(settingsHolder.updateCacheCertificatesContent, "\n", "");
+                std::string content = Common::UtilityImpl::StringUtils::replaceAll(removeNewLine, "\\r", "");
                 if ( !std::regex_match(content.begin(), content.end(), regexPattern))
                 {
                     throw PolicyValidationException("Certificate content is invalid");
