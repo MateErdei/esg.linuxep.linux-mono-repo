@@ -178,8 +178,12 @@ GROUPADD="$(which groupadd)"
 [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
 "${GETENT}" group "${GROUP_NAME}" 2>&1 > /dev/null || "${GROUPADD}" -r "${GROUP_NAME}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $GROUP_NAME"
 
-mkdir -p $SOPHOS_INSTALL || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
-chmod 711 "$SOPHOS_INSTALL"
+function makedir()
+{
+    mkdir -p "$2" && chmod "$1" "$2"
+}
+
+makedir 711 "$SOPHOS_INSTALL" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
 chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
 
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
@@ -192,54 +196,48 @@ USERADD="$(which useradd)"
 "${GETENT}" passwd "${USER_NAME}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${GROUP_NAME}" -M -N -r -s /bin/false "${USER_NAME}" \
     || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $USER_NAME"
 
-mkdir -p "${SOPHOS_INSTALL}/tmp"
-chmod 1770 "${SOPHOS_INSTALL}/tmp"
+makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
-mkdir -p "$SOPHOS_INSTALL/var/ipc/plugins"
-chmod 711 "$SOPHOS_INSTALL/var"
-chmod 700 "$SOPHOS_INSTALL/var/ipc"
-chmod 700 "$SOPHOS_INSTALL/var/ipc/plugins"
+makedir 711 "$SOPHOS_INSTALL/var"
+makedir 700 "$SOPHOS_INSTALL/var/ipc"
+makedir 700 "$SOPHOS_INSTALL/var/ipc/plugins"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/ipc/plugins"
 
-mkdir -p "$SOPHOS_INSTALL/var/lock-sophosspl"
-chmod 600 "$SOPHOS_INSTALL/var/lock-sophosspl"
+makedir 600 "$SOPHOS_INSTALL/var/lock-sophosspl"
 chown "${USER_NAME}:${GROUP_NAME}" "$SOPHOS_INSTALL/var/lock-sophosspl"
 
-mkdir -p "${SOPHOS_INSTALL}/logs/base/sophosspl"
-chmod 711 "${SOPHOS_INSTALL}/logs"
-chmod 711 "${SOPHOS_INSTALL}/logs/base"
-chmod 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"
+makedir 711 "${SOPHOS_INSTALL}/logs"
+makedir 711 "${SOPHOS_INSTALL}/logs/base"
+makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"
 chown "root:" "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 
-mkdir -p "${SOPHOS_INSTALL}/base/etc"
-chmod 711 "${SOPHOS_INSTALL}/base/etc"
+makedir 711 "${SOPHOS_INSTALL}/base"
 
-mkdir -p "${SOPHOS_INSTALL}/base/pluginRegistry"
-chmod 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
-chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
+makedir 711 "${SOPHOS_INSTALL}/base/etc"
 
-mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primary"
-mkdir -p "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-mkdir -p "${SOPHOS_INSTALL}/base/update/certs"
-mkdir -p "${SOPHOS_INSTALL}/base/update/var"
-mkdir -p "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
-chmod 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-chmod 700 "${SOPHOS_INSTALL}/base/update/certs"
-chmod 700 "${SOPHOS_INSTALL}/base/update/var"
-chmod 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
+makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 
+makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
+makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
+makedir 700 "${SOPHOS_INSTALL}/base/update/certs"
+makedir 700 "${SOPHOS_INSTALL}/base/update/var"
+makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/action"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/policy"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/status/cache"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/event"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/certs"
-mkdir -p "${SOPHOS_INSTALL}/base/mcs/tmp"
-chmod -R 750 "${SOPHOS_INSTALL}/base"
+makedir 700 "${SOPHOS_INSTALL}/base/bin"
+makedir 700 "${SOPHOS_INSTALL}/base/lib64"
+
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/status/cache"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
+makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
+
+chmod -R 750 "${SOPHOS_INSTALL}/base/mcs/"*
+chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 
 ## Setup libraries for versionedcopy
@@ -249,10 +247,6 @@ mkdir -p "${INSTALLER_LIB}"
 ln -snf "${DIST}/files/base/lib64/libstdc++.so."* "${INSTALLER_LIB}/libstdc++.so.6"
 
 chmod u+x "$DIST/files/base/bin"/*
-
-# generate machine id if necessary
-"$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
-
 "$DIST/files/base/bin/manifestdiff" \
     --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
     --new="$DIST/manifest.dat" \
@@ -284,12 +278,16 @@ chmod 700 "$SOPHOS_INSTALL/bin/uninstall.sh."*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
-
-
 for F in "$DIST/installer/plugins"/*
 do
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
+    if changedOrAdded ${F#"$DIST"/}
+    then
+       "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
+    fi
 done
+
+chmod 640 "${SOPHOS_INSTALL}/base/pluginRegistry"/*
+chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 rm -rf "${INSTALLER_LIB}"
 
