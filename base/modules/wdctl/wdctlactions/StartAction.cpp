@@ -22,14 +22,9 @@ int StartAction::run()
 {
     LOGINFO("Attempting to start "<<m_args.m_argument);
 
-    Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
-    socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
+    auto response = doOperationToWatchdog({"START",m_args.m_argument});
 
-    socket->write({"START",m_args.m_argument});
-
-    auto response = socket->read();
-
-    if (response.size() == 1 && response.at(0) == "OK")
+    if (isSuccessful(response))
     {
         return 0;
     }

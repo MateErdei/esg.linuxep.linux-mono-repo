@@ -22,18 +22,13 @@ int StopAction::run()
 {
     LOGINFO("Attempting to stop "<<m_args.m_argument);
 
-    Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
-    socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
+    auto response = doOperationToWatchdog({"STOP",m_args.m_argument});
 
-    socket->write({"STOP",m_args.m_argument});
-
-    auto response = socket->read();
-
-    if (response.size() == 1 && response.at(0) == "OK")
+    if (isSuccessful(response))
     {
         return 0;
     }
 
-    LOGERROR("Failed to stop "<< m_args.m_argument);
+    LOGERROR("Failed to stop "<< m_args.m_argument<<": "<<response.at(0));
     return 1;
 }

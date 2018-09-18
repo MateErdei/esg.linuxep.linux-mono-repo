@@ -42,14 +42,9 @@ int RemoveAction::run()
         result = 1;
     }
 
-    Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
-    socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
+    auto response = doOperationToWatchdog({"REMOVE",m_args.m_argument});
 
-    socket->write({"REMOVE",m_args.m_argument});
-
-    auto response = socket->read();
-
-    if (response.size() == 1 && response.at(0) == "OK")
+    if (isSuccessful(response))
     {
         return result;
     }
