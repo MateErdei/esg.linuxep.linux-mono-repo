@@ -18,7 +18,7 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 CLEAN=0
-BULLSEYE=1
+BULLSEYE=0
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
