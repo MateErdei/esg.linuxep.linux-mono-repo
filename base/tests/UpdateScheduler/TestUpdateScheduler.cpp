@@ -458,17 +458,6 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
 
     m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyPeriod});
 
-
-    std::string invalidCertificate = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithCache,
-
-            {{R"sophos(</intermediate_certificates>)sophos", R"sophos(<intermediate_certificate id="anyting.crt">thisisandinvalidcontent </intermediate_certificate></intermediate_certificates>)sophos" }}
-
-            );
-
-    EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidCertificate});
-
-
     m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
     schedulerRunHandle.get(); // synchronize stop
 

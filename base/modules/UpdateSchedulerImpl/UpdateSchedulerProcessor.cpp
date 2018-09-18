@@ -106,11 +106,13 @@ namespace UpdateSchedulerImpl
         try
         {
             SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
-            UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
+
             if (!settingsHolder.updateCacheCertificatesContent.empty())
             {
                 saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
             }
+
+            UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
 
             m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
 
