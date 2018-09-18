@@ -35,7 +35,8 @@ namespace Common
                 content << mac;
             }
             std::string md5hash = Common::sslimpl::md5(content.str());
-            Common::FileSystem::fileSystem()->writeFile(machineIDPath(), md5hash);
+            std::string re_hash = Common::sslimpl::md5(md5hash);
+            Common::FileSystem::fileSystem()->writeFile(machineIDPath(), re_hash);
         }
 
         std::string SXLMachineID::machineIDPath() const
