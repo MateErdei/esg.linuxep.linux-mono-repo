@@ -314,17 +314,17 @@ function ssplChanged()
     [ -s "${SOPHOS_INSTALL}/tmp/removedFiles" ]
 }
 
-if ssplChanged
-then
-    restartSsplService
-fi
-
 if (( $CLEAN_INSTALL == 1 ))
 then
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
         waitForProcess "python -m mcsrouter.mcsrouter" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+    fi
+else
+    if ssplChanged
+    then
+        restartSsplService
     fi
 fi
 
