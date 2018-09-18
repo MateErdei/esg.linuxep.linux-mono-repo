@@ -5,18 +5,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FileSystemImpl.h"
-#include "Common/FileSystem/IFileSystemException.h"
+
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystem/IFileTooLargeException.h>
 
 #include <cassert>
 #include <cstring>
-#include <dirent.h>
 #include <fstream>
 #include <iostream>
-#include <unistd.h>
-
-#include <sys/stat.h>
 #include <sstream>
 
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -210,7 +211,7 @@ namespace Common
                 }
                 else if (static_cast<unsigned long>(size) > maxSize)
                 {
-                    throw IFileSystemException("Error, Failed to read file: '" + path + "', file too large");
+                    throw IFileTooLargeException("Error, Failed to read file: '" + path + "', file too large");
                 }
 
                 inFileStream.seekg(0, std::istream::beg);
