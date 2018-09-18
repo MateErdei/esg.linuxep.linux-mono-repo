@@ -175,10 +175,10 @@ namespace UpdateSchedulerImpl
             }
 
             long updatePeriod = settingsHolder.schedulerPeriod.count();
-            constexpr long fourMonths = 4 * 30 * 24 * 60;
-            if( updatePeriod < 1 || updatePeriod > fourMonths)
+            constexpr long year = 365 * 24 * 60;
+            if( updatePeriod < 5 || updatePeriod > year)
             {
-                throw PolicyValidationException( "Invalid update period given. It must be between 1 minutes and 3 months.");
+                throw PolicyValidationException( "Invalid update period given. It must be between 5 minutes and an year.");
             }
 
             if ( !settingsHolder.updateCacheCertificatesContent.empty())
