@@ -66,6 +66,7 @@ namespace UpdateSchedulerImpl
         std::string SerializeUpdateStatus(const UpdateSchedulerImpl::configModule::UpdateStatus& status,
                                           const std::string& revID,
                                           const std::string& versionId,
+                                          const std::string & machineId, 
                                           const Common::UtilityImpl::IFormattedTime& iFormattedTime)
         {
 
@@ -82,8 +83,7 @@ namespace UpdateSchedulerImpl
                                                              , {"@@lastFinishedTime@@"      , status.LastFinishdTime}
                                                              , {"@@firstfailedTimeElement@@", firstFailedElement}
                                                              , {"@@lastResult@@"            , std::to_string(status.LastResult)}
-                                                             , {"@@endpointid@@"            , "NotImplemented"}
-                                                             , //FIXME LINUXEP-6474
+                                                             , {"@@endpointid@@"            , machineId},
                                                              {  "@@subscriptionsElement@@"  , subscriptionsElement}
                                                      }
             );

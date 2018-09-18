@@ -47,6 +47,7 @@ namespace UpdateSchedulerImpl
 
         std::string
         SerializeUpdateStatus(const UpdateStatus& status, const std::string& revID, const std::string& versionId,
+                              const std::string & machineID, 
                               const Common::UtilityImpl::IFormattedTime& iFormattedTime);
 
     }

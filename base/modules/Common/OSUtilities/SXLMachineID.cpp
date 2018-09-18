@@ -46,6 +46,17 @@ namespace Common
                     "base/etc/machine_id.txt");
         }
 
+        std::string SXLMachineID::fetchMachineIdAndCreateIfNecessary()
+        {
+            std::string machineID = getMachineID();
+            if ( machineID.empty())
+            {
+                createMachineID();
+                machineID = getMachineID();
+            }
+            return machineID;
+        }
+
         //It is meant to be used in the installer, hence, it does not use log but standard error
         int mainEntry(int argc, char * argv[])
         {

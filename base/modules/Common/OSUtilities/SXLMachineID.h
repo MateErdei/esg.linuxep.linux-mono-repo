@@ -25,6 +25,11 @@ namespace Common
              */
             void createMachineID();
 
+            /**
+             * Equivalent to getMachineId and if empty, call created and getMachineId again.
+             */
+            std::string fetchMachineIdAndCreateIfNecessary();
+
         private:
             std::string machineIDPath() const;
         };

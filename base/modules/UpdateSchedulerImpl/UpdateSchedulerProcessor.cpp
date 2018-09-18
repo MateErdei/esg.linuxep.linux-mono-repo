@@ -7,15 +7,15 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "UpdateSchedulerProcessor.h"
 #include "configModule/DownloadReportsAnalyser.h"
 #include "Logger.h"
-#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include "configModule/UpdatePolicyTranslator.h"
 #include "configModule/UpdateActionParser.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/Process/IProcess.h>
-
+#include <Common/OSUtilities/SXLMachineID.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -44,6 +44,8 @@ namespace UpdateSchedulerImpl
               , m_formattedTime()
               , m_policyReceived(false)
     {
+        Common::OSUtilities::SXLMachineID sxlMachineID;
+        m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
 
     }
 
@@ -222,6 +224,7 @@ namespace UpdateSchedulerImpl
                 reportAndFiles.reportCollectionResult.SchedulerStatus,
                 m_policyTranslator.revID(),
                 VERSIONID,
+                m_machineID,
                 m_formattedTime
         );
 
@@ -233,6 +236,7 @@ namespace UpdateSchedulerImpl
                 copyStatus,
                 m_policyTranslator.revID(),
                 VERSIONID,
+                m_machineID,
                 m_formattedTime
         );
         m_callback->setStatus(Common::PluginApi::StatusInfo{statusXML, statusWithoutTimeStamp, ALC_API});

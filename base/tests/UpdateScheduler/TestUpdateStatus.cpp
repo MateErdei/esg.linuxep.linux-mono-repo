@@ -22,7 +22,7 @@ static std::string normalStatusXML{R"sophos(<?xml version="1.0" encoding="utf-8"
         <lastInstallStartedTime>20180812 10:00:00</lastInstallStartedTime>
         <lastFinishedTime>20180812 11:00:00</lastFinishedTime>
         <lastResult>0</lastResult>
-        <endpoint id="NotImplemented" />
+        <endpoint id="thisMachineID" />
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
@@ -41,7 +41,7 @@ static std::string errorReportedStatusXML{R"sophos(<?xml version="1.0" encoding=
         <lastFinishedTime>20180812 11:00:00</lastFinishedTime>
         <firstFailedTime>20180812 10:00:00</firstFailedTime>
         <lastResult>112</lastResult>
-        <endpoint id="NotImplemented" />
+        <endpoint id="thisMachineID" />
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
@@ -99,12 +99,12 @@ UpdateStatus getErrorStatus(  )
 TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
 {
     UpdateStatus status = getGoodStatus(  );
-    EXPECT_EQ( SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", *m_formattedTime), normalStatusXML);
+    EXPECT_EQ( SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime), normalStatusXML);
 }
 
 
 TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
 {
     UpdateStatus status = getErrorStatus(  );
-    EXPECT_EQ( SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", *m_formattedTime), errorReportedStatusXML);
+    EXPECT_EQ( SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime), errorReportedStatusXML);
 }

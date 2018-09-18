@@ -53,6 +53,7 @@ namespace UpdateSchedulerImpl
         configModule::UpdatePolicyTranslator m_policyTranslator;
         std::string m_reportfilePath;
         std::string m_configfilePath;
+        std::string m_machineID;
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
 
