@@ -74,6 +74,12 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         try
         {
             process->exec(installShFile, installArgs);
+            auto status = process->wait(Common::Process::Milliseconds(1000),600);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGERROR("Timeout waiting for installer "<< installShFile << " to finish");
+                process->kill();
+            }
             auto output = process->output();
             LOGINFO(output);
             exitCode = process->exitCode();
