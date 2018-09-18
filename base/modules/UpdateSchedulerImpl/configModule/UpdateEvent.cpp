@@ -45,7 +45,7 @@ std::string eventTemplate{R"sophos(<?xml version="1.0"?>
         {
             insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@", e.PackageName}});
         }
-        if( !e.ErrorDetails.empty())
+        /*if( !e.ErrorDetails.empty())
         {
             if( !insertEntry.empty())
             {
@@ -53,7 +53,7 @@ std::string eventTemplate{R"sophos(<?xml version="1.0"?>
             }
             //FIXME LINUXEP-6473: Get the correct error code to send to Central.
             insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@", "CodeErrorA"}});
-        }
+        }*/
 
         if( !allInserts.empty())
         {

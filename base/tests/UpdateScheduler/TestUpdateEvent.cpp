@@ -33,9 +33,7 @@ static std::string installFailedEventXML{R"sophos(<?xml version="1.0"?>
     <message>
       <message_inserts>
         <insert>BaseName</insert>
-        <insert>CodeErrorA</insert>
         <insert>PluginName</insert>
-        <insert>CodeErrorA</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -51,7 +49,7 @@ static std::string installCaughtErrorEventXML{R"sophos(<?xml version="1.0"?>
     <number>106</number>
     <message>
       <message_inserts>
-        <insert>CodeErrorA</insert>
+
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -67,9 +65,7 @@ static std::string downloadFailedEventXML{R"sophos(<?xml version="1.0"?>
     <message>
       <message_inserts>
         <insert>BaseName</insert>
-        <insert>CodeErrorA</insert>
         <insert>PluginName</insert>
-        <insert>CodeErrorA</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -99,7 +95,7 @@ static std::string connectionErrorEventXML{R"sophos(<?xml version="1.0"?>
     <number>112</number>
     <message>
       <message_inserts>
-        <insert>CodeErrorA</insert>
+
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
