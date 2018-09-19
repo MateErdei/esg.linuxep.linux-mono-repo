@@ -94,7 +94,12 @@ namespace Common
                 }
             }
 
-            std::sort( std::begin(macs), std::end(macs));
+            std::sort(std::begin(macs), std::end(macs));
+
+            // remove duplicates
+            auto last = std::unique( std::begin(macs), std::end(macs));
+            macs.erase(last, macs.end());
+
             return macs;
         }
 
