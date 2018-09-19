@@ -219,6 +219,7 @@ makedir 711 "${SOPHOS_INSTALL}/base"
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
 
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
+chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
