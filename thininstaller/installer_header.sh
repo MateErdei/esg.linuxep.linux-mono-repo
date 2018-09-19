@@ -353,11 +353,6 @@ cd distribute
 
 chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
 
-# FIXME LINUXEP-6542: add this back once we know what libs we need to symlink (if any)
-#cd lib64
-#create_symlinks
-#cd ..
-
 echo "Running base installer (this may take some time)"
 MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh
 inst_ret=$?
