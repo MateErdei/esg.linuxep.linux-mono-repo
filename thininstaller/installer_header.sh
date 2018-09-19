@@ -42,20 +42,6 @@ failure()
     cleanup_and_exit ${code}
 }
 
-create_symlinks()
-{
-    for baselib in `ls`
-    do
-        shortlib=${baselib}
-        while extn=$(echo ${shortlib} | sed -n '/\.[0-9][0-9]*$/s/.*\(\.[0-9][0-9]*\)$/\1/p')
-              [ -n "$extn" ]
-        do
-            shortlib=$(basename ${shortlib} ${extn})
-            ln -s "$baselib" "$shortlib" || failure ${EXITCODE_SYMLINKS_FAILED} "Failed to create library symlinks"
-        done
-    done
-}
-
 handle_installer_errorcodes()
 {
     errcode=$1
