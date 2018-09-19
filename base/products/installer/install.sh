@@ -180,10 +180,10 @@ GROUPADD="$(which groupadd)"
 
 function makedir()
 {
-    mkdir -p "$2" && chmod "$1" "$2"
+    mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
 }
 
-makedir 711 "$SOPHOS_INSTALL" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create installation directory: $SOPHOS_INSTALL"
+makedir 711 "$SOPHOS_INSTALL"
 chown root:${GROUP_NAME} "$SOPHOS_INSTALL"
 
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
