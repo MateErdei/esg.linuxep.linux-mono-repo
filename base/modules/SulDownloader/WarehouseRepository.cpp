@@ -306,6 +306,8 @@ namespace SulDownloader
     {
         productPair.second.setDistributePath(distributePath) ;
         const char *empty = "";
+        // 0 is passed in as a flag to say we do not want to use the default home folder specified in a component's
+        // SDDS-Import file.
         if ( !SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(),
                                                      0, empty,
                                                      empty)))

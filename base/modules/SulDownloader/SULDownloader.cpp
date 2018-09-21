@@ -138,7 +138,6 @@ namespace SulDownloader
         {
             if (product.productHasChanged() || product.forceProductReinstall())
             {
-                LOGINFO("Installing Product: " << product.getLine());
                 product.install(configurationData.getInstallArguments());
             }
             else
