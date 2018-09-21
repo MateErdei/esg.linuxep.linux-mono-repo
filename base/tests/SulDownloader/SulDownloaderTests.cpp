@@ -320,6 +320,9 @@ TEST_F(SULDownloaderTest,  //NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
@@ -820,6 +823,10 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
+
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
@@ -899,6 +906,9 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
@@ -974,6 +984,9 @@ TEST_F( SULDownloaderTest, //NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/installroot/base/update/cache/primary/everest");
+    products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 

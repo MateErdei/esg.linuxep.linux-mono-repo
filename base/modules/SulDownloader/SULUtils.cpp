@@ -5,11 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SULUtils.h"
+#include "suldownloaderdata/Logger.h"
 #include <iostream>
 #include <vector>
-
-
-#include "Logger.h"
 
 
 namespace

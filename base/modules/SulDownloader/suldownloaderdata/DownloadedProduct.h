@@ -93,12 +93,6 @@ namespace SulDownloader
             const std::string& getLine() const;
 
             /**
-             * Auxiliar method to return the folder name. It is equivalent to: getProductMetadata().getDefaultHomePath()
-             * @return Product Line
-             */
-            const std::string& distributionFolderName();
-
-            /**
              *
              * @return Flag configured by ::setProductHasChanged
              */

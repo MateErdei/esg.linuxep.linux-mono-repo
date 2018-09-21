@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Logger.h"
+#include "suldownloaderdata/Logger.h"
 #include "ProductUninstaller.h"
 
 #include <Common/FileSystem/IFileSystem.h>

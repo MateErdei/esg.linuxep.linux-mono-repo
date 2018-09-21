@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SULUtils.h"
 #include "SULRaii.h"
-#include "Logger.h"
+#include "suldownloaderdata/Logger.h"
 
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
@@ -16,6 +16,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <sstream>
+
+#include <Common/FileSystem/IFileSystem.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -262,7 +264,7 @@ namespace SulDownloader
         for ( auto & productPair : m_products)
         {
             std::string distributePath = getRootDistributionPath();
-
+            distributePath = Common::FileSystem::join(distributePath, productPair.second.getLine());
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
         }
@@ -305,7 +307,7 @@ namespace SulDownloader
         productPair.second.setDistributePath(distributePath) ;
         const char *empty = "";
         if ( !SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(),
-                                                     SU_AddDistributionFlag_UseDefaultHomeFolder, empty,
+                                                     0, empty,
                                                      empty)))
         {
             SULUtils::displayLogs(session());

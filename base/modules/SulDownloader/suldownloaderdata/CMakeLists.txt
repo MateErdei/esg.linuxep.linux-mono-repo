@@ -36,6 +36,7 @@ add_library(suldownloaderdata SHARED
         VersigImpl.cpp
         VersigImpl.h)
 
-target_link_libraries(suldownloaderdata PUBLIC ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl)
+include_directories(suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(suldownloaderdata PUBLIC ${Protobuf_LIBRARIES} filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging)
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION files/base/lib64)

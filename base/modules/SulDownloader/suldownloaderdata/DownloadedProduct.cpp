@@ -36,8 +36,7 @@ void DownloadedProduct::verify(const std::string& rootca)
     assert(m_state == State::Distributed);
     m_state = State::Verified;
     auto iVersig = createVersig();
-    std::string product_path = Common::FileSystem::join(m_distributePath, distributionFolderName());
-    if (iVersig->verify(rootca, product_path) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
+    if (iVersig->verify(rootca, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
         WarehouseError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";
@@ -59,7 +58,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
     auto fileSystem = ::Common::FileSystem::fileSystem();
 
-    std::string installShFile = Common::FileSystem::join(m_distributePath, distributionFolderName(), "install.sh");
+    std::string installShFile = Common::FileSystem::join(m_distributePath, "install.sh");
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {
@@ -131,11 +130,6 @@ void DownloadedProduct::setError(const WarehouseError& error)
 WarehouseError DownloadedProduct::getError() const
 {
     return m_error;
-}
-
-const std::string& DownloadedProduct::distributionFolderName()
-{
-    return m_productMetadata.getDefaultHomePath();
 }
 
 void DownloadedProduct::setDistributePath(const std::string& distributePath)

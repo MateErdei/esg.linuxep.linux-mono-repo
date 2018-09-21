@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SULRaii.h"
 #include "WarehouseRepository.h"
 #include "WarehouseRepositoryFactory.h"
-#include "Logger.h"
+#include "suldownloaderdata/Logger.h"
 #include "ProductUninstaller.h"
 
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
@@ -138,6 +138,7 @@ namespace SulDownloader
         {
             if (product.productHasChanged() || product.forceProductReinstall())
             {
+                LOGINFO("Installing Product: " << product.getLine());
                 product.install(configurationData.getInstallArguments());
             }
             else
