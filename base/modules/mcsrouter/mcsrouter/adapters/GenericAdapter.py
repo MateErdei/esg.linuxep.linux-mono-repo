@@ -23,6 +23,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
         return self.__m_appid
 
     def __processPolicy(self, policy):
+        policy = policy.encode('utf-8')  # handle non ascii characters ( LINUXEP-6757 )
         logger.debug("%s Adapter processing policy %s", self.__m_appid, str(policy))
         logger.debug("Received %s policy", self.__m_appid)
 
