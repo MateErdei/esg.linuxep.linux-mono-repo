@@ -110,6 +110,7 @@ check_SAV_installed()
 #
 sophos_mktempdir()
 {
+    _mktemp=`which mktemp 2>/dev/null`
     if [ -x "${_mktemp}" ] ; then
         # mktemp exists - use it
         _tmpdirTemplate="$TMPDIR/$1_XXXXXXX"
