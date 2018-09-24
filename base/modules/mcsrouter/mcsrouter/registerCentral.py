@@ -42,7 +42,7 @@ from .mcsclient import MCSConnection
 from . import MCS
 from .utils import PathManager
 
-#~ import SECObfuscation
+from .utils import SECObfuscation
 
 def setupLogging():
     rootLogger = logging.getLogger()

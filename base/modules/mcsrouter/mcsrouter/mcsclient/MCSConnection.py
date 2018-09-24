@@ -157,7 +157,7 @@ class MCSConnection(object):
             return None
 
         if not self.__m_obfuscationCache.has_key(obfuscated):
-            import SECObfuscation
+            from mcsrouter.utils import SECObfuscation
             try:
                 self.__m_obfuscationCache[obfuscated] = SECObfuscation.deobfuscate(obfuscated)
             except SECObfuscation.SECObfuscationException as e:
