@@ -16,6 +16,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/Process/IProcess.h>
 #include <Common/OSUtilities/SXLMachineID.h>
+#include <thread>
+#include <csignal>
 
 namespace UpdateSchedulerImpl
 {
@@ -52,6 +54,8 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::mainLoop()
     {
         LOGINFO("Update Scheduler Starting");
+
+        enforceSulDownloaderFinished();
 
         m_cronThread->start();
 
@@ -312,5 +316,83 @@ namespace UpdateSchedulerImpl
     std::string UpdateSchedulerProcessor::getAppId()
     {
         return ALC_API;
+    }
+
+    void UpdateSchedulerProcessor::enforceSulDownloaderFinished()
+    {
+        std::string pathOfSulDownloader = Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+                "base/bin/SulDownloader");
+        auto iFileSystem = Common::FileSystem::fileSystem();
+
+        std::string pidOfCommand;
+        for( std::string candidate: {"/bin/pidof", "/usr/sbin/pidof"})
+        {
+            if( iFileSystem->isExecutable(candidate))
+            {
+                pidOfCommand = candidate;
+                break;
+            }
+        }
+
+        if( pidOfCommand.empty())
+        {
+            LOGWARN("Can not verify if SulDownloader is running ");
+            return;
+        }
+
+
+        int i = 0;
+        int pidOfSulDownloader = -1;
+        while( true )
+        {
+            auto iProcess = Common::Process::createProcess();
+            iProcess->exec(pidOfCommand, {pathOfSulDownloader});
+            if ( iProcess->exitCode() == 1)
+            {
+                // pidof returns 1 if no process with the given name is found.
+                break;
+            }
+
+            if( i == 0)
+            {
+                LOGINFO("Waiting for SulDownloader to finish.");
+            }
+            i++;
+            // add new log every minute
+            if( i%60 ==0 )
+            {
+                LOGINFO("SulDownloader still running.");
+            }
+
+            // give up to 10 minutes to SulDownloader to finish.
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            // handle receiving shutdown while waiting for sulDownloader to finish.
+            if ( m_callback->shutdownReceived())
+            {
+                break;
+            }
+            if( i > 600)
+            {
+                std::string outputPidOf = iProcess->output();
+                LOGDEBUG("Pid of SulDownloader: " << outputPidOf);
+                try
+                {
+                    pidOfSulDownloader = std::stoi(outputPidOf);
+                }
+                catch (std::exception & )
+                {
+                    LOGWARN("Can not issue a kill command to SulDownloader");
+                    return;
+                }
+                LOGWARN("Forcing SulDownloader to stop");
+                ::kill(pidOfSulDownloader, SIGTERM);
+                return;
+            }
+        }
+
+        LOGINFO("No instance of SulDownloader running.");
+
     }
 }

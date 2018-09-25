@@ -29,6 +29,7 @@ namespace UpdateSchedulerImpl
         static std::string getAppId();
 
     private:
+        void enforceSulDownloaderFinished();
         void processPolicy(const std::string & policyXml);
 
         void processUpdateNow(const std::string& actionXml);

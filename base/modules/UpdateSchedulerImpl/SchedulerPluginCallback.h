@@ -8,6 +8,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <atomic>
 
 namespace UpdateSchedulerImpl
 {
@@ -15,6 +16,7 @@ namespace UpdateSchedulerImpl
     {
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
+        std::atomic<bool> m_shutdownReceived;
     public:
 
         explicit SchedulerPluginCallback(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> task);
@@ -28,6 +30,7 @@ namespace UpdateSchedulerImpl
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
+        bool shutdownReceived();
 
     };
 };

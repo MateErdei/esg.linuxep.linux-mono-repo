@@ -13,7 +13,7 @@ namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
-        m_task(task), m_statusInfo()
+        m_task(task), m_statusInfo(), m_shutdownReceived(false)
     {
         std::string noPolicySetStatus{
             R"sophos(<?xml version="1.0" encoding="utf-8" ?>
@@ -42,6 +42,7 @@ namespace UpdateSchedulerImpl
     void SchedulerPluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
+        m_shutdownReceived = true;
         m_task->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
 
     }
@@ -68,5 +69,10 @@ namespace UpdateSchedulerImpl
     {
         LOGSUPPORT("Received get telemetry request");
         return std::string();
+    }
+
+    bool SchedulerPluginCallback::shutdownReceived()
+    {
+        return m_shutdownReceived;
     }
 }
