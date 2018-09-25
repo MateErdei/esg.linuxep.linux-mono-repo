@@ -390,7 +390,7 @@ static int downloadInstaller(std::string location, bool updateCache)
 
     if (!g_Product)
     {
-        fprintf(stderr, "Internal error - medium installer not found\n");
+        fprintf(stderr, "Internal error - base installer not found\n");
         return 47;
     }
 
