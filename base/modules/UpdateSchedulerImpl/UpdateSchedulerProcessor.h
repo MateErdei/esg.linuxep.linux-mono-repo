@@ -29,7 +29,7 @@ namespace UpdateSchedulerImpl
         static std::string getAppId();
 
     private:
-        void enforceSulDownloaderFinished();
+        void enforceSulDownloaderFinished(int numberOfSeconds2Wait);
         void processPolicy(const std::string & policyXml);
 
         void processUpdateNow(const std::string& actionXml);
@@ -38,7 +38,7 @@ namespace UpdateSchedulerImpl
         void processSulDownloaderFinished(const std::string & reportFileLocation );
         void processSulDownloaderFailedToStart(const std::string & errorMessage);
         void processSulDownloaderTimedOut( );
-        void processSulDownloaderWasAborted();
+        void processSulDownloaderMonitorDetached();
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
         void writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData&);
 

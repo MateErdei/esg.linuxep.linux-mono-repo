@@ -149,7 +149,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
     runner.abortWaitingForReport();
     runnerThread.join();
     auto task = queue->pop();
-    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderWasAborted);
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderMonitorDetached);
 }
 
 TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT

@@ -114,6 +114,6 @@ TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
     // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();
 
-    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderWasAborted);
+    EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderMonitorDetached);
 }
 

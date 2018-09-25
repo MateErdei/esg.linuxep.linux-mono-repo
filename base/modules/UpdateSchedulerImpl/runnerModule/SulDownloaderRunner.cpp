@@ -52,8 +52,8 @@ namespace UpdateSchedulerImpl
             {
                 if (m_listener.wasAborted())
                 {
-                    schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderWasAborted;
-                    LOGINFO("Update Service was aborted.");
+                    schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderMonitorDetached;
+                    LOGINFO("Update Service not monitoring SulDownloader execution.");
                 }
                 else
                 {

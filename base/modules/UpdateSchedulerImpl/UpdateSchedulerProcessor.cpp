@@ -55,7 +55,7 @@ namespace UpdateSchedulerImpl
     {
         LOGINFO("Update Scheduler Starting");
 
-        enforceSulDownloaderFinished();
+        enforceSulDownloaderFinished(600);
 
         m_cronThread->start();
 
@@ -87,8 +87,8 @@ namespace UpdateSchedulerImpl
                     case SchedulerTask::TaskType::SulDownloaderTimedOut:
                         processSulDownloaderTimedOut();
                         break;
-                    case SchedulerTask::TaskType::SulDownloaderWasAborted:
-                        processSulDownloaderWasAborted();
+                    case SchedulerTask::TaskType::SulDownloaderMonitorDetached:
+                        processSulDownloaderMonitorDetached();
                         break;
                     case SchedulerTask::TaskType::ShutdownReceived:
                         processShutdownReceived();
@@ -174,7 +174,7 @@ namespace UpdateSchedulerImpl
         LOGINFO("Shutdown received");
         if (m_sulDownloaderRunner->isRunning())
         {
-            LOGSUPPORT("Abort SulDownloader");
+            LOGSUPPORT("Stop monitoring SulDownloader execution.");
             m_sulDownloaderRunner->triggerAbort();
         }
         m_cronThread->requestStop();
@@ -259,10 +259,13 @@ namespace UpdateSchedulerImpl
         ensureSulDownloaderNotRunning();
     }
 
-    void UpdateSchedulerProcessor::processSulDownloaderWasAborted()
+    void UpdateSchedulerProcessor::processSulDownloaderMonitorDetached()
     {
-        LOGWARN("SulDownloader process was aborted");
-        ensureSulDownloaderNotRunning();
+        LOGWARN("Monitoring SulDownloader aborted");
+        if ( !m_callback->shutdownReceived())
+        {
+            ensureSulDownloaderNotRunning();
+        }
     }
 
     void UpdateSchedulerProcessor::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
@@ -307,10 +310,7 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::ensureSulDownloaderNotRunning()
     {
-        auto process = Common::Process::createProcess();
-        process->exec("/usr/bin/killall", {"SulDownloader"});
-        std::string result = process->output();
-        LOGSUPPORT("Killall suldownloader produced message: " << result);
+        enforceSulDownloaderFinished(1);
     }
 
     std::string UpdateSchedulerProcessor::getAppId()
@@ -318,7 +318,7 @@ namespace UpdateSchedulerImpl
         return ALC_API;
     }
 
-    void UpdateSchedulerProcessor::enforceSulDownloaderFinished()
+    void UpdateSchedulerProcessor::enforceSulDownloaderFinished(int numberOfSeconds2Wait)
     {
         std::string pathOfSulDownloader = Common::FileSystem::join(
                 Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
@@ -365,15 +365,7 @@ namespace UpdateSchedulerImpl
                 LOGINFO("SulDownloader still running.");
             }
 
-            // give up to 10 minutes to SulDownloader to finish.
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-            // handle receiving shutdown while waiting for sulDownloader to finish.
-            if ( m_callback->shutdownReceived())
-            {
-                break;
-            }
-            if( i > 600)
+            if( i >= numberOfSeconds2Wait)
             {
                 std::string outputPidOf = iProcess->output();
                 LOGDEBUG("Pid of SulDownloader: " << outputPidOf);
@@ -390,6 +382,15 @@ namespace UpdateSchedulerImpl
                 ::kill(pidOfSulDownloader, SIGTERM);
                 return;
             }
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            // handle receiving shutdown while waiting for sulDownloader to finish.
+            if ( m_callback->shutdownReceived())
+            {
+                break;
+            }
+
         }
 
         LOGINFO("No instance of SulDownloader running.");

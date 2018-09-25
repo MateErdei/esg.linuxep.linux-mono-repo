@@ -24,7 +24,7 @@ namespace UpdateScheduler
             SulDownloaderFinished,
             SulDownloaderFailedToStart,
             SulDownloaderTimedOut,
-            SulDownloaderWasAborted};
+            SulDownloaderMonitorDetached};
 
         TaskType  taskType;
         std::string content;
