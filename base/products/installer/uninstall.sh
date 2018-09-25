@@ -37,8 +37,9 @@ function removeWatchdogSystemdService()
 }
 
 removeUpdaterSystemdService
-removeWatchdogSystemdService
 
+# Uninstall plugins before stopping watchdog, so the plugins' uninstall scripts
+# can stop the plugin process via wdctl.
 PLUGIN_UNINSTALL_DIR="${SOPHOS_INSTALL}/base/update/var/installedproducts"
 if [[ -d "$PLUGIN_UNINSTALL_DIR" ]]
 then
@@ -50,6 +51,8 @@ then
 else
     echo "Can't uninstall plugins: $PLUGIN_UNINSTALL_DIR doesn't exist"
 fi
+
+removeWatchdogSystemdService
 
 rm -rf "$SOPHOS_INSTALL"
 
