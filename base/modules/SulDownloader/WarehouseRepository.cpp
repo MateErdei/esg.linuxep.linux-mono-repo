@@ -449,7 +449,7 @@ namespace SulDownloader
         {
             const std::string& cacheURL = connectionSetup.getUpdateLocationURL();
 
-            std::string updateCacheCustomerLocation = cacheURL + "sophos/customer";
+            std::string updateCacheCustomerLocation = "http://" + cacheURL + "/sophos/customer";
 
             if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateCacheCustomerLocation.c_str())))
             {
@@ -458,7 +458,7 @@ namespace SulDownloader
                 return;
             }
 
-            std::string redirectAddress = cacheURL + "sophos/warehouse";
+            std::string redirectAddress = cacheURL + "/sophos/warehouse";
 
             for (std::string externalURL : {"d1.sophosupd.com/update",
                                             "d1.sophosupd.net/update",
