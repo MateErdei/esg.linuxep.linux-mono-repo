@@ -49,7 +49,8 @@ public:
                                        "name": "hello",
                                        "value": "world"
                                       }
-                                     ]
+                                     ],
+                                     "executableUserAndGroup": "user:group"
                                     })";
 
         if(!oldPartString.empty())
@@ -96,6 +97,7 @@ public:
         pluginInfo.addExecutableEnvironmentVariables( "hello", "world");
         pluginInfo.setPolicyAppIds({"app1"});
         pluginInfo.setStatusAppIds({"app2"});
+        pluginInfo.setExecutableUserAndGroup("user:group");
 
         return pluginInfo;
     }
@@ -136,9 +138,14 @@ public:
                                                  << "\n result: " <<  resulted.getXmlTranslatorPath();
         }
 
+        if( expected.getExecutableUserAndGroupAsString() != resulted.getExecutableUserAndGroupAsString())
         {
+            return ::testing::AssertionFailure() << s.str() << " User And Group string differs: \n expected: "
+                                                 <<  expected.getExecutableUserAndGroupAsString()
+                                                 << "\n result: " <<  resulted.getExecutableUserAndGroupAsString();
+        }
 
-
+        {
             std::vector<std::string> expectedValues = expected.getPolicyAppIds();
             std::vector<std::string> resultedValues = resulted.getPolicyAppIds();
 
@@ -151,7 +158,6 @@ public:
                                                         <<  ::testing::PrintToString(expectedValues)
                                                         << "\n result: " <<  ::testing::PrintToString(resultedValues);
             }
-
         }
 
         {
@@ -192,9 +198,6 @@ public:
 
             std::sort(expectedValues.begin(), expectedValues.end());
             std::sort(resultedValues.begin(), resultedValues.end());
-
-            //std::string expectedString = convertVectorToString(expectedValues);
-            //std::string resultedString = convertVectorToString(resultedValues);
 
             if( expectedValues != resultedValues)
             {
@@ -610,7 +613,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringReturnsExpectedPlugi
                                        "name": "hello",
                                        "value": "world"
                                       }
-                                     ])";
+                                     ],)";
 
     std::string newString;
 
@@ -903,4 +906,52 @@ TEST_F(PluginRegistryTests, extractPluginNameReturnsCorrectAnswer) //NOLINT
 {
     std::string plugin = Common::PluginRegistryImpl::PluginInfo::extractPluginNameFromFilename("/foo/bar/sav.json");
     EXPECT_EQ(plugin,"sav");
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("root:root");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    EXPECT_EQ(userActual.first, true);
+    EXPECT_EQ(userActual.second, 0);
+
+    EXPECT_EQ(groupActual.first, true);
+    EXPECT_EQ(groupActual.second, 0);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("root");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    EXPECT_EQ(userActual.first, true);
+    EXPECT_EQ(userActual.second, 0);
+
+    EXPECT_EQ(groupActual.first, true);
+    EXPECT_EQ(groupActual.second, 0);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("baduser:badgroup");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    uid_t invalidUser = static_cast<uid_t>(-1);
+    gid_t invalidGroup = static_cast<gid_t>(-1);
+
+    EXPECT_EQ(userActual.first, false);
+    EXPECT_EQ(userActual.second, invalidUser);
+
+    EXPECT_EQ(groupActual.first, false);
+    EXPECT_EQ(groupActual.second, invalidGroup);
 }

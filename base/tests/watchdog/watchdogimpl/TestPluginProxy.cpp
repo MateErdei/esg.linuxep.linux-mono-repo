@@ -58,6 +58,7 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
     );
 
     Common::PluginRegistryImpl::PluginInfo info;
+    info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
 
     watchdog::watchdogimpl::PluginProxy proxy(info);
@@ -85,6 +86,7 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     );
 
     Common::PluginRegistryImpl::PluginInfo info;
+    info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
 
     watchdog::watchdogimpl::PluginProxy proxy(info);

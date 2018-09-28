@@ -16,11 +16,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <pwd.h>
 #include <grp.h>
+#include <unistd.h>
 
 namespace Common
 {
     namespace PluginRegistryImpl
     {
+        PluginInfo::PluginInfo()
+        : m_executableUser(-1)
+        , m_executableGroup(-1)
+        {
+
+        }
 
         std::vector<std::string> PluginInfo::getPolicyAppIds() const
         {
@@ -55,16 +62,6 @@ namespace Common
         std::string PluginInfo::getExecutableFullPath() const
         {
             return m_executableFullPath;
-        }
-
-        uid_t PluginInfo::getExecutableUser() const
-        {
-            return m_executableUser;
-        }
-
-        gid_t PluginInfo::getExecutableGroup() const
-        {
-            return m_executableGroup;
         }
 
         void PluginInfo::setPolicyAppIds(const std::vector<std::string> &appIDs)
@@ -112,31 +109,73 @@ namespace Common
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
         }
 
-        void PluginInfo::setExecutableUserGroup(const std::string &executableUserGroup)
+        void PluginInfo::setExecutableUserAndGroup(const std::string& executableUserAndGroup)
         {
-            size_t pos = executableUserGroup.find(':');
+            m_executableUser = -1;
+            m_executableGroup = -1;
 
-            struct passwd *pw;
-            pw = getpwnam(executableUserGroup.substr(0, pos).c_str());
-            if (pw)
+            m_executableUserAndGroupAsString = executableUserAndGroup;
+
+            size_t pos = executableUserAndGroup.find(':');
+
+            std::string userName = executableUserAndGroup.substr(0, pos);
+
+            std::string groupName;
+            if (pos == std::string::npos)
             {
-                m_executableUser = pw->pw_uid;
+                groupName = executableUserAndGroup.substr(pos + 1);
+            }
 
-                if (pos == std::string::npos)
+            struct passwd *passwdStruct;
+            passwdStruct = ::getpwnam(userName.c_str());
+
+            if (passwdStruct != nullptr)
+            {
+                m_executableUser = passwdStruct->pw_uid;
+
+                if (groupName.empty())
                 {
-                    m_executableGroup = pw->pw_gid;
+                    m_executableGroup = passwdStruct->pw_gid;
                 }
                 else
                 {
-                    struct group* gr = getgrnam(executableUserGroup.substr(pos + 1).c_str());
-                    m_executableGroup = gr ? gr->gr_gid : 0;
+                    struct group* groupStruct = ::getgrnam(groupName.c_str());
+                    if (groupStruct != nullptr)
+                    {
+                        m_executableGroup = groupStruct->gr_gid;
+                    }
                 }
             }
-            else
+        }
+
+        std::string PluginInfo::getExecutableUserAndGroupAsString() const
+        {
+            return m_executableUserAndGroupAsString;
+        }
+
+        std::pair<bool, uid_t>  PluginInfo::getExecutableUser() const
+        {
+            uid_t userId = static_cast<uid_t>(m_executableUser);
+
+            if (m_executableUser != -1)
             {
-                m_executableUser = 0;
-                m_executableGroup = 0;
+                return std::make_pair(true, userId);
             }
+
+            return std::make_pair(false, userId);
+
+        }
+
+        std::pair<bool, gid_t> PluginInfo::getExecutableGroup() const
+        {
+            gid_t groupId = static_cast<gid_t>(m_executableGroup);
+
+            if (m_executableGroup != -1)
+            {
+                return std::make_pair(true, groupId);
+            }
+
+            return std::make_pair(false, groupId);
         }
 
         std::string PluginInfo::serializeToString(const PluginInfo & pluginInfo)
@@ -156,6 +195,7 @@ namespace Common
 
             pluginInfoProto.set_pluginname(pluginInfo.getPluginName());
             pluginInfoProto.set_xmltranslatorpath(pluginInfo.getXmlTranslatorPath());
+            pluginInfoProto.set_executableuserandgroup(pluginInfo.getExecutableUserAndGroupAsString());
             pluginInfoProto.set_executablefullpath(pluginInfo.getExecutableFullPath());
 
             for(auto & arg : pluginInfo.getExecutableArguments())
@@ -213,7 +253,7 @@ namespace Common
             }
             pluginInfo.setPluginName(pluginname);
             pluginInfo.setXmlTranslatorPath(protoPluginInfo.xmltranslatorpath());
-            pluginInfo.setExecutableUserGroup(protoPluginInfo.executableusergroup());
+            pluginInfo.setExecutableUserAndGroup(protoPluginInfo.executableuserandgroup());
             pluginInfo.setExecutableFullPath(protoPluginInfo.executablefullpath());
 
             for( const auto & argv : protoPluginInfo.executablearguments())
@@ -318,6 +358,8 @@ namespace Common
             std::string prefix = basename.substr(0, basename.size() - 5);
             return prefix;
         }
+
+
 
     }
 }

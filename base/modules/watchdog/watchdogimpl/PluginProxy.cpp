@@ -33,18 +33,28 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
 
 void PluginProxy::start()
 {
+    std::pair<bool, uid_t> userId = m_info.getExecutableUser();
+    std::pair<bool, gid_t> groupId = m_info.getExecutableGroup();
+
     if (m_exe.empty())
     {
         LOGINFO("Not starting plugin without executable");
         return;
     }
+
+    if (!userId.first || !groupId.first)
+    {
+        LOGERROR("Not starting plugin: invalid user name or group name");
+        return;
+    }
+
     LOGINFO("Starting "<<m_exe);
     assert(m_process != nullptr);
     m_process->exec(m_exe,
                     m_info.getExecutableArguments(),
                     m_info.getExecutableEnvironmentVariables(),
-                    m_info.getExecutableUser(),
-                    m_info.getExecutableGroup()
+                    userId.second,
+                    groupId.second
     );
     m_running = true;
 }

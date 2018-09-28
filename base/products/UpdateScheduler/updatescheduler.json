@@ -6,5 +6,6 @@
     "ALC"
   ],
   "pluginName": "updatescheduler",
-  "executableFullPath": "base/bin/UpdateScheduler"
+  "executableFullPath": "base/bin/UpdateScheduler",
+  "executableUserAndGroup": "root:root"
 }

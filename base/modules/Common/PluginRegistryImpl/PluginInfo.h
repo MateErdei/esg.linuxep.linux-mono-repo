@@ -26,6 +26,10 @@ namespace Common
         class PluginInfo
         {
         public:
+
+            PluginInfo();
+            ~PluginInfo() = default;
+
             using EnvPairs = Common::Process::EnvPairVector;
 
             /**
@@ -75,8 +79,6 @@ namespace Common
              */
             EnvPairs getExecutableEnvironmentVariables() const;
 
-            uid_t getExecutableUser() const;
-            gid_t getExecutableGroup() const;
 
             /**
              * Used to store the given Policy AppIds the plugin is interested in.
@@ -145,7 +147,30 @@ namespace Common
              */
             void addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue);
 
-            void setExecutableUserGroup(const std::string& executableUserGroup);
+            /**
+             * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will be set.
+             * @param executableUserAndGroup string in the form "user:group" or "user"
+             */
+            void setExecutableUserAndGroup(const std::string& executableUserAndGroup);
+
+            /**
+             *
+             * @return Executable user and group in the form "user:group" or "user"
+             */
+            std::string getExecutableUserAndGroupAsString() const;
+
+            /**
+             * gets user id relating to the Executable user
+             * @return pair <true, valid user id> if the user id is valid, pair <false, invalid user id> otherwise
+             */
+            std::pair<bool, uid_t>  getExecutableUser() const;
+
+            /**
+              * gets group id relating to the Executable group
+              * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
+              */
+            std::pair<bool, gid_t>  getExecutableGroup() const;
+
             /**
              * Serialize pluginInfo object into protobuf message.
              * @param pluginInfo object to be serialized
@@ -205,6 +230,8 @@ namespace Common
             static std::string extractPluginNameFromFilename(const std::string& filepath);
 
         private:
+            int m_executableUser;
+            int m_executableGroup;
             std::vector<std::string> m_policyAppIds;
             std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
@@ -212,8 +239,7 @@ namespace Common
             std::string m_executableFullPath;
             std::vector<std::string> m_executableArguments;
             EnvPairs m_executableEnvironmentVariables;
-            uid_t m_executableUser;
-            gid_t m_executableGroup;
+            std::string m_executableUserAndGroupAsString;
         };
     }
 }

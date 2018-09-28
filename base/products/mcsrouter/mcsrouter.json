@@ -1,3 +1,4 @@
 {
-  "executableFullPath": "base/bin/mcsrouter"
+  "executableFullPath": "base/bin/mcsrouter",
+  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
 }
