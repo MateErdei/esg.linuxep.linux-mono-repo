@@ -938,6 +938,24 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserStor
     EXPECT_EQ(groupActual.second, 0);
 }
 
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("baduser");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    uid_t invalidUser = static_cast<uid_t>(-1);
+    gid_t invalidGroup = static_cast<gid_t>(-1);
+
+    EXPECT_EQ(userActual.first, false);
+    EXPECT_EQ(userActual.second, invalidUser);
+
+    EXPECT_EQ(groupActual.first, false);
+    EXPECT_EQ(groupActual.second, invalidGroup);
+}
+
 TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults)
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
@@ -951,6 +969,41 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAn
 
     EXPECT_EQ(userActual.first, false);
     EXPECT_EQ(userActual.second, invalidUser);
+
+    EXPECT_EQ(groupActual.first, false);
+    EXPECT_EQ(groupActual.second, invalidGroup);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("baduser:root");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    uid_t invalidUser = static_cast<uid_t>(-1);
+    gid_t invalidGroup = static_cast<gid_t>(-1);
+
+    EXPECT_EQ(userActual.first, false);
+    EXPECT_EQ(userActual.second, invalidUser);
+
+    EXPECT_EQ(groupActual.first, false);
+    EXPECT_EQ(groupActual.second, invalidGroup);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults)
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo.setExecutableUserAndGroup("root:badgroup");
+
+    std::pair<bool, uid_t> userActual = pluginInfo.getExecutableUser();
+    std::pair<bool, uid_t> groupActual = pluginInfo.getExecutableGroup();
+
+    gid_t invalidGroup = static_cast<gid_t>(-1);
+
+    EXPECT_EQ(userActual.first, true);
+    EXPECT_EQ(userActual.second, 0);
 
     EXPECT_EQ(groupActual.first, false);
     EXPECT_EQ(groupActual.second, invalidGroup);

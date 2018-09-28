@@ -121,7 +121,7 @@ namespace Common
             std::string userName = executableUserAndGroup.substr(0, pos);
 
             std::string groupName;
-            if (pos == std::string::npos)
+            if (pos != std::string::npos)
             {
                 groupName = executableUserAndGroup.substr(pos + 1);
             }
