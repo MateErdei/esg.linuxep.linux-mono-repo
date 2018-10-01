@@ -25,7 +25,8 @@ export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
 
-while [ $# -ge 1 ]; do
+while [[ $# -ge 1 ]]
+do
     case $1 in
         --clean)
             CLEAN=1
@@ -50,7 +51,6 @@ while [ $# -ge 1 ]; do
     esac
     shift
 done
-
 
 function untar_or_link_to_redist()
 {
@@ -245,6 +245,7 @@ function build()
     if [[ ${BULLSEYE} == 1 ]]
     then
         ## Process bullseye output
+        echo "Process bullseye output"
     fi
 
     echo "Build completed"
