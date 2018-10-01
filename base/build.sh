@@ -250,10 +250,7 @@ function build()
     if [[ ${BULLSEYE} == 1 ]]
     then
         ## Process bullseye output
-        echo "Process bullseye output"
-        htmldir=output/coverage/sspl
-        $BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
-        rsync -va --rsh="ssh -i build/bullseye/private.key" --delete $htmldir upload@allegro.eng.sophos:public_html/bullseye/ || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
+        bash build/bullseye/uploadResults.sh || exit $?
     fi
 
     echo "Build completed"
