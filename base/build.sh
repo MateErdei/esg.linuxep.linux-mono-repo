@@ -22,6 +22,7 @@ mkdir -p $BASE/log || exit 1
 
 CLEAN=0
 BULLSEYE=0
+BULLSEYE_UPLOAD_UNITTEST=0
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
@@ -50,6 +51,9 @@ do
         --covfile)
             shift
             COVFILE=$1
+            ;;
+        --bullseye-upload-unittest)
+            BULLSEYE_UPLOAD_UNITTEST=1
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -249,7 +253,7 @@ function build()
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
 
 
-    if [[ ${BULLSEYE} == 1 ]]
+    if [[ ${BULLSEYE_UPLOAD_UNITTEST} == 1 ]]
     then
         ## Process bullseye output
         bash build/bullseye/uploadResults.sh || exit $?
