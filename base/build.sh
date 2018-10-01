@@ -3,6 +3,7 @@ PRODUCT=sspl-base
 
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
+FAILURE_BULLSEYE=52
 
 source /etc/profile
 set -ex
@@ -189,7 +190,9 @@ function build()
 
     if [[ ${BULLSEYE} == 1 ]]
     then
-        BULLSEYE_DIR=/usr/local/bullseye
+        BULLSEYE_DIR=/opt/BullseyeCoverage
+        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
+        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
         addpath ${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE="/tmp/root/sspl.cov"
