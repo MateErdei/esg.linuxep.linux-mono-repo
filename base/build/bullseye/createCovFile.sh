@@ -15,7 +15,6 @@ function failure()
     exit $E
 }
 
-}
 [[ -n $COVFILE ]] || failure 2 "COVFILE not set!"
 
 if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
