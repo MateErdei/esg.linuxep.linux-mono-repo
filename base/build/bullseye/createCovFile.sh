@@ -15,7 +15,7 @@ function failure()
     exit $E
 }
 
-[[ -n $COVFILE ]] || failure 2 "COVFILE not set!"
+[[ -n ${COVFILE} ]] || failure 2 "COVFILE not set!"
 
 if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
 then
@@ -27,21 +27,21 @@ then
 fi
 
 CLEAN=0
-if [[ ! -f $COVFILE ]]
+if [[ ! -f ${COVFILE} ]]
 then
-    mkdir -p $(dirname $COVFILE)
+    mkdir -p $(dirname ${COVFILE})
     covmgr -l -c
     cov01 -1
 
-    [[ -f $COVFILE ]] || {
+    [[ -f ${COVFILE} ]] || {
         echo "Failed to create COVFILE: $?"
         exit 1
     }
     CLEAN=1
-
 fi
 
-covselect --deleteAll
+chmod 666 "${COVFILE}"
+covselect --deleteAll || failure 10 "Failed to clean cov selections"
 
 ## cov exclusions need to be relative to the COVFILE
 
@@ -99,15 +99,15 @@ echo "rel path = $currentDir"
 function exclude()
 {
     echo "covselect --add $*"
-    covselect --add $@
+    covselect --add $@ || failure 3 "Failed to add exclusion $*"
 }
 
 echo "Excluding \!../../redist/"
-covselect --quiet --add \!../../redist/
+covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
 echo "Excluding \!../../opt/"
-covselect --quiet --add \!../../opt/
+covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
 echo "Excluding \!../../lib/"
-covselect --quiet --add \!../../lib/
+covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
 
 SRC_TEST_DIR=${SRC_DIR}/tests
 
@@ -122,4 +122,3 @@ exclude \!../..${SRC_TEST_DIR}/
 
 echo "Exclusions:"
 covselect --list --no-banner
-
