@@ -17,8 +17,14 @@ function exitFailure()
 
 htmldir=output/coverage/sspl
 
-$BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+$BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" \
+    </dev/null \
+    || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+
+PRIVATE_KEY=$BASE/build/bullseye/private.key
+[[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
 rsync -va --rsh="ssh -i build/bullseye/private.key" --delete $htmldir \
-    upload@allegro.eng.sophos:public_html/bullseye/ \
+    upload@allegro.eng.sophos:public_html/bullseye/  \
+    </dev/null \
     || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
