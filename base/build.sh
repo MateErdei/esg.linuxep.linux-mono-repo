@@ -17,6 +17,12 @@ BASE=$(pwd)
 OUTPUT=$BASE/output
 export BASE
 
+## These can't be exitFailure since it doesn't exist till the sourcing is done
+[ -f "$BASE"/build/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
+source "$BASE"/build/pathmgr.sh
+[ -f "$BASE"/build/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
+source "$BASE"/build/common.sh
+
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
@@ -83,12 +89,6 @@ function untar_or_link_to_redist()
 function build()
 {
     local BITS=$1
-
-    ## These can't be exitFailure since it doesn't exist till the sourcing is done
-    [ -f "$BASE"/build/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-    source "$BASE"/build/pathmgr.sh
-    [ -f "$BASE"/build/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
-    source "$BASE"/build/common.sh
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
