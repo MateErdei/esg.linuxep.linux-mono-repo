@@ -4,19 +4,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/PluginApi/ApiException.h>
 #include "PluginResourceManagement.h"
 #include "BaseServiceAPI.h"
 #include "SensorDataPublisher.h"
 #include "SensorDataSubscriber.h"
 
-#include "Common/ZeroMQWrapper/IContext.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <Common/PluginApi/ApiException.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
+#include <sys/stat.h>
 
 namespace Common
 {
@@ -55,6 +57,9 @@ namespace Common
 
                 requester->connect(mng_address);
                 replier->listen(plugin_address);
+
+                std::string plugin_address_file = plugin_address.substr(6);
+                Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group", S_IRWXU | S_IRGRP | S_IXGRP);
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));
 

@@ -51,7 +51,7 @@ def getUpdateLastEventFile():
 
 #etc
 def etcDir():
-    return os.path.join(installDir(),"etc")
+    return os.path.join(basePath(), "etc")
 
 def rootConfig():
     return os.path.join(etcDir(),"mcs.config")

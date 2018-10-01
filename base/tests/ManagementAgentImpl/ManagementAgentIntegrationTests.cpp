@@ -9,18 +9,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
 #include <tests/Common/TestHelpers/TempDir.h>
+
 #include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateSchedulerImpl/LoggingSetup.h>
 #include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
 #include <future>
 
 namespace
@@ -211,6 +215,13 @@ namespace
 
     };
 
+    class FileSystemImplNoChmodChown : public Common::FileSystem::FileSystemImpl
+    {
+    public:
+        //Dummy function override to allow the rest of filesystem to be used
+        void chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const override {}
+    };
+
 
 
     class ManagementAgentIntegrationTests : public ::testing::Test
@@ -234,6 +245,8 @@ namespace
                                });
 
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
+            std::unique_ptr<FileSystemImplNoChmodChown> iFileSystemPtr = std::unique_ptr<FileSystemImplNoChmodChown>(new FileSystemImplNoChmodChown);
+            Common::FileSystem::replaceFileSystem(std::move(iFileSystemPtr));
         }
 
 

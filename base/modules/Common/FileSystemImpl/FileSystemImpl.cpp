@@ -18,6 +18,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -295,6 +297,36 @@ namespace Common
             if ( ret != 0)
             {
                 throw IFileSystemException("Cannot make executable: " + path);
+            }
+        }
+
+        void FileSystemImpl::chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const
+        {
+            struct passwd* sophosSplUser = getpwnam(user.c_str());
+            struct group* sophosSplGroup = getgrnam(group.c_str());
+
+            if (sophosSplGroup && sophosSplUser)
+            {
+                if (chown(path.c_str(), sophosSplUser->pw_uid, sophosSplGroup->gr_gid) != 0)
+                {
+                    std::stringstream errorMessage;
+                    errorMessage << "chown failed to set user or group owner on file " << path << " to " << user << ":" << group;
+                    errorMessage << " userId-groupId = " << sophosSplUser->pw_uid << "-" << sophosSplGroup->gr_gid;
+                    throw IFileSystemException(errorMessage.str());
+                }
+            }
+            else
+            {
+                std::stringstream errorMessage;
+                errorMessage << "User " << user << " or Group " << group << " does not exist";
+                throw IFileSystemException(errorMessage.str());
+            }
+
+            if (chmod(path.c_str(), mode) != 0)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path;
+                throw IFileSystemException(errorMessage.str());
             }
         }
 

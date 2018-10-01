@@ -42,6 +42,8 @@ namespace Common
 
             void makeExecutable(const Path &path) const override;
 
+            void chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const override;
+
             void makedirs(const Path &path) const override;
 
 

@@ -5,17 +5,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MockedPluginApiCallback.h"
-
 #include "SingleManagementRequest.h"
 #include "TestCompare.h"
 
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/ZeroMQWrapper/ISocketReplier.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <thread>
@@ -64,6 +67,12 @@ namespace
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
 
             std::thread registration(handleRegistration, std::ref(pluginResourceManagement.getSocketContext() ));
+
+            auto mockFileSystem = new StrictMock<MockFileSystem>();
+            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+            Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+            EXPECT_CALL(*mockFileSystem, chownChmod(_,_,_,_)).WillRepeatedly(Return());
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
             registration.join();

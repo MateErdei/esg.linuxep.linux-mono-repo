@@ -4,11 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <watchdog/watchdogimpl/LoggingSetup.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <watchdog/watchdogimpl/LoggingSetup.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -23,7 +27,13 @@ namespace
         TestWatchdog()
                 : m_loggingSetup(
                 std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
-        {}
+        {
+            auto mockFileSystem = new StrictMock<MockFileSystem>();
+            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+            Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+            EXPECT_CALL(*mockFileSystem, chownChmod(_,_,_,_)).WillRepeatedly(Return());
+        }
     };
 
     class TestableWatchdog

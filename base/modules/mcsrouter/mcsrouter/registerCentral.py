@@ -213,9 +213,18 @@ def addOptionsToPolicy(relays, proxy_credentials):
 
 
     policy_config.save()
-    os.chown(policy_config_path, getUID("sophosspl"), getGID("sophosspl"))
+    os.chown(policy_config_path, getUID("sophos-spl-user"), getGID("sophos-spl-group"))
     os.chmod(policy_config_path, 0o600)
 
+def setFilePermissions():
+    mcsconfig = PathManager.rootConfig()
+    sspl_config = PathManager.sophossplConfig()
+
+    uid = getUID("sophos-spl-user")
+    gid = getGID("sophos-spl-group")
+    os.chown(mcsconfig,0,gid)
+    os.chmod(mcsconfig,0640)
+    os.chown(sspl_config, uid, gid)
 
 def removeConsoleConfiguration():
     policy_dir = PathManager.policyDir()
@@ -278,6 +287,7 @@ def innerMain(argv):
         config.set("MCSURL",url)
         config.save()
 
+
     elif options.reregister:
         ## Need to get the URL and Token from the policy file, in case they have been
         ## updated by Central
@@ -312,6 +322,8 @@ def innerMain(argv):
             ## Successfully registered to Sophos Central
             print("Saving Sophos Central credentials")
             config.save()
+
+            setFilePermissions()
 
             ## cleanup RMS files
             safeDelete(PathManager.sophosConfigFile())

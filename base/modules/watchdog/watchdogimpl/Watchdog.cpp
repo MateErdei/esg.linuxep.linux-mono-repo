@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
@@ -18,9 +20,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <cstdlib>
 #include <cassert>
-
 #include <unistd.h>
 #include <sys/select.h>
+#include <sys/stat.h>
 
 using namespace watchdog::watchdogimpl;
 
@@ -150,6 +152,19 @@ void Watchdog::setupSocket()
 {
     m_socket = m_context->getReplier();
     m_socket->listen(getIPCPath());
+
+    // Assume getIPCPath() has a ipc:// prefix, remove it
+    std::string ipcFilesPath = getIPCPath().substr(6);
+
+    try
+    {
+        Common::FileSystem::fileSystem()->chownChmod(ipcFilesPath, "root", "root", S_IRWXU);
+    }
+    catch (Common::FileSystem::IFileSystemException& error)
+    {
+        LOGERROR( error.what());
+        throw;
+    }
 }
 
 void Watchdog::handleSocketRequest()

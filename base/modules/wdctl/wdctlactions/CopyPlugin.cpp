@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -35,25 +36,13 @@ int CopyPlugin::run()
     LOGDEBUG("Copying "<< m_args.m_argument << " to "<< destination);
     Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
 
-    group* sophosSplGroup = getgrnam("sophos-spl-group");
-
-    if (sophosSplGroup)
+    try
     {
-        if (chown(destination.c_str(), 0, sophosSplGroup->gr_gid) != 0)
-        {
-            LOGFATAL("chown failed to set group owner on file " << destination << " to sophos-spl-group");
-            return 1;
-        }
+        Common::FileSystem::fileSystem()->chownChmod(destination, "root", "sophos-spl-group", S_IRUSR | S_IWUSR | S_IRGRP);
     }
-    else
+    catch (Common::FileSystem::IFileSystemException& error)
     {
-        LOGFATAL("Group sophos-spl-group does not exist");
-        return 1;
-    }
-
-    if (chmod(destination.c_str(), S_IRUSR | S_IWUSR | S_IRGRP) != 0)
-    {
-        LOGFATAL("chmod failed to set file permissions to 0640 on " << destination);
+        LOGFATAL( error.what());
         return 1;
     }
 
