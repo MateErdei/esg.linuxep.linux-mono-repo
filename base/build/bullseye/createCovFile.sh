@@ -12,7 +12,13 @@
     exit 2
 }
 
-covlmgr -f /root/BullseyeCoverageLicenseManager --use
+if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
+then
+    covlmgr -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager --use
+elif [[ -f /root/BullseyeCoverageLicenseManager ]]
+then
+    covlmgr -f /root/BullseyeCoverageLicenseManager --use
+fi
 
 CLEAN=0
 if [[ ! -f $COVFILE ]]
