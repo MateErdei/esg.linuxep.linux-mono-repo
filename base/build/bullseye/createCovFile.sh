@@ -62,7 +62,8 @@ COVDIR="${COVFILE%/*}"
 currentDir="../..$BASE_DIR"
 
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
-SRC_DIR="${SCRIPT_DIR%/*}"
+BUILD_SRC_DIR="${SCRIPT_DIR%/*}"
+SRC_DIR="${BUILD_SRC_DIR%/*}"
 
 echo "COVFILE=$COVFILE"
 echo "COVDIR=$COVDIR"
@@ -102,7 +103,12 @@ covselect --quiet --add \!../../opt/
 echo "Excluding \!../../lib/"
 covselect --quiet --add \!../../lib/
 
-echo "Excluding ../..${SRC_DIR}/build64/"
+[[ -d ${SRC_DIR}/test ]] || {
+    echo "Failed to find src dir - ${SRC_DIR}/test doesn't exist"
+    exit 2
+}
+
+exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
 exclude \!../..${SRC_DIR}/test/
 
