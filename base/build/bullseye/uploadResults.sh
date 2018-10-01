@@ -24,6 +24,8 @@ $BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" \
 PRIVATE_KEY=$BASE/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
+chmod -R a+rX "$htmldir"
+
 rsync -va --rsh="ssh -i build/bullseye/private.key" --delete $htmldir \
     upload@allegro.eng.sophos:public_html/bullseye/  \
     </dev/null \
