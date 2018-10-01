@@ -28,6 +28,7 @@ namespace Common
              * @return
              */
             virtual std::string getBaseLogDirectory() const = 0;
+            virtual std::string getBaseSophossplLogDirectory() const = 0;
 
             virtual std::string getPublisherDataChannelAddress() const = 0;
             virtual std::string getSubscriberDataChannelAddress() const = 0;

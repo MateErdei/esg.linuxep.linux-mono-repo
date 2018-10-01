@@ -36,6 +36,10 @@ namespace Common
             std::string getUpdateCertificatesPath() const override;
             std::string getUpdateCacheCertificateFilePath() const override;
 
+            std::string getBaseLogDirectory() const override;
+            std::string getBaseSophossplLogDirectory() const override;
+
+
             std::string getTempPath() const override;
 
             std::string getSulDownloaderReportPath() const override ;

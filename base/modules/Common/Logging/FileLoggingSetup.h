@@ -17,7 +17,7 @@ namespace Common
         public:
             explicit FileLoggingSetup(const std::string& logbase);
             ~FileLoggingSetup();
-            static void setupFileLogging(const std::string& logbase);
+            static void setupFileLogging(const std::string& logbase, bool lowpriv = false);
         };
     }
 }

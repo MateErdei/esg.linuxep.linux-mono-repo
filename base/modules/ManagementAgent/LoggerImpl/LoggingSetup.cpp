@@ -18,7 +18,7 @@ namespace ManagementAgent
     {
         LoggingSetup::LoggingSetup()
         {
-            Common::Logging::FileLoggingSetup::setupFileLogging("sophos_managementagent");
+            Common::Logging::FileLoggingSetup::setupFileLogging("sophos_managementagent", true);
         }
 
         LoggingSetup::LoggingSetup(int)

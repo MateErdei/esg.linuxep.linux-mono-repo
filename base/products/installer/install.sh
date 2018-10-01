@@ -272,11 +272,17 @@ done
 
 ln -snf "liblog4cplus-1.2.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
+chmod 711 "${SOPHOS_INSTALL}/base"
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
+chmod 711 "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "$SOPHOS_INSTALL/bin/uninstall.sh."*
+
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib64/libmanagementagent"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 

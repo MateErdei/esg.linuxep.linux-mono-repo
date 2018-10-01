@@ -26,9 +26,13 @@ Common::Logging::FileLoggingSetup::~FileLoggingSetup()
     log4cplus::Logger::shutdown();
 }
 
-void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logbase)
+void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logbase, bool lowpriv)
 {
-    Path logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
+    Path logDir;
+
+    lowpriv ? logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplLogDirectory()
+            : logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
+
     Path logFilename = Common::FileSystem::join(logDir, logbase+".log");
 
     log4cplus::initialize();
