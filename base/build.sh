@@ -4,6 +4,7 @@ PRODUCT=sspl-base
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
+FAILURE_BAD_ARGUMENT=53
 
 source /etc/profile
 set -ex
@@ -40,8 +41,11 @@ while [ $# -ge 1 ]; do
             shift
             INPUT=$1
             ;;
-        --bullseye)
+        --bullseye|--bulleye)
             BULLSEYE=1
+            ;;
+        *)
+            exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;
     esac
     shift
@@ -197,6 +201,8 @@ function build()
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE="/tmp/root/sspl.cov"
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
+        export CC=$BULLSEYE_DIR/bin/gcc
+        export CXX=$BULLSEYE_DIR/bin/g++
     fi
 
     echo "After setup: PATH=$PATH"
@@ -234,6 +240,13 @@ function build()
     rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
+
+
+    if [[ ${BULLSEYE} == 1 ]]
+    then
+        ## Process bullseye output
+    fi
+
     echo "Build completed"
 }
 
