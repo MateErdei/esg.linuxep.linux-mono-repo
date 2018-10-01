@@ -59,7 +59,7 @@ namespace Common
                 replier->listen(plugin_address);
 
                 std::string plugin_address_file = plugin_address.substr(6);
-                Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group", S_IRWXU | S_IRGRP | S_IXGRP);
+                Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group", S_IRWXU | S_IRWXG);
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));
 
