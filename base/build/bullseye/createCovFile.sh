@@ -103,14 +103,16 @@ covselect --quiet --add \!../../opt/
 echo "Excluding \!../../lib/"
 covselect --quiet --add \!../../lib/
 
-[[ -d ${SRC_DIR}/test ]] || {
-    echo "Failed to find src dir - ${SRC_DIR}/test doesn't exist"
+SRC_TEST_DIR=${SRC_DIR}/tests
+
+[[ -d ${SRC_TEST_DIR} ]] || {
+    echo "Failed to find src dir - SRC_TEST_DIR doesn't exist"
     exit 2
 }
 
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
-exclude \!../..${SRC_DIR}/test/
+exclude \!../..${SRC_TEST_DIR}/
 
 echo "Exclusions:"
 covselect --list --no-banner
