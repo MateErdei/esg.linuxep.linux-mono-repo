@@ -96,5 +96,8 @@ covselect --quiet --add \!../../opt/
 echo "Excluding \!../../lib/"
 covselect --quiet --add \!../../lib/
 
+echo "Excluding ../..${SRC_DIR}/build64/CMakeFiles/CMakeTmp/"
+covselect --quiet --add \!../..${SRC_DIR}/build64/CMakeFiles/CMakeTmp/
+
 covselect --list --no-banner
 
