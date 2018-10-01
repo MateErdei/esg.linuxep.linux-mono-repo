@@ -26,6 +26,9 @@ PRIVATE_KEY=$BASE/build/bullseye/private.key
 
 chmod -R a+rX "$htmldir"
 
+## Ensure ssh won't complain about private key permissions:
+chmod 600 ${PRIVATE_KEY}
+
 rsync -va --rsh="ssh -i build/bullseye/private.key" --delete $htmldir \
     upload@allegro.eng.sophos:public_html/bullseye/  \
     </dev/null \
