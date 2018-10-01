@@ -7,17 +7,24 @@
 ## is created
 #~ rm -f $COVFILE
 
-[[ -n $COVFILE ]] || {
-    echo "COVFILE not set!"
-    exit 2
+function failure()
+{
+    local E=$1
+    shift
+    echo "$@"
+    exit $E
 }
+
+}
+[[ -n $COVFILE ]] || failure 2 "COVFILE not set!"
 
 if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
 then
-    covlmgr -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager --use
+    covlmgr -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager --use || failure 3 "Unable to use licence /pandorum/BullseyeLM/BullseyeCoverageLicenseManager"
 elif [[ -f /root/BullseyeCoverageLicenseManager ]]
 then
-    covlmgr -f /root/BullseyeCoverageLicenseManager --use
+    covlmgr -f /root/BullseyeCoverageLicenseManager --use \
+        || failure 3 "Unable to use licence /root/BullseyeCoverageLicenseManager"
 fi
 
 CLEAN=0
