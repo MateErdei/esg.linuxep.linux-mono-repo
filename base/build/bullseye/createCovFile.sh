@@ -89,6 +89,12 @@ echo "rel path = $currentDir"
 #    covselect --quiet --add \!${currentDir}\/$f
 #done
 
+function exclude()
+{
+    echo "covselect --add $*"
+    covselect --add $@
+}
+
 echo "Excluding \!../../redist/"
 covselect --quiet --add \!../../redist/
 echo "Excluding \!../../opt/"
@@ -96,8 +102,10 @@ covselect --quiet --add \!../../opt/
 echo "Excluding \!../../lib/"
 covselect --quiet --add \!../../lib/
 
-echo "Excluding ../..${SRC_DIR}/build64/CMakeFiles/CMakeTmp/"
-covselect --quiet --add \!../..${SRC_DIR}/build64/CMakeFiles/CMakeTmp/
+echo "Excluding ../..${SRC_DIR}/build64/"
+exclude \!../..${SRC_DIR}/build64/
+exclude \!../..${SRC_DIR}/test/
 
+echo "Exclusions:"
 covselect --list --no-banner
 
