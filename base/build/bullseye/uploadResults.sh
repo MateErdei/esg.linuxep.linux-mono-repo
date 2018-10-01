@@ -12,6 +12,9 @@ function exitFailure()
     exit $E
 }
 
+[[ -n $BULLSEYE_DIR ]] || exitFailure 1 "BULLSEYE_DIR not set"
+[[ -n $COVFILE ]] || exitFailure 2 "COVFILE not set"
+
 htmldir=output/coverage/sspl
 
 $BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
