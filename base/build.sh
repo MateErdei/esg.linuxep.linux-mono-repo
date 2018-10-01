@@ -24,6 +24,7 @@ BULLSEYE=0
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
+COVFILE="/tmp/root/sspl.cov"
 
 while [[ $# -ge 1 ]]
 do
@@ -44,6 +45,10 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
+            ;;
+        --covfile)
+            shift
+            COVFILE=$1
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -199,7 +204,7 @@ function build()
         [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
         addpath ${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
-        export COVFILE="/tmp/root/sspl.cov"
+        export COVFILE
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
@@ -246,6 +251,9 @@ function build()
     then
         ## Process bullseye output
         echo "Process bullseye output"
+        htmldir=output/coverage/sspl
+        $BULLSEYE_DIR/bin/covhtml -f "$COVFILE" "$htmldir" || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+        rsync -va -rsh="ssh -i build/bullseye/private.key" --delete $htmldir upload@allegro.eng.sophos:public_html/bullseye/ || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
     fi
 
     echo "Build completed"
