@@ -285,6 +285,8 @@ chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
+unset LD_LIBRARY_PATH
+
 for F in "$DIST/installer/plugins"/*
 do
     if changedOrAdded ${F#"$DIST"/}
