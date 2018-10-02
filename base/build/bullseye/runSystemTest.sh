@@ -73,6 +73,9 @@ else
     fi
 fi
 
+[[ -n ${THIN_INSTALLER_OVERRIDE} ]] && export THIN_INSTALLER_OVERRIDE
+
 ## Requires sudo permissions:
-exec sudo --preserve-env=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS \
+exec sudo \
+    --preserve-env=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE \
     robot --loglevel TRACE --exclude manual tests
