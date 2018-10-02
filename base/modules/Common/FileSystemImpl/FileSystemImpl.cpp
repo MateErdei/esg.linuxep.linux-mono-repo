@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
+#include <Common/FileSystem/IPermissionDeniedException.h>
 
 #include <cassert>
 #include <cstring>
@@ -312,7 +313,7 @@ namespace Common
                     std::stringstream errorMessage;
                     errorMessage << "chown failed to set user or group owner on file " << path << " to " << user << ":" << group;
                     errorMessage << " userId-groupId = " << sophosSplUser->pw_uid << "-" << sophosSplGroup->gr_gid;
-                    throw IFileSystemException(errorMessage.str());
+                    throw IPermissionDeniedException(errorMessage.str());
                 }
             }
             else
