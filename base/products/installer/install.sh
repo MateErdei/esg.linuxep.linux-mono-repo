@@ -239,6 +239,9 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
 
+makedir 711 "${SOPHOS_INSTALL}/plugins"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
+
 chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 
