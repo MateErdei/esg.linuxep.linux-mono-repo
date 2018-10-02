@@ -12,9 +12,8 @@ export OUTPUT
 if [[ -n "$COVFILE" ]]
 then
     echo "Creating links for COVFILE $COVFILE"
-    sudo ln -sf "$COVFILE" /root/fulltest.cov
-    sudo ln -sf "$COVFILE" regressionSuite/test.cov
-    sudo ln -sf "$COVFILE" /test.cov
+    sudo ln -nsf "$COVFILE" /root/fulltest.cov
+    sudo ln -nsf "$COVFILE" /test.cov
     COVDIR=$(dirname $COVFILE)
     echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
     echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
@@ -36,11 +35,16 @@ SYSTEM_TEST_CHECKOUT=/tmp/system-tests
 if [[ -d ${SYSTEM_TEST_CHECKOUT}/.git ]]
 then
     cd ${SYSTEM_TEST_CHECKOUT}
-    git pull
+    LD_LIBRARY_PATH= \
+        git pull
 else
-    git clone --depth 1 ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git ${SYSTEM_TEST_CHECKOUT}
+    LD_LIBRARY_PATH= \
+        git clone --depth 1 ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git ${SYSTEM_TEST_CHECKOUT}
     cd ${SYSTEM_TEST_CHECKOUT}
 fi
+
+ln -nsf "$COVFILE" test.cov
+ln -nsf "$COVFILE" .
 
 [[ -f ./tests/__init__.robot ]] || {
     echo "Failed to checkout system tests"
