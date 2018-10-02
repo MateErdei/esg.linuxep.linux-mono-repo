@@ -267,14 +267,14 @@ function build()
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then
         cd $BASE
-        bash $BASE/build/bullseye/runSystemTest.sh || exit $?
+        bash -x $BASE/build/bullseye/runSystemTest.sh || exit $?
     fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]
     then
         ## Process bullseye output
         cd $BASE
-        bash build/bullseye/uploadResults.sh || exit $?
+        bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
     echo "Build completed"
