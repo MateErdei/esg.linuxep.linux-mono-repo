@@ -215,15 +215,6 @@ namespace
 
     };
 
-    class FileSystemImplNoChmodChown : public Common::FileSystem::FileSystemImpl
-    {
-    public:
-        //Dummy function override to allow the rest of filesystem to be used
-        void chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const override {}
-    };
-
-
-
     class ManagementAgentIntegrationTests : public ::testing::Test
     {
     public:
@@ -245,8 +236,6 @@ namespace
                                });
 
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
-            std::unique_ptr<FileSystemImplNoChmodChown> iFileSystemPtr = std::unique_ptr<FileSystemImplNoChmodChown>(new FileSystemImplNoChmodChown);
-            Common::FileSystem::replaceFileSystem(std::move(iFileSystemPtr));
         }
 
 

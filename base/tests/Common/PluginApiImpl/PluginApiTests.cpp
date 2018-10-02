@@ -44,12 +44,6 @@ namespace
             Common::ApplicationConfiguration::replaceApplicationPathManager(
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
-            auto mockFileSystem = new StrictMock<MockFileSystem>();
-            std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
-
-            EXPECT_CALL(*mockFileSystem, chownChmod(_,_,_,_)).WillRepeatedly(Return());
-
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
 
             auto & context = pluginResourceManagement.getSocketContext();

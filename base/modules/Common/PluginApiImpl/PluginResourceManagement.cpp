@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <sys/stat.h>
+#include <unistd.h>
 
 namespace Common
 {
@@ -58,8 +59,15 @@ namespace Common
                 requester->connect(mng_address);
                 replier->listen(plugin_address);
 
-                std::string plugin_address_file = plugin_address.substr(6);
-                Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group", S_IRWXU | S_IRWXG);
+                // If root owned, we need to ensure the group of the ipc socket is sophos-spl-group
+                // so that Management Agent can communicate with the plugin.
+                if (::getuid() == 0)
+                {
+                    // plugin_address starts with ipc:// Remove it.
+                    std::string plugin_address_file = plugin_address.substr(6);
+                    Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group",
+                                                                     S_IRWXU | S_IRWXG);
+                }
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));
 

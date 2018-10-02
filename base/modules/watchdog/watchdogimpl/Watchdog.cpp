@@ -153,7 +153,7 @@ void Watchdog::setupSocket()
     m_socket = m_context->getReplier();
     m_socket->listen(getIPCPath());
 
-    // Assume getIPCPath() has a ipc:// prefix, remove it
+    // getIPCPath() has a ipc:// prefix, remove it
     std::string ipcFilesPath = getIPCPath().substr(6);
 
     try
