@@ -30,8 +30,14 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
 {
     Path logDir;
 
-    lowpriv ? logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplLogDirectory()
-            : logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
+    if (lowpriv)
+    {
+        logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplLogDirectory();
+    }
+    else
+    {
+        logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
+    }
 
     Path logFilename = Common::FileSystem::join(logDir, logbase+".log");
 
