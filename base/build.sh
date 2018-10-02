@@ -16,6 +16,7 @@ cd ${0%/*}
 BASE=$(pwd)
 OUTPUT=$BASE/output
 export BASE
+export OUTPUT
 
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
 [ -f "$BASE"/build/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
@@ -28,11 +29,13 @@ mkdir -p $BASE/log || exit 1
 
 CLEAN=0
 BULLSEYE=0
-BULLSEYE_UPLOAD_UNITTEST=0
+BULLSEYE_UPLOAD=0
+BULLSEYE_SYSTEM_TESTS=0
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
 COVFILE="/tmp/root/sspl.cov"
+COV_HTML_BASE=sspl-unittest
 
 while [[ $# -ge 1 ]]
 do
@@ -58,8 +61,15 @@ do
             shift
             COVFILE=$1
             ;;
-        --bullseye-upload-unittest)
-            BULLSEYE_UPLOAD_UNITTEST=1
+        --cov-html)
+            shift
+            COV_HTML_BASE=$1
+            ;;
+        --bullseye-system-tests)
+            BULLSEYE_SYSTEM_TESTS=1
+            ;;
+        --bullseye-upload-unittest|--bullseye-upload)
+            BULLSEYE_UPLOAD=1
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -210,6 +220,7 @@ function build()
         addpath ${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
+        export COV_HTML_BASE
         export BULLSEYE_DIR
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
@@ -253,7 +264,12 @@ function build()
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
 
 
-    if [[ ${BULLSEYE_UPLOAD_UNITTEST} == 1 ]]
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    then
+        bash build/bullseye/runSystemTests.sh || exit $?
+    fi
+
+    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
     then
         ## Process bullseye output
         bash build/bullseye/uploadResults.sh || exit $?

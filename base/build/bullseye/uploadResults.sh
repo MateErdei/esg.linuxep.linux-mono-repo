@@ -12,12 +12,12 @@ function exitFailure()
     exit $E
 }
 
-[[ -n $BULLSEYE_DIR ]] || exitFailure 1 "BULLSEYE_DIR not set"
-[[ -n $COVFILE ]] || exitFailure 2 "COVFILE not set"
-[[ -n $htmlname ]] || htmlname=sspl-unittest
-[[ -n $htmldir ]] || htmldir=output/coverage/${htmlname}
+[[ -n ${BULLSEYE_DIR} ]] || exitFailure 1 "BULLSEYE_DIR not set"
+[[ -n ${COVFILE} ]] || exitFailure 2 "COVFILE not set"
+[[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-unittest
+[[ -n ${htmldir} ]] || htmldir=output/coverage/${COV_HTML_BASE}
 
-PRIVATE_KEY=$BASE/build/bullseye/private.key
+PRIVATE_KEY=${BASE}/build/bullseye/private.key
 [[ -f ${PRIVATE_KEY} ]] || exitFailure 3 "Unable to find private key for upload"
 
 echo "Exclusions:"
