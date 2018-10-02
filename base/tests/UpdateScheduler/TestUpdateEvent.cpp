@@ -1,10 +1,13 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
 /******************************************************************************************************
 
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <gmock/gmock-matchers.h>
 #include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
