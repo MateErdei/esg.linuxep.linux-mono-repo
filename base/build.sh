@@ -70,7 +70,7 @@ do
             BULLSEYE_SYSTEM_TESTS=1
             COVFILE="/tmp/root/sspl-combined.cov"
             BULLSEYE_UPLOAD=1
-            COV_HTML_BASE=sspl-combined
+            COV_HTML_BASE=sspl-functional
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
@@ -248,12 +248,17 @@ function build()
     [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
-    make CTEST_OUTPUT_ON_FAILURE=1 test || {
-        local EXITCODE=$?
-        echo "Unit tests failed with $EXITCODE"
-        cat Testing/Temporary/LastTest.log || true
-        exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
-    }
+
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+    then
+        ## If we are doing bullseye system tests then don't run unit test first
+        make CTEST_OUTPUT_ON_FAILURE=1 test || {
+            local EXITCODE=$?
+            echo "Unit tests failed with $EXITCODE"
+            cat Testing/Temporary/LastTest.log || true
+            exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+        }
+    fi
     make install || exitFailure 17 "Failed to install $PRODUCT"
     make dist || exitFailure 18 "Failed to create distribution"
     cd ..
@@ -278,7 +283,19 @@ function build()
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]
     then
         ## Process bullseye output
+        ## upload unit or functional tests
         cd $BASE
+        bash -x build/bullseye/uploadResults.sh || exit $?
+    fi
+
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    then
+        ## Now generate combined results
+        cd $BASE
+        export COV_HTML_BASE=sspl-combined
+        make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
+
+        ## Upload combined results
         bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
