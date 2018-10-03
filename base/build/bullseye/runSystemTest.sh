@@ -42,19 +42,17 @@ SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
 #SYSTEM_TEST_BRANCH=master
 SYSTEM_TEST_BRANCH=feature/LINUXEP-5933_setup_coverage
 
+unset LD_LIBRARY_PATH
 
 if [[ -d "${SYSTEM_TEST_CHECKOUT}/.git" ]]
 then
     cd "${SYSTEM_TEST_CHECKOUT}"
-    LD_LIBRARY_PATH= \
-        git pull \
+    git pull \
             || failure 80 "Failed to pull system tests"
-    LD_LIBRARY_PATH= \
-        git checkout "${SYSTEM_TEST_BRANCH}" \
+    git checkout "${SYSTEM_TEST_BRANCH}" \
             || failure 81 "Failed to checkout required branch"
 else
-    LD_LIBRARY_PATH= \
-        git clone \
+    git clone \
             --branch "${SYSTEM_TEST_BRANCH}" \
             --single-branch \
             --depth 1 ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git "${SYSTEM_TEST_CHECKOUT}" \
