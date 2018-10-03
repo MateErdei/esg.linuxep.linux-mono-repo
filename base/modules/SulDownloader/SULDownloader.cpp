@@ -289,10 +289,10 @@ namespace SulDownloader
             pidLock.reset(new Common::OSUtilitiesImpl::PidLockFile(
                     Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath()));
         }
-        catch (std::system_error& ex)
+        catch (const std::system_error& ex)
         {
             LOGERROR(ex.what());
-            return -4;
+            return ex.code().value();
         }
 
         //Process command line args
