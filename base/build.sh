@@ -34,7 +34,7 @@ BULLSEYE_SYSTEM_TESTS=0
 export NO_REMOVE_GCC=1
 ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
-COVFILE="/tmp/root/sspl.cov"
+COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
 
 while [[ $# -ge 1 ]]
@@ -56,6 +56,7 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
+            BULLSEYE_UPLOAD=1
             ;;
         --covfile)
             shift
@@ -67,6 +68,9 @@ do
             ;;
         --bullseye-system-tests)
             BULLSEYE_SYSTEM_TESTS=1
+            COVFILE="/tmp/root/sspl-combined.cov"
+            BULLSEYE_UPLOAD=1
+            COV_HTML_BASE=sspl-combined
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
@@ -225,6 +229,7 @@ function build()
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
+        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
     fi
 
     echo "After setup: PATH=$PATH"
