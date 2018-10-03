@@ -21,7 +21,7 @@ include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include)
 
 
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
-target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} )
+target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} osutilitiesimpl)
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES

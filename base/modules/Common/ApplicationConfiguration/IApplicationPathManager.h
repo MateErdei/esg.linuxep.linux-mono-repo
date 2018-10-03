@@ -53,11 +53,11 @@ namespace Common
             virtual std::string getUpdateCertificatesPath() const = 0;
             virtual std::string getUpdateCacheCertificateFilePath() const = 0;
             virtual std::string getTempPath() const = 0;
+
             virtual std::string getSulDownloaderReportPath() const = 0;
-
             virtual std::string getSulDownloaderConfigFilePath() const = 0;
-
             virtual std::string getSulDownloaderReportGeneratedFilePath() const = 0;
+            virtual std::string getSulDownloaderLockFilePath() const = 0;
         };
 
 

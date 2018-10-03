@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <iostream>
 namespace Common
 {
-    namespace OSUtilities
+    namespace OSUtilitiesImpl
     {
 
         std::string SXLMachineID::getMachineID()

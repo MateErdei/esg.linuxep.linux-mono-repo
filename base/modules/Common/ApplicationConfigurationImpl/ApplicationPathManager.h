@@ -43,10 +43,9 @@ namespace Common
             std::string getTempPath() const override;
 
             std::string getSulDownloaderReportPath() const override ;
-
             std::string getSulDownloaderConfigFilePath() const override;
-
             std::string getSulDownloaderReportGeneratedFilePath() const override;
+            std::string getSulDownloaderLockFilePath() const override;
 
         private:
             std::string socketPath( const std::string & relative) const;

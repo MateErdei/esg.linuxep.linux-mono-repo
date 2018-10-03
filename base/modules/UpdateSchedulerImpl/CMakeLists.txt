@@ -44,7 +44,7 @@ target_link_libraries(updateschedulerimpl PUBLIC
         suldownloaderdata
         directorywatcherimpl
         pluginapiimpl
-        osutilities
+        osutilitiesimpl
         ${LOG4CPLUS_LIBRARY} )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl

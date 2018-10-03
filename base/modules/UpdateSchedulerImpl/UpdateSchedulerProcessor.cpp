@@ -15,7 +15,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/Process/IProcess.h>
-#include <Common/OSUtilities/SXLMachineID.h>
+#include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <thread>
 #include <csignal>
 
@@ -46,7 +46,7 @@ namespace UpdateSchedulerImpl
               , m_formattedTime()
               , m_policyReceived(false)
     {
-        Common::OSUtilities::SXLMachineID sxlMachineID;
+        Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
 
     }

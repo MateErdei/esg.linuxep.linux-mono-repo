@@ -37,7 +37,7 @@ namespace
 
 namespace Common
 {
-    namespace OSUtilities
+    namespace OSUtilitiesImpl
     {
         using MACType = std::array<unsigned char, 6>;
 

@@ -30,10 +30,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/Common/Logging/ConsoleLoggingSetup.h>
+#include <tests/Common/OSUtilitiesImpl/MockPidLockFileUtils.h>
 
 using namespace SulDownloader::suldownloaderdata;
 using SulDownloaderProto::ConfigurationSettings;
@@ -70,6 +71,12 @@ public:
             return std::unique_ptr<SulDownloader::suldownloaderdata::IVersig>(versig);
         });
         m_mockptr = nullptr;
+
+        auto mockPidLockFileUtilsPtr = new NiceMock<MockPidLockFileUtils>();
+        ON_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillByDefault(Return(1));
+        std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils = std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
+        Common::OSUtilitiesImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+
     }
 
     /**
@@ -78,10 +85,12 @@ public:
     void TearDown() override
     {
         Common::FileSystem::restoreFileSystem();
+        Common::OSUtilitiesImpl::restorePidLockUtils();
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();
         Test::TearDown();
+
     }
 
     ConfigurationSettings defaultSettings()

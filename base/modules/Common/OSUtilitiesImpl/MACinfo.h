@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace OSUtilities
+    namespace OSUtilitiesImpl
     {
         using MACType = std::array<unsigned char, 6>;
         std::string stringfyMAC( const MACType & macAddress);

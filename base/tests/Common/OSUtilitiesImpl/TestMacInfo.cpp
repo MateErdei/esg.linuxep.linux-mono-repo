@@ -3,7 +3,7 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/OSUtilities/MACinfo.h>
+#include <Common/OSUtilitiesImpl/MACinfo.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/Process/IProcess.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -12,15 +12,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <iostream>
 
-using namespace Common::OSUtilities;
+using namespace Common::OSUtilitiesImpl;
 using PairResult = std::pair<std::string , std::string >;
 using ListInputOutput = std::vector<PairResult >;
 
 
 TEST(TestMacInfo, stringfyMACShouldKeepTwoCharactersPerByte) // NOLINT
 {
-    Common::OSUtilities::MACType macType = {0,0xf5, 0x43, 0x54, 0xd5, 0x00};
-    EXPECT_EQ(Common::OSUtilities::stringfyMAC(macType), "00:f5:43:54:d5:00");
+    Common::OSUtilitiesImpl::MACType macType = {0,0xf5, 0x43, 0x54, 0xd5, 0x00};
+    EXPECT_EQ(Common::OSUtilitiesImpl::stringfyMAC(macType), "00:f5:43:54:d5:00");
 
 }
 

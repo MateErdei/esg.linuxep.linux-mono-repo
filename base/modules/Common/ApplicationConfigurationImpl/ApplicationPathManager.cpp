@@ -154,6 +154,11 @@ namespace Common
             return Common::FileSystem::join(getSulDownloaderReportPath(), "report.json");
         }
 
+        std::string ApplicationPathManager::getSulDownloaderLockFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "var/lock/suldownloader.pid");
+        }
+
     }
 
 

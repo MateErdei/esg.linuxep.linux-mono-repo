@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace OSUtilities
+    namespace OSUtilitiesImpl
     {
         class SXLMachineID
         {
