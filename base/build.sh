@@ -267,7 +267,7 @@ function build()
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then
         cd $BASE
-        bash -x $BASE/build/bullseye/runSystemTest.sh || exit $?
+        bash -x $BASE/build/bullseye/runSystemTest.sh || echo "System tests failed: $?"
     fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]
