@@ -2,6 +2,14 @@
 
 ## Run the system tests with the output from a build
 
+function failure()
+{
+    local E=$1
+    shift
+    echo "$@"
+    exit $E
+}
+
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
@@ -14,42 +22,50 @@ then
     echo "Creating links for COVFILE $COVFILE"
     sudo ln -nsf "$COVFILE" /root/fulltest.cov
     sudo ln -nsf "$COVFILE" /test.cov
-    COVDIR=$(dirname $COVFILE)
+    COVDIR=$(dirname "$COVFILE")
     echo "COVFILE=$COVFILE" >/tmp/BullseyeCoverageEnv.txt
     echo "COVDIR=$COVDIR" >>/tmp/BullseyeCoverageEnv.txt
     sudo chmod 0644 /tmp/BullseyeCoverageEnv.txt
-    sudo chmod 0666 $COVFILE
-    sudo chmod a+x $COVDIR
+    sudo chmod 0666 "$COVFILE"
+    sudo chmod a+x "$COVDIR"
 else
-    echo "No COVFILE specified"
-    exit 78
+    failure 78 "No COVFILE specified"
 fi
 export COVFILE
 
-PRIVATE_KEY=${SCRIPT_DIR}/private.key
-chmod 600 ${PRIVATE_KEY}
+PRIVATE_KEY="${SCRIPT_DIR}/private.key"
+chmod 600 "${PRIVATE_KEY}"
 export GIT_SSH_COMMAND="ssh -i ${PRIVATE_KEY}"
 
-SYSTEM_TEST_CHECKOUT=/tmp/system-tests
+SYSTEM_TEST_CHECKOUT="/tmp/system-tests"
 
-if [[ -d ${SYSTEM_TEST_CHECKOUT}/.git ]]
+#SYSTEM_TEST_BRANCH=master
+SYSTEM_TEST_BRANCH=feature/LINUXEP-5933_setup_coverage
+
+
+if [[ -d "${SYSTEM_TEST_CHECKOUT}/.git" ]]
 then
-    cd ${SYSTEM_TEST_CHECKOUT}
+    cd "${SYSTEM_TEST_CHECKOUT}"
     LD_LIBRARY_PATH= \
-        git pull
+        git pull \
+            || failure 80 "Failed to pull system tests"
+    LD_LIBRARY_PATH= \
+        git checkout "${SYSTEM_TEST_BRANCH}" \
+            || failure 81 "Failed to checkout required branch"
 else
     LD_LIBRARY_PATH= \
-        git clone --depth 1 ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git ${SYSTEM_TEST_CHECKOUT}
-    cd ${SYSTEM_TEST_CHECKOUT}
+        git clone \
+            --branch "${SYSTEM_TEST_BRANCH}" \
+            --single-branch \
+            --depth 1 ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git "${SYSTEM_TEST_CHECKOUT}" \
+            || failure 82 "Failed to clone system tests"
+    cd "${SYSTEM_TEST_CHECKOUT}"
 fi
+
+[[ -f ./tests/__init__.robot ]] || failure 77 "Failed to checkout system tests"
 
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
-
-[[ -f ./tests/__init__.robot ]] || {
-    echo "Failed to checkout system tests"
-    exit 77
-}
 
 ## Find example plugin
 if [[ -d "$EXAMPLE_PLUGIN_SDDS" ]]
@@ -77,7 +93,7 @@ else
     fi
 fi
 
-[[ -n ${THIN_INSTALLER_OVERRIDE} ]] && export THIN_INSTALLER_OVERRIDE
+[[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
 ## Requires sudo permissions:
 exec sudo \
