@@ -67,6 +67,8 @@ do
             COV_HTML_BASE=$1
             ;;
         --bullseye-system-tests)
+            BULLSEYE=1
+            BULLSEYE_UPLOAD=1
             BULLSEYE_SYSTEM_TESTS=1
             COVFILE="/tmp/root/sspl-combined.cov"
             BULLSEYE_UPLOAD=1
