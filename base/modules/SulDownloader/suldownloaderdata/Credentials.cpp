@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/ObfuscationImpl/Obfuscate.h>
 #include "Credentials.h"
 #include "SulDownloaderException.h"
 
@@ -30,5 +31,31 @@ const std::string& Credentials::getUsername() const
 const std::string& Credentials::getPassword() const
 {
     return m_password;
+}
+
+
+
+ProxyCredentials::ProxyCredentials(const std::string& username, const std::string& password, const std::string& proxyType)
+        : Credentials(username, password)
+          , m_proxyType(proxyType)
+{
+
+}
+
+std::string ProxyCredentials::getDeobfuscatedPassword() const
+{
+    if(m_proxyType == "2")
+    {
+        return Common::ObfuscationImpl::SECDeobfuscate(getPassword());
+    }
+    else
+    {
+        return getPassword();
+    }
+}
+
+const std::string& ProxyCredentials::getProxyType() const
+{
+    return m_proxyType;
 }
 

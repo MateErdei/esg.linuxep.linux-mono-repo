@@ -85,7 +85,8 @@ public:
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },
                                "installationRootPath": "absInstallationPath",
@@ -404,7 +405,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },)";
 

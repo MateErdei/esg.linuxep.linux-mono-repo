@@ -78,7 +78,8 @@ public:
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },
                                "installationRootPath": "absInstallationPath",
@@ -160,7 +161,8 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },)";
 
@@ -195,7 +197,8 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },)";
 
@@ -231,14 +234,15 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
 
 }
 
-TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySet) //NOLINT
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySetWithoutObfuscatedPassword) //NOLINT
 {
 
     std::string oldString = R"("proxy": {
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },)";
 
@@ -246,7 +250,8 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
                                "url": "http://testproxy.com",
                                "credential": {
                                "username": "testproxyusername",
-                               "password": "testproxypassword"
+                               "password": "testproxypassword",
+                               "proxyType": "1"
                                 }
                                },)";
 
@@ -264,7 +269,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().getUrl().empty() );
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getPassword().c_str(), "testproxypassword");
+    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
 
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
@@ -273,6 +278,55 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com" );
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
-    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getPassword().c_str(), "testproxypassword");
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
+
+}
+
+
+TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidatesWithValidProxyDataWhenProxySetWithObfuscatedPassword) //NOLINT
+{
+
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+    std::string newString = R"("proxy": {
+                               "url": "http://testproxy.com",
+                               "credential": {
+                               "username": "testproxyusername",
+                               "password": "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",
+                               "proxyType": "2"
+                                }
+                               },)";
+
+    suldownloaderdata::ConfigurationData configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+
+    // connectionCandidates should be ordered. With cache updates first.
+    ASSERT_EQ(connectionCandidates.size(), 2);
+
+    EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[0].getProxy().getUrl().empty() );
+    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
+
+
+    EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com" );
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
+    EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
 }

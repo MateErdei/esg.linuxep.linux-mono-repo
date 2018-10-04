@@ -340,8 +340,9 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
     SulDownloader::suldownloaderdata::Proxy expectedProxy{"uk-abn-wpan-1.green.sophos:8080",
-                               SulDownloader::suldownloaderdata::Credentials{"TestUser",
-                                                          "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="}};
+                               SulDownloader::suldownloaderdata::ProxyCredentials{"TestUser",
+                                                          "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=",
+                                                          "2"}};
     EXPECT_EQ(config.getProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }

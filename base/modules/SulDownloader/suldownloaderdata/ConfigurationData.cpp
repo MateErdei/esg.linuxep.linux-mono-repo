@@ -394,7 +394,9 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls));
     Credentials credential(settings.credential().username(), settings.credential().password());
     Proxy proxy(settings.proxy().url(),
-                Credentials(settings.proxy().credential().username(), settings.proxy().credential().password()));
+                ProxyCredentials(settings.proxy().credential().username(),
+                                 settings.proxy().credential().password(),
+                                 settings.proxy().credential().proxytype()));
 
     ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
 
@@ -495,6 +497,8 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
             configurationData.getProxy().getCredentials().getUsername());
     settings.mutable_proxy()->mutable_credential()->set_password(
             configurationData.getProxy().getCredentials().getPassword());
+    settings.mutable_proxy()->mutable_credential()->set_proxytype(
+            configurationData.getProxy().getCredentials().getProxyType());
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getProxy().getUrl());
 
     settings.set_certificatepath(configurationData.getCertificatePath());

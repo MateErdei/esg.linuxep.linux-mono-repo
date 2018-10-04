@@ -79,7 +79,8 @@ public:
                                "url": "noproxy:",
                                "credential": {
                                "username": "",
-                               "password": ""
+                               "password": "",
+                               "proxyType": ""
                                 }
                                },
                                "installationRootPath": "absInstallationPath",

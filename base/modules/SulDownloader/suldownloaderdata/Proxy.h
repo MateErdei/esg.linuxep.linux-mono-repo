@@ -21,9 +21,9 @@ namespace SulDownloader
             static const std::string NoProxy;
 
             explicit Proxy(const std::string& url = "",
-                           const suldownloaderdata::Credentials& credentials = suldownloaderdata::Credentials());
+                           const suldownloaderdata::ProxyCredentials& credentials = suldownloaderdata::ProxyCredentials());
 
-            const suldownloaderdata::Credentials& getCredentials() const;
+            const suldownloaderdata::ProxyCredentials& getCredentials() const;
 
             const std::string& getUrl() const;
 
@@ -43,7 +43,7 @@ namespace SulDownloader
         private:
 
             std::string m_url;
-            suldownloaderdata::Credentials m_credentials;
+            suldownloaderdata::ProxyCredentials m_credentials;
         };
     }
 }

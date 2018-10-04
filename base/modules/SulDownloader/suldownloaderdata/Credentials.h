@@ -37,6 +37,30 @@ namespace SulDownloader
         private:
             std::string m_username;
             std::string m_password;
+
+        };
+
+        class ProxyCredentials : public Credentials
+        {
+        public:
+            explicit ProxyCredentials(const std::string& username = "", const std::string& password = "", const std::string& m_proxyType = "");
+
+            std::string getDeobfuscatedPassword() const;
+            const std::string& getProxyType() const;
+
+            bool operator==(const ProxyCredentials& rhs) const
+            {
+                return ( Credentials::operator==(rhs) && m_proxyType == rhs.m_proxyType);
+            }
+
+            bool operator!=(const ProxyCredentials& rhs) const
+            {
+                return !operator==(rhs);
+            }
+
+        private:
+
+            std::string m_proxyType;
         };
     }
 

@@ -14,10 +14,16 @@ message ConfigurationSettings
         optional string username = 1;
         optional string password = 2;
     }
+    message ProxyCredentialT
+    {
+        optional string username = 1;
+        optional string password = 2;
+        optional string proxyType = 3;
+    }
     message ProxyT
     {
         optional string url = 1;
-        optional CredentialT credential = 2;
+        optional ProxyCredentialT credential = 2;
     }
 
     optional CredentialT credential = 3;

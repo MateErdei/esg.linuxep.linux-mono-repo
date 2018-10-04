@@ -10,14 +10,14 @@ using namespace SulDownloader::suldownloaderdata;
 
 const std::string Proxy::NoProxy("noproxy:");
 
-Proxy::Proxy(const std::string& url, const SulDownloader::suldownloaderdata::Credentials& credentials)
+Proxy::Proxy(const std::string& url, const SulDownloader::suldownloaderdata::ProxyCredentials& credentials)
         : m_url(url)
           , m_credentials(credentials)
 {
 
 }
 
-const Credentials& Proxy::getCredentials() const
+const ProxyCredentials& Proxy::getCredentials() const
 {
     return m_credentials;
 }

@@ -438,7 +438,7 @@ namespace SulDownloader
                            connectionSetup.getCredentials().getPassword().c_str(),
                            connectionSetup.getProxy().getUrl().c_str(),
                            connectionSetup.getProxy().getCredentials().getUsername().c_str(),
-                           connectionSetup.getProxy().getCredentials().getPassword().c_str())))
+                           connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword().c_str())))
         {
             LOGERROR("Failed to add Update source: " << updateSource);
             setError("Failed to add Update source");

@@ -108,13 +108,14 @@ namespace UpdateSchedulerImpl
                 std::string proxyPort = primaryProxy.value("ProxyPortNumber");
                 std::string proxyUser = primaryProxy.value("ProxyUserName");
                 std::string proxyPassword = primaryProxy.value("ProxyUserPassword");
+                std::string proxyType = primaryProxy.value("ProxyType");
                 if (!proxyPort.empty())
                 {
                     proxyAddress += ":" + proxyPort;
                 }
 
                 config.setProxy(
-                        SulDownloader::suldownloaderdata::Proxy{proxyAddress, SulDownloader::suldownloaderdata::Credentials{proxyUser, proxyPassword}}
+                        SulDownloader::suldownloaderdata::Proxy{proxyAddress, SulDownloader::suldownloaderdata::ProxyCredentials{proxyUser, proxyPassword, proxyType}}
                 );
             }
 
