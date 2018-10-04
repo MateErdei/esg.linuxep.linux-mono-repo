@@ -19,6 +19,16 @@ TEST(TestBase64, Base64DecodeThrowsWithTooFewCharacters)
     EXPECT_THROW(Common::ObfuscationImpl::Base64::Decode("a"), Common::Obfuscation::IBase64Exception);
 }
 
+TEST(TestBase64, Base64ReturnsEmptyStringIfPassedEmptyString)
+{
+    EXPECT_EQ(Common::ObfuscationImpl::Base64::Decode(""), std::string());
+}
+
+TEST(TestBase64, Base64ReturnsEmptyStringIfPassedNewLinesCarriageReturnAndEquals)
+{
+    EXPECT_EQ(Common::ObfuscationImpl::Base64::Decode("\n\r\n="), std::string());
+}
+
 TEST(TestBase64, Base64DecodeThrowsWithTooInvalidCharacter)
 {
     EXPECT_THROW(Common::ObfuscationImpl::Base64::Decode("~~"), Common::Obfuscation::IBase64Exception);

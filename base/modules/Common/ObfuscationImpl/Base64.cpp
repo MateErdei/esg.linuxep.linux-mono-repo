@@ -96,7 +96,7 @@ namespace Common
 
             std::string sPlain;
 
-            if (sEncoded.empty())
+            if (s.empty())
             {
                 return sPlain;
             }
