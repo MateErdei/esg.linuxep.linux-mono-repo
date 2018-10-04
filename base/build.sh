@@ -291,11 +291,13 @@ function build()
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then
         ## Now generate combined results
-        cd $BASE
+        cd ${BASE}
+        cd build${BITS}
         export COV_HTML_BASE=sspl-combined
         make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
 
         ## Upload combined results
+        cd ${BASE}
         bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
