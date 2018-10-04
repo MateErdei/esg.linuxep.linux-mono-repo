@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include <string>
+#include <Common/ObfuscationImpl/SecureCollection.h>
 
 namespace SulDownloader
 {
@@ -45,7 +46,7 @@ namespace SulDownloader
         public:
             explicit ProxyCredentials(const std::string& username = "", const std::string& password = "", const std::string& m_proxyType = "");
 
-            std::string getDeobfuscatedPassword() const;
+            Common::ObfuscationImpl::SecureString getDeobfuscatedPassword() const;
             const std::string& getProxyType() const;
 
             bool operator==(const ProxyCredentials& rhs) const

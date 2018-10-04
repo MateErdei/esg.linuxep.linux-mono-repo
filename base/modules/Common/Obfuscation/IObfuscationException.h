@@ -6,20 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IObfuscationException.h"
+#include "Common/Exceptions/IException.h"
 
 namespace Common
 {
     namespace Obfuscation
     {
 
-        class IBase64Exception: public IObfuscationException
+        class IObfuscationException: public Common::Exceptions::IException
         {
         public:
-            explicit IBase64Exception(const std::string& what)
-                    : IObfuscationException(what)
+            explicit IObfuscationException(const std::string& what)
+                    : Common::Exceptions::IException(what)
             {}
         };
     }
 }
-

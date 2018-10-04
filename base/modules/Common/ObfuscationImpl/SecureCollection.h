@@ -25,6 +25,12 @@ namespace Common
         class SecureCollection
                 : public Collection
         {
+            //Disable destroying SecureCollection polymorphically
+            void* operator new( std::size_t  ) = delete;
+            void* operator new[](std::size_t ) = delete;
+            void  operator delete(void * )     = delete;
+            void  operator delete[](void * )   = delete;
+
         public:
             using type = typename std::remove_const<typename Collection::value_type>::type;
             using Collection::Collection;

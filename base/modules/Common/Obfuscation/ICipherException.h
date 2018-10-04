@@ -13,13 +13,12 @@ namespace Common
     namespace Obfuscation
     {
 
-        class IBase64Exception: public IObfuscationException
+        class ICipherException: public IObfuscationException
         {
         public:
-            explicit IBase64Exception(const std::string& what)
+            explicit ICipherException(const std::string& what)
                     : IObfuscationException(what)
             {}
         };
     }
 }
-

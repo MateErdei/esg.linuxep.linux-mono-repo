@@ -432,17 +432,24 @@ namespace SulDownloader
 
         std::string updateSource("SOPHOS");
 
-        if(!SULUtils::isSuccess(SU_addUpdateSource(session(),
-                           updateSource.c_str(),
-                           connectionSetup.getCredentials().getUsername().c_str(),
-                           connectionSetup.getCredentials().getPassword().c_str(),
-                           connectionSetup.getProxy().getUrl().c_str(),
-                           connectionSetup.getProxy().getCredentials().getUsername().c_str(),
-                           connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword().c_str())))
         {
-            LOGERROR("Failed to add Update source: " << updateSource);
-            setError("Failed to add Update source");
-            return;
+            // Create copy of deobfuscated password, otherwise it will be deleted before SUL uses it
+            // This code in separate block to reduce lifetime of deobfuscated password
+            Common::ObfuscationImpl::SecureString deobfuscatedPassword =
+                    connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword();
+
+            if (!SULUtils::isSuccess(SU_addUpdateSource(session(),
+                                                        updateSource.c_str(),
+                                                        connectionSetup.getCredentials().getUsername().c_str(),
+                                                        connectionSetup.getCredentials().getPassword().c_str(),
+                                                        connectionSetup.getProxy().getUrl().c_str(),
+                                                        connectionSetup.getProxy().getCredentials().getUsername().c_str(),
+                                                        deobfuscatedPassword.c_str())))
+            {
+                LOGERROR("Failed to add Update source: " << updateSource);
+                setError("Failed to add Update source");
+                return;
+            }
         }
 
         if ( connectionSetup.isCacheUpdate())

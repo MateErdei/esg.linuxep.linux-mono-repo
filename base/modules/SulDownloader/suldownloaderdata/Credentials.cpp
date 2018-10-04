@@ -42,7 +42,7 @@ ProxyCredentials::ProxyCredentials(const std::string& username, const std::strin
 
 }
 
-std::string ProxyCredentials::getDeobfuscatedPassword() const
+Common::ObfuscationImpl::SecureString ProxyCredentials::getDeobfuscatedPassword() const
 {
     if(m_proxyType == "2")
     {
@@ -50,7 +50,8 @@ std::string ProxyCredentials::getDeobfuscatedPassword() const
     }
     else
     {
-        return getPassword();
+        auto& pwd = getPassword();
+        return Common::ObfuscationImpl::SecureString(pwd.begin(), pwd.end());
     }
 }
 

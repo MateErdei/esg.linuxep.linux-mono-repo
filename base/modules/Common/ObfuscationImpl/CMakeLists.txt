@@ -12,11 +12,14 @@ add_library(obfuscationimpl SHARED
         Obscurity.cpp
         Base64.h
         Base64.cpp
-        Base64Exception.h
-        ObscurityException.h
+        ../Obfuscation/IBase64Exception.h
         Logger.cpp
         Logger.h
-)
+        ../Obfuscation/IEvpCipherWrapper.h
+        ../Obfuscation/IObfuscationException.h
+        ../Obfuscation/ICipherException.h
+        ../Obfuscation/IObscurityException.h
+        )
 
 target_include_directories(obfuscationimpl PUBLIC ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 

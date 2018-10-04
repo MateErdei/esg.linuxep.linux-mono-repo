@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "Cipher.h"
-#include "ObscurityException.h"
+#include "Common/Obfuscation/ICipherException.h"
 
 #include <pwd.h>
 #include <vector>
@@ -22,47 +22,76 @@ namespace Common
     namespace ObfuscationImpl
     {
 
-        EvpCipherWrapper::EvpCipherWrapper()
+        EVP_CIPHER_CTX* EvpCipherWrapper::EVP_CIPHER_CTX_new() const
         {
-            if (!(m_ctxPtr = EVP_CIPHER_CTX_new())) handleErrors();
+            return ::EVP_CIPHER_CTX_new();
         }
 
-        EvpCipherWrapper::~EvpCipherWrapper()
+        void EvpCipherWrapper::EVP_CIPHER_CTX_free(EVP_CIPHER_CTX* a) const
         {
-            EVP_CIPHER_CTX_free(m_ctxPtr);
+            ::EVP_CIPHER_CTX_free(a);
         }
 
-        void EvpCipherWrapper::DecryptInit_ex(const EVP_CIPHER* cipher,
+        int EvpCipherWrapper::EVP_DecryptInit_ex(EVP_CIPHER_CTX* ctx, const EVP_CIPHER* cipher, ENGINE* impl,
+                                                 const unsigned char* key, const unsigned char* iv) const
+        {
+            return ::EVP_DecryptInit_ex(ctx, cipher, impl, key, iv);
+        }
+
+        int
+        EvpCipherWrapper::EVP_DecryptUpdate(EVP_CIPHER_CTX* ctx, unsigned char* out, int* outl, const unsigned char* in,
+                                            int inl) const
+        {
+            return ::EVP_DecryptUpdate(ctx, out, outl, in, inl);
+        }
+
+        int EvpCipherWrapper::EVP_DecryptFinal_ex(EVP_CIPHER_CTX* ctx, unsigned char* outm, int* outl) const
+        {
+            return ::EVP_DecryptFinal_ex(ctx, outm, outl);
+        }
+
+
+        EvpCipherContext::EvpCipherContext()
+        {
+            if (!(m_ctxPtr = Common::Obfuscation::evpCipherWrapper()->EVP_CIPHER_CTX_new())) handleErrors();
+        }
+
+        EvpCipherContext::~EvpCipherContext()
+        {
+            Common::Obfuscation::evpCipherWrapper()->EVP_CIPHER_CTX_free(m_ctxPtr);
+        }
+
+        void EvpCipherContext::DecryptInit_ex(const EVP_CIPHER* cipher,
                                               const unsigned char* key,
                                               const unsigned char* iv)
         {
-            if (1 != EVP_DecryptInit_ex(m_ctxPtr, cipher, NULL, key, iv))
+            if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptInit_ex(m_ctxPtr, cipher, NULL, key, iv))
             {
                 handleErrors();
             }
         }
 
-        void EvpCipherWrapper::DecryptUpdate(unsigned char* out, int* outl,
+        void EvpCipherContext::DecryptUpdate(unsigned char* out, int* outl,
                                              const unsigned char* in, int inl)
         {
-            if (1 != EVP_DecryptUpdate(m_ctxPtr, out, outl, in, inl))
+            if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptUpdate(m_ctxPtr, out, outl, in, inl))
             {
                 handleErrors();
             }
         }
 
-        void EvpCipherWrapper::DecryptFinal_ex(unsigned char* outm, int* outl)
+        void EvpCipherContext::DecryptFinal_ex(unsigned char* outm, int* outl)
         {
-            if (1 != EVP_DecryptFinal_ex(m_ctxPtr, outm, outl))
+            if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptFinal_ex(m_ctxPtr, outm, outl))
             {
                 handleErrors();
             }
         }
 
-        void EvpCipherWrapper::handleErrors()
+        void EvpCipherContext::handleErrors()
         {
             LOGDEBUG(ERR_error_string(ERR_get_error(), NULL));
-            throw Common::ObfuscationImpl::ObscurityException("SECDeobsfucation Failed.");
+            throw Common::Obfuscation::ICipherException("SECDeobfuscation Failed.");
         }
 
         ObfuscationImpl::SecureString
@@ -70,6 +99,11 @@ namespace Common
         {
 
             static constexpr int saltLength = 32;
+
+            if(encrypted.size() < 33)
+            {
+                throw Common::Obfuscation::ICipherException("");
+            }
             ObfuscationImpl::SecureDynamicBuffer salt(encrypted.begin() + 1, encrypted.begin() + saltLength + 1);
             ObfuscationImpl::SecureDynamicBuffer cipherText(encrypted.begin() + saltLength + 1, encrypted.end());
 
@@ -82,7 +116,7 @@ namespace Common
 
             if (slen != 1 )
             {
-                throw Common::ObfuscationImpl::ObscurityException("SECDeobsfucation Failed.");
+                throw Common::Obfuscation::ICipherException("SECDeobfuscation Failed.");
             }
 
             unsigned char* key = keyivarray.data();
@@ -94,7 +128,7 @@ namespace Common
             int plaintext_len = 0;
 
             /* Create and initialise the context */
-            EvpCipherWrapper evpCipherWrapper;
+            EvpCipherContext evpCipherWrapper;
 
             /* Initialise the decryption operation. IMPORTANT - ensure you use a key
              * and IV size appropriate for your cipher
@@ -126,3 +160,26 @@ namespace Common
         }
     }
 }
+
+
+Common::ObfuscationImpl::IEvpCipherWrapperPtr& evpCipherWrapperStaticPointer()
+{
+    static Common::ObfuscationImpl::IEvpCipherWrapperPtr instance = Common::ObfuscationImpl::IEvpCipherWrapperPtr(new Common::ObfuscationImpl::EvpCipherWrapper());
+    return instance;
+}
+
+void Common::ObfuscationImpl::replaceEvpCipherWrapper(IEvpCipherWrapperPtr pointerToReplace)
+{
+    evpCipherWrapperStaticPointer().reset(pointerToReplace.release());
+}
+
+void Common::ObfuscationImpl::restoreEvpCipherWrapper()
+{
+    evpCipherWrapperStaticPointer().reset(new Common::ObfuscationImpl::EvpCipherWrapper());
+}
+
+Common::Obfuscation::IEvpCipherWrapper *Common::Obfuscation::evpCipherWrapper()
+{
+    return evpCipherWrapperStaticPointer().get();
+}
+

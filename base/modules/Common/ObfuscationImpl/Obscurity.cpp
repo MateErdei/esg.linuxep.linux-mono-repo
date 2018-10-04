@@ -6,11 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Cipher.h"
 #include "Obscurity.h"
-#include "ObscurityException.h"
+#include "Common/Obfuscation/IObscurityException.h"
 #include "KeyRa.h"
 #include "KeyFa.h"
 #include "KeyDo.h"
 #include "KeyMi.h"
+#include "Logger.h"
 #include <sstream>
 #include <iostream>
 #include <cstring>
@@ -245,9 +246,8 @@ namespace Common
             // Check algorithm identification
             if (MarkAES256Algorithm != obscuredData[0])
             {
-                std::ostringstream err;
-                err << "Obscure:Invalid algorithm ident=" << static_cast<unsigned int>(obscuredData[0]);
-                throw ObscurityException(err.str().c_str());
+                LOGDEBUG("Obscure:Invalid algorithm ident=" << static_cast<unsigned int>(obscuredData[0]));
+                throw Common::Obfuscation::IObscurityException("SECDeobfuscation Failed.");
             }
 
             SecureDynamicBuffer obscuredText(begin(obscuredData) + 1, end(obscuredData));
