@@ -98,9 +98,9 @@ namespace Common
         Cipher::Decrypt(const ObfuscationImpl::SecureDynamicBuffer& cipherKey, ObfuscationImpl::SecureDynamicBuffer& encrypted)
         {
 
-            static constexpr int saltLength = 32;
+            int saltLength = encrypted[0];
 
-            if(encrypted.size() < 33)
+            if(encrypted.size() < saltLength + 1)
             {
                 throw Common::Obfuscation::ICipherException("");
             }

@@ -35,12 +35,16 @@ public:
 TEST_F(CipherTest, BadEncryptionLength)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(31,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer), Common::Obfuscation::ICipherException);
 }
 
 TEST_F(CipherTest, BadPKCS5Password)
 {
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer2;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer2, dummyBuffer), Common::Obfuscation::ICipherException);
 }
@@ -49,6 +53,8 @@ TEST_F(CipherTest, FailContextConstruction)
 {
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(nullptr));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer), Common::Obfuscation::ICipherException);
 }
 
@@ -59,6 +65,8 @@ TEST_F(CipherTest, FailDecryptInit)
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptInit_ex(_,_,_,_,_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer), Common::Obfuscation::ICipherException);
 }
 
@@ -70,6 +78,8 @@ TEST_F(CipherTest, FailDecryptUpdate)
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_,_,_,_,_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer), Common::Obfuscation::ICipherException);
 }
 
@@ -82,6 +92,8 @@ TEST_F(CipherTest, FailDecryptFinal)
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptFinal_ex(_,_,_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33,'*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
     EXPECT_THROW(Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer), Common::Obfuscation::ICipherException);
 }
 
