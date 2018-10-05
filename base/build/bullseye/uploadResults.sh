@@ -23,10 +23,12 @@ PRIVATE_KEY=${BASE}/build/bullseye/private.key
 echo "Exclusions:"
 covselect --list --no-banner --file "$COVFILE"
 
-$BULLSEYE_DIR/bin/covhtml --file "$COVFILE" \
-    -d"$BASE" \
-    "$htmldir" \
-    </dev/null \
+$BULLSEYE_DIR/bin/covhtml \
+    --file "$COVFILE"     \
+    --srcdir /            \
+    --verbose             \
+    "$htmldir"            \
+    </dev/null            \
     || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
 
 chmod -R a+rX "$htmldir"
