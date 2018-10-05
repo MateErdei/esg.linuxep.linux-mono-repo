@@ -36,8 +36,7 @@ ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
-#SYSTEM_TEST_BRANCH=master
-BULLSEYE_SYSTEM_TEST_BRANCH=feature/LINUXEP-5933_setup_coverage
+BULLSEYE_SYSTEM_TEST_BRANCH=master
 
 while [[ $# -ge 1 ]]
 do
