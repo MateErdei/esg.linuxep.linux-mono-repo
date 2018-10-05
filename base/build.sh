@@ -36,6 +36,8 @@ ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
+#SYSTEM_TEST_BRANCH=master
+BULLSEYE_SYSTEM_TEST_BRANCH=feature/LINUXEP-5933_setup_coverage
 
 while [[ $# -ge 1 ]]
 do
@@ -76,6 +78,10 @@ do
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
+            ;;
+        --bullseye-system-test-branch)
+            shift
+            BULLSEYE_SYSTEM_TEST_BRANCH=$1
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -279,6 +285,7 @@ function build()
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then
         cd $BASE
+        export BULLSEYE_SYSTEM_TEST_BRANCH
         bash -x $BASE/build/bullseye/runSystemTest.sh || echo "System tests failed: $?"
     fi
 
