@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include "Base64.h"
 #include "Common/Obfuscation/IBase64Exception.h"
+#include "Logger.h"
 
 namespace
 {
@@ -34,7 +35,8 @@ namespace
 
 		if (it == itEnd)
 		{
-			throw Common::Obfuscation::IBase64Exception("Too few characters in encoded string.");
+		    LOGDEBUG("Too few characters in encoded string.");
+			throw Common::Obfuscation::IBase64Exception("SECDeobfuscation Failed.");
 		}
 
 		// Get the next encoded character, and look it up in the string of allowed characters. If it
@@ -47,7 +49,8 @@ namespace
 
 		if (pos == std::string::npos)
 		{
-            throw Common::Obfuscation::IBase64Exception("Invalid character in encoded string.");
+		    LOGDEBUG("Invalid character in encoded string.");
+            throw Common::Obfuscation::IBase64Exception("SECDeobfuscation Failed.");
 		}
 
 		// Return the binary value of the character.
