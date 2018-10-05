@@ -32,10 +32,10 @@ namespace std {
 //
 
 inline bool char_class_num(char c)      { return (c >= '0' && c <= '9'); }
-inline bool char_class_alpha(char c)    { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
-inline bool char_class_alphanum(char c) { return char_class_num(c) || char_class_alpha(c); }
+//inline bool char_class_alpha(char c)    { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+//inline bool char_class_alphanum(char c) { return char_class_num(c) || char_class_alpha(c); }
 
-inline bool char_class_base64(char c)   { return char_class_alphanum(c) || (c == '+') || (c == '/'); }
+//inline bool char_class_base64(char c)   { return char_class_alphanum(c) || (c == '+') || (c == '/'); }
 inline bool char_class_hex(char c)      { return char_class_num(c) || (c >= 'a' && c <= 'f'); }
 //Note - this has been changed to allow the windows file separator as part of a filename.
 inline bool char_class_file(char c)     { return (c >= 32 && c <= 126)
@@ -162,42 +162,42 @@ operator>>(istream& is, _Match f)
 //  Read a base64 encoding from a stream into a string.
 //  Consumes (and requires) the trailing new line.
 //
-struct _Match_base64 {
-    string &s;
-    int maxlines;
-    _Match_base64(string &s, int maxlines) : s(s), maxlines(maxlines) {}
-};
-inline _Match_base64 match_base64(string &s, int maxlines = -1) {
-    _Match_base64 m(s, maxlines);
-    return m;
-}
+//struct _Match_base64 {
+//    string &s;
+//    int maxlines;
+//    _Match_base64(string &s, int maxlines) : s(s), maxlines(maxlines) {}
+//};
+//inline _Match_base64 match_base64(string &s, int maxlines = -1) {
+//    _Match_base64 m(s, maxlines);
+//    return m;
+//}
 
-inline istream&
-operator>>(istream& is, _Match_base64 f)
-{
-    int lines;
-    for (lines = 0; lines != f.maxlines; lines++) {
-        string cur_line;
-        is >> match(char_class_base64, cur_line, 0, 79);
-        if (cur_line.length() == 0) break;
-        f.s += cur_line;
-        if (is.peek() == '\n') {
-            f.s += '\n';
-            is.ignore();
-        } else if (is.peek() != '=') {
-            is.clear(ios::failbit);
-            break;
-        };
-        if (is.peek() == '=') {
-            string padding;
-            is >> match(char_literal_eq, padding, 1, 2) >> expect('\n');
-            f.s += padding + "\n";
-            break;
-        };
-    }
-    if (lines == 0) is.clear(ios::failbit);
-    return is;
-}
+//inline istream&
+//operator>>(istream& is, _Match_base64 f)
+//{
+//    int lines;
+//    for (lines = 0; lines != f.maxlines; lines++) {
+//        string cur_line;
+//        is >> match(char_class_base64, cur_line, 0, 79);
+//        if (cur_line.length() == 0) break;
+//        f.s += cur_line;
+//        if (is.peek() == '\n') {
+//            f.s += '\n';
+//            is.ignore();
+//        } else if (is.peek() != '=') {
+//            is.clear(ios::failbit);
+//            break;
+//        };
+//        if (is.peek() == '=') {
+//            string padding;
+//            is >> match(char_literal_eq, padding, 1, 2) >> expect('\n');
+//            f.s += padding + "\n";
+//            break;
+//        };
+//    }
+//    if (lines == 0) is.clear(ios::failbit);
+//    return is;
+//}
 
 
 ////////////////////////////////////////////////////////////
