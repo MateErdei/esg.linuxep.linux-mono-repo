@@ -102,17 +102,18 @@ class Computer(object):
 
         while len(self.__m_commands) > 0:
             command = self.__m_commands.pop(0)
-            logger.debug("  %s",str(command))
+            logger.debug("  %s", str(command))
             n = None
             try:
                 n = self.directCommand(command)
             except Exception:
-                logger.warning("Failed to execute command: %s",str(command))
+                logger.warning("Failed to execute command: %s", str(command))
                 self.__m_commands.append(command)
                 raise
 
             if n is not None:
-                self.__m_commands += n
+                # Put new commands first, so that we process, e.g. UpdatePolicy before UpdateNow
+                self.__m_commands = n + self.__m_commands
 
         return True
 
