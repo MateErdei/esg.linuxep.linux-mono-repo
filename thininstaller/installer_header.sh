@@ -253,7 +253,7 @@ then
     if [ -f "$REGISTER_CENTRAL" ]
     then
         echo "Attempting to re-register existing installation with Sophos Central"
-        echo "Cloud token is [$CLOUD_TOKEN], Cloud URL is [$CLOUD_URL]"
+        echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
         ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
 
         if [ $? -ne 0 ]; then
