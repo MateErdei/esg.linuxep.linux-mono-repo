@@ -23,7 +23,22 @@ TEST(UniformIntDistribution, next) // NOLINT
     }
 
     int expected_value_of_uniform_distribution = (0 + 5) * 1000 / 2;
-    EXPECT_LE(accumulated, expected_value_of_uniform_distribution + 20);
-    EXPECT_GE(accumulated, expected_value_of_uniform_distribution - 20);
+    EXPECT_LE(accumulated, expected_value_of_uniform_distribution + 200);
+    EXPECT_GE(accumulated, expected_value_of_uniform_distribution - 200);
 
+}
+
+TEST(UniformIntDistribution, testConstructorGeneratesARandomSeed) // NOLINT
+{
+    UniformIntDistribution distribution1(0, 1000);
+    UniformIntDistribution distribution2(0, 1000);
+    UniformIntDistribution distribution3(0, 1000);
+
+    int curr1 = distribution1.next();
+    int curr2 = distribution2.next();
+    int curr3 = distribution3.next();
+
+    EXPECT_NE(curr1, curr2);
+    EXPECT_NE(curr1, curr3);
+    EXPECT_NE(curr2, curr3);
 }

@@ -13,7 +13,7 @@ namespace Common
 
         UniformIntDistribution::UniformIntDistribution(int minValue, int maxValue)
                 : m_uid(minValue, maxValue)
-                  , m_engine()
+                  , m_engine(m_randomDevice())
         {
 
         }

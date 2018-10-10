@@ -20,6 +20,7 @@ namespace Common
             int next();
 
         private:
+            std::random_device m_randomDevice;
             std::uniform_int_distribution<> m_uid;
             std::default_random_engine m_engine;
         };
