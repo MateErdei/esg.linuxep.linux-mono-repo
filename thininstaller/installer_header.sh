@@ -154,6 +154,15 @@ if [ $(id -u) -ne 0 ]; then
     cleanup_and_exit ${EXITCODE_NOT_ROOT}
 fi
 
+# Check machine architecture (only support 64 bit)
+MACHINE_TYPE=`uname -m`
+if [ ${MACHINE_TYPE} = "x86_64" ]; then
+    BIN="installer/bin"
+else
+    echo "This product can only be installed on a 64bit system."
+    cleanup_and_exit ${EXITCODE_NOT_64_BIT}
+fi
+
 # Handle arguments
 for i in "$@"
 do
@@ -285,15 +294,6 @@ mkdir distribute
 mkdir cache
 mkdir warehouse
 mkdir warehouse/catalogue
-
-# Check machine architecture (only support 64 bit)
-MACHINE_TYPE=`uname -m`
-if [ ${MACHINE_TYPE} = "x86_64" ]; then
-    BIN="installer/bin"
-else
-    echo "This product can only be installed on a 64bit system."
-    cleanup_and_exit ${EXITCODE_NOT_64_BIT}
-fi
 
 echo "Downloading base installer"
 ${BIN}/installer credentials.txt
