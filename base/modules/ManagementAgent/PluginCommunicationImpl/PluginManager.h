@@ -39,6 +39,7 @@ namespace ManagementAgent
 
             int applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
             int queueAction(const std::string &appId, const std::string &actionXml) override;
+            void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
             std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
             void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;

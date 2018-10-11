@@ -281,7 +281,7 @@ class MCS(object):
                         if  added_apps:
                             logger.info("New AppIds found to register for: " + ' ,'.join(added_apps))
                         if removed_apps:
-                            logger.info("AppIds not supported anymore: " ' ,'.join(removed_apps))
+                            logger.info("AppIds not supported anymore: " + ' ,'.join(removed_apps))
                             # Not removing adapters if plugin uninstalled - this will cause Central to delete commands
                         for app in added_apps:
                             self.__m_computer.addAdapter(adapters.GenericAdapter.GenericAdapter(app, PathManager.installDir()))

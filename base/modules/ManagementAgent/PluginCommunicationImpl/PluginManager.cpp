@@ -12,9 +12,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <thread>
 
@@ -74,6 +75,10 @@ namespace PluginCommunicationImpl
     {
         LOGSUPPORT("PluginManager: apply new policy: " << appId);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+
+        // Keep a list of plugins we failed to communicate with
+        std::vector<std::pair<std::string, std::string>> pluginNamesAndErrors;
+
         int pluginsNotified = 0;
         for (auto& proxy : m_RegisteredPlugins)
         {
@@ -86,10 +91,12 @@ namespace PluginCommunicationImpl
                 }
                 catch (std::exception& ex)
                 {
-                    LOGERROR("Failure on sending policy to " << proxy.first << ". Reason: " << ex.what());
+                    pluginNamesAndErrors.emplace_back(std::pair<std::string, std::string>(proxy.first, ex.what()));
                 }
             }
         }
+        // If we failed to communicate with plugins, check they are still installed. If not, remove them from memory.
+        checkPluginRegistry(pluginNamesAndErrors);
         return pluginsNotified;
     }
 
@@ -97,6 +104,10 @@ namespace PluginCommunicationImpl
     {
         LOGSUPPORT("PluginManager: Queue action " << appId);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+
+        // Keep a list of plugins we failed to communicate with
+        std::vector<std::pair<std::string, std::string>> pluginNamesAndErrors;
+
         int pluginsNotified = 0;
         for (auto& proxy : m_RegisteredPlugins)
         {
@@ -109,11 +120,35 @@ namespace PluginCommunicationImpl
                 }
                 catch (std::exception& ex)
                 {
-                    LOGERROR("Failure on sending action to " << proxy.first << ". Reason: " << ex.what());
+                    pluginNamesAndErrors.emplace_back(std::pair<std::string, std::string>(proxy.first, ex.what()));
                 }
             }
         }
+        // If we failed to communicate with plugins, check they are still installed. If not, remove them from memory.
+        checkPluginRegistry(pluginNamesAndErrors);
         return pluginsNotified;
+    }
+
+    void PluginManager::checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors)
+    {
+        for (auto& plugin : pluginsAndErrors)
+        {
+            std::string pluginFile = plugin.first + ".json";
+            std::string pluginRegistryFileName = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(),
+                                                                          pluginFile);
+            if (Common::FileSystem::fileSystem()->isFile(pluginRegistryFileName))
+            {
+                // Plugin is installed, but we failed to communicate with it. Log an error.
+                LOGERROR("Failure on sending message to " << plugin.first << ". Reason: " << plugin.second);
+            }
+            else
+            {
+                // Plugin is no longer installed, remove it from memory
+                m_RegisteredPlugins.erase(plugin.first);
+                LOGINFO(plugin.first << " has been uninstalled.");
+            }
+        }
+
     }
 
     std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string& pluginName)

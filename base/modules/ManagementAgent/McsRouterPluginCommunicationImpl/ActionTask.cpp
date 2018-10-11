@@ -44,7 +44,9 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
         throw;
     }
 
-    m_pluginManager.queueAction(appId, payload);
+    int pluginsNotified = m_pluginManager.queueAction(appId, payload);
+    LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
+
     Common::FileSystem::fileSystem()->removeFile(m_filePath);
 
 }
