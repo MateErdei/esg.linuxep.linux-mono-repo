@@ -42,12 +42,22 @@ namespace PluginCommunicationImpl
         bool hasActionAppId(const std::string &appId) override ;
         bool hasStatusAppId(const std::string &appId) override ;
 
+        /**
+         * Get the plugin's name
+         * @return
+         */
+        std::string name() override
+        {
+            return m_name;
+        }
+
     private:
 
         Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage &request) const;
         Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
         Common::PluginProtocol::MessageBuilder m_messageBuilder;
         AppIdCollection m_appIdCollection;
+        std::string m_name;
     };
 
 }

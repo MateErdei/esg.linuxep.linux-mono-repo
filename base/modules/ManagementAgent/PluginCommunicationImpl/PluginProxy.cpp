@@ -18,7 +18,8 @@ namespace PluginCommunicationImpl
 
     PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName) :
             m_socket(std::move(socketRequester)),
-            m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
+            m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName),
+            m_name(pluginName)
     {
         m_appIdCollection.setAppIdsForStatus({pluginName});
         m_appIdCollection.setAppIdsForPolicyAndActions({pluginName});

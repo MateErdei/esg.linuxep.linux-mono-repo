@@ -81,6 +81,12 @@ namespace PluginCommunication
          * @return true if the plugin is interested in the appId given for status
          */
         virtual bool hasStatusAppId(const std::string &appId) = 0;
+
+        /**
+         * Get the plugin's name
+         * @return
+         */
+        virtual std::string name() = 0;
     };
 
 

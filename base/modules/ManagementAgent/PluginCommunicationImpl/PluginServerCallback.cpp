@@ -49,21 +49,25 @@ namespace ManagementAgent
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
         {
             LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
-            m_pluginManager.registerPlugin(pluginName);
             Common::PluginRegistryImpl::PluginInfo pluginInfo;
             bool validPlugin;
-            std::tie(pluginInfo, validPlugin) = Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(
-                    pluginName
-            );
+            std::tie(pluginInfo, validPlugin) =
+                    Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
 
             if (!validPlugin)
             {
+                // Will create the plugin if it doesn't exist
+                m_pluginManager.registerPlugin(pluginName);
                 LOGERROR("No information found about this plugin: " << pluginName);
                 throw Common::PluginApi::ApiException(
                         "Information for the plugin not found in the registry: " + pluginName
                 );
             }
-            m_pluginManager.setAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
+            else
+            {
+                // Will also create the plugin if it doesn't exist
+                m_pluginManager.registerAndSetAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
+            }
         }
 
         void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)

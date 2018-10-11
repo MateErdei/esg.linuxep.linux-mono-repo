@@ -44,6 +44,9 @@ namespace ManagementAgent
             std::string getTelemetry(const std::string & pluginName) override;
             void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;
             void registerPlugin(const std::string &pluginName) override;
+
+            void registerAndSetAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds);
+
             void removePlugin(const std::string &pluginName) override;
 
             std::vector<std::string> getRegisteredPluginNames() override;
@@ -65,9 +68,9 @@ namespace ManagementAgent
 
         private:
 
-            PluginCommunication::IPluginProxy* getPlugin(const std::string &pluginName);
+            PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 
-            void setTimeouts(Common::ZeroMQWrapper::ISocketSetup &socket);
+            void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
 
             Common::ZeroMQWrapper::IContextPtr m_context;
             std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
@@ -76,6 +79,35 @@ namespace ManagementAgent
             int m_defaultTimeout;
             int m_defaultConnectTimeout;
             std::mutex m_pluginMapMutex;
+
+            /**
+             * Get a plugin, or create it.
+             * Must already hold m_pluginMapMutex
+             * @param pluginName
+             * @return BORROWED pointer to the proxy
+             */
+            PluginCommunication::IPluginProxy* locked_createOrGetPlugin(const std::string& pluginName);
+
+            /**
+             * Create a plugin, always re-creating it
+             * Must already hold m_pluginMapMutex
+             * @param pluginName
+             * @return BORROWED pointer to the proxy
+             */
+            PluginCommunication::IPluginProxy* locked_createPlugin(const std::string& pluginName);
+
+            /**
+             *
+             * Must already hold m_pluginMapMutex
+             *
+             * @param pluginName
+             * @param policyAppIds
+             * @param statusAppIds
+             */
+            void locked_setAppIds(
+                    PluginCommunication::IPluginProxy* plugin,
+                    const std::vector<std::string> &policyAppIds,
+                    const std::vector<std::string> & statusAppIds);
         };
 
     }

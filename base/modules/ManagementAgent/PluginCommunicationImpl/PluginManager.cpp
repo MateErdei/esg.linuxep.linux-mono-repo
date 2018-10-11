@@ -165,20 +165,54 @@ namespace PluginCommunicationImpl
         return getPlugin(pluginName)->getTelemetry();
     }
 
+    void PluginManager::locked_setAppIds(PluginCommunication::IPluginProxy* plugin,
+                                         const std::vector<std::string>& policyAppIds,
+                                         const std::vector<std::string>& statusAppIds)
+    {
+        std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
+        LOGSUPPORT("PluginManager: associate appids to pluginName " << plugin->name() << ": " << firstPolicy);
+
+        plugin->setPolicyAndActionsAppIds(policyAppIds);
+        plugin->setStatusAppIds(statusAppIds);
+    }
+
+
     void PluginManager::setAppIds(const std::string& pluginName, const std::vector<std::string>& policyAppIds,
                                   const std::vector<std::string>& statusAppIds)
     {
-        std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
-        LOGSUPPORT("PluginManager: associate appids to pluginName " << pluginName << ": " << firstPolicy);
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
-        auto plugin = getPlugin(pluginName);
-        plugin->setPolicyAndActionsAppIds(policyAppIds);
-        plugin->setStatusAppIds(statusAppIds);
+        auto plugin = locked_createOrGetPlugin(pluginName);
+        locked_setAppIds(plugin, policyAppIds, statusAppIds);
     }
 
     void PluginManager::registerPlugin(const std::string& pluginName)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+        locked_createOrGetPlugin(pluginName);
+    }
+
+    void PluginManager::registerAndSetAppIds(
+                const std::string& pluginName,
+                const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& statusAppIds)
+    {
+        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+        auto plugin = locked_createPlugin(pluginName);
+        locked_setAppIds(plugin, policyAppIds, statusAppIds);
+    }
+
+    PluginCommunication::IPluginProxy* PluginManager::locked_createOrGetPlugin(const std::string& pluginName)
+    {
+        auto found = m_RegisteredPlugins.find(pluginName);
+        if (found != m_RegisteredPlugins.end())
+        {
+            return found->second.get();
+        }
+        return locked_createPlugin(pluginName);
+    }
+
+    PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(const std::string& pluginName)
+    {
         std::string pluginSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(
                 pluginName
         );
@@ -188,9 +222,10 @@ namespace PluginCommunicationImpl
         std::unique_ptr<PluginCommunication::IPluginProxy> proxyPlugin = std::unique_ptr<PluginProxy>(
                 new PluginProxy(std::move(requester), pluginName));
         m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
+        return m_RegisteredPlugins[pluginName].get();
     }
 
-    PluginCommunication::IPluginProxy *PluginManager::getPlugin(const std::string& pluginName)
+    PluginCommunication::IPluginProxy* PluginManager::getPlugin(const std::string& pluginName)
     {
         auto found = m_RegisteredPlugins.find(pluginName);
         if (found != m_RegisteredPlugins.end())
@@ -253,6 +288,7 @@ namespace PluginCommunicationImpl
 
         return pluginNameList;
     }
+
 }
 }
 
