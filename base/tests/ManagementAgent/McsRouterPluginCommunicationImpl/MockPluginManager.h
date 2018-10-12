@@ -24,7 +24,7 @@ public:
     MOCK_METHOD2(queueAction, int(const std::string &appId, const std::string &actionXml));
     MOCK_METHOD1(getStatus, std::vector<Common::PluginApi::StatusInfo>(const std::string &pluginName));
     MOCK_METHOD1(getTelemetry, std::string (const std::string &pluginName));
-    MOCK_METHOD3(setAppIds, void(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds));
+    MOCK_METHOD3(registerAndSetAppIds, void(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds));
     MOCK_METHOD1(registerPlugin, void(const std::string &pluginName));
     MOCK_METHOD1(removePlugin, void(const std::string &pluginName));
     MOCK_METHOD0(getRegisteredPluginNames, std::vector<std::string>(void));

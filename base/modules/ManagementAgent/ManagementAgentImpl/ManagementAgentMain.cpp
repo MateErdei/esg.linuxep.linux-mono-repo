@@ -93,9 +93,8 @@ namespace ManagementAgent
 
             for(auto & plugin : plugins)
             {
-                m_pluginManager->registerPlugin(plugin.getPluginName());
+                m_pluginManager->registerAndSetAppIds(plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
                 LOGINFO("Registered plugin " << plugin.getPluginName() << ", executable path " << plugin.getExecutableFullPath());
-                m_pluginManager->setAppIds(plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
             }
         }
 
@@ -217,7 +216,7 @@ namespace ManagementAgent
             sigaction (SIGINT, &action, NULL);
             sigaction (SIGTERM, &action, NULL);
 
-            shutdownPipePtr = poller->addEntry(GL_signalPipe.get()->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+            shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
             // start running background threads
             m_taskQueueProcessor->start();

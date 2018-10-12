@@ -167,7 +167,8 @@ namespace PluginCommunicationImpl
 
     void PluginManager::locked_setAppIds(PluginCommunication::IPluginProxy* plugin,
                                          const std::vector<std::string>& policyAppIds,
-                                         const std::vector<std::string>& statusAppIds)
+                                         const std::vector<std::string>& statusAppIds,
+                                         std::lock_guard<std::mutex>&)
     {
         std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
         LOGSUPPORT("PluginManager: associate appids to pluginName " << plugin->name() << ": " << firstPolicy);
@@ -177,18 +178,10 @@ namespace PluginCommunicationImpl
     }
 
 
-    void PluginManager::setAppIds(const std::string& pluginName, const std::vector<std::string>& policyAppIds,
-                                  const std::vector<std::string>& statusAppIds)
-    {
-        std::lock_guard<std::mutex> lock(m_pluginMapMutex);
-        auto plugin = locked_createOrGetPlugin(pluginName);
-        locked_setAppIds(plugin, policyAppIds, statusAppIds);
-    }
-
     void PluginManager::registerPlugin(const std::string& pluginName)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
-        locked_createOrGetPlugin(pluginName);
+        locked_createPlugin(pluginName, lock);
     }
 
     void PluginManager::registerAndSetAppIds(
@@ -197,21 +190,12 @@ namespace PluginCommunicationImpl
                 const std::vector<std::string>& statusAppIds)
     {
         std::lock_guard<std::mutex> lock(m_pluginMapMutex);
-        auto plugin = locked_createPlugin(pluginName);
-        locked_setAppIds(plugin, policyAppIds, statusAppIds);
+        auto plugin = locked_createPlugin(pluginName, lock);
+        locked_setAppIds(plugin, policyAppIds, statusAppIds, lock);
     }
 
-    PluginCommunication::IPluginProxy* PluginManager::locked_createOrGetPlugin(const std::string& pluginName)
-    {
-        auto found = m_RegisteredPlugins.find(pluginName);
-        if (found != m_RegisteredPlugins.end())
-        {
-            return found->second.get();
-        }
-        return locked_createPlugin(pluginName);
-    }
-
-    PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(const std::string& pluginName)
+    PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(const std::string& pluginName,
+                                                                          std::lock_guard<std::mutex>&)
     {
         std::string pluginSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(
                 pluginName

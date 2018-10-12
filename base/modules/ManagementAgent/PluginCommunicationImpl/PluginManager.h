@@ -42,10 +42,9 @@ namespace ManagementAgent
             void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
             std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string & pluginName) override;
             std::string getTelemetry(const std::string & pluginName) override;
-            void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;
-            void registerPlugin(const std::string &pluginName) override;
 
-            void registerAndSetAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds);
+            void registerPlugin(const std::string &pluginName) override;
+            void registerAndSetAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;
 
             void removePlugin(const std::string &pluginName) override;
 
@@ -81,20 +80,15 @@ namespace ManagementAgent
             std::mutex m_pluginMapMutex;
 
             /**
-             * Get a plugin, or create it.
-             * Must already hold m_pluginMapMutex
-             * @param pluginName
-             * @return BORROWED pointer to the proxy
-             */
-            PluginCommunication::IPluginProxy* locked_createOrGetPlugin(const std::string& pluginName);
-
-            /**
              * Create a plugin, always re-creating it
              * Must already hold m_pluginMapMutex
              * @param pluginName
+             * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              * @return BORROWED pointer to the proxy
              */
-            PluginCommunication::IPluginProxy* locked_createPlugin(const std::string& pluginName);
+            PluginCommunication::IPluginProxy* locked_createPlugin(
+                    const std::string& pluginName,
+                    std::lock_guard<std::mutex>& lock);
 
             /**
              *
@@ -103,11 +97,13 @@ namespace ManagementAgent
              * @param pluginName
              * @param policyAppIds
              * @param statusAppIds
+             * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              */
             void locked_setAppIds(
                     PluginCommunication::IPluginProxy* plugin,
                     const std::vector<std::string> &policyAppIds,
-                    const std::vector<std::string> & statusAppIds);
+                    const std::vector<std::string> & statusAppIds,
+                    std::lock_guard<std::mutex>& lock);
         };
 
     }

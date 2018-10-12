@@ -106,7 +106,7 @@ namespace
 
     TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
     {
-        EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent());
+        EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent); // NOLINT
     }
 
     TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow) // NOLINT
@@ -133,8 +133,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setAppIds("PluginName", policyIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
@@ -146,7 +145,7 @@ namespace
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); //NOLINT
         EXPECT_EQ(1,1);
 
      }
@@ -177,8 +176,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerPlugin(registeredPlugins[0])).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setAppIds("PluginName", policyIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, statusIds)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
@@ -195,7 +193,7 @@ namespace
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); //NOLINT
 
         Common::TaskQueue::ITaskQueueSharedPtr actualTaskQueue = managementAgent.getTaskQueue();
         Common::TaskQueue::ITaskPtr task = actualTaskQueue->popTask();

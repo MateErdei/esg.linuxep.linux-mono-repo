@@ -68,20 +68,22 @@ namespace PluginCommunication
         virtual std::string getTelemetry(const std::string &pluginName) = 0;
 
         /**
-         * Set the app ids that 'pluginName' cares about
-         *
-         * @param pluginName
-         * @param appIds
-         */
-        virtual void setAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) =0;
-
-        /**
          * Register a new plugin.
          * Keep the plugin in memory so we can send actions/policies/requests to it.
          *
          * @param pluginName
          */
         virtual void registerPlugin(const std::string &pluginName) = 0;
+
+        /**
+         * Register a new plugin.
+         * Keep the plugin in memory so we can send actions/policies/requests to it.
+         * Set the app ids that 'pluginName' cares about
+         *
+         * @param pluginName
+         * @param appIds
+         */
+        virtual void registerAndSetAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) = 0;
 
         /**
          * Remove the plugin from memory so we no longer send actions/policies/requests to it.

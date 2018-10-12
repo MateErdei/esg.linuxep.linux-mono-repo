@@ -56,7 +56,8 @@ namespace ManagementAgent
 
             if (!validPlugin)
             {
-                // Will create the plugin if it doesn't exist
+                // Create the pluginProxy even if we don't have a configuration,
+                // so that we can handle unknown plugins registering - although we do return an error from the register RPC
                 m_pluginManager.registerPlugin(pluginName);
                 LOGERROR("No information found about this plugin: " << pluginName);
                 throw Common::PluginApi::ApiException(
@@ -65,7 +66,7 @@ namespace ManagementAgent
             }
             else
             {
-                // Will also create the plugin if it doesn't exist
+                // Create the pluginProxy
                 m_pluginManager.registerAndSetAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
             }
         }
