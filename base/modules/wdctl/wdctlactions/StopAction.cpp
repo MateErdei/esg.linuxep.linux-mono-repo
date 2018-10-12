@@ -40,7 +40,7 @@ int StopAction::run()
             Common::FileSystem::basename(registryFile)
     );
 
-    if (Common::FileSystem::fileSystem()->isFile(m_args.m_argument))
+    if (Common::FileSystem::fileSystem()->isFile(destination))
     {
         LOGERROR("Failed to stop "<< m_args.m_argument<<": "<<response.at(0));
         return 1;
