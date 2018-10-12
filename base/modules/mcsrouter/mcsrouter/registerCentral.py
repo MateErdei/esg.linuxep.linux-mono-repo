@@ -3,6 +3,7 @@
 from __future__ import print_function,division,unicode_literals
 
 import os
+import subprocess
 import random
 import sys
 import time
@@ -273,7 +274,7 @@ def innerMain(argv):
         proxy = os.environ.get("http_proxy",None)
 
     if proxy:
-        config.set("proxy",proxy)
+        config.set("proxy", proxy)
 
 
     if token is not None and url is not None:
@@ -337,6 +338,11 @@ def innerMain(argv):
                 removeConsoleConfiguration()
 
             print("Now managed by Sophos Central")
+
+            try:
+                subprocess.call(["service", "sophos-spl", "restart"])
+            except Exception:
+                logger.error("Could not restart sophos-spl service, registration won't complete until restarted.")
 
     return ret
 
