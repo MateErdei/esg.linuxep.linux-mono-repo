@@ -18,6 +18,28 @@ then
    exit 1
 fi
 
+# Check the customer wants to uninstall
+FORCE=0
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --force)
+            FORCE=1
+            ;;
+    esac
+    shift
+done
+
+if (( $FORCE == 0 ))
+then
+    read -p "Do you want to uninstall Sophos Server Protection for Linux?" yn
+    case $yn in
+        [Yy]* ) ;;
+        [Nn]* ) exit 1;;
+        * ) echo "Please answer yes or no.";;
+    esac
+fi
+
 export SOPHOS_FULL_PRODUCT_UNINSTALL=1
 
 function removeUpdaterSystemdService()
