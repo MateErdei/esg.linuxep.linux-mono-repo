@@ -56,19 +56,13 @@ namespace ManagementAgent
 
             if (!validPlugin)
             {
-                // Create the pluginProxy even if we don't have a configuration,
-                // so that we can handle unknown plugins registering - although we do return an error from the register RPC
-                m_pluginManager.registerPlugin(pluginName);
                 LOGERROR("No information found about this plugin: " << pluginName);
                 throw Common::PluginApi::ApiException(
                         "Information for the plugin not found in the registry: " + pluginName
                 );
             }
-            else
-            {
-                // Create the pluginProxy
-                m_pluginManager.registerAndSetAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
-            }
+            // Creates the pluginProxy
+            m_pluginManager.registerAndSetAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
         }
 
         void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
