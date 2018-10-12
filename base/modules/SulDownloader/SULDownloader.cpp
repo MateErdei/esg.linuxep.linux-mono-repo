@@ -271,8 +271,7 @@ namespace SulDownloader
 
         auto result = configAndRunDownloader(settingsString, previousReportData);
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-        LOGSUPPORT("Generate the report file: " << outputFilePath << " using temp directory " << tempDir);
-
+        LOGSUPPORT("Generating the report file in: " << outputParentPath );
 
         fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), tempDir);
 
