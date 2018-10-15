@@ -338,10 +338,10 @@ fi
 
 if [[ -n ${https_proxy} ]]
 then
-    echo "${https_proxy}" > "${SOPHOS_INSTALL}/base/update/var/savedproxy.config"
+    echo "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 elif [[ -n ${http_proxy} ]]
 then
-    echo "${http_proxy}" > "${SOPHOS_INSTALL}/base/update/var/savedproxy.config"
+    echo "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
 cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"

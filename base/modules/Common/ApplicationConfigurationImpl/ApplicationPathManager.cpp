@@ -161,7 +161,7 @@ namespace Common
 
         std::string ApplicationPathManager::getSavedEnvironmentProxyFilePath() const
         {
-            return Common::FileSystem::join(getSulDownloaderReportPath(), "savedproxy.config");
+            return Common::FileSystem::join(sophosInstall(), "base/etc/savedproxy.config");
         }
 
     }
