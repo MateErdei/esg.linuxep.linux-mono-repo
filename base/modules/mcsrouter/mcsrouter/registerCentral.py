@@ -337,12 +337,12 @@ def innerMain(argv):
                 ## Only remove the configs if we are doing a new registration
                 removeConsoleConfiguration()
 
-            print("Now managed by Sophos Central")
-
             try:
                 subprocess.call(["service", "sophos-spl", "restart"])
-            except Exception:
-                logger.error("Could not restart sophos-spl service, registration won't complete until restarted.")
+                print("Now managed by Sophos Central")
+            except Exception as e:
+                logger.error("Could not restart sophos-spl service, registration won't complete until restarted, exception: {}".format(e.message))
+                print("Could not restart sophos-spl service, registration won't complete until restarted.")
 
     return ret
 
