@@ -431,8 +431,6 @@ class MCSConnection(object):
             #~ logger.debug("Setting cookie to %s", self.__m_cookie)
 
         if body not in ("", None):
-            envelopeLogger.info("RESPONSE: %s", body)
-
             # Fix issue where we receive latin1 encoded characters in
             # XML received from Central (LINUXEP-4819)
             try:
@@ -440,7 +438,7 @@ class MCSConnection(object):
             except UnicodeDecodeError:
                 logger.warning("Cannot decode response as UTF-8, treating as Latin1")
                 body = body.decode("latin1")
-
+            envelopeLogger.info("RESPONSE: %s", body)
         return (response_headers, body)
 
     def __tryGetResponse(self, requestData):
@@ -658,6 +656,7 @@ class MCSConnection(object):
         assert(appids is not None)
         commands = self.sendMessageWithId("/commands/applications/%s/endpoint/"%(";".join(appids)))
 
+        commands = commands.encode('utf-8', errors='replace')
         try:
             doc = xml.dom.minidom.parseString(commands)
         except Exception:

@@ -1,5 +1,6 @@
 
 import xml.dom
+import codecs
 
 def getTextFromElement(element):
     text = []
@@ -11,3 +12,7 @@ def getTextFromElement(element):
 def getTextNodeText(node, elementName):
     element = node.getElementsByTagName(elementName)[0]
     return getTextFromElement(element)
+
+def getXMLfileContentWithEscapedNonAsciiCode( filepath ):
+    body = codecs.open(filepath, encoding='utf-8', mode='r', errors='replace').read()
+    return body.encode('ascii', 'xmlcharrefreplace')

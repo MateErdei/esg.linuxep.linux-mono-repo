@@ -9,7 +9,7 @@ import AdapterBase
 import mcsrouter.utils.AtomicWrite
 import mcsrouter.utils.Timestamp
 import mcsrouter.utils.PathManager as PathManager
-
+import mcsrouter.utils.XmlHelper as XmlHelper
 
 class GenericAdapter(AdapterBase.AdapterBase):
     def __init__(self,appid,installdir=None):
@@ -24,7 +24,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
 
     def __processPolicy(self, policy):
         policy = policy.encode('utf-8')  # handle non ascii characters ( LINUXEP-6757 )
-        logger.debug("%s Adapter processing policy %s", self.__m_appid, str(policy))
+        logger.debug("%s Adapter processing policy %s", self.__m_appid, policy)
         logger.debug("Received %s policy", self.__m_appid)
 
         try:
@@ -74,7 +74,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
         except OSError:
             pass
         try:
-            return open(statuspath).read()
+            return XmlHelper.getXMLfileContentWithEscapedNonAsciiCode(statuspath)
         except IOError:
             return None
 

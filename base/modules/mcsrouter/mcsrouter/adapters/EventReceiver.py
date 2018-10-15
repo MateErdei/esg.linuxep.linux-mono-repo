@@ -7,6 +7,7 @@ import re
 
 import logging
 import mcsrouter.utils.PathManager as PathManager
+import mcsrouter.utils.XmlHelper as XmlHelper
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +29,8 @@ class EventReceiver(object):
             if mo:
                 appid = mo.group(1)
                 time = os.path.getmtime(filepath)
-                body = open(filepath).read()
-                yield (appid, time, body)
+                body = XmlHelper.getXMLfileContentWithEscapedNonAsciiCode(filepath)
+                yield (appid, time, body )
             else:
                 logger.warning("Malformed event file: %s", eventfile)
 
