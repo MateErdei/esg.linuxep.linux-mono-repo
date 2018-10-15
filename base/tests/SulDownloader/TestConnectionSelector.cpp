@@ -261,7 +261,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
 
     // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 2);
+    ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
@@ -279,6 +279,12 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com" );
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
+
+    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[2].getProxy().empty() );
 
 }
 
@@ -310,7 +316,7 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     auto connectionCandidates = selector.getConnectionCandidates(configurationData);
 
     // connectionCandidates should be ordered. With cache updates first.
-    ASSERT_EQ(connectionCandidates.size(), 2);
+    ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
@@ -328,5 +334,11 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com" );
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
+
+    EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
+    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
+    EXPECT_STREQ(connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
+    EXPECT_TRUE(connectionCandidates[2].getProxy().empty() );
 
 }

@@ -1019,7 +1019,8 @@ TEST_F( SULDownloaderTest, //NOLINT
 TEST_F( SULDownloaderTest, //NOLINT
         runSULDownloader_checkLogVerbosityVERBOSE)
 {
-    setupFileSystemAndGetMock();
+    auto &fileSystem = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -1040,7 +1041,8 @@ TEST_F( SULDownloaderTest, //NOLINT
 TEST_F( SULDownloaderTest, //NOLINT
         runSULDownloader_checkLogVerbosityNORMAL)
 {
-    setupFileSystemAndGetMock();
+    auto &fileSystem = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
