@@ -2,6 +2,7 @@
 
 from __future__ import print_function,division,unicode_literals
 
+import glob
 import os
 import subprocess
 import random
@@ -234,6 +235,10 @@ def removeConsoleConfiguration():
         if os.path.isfile(file_path):
             safeDelete(file_path)
 
+def removeAllUpdateReports():
+    for f in glob.glob("{}/report*.json".format(PathManager.updateVarPath())):
+        os.remove(f)
+
 def innerMain(argv):
     ret = 1
     usage = "Usage: registerCentral <MCS-Token> <MCS-URL> | registerCentral [options]"
@@ -336,6 +341,8 @@ def innerMain(argv):
             if not options.reregister:
                 ## Only remove the configs if we are doing a new registration
                 removeConsoleConfiguration()
+
+            removeAllUpdateReports()
 
             try:
                 subprocess.call(["service", "sophos-spl", "restart"])

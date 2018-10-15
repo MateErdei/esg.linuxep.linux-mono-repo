@@ -9,6 +9,13 @@ def installDir():
 def basePath():
     return os.path.join(installDir(), 'base')
 
+#update
+def updatePath():
+    return os.path.join(basePath(), 'update')
+
+def updateVarPath():
+    return os.path.join(updatePath(), 'var')
+
 #base/mcs
 def mcsPath():
     return os.path.join(basePath(), 'mcs')
