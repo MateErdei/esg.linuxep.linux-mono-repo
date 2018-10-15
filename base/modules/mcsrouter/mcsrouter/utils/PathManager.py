@@ -124,3 +124,5 @@ def tempDir():
 def getInstallationLibPath():
     return os.path.join(installDir(),"base","lib")+":"+os.path.join(installDir(),"base","lib64")
 
+def wdctlBinPath():
+    return os.path.join(installDir(), "bin", "wdctl")

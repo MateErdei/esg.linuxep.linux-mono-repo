@@ -239,7 +239,19 @@ def removeAllUpdateReports():
     for f in glob.glob("{}/report*.json".format(PathManager.updateVarPath())):
         os.remove(f)
 
+def stopMcsRouter():
+    subprocess.call([PathManager.wdctlBinPath(), "stop", "mcsrouter"])
+
+def startMcsRouter():
+    subprocess.call([PathManager.wdctlBinPath(), "start", "mcsrouter"])
+
+def restartUpdateScheduler():
+    updateScheduler = "updatescheduler"
+    subprocess.call([PathManager.wdctlBinPath(), "stop", updateScheduler])
+    subprocess.call([PathManager.wdctlBinPath(), "start", updateScheduler])
+
 def innerMain(argv):
+    stopMcsRouter()
     ret = 1
     usage = "Usage: registerCentral <MCS-Token> <MCS-URL> | registerCentral [options]"
     parser = optparse.OptionParser(usage=usage)
@@ -343,13 +355,9 @@ def innerMain(argv):
                 removeConsoleConfiguration()
 
             removeAllUpdateReports()
-
-            try:
-                subprocess.call(["service", "sophos-spl", "restart"])
-                print("Now managed by Sophos Central")
-            except Exception as e:
-                logger.error("Could not restart sophos-spl service, registration won't complete until restarted, exception: {}".format(e.message))
-                print("Could not restart sophos-spl service, registration won't complete until restarted.")
+            startMcsRouter()
+            restartUpdateScheduler()
+            print("Now managed by Sophos Central")
 
     return ret
 
