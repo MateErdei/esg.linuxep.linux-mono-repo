@@ -288,7 +288,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
 
-    EXPECT_TRUE(config.getProxy().empty());
+    EXPECT_TRUE(config.getPolicyProxy().empty());
 
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
 
@@ -343,7 +343,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                SulDownloader::suldownloaderdata::ProxyCredentials{"TestUser",
                                                           "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=",
                                                           "2"}};
-    EXPECT_EQ(config.getProxy(), expectedProxy);
+    EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }
 

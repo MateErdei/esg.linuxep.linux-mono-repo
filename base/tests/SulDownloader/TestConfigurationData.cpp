@@ -160,12 +160,12 @@ public:
             return ::testing::AssertionFailure() << s.str() << "update cache urls differ";
         }
 
-        if (expected.getProxy().getUrl() != resulted.getProxy().getUrl())
+        if (expected.getPolicyProxy().getUrl() != resulted.getPolicyProxy().getUrl())
         {
             return ::testing::AssertionFailure() << s.str() << "proxy urls differ";
         }
 
-        if (expected.getProxy() != resulted.getProxy())
+        if (expected.getPolicyProxy() != resulted.getPolicyProxy())
         {
             return ::testing::AssertionFailure() << s.str() << "proxy credentials differ";
         }
@@ -244,7 +244,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
     configurationData.verifySettingsAreValid();
 
     EXPECT_TRUE(configurationData.isVerified());
@@ -265,9 +264,9 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_STREQ(configurationData.getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(configurationData.getCredentials().getPassword().c_str(), "password");
 
-    EXPECT_STREQ(configurationData.getProxy().getUrl().c_str(), "noproxy:");
-    EXPECT_STREQ(configurationData.getProxy().getCredentials().getUsername().c_str(), "");
-    EXPECT_STREQ(configurationData.getProxy().getCredentials().getPassword().c_str(), "");
+    EXPECT_STREQ(configurationData.getPolicyProxy().getUrl().c_str(), "noproxy:");
+    EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getUsername().c_str(), "");
+    EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getPassword().c_str(), "");
 
     EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "FD6C1066-E190-4F44-AD0E-F107F36D9D40");
     EXPECT_TRUE(configurationData.getProductSelection()[0].Primary);
@@ -292,7 +291,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 
     EXPECT_STREQ(configurationData.getInstallArguments()[0].c_str(), "--install-dir");
     EXPECT_STREQ(configurationData.getInstallArguments()[1].c_str(), "/opt/sophos-av");
-
 }
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject ) //NOLINT
@@ -418,6 +416,97 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
 
     EXPECT_TRUE(configurationData.isVerified());
 }
+
+
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyShouldReturnValidDataObject ) //NOLINT
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+
+    std::string newString = R"("proxy": {
+                                "url": "http://dummyurl.com",
+                                "credential": {
+                                "username": "username",
+                                "password": "password",
+                                "proxyType": "2"
+                                }
+                                },)";
+
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    configurationData.verifySettingsAreValid();
+
+    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
+    std::vector<Proxy> expectedProxyList = {Proxy("http://dummyurl.com", proxyCredentials), Proxy(Proxy::NoProxy)};
+    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    EXPECT_TRUE(configurationData.isVerified());
+}
+
+
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyAndEnvironmentProxyShouldReturnValidObject ) //NOLINT
+{
+    setupFileSystemAndGetMock();
+
+    setenv( "HTTPS_PROXY", "https://proxy.eng.sophos:8080", 1);
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+
+    std::string newString = R"("proxy": {
+                                "url": "http://dummyurl.com",
+                                "credential": {
+                                "username": "username",
+                                "password": "password",
+                                "proxyType": "2"
+                                }
+                                },)";
+
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    configurationData.verifySettingsAreValid();
+
+    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
+    std::vector<Proxy> expectedProxyList = {Proxy("http://dummyurl.com", proxyCredentials), Proxy("environment:"), Proxy(Proxy::NoProxy)};
+    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    EXPECT_TRUE(configurationData.isVerified());
+    unsetenv( "HTTPS_PROXY");
+}
+
+
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyShouldReturnValidObject) //NOLINT
+{
+    auto &fileSystem = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+    std::string savedURL("https://user:password@savedProxy.com");
+    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("",""));
+
+    configurationData.verifySettingsAreValid();
+
+    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
+    std::vector<Proxy> expectedProxyList = {Proxy(savedURL), Proxy(Proxy::NoProxy)};
+    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    EXPECT_TRUE(configurationData.isVerified());
+}
+
+
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne) //NOLINT
 {

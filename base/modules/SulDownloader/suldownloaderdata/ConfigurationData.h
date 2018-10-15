@@ -68,7 +68,7 @@ namespace SulDownloader
             explicit ConfigurationData(const std::vector<std::string>& sophosLocationURL,
                                        Credentials credentials = Credentials(),
                                        const std::vector<std::string>& updateCache = std::vector<std::string>(),
-                                       Proxy proxy = Proxy());
+                                       Proxy policyProxy = Proxy());
 
             /**
              * Gets the credentials used to connect to the remote warehouse repository.
@@ -111,13 +111,13 @@ namespace SulDownloader
              * Gets the configured update proxy
              * @return proxy object containing the proxy details.
              */
-            const Proxy& getProxy() const;
+            const Proxy& getPolicyProxy() const;
 
             /**
              * Sets the configured update proxy
              * @param proxy object containing the proxy details.
              */
-            void setProxy(const Proxy& proxy);
+            void setPolicyProxy(const Proxy& proxy);
 
             /**
              * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
@@ -289,7 +289,7 @@ namespace SulDownloader
             Credentials m_credentials;
             std::vector<std::string> m_sophosUpdateUrls;
             std::vector<std::string> m_localUpdateCacheUrls;
-            Proxy m_proxy;
+            Proxy m_policyProxy;
             State m_state;
             std::string m_certificatePath;
             std::string m_systemSslCertificatePath;

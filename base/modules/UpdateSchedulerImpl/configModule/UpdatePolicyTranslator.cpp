@@ -114,8 +114,10 @@ namespace UpdateSchedulerImpl
                     proxyAddress += ":" + proxyPort;
                 }
 
-                config.setProxy(
-                        SulDownloader::suldownloaderdata::Proxy{proxyAddress, SulDownloader::suldownloaderdata::ProxyCredentials{proxyUser, proxyPassword, proxyType}}
+                config.setPolicyProxy(
+                        SulDownloader::suldownloaderdata::Proxy{proxyAddress
+                                                                , SulDownloader::suldownloaderdata::ProxyCredentials{
+                                        proxyUser, proxyPassword, proxyType}}
                 );
             }
 

@@ -159,6 +159,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "var/lock/suldownloader.pid");
         }
 
+        std::string ApplicationPathManager::getSavedEnvironmentProxyFilePath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "savedproxy.config");
+        }
+
     }
 
 

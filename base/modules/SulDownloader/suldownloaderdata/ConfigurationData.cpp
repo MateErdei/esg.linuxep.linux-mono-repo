@@ -38,10 +38,10 @@ const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{"htt
 ConfigurationData::ConfigurationData(const std::vector<std::string>& sophosLocationURL,
                                      Credentials credentials,
                                      const std::vector<std::string>& updateCache,
-                                     Proxy proxy)
+                                     Proxy policyProxy)
         : m_credentials(std::move(credentials))
           , m_localUpdateCacheUrls(updateCache)
-          , m_proxy(std::move(proxy))
+          , m_policyProxy(std::move(policyProxy))
           , m_state(State::Initialized)
           , m_logLevel(LogLevel::NORMAL)
           , m_forceReinstallAllProducts(false)
@@ -84,14 +84,14 @@ void ConfigurationData::setLocalUpdateCacheUrls(const std::vector<std::string>& 
     m_localUpdateCacheUrls = localUpdateCacheUrls;
 }
 
-const Proxy& ConfigurationData::getProxy() const
+const Proxy& ConfigurationData::getPolicyProxy() const
 {
-    return m_proxy;
+    return m_policyProxy;
 }
 
-void ConfigurationData::setProxy(const Proxy& proxy)
+void ConfigurationData::setPolicyProxy(const Proxy& proxy)
 {
-    m_proxy = proxy;
+    m_policyProxy = proxy;
 }
 
 std::string ConfigurationData::getCertificatePath() const
@@ -464,13 +464,28 @@ void ConfigurationData::setInstallArguments(const std::vector<std::string>& inst
 
 std::vector<Proxy> ConfigurationData::proxiesList() const
 {
+    //This generates the list of proxies in order that they should be tried by SUL
+    // 1. Policy Proxy
+    // 2. Current environment proxy
+    // 3. Saved environment proxy (saved on install)
+    // 4. No Proxy
     std::vector<Proxy> options;
-    if (m_proxy.empty() && hasEnvironmentProxy())
+    if (!m_policyProxy.empty())
+    {
+        options.emplace_back(m_policyProxy);
+    }
+    if (hasEnvironmentProxy())
     {
         options.emplace_back("environment:");
     }
+    std::string savedProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
+    if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
+    {
+        std::string savedProxyURL = Common::FileSystem::fileSystem()->readFile(savedProxyFilePath);
+        options.emplace_back(Proxy(savedProxyURL));
+    }
+    options.emplace_back(Proxy(Proxy::NoProxy));
 
-    options.push_back(m_proxy);
     return options;
 }
 
@@ -494,12 +509,12 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.mutable_credential()->set_password(configurationData.getCredentials().getPassword());
 
     settings.mutable_proxy()->mutable_credential()->set_username(
-            configurationData.getProxy().getCredentials().getUsername());
+            configurationData.getPolicyProxy().getCredentials().getUsername());
     settings.mutable_proxy()->mutable_credential()->set_password(
-            configurationData.getProxy().getCredentials().getPassword());
+            configurationData.getPolicyProxy().getCredentials().getPassword());
     settings.mutable_proxy()->mutable_credential()->set_proxytype(
-            configurationData.getProxy().getCredentials().getProxyType());
-    settings.mutable_proxy()->mutable_url()->assign(configurationData.getProxy().getUrl());
+            configurationData.getPolicyProxy().getCredentials().getProxyType());
+    settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
     settings.set_certificatepath(configurationData.getCertificatePath());
     settings.set_installationrootpath(configurationData.getInstallationRootPath());
