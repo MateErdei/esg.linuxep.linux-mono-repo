@@ -57,6 +57,7 @@ namespace UpdateSchedulerImpl
         std::string m_machineID;
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
+        bool m_pendingUpdate;
 
     };
 }

@@ -394,6 +394,7 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
             .getSulDownloaderReportGeneratedFilePath();
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
             .WillOnce(Return(false)) // after policy no report exist
             .WillOnce(Return(true))  // after the first report is created

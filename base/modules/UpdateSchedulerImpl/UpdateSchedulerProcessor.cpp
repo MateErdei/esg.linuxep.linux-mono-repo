@@ -45,6 +45,7 @@ namespace UpdateSchedulerImpl
                     Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath())
               , m_formattedTime()
               , m_policyReceived(false)
+              , m_pendingUpdate(false)
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
@@ -134,6 +135,12 @@ namespace UpdateSchedulerImpl
             }
             m_policyReceived = true;
 
+            if ( m_pendingUpdate)
+            {
+                m_pendingUpdate = false;
+                processScheduleUpdate();
+            }
+
         }
         catch ( UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
         {
@@ -165,6 +172,15 @@ namespace UpdateSchedulerImpl
             ensureSulDownloaderNotRunning();
 
         }
+        std::string configPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+        if (!Common::FileSystem::fileSystem()->isFile(configPath))
+        {
+            LOGWARN("No config.json file available. Requesting policy again");
+            m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
+            m_pendingUpdate = true;
+            return;
+        }
+
         LOGSUPPORT("Triggering SulDownloader");
         m_sulDownloaderRunner->triggerSulDownloader();
     }
