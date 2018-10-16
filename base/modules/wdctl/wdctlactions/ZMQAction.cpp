@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args)
         : Action(args),m_context(Common::ZeroMQWrapper::createContext())
@@ -28,10 +29,21 @@ Common::ZeroMQWrapper::ISocketRequesterPtr wdctl::wdctlactions::ZMQAction::conne
 
 Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(const Common::ZeroMQWrapper::IWritable::data_t& arguments)
 {
-    if( system("/usr/sbin/service sophos-spl status") != 0)
+
+    for( std::string systemctlPath : {"/bin/systemctl", "/usr/sbin/systemctl"})
     {
-        return {std::string("Watchdog is not running")};
+        if( Common::FileSystem::fileSystem()->isFile(systemctlPath))
+        {
+            std::string systemCommand = systemctlPath +  " sophos-spl status";
+            if( system(systemCommand.c_str()) != 0)
+            {
+                return {std::string("Watchdog is not running")};
+            }
+            break;
+        }
     }
+    // if we do not find systemctlPath we then assume it might exist in another place
+    // and allow the command to go through
 
     try
     {
