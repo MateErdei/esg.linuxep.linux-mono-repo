@@ -656,7 +656,9 @@ class MCSConnection(object):
         assert(appids is not None)
         commands = self.sendMessageWithId("/commands/applications/%s/endpoint/"%(";".join(appids)))
 
-        commands = commands.encode('utf-8', errors='replace')
+        if isinstance(commands, unicode):
+            commands = commands.encode('utf-8', errors='replace')
+
         try:
             doc = xml.dom.minidom.parseString(commands)
         except Exception:
