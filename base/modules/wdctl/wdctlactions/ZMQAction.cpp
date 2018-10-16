@@ -28,6 +28,11 @@ Common::ZeroMQWrapper::ISocketRequesterPtr wdctl::wdctlactions::ZMQAction::conne
 
 Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(const Common::ZeroMQWrapper::IWritable::data_t& arguments)
 {
+    if( system("/usr/sbin/service sophos-spl status") != 0)
+    {
+        return {std::string("Watchdog is not running")};
+    }
+
     try
     {
         Common::ZeroMQWrapper::ISocketRequesterPtr socket = connectToWatchdog();
