@@ -34,7 +34,7 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
     {
         if( Common::FileSystem::fileSystem()->isFile(systemctlPath))
         {
-            std::string systemCommand = systemctlPath +  " sophos-spl status";
+            std::string systemCommand = systemctlPath +  " status sophos-spl";
             if( system(systemCommand.c_str()) != 0)
             {
                 return {std::string("Watchdog is not running")};
