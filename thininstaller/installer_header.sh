@@ -66,6 +66,12 @@ check_free_storage()
 
     local install_path=${SOPHOS_INSTALL%/*}
 
+    # Make sure that the install_path string is not empty, in the case of "/foo"
+    if [ -z $install_path ]
+    then
+        install_path="/"
+    fi
+
     if ! echo "$install_path" | grep -q ^/
     then
         echo "Please specify an absolute path, starting with /"
@@ -77,6 +83,12 @@ check_free_storage()
     while [ ! -d ${install_path} ]
     do
         install_path=${install_path%/*}
+
+        # Make sure that the install_path string is not empty.
+        if [ -z $install_path ]
+        then
+            install_path="/"
+        fi
     done
 
     local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
@@ -200,7 +212,7 @@ done
 # Verify that instdir does not contain special characters that may cause problems.
 if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-Z0-9\/\_\.]*$'
 then
-    echo "The --instdir path provided contains invalid characters. Only alphnumeric and '-' '_' '.' characters are accepted."
+    echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
 
