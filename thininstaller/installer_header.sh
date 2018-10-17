@@ -66,6 +66,8 @@ check_free_storage()
 
     local install_path=${INSTALL_LOCATION%/*}
 
+    # Loop through directory path from right to left, finding the first part of the path that exists.
+    # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
     while [ ! -d $install_path ]
     do
         install_path=${install_path%/*}
