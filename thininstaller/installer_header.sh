@@ -24,9 +24,8 @@ EXITCODE_CHMOD_FAILED=15
 EXITCODE_NOEXEC_TMP=16
 EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
 EXITCODE_BASE_INSTALL_FAILED=18
-EXITCODE_BAD_INSTALL_PATH=19
 
-INSTALL_LOCATION="/opt/sophos-spl"
+SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
 cleanup_and_exit()
@@ -64,21 +63,7 @@ check_free_storage()
     local path=$1
     local space=$2
 
-    local install_path=${INSTALL_LOCATION%/*}
-
-    if ! echo $install_path | grep -q ^/
-    then
-        echo "Please specify an absolute path, starting with /"
-        cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
-    fi
-
-    # Loop through directory path from right to left, finding the first part of the path that exists.
-    # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
-    while [ ! -d $install_path ]
-    do
-        install_path=${install_path%/*}
-    done
-
+    local install_path=${SOPHOS_INSTALL%/*}
     local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
     local mountpoint=$(df -kP ${install_path} | sed -e "1d" | awk '{print $6}')
 
@@ -154,7 +139,7 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-REGISTER_CENTRAL="${INSTALL_LOCATION}/base/bin/registerCentral"
+REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
@@ -187,7 +172,7 @@ do
             shift
         ;;
         --instdir=*)
-            export INSTALL_LOCATION="${i#*=}"
+            export SOPHOS_INSTALL="${i#*=}"
             shift
         ;;
         --proxy-credentials=*)
@@ -195,14 +180,6 @@ do
         ;;
     esac
 done
-
-
-# Verify that instdir does not contain special characters that may cause problems.
-if ! echo "$INSTALL_LOCATION" | grep -q '^[-a-Z0-9\/\_\.]*$'
-then
-    echo "The --instdir path provided contains invalid characters. Only alphnumeric and '-' '_' '.' characters are accepted."
-    cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
-fi
 
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
@@ -280,7 +257,7 @@ then
 fi
 
 # Check if there is already an installation. Re-register if there is.
-if [ -d ${INSTALL_LOCATION} ]
+if [ -d ${SOPHOS_INSTALL} ]
 then
     if [ -f "$REGISTER_CENTRAL" ]
     then
@@ -302,7 +279,7 @@ then
 fi
 
 # Check there is enough disk space
-check_free_storage ${INSTALL_LOCATION} 1024
+check_free_storage ${SOPHOS_INSTALL} 1024
 
 # Check there is enough RAM (~1GB in kB)
 check_total_mem 1000000
