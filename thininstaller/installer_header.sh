@@ -26,7 +26,7 @@ EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
 EXITCODE_BASE_INSTALL_FAILED=18
 EXITCODE_BAD_INSTALL_PATH=19
 
-SOPHOS_INSTALL="/opt/sophos-spl"
+INSTALL_LOCATION="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
 cleanup_and_exit()
@@ -64,9 +64,9 @@ check_free_storage()
     local path=$1
     local space=$2
 
-    local install_path=${SOPHOS_INSTALL%/*}
+    local install_path=${INSTALL_LOCATION%/*}
 
-    while [ ! -d ${install_path} ]
+    while [ ! -d $install_path ]
     do
         install_path=${install_path%/*}
     done
@@ -146,7 +146,7 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
+REGISTER_CENTRAL="${INSTALL_LOCATION}/base/bin/registerCentral"
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
@@ -179,7 +179,7 @@ do
             shift
         ;;
         --instdir=*)
-            export SOPHOS_INSTALL="${i#*=}"
+            export INSTALL_LOCATION="${i#*=}"
             shift
         ;;
         --proxy-credentials=*)
@@ -190,7 +190,7 @@ done
 
 
 # Verify that instdir does not contain special characters that may cause problems.
-if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-Z0-9\/\_\.]*$'
+if ! echo "$INSTALL_LOCATION" | grep -q '^[-a-Z0-9\/\_\.]*$'
 then
     echo "The --instdir path provided contains invalid characters. Only alphnumeric and '-' '_' '.' characters are accepted."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
@@ -272,7 +272,7 @@ then
 fi
 
 # Check if there is already an installation. Re-register if there is.
-if [ -d ${SOPHOS_INSTALL} ]
+if [ -d ${INSTALL_LOCATION} ]
 then
     if [ -f "$REGISTER_CENTRAL" ]
     then
@@ -294,7 +294,7 @@ then
 fi
 
 # Check there is enough disk space
-check_free_storage ${SOPHOS_INSTALL} 1024
+check_free_storage ${INSTALL_LOCATION} 1024
 
 # Check there is enough RAM (~1GB in kB)
 check_total_mem 1000000
