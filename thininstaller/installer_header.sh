@@ -24,6 +24,7 @@ EXITCODE_CHMOD_FAILED=15
 EXITCODE_NOEXEC_TMP=16
 EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
 EXITCODE_BASE_INSTALL_FAILED=18
+EXITCODE_BAD_INSTALL_PATH=19
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -64,6 +65,20 @@ check_free_storage()
     local space=$2
 
     local install_path=${SOPHOS_INSTALL%/*}
+
+    if ! echo "$install_path" | grep -q ^/
+    then
+        echo "Please specify an absolute path, starting with /"
+        cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+    fi
+
+    # Loop through directory path from right to left, finding the first part of the path that exists.
+    # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
+    while [ ! -d ${install_path} ]
+    do
+        install_path=${install_path%/*}
+    done
+
     local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
     local mountpoint=$(df -kP ${install_path} | sed -e "1d" | awk '{print $6}')
 
@@ -180,6 +195,14 @@ do
         ;;
     esac
 done
+
+
+# Verify that instdir does not contain special characters that may cause problems.
+if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-Z0-9\/\_\.]*$'
+then
+    echo "The --instdir path provided contains invalid characters. Only alphnumeric and '-' '_' '.' characters are accepted."
+    cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+fi
 
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
