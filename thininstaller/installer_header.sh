@@ -66,6 +66,12 @@ check_free_storage()
 
     local install_path=${INSTALL_LOCATION%/*}
 
+    if ! echo $install_path | grep -q ^/
+    then
+        echo "Please specify an absolute path, starting with /"
+        cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+    fi
+
     # Loop through directory path from right to left, finding the first part of the path that exists.
     # Then we will use the df command on that path.  df command will fail if used on a path that does not exist.
     while [ ! -d $install_path ]
