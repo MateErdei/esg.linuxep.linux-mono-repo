@@ -285,7 +285,12 @@ function build()
     then
         cd $BASE
         export BULLSEYE_SYSTEM_TEST_BRANCH
-        bash -x $BASE/build/bullseye/runSystemTest.sh || echo "System tests failed: $?"
+        bash -x $BASE/build/bullseye/runSystemTest.sh || {
+            ## System tests failed to sync or similar
+            EXIT=$?
+            echo "System tests failed: $EXIT"
+            exit $EXIT
+        }
     fi
 
     if [[ ${BULLSEYE_UPLOAD} == 1 ]]

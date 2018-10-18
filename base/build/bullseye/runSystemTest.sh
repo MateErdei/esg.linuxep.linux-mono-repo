@@ -100,3 +100,5 @@ sudo \
     robot --loglevel TRACE --exclude manual tests
 
 scp -i ${PRIVATE_KEY} /tmp/system-tests/log.html upload@allegro.eng.sophos:public_html/bullseye/sspl-systemtest-log.html
+
+exit 0
