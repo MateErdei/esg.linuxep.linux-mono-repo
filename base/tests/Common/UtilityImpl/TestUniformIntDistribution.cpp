@@ -7,6 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 
 #include "gtest/gtest.h"
+#include <chrono>
+#include <thread>
 
 using namespace Common::UtilityImpl;
 
@@ -30,15 +32,33 @@ TEST(UniformIntDistribution, next) // NOLINT
 
 TEST(UniformIntDistribution, testConstructorGeneratesARandomSeed) // NOLINT
 {
-    UniformIntDistribution distribution1(0, 1000);
-    UniformIntDistribution distribution2(0, 1000);
-    UniformIntDistribution distribution3(0, 1000);
+    //This for loop can be used for stress testing the UniformIntDistribution
+    for( int j=0; j< 1; j++) // already tested with a loop of 10000 iterations
+    {
+        UniformIntDistribution distribution(0, 1000);
+        const int NumDist = 10;
+        // if seed was 0 then distribution next would return 0.
+        if (distribution.next() == 0)
+        {
+            std::vector<std::unique_ptr<UniformIntDistribution>> distributions;
+            for (int i = 0; i < NumDist; i++)
+            {
+                distributions.emplace_back(new UniformIntDistribution(0, 100000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+            bool pass = false;
+            int first = distributions[0]->next();
+            for (int i = 1; i < NumDist; i++)
+            {
+                if (distributions[i]->next() != first)
+                {
+                    pass = true;
+                    break;
+                }
+            }
 
-    int curr1 = distribution1.next();
-    int curr2 = distribution2.next();
-    int curr3 = distribution3.next();
-
-    EXPECT_NE(curr1, curr2);
-    EXPECT_NE(curr1, curr3);
-    EXPECT_NE(curr2, curr3);
+            EXPECT_TRUE(pass) << "It should be highly improbably to get" << NumDist
+                              << " the distributions equal. Value: " << first << " iteration: " << j;
+        }
+    }
 }
