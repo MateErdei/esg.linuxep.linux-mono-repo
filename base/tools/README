@@ -1,0 +1,15 @@
+Tools
+
+--- kcov ---
+kcov is a code coverage checking utility that we have built a cmake target for. This runs against the google tests.
+The cmake target executes the run-kcov*.sh scripts within this directory.
+Example usage:
+cd in your debug build dir
+make
+
+To run a particular test:
+TEST=watchdog/watchdogimpl/TestWatchdog make kcov
+
+To run all the unit tests:
+make kcov-all
+

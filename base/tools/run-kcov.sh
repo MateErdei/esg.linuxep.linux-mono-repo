@@ -36,3 +36,4 @@ $KCOV_COMMAND || {
 
 echo "Your output HTML files are located here: ${OUTPUT_DIR}"
 echo "To View: firefox ${OUTPUT_DIR}/index.html"
+
