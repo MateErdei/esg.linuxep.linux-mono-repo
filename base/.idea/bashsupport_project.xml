@@ -12,6 +12,7 @@
         <option value="NPROC" />
         <option value="OPTIONS" />
         <option value="SOPHOS_INSTALL" />
+        <option value="TEST" />
       </set>
     </option>
   </component>

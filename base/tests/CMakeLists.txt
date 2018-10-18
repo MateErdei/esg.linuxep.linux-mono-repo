@@ -12,3 +12,6 @@ add_subdirectory(UpdateScheduler)
 add_subdirectory(watchdog)
 add_subdirectory(wdctl)
 
+add_custom_target(kcov
+        COMMAND bash ${PROJECT_SOURCE_DIR}/tools/run-kcov.sh ${PROJECT_BINARY_DIR} ${PROJECT_BINARY_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
+        )
