@@ -30,6 +30,7 @@ CLEAN=0
 if [[ ! -f ${COVFILE} ]]
 then
     mkdir -p $(dirname ${COVFILE})
+    chmod 777 $(dirname ${COVFILE})
     covmgr -l -c
     cov01 -1
 
