@@ -359,9 +359,9 @@ namespace UpdateSchedulerImpl
 
 
         int i = 0;
-        int pidOfSulDownloader = -1;
         while( true )
         {
+            int pidOfSulDownloader = -1;
             auto iProcess = Common::Process::createProcess();
             iProcess->exec(pidOfCommand, {pathOfSulDownloader});
             if ( iProcess->exitCode() == 1)
@@ -369,37 +369,41 @@ namespace UpdateSchedulerImpl
                 // pidof returns 1 if no process with the given name is found.
                 break;
             }
+            std::string outputPidOf = iProcess->output();
+            LOGDEBUG("Pid of SulDownloader: " << outputPidOf);
+            try
+            {
+                pidOfSulDownloader = std::stoi(outputPidOf);
+            }
+            catch (std::exception & )
+            {
+                LOGWARN("Can not convert '"<<outputPidOf<<"' to int pid of SulDownloader");
+            }
 
             if( i == 0)
             {
-                LOGINFO("Waiting for SulDownloader to finish.");
+                LOGINFO("Waiting for SulDownloader (PID="<<pidOfSulDownloader<<") to finish.");
             }
             i++;
             // add new log every minute
             if( i%60 ==0 )
             {
-                LOGINFO("SulDownloader still running.");
+                LOGINFO("SulDownloader (PID="<<pidOfSulDownloader<<") still running.");
             }
 
             if( i >= numberOfSeconds2Wait)
             {
-                std::string outputPidOf = iProcess->output();
-                LOGDEBUG("Pid of SulDownloader: " << outputPidOf);
-                try
-                {
-                    pidOfSulDownloader = std::stoi(outputPidOf);
-                }
-                catch (std::exception & )
+                if (pidOfSulDownloader == -1)
                 {
                     LOGWARN("Can not issue a kill command to SulDownloader");
                     return;
                 }
-                LOGWARN("Forcing SulDownloader to stop");
+                LOGWARN("Forcing SulDownloader (PID="<<pidOfSulDownloader<<") to stop");
                 ::kill(pidOfSulDownloader, SIGTERM);
                 return;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(2));
 
             // handle receiving shutdown while waiting for sulDownloader to finish.
             if ( m_callback->shutdownReceived())
