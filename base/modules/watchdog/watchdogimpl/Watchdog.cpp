@@ -179,7 +179,7 @@ void Watchdog::handleSocketRequest()
 
 std::string Watchdog::disablePlugin(const std::string &pluginName)
 {
-    LOGINFO("Stopping "<<pluginName);
+    LOGINFO("Requesting stop of "<<pluginName);
     PluginProxy* proxy = findPlugin(pluginName);
     if (proxy != nullptr)
     {
