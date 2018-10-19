@@ -364,13 +364,19 @@ namespace UpdateSchedulerImpl
             int pidOfSulDownloader = -1;
             auto iProcess = Common::Process::createProcess();
             iProcess->exec(pidOfCommand, {pathOfSulDownloader});
-            if ( iProcess->exitCode() == 1)
+            int exitCode = iProcess->exitCode();
+            if ( exitCode == 1)
             {
                 // pidof returns 1 if no process with the given name is found.
                 break;
             }
+            if (exitCode != 0)
+            {
+                LOGWARN("pidof(SulDownloader) returned "<<exitCode);
+                break;
+            }
             std::string outputPidOf = iProcess->output();
-            LOGDEBUG("Pid of SulDownloader: " << outputPidOf);
+            LOGDEBUG("Pid of SulDownloader: '" << outputPidOf<<"'");
             try
             {
                 pidOfSulDownloader = std::stoi(outputPidOf);
@@ -378,6 +384,7 @@ namespace UpdateSchedulerImpl
             catch (std::exception & )
             {
                 LOGWARN("Can not convert '"<<outputPidOf<<"' to int pid of SulDownloader");
+                break; // Assume empty or non-convertable output means there is no SulDownloader running
             }
 
             if( i == 0)
@@ -403,7 +410,7 @@ namespace UpdateSchedulerImpl
                 return;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
 
             // handle receiving shutdown while waiting for sulDownloader to finish.
             if ( m_callback->shutdownReceived())
