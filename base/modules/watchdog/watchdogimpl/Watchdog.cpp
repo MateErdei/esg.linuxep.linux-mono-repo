@@ -115,8 +115,8 @@ int Watchdog::run()
         timeout = std::chrono::seconds(10);
         for (auto& proxy : m_pluginProxies)
         {
-            proxy.checkForExit();
-            auto waitPeriod = proxy.ensureStateMatchesOptions();
+            auto waitPeriod = proxy.checkForExit();
+            waitPeriod = std::min(proxy.ensureStateMatchesOptions(),waitPeriod);
             timeout = std::min(waitPeriod, timeout);
         }
 

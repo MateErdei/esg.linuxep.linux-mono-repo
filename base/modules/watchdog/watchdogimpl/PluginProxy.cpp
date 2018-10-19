@@ -103,23 +103,30 @@ int PluginProxy::exitCode()
     return code;
 }
 
-void PluginProxy::checkForExit()
+std::chrono::seconds PluginProxy::checkForExit()
 {
     if (!m_running)
     {
         // Don't print out multiple times
-        return;
+        return std::chrono::hours(1);
     }
-    if (status() == Common::Process::ProcessStatus::FINISHED)
+    auto statusCode = status();
+    if (statusCode == Common::Process::ProcessStatus::FINISHED)
     {
         int code = exitCode();
         if (code != 0)
         {
-            LOGERROR("Process died with " << code);
+            LOGERROR(m_exe << " died with " << code);
         }
         m_running = false;
         m_deathTime = ::time(nullptr);
     }
+    else if (!m_enabled)
+    {
+        LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
+        std::chrono::seconds(5);
+    }
+    return std::chrono::hours(1);
 }
 
 std::chrono::seconds PluginProxy::ensureStateMatchesOptions()

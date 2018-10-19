@@ -39,7 +39,7 @@ namespace watchdog
              * Stops the plugin if it is running.
              */
             void stop();
-            void checkForExit();
+            std::chrono::seconds checkForExit();
 
             /**
              * If plugin is enabled, and is not running, and enough time has passed, start plugin.
