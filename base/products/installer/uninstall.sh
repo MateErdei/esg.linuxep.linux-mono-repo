@@ -34,8 +34,8 @@ if (( $FORCE == 0 ))
 then
     read -p "Do you want to uninstall Sophos Server Protection for Linux? " yn
     case $yn in
-        Y | y | YES | yes ) ;;
-        N | n | NO | no ) exit 1;;
+       [Yy] | [Yy][Ee][Ss] ) ;;
+       [Nn] | [Nn][Oo] ) exit 1;;
         * ) echo "Please answer (y)es or (n)o." && exit 1;;
     esac
 fi
