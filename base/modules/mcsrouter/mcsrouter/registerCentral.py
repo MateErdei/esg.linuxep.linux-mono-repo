@@ -14,7 +14,6 @@ import __builtin__
 
 import logging
 import logging.handlers
-
 logger = logging.getLogger(__name__)
 
 __builtin__.__dict__['REGISTER_MCS'] = True
@@ -240,21 +239,22 @@ def removeAllUpdateReports():
         os.remove(f)
 
 def stopMcsRouter():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
-    if "SubState=dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
+    if "dead" not in output:
         subprocess.call([PathManager.wdctlBinPath(), "stop", "mcsrouter"])
 
 def startMcsRouter():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
-    if "SubState=dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
+    if "dead" not in output:
         subprocess.call([PathManager.wdctlBinPath(), "start", "mcsrouter"])
 
 def restartUpdateScheduler():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
-    if "SubState=dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
+    if "dead" not in output:
         updateScheduler = "updatescheduler"
         subprocess.call([PathManager.wdctlBinPath(), "stop", updateScheduler])
         subprocess.call([PathManager.wdctlBinPath(), "start", updateScheduler])
+
 
 def innerMain(argv):
     stopMcsRouter()
@@ -309,6 +309,12 @@ def innerMain(argv):
 
         config.set("MCSToken",token)
         config.set("MCSURL",url)
+
+        cafileEnv = os.environ.get("MCS_CA", "")
+        if len(cafileEnv) > 0 and os.path.isfile(cafileEnv):
+            logger.warning("Using %s as certificate CA",cafileEnv)
+            config.set("CAFILE", cafileEnv)
+
         config.save()
 
 

@@ -32,12 +32,16 @@ done
 
 if (( $FORCE == 0 ))
 then
-    read -p "Do you want to uninstall Sophos Server Protection for Linux? " yn
-    case $yn in
-       [Yy] | [Yy][Ee][Ss] ) ;;
-       [Nn] | [Nn][Oo] ) exit 1;;
-        * ) echo "Please answer (y)es or (n)o." && exit 1;;
-    esac
+    ChoiceMade=false
+    while [[ ${ChoiceMade} == false ]]
+    do
+        read -p "Do you want to uninstall Sophos Server Protection for Linux? " yn
+        case $yn in
+            [Yy] | [Yy][Ee][Ss] ) ChoiceMade=true;;
+            [Nn] | [Nn][Oo] ) exit 1;;
+            * ) echo "Please answer (y)es or (n)o.";;
+        esac
+    done
 fi
 
 export SOPHOS_FULL_PRODUCT_UNINSTALL=1
