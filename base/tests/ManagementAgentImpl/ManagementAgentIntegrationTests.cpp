@@ -219,7 +219,8 @@ namespace
     {
     public:
         //Dummy function override to allow the rest of filesystem to be used
-        void chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const override {}
+        void sophosChmod(const Path& path, __mode_t mode) const override {}
+        void sophosChown(const Path& path, const std::string& user, const std::string& group) const override {}
     };
 
     class ManagementAgentIntegrationTests : public ::testing::Test

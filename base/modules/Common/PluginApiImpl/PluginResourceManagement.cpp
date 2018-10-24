@@ -65,8 +65,8 @@ namespace Common
                 {
                     // plugin_address starts with ipc:// Remove it.
                     std::string plugin_address_file = plugin_address.substr(6);
-                    Common::FileSystem::fileSystem()->chownChmod(plugin_address_file, "root", "sophos-spl-group",
-                                                                     S_IRWXU | S_IRWXG);
+                    Common::FileSystem::fileSystem()->sophosChmod(plugin_address_file, S_IRWXU | S_IRWXG);
+                    Common::FileSystem::fileSystem()->sophosChown(plugin_address_file, "root", "sophos-spl-group");
                 }
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));

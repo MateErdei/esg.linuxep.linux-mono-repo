@@ -45,7 +45,8 @@ int CopyPlugin::run()
 
     try
     {
-        Common::FileSystem::fileSystem()->chownChmod(destination, "root", "sophos-spl-group", S_IRUSR | S_IWUSR | S_IRGRP);
+        Common::FileSystem::fileSystem()->sophosChmod(destination, S_IRUSR | S_IWUSR | S_IRGRP);
+        Common::FileSystem::fileSystem()->sophosChown(destination, "root", "sophos-spl-group");
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {

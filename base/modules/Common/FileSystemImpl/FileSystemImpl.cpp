@@ -301,7 +301,7 @@ namespace Common
             }
         }
 
-        void FileSystemImpl::chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const
+        void FileSystemImpl::sophosChown(const Path& path, const std::string& user, const std::string& group) const
         {
             struct passwd* sophosSplUser = getpwnam(user.c_str());
             struct group* sophosSplGroup = sophosGetgrnam(group);
@@ -322,7 +322,10 @@ namespace Common
                 errorMessage << "User " << user << " or Group " << group << " does not exist";
                 throw IFileSystemException(errorMessage.str());
             }
+        }
 
+        void FileSystemImpl::sophosChmod(const Path& path, __mode_t mode) const
+        {
             if (chmod(path.c_str(), mode) != 0)
             {
                 std::stringstream errorMessage;

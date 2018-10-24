@@ -158,7 +158,8 @@ void Watchdog::setupSocket()
 
     try
     {
-        Common::FileSystem::fileSystem()->chownChmod(ipcFilesPath, "root", "root", S_IRWXU);
+        Common::FileSystem::fileSystem()->sophosChmod(ipcFilesPath, S_IRWXU);
+        Common::FileSystem::fileSystem()->sophosChown(ipcFilesPath, "root", "root");
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
