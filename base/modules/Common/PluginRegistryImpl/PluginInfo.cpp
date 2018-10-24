@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginRegistryException.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
@@ -139,7 +140,8 @@ namespace Common
                 }
                 else
                 {
-                    struct group* groupStruct = ::getgrnam(groupName.c_str());
+                    FileSystem::FileSystemImpl filefunctions;
+                    struct group* groupStruct = filefunctions.sophosGetgrnam(groupName);
                     if (groupStruct != nullptr)
                     {
                         m_executableGroup = groupStruct->gr_gid;

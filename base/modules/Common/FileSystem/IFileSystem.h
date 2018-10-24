@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <memory>
 #include <vector>
-
+#include <grp.h>
 using Path = std::string;
 
 namespace Common
@@ -144,7 +144,15 @@ namespace Common
              * @param group
              * @param mode - the permission mode of the file or directory to set
              */
-            virtual void chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const = 0;
+            virtual void chownChmod(const Path& path, const std::string& user, const std::string& groupString, __mode_t mode) const = 0;
+
+            /**
+             * get the group info
+             *
+             *
+             * @param group, the group which we want information on
+             */
+            virtual struct group* sophosGetgrnam(const std::string& groupString) const = 0;
 
             /**
              * Create a directory tree

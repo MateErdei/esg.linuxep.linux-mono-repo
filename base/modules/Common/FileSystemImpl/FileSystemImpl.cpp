@@ -304,7 +304,7 @@ namespace Common
         void FileSystemImpl::chownChmod(const Path& path, const std::string& user, const std::string& group, __mode_t mode) const
         {
             struct passwd* sophosSplUser = getpwnam(user.c_str());
-            struct group* sophosSplGroup = getgrnam(group.c_str());
+            struct group* sophosSplGroup = sophosGetgrnam(group);
 
             if (sophosSplGroup && sophosSplUser)
             {
@@ -329,6 +329,11 @@ namespace Common
                 errorMessage << "chmod failed to set file permissions to " << mode << " on " << path;
                 throw IFileSystemException(errorMessage.str());
             }
+        }
+
+        struct group* FileSystemImpl::sophosGetgrnam(const std::string& groupString) const
+        {
+            return getgrnam(groupString.c_str());
         }
 
         void FileSystemImpl::makedirs(const Path &path) const
