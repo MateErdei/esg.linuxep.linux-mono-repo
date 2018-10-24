@@ -240,18 +240,18 @@ def removeAllUpdateReports():
         os.remove(f)
 
 def stopMcsRouter():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
-    if "dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
+    if "SubState=dead" not in output:
         subprocess.call([PathManager.wdctlBinPath(), "stop", "mcsrouter"])
 
 def startMcsRouter():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
-    if "dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
+    if "SubState=dead" not in output:
         subprocess.call([PathManager.wdctlBinPath(), "start", "mcsrouter"])
 
 def restartUpdateScheduler():
-    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "--value",  "sophos-spl"])
-    if "dead" not in output:
+    output = subprocess.check_output(["systemctl", "show", "-p", "SubState", "sophos-spl"])
+    if "SubState=dead" not in output:
         updateScheduler = "updatescheduler"
         subprocess.call([PathManager.wdctlBinPath(), "stop", updateScheduler])
         subprocess.call([PathManager.wdctlBinPath(), "start", updateScheduler])
