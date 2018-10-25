@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 umask 077
 
@@ -25,6 +25,7 @@ EXITCODE_NOEXEC_TMP=16
 EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED=17
 EXITCODE_BASE_INSTALL_FAILED=18
 EXITCODE_BAD_INSTALL_PATH=19
+EXITCODE_INSTALLED_BUT_NO_PATH=20
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -166,7 +167,10 @@ sophos_mktempdir()
     echo ${_tmpdir}
 }
 
-
+function is_sspl_installed()
+{
+    systemctl list-unit-files | grep -q sophos-spl
+}
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
@@ -189,6 +193,11 @@ else
     echo "This product can only be installed on a 64bit system."
     cleanup_and_exit ${EXITCODE_NOT_64_BIT}
 fi
+
+# Check if SAV is installed.
+# TODO LINUXEP-6541: we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
+check_SAV_installed '/usr/local/bin/sweep'
+check_SAV_installed '/usr/bin/sweep'
 
 # Handle arguments
 for i in "$@"
@@ -217,29 +226,34 @@ then
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
 
+# Check to see if the Sophos credentials override is being used.
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
 }
 
+# If TMPDIR has not been set then default it to /tmp
 if [ -z "$TMPDIR" ] ; then
     TMPDIR=/tmp
     export TMPDIR
 fi
 
+# Create Sophos temp directory (unless overridden with an existing dir)
 if [ -z "$SOPHOS_TEMP_DIRECTORY" ]; then
     SOPHOS_TEMP_DIRECTORY=`sophos_mktempdir SophosCentralInstall`
 fi
 
 mkdir -p "$SOPHOS_TEMP_DIRECTORY"
 
+# Check that the tmp directory we're using allows execution
 echo "exit 0" > "$SOPHOS_TEMP_DIRECTORY/exectest" && chmod +x "$SOPHOS_TEMP_DIRECTORY/exectest"
 $SOPHOS_TEMP_DIRECTORY/exectest || failure ${EXITCODE_NOEXEC_TMP} "Cannot execute files within $TMPDIR directory. Please see KBA 131783 http://www.sophos.com/kb/131783"
 
+# Get line numbers for the each of the sections
 MIDDLEBIT=`awk '/^__MIDDLE_BIT__/ {print NR + 1; exit 0; }' $0`
 UC_CERTS=`awk '/^__UPDATE_CACHE_CERTS__/ {print NR + 1; exit 0; }' $0`
 ARCHIVE=`awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' $0`
 
-# If we have __UPDATE_CACHE_CERTS__ section then the middle section ends there.
+# If we have __UPDATE_CACHE_CERTS__ section then the middle section ends there, else it ends at the ARCHIVE marker.
 if [ -n "$UC_CERTS" ]
 then
     mkdir -p "${SOPHOS_TEMP_DIRECTORY}/installer"
@@ -255,11 +269,6 @@ tail -n+${MIDDLEBIT} $0 | head -${MIDDLEBIT_SIZE} > ${SOPHOS_TEMP_DIRECTORY}/cre
 tail -n+${ARCHIVE} $0 > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
 
 cd ${SOPHOS_TEMP_DIRECTORY}
-
-# Check if SAV is installed.
-# TODO LINUXEP-6541: we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
-check_SAV_installed '/usr/local/bin/sweep'
-check_SAV_installed '/usr/bin/sweep'
 
 # Read cloud token from credentials file.
 if [ -z "${OVERRIDE_CLOUD_TOKEN}" ]
@@ -292,25 +301,52 @@ then
     echo "Update Caches: $UPDATE_CACHES"
 fi
 
-# Check if there is already an installation. Re-register if there is.
-if [ -d ${SOPHOS_INSTALL} ]
+# Check if the sophos-spl service is installed, if it is find the install path.
+EXISTING_SSPL_PATH=
+if is_sspl_installed
 then
-    if [ -f "$REGISTER_CENTRAL" ]
-    then
-        echo "Attempting to re-register existing installation with Sophos Central"
-        echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
-        ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
-
-        if [ $? -ne 0 ]; then
-            echo "ERROR: Failed to register with Sophos Central - error $?" >&2
-            cleanup_and_exit ${EXITCODE_FAILED_REGISTER}
+    sspl_env=$(systemctl show -p Environment sophos-spl)
+    sspl_env=${sspl_env#Environment=}
+    for e in ${sspl_env}
+    do
+        if [[ ${e%%=*} == "SOPHOS_INSTALL" ]]
+        then
+            EXISTING_SSPL_PATH=${e#*=}
+            echo "Found existing installation here: $EXISTING_SSPL_PATH"
+            break
         fi
+    done
 
-        cleanup_and_exit ${EXITCODE_SUCCESS}
-    elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
+    # Check we have found the path for the existing installation.
+    if [ -n ${EXISTING_SSPL_PATH} ]
     then
-        echo "Please uninstall Sophos Server Protection for Linux before using this installer." >&2
+        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path."
+        cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
+    fi
+
+    # If the user specified a different install dir to the existing one then they must remove the old install first.
+    if [[ ${SOPHOS_INSTALL} != ${EXISTING_SSPL_PATH} ]]
+    then
+        echo "Please uninstall Sophos Server Protection for Linux before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh" >&2
         cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
+    fi
+
+    # Check the existing installation is ok, if it is then register again with the creds from this installer.
+    if [ -d "$SOPHOS_INSTALL" ]
+    then
+        if [ -f "$REGISTER_CENTRAL" ]
+        then
+            echo "Attempting to register existing installation with Sophos Central"
+            echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
+            ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
+            if [ $? -ne 0 ]; then
+                echo "ERROR: Failed to register with Sophos Central - error $?" >&2
+                cleanup_and_exit ${EXITCODE_FAILED_REGISTER}
+            fi
+            cleanup_and_exit ${EXITCODE_SUCCESS}
+        else
+            echo "Existing installation failed validation and will be reinstalled."
+        fi
     fi
 fi
 
