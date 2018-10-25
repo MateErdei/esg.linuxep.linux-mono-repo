@@ -10,7 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/FilePermissionsImpl/MockFilePermissions.h>
 
+#include <Common/FilePermissionsImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
@@ -72,8 +74,12 @@ namespace
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
 
-            EXPECT_CALL(*mockFileSystem, sophosChmod(_,_)).WillRepeatedly(Return());
-            EXPECT_CALL(*mockFileSystem, sophosChown(_,_,_)).WillRepeatedly(Return());
+            auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            Common::FilePermissions::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+
+            EXPECT_CALL(*mockFilePermissions, sophosChmod(_,_)).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, sophosChown(_,_,_)).WillRepeatedly(Return());
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
             registration.join();

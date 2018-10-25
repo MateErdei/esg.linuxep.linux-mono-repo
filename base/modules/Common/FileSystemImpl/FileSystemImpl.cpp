@@ -301,44 +301,6 @@ namespace Common
             }
         }
 
-        void FileSystemImpl::sophosChown(const Path& path, const std::string& user, const std::string& group) const
-        {
-            struct passwd* sophosSplUser = getpwnam(user.c_str());
-            struct group* sophosSplGroup = sophosGetgrnam(group);
-
-            if (sophosSplGroup && sophosSplUser)
-            {
-                if (chown(path.c_str(), sophosSplUser->pw_uid, sophosSplGroup->gr_gid) != 0)
-                {
-                    std::stringstream errorMessage;
-                    errorMessage << "chown failed to set user or group owner on file " << path << " to " << user << ":" << group;
-                    errorMessage << " userId-groupId = " << sophosSplUser->pw_uid << "-" << sophosSplGroup->gr_gid;
-                    throw IPermissionDeniedException(errorMessage.str());
-                }
-            }
-            else
-            {
-                std::stringstream errorMessage;
-                errorMessage << "User " << user << " or Group " << group << " does not exist";
-                throw IFileSystemException(errorMessage.str());
-            }
-        }
-
-        void FileSystemImpl::sophosChmod(const Path& path, __mode_t mode) const
-        {
-            if (chmod(path.c_str(), mode) != 0)
-            {
-                std::stringstream errorMessage;
-                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path;
-                throw IFileSystemException(errorMessage.str());
-            }
-        }
-
-        struct group* FileSystemImpl::sophosGetgrnam(const std::string& groupString) const
-        {
-            return getgrnam(groupString.c_str());
-        }
-
         void FileSystemImpl::makedirs(const Path &path) const
         {
             if (path == "/")

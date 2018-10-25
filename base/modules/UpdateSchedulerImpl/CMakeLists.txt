@@ -38,6 +38,7 @@ target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE
 
 target_link_libraries(updateschedulerimpl PUBLIC
         filesystemimpl
+        filepermissionsimpl
         utilityimpl
         applicationconfigurationimpl
         xmlutilities

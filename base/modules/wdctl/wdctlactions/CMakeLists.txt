@@ -26,5 +26,6 @@ target_link_libraries(wdctlactions PUBLIC
         ${LOG4CPLUS_LIBRARY}
         applicationconfigurationimpl
         filesystemimpl
+        filepermissionsimpl
         zeromqwrapperimpl
         wdctlarguments)

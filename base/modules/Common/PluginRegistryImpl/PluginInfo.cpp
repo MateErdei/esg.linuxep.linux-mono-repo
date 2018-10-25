@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginInfo.h"
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
-#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
+#include <Common/FilePermissionsImpl/FilePermissionsImpl.h>
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
@@ -140,7 +140,7 @@ namespace Common
                 }
                 else
                 {
-                    FileSystem::FileSystemImpl filefunctions;
+                    FilePermissions::FilePermissionsImpl filefunctions;
                     struct group* groupStruct = filefunctions.sophosGetgrnam(groupName);
                     if (groupStruct != nullptr)
                     {
@@ -159,12 +159,7 @@ namespace Common
         {
             uid_t userId = static_cast<uid_t>(m_executableUser);
 
-            if (m_executableUser != -1)
-            {
-                return std::make_pair(true, userId);
-            }
-
-            return std::make_pair(false, userId);
+            return std::make_pair(m_executableUser != -1, userId);
 
         }
 
@@ -172,12 +167,8 @@ namespace Common
         {
             gid_t groupId = static_cast<gid_t>(m_executableGroup);
 
-            if (m_executableGroup != -1)
-            {
-                return std::make_pair(true, groupId);
-            }
+            return std::make_pair(m_executableGroup != -1, groupId);
 
-            return std::make_pair(false, groupId);
         }
 
         std::string PluginInfo::serializeToString(const PluginInfo & pluginInfo)

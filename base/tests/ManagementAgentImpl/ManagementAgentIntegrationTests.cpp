@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <modules/Common/FilePermissionsImpl/FilePermissionsImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -215,7 +216,7 @@ namespace
 
     };
 
-    class FileSystemImplNoChmodChown : public Common::FileSystem::FileSystemImpl
+    class FilePermisssionsImplNoChmodChown : public Common::FilePermissions::FilePermissionsImpl
     {
     public:
         //Dummy function override to allow the rest of filesystem to be used
@@ -245,8 +246,8 @@ namespace
 
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
 
-            std::unique_ptr<FileSystemImplNoChmodChown> iFileSystemPtr = std::unique_ptr<FileSystemImplNoChmodChown>(new FileSystemImplNoChmodChown);
-            Common::FileSystem::replaceFileSystem(std::move(iFileSystemPtr));
+           std::unique_ptr<FilePermisssionsImplNoChmodChown> iFilePermissionsPtr = std::unique_ptr<FilePermisssionsImplNoChmodChown>(new FilePermisssionsImplNoChmodChown);
+            Common::FilePermissions::replaceFilePermissions(std::move(iFilePermissionsPtr));
         }
 
         void TearDown() override

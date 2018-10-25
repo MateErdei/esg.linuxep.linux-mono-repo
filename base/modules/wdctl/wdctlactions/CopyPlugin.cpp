@@ -10,11 +10,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-
+#include <Common/FilePermissionsImpl/FilePermissionsImpl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <grp.h>
+
 
 
 using namespace wdctl::wdctlactions;
@@ -45,8 +46,8 @@ int CopyPlugin::run()
 
     try
     {
-        Common::FileSystem::fileSystem()->sophosChmod(destination, S_IRUSR | S_IWUSR | S_IRGRP);
-        Common::FileSystem::fileSystem()->sophosChown(destination, "root", "sophos-spl-group");
+        Common::FilePermissions::filePermissions()->sophosChmod(destination, S_IRUSR | S_IWUSR | S_IRGRP);
+        Common::FilePermissions::filePermissions()->sophosChown(destination, "root", "sophos-spl-group");
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {

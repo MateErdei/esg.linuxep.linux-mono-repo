@@ -10,8 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FilePermissions/IFilePermissions.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
@@ -158,8 +158,8 @@ void Watchdog::setupSocket()
 
     try
     {
-        Common::FileSystem::fileSystem()->sophosChmod(ipcFilesPath, S_IRWXU);
-        Common::FileSystem::fileSystem()->sophosChown(ipcFilesPath, "root", "root");
+        Common::FilePermissions::filePermissions()->sophosChmod(ipcFilesPath, S_IRWXU);
+        Common::FilePermissions::filePermissions()->sophosChown(ipcFilesPath, "root", "root");
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {

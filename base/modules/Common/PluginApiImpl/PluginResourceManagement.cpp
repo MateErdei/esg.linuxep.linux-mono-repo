@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/PluginApi/ApiException.h>
-#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FilePermissionsImpl/FilePermissionsImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <sys/stat.h>
@@ -65,8 +65,8 @@ namespace Common
                 {
                     // plugin_address starts with ipc:// Remove it.
                     std::string plugin_address_file = plugin_address.substr(6);
-                    Common::FileSystem::fileSystem()->sophosChmod(plugin_address_file, S_IRWXU | S_IRWXG);
-                    Common::FileSystem::fileSystem()->sophosChown(plugin_address_file, "root", "sophos-spl-group");
+                    Common::FilePermissions::filePermissions()->sophosChmod(plugin_address_file, S_IRWXU | S_IRWXG);
+                    Common::FilePermissions::filePermissions()->sophosChown(plugin_address_file, "root", "sophos-spl-group");
                 }
 
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin( new BaseServiceAPI(pluginName, std::move(requester)));

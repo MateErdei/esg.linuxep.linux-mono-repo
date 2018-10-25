@@ -42,14 +42,7 @@ namespace Common
 
             void makeExecutable(const Path &path) const override;
 
-            void sophosChmod(const Path& path, __mode_t mode) const override;
-            void sophosChown(const Path& path, const std::string& user, const std::string& groupString) const override;
-
-            struct group* sophosGetgrnam(const std::string& groupString) const override;
-
             void makedirs(const Path &path) const override;
-
-
 
             std::vector<Path> listFiles( const Path & directoryPath ) const override;
 
