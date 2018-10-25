@@ -50,9 +50,14 @@ void PluginProxy::start()
 
     LOGINFO("Starting "<<m_exe);
     assert(m_process != nullptr);
+
+    //Add in the installation directory to the environment variables used when starting all plugins
+    Common::PluginRegistryImpl::PluginInfo::EnvPairs envVariables = m_info.getExecutableEnvironmentVariables();
+    envVariables.emplace_back("SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+
     m_process->exec(m_exe,
                     m_info.getExecutableArguments(),
-                    m_info.getExecutableEnvironmentVariables(),
+                    envVariables,
                     userId.second,
                     groupId.second
     );
