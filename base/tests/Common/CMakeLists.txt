@@ -1,6 +1,7 @@
 
 add_subdirectory(DirectoryWatcherImpl)
 add_subdirectory(FileSystemImpl)
+add_subdirectory(FilePermissionsImpl)
 add_subdirectory(Logging)
 add_subdirectory(ObfuscationImpl)
 add_subdirectory(PluginRegistryImpl)

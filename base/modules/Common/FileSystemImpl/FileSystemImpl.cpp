@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/FilePermissions/IFilePermissions.h>
 
 #include <cassert>
 #include <cstring>
@@ -294,11 +295,8 @@ namespace Common
                 throw IFileSystemException("Cannot stat: " + path);
             }
 
-            ret = chmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
-            if ( ret != 0)
-            {
-                throw IFileSystemException("Cannot make executable: " + path);
-            }
+            Common::FilePermissions::filePermissions()->sophosChmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
+
         }
 
         void FileSystemImpl::makedirs(const Path &path) const

@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////
 #include "TempDir.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FilePermissionsImpl/FilePermissionsImpl.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include <cstring>
 #include <sys/stat.h>
@@ -150,12 +151,8 @@ namespace Tests
     {
         std::string path = absPath(relativePath);
         assert( m_fileSystem->exists(path));
-        if ( chmod(path.c_str(), 0700) != 0)
-        {
-            int errn = errno;
-            std::string error_cause = ::strerror(errn);
-            throw Common::FileSystem::IFileSystemException("Failed to make path executable: "+ path  + ". Cause: " + error_cause);
-        }
+        Common::FilePermissions::filePermissions()->sophosChmod(path.c_str(), 0700);
+
 
     }
 
