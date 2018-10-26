@@ -172,6 +172,11 @@ function is_sspl_installed()
     systemctl list-unit-files | grep -q sophos-spl
 }
 
+function force_argument()
+{
+    echo "$args" | grep -q ".*--force"
+}
+
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
@@ -303,7 +308,17 @@ fi
 
 # Check if the sophos-spl service is installed, if it is find the install path.
 EXISTING_SSPL_PATH=
-if is_sspl_installed && ! echo "$args" | grep -q ".*--force"
+
+if force_argument
+then
+    echo "Forcing install"
+
+    # Base installer will install sophos unit files even if they are already installed.
+    FORCE_INSTALL=1
+
+    # Stop any possibly running services - may have a broken install and be wanting a re-install.
+    systemctl stop sophos-spl 2>/dev/null
+elif is_sspl_installed
 then
     sspl_env=$(systemctl show -p Environment sophos-spl)
     sspl_env=${sspl_env#Environment=}
