@@ -303,7 +303,7 @@ fi
 
 # Check if the sophos-spl service is installed, if it is find the install path.
 EXISTING_SSPL_PATH=
-if is_sspl_installed
+if is_sspl_installed && ! echo "$args" | grep -q ".*--force"
 then
     sspl_env=$(systemctl show -p Environment sophos-spl)
     sspl_env=${sspl_env#Environment=}
@@ -320,7 +320,7 @@ then
     # Check we have found the path for the existing installation.
     if [ ! -d "$EXISTING_SSPL_PATH" ]
     then
-        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path."
+        echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install."
         cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
     fi
 
