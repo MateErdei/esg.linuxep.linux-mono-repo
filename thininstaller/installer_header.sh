@@ -30,13 +30,13 @@ EXITCODE_INSTALLED_BUT_NO_PATH=20
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
-cleanup_and_exit()
+function cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
     exit $1
 }
 
-failure()
+function failure()
 {
     code=$1
     shift
@@ -44,7 +44,7 @@ failure()
     cleanup_and_exit ${code}
 }
 
-handle_installer_errorcodes()
+function handle_installer_errorcodes()
 {
     errcode=$1
     if [ ${errcode} -eq 44 ]
@@ -60,7 +60,7 @@ handle_installer_errorcodes()
     fi
 }
 
-check_free_storage()
+function check_free_storage()
 {
     local path=$1
     local space=$2
@@ -106,7 +106,7 @@ check_free_storage()
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
-check_total_mem()
+function check_total_mem()
 {
     local neededMemKiloBytes=$1
     local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -119,7 +119,7 @@ check_total_mem()
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_MEM}
 }
 
-check_SAV_installed()
+function check_SAV_installed()
 {
     local path=$1
     local sav_instdir=`readlink ${path} | sed 's/bin\/savscan//g'`
@@ -136,7 +136,7 @@ check_SAV_installed()
 #
 # Pass directory name prefix as a parameter.
 #
-sophos_mktempdir()
+function sophos_mktempdir()
 {
     _mktemp=`which mktemp 2>/dev/null`
     if [ -x "${_mktemp}" ] ; then
@@ -318,7 +318,7 @@ then
     done
 
     # Check we have found the path for the existing installation.
-    if [ -z ${EXISTING_SSPL_PATH} ]
+    if [ -d "$EXISTING_SSPL_PATH" ]
     then
         echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path."
         cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
