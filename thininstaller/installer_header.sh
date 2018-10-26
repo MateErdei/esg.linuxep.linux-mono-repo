@@ -3,6 +3,9 @@
 umask 077
 
 args="$*"
+
+echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited."
+
 echo "Installing Sophos Server Protection for Linux with arguments: [$args]"
 
 EXITCODE_SUCCESS=0
