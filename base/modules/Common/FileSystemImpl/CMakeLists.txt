@@ -4,7 +4,7 @@ add_library(filesystemimplobject OBJECT
         FileSystemImpl.cpp
         FileSystemImpl.h)
 
-add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject> )
+add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject> $<TARGET_OBJECTS:filepermissionsimplobject>)
 
 SET_TARGET_PROPERTIES( filesystemimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
