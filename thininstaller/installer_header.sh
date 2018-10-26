@@ -318,7 +318,7 @@ then
     done
 
     # Check we have found the path for the existing installation.
-    if [ -d "$EXISTING_SSPL_PATH" ]
+    if [[ ! -d "$EXISTING_SSPL_PATH" ]]
     then
         echo "An existing installation of Sophos Server Protection for Linux was found but could not find the installed path."
         cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
