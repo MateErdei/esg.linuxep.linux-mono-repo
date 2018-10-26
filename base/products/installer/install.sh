@@ -74,7 +74,7 @@ function isServiceInstalled()
 
 function createWatchdogSystemdService()
 {
-    if ! isServiceInstalled sophos-spl.service
+    if ! isServiceInstalled sophos-spl.service || $FORCE_INSTALL
     then
 
         if [[ -d /lib/systemd/system ]]
@@ -114,7 +114,7 @@ function restartSsplService()
 
 function createUpdaterSystemdService()
 {
-    if ! isServiceInstalled sophos-spl-update.service
+    if ! isServiceInstalled sophos-spl-update.service || $FORCE_INSTALL
     then
         if [[ -d /lib/systemd/system ]]
         then
