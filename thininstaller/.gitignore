@@ -9,3 +9,4 @@ input/
 .idea/codeStyles/
 .idea/markdown-navigator/
 *.pyc
+installer_header_versioned.sh

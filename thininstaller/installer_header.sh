@@ -2,9 +2,15 @@
 
 umask 077
 
-args="$*"
-
 echo "This software is governed by the terms and conditions of a licence agreement with Sophos Limited."
+
+args="$*"
+VERSION="VERSION_REPLACEMENT_STRING"
+if [ "x$args" = "x--version" ] || [ "x$args" = "x-v" ]
+then
+    echo "Linux Server Installer, version: $VERSION"
+    exit 0
+fi
 
 echo "Installing Sophos Server Protection for Linux with arguments: [$args]"
 

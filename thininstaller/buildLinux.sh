@@ -13,6 +13,7 @@ STARTINGDIR=$(pwd)
 cd ${0%/*}
 BASE=$(pwd)
 OUTPUT=$BASE/output
+INSTALLER_HEADER=installer_header.sh
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
@@ -29,6 +30,14 @@ mkdir -p $REDIST
 source "$BASE"/build-scripts/pathmgr.sh
 [ -f "$BASE"/build-scripts/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-scripts/common.sh
+
+
+function create_versioned_installer_header()
+{
+    local VERSION=$(cat Version.txt)
+    sed s/VERSION_REPLACEMENT_STRING/$VERSION/g ./installer_header.sh > installer_header_versioned.sh
+    INSTALLER_HEADER=installer_header_versioned.sh
+}
 
 function untar_or_link_to_redist()
 {
@@ -133,7 +142,8 @@ function build()
     gzip partial_installer.tar
 
     output_install_script="SophosSetup.sh"
-    cat installer_header.sh partial_installer.tar.gz > output/${output_install_script}
+    create_versioned_installer_header
+    cat $INSTALLER_HEADER partial_installer.tar.gz > output/${output_install_script}
     rm -f partial_installer.tar.gz
 
     pushd output
