@@ -257,7 +257,7 @@ then
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
 
-if [[ ${#SOPHOS_INSTALL} < 50 ]]
+if [[ ${#SOPHOS_INSTALL} > 50 ]]
 then
     echo "The --instdir path provided is too long and needs to be 40 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
