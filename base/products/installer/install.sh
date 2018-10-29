@@ -27,6 +27,8 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
+echo $SOPHOS_INSTALL
+
 MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
 MCS_MESSAGE_RELAYS=${MCS_MESSAGE_RELAYS:-}
@@ -158,6 +160,52 @@ function waitForProcess()
     return 1
 }
 
+function makedir()
+{
+    mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
+}
+
+function makeRootDirectory()
+{
+    local install_path=${SOPHOS_INSTALL%/*}
+
+    # Make sure that the install_path string is not empty, in the case of "/foo"
+    if [ -z $install_path ]
+    then
+        install_path="/"
+    fi
+
+    while [ ! -d ${install_path} ]
+    do
+        install_path=${install_path%/*}
+
+        # Make sure that the install_path string is not empty.
+        if [ -z $install_path ]
+        then
+            install_path="/"
+        fi
+    done
+
+    #Extract the directories we need to create
+    local createDirs=${SOPHOS_INSTALL#$install_path/}
+
+    #Following loop requires trailing slash
+    if  [[ ${createDirs:-1} != "/" ]]
+    then
+        local createDirs=$createDirs/
+    fi
+
+    #Iterate through directories giving minimum execute permissions to allow sophos-spl user to run executables
+    while [[ ! -z "$createDirs" ]]
+    do
+        currentDir=${createDirs%%/*}
+        install_path="$install_path/$currentDir"
+        makedir 711 $install_path
+        createDirs=${createDirs#$currentDir/}
+    done
+
+}
+
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
@@ -178,12 +226,7 @@ GROUPADD="$(which groupadd)"
 [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
 "${GETENT}" group "${GROUP_NAME}" 2>&1 > /dev/null || "${GROUPADD}" -r "${GROUP_NAME}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $GROUP_NAME"
 
-function makedir()
-{
-    mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
-}
-
-makedir 711 "${SOPHOS_INSTALL}"
+makeRootDirectory "${SOPHOS_INSTALL}"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
 
 # Adds a hidden file to mark the install directory which is used by the uninstaller.
