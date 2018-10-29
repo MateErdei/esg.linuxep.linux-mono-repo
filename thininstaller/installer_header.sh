@@ -241,6 +241,12 @@ do
         ;;
         --instdir=*)
             SOPHOS_INSTALL="${i#*=}"
+            if ((${#SOPHOS_INSTALL} > 50))
+            then
+                echo "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
+                cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+            fi
+            export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
             shift
         ;;
         --proxy-credentials=*)
@@ -249,21 +255,12 @@ do
     esac
 done
 
-
 # Verify that instdir does not contain special characters that may cause problems.
 if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-Z0-9\/\_\.]*$'
 then
     echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
-
-if [[ ${#SOPHOS_INSTALL} > 50 ]]
-then
-    echo "The --instdir path provided is too long and needs to be 40 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
-    cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
-fi
-
-export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
 
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
