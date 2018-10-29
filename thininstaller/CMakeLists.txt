@@ -31,7 +31,7 @@ set(CURL_LIBRARY -L${CURL_LIBRARY_DIR}  -lcurl)
 include_directories(BEFORE ${SUL_INPUT}/include ${CURL_INPUT}/include64)
 
 # Set flags
-set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../libs,-rpath-link,${SUL_LIBRARY_DIRS})
+set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${SUL_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 add_executable(thininstaller installer.cpp)
@@ -58,7 +58,7 @@ if (NOT DEFINED INSTALLERDIR)
 endif()
 
 set(bin_dir ${INSTALLERDIR}/bin)
-set(libs_dir ${INSTALLERDIR}/libs)
+set(libs_dir ${INSTALLERDIR}/lib64)
 
 add_custom_target(
         copyInstaller

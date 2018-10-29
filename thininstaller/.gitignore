@@ -2,6 +2,7 @@ build/
 installer/
 cmake-build-debug/
 libs/
+lib64/
 log/
 output/
 redist/
