@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 umask 077
 
@@ -29,13 +29,13 @@ EXITCODE_BAD_INSTALL_PATH=19
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
-cleanup_and_exit()
+function cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
     exit $1
 }
 
-failure()
+function failure()
 {
     code=$1
     shift
@@ -43,7 +43,7 @@ failure()
     cleanup_and_exit ${code}
 }
 
-handle_installer_errorcodes()
+function handle_installer_errorcodes()
 {
     errcode=$1
     if [ ${errcode} -eq 44 ]
@@ -59,10 +59,10 @@ handle_installer_errorcodes()
     fi
 }
 
-check_free_storage()
+function check_free_storage()
 {
-    local path=$1
-    local space=$2
+
+    local space=$1
 
     local install_path=${SOPHOS_INSTALL%/*}
 
@@ -94,6 +94,7 @@ check_free_storage()
     local free=$(df -kP ${install_path} | sed -e "1d" | awk '{print $4}')
     local mountpoint=$(df -kP ${install_path} | sed -e "1d" | awk '{print $6}')
 
+
     local free_mb
     free_mb=$(( free / 1024 ))
 
@@ -105,7 +106,49 @@ check_free_storage()
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
 }
 
-check_total_mem()
+function check_install_path_has_correct_permissions()
+{
+    # loop through given install path from right to left to find the first directory that exists.
+    local install_path=${SOPHOS_INSTALL%/*}
+
+    # Make sure that the install_path string is not empty, in the case of "/foo"
+    if [ -z $install_path ]
+    then
+        install_path="/"
+    fi
+
+    while [ ! -d ${install_path} ]
+    do
+        install_path=${install_path%/*}
+
+        # Make sure that the install_path string is not empty.
+        if [ -z $install_path ]
+        then
+            install_path="/"
+        fi
+    done
+
+    # continue looping through all the existing directories ensuring that the current permissions will allow sophos-spl to execute
+
+    while [ ${install_path} != "/" ]
+    do
+        permissions=$(stat -c '%A' ${install_path})
+        if [[ ${permissions: -1} != "x" ]]
+        then
+            echo "Can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
+            cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+        fi
+
+        install_path=${install_path%/*}
+
+        if [ -z $install_path ]
+        then
+            install_path="/"
+        fi
+     done
+}
+
+function check_total_mem()
 {
     local neededMemKiloBytes=$1
     local totalMemKiloBytes=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -118,7 +161,7 @@ check_total_mem()
     cleanup_and_exit ${EXITCODE_NOT_ENOUGH_MEM}
 }
 
-check_SAV_installed()
+function check_SAV_installed()
 {
     local path=$1
     local sav_instdir=`readlink ${path} | sed 's/bin\/savscan//g'`
@@ -135,7 +178,7 @@ check_SAV_installed()
 #
 # Pass directory name prefix as a parameter.
 #
-sophos_mktempdir()
+function sophos_mktempdir()
 {
     _mktemp=`which mktemp 2>/dev/null`
     if [ -x "${_mktemp}" ] ; then
@@ -165,8 +208,6 @@ sophos_mktempdir()
 
     echo ${_tmpdir}
 }
-
-REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
@@ -199,7 +240,7 @@ do
             shift
         ;;
         --instdir=*)
-            export SOPHOS_INSTALL="${i#*=}"
+            SOPHOS_INSTALL="${i#*=}"
             shift
         ;;
         --proxy-credentials=*)
@@ -215,6 +256,14 @@ then
     echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
 fi
+
+if [[ ${#SOPHOS_INSTALL} < 50 ]]
+then
+    echo "The --instdir path provided is too long and needs to be 40 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
+    cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+fi
+
+export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
 
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
     echo "Overriding Sophos credentials with $OVERRIDE_SOPHOS_CREDS"
@@ -291,6 +340,8 @@ then
     echo "Update Caches: $UPDATE_CACHES"
 fi
 
+REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
+
 # Check if there is already an installation. Re-register if there is.
 if [ -d ${SOPHOS_INSTALL} ]
 then
@@ -308,13 +359,16 @@ then
         cleanup_and_exit ${EXITCODE_SUCCESS}
     elif ! echo "$args" | grep -q ".*--ignore-existing-installation.*"
     then
-        echo "Please uninstall Sophos Server Protection for Linux before using this installer." >&2
+        echo "The intended destination for Sophos Server Protection for Linux : ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location." >&2
         cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
     fi
 fi
 
 # Check there is enough disk space
-check_free_storage ${SOPHOS_INSTALL} 1024
+check_free_storage 1024
+
+# Check that the install path has valid permission on the existing directories
+check_install_path_has_correct_permissions
 
 # Check there is enough RAM (~1GB in kB)
 check_total_mem 1000000
@@ -376,6 +430,7 @@ cd distribute
 chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
 
 echo "Running base installer (this may take some time)"
+echo "Product will be installed to : ${SOPHOS_INSTALL}"
 MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
