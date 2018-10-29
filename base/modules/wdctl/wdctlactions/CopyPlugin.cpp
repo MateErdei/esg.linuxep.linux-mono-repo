@@ -28,6 +28,13 @@ int CopyPlugin::run()
 {
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
 
+    std::string basePluginName = Common::FileSystem::basename(m_args.m_argument);
+
+    if (basePluginName.length() > 25 ) { //Assumes that .json is included in the filename
+        LOGFATAL( "Plugin name is longer than the maximum 20 characters.");
+        return 1;
+    }
+
     Path destination = Common::FileSystem::join(
             pluginRegistry,
             Common::FileSystem::basename(m_args.m_argument)

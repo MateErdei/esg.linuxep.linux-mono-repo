@@ -6,11 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "DownloadedProduct.h"
 #include "Logger.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/Process/IProcess.h"
-#include "Common/Process/IProcessException.h"
 #include "IVersig.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/Process/IProcess.h>
+#include <Common/Process/IProcessException.h>
+#include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+
 #include <cassert>
 #include <cstring>
 
@@ -69,11 +72,15 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
         fileSystem->makeExecutable(installShFile);
 
+        //Add in the installation directory to the SOPHOS_INSTALL environment variable when running installers.
+        Common::PluginRegistryImpl::PluginInfo::EnvPairs envVariables;
+        envVariables.emplace_back("SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+
         auto process = ::Common::Process::createProcess();
         int exitCode = 0;
         try
         {
-            process->exec(installShFile, installArgs);
+            process->exec(installShFile, installArgs, envVariables);
             auto status = process->wait(Common::Process::Milliseconds(1000),600);
             if (status != Common::Process::ProcessStatus::FINISHED)
             {
