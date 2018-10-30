@@ -56,4 +56,8 @@ namespace
         EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"),getgrnam("root")->gr_gid);
     }
 
+    TEST(FilePermissionsImpl,checkGetGroupIdOfRootReturnsZero)
+    {
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"),0);
+    }
 }

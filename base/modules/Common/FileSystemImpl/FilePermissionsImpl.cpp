@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <pwd.h>
 #include <grp.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -78,7 +79,7 @@ namespace Common
             else
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error " << err;
+                errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error " << strerror(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
