@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/FilePermissionsImpl/FilePermissionsImpl.h>
+#include <modules/Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -216,12 +216,12 @@ namespace
 
     };
 
-    class FilePermisssionsImplNoChmodChown : public Common::FilePermissions::FilePermissionsImpl
+    class FilePermisssionsImplNoChmodChown : public Common::FileSystem::FilePermissionsImpl
     {
     public:
         //Dummy function override to allow the rest of filesystem to be used
-        void sophosChmod(const Path& path, __mode_t mode) const override {}
-        void sophosChown(const Path& path, const std::string& user, const std::string& group) const override {}
+        void chmod(const Path& path, __mode_t mode) const override {}
+        void chown(const Path& path, const std::string& user, const std::string& group) const override {}
     };
 
     class ManagementAgentIntegrationTests : public ::testing::Test
@@ -247,7 +247,7 @@ namespace
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
 
            std::unique_ptr<FilePermisssionsImplNoChmodChown> iFilePermissionsPtr = std::unique_ptr<FilePermisssionsImplNoChmodChown>(new FilePermisssionsImplNoChmodChown);
-            Common::FilePermissions::replaceFilePermissions(std::move(iFilePermissionsPtr));
+            Common::FileSystem::replaceFilePermissions(std::move(iFilePermissionsPtr));
         }
 
         void TearDown() override

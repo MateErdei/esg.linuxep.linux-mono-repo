@@ -7,7 +7,7 @@ add_library(pluginregistryimpl SHARED
         PluginRegistryException.h
         ../UtilityImpl/StringUtils.h)
 target_include_directories(pluginregistryimpl PUBLIC ../../Common)
-target_link_libraries(pluginregistryimpl ${Protobuf_LIBRARIES} utilityimpl filesystemimpl filepermissionsimpl applicationconfigurationimpl)
+target_link_libraries(pluginregistryimpl ${Protobuf_LIBRARIES} utilityimpl filesystemimpl applicationconfigurationimpl)
 add_dependencies(pluginregistryimpl generatePluginInfoProto)
 
 SET_TARGET_PROPERTIES( pluginregistryimpl

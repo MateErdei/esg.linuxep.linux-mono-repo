@@ -6,7 +6,7 @@ add_library(testhelpers SHARED
         TempDirBaseClassTest.cpp
         TestExecutionSynchronizer.h
         TestExecutionSynchronizer.cpp)
-target_link_libraries(testhelpers PUBLIC filesystemimpl filepermissionsimpl)
+target_link_libraries(testhelpers PUBLIC filesystemimpl)
 target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" )
 
 
@@ -14,5 +14,5 @@ add_executable(TestHelpersTest TestTempDir.cpp ExampleTempDirSuiteTest.cpp Examp
 target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" )
 target_include_directories(TestHelpersTest BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${PROJECT_SOURCE_DIR}/modules)
 target_link_libraries(TestHelpersTest gtest gtest_main)
-target_link_libraries(TestHelpersTest filesystemimpl filepermissionsimpl testhelpers)
+target_link_libraries(TestHelpersTest filesystemimpl testhelpers)
 gtest_discover_tests(TestHelpersTest)

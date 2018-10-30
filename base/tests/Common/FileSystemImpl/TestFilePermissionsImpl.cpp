@@ -5,12 +5,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Common/FilePermissions/IFilePermissions.h"
-#include "Common/FilePermissionsImpl/FilePermissionsImpl.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "../TestHelpers/TempDir.h"
 #include <grp.h>
 
-using namespace Common::FilePermissions;
+using namespace Common::FileSystem;
 namespace
 {
 
@@ -43,17 +43,17 @@ namespace
 
     TEST(FilePermissionsImpl,checkSophosGetgrnameReturnsNullWhenBadGroup)
     {
-        EXPECT_EQ(Common::FilePermissions::filePermissions()->sophosGetgrnam("badgroup"),nullptr);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getgrnam("badgroup"),127);
     }
 
     TEST(FilePermissionsImpl,checkSophosGetgrnameReturnsAGroupWhenGoodGroup)
     {
-        EXPECT_NE(Common::FilePermissions::filePermissions()->sophosGetgrnam("root"),nullptr);
+        EXPECT_NE(Common::FileSystem::filePermissions()->getgrnam("root"),127);
     }
 
     TEST(FilePermissionsImpl,checkSophosGetgrnameReturnstheSameAsGetgrnam)
     {
-        EXPECT_EQ(Common::FilePermissions::filePermissions()->sophosGetgrnam("root"),getgrnam("root"));
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getgrnam("root"),getgrnam("root")->gr_gid);
     }
 
 }

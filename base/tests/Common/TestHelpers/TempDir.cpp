@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 #include "TempDir.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/FilePermissionsImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include <cstring>
 #include <sys/stat.h>
@@ -151,7 +151,7 @@ namespace Tests
     {
         std::string path = absPath(relativePath);
         assert( m_fileSystem->exists(path));
-        Common::FilePermissions::filePermissions()->sophosChmod(path.c_str(), 0700);
+        Common::FileSystem::filePermissions()->chmod(path.c_str(), 0700);
 
 
     }

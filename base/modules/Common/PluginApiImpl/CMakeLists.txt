@@ -24,7 +24,7 @@ add_library(pluginapiobjects OBJECT
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
 
-target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol ${LOG4CPLUS_LIBRARY} filepermissionsimpl)
+target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol ${LOG4CPLUS_LIBRARY})
 
 SET_TARGET_PROPERTIES( pluginapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -39,7 +39,6 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:reactorimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:filepermissionsimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         )
 

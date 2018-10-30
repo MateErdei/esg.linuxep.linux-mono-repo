@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginRegistryException.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
-#include <Common/FilePermissionsImpl/FilePermissionsImpl.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
 #include <google/protobuf/util/json_util.h>
@@ -140,11 +140,11 @@ namespace Common
                 }
                 else
                 {
-                    FilePermissions::FilePermissionsImpl filefunctions;
-                    struct group* groupStruct = filefunctions.sophosGetgrnam(groupName);
-                    if (groupStruct != nullptr)
+                    FileSystem::FilePermissionsImpl filefunctions;
+                    int groupId = filefunctions.getgrnam(groupName);
+                    if (groupId != 127)
                     {
-                        m_executableGroup = groupStruct->gr_gid;
+                        m_executableGroup = groupId;
                     }
                 }
             }

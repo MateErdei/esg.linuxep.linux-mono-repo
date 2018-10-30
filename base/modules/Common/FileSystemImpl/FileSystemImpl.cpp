@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
-#include <Common/FilePermissions/IFilePermissions.h>
+#include <Common/FileSystem/IFilePermissions.h>
 
 #include <cassert>
 #include <cstring>
@@ -295,7 +295,7 @@ namespace Common
                 throw IFileSystemException("Cannot stat: " + path);
             }
 
-            Common::FilePermissions::filePermissions()->sophosChmod(path.c_str(), statbuf.st_mode|S_IXUSR|S_IXGRP|S_IXOTH);  //NOLINT
+            Common::FileSystem::filePermissions()->chmod(path.c_str(), statbuf.st_mode | S_IXUSR | S_IXGRP | S_IXOTH);  //NOLINT
 
         }
 

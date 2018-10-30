@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FilePermissions/IFilePermissions.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
@@ -158,8 +158,8 @@ void Watchdog::setupSocket()
 
     try
     {
-        Common::FilePermissions::filePermissions()->sophosChmod(ipcFilesPath, S_IRWXU);
-        Common::FilePermissions::filePermissions()->sophosChown(ipcFilesPath, "root", "root");
+        Common::FileSystem::filePermissions()->chmod(ipcFilesPath, S_IRWXU);
+        Common::FileSystem::filePermissions()->chown(ipcFilesPath, "root", "root");
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
