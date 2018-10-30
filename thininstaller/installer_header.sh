@@ -269,6 +269,11 @@ do
                 echo "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long."
                 cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
             fi
+            if [[ ${SOPHOS_INSTALL} == /tmp* ]]
+            then
+                echo "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent."
+                cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+            fi
             export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
             shift
         ;;
