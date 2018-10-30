@@ -365,7 +365,7 @@ TEST_F(SULDownloaderTest,  //NOLINT
         if (counter++ == 0)
         {
             auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -375,7 +375,7 @@ TEST_F(SULDownloaderTest,  //NOLINT
         else
         {
             auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -890,7 +890,7 @@ TEST_F( SULDownloaderTest, //NOLINT
         if ( counter++ == 0 )
         {
             auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -899,7 +899,7 @@ TEST_F( SULDownloaderTest, //NOLINT
         } else
         {
             auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+            EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin\nsimulate failure"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
@@ -973,7 +973,7 @@ TEST_F( SULDownloaderTest, //NOLINT
            if ( counter++ == 0 )
            {
                auto mockProcess = new StrictMock<MockProcess>();
-               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _)).Times(1);
+               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest/install.sh"), _, _)).Times(1);
                EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing base"));
                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -982,7 +982,7 @@ TEST_F( SULDownloaderTest, //NOLINT
            } else
            {
                auto mockProcess = new StrictMock<MockProcess>();
-               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _)).Times(1);
+               EXPECT_CALL(*mockProcess, exec(HasSubstr("everest-plugin-a/install.sh"), _, _)).Times(1);
                EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
                EXPECT_CALL(*mockProcess, output()).WillOnce(Return("installing plugin"));
                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
