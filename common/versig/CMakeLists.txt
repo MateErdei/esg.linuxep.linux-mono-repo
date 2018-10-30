@@ -34,7 +34,7 @@ string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION )
 
 set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
 
-set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64:\$ORIGIN/../libs,-rpath-link,${OPENSSL_LIBRARY_DIR} )
+set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR} )
 
 include_directories(BEFORE ${OPENSSL_DIR}/include64)
 
