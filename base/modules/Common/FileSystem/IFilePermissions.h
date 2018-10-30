@@ -42,8 +42,9 @@ namespace Common
              *
              *
              * @param groupString, the group which we want information on
+             * @return returns either the groupid or -1 if there is none
              */
-            virtual int getgrnam(const std::string& groupString) const = 0;
+            virtual int getGroupId(const std::string& groupString) const = 0;
         };
 
         /**

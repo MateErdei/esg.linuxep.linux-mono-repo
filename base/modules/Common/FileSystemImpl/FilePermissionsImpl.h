@@ -22,7 +22,7 @@ namespace Common
 
             void chown(const Path& path, const std::string& user, const std::string& groupString) const override;
 
-            int getgrnam(const std::string& groupString) const override;
+            int getGroupId(const std::string& groupString) const override;
 
         };
         /** To be used in tests only */

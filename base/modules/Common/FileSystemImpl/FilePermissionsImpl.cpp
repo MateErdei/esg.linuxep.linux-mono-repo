@@ -26,7 +26,7 @@ namespace Common
         void FilePermissionsImpl::chown(const Path& path, const std::string& user, const std::string& group) const
         {
             struct passwd* sophosSplUser = getpwnam(user.c_str());
-            int sophosSplGroupId = getgrnam(group);
+            int sophosSplGroupId = getGroupId(group);
 
             if ((sophosSplGroupId != -1) && sophosSplUser)
             {
@@ -57,26 +57,30 @@ namespace Common
             }
         }
 
-        int FilePermissionsImpl::getgrnam(const std::string& groupString) const
+        int FilePermissionsImpl::getGroupId(const std::string& groupString) const
         {
+
+
             struct group groupbuf;
-            struct group *group;
-            char *buf;
-            long size;
+            struct group *replygroup;
+            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            size = sysconf(_SC_GETGR_R_SIZE_MAX);
-            if (size == -1) {
-                throw FileSystem::IFileSystemException("error: could not get _SC_GETGR_R_SIZE_MAX");
+            int err = getgrnam_r(groupString.c_str(),&groupbuf, buffer.data(),buffer.size(), &replygroup);
+            if ( replygroup == nullptr) // no matching found
+            {
+                return -1;
             }
 
-            buf = (char*)malloc ((size_t) size);
-            if (buf == nullptr) {
-                throw FileSystem::IFileSystemException("error: malloc() failedn");
+            if( err == 0 || err == ERANGE) // no error
+            {
+                return groupbuf.gr_gid;
             }
-
-            getgrnam_r(groupString.c_str(),&groupbuf, buf, (size_t) size, &group);
-            int *groupid =  (int*)&groupbuf.gr_gid;
-            return (int)*groupid;
+            else
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error " << err;
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
         }
     }
 

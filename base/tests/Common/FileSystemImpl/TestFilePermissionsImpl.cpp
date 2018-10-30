@@ -41,19 +41,19 @@ namespace
     }
 #endif
 
-    TEST(FilePermissionsImpl,checkSophosGetgrnameReturnsNullWhenBadGroup)
+    TEST(FilePermissionsImpl,checkGetGroupIdReturnsMinusOneWhenBadGroup)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getgrnam("badgroup"),127);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("badgroup"),-1);
     }
 
-    TEST(FilePermissionsImpl,checkSophosGetgrnameReturnsAGroupWhenGoodGroup)
+    TEST(FilePermissionsImpl,checkGetGroupIdReturnsAGroupWhenGoodGroup)
     {
-        EXPECT_NE(Common::FileSystem::filePermissions()->getgrnam("root"),127);
+        EXPECT_NE(Common::FileSystem::filePermissions()->getGroupId("root"),-1);
     }
 
-    TEST(FilePermissionsImpl,checkSophosGetgrnameReturnstheSameAsGetgrnam)
+    TEST(FilePermissionsImpl,checkGetGroupIdReturnstheSameAsGetgrnam)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getgrnam("root"),getgrnam("root")->gr_gid);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"),getgrnam("root")->gr_gid);
     }
 
 }

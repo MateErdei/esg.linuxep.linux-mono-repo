@@ -141,8 +141,8 @@ namespace Common
                 else
                 {
                     FileSystem::FilePermissionsImpl filefunctions;
-                    int groupId = filefunctions.getgrnam(groupName);
-                    if (groupId != 127)
+                    int groupId = filefunctions.getGroupId(groupName);
+                    if (groupId != -1)
                     {
                         m_executableGroup = groupId;
                     }
