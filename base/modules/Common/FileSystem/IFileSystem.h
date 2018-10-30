@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <memory>
 #include <vector>
-#include <grp.h>
+
 using Path = std::string;
 
 namespace Common
