@@ -5,6 +5,7 @@
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/MockedPluginApiCallback.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/FileSystemImpl/MockFilePermissions.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <ManagementAgent/LoggerImpl/LoggingSetup.h>
@@ -13,6 +14,7 @@
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <thread>
 #include <modules/Common/Logging/ConsoleLoggingSetup.h>
 
@@ -83,6 +85,12 @@ public:
                 Return(plugin_two_settings));
 
 
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Common::FileSystem::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+
+        EXPECT_CALL(*mockFilePermissions, chmod(_,_)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, chown(_,_,_)).WillRepeatedly(Return());
         /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
