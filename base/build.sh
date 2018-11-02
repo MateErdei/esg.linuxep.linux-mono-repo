@@ -75,6 +75,10 @@ do
             BULLSEYE_UPLOAD=1
             COV_HTML_BASE=sspl-functional
             ;;
+        --bullseye-system-test-selector)
+            shift
+            export TEST_SELECTOR="--test $1"
+            ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
             ;;

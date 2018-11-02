@@ -17,6 +17,8 @@ export BASE
 [[ -n ${OUTPUT} ]] || OUTPUT=$BASE/output
 export OUTPUT
 
+[[ -n ${TEST_SELECTOR} ]] || TEST_SELECTOR=
+
 if [[ -n "$COVFILE" ]]
 then
     echo "Creating links for COVFILE $COVFILE"
@@ -97,7 +99,7 @@ fi
 ## Requires sudo permissions:
 sudo \
     --preserve-env=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE \
-    robot --loglevel TRACE --exclude manual tests
+    robot --loglevel TRACE --exclude manual ${TEST_SELECTOR} tests
 
 scp -i ${PRIVATE_KEY} /tmp/system-tests/log.html upload@allegro.eng.sophos:public_html/bullseye/sspl-systemtest-log.html
 
