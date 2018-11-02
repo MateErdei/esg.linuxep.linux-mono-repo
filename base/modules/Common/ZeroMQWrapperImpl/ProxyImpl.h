@@ -8,6 +8,7 @@
 
 
 #include "ContextHolder.h"
+#include "SocketHolder.h"
 #include "SocketUtil.h"
 
 #include <Common/ZeroMQWrapper/IProxy.h>

@@ -7,7 +7,6 @@
 
 #include "ProxyImpl.h"
 
-#include "SocketHolder.h"
 #include "SocketUtil.h"
 
 #include <zmq.h>
