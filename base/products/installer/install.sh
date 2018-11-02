@@ -160,7 +160,10 @@ function waitForProcess()
 
 function makedir()
 {
-    mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
+    if [[ ! -d $2 ]]
+    then
+        mkdir -p "$2" && chmod "$1" "$2" ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create directory: $2 with permissions: $1"
+    fi
 }
 
 function makeRootDirectory()
@@ -173,18 +176,11 @@ function makeRootDirectory()
         install_path="/"
     fi
 
-    while [ ! -d ${install_path} ]
+    while [ ! -z $install_path ] && [ ! -d ${install_path} ]
     do
         install_path=${install_path%/*}
-
-        # Make sure that the install_path string is not empty.
-        if [ -z $install_path ]
-        then
-            install_path="/"
-        fi
     done
 
-    #Extract the directories we need to create
     local createDirs=${SOPHOS_INSTALL#$install_path/}
 
     #Following loop requires trailing slash
@@ -201,7 +197,6 @@ function makeRootDirectory()
         makedir 711 $install_path
         createDirs=${createDirs#$currentDir/}
     done
-
 }
 
 if [[ $(id -u) != 0 ]]
