@@ -8,6 +8,7 @@
 
 
 #include "ContextHolder.h"
+#include "SocketUtil.h"
 
 #include <Common/ZeroMQWrapper/IProxy.h>
 
@@ -43,6 +44,7 @@ namespace Common
             std::mutex m_threadStarted;
             bool m_threadStartedFlag;
             std::condition_variable m_ensureThreadStarted;
+            SocketHolder m_controlPub;
 
             void announceThreadStarted();
 
