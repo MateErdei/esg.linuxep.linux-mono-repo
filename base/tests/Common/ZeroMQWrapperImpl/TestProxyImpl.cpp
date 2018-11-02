@@ -221,20 +221,11 @@ TEST(TestProxyImpl, 2subscribers) // NOLINT
     proxy.reset();
 }
 
-/**
- * Disabled this test because it regularly aborts or produces size 3 vectors.
- * More investigation required, since it isn't limited to inproc sockets.
- */
-TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
+TEST(TestProxyImpl, 2Senders) // NOLINT
 {
     // Need to share the context to use inproc addresses
-
-//    const std::string frontend="inproc://frontend";
-    const std::string frontend="ipc:///tmp/frontend";
-    ::unlink("/tmp/frontend");
-//    const std::string backend="inproc://backend";
-    const std::string backend="ipc:///tmp/backend";
-    ::unlink("/tmp/backend");
+    const std::string frontend="inproc://frontend";
+    const std::string backend="inproc://backend";
     IProxyPtr proxy = createProxy(frontend,backend);
     ASSERT_NE(proxy.get(),nullptr);
 
@@ -246,7 +237,11 @@ TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
     Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
 
     // Directly creating to share the same context
-    Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
+    Common::ZeroMQWrapper::ISocketPublisherPtr publisher1(
+            new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder)
+    );
+
+    Common::ZeroMQWrapper::ISocketPublisherPtr publisher2(
             new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder)
     );
 
@@ -260,12 +255,12 @@ TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
     socket->subscribeTo("FOOBAR");
 
     // Start sender thread - since we need to wait for subscription to propagate
-    SenderThread thread1(*publisher,frontend,{"FOOBAR", "DATA"});
+    SenderThread thread1(*publisher1,frontend,{"FOOBAR", "DATA"});
     thread1.start();
     bool thread1Sent = false;
 
     // Start sender thread - since we need to wait for subscription to propagate
-    SenderThread thread2(*publisher,frontend,{"FOOBAR", "OTHER"});
+    SenderThread thread2(*publisher2,frontend,{"FOOBAR", "OTHER"});
     thread2.start();
     bool thread2Sent = false;
 
@@ -286,9 +281,9 @@ TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
         } else
         {
             PRINT("Unexpected value of data.at(1): "<<v<<" @ "<<data.size()<<" @ "<<count);
-            if (data.size() == 3 || v == "FOOBAR")
+            if (data.size() == 3 )
             {
-                PRINT("Got a vector of FOOBAR,FOOBAR,"<<data.at(2));
+                PRINT("Got a vector of "<< data.at(0) <<", "<< data.at(1) << ", " << data.at(2));
             }
             else
             {
@@ -302,7 +297,8 @@ TEST(TestProxyImpl, DISABLED_2Senders) // NOLINT
 
     thread1.stop();
     thread2.stop();
-    publisher.reset();
+    publisher1.reset();
+    publisher2.reset();
 
     proxy->stop();
     proxy.reset();
