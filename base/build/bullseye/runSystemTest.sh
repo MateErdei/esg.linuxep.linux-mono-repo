@@ -96,10 +96,23 @@ fi
 
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
+HAS_TEST_SELECTOR
+
 ## Requires sudo permissions:
-sudo \
-    --preserve-env=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE \
-    robot --loglevel TRACE --exclude manual ${TEST_SELECTOR} tests
+PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE
+LOG_LEVEL=TRACE
+if [[ -n "${TEST_SELECTOR}" ]]
+then
+    sudo \
+        --preserve-env="${PRESERVE_ENV}" \
+        robot --loglevel "${LOG_LEVEL}" --exclude manual --test "${TEST_SELECTOR}" tests
+else
+    sudo \
+        --preserve-env="${PRESERVE_ENV}" \
+        robot --loglevel "${LOG_LEVEL}" --exclude manual tests
+fi
+
+echo "Tests exited with $?"
 
 scp -i ${PRIVATE_KEY} /tmp/system-tests/log.html upload@allegro.eng.sophos:public_html/bullseye/sspl-systemtest-log.html
 

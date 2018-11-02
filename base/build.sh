@@ -37,6 +37,7 @@ INPUT=$BASE/input
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
 BULLSEYE_SYSTEM_TEST_BRANCH=master
+export TEST_SELECTOR=
 
 while [[ $# -ge 1 ]]
 do
@@ -77,7 +78,7 @@ do
             ;;
         --bullseye-system-test-selector)
             shift
-            export TEST_SELECTOR="--test $1"
+            export TEST_SELECTOR="$1"
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
