@@ -99,6 +99,15 @@ void Common::ZeroMQWrapperImpl::SocketUtil::listen(Common::ZeroMQWrapperImpl::So
     }
 }
 
+void Common::ZeroMQWrapperImpl::SocketUtil::connect(SocketHolder& socket, const std::string& address)
+{
+    int rc = zmq_connect(socket.skt(), address.c_str());
+    if (rc != 0)
+    {
+        throw ZeroMQWrapperException(std::string("Failed to connect to ")+address);
+    }
+}
+
 void Common::ZeroMQWrapperImpl::SocketUtil::setTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs)
 {
     int rc = zmq_setsockopt(socket.skt(),ZMQ_RCVTIMEO,&timeoutMs, sizeof(timeoutMs));

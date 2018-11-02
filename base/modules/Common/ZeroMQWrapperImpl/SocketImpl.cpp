@@ -29,11 +29,7 @@ void Common::ZeroMQWrapperImpl::SocketImpl::setConnectionTimeout(int timeoutMs)
 
 void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string &address)
 {
-    int rc = zmq_connect(m_socket.skt(), address.c_str());
-    if (rc != 0)
-    {
-        throw ZeroMQWrapperException(std::string("Failed to connect to ")+address);
-    }
+    SocketUtil::connect(m_socket, address);
 }
 
 void Common::ZeroMQWrapperImpl::SocketImpl::listen(const std::string &address)

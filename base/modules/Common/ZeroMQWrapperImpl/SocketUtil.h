@@ -46,6 +46,12 @@ namespace Common
             static void listen(SocketHolder& socket, const std::string& address);
 
             /**
+             * Connect a socket to an address, to publish information to.
+             * @param address
+             */
+            static void connect(SocketHolder& socket, const std::string& address);
+
+            /**
              * Set the timeouts (both send and receive for a 0MQ socket.
              * @param socket
              * @param timeoutMs

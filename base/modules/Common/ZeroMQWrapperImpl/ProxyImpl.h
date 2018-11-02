@@ -37,6 +37,7 @@ namespace Common
         private:
             std::string m_frontendAddress;
             std::string m_backendAddress;
+            std::string m_controlAddress;
             ContextHolder m_context;
             std::thread m_thread;
             std::mutex m_threadStarted;

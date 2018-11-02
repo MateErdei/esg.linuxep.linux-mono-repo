@@ -23,7 +23,7 @@ Common::ZeroMQWrapper::IProxyPtr Common::ZeroMQWrapper::createProxy(const std::s
 }
 
 Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend)
-    : m_frontendAddress(frontend),m_backendAddress(backend), m_threadStartedFlag(false)
+    : m_frontendAddress(frontend),m_backendAddress(backend), m_threadStartedFlag(false), m_controlAddress("inproc://PubSubControl")
 {
 }
 
@@ -44,10 +44,14 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
 {
-    m_context.reset();
-    // Wait for thread to exit
+    // ensure that we have not already stopped
     if (m_thread.joinable())
     {
+        SocketHolder controlPub(m_context, ZMQ_PUB);
+        SocketUtil::listen(controlPub, m_controlAddress);
+        std::vector<std::string> terminate = {"TERMINATE"};
+        SocketUtil::write(controlPub, terminate);
+        // Wait for thread to exit
         m_thread.join();
     }
 }
@@ -69,17 +73,21 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::run()
 
     SocketHolder xsub(m_context, ZMQ_XSUB);
     SocketHolder xpub(m_context, ZMQ_XPUB);
+    SocketHolder controlSub(m_context, ZMQ_SUB);
 
     const int timeoutMs = 1000;
     SocketUtil::setTimeout(xsub,timeoutMs);
     SocketUtil::setTimeout(xpub,timeoutMs);
+    SocketUtil::setTimeout(controlSub,timeoutMs);
 
     SocketUtil::listen(xsub, m_frontendAddress);
     SocketUtil::listen(xpub, m_backendAddress);
+    SocketUtil::connect(controlSub, m_controlAddress);
+    zmq_setsockopt(controlSub.skt(), ZMQ_SUBSCRIBE, "", 0);
 
     announceThreadStarted();
 
-    zmq_proxy(xsub.skt(), xpub.skt(), nullptr);
+    zmq_proxy_steerable(xsub.skt(), xpub.skt(), nullptr, controlSub.skt());
 }
 
 Common::ZeroMQWrapperImpl::ContextHolder & Common::ZeroMQWrapperImpl::ProxyImpl::ctx()
