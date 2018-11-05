@@ -409,11 +409,7 @@ namespace UpdateSchedulerImpl
 
             if( i >= numberOfSeconds2Wait)
             {
-                if (pidOfSulDownloader == -1)
-                {
-                    LOGWARN("Can not issue a kill command to SulDownloader");
-                    return;
-                }
+                assert(pidOfSulDownloader > 0);
                 LOGWARN("Forcing SulDownloader (PID="<<pidOfSulDownloader<<") to stop");
                 ::kill(pidOfSulDownloader, SIGTERM);
                 return;
