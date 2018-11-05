@@ -124,7 +124,7 @@ std::chrono::seconds PluginProxy::checkForExit()
     else if (!m_enabled)
     {
         LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
-        std::chrono::seconds(5);
+        return std::chrono::seconds(5);
     }
     return std::chrono::hours(1);
 }
@@ -178,7 +178,7 @@ void PluginProxy::setEnabled(bool enabled)
 
 void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
 {
-    m_info = info;
+    m_info.copyFrom(info);
 }
 
 PluginProxy& PluginProxy::operator=(PluginProxy&& other) noexcept

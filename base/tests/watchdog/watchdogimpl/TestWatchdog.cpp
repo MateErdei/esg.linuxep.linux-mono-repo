@@ -76,7 +76,7 @@ namespace
         {
             Common::PluginRegistryImpl::PluginInfo info;
             info.setPluginName(pluginName);
-            m_pluginProxies.emplace_back(info);
+            m_pluginProxies.emplace_back(std::move(info));
         }
     };
 }

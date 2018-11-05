@@ -29,21 +29,21 @@ namespace
 TEST_F(TestPluginProxy, TestConstruction) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo info;
-    EXPECT_NO_THROW(watchdog::watchdogimpl::PluginProxy proxy(info));
+    EXPECT_NO_THROW(watchdog::watchdogimpl::PluginProxy proxy(std::move(info)));
 }
 
 TEST_F(TestPluginProxy, WontStartPluginWithoutExecutable) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo info;
 
-    watchdog::watchdogimpl::PluginProxy proxy(info);
+    watchdog::watchdogimpl::PluginProxy proxy(std::move(info));
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay.count(),3600);
 }
 
 TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
 {
-    const std::string INST=Common::ApplicationConfiguration::applicationPathManager().sophosInstall();;
+    const std::string INST=Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
     const std::string execPath = "./foobar";
     const std::string absolutePath = INST+"/foobar";
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
@@ -61,7 +61,7 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) //NOLINT
     info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
 
-    watchdog::watchdogimpl::PluginProxy proxy(info);
+    watchdog::watchdogimpl::PluginProxy proxy(std::move(info));
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::hours(1));
     Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
@@ -89,7 +89,7 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
 
-    watchdog::watchdogimpl::PluginProxy proxy(info);
+    watchdog::watchdogimpl::PluginProxy proxy(std::move(info));
     std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay,std::chrono::hours(1));
 

@@ -25,10 +25,21 @@ namespace Common
 
         class PluginInfo
         {
+        private:
+            PluginInfo(const PluginInfo&) = default;
+            PluginInfo& operator=(const PluginInfo&) = default;
+
         public:
 
             PluginInfo();
             ~PluginInfo() = default;
+            PluginInfo(PluginInfo&&) = default;
+            PluginInfo& operator=(PluginInfo&&) = default;
+
+            void copyFrom(const PluginInfo& other)
+            {
+                *this = other;
+            }
 
             using EnvPairs = Common::Process::EnvPairVector;
 

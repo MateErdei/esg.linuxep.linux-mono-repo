@@ -99,7 +99,7 @@ public:
         pluginInfo.setStatusAppIds({"app2"});
         pluginInfo.setExecutableUserAndGroup("user:group");
 
-        return pluginInfo;
+        return std::move(pluginInfo);
     }
 
     ::testing::AssertionResult pluginInfoSimilar( const char* m_expr,
@@ -711,7 +711,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataThrow
 //    expectedPluginInfo = createDefaultPluginInfo();
 //    expectedPluginInfo.setXmlTranslatorPath("");
 
-    EXPECT_THROW(
+    EXPECT_THROW( //NOLINT
             Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),""),
             Common::PluginRegistryImpl::PluginRegistryException);
 
@@ -721,7 +721,7 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringThrowsWithIncorrectP
 {
     Common::PluginRegistryImpl::PluginInfo expectedPluginInfo = createDefaultPluginInfo();
 
-    EXPECT_THROW(
+    EXPECT_THROW( //NOLINT
             Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString("",""),"FOOBAR"),
             Common::PluginRegistryImpl::PluginRegistryException);
 }
@@ -749,18 +749,18 @@ TEST_F( PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypes
     expectedPluginInfo = createDefaultPluginInfo();
     expectedPluginInfo.setXmlTranslatorPath("");
 
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),""),
-            Common::PluginRegistryImpl::PluginRegistryException);
+    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString(createJsonString(oldString, newString),""), //NOLINT
+            Common::PluginRegistryImpl::PluginRegistryException); //NOLINT
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromNonJsonStringThrows) //NOLINT
 {
-    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("Non JasonString",""), Common::PluginRegistryImpl::PluginRegistryException);
+    EXPECT_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("Non JasonString",""), Common::PluginRegistryImpl::PluginRegistryException); //NOLINT
 }
 
 TEST_F( PluginRegistryTests, pluginInfoDeserializeFromEmptyJsonStringShouldNotThrow) //NOLINT
 {
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}","sav"));
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::deserializeFromString("{}","sav")); //NOLINT
 }
 
 TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJsonFileFound) //NOLINT
@@ -773,7 +773,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJso
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
 
     // There may be times when there are no plugin config files (such as initial install)
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry()); //NOLINT
 
 }
 
@@ -792,7 +792,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenJsonF
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return(fileContent));
 
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry()); //NOLINT
 
 }
 
@@ -813,7 +813,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMulti
     EXPECT_CALL(*mockFileSystem, readFile(filename1)).WillOnce(Return(fileContent));
     EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Return(fileContent));
 
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry()); //NOLINT
 
 }
 
@@ -898,7 +898,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJs
     EXPECT_CALL(*mockFileSystem, readFile(filename2)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed to read")));
 
     // When no plugin config files are successfully read, warning should be logged but no expection should be thrown.
-    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry());
+    EXPECT_NO_THROW(Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry()); //NOLINT
 
 }
 
@@ -908,7 +908,7 @@ TEST_F(PluginRegistryTests, extractPluginNameReturnsCorrectAnswer) //NOLINT
     EXPECT_EQ(plugin,"sav");
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("root:root");
@@ -923,7 +923,7 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndG
     EXPECT_EQ(groupActual.second, 0);
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("root");
@@ -938,7 +938,7 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserStor
     EXPECT_EQ(groupActual.second, 0);
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("baduser");
@@ -956,7 +956,7 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserSt
     EXPECT_EQ(groupActual.second, invalidGroup);
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("baduser:badgroup");
@@ -974,7 +974,7 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAn
     EXPECT_EQ(groupActual.second, invalidGroup);
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("baduser:root");
@@ -992,7 +992,7 @@ TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithInvalidUserAn
     EXPECT_EQ(groupActual.second, invalidGroup);
 }
 
-TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults)
+TEST_F(PluginRegistryTests, pluginInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
     pluginInfo.setExecutableUserAndGroup("root:badgroup");

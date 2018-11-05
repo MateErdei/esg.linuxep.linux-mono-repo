@@ -206,7 +206,7 @@ std::string Watchdog::enablePlugin(const std::string &pluginName)
     {
         // Not previously loaded, but now available
         assert(loadResult.second);
-        m_pluginProxies.emplace_back(loadResult.first);
+        m_pluginProxies.emplace_back(std::move(loadResult.first));
         proxy = &m_pluginProxies.back();
     }
     else if (loadResult.second)
