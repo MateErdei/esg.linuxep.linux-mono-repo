@@ -54,12 +54,10 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
         {
             SocketUtil::write(m_controlPub, terminate);
         }
-        //Failed to close zmq_steerable_proxy with terminate message instead destroy context
         catch(const Common::ZeroMQWrapperImpl::ZeroMQTimeoutException&)
         {
             std::terminate();
         }
-        //Failed to close zmq_steerable_proxy with terminate message instead destroy context
         catch(const Common::ZeroMQWrapperImpl::ZeroMQWrapperException&)
         {
             std::terminate();
