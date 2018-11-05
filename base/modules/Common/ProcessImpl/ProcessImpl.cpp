@@ -261,7 +261,7 @@ namespace ProcessImpl
                 // Now get the exit code from the process
                 if ( m_exitcode == std::numeric_limits<int>::max())
                 {
-                    for ( int i = 0; i<10; i++)
+                    for ( int i = 0; i<100; i++)
                     {
                         // get the exit code
                         wait(Process::milli(i), 1);
