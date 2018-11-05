@@ -361,20 +361,29 @@ namespace UpdateSchedulerImpl
         int i = 0;
         while( true )
         {
-            int pidOfSulDownloader = -1;
+            int pidOfSulDownloader;
             auto iProcess = Common::Process::createProcess();
             iProcess->exec(pidOfCommand, {pathOfSulDownloader});
+
+            auto state = iProcess->wait(Common::Process::milli(5), 100);
+            if (state != Common::Process::ProcessStatus::FINISHED)
+            {
+                LOGWARN("pidof(SulDownloader) Failed to exit after 500 ms");
+                iProcess->kill();
+            }
+
             int exitCode = iProcess->exitCode();
             if ( exitCode == 1)
             {
                 // pidof returns 1 if no process with the given name is found.
                 break;
             }
-            if (exitCode != 0)
+            else if (exitCode != 0)
             {
                 LOGWARN("pidof(SulDownloader) returned "<<exitCode);
                 break;
             }
+
             std::string outputPidOf = iProcess->output();
             LOGDEBUG("Pid of SulDownloader: '" << outputPidOf<<"'");
             try
