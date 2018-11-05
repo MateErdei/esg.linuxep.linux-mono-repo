@@ -8,6 +8,8 @@
 #include "ProxyImpl.h"
 
 #include "SocketUtil.h"
+#include "ZeroMQWrapperException.h"
+#include "ZeroMQTimeoutException.h"
 
 #include <zmq.h>
 #include <cassert>
@@ -48,7 +50,20 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
     if (m_thread.joinable())
     {
         std::vector<std::string> terminate = {"TERMINATE"};
-        SocketUtil::write(m_controlPub, terminate);
+        try
+        {
+            SocketUtil::write(m_controlPub, terminate);
+        }
+        //Failed to close zmq_steerable_proxy with terminate message instead destroy context
+        catch(const Common::ZeroMQWrapperImpl::ZeroMQTimeoutException&)
+        {
+            std::terminate();
+        }
+        //Failed to close zmq_steerable_proxy with terminate message instead destroy context
+        catch(const Common::ZeroMQWrapperImpl::ZeroMQWrapperException&)
+        {
+            std::terminate();
+        }
         // Wait for thread to exit
         m_thread.join();
     }
