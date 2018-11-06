@@ -1,5 +1,7 @@
 
-include_directories(${plugin_name} ${pluginapiinclude}  ${CMAKE_SOURCE_DIR})
+configure_file(config.h.in config.h )
+
+include_directories(${plugin_name} ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(${plugin_name}
         main.cpp
         FileSystem.cpp
