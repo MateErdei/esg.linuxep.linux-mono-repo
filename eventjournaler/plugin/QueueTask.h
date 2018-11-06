@@ -15,7 +15,7 @@ namespace Example
 {
     struct Task
     {
-        enum class TaskType{ScanNow, Policy, Stop};
+        enum class TaskType{Policy, Stop};
         TaskType  taskType;
         std::string Content;
     };
