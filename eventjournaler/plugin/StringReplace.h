@@ -9,7 +9,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Example
+namespace TemplatePlugin
 {
     using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
 

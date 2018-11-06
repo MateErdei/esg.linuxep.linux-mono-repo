@@ -11,7 +11,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <mutex>
 #include <list>
 
-namespace Example
+namespace TemplatePlugin
 {
     struct Task
     {
