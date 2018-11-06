@@ -1,4 +1,8 @@
 
+
+configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
+configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
+
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
         COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
         )
