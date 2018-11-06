@@ -1,6 +1,4 @@
 
-set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-Example)
-
 configure_file(install.sh.in ${PROJECT_BINARY_DIR}/install.sh @ONLY )
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json @ONLY )
 configure_file(uninstall.sh.in ${PROJECT_BINARY_DIR}/uninstall.sh @ONLY )
