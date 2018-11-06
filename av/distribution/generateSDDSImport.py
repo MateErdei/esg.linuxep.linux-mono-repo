@@ -8,12 +8,12 @@ import xml.dom.minidom
 TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <ComponentData>
   <Component>
-    <Name>SSPL-EXAMPLEPLUGIN</Name>
+    <Name></Name>
     <RigidName></RigidName>
     <Version></Version>
     <Build>1</Build>
     <ProductType>Component</ProductType>
-    <DefaultHomeFolder>sspl-exampleplugin</DefaultHomeFolder>
+    <DefaultHomeFolder></DefaultHomeFolder>
     <TargetTypes>
       <TargetType Name="ENDPOINT"/>
     </TargetTypes>
@@ -101,6 +101,32 @@ def readVersionIniFile():
     print ("Failed to get AutoVersion from {}".format(autoVersionFile))
     return "0.5.0"
 
+def getPluginName():
+    temp = os.environ.get("PLUGIN_NAME",None)
+    if temp is not None:
+        return temp
+
+    try:
+        return open("PLUGIN_NAME").read().strip()
+    except EnvironmentError as e:
+        print("Failed to read plugin name from PLUGIN_NAME",e,"in",os.getcwd())
+        pass
+
+    return  "SSPL-EXAMPLEPLUGIN"
+
+def getRigidName():
+    temp = os.environ.get("PRODUCT_LINE_ID",None)
+    if temp is not None:
+        return temp
+
+    try:
+        return open("RIGID_NAME").read().strip()
+    except EnvironmentError as e:
+        print("Failed to read rigid name from RIGID_NAME",e,"in",os.getcwd())
+        pass
+
+    return "ServerProtectionLinux-Plugin-Example"
+
 
 def generate_sdds_import(dist, file_objects):
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
@@ -108,7 +134,8 @@ def generate_sdds_import(dist, file_objects):
     tidyXml(doc)
 
     fullVersion = readVersionIniFile()
-    rigidName = os.environ.get("RIGID_NAME", "ServerProtectionLinux-Plugin-Example")
+    rigidName = getRigidName()
+    PLUGIN_NAME = getPluginName()
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
@@ -123,6 +150,8 @@ def generate_sdds_import(dist, file_objects):
 
     setTextInTag(doc, "Version", fullVersion)
     setTextInTag(doc, "RigidName", rigidName)
+    setTextInTag(doc, "Name", PLUGIN_NAME)
+    setTextInTag(doc, "DefaultHomeFolder", PLUGIN_NAME)
 
     token = rigidName+"#"+fullVersion
     setTextInTag(doc, "Token", token)
@@ -130,7 +159,7 @@ def generate_sdds_import(dist, file_objects):
     shortDescription = fullVersion
     setTextInTag(doc, "ShortDesc", shortDescription)
 
-    longDescription = "Sophos Server Protection for Linux v%s"%fullVersion
+    longDescription = "Sophos Server Protection for Linux Plugin %s v%s"%(PLUGIN_NAME, fullVersion)
     setTextInTag(doc, "LongDesc", longDescription)
 
 
