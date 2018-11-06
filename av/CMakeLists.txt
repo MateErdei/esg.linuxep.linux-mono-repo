@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl_template_plugin)
 
-set(PLUGIN_NAME TemplatePlugin)
+if(NOT DEFINED PLUGIN_NAME)
+    set(PLUGIN_NAME TemplatePlugin)
+endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
-set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-Template)
+if(NOT DEFINED PRODUCT_LINE_ID)
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-Template)
+endif()
 
 set(CMAKE_CXX_STANDARD 11)
 
