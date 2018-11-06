@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-exampleplugin" version="0.5.0">
+<package name="sspl-template-plugin" version="0.5.0">
     <versioning>
-        <workingdir>sspl-exampleplugin-build/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-template-plugin-build/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-exampleplugin-build</workingdir>
+        <workingdir>sspl-template-plugin-build</workingdir>
         <package name="sspl-base" version="0-5-0-35/213140/output" dest="input">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
@@ -24,12 +24,12 @@
         <command>
             <program>/bin/bash</program>
             <args>./build.sh</args>
-            <workingdir>sspl-exampleplugin-build</workingdir>
+            <workingdir>sspl-template-plugin-build</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-exampleplugin-build</workingdir>
-        <destdir>sspl-exampleplugin</destdir>
+        <workingdir>sspl-template-plugin-build</workingdir>
+        <destdir>sspl-template-plugin</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
