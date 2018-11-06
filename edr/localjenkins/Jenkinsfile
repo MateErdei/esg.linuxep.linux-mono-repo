@@ -1,5 +1,7 @@
+def PLUGIN_NAME = "TemplatePlugin"
+
 environment {
-    PLUGIN_NAME = "TemplatePlugin"
+    PLUGIN_NAME = "${PLUGIN_NAME}"
 }
 
 def buildUsingScript()
