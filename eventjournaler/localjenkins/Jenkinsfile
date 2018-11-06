@@ -32,7 +32,7 @@ pipeline {
             }
             post {
                 success {
-                    copyOutputToFiler(${PLUGIN_NAME})
+                    copyOutputToFiler("${PLUGIN_NAME}")
                 }
             }
         }
