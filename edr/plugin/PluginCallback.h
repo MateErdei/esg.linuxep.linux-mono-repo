@@ -9,7 +9,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "IPluginCallbackApi.h"
 #include "QueueTask.h"
 
-namespace Example
+namespace TemplatePlugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
