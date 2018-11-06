@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PRODUCT=ExamplePlugin
+PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
