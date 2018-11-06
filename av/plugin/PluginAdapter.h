@@ -10,7 +10,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "IBaseServiceApi.h"
 #include "PluginCallback.h"
 
-namespace Example
+namespace TemplatePlugin
 {
     class PluginAdapter
     {

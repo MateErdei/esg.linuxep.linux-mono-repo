@@ -8,7 +8,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 
-namespace Example
+namespace TemplatePlugin
 {
 
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) :
