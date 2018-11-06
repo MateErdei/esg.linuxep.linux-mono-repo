@@ -4,6 +4,8 @@ project(sspl_template_plugin)
 set(PLUGIN_NAME TemplatePlugin)
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
+set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-Template)
+
 set(CMAKE_CXX_STANDARD 11)
 
 set(REL_DIST sdds)
