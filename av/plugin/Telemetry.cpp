@@ -16,20 +16,6 @@ namespace Example
         return telemetry;
     }
 
-    void Telemetry::updateWithReport(const ScanReport &scanReport)
-    {
-        time_t timespan = scanReport.getFinishTime()-scanReport.getStartTime();
-        if (timespan != 0 )
-        {
-            double performance = scanReport.getTotalMemoryMB()/(timespan);
-            double accumulatedPerformance = (m_info.AvgPerformance * m_info.NoScans + performance) / (m_info.NoScans + 1);
-            m_info.AvgPerformance = accumulatedPerformance;
-        }
-        m_info.NoScans++;
-        m_info.NoInfections += scanReport.getInfections().size();
-        m_info.NoFilesScanned += scanReport.getNoFilesScanned();
-    }
-
     std::string Telemetry::getJson() const
     {
         std::string jsonTemplate{R"sophos({
