@@ -8,23 +8,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 
-namespace
-{
-    bool isScanNow(const std::string & actionXml)
-    {
-        return actionXml.find("type=\"ScanNow\"") != std::string::npos;
-    }
-
-    bool isValidSAVAction(const std::string & actionXml)
-    {
-        if (actionXml.find("sophos.mgt.action") != std::string::npos)
-        {
-            return true;
-        }
-        return isScanNow(actionXml);
-    }
-}
-
 namespace Example
 {
 
@@ -50,14 +33,6 @@ namespace Example
     void PluginCallback::queueAction(const std::string &actionXml)
     {
         LOGSUPPORT("Queueing action");
-        if ( !isValidSAVAction(actionXml))
-        {
-            throw std::logic_error("Received invalid action for SAV app");
-        }
-        if( isScanNow(actionXml))
-        {
-            m_task->push( Task{Task::TaskType::ScanNow} );
-        }
     }
 
     void PluginCallback::onShutdown()

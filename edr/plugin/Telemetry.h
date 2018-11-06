@@ -6,7 +6,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ScanReport.h"
+#include <string>
 
 namespace Example
 {
@@ -28,7 +28,6 @@ namespace Example
 
     public:
         static Telemetry & instance();
-        void updateWithReport(const ScanReport & scanReport);
         std::string getJson() const;
         void clear();
     };

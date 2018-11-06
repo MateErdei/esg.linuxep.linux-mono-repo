@@ -10,16 +10,8 @@ add_executable(${plugin_name}
         QueueTask.h
         Logger.h
         Logger.cpp
-        FileScanner.cpp
-        FileScanner.h
-        ScanReport.cpp
-        ScanReport.h
-        ScannerSettings.cpp
-        ScannerSettings.h
         PluginAdapter.cpp
         PluginAdapter.h
-        EventBuilder.cpp
-        EventBuilder.h
         StringReplace.cpp
         StringReplace.h
         Telemetry.cpp
