@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+# Copyright 2018 Sophos Limited.  All rights reserved.
+
+EXIT_FAIL_CREATE_DIRECTORY=10
+EXIT_FAIL_FIND_GROUPADD=11
+EXIT_FAIL_ADD_GROUP=12
+EXIT_FAIL_FIND_USERADD=13
+EXIT_FAIL_ADDUSER=14
+EXIT_FAIL_FIND_GETENT=15
+EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
+EXIT_FAIL_WDCTL_FAILED_TO_START=17
+EXIT_FAIL_VERSIONEDCOPY=20
+
+STARTINGDIR=$(pwd)
+SCRIPTDIR=${0%/*}
+if [[ "$SCRIPTDIR" == "$0" ]]
+then
+    SCRIPTDIR=${STARTINGDIR}
+fi
+
+ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+
+[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
+[[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
+
+failure()
+{
+    local CODE=$1
+    shift
+    echo "$@" >&2
+    exit $CODE
+}
+export DIST
+export SOPHOS_INSTALL
+export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
+
+PLUGIN_NAME=@PLUGIN_NAME@
+
+USER_NAME=sophos-spl-user
+GROUP_NAME=sophos-spl-group
+
+#In case this is an upgrade request the watchdog stops the plugin
+"${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}"
+
+[[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
+
+#Create plugin registration file
+TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
+sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" >  "${TEMP_REG_FILE}"
+"${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
+rm -f ${TEMP_REG_FILE}
+
+#Install files
+for F in $(find $DIST/files/plugins -type f)
+do
+    $SOPHOS_INSTALL/base/bin/versionedcopy $F || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy $F to installation"
+done
+
+chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
+chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+
+# The Product Line ID will need defining as the sym link below is used for identifying the product during uninstall
+# The Product Line ID should come from a file.
+PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-Example"
+ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+
+#After install start the plugin
+"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
