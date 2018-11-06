@@ -2,6 +2,9 @@
 
 # Copyright 2018 Sophos Limited.  All rights reserved.
 
+PLUGIN_NAME=@PLUGIN_NAME@
+PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
+
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
 EXIT_FAIL_ADD_GROUP=12
@@ -35,8 +38,6 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-PLUGIN_NAME=@PLUGIN_NAME@
-
 USER_NAME=sophos-spl-user
 GROUP_NAME=sophos-spl-group
 
@@ -60,9 +61,6 @@ done
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
-# The Product Line ID will need defining as the sym link below is used for identifying the product during uninstall
-# The Product Line ID should come from a file.
-PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-Example"
 ln -s -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 #After install start the plugin

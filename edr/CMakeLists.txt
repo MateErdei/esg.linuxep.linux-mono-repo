@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(everest_exampleplugin)
+project(sspl_template_plugin)
 
-set(PLUGIN_NAME ExamplePlugin)
+set(PLUGIN_NAME TemplatePlugin)
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 set(CMAKE_CXX_STANDARD 11)
