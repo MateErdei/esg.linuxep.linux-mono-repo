@@ -24,7 +24,11 @@ Common::ZeroMQWrapper::IProxyPtr Common::ZeroMQWrapper::createProxy(const std::s
 }
 
 Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend)
-    : m_frontendAddress(frontend),m_backendAddress(backend), m_threadStartedFlag(false), m_controlAddress("inproc://PubSubControl"), m_controlPub(m_context, ZMQ_PUSH)
+    :   m_frontendAddress(frontend),
+        m_backendAddress(backend),
+        m_controlAddress("inproc://PubSubControl"),
+        m_threadStartedFlag(false),
+        m_controlPub(m_context, ZMQ_PUSH)
 {
     SocketUtil::listen(m_controlPub, m_controlAddress);
 }
