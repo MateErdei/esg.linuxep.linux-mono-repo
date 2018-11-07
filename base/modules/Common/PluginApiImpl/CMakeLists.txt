@@ -50,16 +50,46 @@ INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 
-file(GLOB_RECURSE pluginapiheaders
-        ../PluginApi/* )
-
 add_custom_target(
         plugintar
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${pluginapiheaders} pluginapi/include
+        COMMAND mkdir -p pluginapi/include/Common/ApplicationConfiguration
+        COMMAND mkdir -p pluginapi/include/Common/FileSystem
+        COMMAND mkdir -p pluginapi/include/Common/Logging
+        COMMAND mkdir -p pluginapi/include/Common/PluginApi
+        COMMAND mkdir -p pluginapi/include/Common/Reactor
+        COMMAND mkdir -p pluginapi/include/Common/Threads
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
+)
+
+function(add_copy_directory base)
+    file(GLOB_RECURSE tempfiles
+            LIST_DIRECTORIES false
+            ../../${base}/*.h
+            )
+    add_custom_command(
+            TARGET plugintar
+            POST_BUILD
+#            COMMAND echo ${base}
+#            COMMAND echo ${tempfiles}
+            COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} pluginapi/include/${base}/
+    )
+endfunction()
+
+add_copy_directory(Common/ApplicationConfiguration)
+add_copy_directory(Common/FileSystem)
+add_copy_directory(Common/Logging)
+add_copy_directory(Common/PluginApi)
+add_copy_directory(Common/Reactor)
+add_copy_directory(Common/Threads)
+
+
+add_custom_command(
+        TARGET plugintar
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E tar czf pluginapi.tar.gz pluginapi
         COMMAND rm -rf pluginapi
 )
