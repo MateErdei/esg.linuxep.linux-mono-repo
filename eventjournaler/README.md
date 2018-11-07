@@ -17,6 +17,7 @@ Fork this repo for each new plugin then in the new repo:
 * Alter localjenkins/Jenkinsfile to the new name
 * Alter build-files/release-package.xml to the new name
 * Alter CMakeLists.txt to the new name and rigid ID
+* Run tools/changeNamespace.sh <namespace> to change the namespace of plugin/*
 * Add to Local Jenkins builds
 * Add to Artisan CI builds
 
