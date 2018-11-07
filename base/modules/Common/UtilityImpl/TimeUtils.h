@@ -7,11 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <ctime>
+#include <chrono>
 
 namespace Common
 {
     namespace UtilityImpl
     {
+        //using delayTimestampPair = std::pair<std::chrono::minutes, time_t>;
         /**
          * To enable tests that need to provide some fixed timestamp.
          */
@@ -25,8 +27,11 @@ namespace Common
 
         class TimeUtils
         {
+
         public:
             static std::time_t getCurrTime() ;
+            static std::tm getLocalTime();
+            //static delayTimestampPair calculateTimestampFromWeekdayAndTime(const std::string& weekday, const std::string& time);
             static std::string getBootTime();
             static std::time_t getBootTimeAsTimet();
 

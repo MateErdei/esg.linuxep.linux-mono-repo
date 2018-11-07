@@ -314,6 +314,7 @@ TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
     EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*cron, setScheduledUpdate(false));
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
@@ -346,6 +347,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
     EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*cron, setScheduledUpdate(false));
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
@@ -369,7 +371,6 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
 
 }
 
-
 TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
 {
     MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
@@ -382,6 +383,7 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
     // update now restart the chron time
     EXPECT_CALL(*cron, reset());
     EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*cron, setScheduledUpdate(false));
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*runner, triggerSulDownloader());
     auto& fileSystemMock = setupFileSystemMock();

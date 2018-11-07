@@ -173,6 +173,49 @@ static const std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
 </AUConfigurations>
 )sophos"};
 
+static const std::string updatePolicyWithScheduledUpdate{R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+  <AUConfig platform="Linux">
+    <sophos_address address="http://es-web.sophos.com/update"/>
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="54m5ung" UserName="QA940267" UseSophos="true" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="2" ProxyUserPassword="CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=" ProxyUserName="TestUser" ProxyPortNumber="8080" ProxyAddress="uk-abn-wpan-1.green.sophos" AllowLocalConfig="false"/>
+    </primary_location>
+    <secondary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </secondary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
+    <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+    <bootstrap Location="" UsePrimaryServerAddress="true"/>
+    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
+    </cloud_subscriptions>
+    <delay_supplements enabled="true"/>
+    <delay_updating Day="Wednesday" Time="17:00:00"/>
+  </AUConfig>
+  <Features>
+    <Feature id="APPCNTRL"/>
+    <Feature id="AV"/>
+    <Feature id="CORE"/>
+    <Feature id="DLP"/>
+    <Feature id="DVCCNTRL"/>
+    <Feature id="EFW"/>
+    <Feature id="HBT"/>
+    <Feature id="MTD"/>
+    <Feature id="NTP"/>
+    <Feature id="SAV"/>
+    <Feature id="SDU"/>
+    <Feature id="WEBCNTRL"/>
+  </Features>
+  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+  <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+</AUConfigurations>
+)sophos"};
+
 static const std::string incorrectPolicyTypeXml{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
@@ -291,6 +334,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, false);
 
 }
 
@@ -345,6 +389,47 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                                           "2"}};
     EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, false);
+}
+
+TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "QA940267");
+    EXPECT_EQ(config.getCredentials().getPassword(), "54m5ung");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
+    EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
+    EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
+    EXPECT_EQ(config.getProductSelection()[0].Primary, true);
+    EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
+
+    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
+    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
+    EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
+    EXPECT_EQ(config.getProductSelection()[1].Primary, false);
+    EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
+
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, true);
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_wday, 3);
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_hour, 17);
+    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_min, 0);
 }
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT

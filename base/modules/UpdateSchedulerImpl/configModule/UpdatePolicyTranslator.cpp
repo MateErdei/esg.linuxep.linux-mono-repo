@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include <algorithm>
 #include <regex>
@@ -99,6 +100,20 @@ namespace UpdateSchedulerImpl
                 config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
             }
 
+            std::pair<std::tm, bool> scheduledUpdateTime;
+            scheduledUpdateTime.second = false;
+
+            auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
+            std::string delayUpdatingDay = delayUpdating.value("Day");
+            std::string delayUpdatingTime = delayUpdating.value("Time");
+            if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
+            {
+                std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
+                if(strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime.first))
+                {
+                    scheduledUpdateTime.second = true;
+                }
+            }
 
             auto primaryProxy = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/proxy");
             std::string proxyAddress = primaryProxy.value("ProxyAddress");
@@ -147,7 +162,7 @@ namespace UpdateSchedulerImpl
                 periodInt = std::stoi(period);
             }
 
-            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt)};
+            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt), scheduledUpdateTime};
         }
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const

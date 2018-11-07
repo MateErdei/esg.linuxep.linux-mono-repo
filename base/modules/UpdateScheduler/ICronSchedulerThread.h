@@ -25,5 +25,9 @@ namespace UpdateScheduler
         virtual void reset() = 0;
 
         virtual void setPeriodTime(DurationTime repeatPeriod) = 0;
+
+        virtual void setScheduledUpdate(bool enabled) = 0;
+
+        virtual void setScheduledUpdateTime(std::tm time) = 0;
     };
 }

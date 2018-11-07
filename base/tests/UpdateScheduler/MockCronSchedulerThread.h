@@ -23,4 +23,8 @@ public:
     MOCK_METHOD0(reset, void());
 
     MOCK_METHOD1(setPeriodTime, void(UpdateScheduler::ICronSchedulerThread::DurationTime));
+
+    MOCK_METHOD1(setScheduledUpdate, void(bool));
+
+    MOCK_METHOD1(setScheduledUpdateTime, void(std::tm));
 };

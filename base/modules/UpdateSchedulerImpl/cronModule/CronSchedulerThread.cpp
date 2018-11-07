@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include <cassert>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -55,6 +56,18 @@ namespace UpdateSchedulerImpl
             m_periodTick = repeatPeriod;
         }
 
+        void CronSchedulerThread::setScheduledUpdate(bool enabled)
+        {
+            std::lock_guard<std::mutex> lock(m_sharedState);
+            m_scheduledUpdate = enabled;
+        }
+
+        void CronSchedulerThread::setScheduledUpdateTime(std::tm time)
+        {
+            std::lock_guard<std::mutex> lock(m_sharedState);
+            m_scheduledUpdateTime = time;
+        }
+
         void CronSchedulerThread::run()
         {
             std::chrono::milliseconds timeToWait = m_firstTick;
@@ -83,8 +96,22 @@ namespace UpdateSchedulerImpl
 
                 if (poll_result.empty())
                 {
-                    // timeout means a new tick. Hence, create the sheduler update
-                    m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                    // timeout means a new tick. Hence, create the scheduler update
+                    if (!m_scheduledUpdate)
+                    {
+                        m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                    }
+                    else
+                    {
+                        std::tm now = Common::UtilityImpl::TimeUtils::getLocalTime();
+                        std::tm then = m_scheduledUpdateTime;
+                        if ((now.tm_wday == then.tm_wday) &&
+                            (now.tm_hour == then.tm_hour) &&
+                            (now.tm_min == then.tm_min))
+                        {
+                            m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                        }
+                    }
                 }
                 else
                 {

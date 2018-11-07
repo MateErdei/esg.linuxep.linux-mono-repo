@@ -121,7 +121,17 @@ namespace UpdateSchedulerImpl
 
             UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
 
-            m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
+            if (settingsHolder.scheduledUpdateTime.second)
+            {
+                m_cronThread->setPeriodTime(std::chrono::minutes(1));
+                m_cronThread->setScheduledUpdateTime(settingsHolder.scheduledUpdateTime.first);
+                m_cronThread->setScheduledUpdate(true);
+            }
+            else
+            {
+                m_cronThread->setScheduledUpdate(false);
+                m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
+            }
 
             writeConfigurationData(settingsHolder.configurationData);
 
@@ -211,6 +221,7 @@ namespace UpdateSchedulerImpl
 
         LOGSUPPORT("Process reports to get events and status.");
         ReportAndFiles reportAndFiles = configModule::DownloadReportsAnalyser::processReports();
+        // get last sync
 
         if (reportAndFiles.sortedFilePaths.empty())
         {

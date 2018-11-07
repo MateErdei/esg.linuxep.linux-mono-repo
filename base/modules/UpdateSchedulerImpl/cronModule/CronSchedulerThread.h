@@ -34,7 +34,11 @@ namespace UpdateSchedulerImpl
 
             void reset() override;
 
-            void setPeriodTime(DurationTime repeatPeriod);
+            void setPeriodTime(DurationTime repeatPeriod) override;
+
+            void setScheduledUpdate(bool enabled) override;
+
+            void setScheduledUpdateTime(std::tm time) override;
 
         private:
             void run() override;
@@ -53,6 +57,8 @@ namespace UpdateSchedulerImpl
             DurationTime m_firstTick;
             DurationTime m_periodTick;
             ActionOnInterrupt m_actionOnInterrupt;
+            std::tm m_scheduledUpdateTime;
+            bool m_scheduledUpdate;
         };
     }
 

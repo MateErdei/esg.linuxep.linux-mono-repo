@@ -19,6 +19,7 @@ namespace UpdateSchedulerImpl
             SulDownloader::suldownloaderdata::ConfigurationData configurationData;
             std::string updateCacheCertificatesContent;
             std::chrono::minutes schedulerPeriod;
+            std::pair<std::tm, bool> scheduledUpdateTime;
         };
 
         class PolicyValidationException : public Common::Exceptions::IException
