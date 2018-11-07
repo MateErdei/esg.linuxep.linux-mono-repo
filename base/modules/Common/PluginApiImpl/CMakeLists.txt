@@ -86,6 +86,17 @@ add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/Threads)
 
+file(GLOB_RECURSE distributionfiles
+        LIST_DIRECTORIES false
+        ${CMAKE_SOURCE_DIR}/products/distribution/*.py
+        )
+
+add_custom_command(
+        TARGET plugintar
+        POST_BUILD
+        COMMAND mkdir -p pluginapi/distribution
+        COMMAND ${CMAKE_COMMAND} -E copy ${distributionfiles} pluginapi/distribution/
+)
 
 add_custom_command(
         TARGET plugintar
