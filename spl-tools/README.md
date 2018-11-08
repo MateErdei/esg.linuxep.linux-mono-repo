@@ -12,7 +12,7 @@ Install vagrant: ./setup/installvagrant.sh
 Setup the vagrant machine: 
 Run: vagrant up 
 
-
+Install sav *./setup/installsav.sh*
 
 Helper scripts
 --------------
