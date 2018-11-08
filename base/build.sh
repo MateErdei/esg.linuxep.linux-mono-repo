@@ -1,5 +1,8 @@
 #!/bin/bash
 PRODUCT=sspl-base
+export PRODUCT_NAME="Sophos Server Protection Linux - Base"
+export PRODUCT_LINE_ID="ServerProtectionLinux-Base"
+export DEFAULT_HOME_FOLDER="sspl-base"
 
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
@@ -258,7 +261,14 @@ function build()
     echo "export PATH=$PATH" >>env
 
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -v \
+        -DPRODUCT_NAME="${PRODUCT_NAME}" \
+        -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
+        -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
+        -DREDIST="${REDIST}" \
+        -DINPUT="${REDIST}" \
+        .. \
+        || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
 
     if (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))

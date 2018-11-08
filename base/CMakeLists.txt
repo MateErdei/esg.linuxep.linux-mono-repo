@@ -8,6 +8,16 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")
 enable_testing()
 
+if(NOT DEFINED PRODUCT_NAME)
+    set(PRODUCT_NAME Sophos Server Protection Linux - Base)
+endif()
+if(NOT DEFINED PRODUCT_LINE_ID)
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Base)
+endif()
+if(NOT DEFINED DEFAULT_HOME_FOLDER)
+    set(DEFAULT_HOME_FOLDER sspl-base)
+endif()
+
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 

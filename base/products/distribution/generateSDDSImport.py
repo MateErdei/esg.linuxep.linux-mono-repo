@@ -8,12 +8,12 @@ import xml.dom.minidom
 TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <ComponentData>
   <Component>
-    <Name>Sophos Server Protection Linux - Base</Name>
+    <Name></Name>
     <RigidName></RigidName>
     <Version></Version>
     <Build>1</Build>
     <ProductType>Component</ProductType>
-    <DefaultHomeFolder>sspl-base</DefaultHomeFolder>
+    <DefaultHomeFolder></DefaultHomeFolder>
     <TargetTypes>
       <TargetType Name="ENDPOINT"/>
     </TargetTypes>
@@ -98,16 +98,42 @@ def readVersionIniFile():
             for line in f.readlines():
                 if "ComponentAutoVersion=" in line:
                     return line.strip().split("=")[1]
-    print ("Failed to get AutoVersion from {}".format(autoVersionFile))
+    print ("Failed to get AutoVersion from {}, using default".format(autoVersionFile))
     return "0.5.0"
+
+def getVariable(environmentVariable, fileName, variableName, defaultValue):
+    temp = os.environ.get(environmentVariable, None)
+    if temp is not None:
+        return temp
+
+    try:
+        return open(fileName).read().strip()
+    except EnvironmentError as e:
+        print("Failed to read", variableName, "from", fileName, "in", os.getcwd(), ":", e, ", using default:",
+              defaultValue)
+        pass
+
+    return defaultValue
+
+def getProductName():
+    temp = os.environ.get("PLUGIN_NAME", None)
+    if temp is not None:
+        return temp
+
+    return getVariable("PRODUCT_NAME", "PRODUCT_NAME", "Product/Plugin Name", "Sophos Server Protection Linux - Base")
+
+def getRigidName():
+    return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base")
 
 def generate_sdds_import(dist, file_objects):
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
     doc = xml.dom.minidom.parseString(TEMPLATE)
     tidyXml(doc)
 
+    productName = getProductName()
     fullVersion = readVersionIniFile()
-    rigidName = os.environ.get("RIGID_NAME", "ServerProtectionLinux-Base")
+    rigidName = getRigidName()
+    defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
@@ -120,8 +146,10 @@ def generate_sdds_import(dist, file_objects):
         elif base == "rigidName":
             rigidName = f.contents().strip()
 
-    setTextInTag(doc, "Version", fullVersion)
     setTextInTag(doc, "RigidName", rigidName)
+    setTextInTag(doc, "Version", fullVersion)
+    setTextInTag(doc, "Name", productName)
+    setTextInTag(doc, "DefaultHomeFolder", defaultHomeFolder)
 
     token = rigidName+"#"+fullVersion
     setTextInTag(doc, "Token", token)
@@ -129,7 +157,7 @@ def generate_sdds_import(dist, file_objects):
     shortDescription = fullVersion
     setTextInTag(doc, "ShortDesc", shortDescription)
 
-    longDescription = "Sophos Server Protection for Linux v%s"%fullVersion
+    longDescription = "Sophos Server Protection for Linux v%s" % fullVersion
     setTextInTag(doc, "LongDesc", longDescription)
 
 

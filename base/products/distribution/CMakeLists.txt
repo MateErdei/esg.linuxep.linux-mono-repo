@@ -1,4 +1,9 @@
 
+
+configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
+configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
+configure_file(DEFAULT_HOME_FOLDER.in DEFAULT_HOME_FOLDER @ONLY )
+
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libstdc++.so
         OUTPUT_VARIABLE libstdcpp_path)
 string(STRIP "${libstdcpp_path}" libstdcpp_path )
