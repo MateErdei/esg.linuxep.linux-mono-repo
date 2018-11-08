@@ -25,15 +25,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <csignal>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
 
 
 using namespace Common;
 
 namespace
 {
-    static std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
+    std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
 
-    static void s_signal_handler (int signal_value)
+    void s_signal_handler (int signal_value)
     {
         if ( !GL_signalPipe)
         {
@@ -69,11 +70,13 @@ namespace ManagementAgent
 
         void ManagementAgentMain::initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
         {
-            LOGDEBUG("Initializing Management Agent");
+            LOGINFO("Initializing Management Agent");
 
             m_pluginManager = &pluginManager;
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
             m_statusCache->loadCacheFromDisk();
+
+            initialiseDataChannelRouter();
             // order is important.
             loadPlugins();
             initialiseTaskQueue();
@@ -116,6 +119,13 @@ namespace ManagementAgent
             m_directoryWatcher->addListener(*m_policyListener);
             m_directoryWatcher->addListener(*m_actionListener);
 
+        }
+
+        void ManagementAgentMain::initialiseDataChannelRouter()
+        {
+            m_dataChannelRouter = Common::ZeroMQWrapper::createProxy(
+                                  Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
+                                  Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());
         }
 
         void ManagementAgentMain::initialisePluginReceivers()
@@ -202,7 +212,7 @@ namespace ManagementAgent
 
         int ManagementAgentMain::run()
         {
-            LOGDEBUG("Management Agent starting.. ");
+            LOGINFO("Management Agent starting.. ");
 
             // Setup SIGNAL handling for shutdown.
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
@@ -213,16 +223,18 @@ namespace ManagementAgent
             action.sa_handler = s_signal_handler;
             action.sa_flags = 0;
             sigemptyset (&action.sa_mask);
-            sigaction (SIGINT, &action, NULL);
-            sigaction (SIGTERM, &action, NULL);
+            sigaction (SIGINT, &action, nullptr);
+            sigaction (SIGTERM, &action, nullptr);
 
             shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
             // start running background threads
+            m_dataChannelRouter->start();
             m_taskQueueProcessor->start();
             m_directoryWatcher->startWatch();
 
-            LOGDEBUG("Management Agent running.");
+
+            LOGINFO("Management Agent running.");
 
             bool running = true;
             while(running)
@@ -235,6 +247,7 @@ namespace ManagementAgent
             }
 
             // pre-pare and stop back ground threads
+            m_dataChannelRouter->stop();
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
             m_taskQueueProcessor->stop();

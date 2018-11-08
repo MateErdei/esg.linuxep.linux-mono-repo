@@ -12,6 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <Common/TaskQueue/ITaskProcessor.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
+
 
 namespace ManagementAgent
 {
@@ -27,6 +29,7 @@ namespace ManagementAgent
             void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             void loadPlugins();
             void initialiseTaskQueue();
+            void initialiseDataChannelRouter();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
             void sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins);
@@ -37,6 +40,7 @@ namespace ManagementAgent
             void test_request_stop();
 
             ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
+            Common::ZeroMQWrapper::IProxyPtr m_dataChannelRouter;
 
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_policyListener;
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_actionListener;
@@ -55,7 +59,6 @@ namespace ManagementAgent
              * Remember the original parent PID so that we can exit if it changes.
              */
             pid_t m_ppid;
-
         };
     }
 }
