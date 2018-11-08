@@ -16,7 +16,7 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="log4cpluslinux11" version="1-2-0-3/213106/output" dest="input">
+        <package name="log4cpluslinux11" version="2-0-2-4/213727/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
     </inputs>
