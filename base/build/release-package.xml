@@ -38,7 +38,7 @@
         <package name="zeromqlinux11" version="4-2-5-3/213082/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
-        <package name="log4cpluslinux11" version="1-2-0-3/213106/output" dest="input">
+        <package name="log4cpluslinux11" version="2-0-2-4/213727/output" dest="input">
             <include src="log4cplus.tar" dest="."/>
         </package>
         <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
