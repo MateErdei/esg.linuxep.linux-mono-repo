@@ -20,12 +20,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <csignal>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
 
 
 using namespace Common;
