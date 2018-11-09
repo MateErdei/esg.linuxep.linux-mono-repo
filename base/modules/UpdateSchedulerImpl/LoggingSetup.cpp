@@ -45,9 +45,8 @@ namespace
         // std::string pattern("%d{%m/%d/%y  %H:%M:%S}  - %m [%l]%n");
         const char* pattern = "%-7r [%d{%Y-%m-%dT%H:%M:%S.%Q}] %5p [%10.10t] %c <> %m%n";
 
-        // Has to be an auto_ptr since the setLayout requires it.
-        std::auto_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(pattern)); // NOLINT
-        appender->setLayout(layout);
+        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(pattern)); // NOLINT
+        appender->setLayout(std::move(layout));
 
         GL_UPDSCH_LOGGER.addAppender(appender);
 
