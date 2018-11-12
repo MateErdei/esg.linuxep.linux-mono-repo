@@ -62,7 +62,6 @@ do
             ;;
         --debug)
             CMAKE_BUILD_TYPE=Debug
-            export ENABLE_STRIP=0
             ;;
         --build-type)
             shift
