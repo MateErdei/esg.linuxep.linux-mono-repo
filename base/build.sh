@@ -68,6 +68,12 @@ do
             shift
             CMAKE_BUILD_TYPE="$1"
             ;;
+        --strip)
+            export ENABLE_STRIP=1
+            ;;
+        --no-strip)
+            export ENABLE_STRIP=0
+            ;;
         --bullseye|--bulleye)
             BULLSEYE=1
             BULLSEYE_UPLOAD=1

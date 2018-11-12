@@ -11,12 +11,15 @@ def safe_makedir(p):
         return
 
 def main(argv):
-    if os.environ.get("ENABLE_STRIP", "1") == "0":
-        print(os.environ)
-        return 0
-
     dest = argv[1]
     debug = argv[2]
+    buildType = argv[3]
+
+    if os.environ.get("ENABLE_STRIP", "1") == "0" or buildType in ("Debug", "RelWithDebInfo"):
+        print("NOT stipping binaries in buildType %s"%buildType)
+        return 0
+
+    print("Stripping binaries in buildType %s"%buildType)
 
     for (base, dirs, files) in os.walk(dest):
         for f in files:

@@ -15,20 +15,22 @@ string(STRIP "${libgcc_s_path}" libgcc_s_path )
 set(third_party_libs ${libstdcpp_path} ${libgcc_s_path})
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/stripExecutables ${DIST} ${CMAKE_BINARY_DIR}/symbols
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/stripExecutables.py ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST} ${CMAKE_BUILD_TYPE}
         )
 
 add_custom_target(
         dist
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/stripExecutables.py ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST} ${CMAKE_BUILD_TYPE}
 )
 
 
 add_custom_target(
         forcedist
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/stripExecutables.py ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST} ${CMAKE_BUILD_TYPE}
 )
 #
 #install(CODE "
