@@ -311,7 +311,7 @@ function build()
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
     if [[ -d build${BITS}/symbols ]]
     then
-        cp -a build${BITS}/symbols output/symbols
+        cp -a build${BITS}/symbols output/
     fi
 
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))

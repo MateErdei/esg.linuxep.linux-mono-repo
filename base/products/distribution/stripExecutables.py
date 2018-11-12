@@ -30,7 +30,7 @@ def main(argv):
     for (base, dirs, files) in os.walk(dest):
         for f in files:
             p = os.path.join(base, f)
-            debugdest = p.replace(dest, debug)
+            debugdest = p.replace(dest, debug)+".debug"
             safe_makedir(os.path.dirname(debugdest))
             ret = subprocess.call(['strip', '--only-keep-debug', '-o', debugdest, p])
             if ret == 0:
