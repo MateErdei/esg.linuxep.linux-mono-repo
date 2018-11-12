@@ -41,6 +41,7 @@ COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
 BULLSEYE_SYSTEM_TEST_BRANCH=master
 export TEST_SELECTOR=
+CMAKE_BUILD_TYPE=Release
 
 while [[ $# -ge 1 ]]
 do
@@ -58,6 +59,14 @@ do
         --input)
             shift
             INPUT=$1
+            ;;
+        --debug)
+            CMAKE_BUILD_TYPE=Debug
+            export ENABLE_STRIP=0
+            ;;
+        --build-type)
+            shift
+            CMAKE_BUILD_TYPE="$1"
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
@@ -267,6 +276,7 @@ function build()
         -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
         -DREDIST="${REDIST}" \
         -DINPUT="${REDIST}" \
+        -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
@@ -294,7 +304,10 @@ function build()
     rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
-
+    if [[ -d build${BITS}/symbols ]]
+    then
+        cp -a build${BITS}/symbols output/symbols
+    fi
 
     if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
     then

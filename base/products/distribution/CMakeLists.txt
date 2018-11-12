@@ -15,6 +15,7 @@ string(STRIP "${libgcc_s_path}" libgcc_s_path )
 set(third_party_libs ${libstdcpp_path} ${libgcc_s_path})
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/stripExecutables ${DIST} ${CMAKE_BINARY_DIR}/symbols
         COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/generateSDDSImportAndManifestDat.py ${DIST}
         )
 
