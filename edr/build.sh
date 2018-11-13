@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
 export PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
-export PRODUCT_LINE_ID="ServerProtectionLinux-$PRODUCT"
+export PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
 export DEFAULT_HOME_FOLDER="$PRODUCT"
 
 FAILURE_DIST_FAILED=18
