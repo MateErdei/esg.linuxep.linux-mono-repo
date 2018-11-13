@@ -18,7 +18,7 @@ add_executable(${plugin_name}
         StringReplace.h
         Telemetry.cpp
         Telemetry.h)
-target_link_libraries(${plugin_name} PUBLIC ${pluginapilib} ${zmqlib} loggingapi)
+target_link_libraries(${plugin_name} PUBLIC ${pluginapilib} ${zmqlib} ${log4cpluslib})
 
 
 SET_TARGET_PROPERTIES( ${plugin_name}

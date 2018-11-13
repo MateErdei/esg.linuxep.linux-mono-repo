@@ -6,8 +6,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IPluginCallbackApi.h"
 #include "QueueTask.h"
+
+#include <Common/PluginApi/IPluginCallbackApi.h>
 
 namespace TemplatePlugin
 {

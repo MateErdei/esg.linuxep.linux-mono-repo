@@ -1,15 +1,59 @@
 #!/usr/bin/env bash
 PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
+export PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
+export PRODUCT_LINE_ID="ServerProtectionLinux-$PRODUCT"
+export DEFAULT_HOME_FOLDER="$PRODUCT"
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
 FAILURE_INPUT_NOT_AVAILABLE=50
+FAILURE_BAD_ARGUMENT=53
 
 source /etc/profile
 set -ex
 set -o pipefail
 
 STARTINGDIR=$(pwd)
+
+CMAKE_BUILD_TYPE=Release
+EXTRA_CMAKE_OPTIONS=
+
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --debug)
+            CMAKE_BUILD_TYPE=Debug
+            ;;
+        --build-type)
+            shift
+            CMAKE_BUILD_TYPE="$1"
+            ;;
+        --strip)
+            export ENABLE_STRIP=1
+            ;;
+        --no-strip)
+            export ENABLE_STRIP=0
+            ;;
+        --cmake-option)
+            shift
+            EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} $1"
+            ;;
+        --plugin-api)
+            shift
+            EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DPLUGINAPIPATH=$1"
+            ;;
+        --plugin-api-tar)
+            shift
+            PLUGIN_TAR=$1
+            ;;
+        *)
+            exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
+
 
 cd ${0%/*}
 BASE=$(pwd)
@@ -79,7 +123,6 @@ function build()
 
         untar_or_link_to_redist pluginapi
         untar_or_link_to_redist cmake cmake-3.11.2-linux
-        untar_or_link_to_redist log4cplus
 
     elif [[ -d "$ALLEGRO_REDIST" ]]
     then
@@ -99,8 +142,15 @@ function build()
     mkdir -p build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -v -DREDIST="${REDIST}" -DINPUT="${REDIST}" \
-        -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC \
+    cmake -v -DREDIST="${REDIST}" \
+             -DINPUT="${REDIST}" \
+            -DPRODUCT_NAME="${PRODUCT_NAME}" \
+            -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
+            -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
+            -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
+            -DCMAKE_CXX_COMPILER=$CXX \
+            -DCMAKE_C_COMPILER=$CC \
+            ${EXTRA_CMAKE_OPTIONS} \
         .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
 
