@@ -40,6 +40,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:loggingobject>
         )
 
 target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY})
