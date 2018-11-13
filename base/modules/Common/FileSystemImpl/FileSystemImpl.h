@@ -32,6 +32,8 @@ namespace Common
 
             Path currentWorkingDirectory() const override;
 
+            std::vector<Path> listFilesAndDirectories(const Path& directoryPath) const override;
+
             void moveFile(const Path &sourcePath, const Path &destPath) const override;
 
             std::string readFile(const Path &path) const override;

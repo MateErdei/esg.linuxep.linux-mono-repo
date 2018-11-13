@@ -178,9 +178,10 @@ namespace Common
             if(::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
                 int err = errno;
-                std::string errdesc = ::strerror(err);
+                std::stringstream errorStream;
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": "<<::strerror(err);
 
-                throw IFileSystemException(errdesc);
+                throw IFileSystemException(errorStream.str());
             }
         }
 
@@ -362,7 +363,7 @@ namespace Common
             std::vector<Path> files;
             DIR * directoryPtr;
 
-            struct dirent dirEntity;
+            struct dirent dirEntity; //NOLINT
             struct dirent *outDirEntity;
 
             directoryPtr = opendir(directoryPath.c_str());
@@ -398,6 +399,50 @@ namespace Common
             return files;
         }
 
+        std::vector<Path> FileSystemImpl::listFilesAndDirectories(const Path& directoryPath) const
+        {
+            static std::string dot{"."};
+            static std::string dotdot{".."};
+            std::vector<Path> files;
+            DIR * directoryPtr;
+
+            struct dirent dirEntity; //NOLINT
+            struct dirent *outDirEntity;
+
+            directoryPtr = opendir(directoryPath.c_str());
+
+            if(!directoryPtr)
+            {
+                int error = errno;
+                std::string reason = strerror(error);
+                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
+            }
+
+            assert(isReaddirSafe(directoryPath));
+
+            while (true)
+            {
+                int errorcode = readdir_r(directoryPtr, &dirEntity, &outDirEntity);
+
+                if(errorcode !=0 || !outDirEntity)
+                {
+                    break;
+                }
+
+                if ( (DT_REG|DT_DIR) & outDirEntity->d_type &&
+                     outDirEntity->d_name != dot &&
+                     outDirEntity->d_name != dotdot )
+                {
+                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                    files.push_back(fullPath);
+                }
+            }
+
+            (void)closedir(directoryPtr);
+
+            return files;
+        }
+
         void FileSystemImpl::removeFile(const Path& path) const
         {
             if (::remove(path.c_str()) != 0)
@@ -417,6 +462,7 @@ namespace Common
 
             return Common::FileSystem::join(currentWorkingDirectory(),path);
         }
+
 
     }
 }
