@@ -4,13 +4,13 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include "FileSystem.h"
 #include "PluginAdapter.h"
 #include "Logger.h"
 #include "config.h"
 
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
 
 const char * PluginName = PLUGIN_NAME;
@@ -20,11 +20,10 @@ const char * PluginName = PLUGIN_NAME;
 int main()
 {
     using namespace TemplatePlugin;
-    FileSystem f = FileSystem();
-    std::string logPath = f.join(Common::PluginApi::getInstallRoot(), "plugins");
-    logPath = f.join(logPath, PluginName);
-    logPath = f.join(logPath, "log");
-    logPath = f.join(logPath, std::string(PluginName) + ".log");
+    std::string logPath = Common::FileSystem::join(Common::PluginApi::getInstallRoot(), "plugins");
+    logPath = Common::FileSystem::join(logPath, PluginName);
+    logPath = Common::FileSystem::join(logPath, "log");
+    logPath = Common::FileSystem::join(logPath, std::string(PluginName) + ".log");
 
     Common::Logging::FileLoggingSetup loggerSetup(logPath);
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
