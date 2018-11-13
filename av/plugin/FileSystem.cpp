@@ -7,14 +7,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "FileSystem.h"
 #include <Common/FileSystem/IFileSystem.h>
 
-#include <fstream>
-#include <sstream>
-
-#include <cassert>
-
-#include <dirent.h>
-#include <sys/stat.h>
-
 Path FileSystem::join(const Path& path1, const Path & path2) const
 {
     return Common::FileSystem::join(path1, path2);
@@ -54,4 +46,3 @@ bool FileSystem::isRegularFile(const Path &path) const
 {
     return Common::FileSystem::fileSystem()->isFile(path);
 }
-
