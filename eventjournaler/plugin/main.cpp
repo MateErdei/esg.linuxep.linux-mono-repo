@@ -4,14 +4,14 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "IBaseServiceApi.h"
-#include "IPluginResourceManagement.h"
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
 #include "FileSystem.h"
 #include "PluginAdapter.h"
 #include "Logger.h"
 #include "config.h"
 
-#include <LoggingAPI/FileLoggingSetup.h>
+#include <Common/Logging/FileLoggingSetup.h>
 
 const char * PluginName = PLUGIN_NAME;
 
@@ -26,7 +26,7 @@ int main()
     logPath = f.join(logPath, "log");
     logPath = f.join(logPath, std::string(PluginName) + ".log");
 
-    LoggingAPI::FileLoggingSetup loggerSetup(logPath);
+    Common::Logging::FileLoggingSetup loggerSetup(logPath);
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask            = std::make_shared<QueueTask>();
