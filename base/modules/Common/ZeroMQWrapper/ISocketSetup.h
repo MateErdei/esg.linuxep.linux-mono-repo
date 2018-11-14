@@ -59,12 +59,6 @@ namespace Common
              * @param address
              */
             virtual void listen(const std::string& address) = 0;
-
-            /** Refresh the socket and reapply the settings.
-             * To be used after the socket find to be 'broken'
-             *
-             */
-            virtual  void refresh() = 0;
         };
     }
 }

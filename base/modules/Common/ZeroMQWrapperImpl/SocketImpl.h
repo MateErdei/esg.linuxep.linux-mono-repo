@@ -50,7 +50,12 @@ namespace Common
             {
                 return m_socket.skt();
             }
-            void refresh() override;
+            
+            /** Refresh the socket and reapply the settings.
+             * To be used after the socket find to be 'broken'
+             *
+             */
+            void refresh();
             int timeout() const;
         protected:
             ContextHolder & m_referenceContext;
