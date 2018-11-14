@@ -333,6 +333,25 @@ namespace
         EXPECT_EQ(fileList[1], tempDir.absPath("Root/file2"));
     }
 
+    TEST_F(FileSystemImplTest, listFilesAndDirectoriesReturnsAListOfPathsOnlyContainingRegularFilesAndDirectories) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        tempDir.createFile("Root/file1", "hello" );
+        tempDir.createFile("Root/file2", "hello" );
+        ::symlink(tempDir.absPath("Root/symlink").c_str(),"/etc/hosts");
+
+        std::vector<std::string> fileList = m_fileSystem->listFilesAndDirectories(tempDir.absPath("Root"));
+
+        EXPECT_EQ(fileList.size(), 3);
+
+        std::sort(fileList.begin(), fileList.end());
+
+        EXPECT_EQ(fileList[0], tempDir.absPath("Root/file1"));
+        EXPECT_EQ(fileList[1], tempDir.absPath("Root/file2"));
+        EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir"));
+    }
+
     TEST_F( FileSystemImplTest, canCreateDirectories) // NOLINT
     {
         Tests::TempDir tempdir("","FileSystemImplTest_canCreateDirectories");
