@@ -25,7 +25,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
     using data_t = Common::ZeroMQWrapper::IReadable::data_t;
-
     using ::testing::NiceMock;
     using ::testing::StrictMock;
 
@@ -180,17 +179,18 @@ namespace
     {
         Tests::TempDir m_tempDir;
     public:
-        TestContext(): m_tempDir( "/tmp", "zmqreliab")
+        TestContext()
+        : m_tempDir( "/tmp", "reliab")
         {
 
         }
         std::string killChannel() const
         {
-            return "ipc://" + Common::FileSystem::join(m_tempDir.dirPath(), "killchannel.ipc");
+            return "ipc://" + m_tempDir.absPath("killchannel.ipc");
         }
         std::string serverAddress() const
         {
-            return "ipc://" + Common::FileSystem::join(m_tempDir.dirPath(), "server.ipc");
+            return "ipc://" + m_tempDir.absPath("server.ipc");
         }
     };
 
@@ -272,12 +272,15 @@ namespace
     class ReqRepReliabilityTests
             : public ::testing::Test
     {
-
     public:
         TestContext m_testContext;
+        ReqRepReliabilityTests() :
+        m_testContext()
+        {
+
+        }
 
     };
-
 
     TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWork ) // NOLINT
     {

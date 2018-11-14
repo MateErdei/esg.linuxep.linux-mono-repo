@@ -12,7 +12,7 @@ add_executable(PluginApiImplTests
         TestCompare.h
         TestCompare.cpp
         MockApiBaseServices.h
-        )
+        PubSubReliabilityTests.cpp)
 target_include_directories(PluginApiImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
 message( "check"  "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include")
 target_include_directories(PluginApiImplTests
