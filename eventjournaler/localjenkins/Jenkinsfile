@@ -1,4 +1,4 @@
-def PLUGIN_NAME = "TemplatePlugin"
+def PLUGIN_NAME = "sspl-template-plugin"
 
 environment {
     PLUGIN_NAME = "${PLUGIN_NAME}"
@@ -8,7 +8,7 @@ def buildUsingScript()
 {
     checkout scm
     withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']) {
-        sh './build.sh'
+        sh './build.sh --name ${PLUGIN_NAME}'
     }
 }
 
