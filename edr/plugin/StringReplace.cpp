@@ -6,7 +6,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "StringReplace.h"
 
-namespace TemplatePlugin
+namespace Plugin
 {
     std::string orderedStringReplace(const std::string& pattern, const KeyValueCollection& keyvalues)
     {

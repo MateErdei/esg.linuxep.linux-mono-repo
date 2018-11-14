@@ -8,11 +8,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Telemetry.h"
 
-namespace TemplatePlugin
+namespace Plugin
 {
 
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) :
-        m_task(task), m_statusInfo()
+        m_task(std::move(task))
     {
         std::string noPolicySetStatus{
                 R"sophos(<?xml version="1.0" encoding="utf-8" ?>
@@ -50,7 +50,7 @@ namespace TemplatePlugin
     void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
         LOGSUPPORT("Setting status");
-        m_statusInfo = statusInfo;
+        m_statusInfo = std::move(statusInfo);
     }
 
     std::string PluginCallback::getTelemetry()
