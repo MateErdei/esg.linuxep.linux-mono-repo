@@ -64,6 +64,13 @@ namespace Common
              * @param timeoutMs
              */
             static void setConnectionTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs);
+
+            /**
+             * Monitor the socket for incoming data and return as soon as there is data available or throw IIPCTimeoutException
+             * @param socket
+             * @param timeoutMs
+             */
+            static void checkIncomingData(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs);
         };
     }
 }

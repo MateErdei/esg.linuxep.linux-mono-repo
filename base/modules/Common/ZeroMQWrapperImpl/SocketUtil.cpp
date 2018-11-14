@@ -141,3 +141,38 @@ void Common::ZeroMQWrapperImpl::SocketUtil::setConnectionTimeout(Common::ZeroMQW
     }
 
 }
+
+
+void Common::ZeroMQWrapperImpl::SocketUtil::checkIncomingData(Common::ZeroMQWrapperImpl::SocketHolder& socket, int timeoutMs)
+{
+    zmq_pollitem_t items[1] = {{socket.skt(), 0, ZMQ_POLLIN, 0}};
+
+    int attempts = 3;
+    while( attempts-- >=0  )
+    {
+        int rc = zmq_poll(items, 1, timeoutMs);
+
+        if ( rc > 0 ) return ;
+        if (rc == 0)
+        {
+            throw Common::ZeroMQWrapper::IIPCTimeoutException("No incoming data");
+        }
+
+        if ( rc < 0 )
+        {
+            if ( zmq_errno() == EINTR)
+            {
+                continue;
+            }
+            std::string info = "Failed to poll. ";
+            int z_err = zmq_errno();
+            if ( z_err != 0)
+            {
+                info += zmq_strerror(z_err);
+            }
+
+            throw ZeroMQPollerException(info);
+
+        }
+    }
+}

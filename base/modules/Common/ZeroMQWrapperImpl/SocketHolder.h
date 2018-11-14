@@ -21,6 +21,7 @@ namespace Common
             ~SocketHolder();
             void* skt();
             void reset(void* zmq_socket = nullptr);
+            void reset(ContextHolder& context, int type);
         private:
             void* m_socket;
         };

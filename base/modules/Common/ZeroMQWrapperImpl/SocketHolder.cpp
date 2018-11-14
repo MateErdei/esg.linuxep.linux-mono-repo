@@ -40,7 +40,16 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void *zmq_socket)
 Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl::ContextHolder &context, const int type)
     : m_socket(nullptr)
 {
+    reset(context, type);
+}
+
+void Common::ZeroMQWrapperImpl::SocketHolder::reset(Common::ZeroMQWrapperImpl::ContextHolder& context, int type)
+{
     assert(context.ctx() != nullptr);
+    if( m_socket != nullptr)
+    {
+        zmq_close(m_socket);
+    }
     m_socket = zmq_socket(context.ctx(), type);
     if (m_socket == nullptr)
     {
