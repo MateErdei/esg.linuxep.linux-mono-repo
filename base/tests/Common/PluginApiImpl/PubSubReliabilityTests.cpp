@@ -49,11 +49,11 @@ public:
     std::unordered_map<std::string, std::vector<std::string> > trackReceivedData;
     std::function<void(std::string)> m_extraCallback;
     explicit TrackSensorDataCallback(std::function<void(std::string)> extraCallback = [](std::string){}) :
-        trackReceivedData(), m_extraCallback(extraCallback)
+        trackReceivedData(), m_extraCallback(std::move(extraCallback))
     {
 
     }
-    void receiveData( const std::string & key, const std::string & data)
+    void receiveData( const std::string & key, const std::string & data) override
     {
         auto found = trackReceivedData.find(key);
         if ( found == trackReceivedData.end())
@@ -99,12 +99,10 @@ public:
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
-
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;
 
-TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications)
+TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
 {
     PluginResourceManagement pluginResourceManagement;
 
@@ -140,7 +138,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     int firstEntry = std::stoi(receivedData.at(0));
     for( size_t i =0; i< receivedData.size(); i++)
     {
-        int expectedValue = firstEntry + i;
+        size_t expectedValue = firstEntry + i;
         std::string expectedValueString = std::to_string(expectedValue);
         EXPECT_EQ(expectedValueString, receivedData.at(i));
     }
@@ -152,7 +150,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     firstEntry = std::stoi(receivedAfter.at(0));
     for( size_t i =0; i< receivedAfter.size(); i++)
     {
-        int expectedValue = firstEntry + i;
+        size_t expectedValue = firstEntry + i;
         std::string expectedValueString = std::to_string(expectedValue);
         EXPECT_EQ(expectedValueString, receivedAfter.at(i));
     }
@@ -166,7 +164,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 }
 
 
-TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAndComeBack)
+TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAndComeBack)  // NOLINT
 {
     PluginResourceManagement pluginResourceManagement;
     Tests::TestExecutionSynchronizer markReached;
