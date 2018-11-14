@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
-export PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
-export PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
-export DEFAULT_HOME_FOLDER="$PRODUCT"
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -17,6 +13,10 @@ STARTINGDIR=$(pwd)
 
 CMAKE_BUILD_TYPE=Release
 EXTRA_CMAKE_OPTIONS=
+export PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
+export PRODUCT_NAME=
+export PRODUCT_LINE_ID=
+export DEFAULT_HOME_FOLDER=
 
 while [[ $# -ge 1 ]]
 do
@@ -46,6 +46,23 @@ do
             shift
             PLUGIN_TAR=$1
             ;;
+        --name)
+            shift
+            PLUGIN_NAME=$1
+            PRODUCT=$1
+            ;;
+        --product-name)
+            shift
+            PRODUCT_NAME="$1"
+            ;;
+        --product-line-id|--rigidname)
+            shift
+            PRODUCT_LINE_ID="$1"
+            ;;
+        --default-home-folder)
+            shift
+            DEFAULT_HOME_FOLDER="$1"
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -53,7 +70,9 @@ do
     shift
 done
 
-
+[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
+[[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
+[[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 
 cd ${0%/*}
 BASE=$(pwd)

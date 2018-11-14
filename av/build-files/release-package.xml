@@ -20,7 +20,7 @@
     <buildcommands>
         <command>
             <program>/bin/bash</program>
-            <args>./build.sh</args>
+            <args>./build.sh --name sspl-template-plugin</args>
             <workingdir>sspl-template-plugin-build</workingdir>
         </command>
     </buildcommands>
