@@ -7,7 +7,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 #include "StringReplace.h"
 
-namespace TemplatePlugin
+namespace Plugin
 {
 
     Telemetry &Telemetry::instance()
