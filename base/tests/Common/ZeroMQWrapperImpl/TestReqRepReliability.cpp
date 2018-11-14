@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <future>
 #include <zmq.h>
-
+#ifndef ARTISANBUILD
 
 namespace
 {
@@ -460,3 +460,4 @@ namespace
 
 
 }
+#endif
