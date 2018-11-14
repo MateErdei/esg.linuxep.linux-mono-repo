@@ -8,10 +8,16 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 #include "Logger.h"
 
-namespace TemplatePlugin
+namespace Plugin
 {
-    PluginAdapter::PluginAdapter(std::shared_ptr<QueueTask> queueTask, std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService, std::shared_ptr<PluginCallback> callback)
-    : m_queueTask(queueTask), m_baseService(std::move(baseService)), m_callback(callback)
+    PluginAdapter::PluginAdapter(
+            std::shared_ptr<QueueTask> queueTask,
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+            std::shared_ptr<PluginCallback> callback)
+    :
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback))
     {
 
     }

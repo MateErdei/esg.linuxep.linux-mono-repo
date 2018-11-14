@@ -19,7 +19,7 @@ const char * PluginName = PLUGIN_NAME;
 
 int main()
 {
-    using namespace TemplatePlugin;
+    using namespace Plugin;
     std::string logPath = Common::FileSystem::join(Common::PluginApi::getInstallRoot(), "plugins");
     logPath = Common::FileSystem::join(logPath, PluginName);
     logPath = Common::FileSystem::join(logPath, "log");

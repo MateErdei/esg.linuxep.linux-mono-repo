@@ -10,7 +10,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
-namespace TemplatePlugin
+namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
