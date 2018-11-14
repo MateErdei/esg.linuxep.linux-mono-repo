@@ -91,7 +91,7 @@ class MCSConnection(object):
 
         registrationToken = self.__m_config.getDefault("MCSToken","unknown")
         self.setUserAgent(createUserAgent(productVersion, registrationToken))
-        self.__m_cookie = None
+        self.__m_cookies = {}
 
         if config.getDefault("LOGLEVEL","") == "DEBUG":
             self.setDebug()
@@ -424,11 +424,16 @@ class MCSConnection(object):
                          httplib.responses.get(response.status, str(response.status)))
             raise MCSHttpException(response.status, response_headers, body)
 
-        # we should theoretically store cookies from HTTP errors responses too
-        # but we *always* reset the connection for a non-HTTP-200 response.
-        if "set-cookie" in response_headers:
-            self.__m_cookie = response_headers["set-cookie"].split(";")[0]
-            #~ logger.debug("Setting cookie to %s", self.__m_cookie)
+        cookie_headers = response.msg.getallmatchingheaders("set-cookie")
+        for header in cookie_headers:
+            header_val = header.split(":", 1)[1].strip()
+            cookie = header_val.split(";", 1)[0].strip() ## ignore cookie expiry, etc.
+            name, value = cookie.split("=", 1)
+            self.__m_cookies[name] = value
+            logger.debug("Storing cookie: %s=%s", name, value)
+
+        envelopeLogger.debug("response headers=%s", str(response_headers))
+
 
         if body not in ("", None):
             # Fix issue where we receive latin1 encoded characters in
@@ -455,6 +460,7 @@ class MCSConnection(object):
         except httplib.BadStatusLine as e:
             self.__m_lastSeenHTTPError = e
             logger.debug("Received httplib.BadStatusLine, closing connection")
+            self.__m_cookies.clear()
             self.close()
             return
 
@@ -462,8 +468,8 @@ class MCSConnection(object):
         except Exception as e:
             self.__m_lastSeenHTTPError = e
             # don't re-use old cookies after an error, as this may trigger de-duplication
-            logger.debug("Forgetting cookie due to comms error")
-            self.__m_cookie = None
+            logger.debug("Forgetting cookies due to comms error")
+            self.__m_cookies = {}
             self.__closeConnection()
             return
 
@@ -584,13 +590,16 @@ class MCSConnection(object):
     def __request(self, path, headers, body="", method="GET"):
         #~ logger.debug("%sing %s with %d byte body"%(method, path, len(body)))
         headers.setdefault("User-Agent", self.__m_userAgent)
-        if self.__m_cookie is not None:
-            headers.setdefault("Cookie", self.__m_cookie)
-            #~ logger.debug("Sending cookie: %s", self.__m_cookie)
+
+        if self.__m_cookies:
+            cookies = "; ".join([ "=".join(cookie) for cookie in self.__m_cookies.iteritems() ])
+            headers.setdefault("Cookie", cookies)
+            logger.debug("Sending cookies: %s", cookies)
 
         if isinstance(body, unicode):
             body = body.encode("utf-8")
 
+        envelopeLogger.debug("request headers=%s", str(headers))
         if body in (None, ""):
             envelopeLogger.info("%s %s", method, path)
         else:
@@ -605,7 +614,7 @@ class MCSConnection(object):
         return body
 
     def register(self, token, statusxml):
-        self.__m_cookie = None ## Reset cookie
+        self.__m_cookies.clear()  ## Reset cookies
         eid = self.getId() or ""
         if eid == "reregister":
             eid = ""

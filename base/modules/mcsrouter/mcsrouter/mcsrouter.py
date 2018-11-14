@@ -181,7 +181,7 @@ class SophosLogging(object):
         if envelopeFile == "":
             envelopeLogger.setLevel(logging.CRITICAL)
         else:
-            envelopeLogger.setLevel(logging.INFO)
+            envelopeLogger.setLevel(loglevel)
 
             envelopeFileHandler = logging.handlers.RotatingFileHandler(envelopeFile,maxBytes=1024*1024,backupCount=3)
 

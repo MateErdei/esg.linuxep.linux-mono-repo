@@ -66,16 +66,20 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         return nodes[0]
 
 
-    def __applyPolicySetting(self, dom, policyOption, configOption=None):
+    def __applyPolicySetting(self, dom, policyOption, configOption=None, treatMissingAsEmpty=False):
         if configOption is None:
             configOption = policyOption
 
         node = self.__getElement(dom, policyOption)
 
         if node is None:
-            return False
+            if treatMissingAsEmpty:
+                value = ""
+            else:
+                return False
+        else:
+            value = mcsrouter.utils.XmlHelper.getTextFromElement(node)
 
-        value = mcsrouter.utils.XmlHelper.getTextFromElement(node)
         logger.debug("MCS policy %s = %s",policyOption,value)
 
         self.__m_policy_config.set(configOption,value)
@@ -263,12 +267,12 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
             logger.info("Applying %s %s policy %s",policyAge,self.policyName(),compliance)
 
             ## Process policy options
-            self.__applyPolicySetting(policyNode,"useSystemProxy")
-            self.__applyPolicySetting(policyNode,"useAutomaticProxy")
-            self.__applyPolicySetting(policyNode,"useDirect")
+            self.__applyPolicySetting(policyNode, "useSystemProxy")
+            self.__applyPolicySetting(policyNode, "useAutomaticProxy")
+            self.__applyPolicySetting(policyNode, "useDirect")
             self.__applyPollingDelay(policyNode)
             ## MCSToken is the config option we are already using for the Token elsewhere
-            self.__applyPolicySetting(policyNode,"registrationToken","MCSToken")
+            self.__applyPolicySetting(policyNode, "registrationToken", "MCSToken", treatMissingAsEmpty=True)
             self.__applyMCSServer(policyNode)
             self.__applyProxyOptions(policyNode)
             self.__applyMessageRelays(policyNode)

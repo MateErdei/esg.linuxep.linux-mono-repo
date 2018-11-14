@@ -169,6 +169,9 @@ class MCS(object):
 
         self.__m_comms = comms
 
+    def __get_mcs_token(self):
+        return self.__m_config.getDefault("MCSToken", "unknown")
+
     def __updateUserAgent(self, comms=None):
         if comms is None:
             comms = self.__m_comms
@@ -181,8 +184,7 @@ class MCS(object):
         except EnvironmentError:
             productVersion = "unknown"
 
-        config = self.__m_config
-        token = config.getDefault("MCSToken","unknown")
+        token = self.__get_mcs_token()
 
         comms.setUserAgent(mcsclient.MCSConnection.createUserAgent(productVersion,token))
 
@@ -294,8 +296,14 @@ class MCS(object):
                         logger.debug("Checking for commands")
                         commands = comms.queryCommands(computer.getAppIds())
                         lastCommands = time.time()
+
+                        mcs_token_before_commands = self.__get_mcs_token()
+
                         if computer.runCommands(commands): ## To run any pending commands as well
                             statusUpdated(reason="applying commands")
+                            mcs_token_after_commands = self.__get_mcs_token()
+                            if mcs_token_before_commands != mcs_token_after_commands:
+                                self.__updateUserAgent()
 
                         if len(commands) > 0:
                             logger.debug("Got commands; resetting interval")
