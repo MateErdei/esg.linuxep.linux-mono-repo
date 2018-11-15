@@ -395,7 +395,7 @@ namespace
     }
 
 
-    TEST_F( ReqRepReliabilityTests, replierShouldBeAbleToSendMessageAgainIfTheReplierIsRestored ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored ) // NOLINT
     {
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
