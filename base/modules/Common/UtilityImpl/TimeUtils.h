@@ -7,7 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <ctime>
-#include <chrono>
 
 namespace Common
 {
