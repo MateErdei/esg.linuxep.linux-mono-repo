@@ -4,10 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "CronSchedulerThread.h"
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include <cassert>
-#include <Common/UtilityImpl/TimeUtils.h>
 
 namespace
 {
