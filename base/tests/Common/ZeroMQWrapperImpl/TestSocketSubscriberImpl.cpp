@@ -23,7 +23,7 @@ namespace
 {
     TEST(TestSocketSubscriberImpl, creation) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         EXPECT_NE(socket.get(), nullptr);
@@ -31,7 +31,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, listen) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);
@@ -94,7 +94,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, comms) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextPtr context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);

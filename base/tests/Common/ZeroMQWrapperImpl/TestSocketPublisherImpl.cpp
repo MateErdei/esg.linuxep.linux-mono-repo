@@ -17,7 +17,7 @@ namespace
 {
     TEST(TestSocketPublisherImpl, creation) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketPublisherPtr socket = context->getPublisher();
         EXPECT_NE(socket.get(), nullptr);

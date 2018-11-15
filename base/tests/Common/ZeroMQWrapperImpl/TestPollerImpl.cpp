@@ -51,7 +51,7 @@ namespace
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(),nullptr);
 
-        IContextPtr context = Common::ZeroMQWrapper::createContext();
+        IContextSharedPtr context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         ASSERT_NE(socket.get(),nullptr);
@@ -139,7 +139,7 @@ namespace
 
         // close notifyPipe
         notifyPipe.reset();
-        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException ); //NOLINT
 
     }
 
@@ -174,8 +174,8 @@ namespace
         ASSERT_TRUE(socket != nullptr);
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
-        requester->write({"another request"}); 
-        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+        requester->write({"another request"});
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException ); //NOLINT
     }
 
 
@@ -190,7 +190,7 @@ namespace
         auto pipeFD = poller->addEntry(invalidFD, Common::ZeroMQWrapper::IPoller::POLLIN);
         auto pipe2FD = poller->addEntry(notifyPipe1.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
-        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException ); //NOLINT
     }
 
 
@@ -214,7 +214,7 @@ namespace
 
         poller->addEntry(*replier,Common::ZeroMQWrapper::IPoller::POLLIN);
 
-        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException );
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException ); //NOLINT
     }
 
 

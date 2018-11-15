@@ -40,7 +40,7 @@ Common::ZeroMQWrapper::ISocketReplierPtr ContextImpl::getReplier()
             );
 }
 
-std::unique_ptr<Common::ZeroMQWrapper::IContext> Common::ZeroMQWrapper::createContext()
+Common::ZeroMQWrapper::IContextSharedPtr Common::ZeroMQWrapper::createContext()
 {
-    return std::unique_ptr<Common::ZeroMQWrapper::IContext>(new ContextImpl());
+    return std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
 }

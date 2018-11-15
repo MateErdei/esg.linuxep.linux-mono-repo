@@ -15,13 +15,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <Common/ZeroMQWrapper/IContextPtr.h>
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
 
 #include <string>
 #include <map>
 #include <mutex>
-
-
 
 
 namespace ManagementAgent
@@ -71,7 +69,7 @@ namespace ManagementAgent
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
 
-            Common::ZeroMQWrapper::IContextPtr m_context;
+            Common::ZeroMQWrapper::IContextSharedPtr m_context;
             std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
 

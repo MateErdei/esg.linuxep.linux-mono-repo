@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ISocketSubscriberPtr.h"
 
 #include <string>
-#include "IContextPtr.h"
+#include "IContextSharedPtr.h"
 
 namespace Common
 {
@@ -31,7 +31,7 @@ namespace Common
             virtual ISocketReplierPtr getReplier() = 0;
         };
 
-        extern IContextPtr createContext();
+        extern IContextSharedPtr createContext();
     }
 }
 

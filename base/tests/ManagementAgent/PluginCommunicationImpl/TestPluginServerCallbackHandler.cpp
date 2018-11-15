@@ -11,6 +11,7 @@
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
 
 class TestPluginServerCallbackHandler : public TestCompare
 {
@@ -36,7 +37,7 @@ public:
 
     ~TestPluginServerCallbackHandler() override = default;
 
-    Common::ZeroMQWrapper::IContextPtr m_context;
+    Common::ZeroMQWrapper::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     std::shared_ptr<MockPluginServerCallback> m_mockServerCallback;
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_PluginManagerPtr;

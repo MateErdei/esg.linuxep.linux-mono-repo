@@ -6,9 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/PluginApi/IPluginResourceManagement.h"
-#include "Common/ZeroMQWrapper/IContextPtr.h"
-#include "Common/ZeroMQWrapper/ISocketSetup.h"
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZeroMQWrapper/ISocketSetup.h>
+
 namespace Common
 {
     namespace PluginApiImpl
@@ -30,7 +31,7 @@ namespace Common
             Common::ZeroMQWrapper::IContext & getSocketContext();
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
-            Common::ZeroMQWrapper::IContextPtr m_contextPtr;
+            Common::ZeroMQWrapper::IContextSharedPtr m_contextPtr;
             Common::ZeroMQWrapper::IContext* m_context;
             int m_defaulTimeout;
             int m_defaultConnectTimeout;

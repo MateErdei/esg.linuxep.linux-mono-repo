@@ -18,7 +18,7 @@ namespace
 {
     TEST(TestSocketRequesterImpl, creation) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         EXPECT_NE(socket.get(),nullptr);
@@ -26,7 +26,7 @@ namespace
 
     TEST(TestSocketRequesterImpl, listen) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         EXPECT_NE(socket.get(),nullptr);
@@ -35,13 +35,13 @@ namespace
 
     TEST(TestSocketRequesterImpl, connectionTimeout) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         socket->setConnectionTimeout(200);
         socket->connect( "ipc:///tmp/no_one_listening.ipc");
         socket->write({"cmd", "arg"});
-        EXPECT_THROW(socket->read(), Common::ZeroMQWrapperImpl::ZeroMQWrapperException);
+        EXPECT_THROW(socket->read(), Common::ZeroMQWrapperImpl::ZeroMQWrapperException); //NOLINT
     }
 
 }

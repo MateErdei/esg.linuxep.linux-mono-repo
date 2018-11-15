@@ -24,7 +24,7 @@ namespace
 {
     TEST(SocketReplierImpl, creation) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         ISocketReplierPtr socket = context->getReplier();
         EXPECT_NE(socket.get(),nullptr);
@@ -32,7 +32,7 @@ namespace
 
     TEST(SocketReplierImpl, listen) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         auto socket = context->getReplier();
         EXPECT_NE(socket.get(),nullptr);
@@ -41,7 +41,7 @@ namespace
 
     TEST(SocketReplierImpl, transfer) // NOLINT
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZeroMQWrapper::createContext();
         ASSERT_NE(context.get(),nullptr);
         auto replier = context->getReplier();
         auto requester = context->getRequester();
