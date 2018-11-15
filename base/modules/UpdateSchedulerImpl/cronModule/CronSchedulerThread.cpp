@@ -36,6 +36,8 @@ namespace UpdateSchedulerImpl
                 , m_firstTick(firstTick)
                 , m_periodTick(repeatPeriod)
                 , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
+                , m_scheduledUpdateTime()
+                , m_scheduledUpdate(false)
         {
 
         }
