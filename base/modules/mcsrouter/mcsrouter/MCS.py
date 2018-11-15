@@ -129,8 +129,11 @@ class MCS(object):
 
         ## Create computer
         self.__m_computer = Computer.Computer()
+        self.__m_mcsAdapter = adapters.MCSAdapter.MCSAdapter(installDir,
+                                       self.__m_policy_config,
+                                       self.__m_config)
 
-        self.__m_computer.addAdapter(adapters.MCSAdapter.MCSAdapter(installDir,self.__m_policy_config,self.__m_config))
+        self.__m_computer.addAdapter(self.__m_mcsAdapter)
 
         #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
         self.__plugin_registry = utils.PluginRegistry.PluginRegistry(installDir)
@@ -217,6 +220,7 @@ class MCS(object):
 
         comms = self.__m_comms
         computer = self.__m_computer
+        mcsAdapter = self.__m_mcsAdapter
 
         events = mcsclient.Events.Events()
         eventsTimer = mcsclient.EventsTimer.EventsTimer(
@@ -318,7 +322,7 @@ class MCS(object):
                     timeout = self.__m_commandCheckInterval.get() - (time.time() - lastCommands)
 
                     # Check to see if any adapters have new status
-                    if computer.hasStatusChanged():
+                    if computer.hasStatusChanged() or mcsAdapter.hasNewStatus():
                         statusUpdated(reason="adapter reporting status change")
 
                     ## get all pending events

@@ -469,7 +469,7 @@ class MCSConnection(object):
             self.__m_lastSeenHTTPError = e
             # don't re-use old cookies after an error, as this may trigger de-duplication
             logger.debug("Forgetting cookies due to comms error")
-            self.__m_cookies = {}
+            self.__m_cookies.clear()
             self.__closeConnection()
             return
 
