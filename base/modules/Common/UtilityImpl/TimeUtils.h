@@ -13,7 +13,6 @@ namespace Common
 {
     namespace UtilityImpl
     {
-        //using delayTimestampPair = std::pair<std::chrono::minutes, time_t>;
         /**
          * To enable tests that need to provide some fixed timestamp.
          */
