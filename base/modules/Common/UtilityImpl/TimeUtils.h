@@ -31,7 +31,6 @@ namespace Common
         public:
             static std::time_t getCurrTime() ;
             static std::tm getLocalTime();
-            //static delayTimestampPair calculateTimestampFromWeekdayAndTime(const std::string& weekday, const std::string& time);
             static std::string getBootTime();
             static std::time_t getBootTimeAsTimet();
 

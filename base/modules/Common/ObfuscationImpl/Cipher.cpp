@@ -98,7 +98,7 @@ namespace Common
         Cipher::Decrypt(const ObfuscationImpl::SecureDynamicBuffer& cipherKey, ObfuscationImpl::SecureDynamicBuffer& encrypted)
         {
 
-            int saltLength = encrypted[0];
+            size_t saltLength = encrypted[0];
 
             if(encrypted.size() < saltLength + 1)
             {

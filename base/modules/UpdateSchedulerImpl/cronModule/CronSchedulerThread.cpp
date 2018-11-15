@@ -9,6 +9,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <Common/UtilityImpl/TimeUtils.h>
 
+namespace
+{
+    // Scheduled updating. Start an update if we are within 2 minutes of the target time
+    bool timeToUpdate(std::tm now, std::tm target)
+    {
+        return (now.tm_wday == target.tm_wday) &&
+               (now.tm_hour == target.tm_hour) &&
+               (abs(now.tm_min - target.tm_min) <= 2);
+    }
+}
+
 namespace UpdateSchedulerImpl
 {
     namespace cronModule
@@ -96,20 +107,24 @@ namespace UpdateSchedulerImpl
 
                 if (poll_result.empty())
                 {
-                    // timeout means a new tick. Hence, create the scheduler update
+                    // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
                     if (!m_scheduledUpdate)
                     {
                         m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
                     }
+
+                    // scheduled updating is enabled. Check if it is time to update
                     else
                     {
                         std::tm now = Common::UtilityImpl::TimeUtils::getLocalTime();
-                        std::tm then = m_scheduledUpdateTime;
-                        if ((now.tm_wday == then.tm_wday) &&
-                            (now.tm_hour == then.tm_hour) &&
-                            (now.tm_min == then.tm_min))
+                        std::tm target = m_scheduledUpdateTime;
+
+                        if (timeToUpdate(now, target))
                         {
                             m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+
+                            // Wait for 5 minutes so we do not update more than once
+                            timeToWait = std::chrono::minutes(5);
                         }
                     }
                 }

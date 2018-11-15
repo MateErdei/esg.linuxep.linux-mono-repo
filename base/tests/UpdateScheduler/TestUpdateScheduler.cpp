@@ -215,6 +215,49 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 )sophos"};
 }
 
+static const std::string updatePolicyWithScheduledUpdate{R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+  <AUConfig platform="Linux">
+    <sophos_address address="http://es-web.sophos.com/update"/>
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="54m5ung" UserName="QA940267" UseSophos="true" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="2" ProxyUserPassword="CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=" ProxyUserName="TestUser" ProxyPortNumber="8080" ProxyAddress="uk-abn-wpan-1.green.sophos" AllowLocalConfig="false"/>
+    </primary_location>
+    <secondary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </secondary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
+    <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+    <bootstrap Location="" UsePrimaryServerAddress="true"/>
+    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
+    </cloud_subscriptions>
+    <delay_supplements enabled="true"/>
+    <delay_updating Day="Saturday" Time="09:41:00"/>
+  </AUConfig>
+  <Features>
+    <Feature id="APPCNTRL"/>
+    <Feature id="AV"/>
+    <Feature id="CORE"/>
+    <Feature id="DLP"/>
+    <Feature id="DVCCNTRL"/>
+    <Feature id="EFW"/>
+    <Feature id="HBT"/>
+    <Feature id="MTD"/>
+    <Feature id="NTP"/>
+    <Feature id="SAV"/>
+    <Feature id="SDU"/>
+    <Feature id="WEBCNTRL"/>
+  </Features>
+  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+  <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+</AUConfigurations>
+)sophos"};
+
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
@@ -470,4 +513,88 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
     m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
     schedulerRunHandle.get(); // synchronize stop
 
+}
+
+TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
+    EXPECT_CALL(*cron, setPeriodTime(time));
+    EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*cron, setScheduledUpdate(true));
+
+    std::tm actualTime;
+    EXPECT_CALL(*cron, setScheduledUpdateTime(_)).WillOnce(SaveArg<0>(&actualTime));
+
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
+    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
+                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
+
+    std::future<void> schedulerRunHandle = std::async(std::launch::async,
+                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
+    );
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate});
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    schedulerRunHandle.get(); // synchronize stop
+
+    // Saturday(6th Weekday), 9:41
+    EXPECT_EQ(actualTime.tm_hour, 9);
+    EXPECT_EQ(actualTime.tm_min, 41);
+    EXPECT_EQ(actualTime.tm_wday, 6);
+}
+
+TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureSchedule) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(40);
+    EXPECT_CALL(*cron, setPeriodTime(time)).Times(4);
+    EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*cron, setScheduledUpdate(false)).Times(4);
+
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor
+    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
+                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(4);
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
+
+    std::future<void> schedulerRunHandle = std::async(std::launch::async,
+                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
+    );
+
+    std::string invalidPolicyScheduleDay = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
+            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Blahday" Time="09:41:00")sophos" }} );
+    std::string invalidPolicyScheduleTime = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
+            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Saturday" Time="24:00:00")sophos" }} );
+    std::string invalidPolicyScheduleTimeType = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
+            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Monday" Time="a:a:a")sophos" }} );
+    std::string invalidPolicyScheduleDayType = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
+            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="0" Time="11:11:11")sophos" }} );
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleDay});
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleTime});
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleTimeType});
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleDayType});
+
+    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    schedulerRunHandle.get(); // synchronize stop
 }
