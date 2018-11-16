@@ -32,7 +32,7 @@ void Common::ZeroMQWrapperImpl::ContextHolder::reset()
 {
     if (m_context != nullptr)
     {
-        zmq_ctx_destroy(m_context);
+        zmq_ctx_term(m_context); // http://api.zeromq.org/4-2:zmq-ctx-term replaces destroy (deprecated)
         m_context = nullptr;
     }
 }

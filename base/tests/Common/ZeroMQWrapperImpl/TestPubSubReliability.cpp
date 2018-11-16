@@ -18,6 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <future>
 #include <zmq.h>
+#include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 
 
 #ifndef ARTISANBUILD
@@ -68,12 +69,20 @@ namespace
         std::string serveraddress = m_testContext.serverAddress();
         Tests::TestExecutionSynchronizer synchronizer;
         std::atomic<bool> stopPublisher(false);
+        std::atomic<bool> stopSubscriber(false);
         auto fasterPublisher = std::async(std::launch::async, [serveraddress, &synchronizer, &stopPublisher]() {
             std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
             auto publisher = m_context->getPublisher();
-            publisher->listen(serveraddress);
+            auto publisherimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketPublisherImpl*>(publisher.get());
 
-            for(int i = 0; i< 100000000; i++)
+            // force hwm, but next test show that even without forcing it, eventually messages will be dropped.
+            int hwm=10;
+            int rc = zmq_setsockopt(publisherimpl->skt(), ZMQ_SNDHWM, &hwm, sizeof(hwm));
+            ASSERT_TRUE(rc==0);
+
+            publisher->listen(serveraddress);
+            int limit = std::numeric_limits<int>::max();
+            for(int i = 0; i< limit; i++)
             {
                 if (stopPublisher) break;
                 std::string value = std::to_string(i);
@@ -82,45 +91,119 @@ namespace
         });
 
         // simulate a replier that answers after the requester timeout.
-        auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer]() {
+        auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer, & stopSubscriber]() ->std::vector<int> {
             std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
             auto subscriber = m_context->getSubscriber();
-            auto subscriberimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketSubscriberImpl*>(subscriber.get());
-            ASSERT_TRUE(subscriberimpl);
-            int hwm=10;
-            int rc = zmq_setsockopt(subscriberimpl->skt(), ZMQ_RCVHWM, &hwm, sizeof(hwm));
-            ASSERT_TRUE(rc==0);
 
             subscriber->connect(serveraddress);
             subscriber->subscribeTo("news");
-
+            std::vector<int> received;
             int count_jumps = 0;
             int previous = 0;
-            while( true )
+            while( !stopSubscriber )
+            {
+                data_t newdata = subscriber->read();
+                int value = std::stoi( newdata.back());
+                received.push_back(value);
+                if( value != previous + 1)
+                {
+                    count_jumps++;
+                }
+                previous = value;
+                // demonstrate that it will loose data but keeping up receiving new data as possible.
+                if( value > 50  && count_jumps > 2)
+                {
+                    synchronizer.notify();
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+
+            return received;
+
+        });
+
+        EXPECT_TRUE(synchronizer.waitfor(10000));
+        stopPublisher = true;
+
+        fasterPublisher.get();
+        std::cout << "Publisher stop" << std::endl;
+
+        if( slowSubscriber.wait_for(std::chrono::milliseconds(100)) == std::future_status::timeout)
+        {
+            stopSubscriber = true;
+
+            EXPECT_TRUE(false) << "Subscriber did not detected jump";
+        }
+        auto received = slowSubscriber.get();
+        int size = received.size();
+        EXPECT_GT(size, 0);
+        int first = received.front();
+        int last = received.back();
+        EXPECT_GT(last, first + size);
+    }
+
+
+    // this test passes, but may take more than 1 minute to overload all the buffers and
+    // show subscribers loosing events. It also demonstrate how 'difficult' is to subscribers to
+    // loose events.
+    TEST_F(PubSubReliabilityTests, DISABLED_DemonstrateThatSlowSubscribersHaveANaturalHWM)  // NOLINT
+    {
+        std::string serveraddress = m_testContext.serverAddress();
+        Tests::TestExecutionSynchronizer synchronizer;
+        std::atomic<bool> stopPublisher(false);
+        std::atomic<bool> stopSubscriber(false);
+        auto fasterPublisher = std::async(std::launch::async, [serveraddress, &synchronizer, &stopPublisher]() {
+            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+            auto publisher = m_context->getPublisher();
+            publisher->listen(serveraddress);
+            int limit = std::numeric_limits<int>::max() - 5;
+            int i =0;
+            while (true)
+            {
+                if (stopPublisher) break;
+                std::string value = std::to_string(i++);
+                publisher->write(data_t{"news", value});
+                if( i > limit)
+                {
+                    i = 0 ;
+                }
+            }
+        });
+
+        auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer, & stopSubscriber]()  {
+            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+            auto subscriber = m_context->getSubscriber();
+
+            subscriber->connect(serveraddress);
+            subscriber->subscribeTo("news");
+            int count_jumps = 0;
+            int previous = 0;
+            while( !stopSubscriber )
             {
                 data_t newdata = subscriber->read();
                 int value = std::stoi( newdata.back());
                 if( value != previous + 1)
                 {
                     count_jumps++;
-                    previous = value;
                 }
+                previous = value;
                 // demonstrate that it will loose data but keeping up receiving new data as possible.
-                if( value > 1000  && count_jumps > 2)
+                if( count_jumps > 1)
                 {
                     synchronizer.notify();
                     break;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
+
         });
-
-
-        EXPECT_TRUE(synchronizer.waitfor(3000));
-        stopPublisher = true;
         slowSubscriber.get();
+        stopPublisher = true;
         fasterPublisher.get();
+
     }
+
 
 
 }

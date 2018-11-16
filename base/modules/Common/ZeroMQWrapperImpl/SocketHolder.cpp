@@ -19,7 +19,8 @@ Common::ZeroMQWrapperImpl::SocketHolder::~SocketHolder()
 {
     if (m_socket != nullptr)
     {
-        zmq_close(m_socket);
+        // the close should always return 0, only if it is not given a real socket.
+        assert(zmq_close(m_socket)==0);
     }
 }
 
