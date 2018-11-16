@@ -53,3 +53,34 @@ TEST(TestMacInfo, MacsShouldBeAvailableInIfconfig) // NOLINT
     }
 
 }
+
+
+//TEST(TestMacInfo, IPsShouldBeAvailableInconfig) // NOLINT
+//{
+//    auto fSystem = Common::FileSystem::fileSystem();
+//    std::string ipconfigInfo = "/sbin/ifconfig";
+//    std::vector<std::string> arguments;
+//
+//    if( !fSystem->isExecutable(ipconfigInfo) )
+//    {
+//        ipconfigInfo = "/usr/sbin/ip";
+//        arguments.push_back("address");
+//        if( !fSystem->isExecutable(ipconfigInfo))
+//        {
+//            std::cout << "[  SKIPPED ] /sbin/ifconfig or /usr/sbin/ip not present " << std::endl;
+//            return;
+//        }
+//    }
+//    auto process = Common::Process::createProcess();
+//    process->exec(ipconfigInfo, arguments);
+//    std::string ifconfigOutput = process->output();
+//
+//    std::vector<std::string> ips = sortedSystemIps();
+//    EXPECT_GT(ips.size(), 0);
+//    for( auto &  ip : ips)
+//    {
+//        std::string fullipword = " " + ip + " ";
+//        EXPECT_THAT( ifconfigOutput, ::testing::HasSubstr(fullipword));
+//    }
+//
+//}

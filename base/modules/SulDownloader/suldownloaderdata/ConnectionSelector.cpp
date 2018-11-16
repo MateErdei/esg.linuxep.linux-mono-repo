@@ -26,6 +26,13 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
         candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
     }
 
+    // requirement: update caches candidates must be sorted by the following criteria:
+    //  1. priority
+    //  2. ip-proximity
+    if( !candidates.empty())
+    {
+
+    }
 
     for (auto& proxy: proxies)
     {
