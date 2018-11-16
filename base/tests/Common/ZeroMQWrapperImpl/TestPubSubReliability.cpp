@@ -71,7 +71,7 @@ namespace
         std::atomic<bool> stopPublisher(false);
         std::atomic<bool> stopSubscriber(false);
         auto fasterPublisher = std::async(std::launch::async, [serveraddress, &synchronizer, &stopPublisher]() {
-            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZeroMQWrapper::createContext();
             auto publisher = m_context->getPublisher();
             auto publisherimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketPublisherImpl*>(publisher.get());
 
@@ -92,7 +92,7 @@ namespace
 
         // simulate a replier that answers after the requester timeout.
         auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer, & stopSubscriber]() ->std::vector<int> {
-            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZeroMQWrapper::createContext();
             auto subscriber = m_context->getSubscriber();
 
             subscriber->connect(serveraddress);
@@ -136,7 +136,7 @@ namespace
             EXPECT_TRUE(false) << "Subscriber did not detected jump";
         }
         auto received = slowSubscriber.get();
-        int size = received.size();
+        auto size = received.size();
         EXPECT_GT(size, 0);
         int first = received.front();
         int last = received.back();
@@ -153,8 +153,8 @@ namespace
         Tests::TestExecutionSynchronizer synchronizer;
         std::atomic<bool> stopPublisher(false);
         std::atomic<bool> stopSubscriber(false);
-        auto fasterPublisher = std::async(std::launch::async, [serveraddress, &synchronizer, &stopPublisher]() {
-            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+        auto fasterPublisher = std::async(std::launch::async, [serveraddress, &stopPublisher]() {
+            auto m_context = Common::ZeroMQWrapper::createContext();
             auto publisher = m_context->getPublisher();
             publisher->listen(serveraddress);
             int limit = std::numeric_limits<int>::max() - 5;
@@ -172,7 +172,7 @@ namespace
         });
 
         auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer, & stopSubscriber]()  {
-            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZeroMQWrapper::createContext();
             auto subscriber = m_context->getSubscriber();
 
             subscriber->connect(serveraddress);
