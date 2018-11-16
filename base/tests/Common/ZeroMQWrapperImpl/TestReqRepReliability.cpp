@@ -489,10 +489,10 @@ namespace
             std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
             auto subscriber = m_context->getSubscriber();
             auto subscriberimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketSubscriberImpl*>(subscriber.get());
-            assert(subscriberimpl);
+            ASSERT_TRUE(subscriberimpl);
             int hwm=10;
             int rc = zmq_setsockopt(subscriberimpl->skt(), ZMQ_RCVHWM, &hwm, sizeof(hwm));
-            assert(rc==0);
+            ASSERT_TRUE(rc==0);
 
             subscriber->connect(serveraddress);
             subscriber->subscribeTo("news");
@@ -521,8 +521,8 @@ namespace
 
         EXPECT_TRUE(synchronizer.waitfor(3000));
         stopPublisher = true;
-        slowSubscriber.wait();
-        fasterPublisher.wait();
+        slowSubscriber.get();
+        fasterPublisher.get();
     }
 
 
