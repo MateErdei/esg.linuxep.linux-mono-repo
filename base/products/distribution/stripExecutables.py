@@ -10,6 +10,15 @@ def safe_makedir(p):
     except EnvironmentError as e:
         return
 
+
+EXCLUDE_LIST = (
+    '.sh',
+    '.json',
+    '.zip',
+    '.crt',
+)
+
+
 def main(argv):
     dest = argv[1]
     debug = argv[2]
@@ -29,6 +38,9 @@ def main(argv):
 
     for (base, dirs, files) in os.walk(dest):
         for f in files:
+            filename, file_extension = os.path.splitext(f)
+            if file_extension in EXCLUDE_LIST:
+                continue
             p = os.path.join(base, f)
             debugdest = p.replace(dest, debug)+".debug"
             safe_makedir(os.path.dirname(debugdest))
