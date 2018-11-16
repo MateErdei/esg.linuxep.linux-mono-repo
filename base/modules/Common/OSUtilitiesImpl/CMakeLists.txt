@@ -3,6 +3,7 @@ add_library(osutilitiesimpl SHARED
         ../OSUtilities/ILocalIP.h
         ../OSUtilities/IDnsLookup.h
         ../OSUtilities/IPidLockFileUtils.h
+        ../OSUtilities/IIPUtils.cpp
         MACinfo.cpp
         MACinfo.h
         SXLMachineID.cpp
@@ -13,8 +14,7 @@ add_library(osutilitiesimpl SHARED
         LocalIPImpl.h
         DnsLookupImpl.cpp
         DnsLookupImpl.h
-        IPUtilsImpl.cpp
-        IPUtilsImpl.h)
+)
 
 target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl applicationconfigurationimpl pthread)
 

@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "DnsLookupImpl.h"
-#include "IPUtilsImpl.h"
+#include <Common/OSUtilities/IIPUtils.h>
 #include <sstream>
 
 #include <ifaddrs.h>
@@ -17,8 +17,6 @@ namespace
 {
     using Common::OSUtilitiesImpl::IDnsLookupPtr;
     using Common::OSUtilities::IPs;
-    using Common::OSUtilitiesImpl::fromIP4;
-    using Common::OSUtilitiesImpl::fromIP6;
     IDnsLookupPtr& LocalDnsStaticPointer()
     {
         static IDnsLookupPtr instance = IDnsLookupPtr(new Common::OSUtilitiesImpl::DnsLookupImpl());
@@ -63,11 +61,13 @@ namespace
 
             if( family == AF_INET)
             {
-                ips.ip4collection.emplace_back( fromIP4(ifa->ai_addr) );
+                struct sockaddr_in *ipSockAddr = reinterpret_cast<struct  sockaddr_in*>(ifa->ai_addr); // NOLINT
+                ips.ip4collection.emplace_back( ipSockAddr );
             }
             else if ( family == AF_INET6)
             {
-                ips.ip6collection.emplace_back( fromIP6(ifa->ai_addr));
+                struct sockaddr_in6 *ipSockAddr = reinterpret_cast<struct  sockaddr_in6*>(ifa->ai_addr); // NOLINT
+                ips.ip6collection.emplace_back( ipSockAddr);
             }
         }
 
