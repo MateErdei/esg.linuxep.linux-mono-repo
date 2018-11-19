@@ -212,12 +212,12 @@ namespace
                 data_t request = replierKillChannel->read();
                 if( request.at(0) == "killme")
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     ::kill(pid, SIGTERM);
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }catch (std::exception & ex)
             {
@@ -379,12 +379,22 @@ namespace
             try
             {
                 replier.serveRequest();
-            }catch ( std::exception & )
+            }catch ( std::exception & ex)
             {
+                std::cout << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what();
                 // the first one may or may not throw, but the second must not throw. 
             }
 
-            replier.serveRequest();
+            try
+            {
+                replier.serveRequest();
+            }catch ( std::exception & ex)
+            {
+                std::cout << "There was exception for replierShouldNotBreakIfRequesterFails 2: " << ex.what();
+                // the first one may or may not throw, but the second must not throw.
+                throw;
+            }
+
         });
 
         RunInExternalProcess runInExternalProcess(m_testContext);
@@ -413,22 +423,41 @@ namespace
     {
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
-        Tests::TestExecutionSynchronizer synchronizer;
-        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
+        Tests::TestExecutionSynchronizer requester2replier;
+        Tests::TestExecutionSynchronizer replier2requester;
+        auto futureRequester = std::async(std::launch::async, [serveraddress, &requester2replier, &replier2requester]() {
             Requester requester( serveraddress );
-            EXPECT_EQ(requester.sendReceive("a"), "a");
+            try
+            {
+                EXPECT_EQ(requester.sendReceive("a"), "a");
+            }catch (std::exception & ex)
+            {
+                EXPECT_TRUE(false) << "Throw in the first send. Logic error";
+            }
+
+
             EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
-            synchronizer.notify();
-            EXPECT_EQ(requester.sendReceive("c"), "c");
+            requester2replier.notify();
+            EXPECT_TRUE(replier2requester.waitfor(3000));
+            try
+            {
+                EXPECT_EQ(requester.sendReceive("c"), "c");
+            }catch (std::exception & ex)
+            {
+                EXPECT_TRUE(false) << "Throw in the second send";
+            }
+
+
         });
 
         // simulate a replier that 'crashes' after first established req-reply, but them comes back and can serve the requester.
-        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
+        auto futureReplier = std::async(std::launch::async, [serveraddress, &requester2replier, &replier2requester]() {
             std::unique_ptr<Replier> replier( new Replier(serveraddress) );
             replier->serveRequest();
             replier.reset();
-            synchronizer.waitfor(3000);
+            EXPECT_TRUE(requester2replier.waitfor(3000));
             replier.reset(new Replier(serveraddress));
+            replier2requester.notify();
             replier->serveRequest();
         });
 
