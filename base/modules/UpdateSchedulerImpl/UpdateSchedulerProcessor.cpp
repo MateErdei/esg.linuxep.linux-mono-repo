@@ -241,7 +241,6 @@ namespace UpdateSchedulerImpl
 
         LOGSUPPORT("Process reports to get events and status.");
         ReportAndFiles reportAndFiles = configModule::DownloadReportsAnalyser::processReports();
-        // get last sync
 
         if (reportAndFiles.sortedFilePaths.empty())
         {
