@@ -390,8 +390,15 @@ namespace
         runInExternalProcess.runFork(
                 [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
         );
+        try
+        {
+            futureReplier.get();
+        }catch ( std::exception & ex)
+        {
+            EXPECT_TRUE(false) << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
+        }
 
-        EXPECT_NO_THROW(futureReplier.get());
+
     }
 
 
