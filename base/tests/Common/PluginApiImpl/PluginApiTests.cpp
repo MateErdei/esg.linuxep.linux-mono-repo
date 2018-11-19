@@ -59,8 +59,8 @@ namespace
 
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
 
-            auto & context = pluginResourceManagement.getSocketContext();
-            server = std::thread(std::ref(responseServer), std::ref(context));
+            auto context = pluginResourceManagement.getSocketContext();
+            server = std::thread(std::ref(responseServer), context);
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
         }
         void TearDown() override
@@ -80,7 +80,7 @@ namespace
             dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
             dataMessage.ApplicationId = "plugin";
             dataMessage.MessageId = "1";
-            dataMessage.Payload.push_back("ACK");
+            dataMessage.Payload.emplace_back("ACK");
 
             return dataMessage;
         }
@@ -94,16 +94,16 @@ namespace
     };
 
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEvent)
+    TEST_F(PluginApiTests, pluginAPIcanSendEvent) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
         responseServer.setReply(dataMessage);
 
-        EXPECT_NO_THROW(plugin->sendEvent("plugin", "eventContent"));
+        EXPECT_NO_THROW(plugin->sendEvent("plugin", "eventContent")); //NOLINT
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutPayloadFails)
+    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutPayloadFails) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
@@ -111,70 +111,70 @@ namespace
 
         responseServer.setReply(dataMessage);
 
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
 
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand)
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty)
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Error = "Server rejected call";
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
     }
 
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfWrongProtocol)
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfWrongProtocol) //NOLINT
     {
         data_t invalidprotocol({"not", "valid", "protocol"});
         responseServer.setReplyRaw(invalidprotocol);
-        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
     }
 
 
-//    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer)
+//    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer) //NOLINT
 //    {
 //        responseServer.doNotReply();
 //        // attention: this require PluginResrouceManager to configure the timeout of plugin.
-//        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException);
+//        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
 //    }
 
-    TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand)
+    TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout"));
+        EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout")); //NOLINT
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty)
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Error = "Server rejected call";
         responseServer.setReply(dataMessage);
-        EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException);
+        EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException); //NOLINT
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand)
+    TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
         dataMessage.Payload.clear();
-        dataMessage.Payload.push_back("ACK");
+        dataMessage.Payload.emplace_back("ACK");
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->requestPolicies("plugin"));
+        EXPECT_NO_THROW(plugin->requestPolicies("plugin")); //NOLINT
     }
 
-    TEST( PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable)
+    TEST( PluginRegistrationTests, pluginWillFailToConstructIfNoManagementIsAvaliable) //NOLINT
     {
         Common::Logging::ConsoleLoggingSetup m_consoleLogging;
         MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
@@ -190,10 +190,7 @@ namespace
         resourceManagement.setDefaultConnectTimeout(500);
         resourceManagement.setDefaultTimeout(500); 
         // no management instantiated
-        ASSERT_THROW(resourceManagement.createPluginAPI("plugin", mockPluginCallback), Common::PluginApi::ApiException);
+        ASSERT_THROW(resourceManagement.createPluginAPI("plugin", mockPluginCallback), Common::PluginApi::ApiException); //NOLINT
 
     }
-
-
-
 }

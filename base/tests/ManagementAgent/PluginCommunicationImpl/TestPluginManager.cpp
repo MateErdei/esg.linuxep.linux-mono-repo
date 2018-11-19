@@ -45,12 +45,12 @@ public:
 
 
 
-        m_pluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
+        m_pluginManagerPtr.reset(
                 new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
         m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
-        m_mgmtCommon = std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement>(
-                new Common::PluginApiImpl::PluginResourceManagement(&m_pluginManagerPtr->getSocketContext()));
+        m_mgmtCommon.reset(
+                new Common::PluginApiImpl::PluginResourceManagement(m_pluginManagerPtr->getSocketContext()));
         setupFileSystemAndGetMock();
         m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
     }

@@ -225,9 +225,9 @@ namespace PluginCommunicationImpl
         m_RegisteredPlugins.erase(pluginName);
     }
 
-    Common::ZeroMQWrapper::IContext& PluginManager::getSocketContext()
+    Common::ZeroMQWrapper::IContextSharedPtr PluginManager::getSocketContext()
     {
-        return *m_context;
+        return m_context;
     }
 
     void PluginManager::setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket)

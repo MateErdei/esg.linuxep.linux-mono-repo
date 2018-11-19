@@ -18,7 +18,7 @@ namespace Common
         {
         public:
             PluginResourceManagement();
-            explicit PluginResourceManagement(Common::ZeroMQWrapper::IContext*);
+            explicit PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr);
 
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
             std::unique_ptr<Common::PluginApi::ISensorDataPublisher> createSensorDataPublisher(const std::string & pluginName) override ;
@@ -28,11 +28,10 @@ namespace Common
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs) ;
             void setDefaultConnectTimeout(int timeoutMs) ;
-            Common::ZeroMQWrapper::IContext & getSocketContext();
+            Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
             Common::ZeroMQWrapper::IContextSharedPtr m_contextPtr;
-            Common::ZeroMQWrapper::IContext* m_context;
             int m_defaulTimeout;
             int m_defaultConnectTimeout;
         };

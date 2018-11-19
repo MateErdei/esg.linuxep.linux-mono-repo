@@ -28,9 +28,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
 
-    void handleRegistration(Common::ZeroMQWrapper::IContext & context)
+    void handleRegistration(const Common::ZeroMQWrapper::IContextSharedPtr& context)
     {
-        auto replier = context.getReplier();
+        auto replier = context->getReplier();
         std::string address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
         replier->listen(address );
 
@@ -68,7 +68,7 @@ namespace
                     std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
 
-            std::thread registration(handleRegistration, std::ref(pluginResourceManagement.getSocketContext() ));
+            std::thread registration(handleRegistration, pluginResourceManagement.getSocketContext() );
 
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -108,7 +108,7 @@ namespace
             return dataMessage;
         }
 
-        Common::ZeroMQWrapper::IContext & context()
+        Common::ZeroMQWrapper::IContextSharedPtr context()
         {
             return pluginResourceManagement.getSocketContext();
         }

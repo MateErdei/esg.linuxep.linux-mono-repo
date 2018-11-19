@@ -31,7 +31,7 @@ public:
         Common::PluginProtocol::Protocol protocol;
         setReplyRaw(protocol.serialize(replyMessage));
     }
-    void setReplyRaw( Common::ZeroMQWrapper::IReadable::data_t replyMessage)
+    void setReplyRaw( const Common::ZeroMQWrapper::IReadable::data_t& replyMessage)
     {
         m_replyMessage = replyMessage;
     }
@@ -40,9 +40,9 @@ public:
         m_replyMessage.clear();
     }
 
-    void operator()(Common::ZeroMQWrapper::IContext & context)
+    void operator()(const Common::ZeroMQWrapper::IContextSharedPtr& context)
     {
-        auto replier = context.getReplier();
+        auto replier = context->getReplier();
         std::string address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
         replier->listen(address );
 

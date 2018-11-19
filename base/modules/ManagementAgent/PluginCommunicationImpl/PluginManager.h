@@ -48,7 +48,7 @@ namespace ManagementAgent
 
             std::vector<std::string> getRegisteredPluginNames() override;
 
-            Common::ZeroMQWrapper::IContext & getSocketContext();
+            Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
             void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;

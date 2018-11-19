@@ -34,10 +34,9 @@ namespace Common
         PluginResourceManagement::PluginResourceManagement()
         : m_contextPtr( Common::ZeroMQWrapper::createContext()), m_defaulTimeout(10000), m_defaultConnectTimeout(10000)
         {
-            m_context = m_contextPtr.get();
         }
-        PluginResourceManagement::PluginResourceManagement(Common::ZeroMQWrapper::IContext * context)
-        : m_contextPtr(), m_context(context), m_defaulTimeout(10000), m_defaultConnectTimeout(10000)
+        PluginResourceManagement::PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr context)
+        : m_contextPtr(std::move(context)), m_defaulTimeout(10000), m_defaultConnectTimeout(10000)
         {
 
         }
@@ -48,8 +47,8 @@ namespace Common
         {
             try
             {
-                auto requester = m_context->getRequester();
-                auto replier = m_context->getReplier();
+                auto requester = m_contextPtr->getRequester();
+                auto replier = m_contextPtr->getReplier();
                 setTimeouts(*replier);
                 setTimeouts(*requester);
 
@@ -65,7 +64,7 @@ namespace Common
                 {
                     // plugin_address starts with ipc:// Remove it.
                     std::string plugin_address_file = plugin_address.substr(6);
-                    Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRWXU | S_IRWXG);
+                    Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRWXU | S_IRWXG); //NOLINT
                     Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", "sophos-spl-group");
                 }
 
@@ -88,7 +87,7 @@ namespace Common
         std::unique_ptr<Common::PluginApi::ISensorDataPublisher>
         PluginResourceManagement::createSensorDataPublisher(const std::string &pluginName)
         {
-            auto socketPublisher = m_context->getPublisher();
+            auto socketPublisher = m_contextPtr->getPublisher();
             setTimeouts(*socketPublisher);
             std::string publishAddressChannel = ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress();
             socketPublisher->connect(publishAddressChannel);
@@ -101,7 +100,7 @@ namespace Common
         PluginResourceManagement::createSensorDataSubscriber(const std::string &sensorDataCategorySubscription,
                                                              std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
         {
-            auto socketSubscriber = m_context->getSubscriber();
+            auto socketSubscriber = m_contextPtr->getSubscriber();
             setTimeouts(*socketSubscriber);
             std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
             socketSubscriber->listen(subscriberAddressChannel);
@@ -126,9 +125,9 @@ namespace Common
             socket.setConnectionTimeout(m_defaultConnectTimeout);
         }
 
-        Common::ZeroMQWrapper::IContext &PluginResourceManagement::getSocketContext()
+        Common::ZeroMQWrapper::IContextSharedPtr PluginResourceManagement::getSocketContext()
         {
-            return *m_context;
+            return m_contextPtr;
         }
 
     }

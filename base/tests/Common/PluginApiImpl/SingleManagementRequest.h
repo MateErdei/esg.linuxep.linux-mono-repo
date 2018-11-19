@@ -21,16 +21,20 @@ class SingleManagementRequest
 public:
     SingleManagementRequest() = default;
     ~SingleManagementRequest() = default;
-    Common::PluginProtocol::DataMessage triggerRequest(Common::ZeroMQWrapper::IContext & context, const Common::PluginProtocol::DataMessage & requestMessage)
+    Common::PluginProtocol::DataMessage triggerRequest(
+            const Common::ZeroMQWrapper::IContextSharedPtr& context,
+            const Common::PluginProtocol::DataMessage & requestMessage)
     {
         Common::PluginProtocol::Protocol protocol;
         auto rawMessage = protocol.serialize(requestMessage);
         auto rawReply = triggerRawRequest(context, rawMessage);
         return protocol.deserialize(rawReply);
     }
-    Common::ZeroMQWrapper::IReadable::data_t triggerRawRequest(Common::ZeroMQWrapper::IContext & context, Common::ZeroMQWrapper::IReadable::data_t message)
+    Common::ZeroMQWrapper::IReadable::data_t triggerRawRequest(
+            const Common::ZeroMQWrapper::IContextSharedPtr& context,
+            const Common::ZeroMQWrapper::IReadable::data_t& message)
     {
-        auto requester = context.getRequester();
+        auto requester = context->getRequester();
         std::string address = Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress("plugin");
         requester->connect(address);
 
