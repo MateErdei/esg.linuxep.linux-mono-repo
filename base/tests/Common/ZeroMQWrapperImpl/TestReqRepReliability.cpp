@@ -376,7 +376,14 @@ namespace
 
         auto futureReplier = std::async(std::launch::async, [serveraddress]() {
             Replier replier( serveraddress );
-            replier.serveRequest();
+            try
+            {
+                replier.serveRequest();
+            }catch ( std::exception & )
+            {
+                // the first one may or may not throw, but the second must not throw. 
+            }
+
             replier.serveRequest();
         });
 
