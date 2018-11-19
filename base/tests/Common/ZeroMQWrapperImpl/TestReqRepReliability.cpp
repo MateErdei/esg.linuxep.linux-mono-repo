@@ -25,7 +25,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #ifndef ARTISANBUILD
-
+#ifdef SKIPTHISTESTSTEMP
 namespace
 {
     using data_t = Common::ZeroMQWrapper::IReadable::data_t;
@@ -465,4 +465,5 @@ namespace
 
     }
 }
+#endif
 #endif
