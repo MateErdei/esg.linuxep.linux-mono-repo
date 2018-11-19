@@ -100,7 +100,7 @@ namespace UpdateSchedulerImpl
                 config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
             }
 
-            ScheduledUpdate scheduledUpdate;
+            UpdateScheduler::ScheduledUpdate scheduledUpdate;
 
             auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
             std::string delayUpdatingDay = delayUpdating.value("Day");

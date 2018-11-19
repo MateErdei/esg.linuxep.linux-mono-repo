@@ -37,7 +37,7 @@ namespace UpdateSchedulerImpl
 
             void setPeriodTime(DurationTime repeatPeriod) override;
 
-            void setScheduledUpdate(ScheduledUpdate scheduledUpdate) override;
+            void setScheduledUpdate(UpdateScheduler::ScheduledUpdate scheduledUpdate) override;
 
             void setUpdateOnStartUp(bool updateOnStartUp) override;
 
@@ -58,7 +58,7 @@ namespace UpdateSchedulerImpl
             DurationTime m_firstTick;
             DurationTime m_periodTick;
             ActionOnInterrupt m_actionOnInterrupt;
-            ScheduledUpdate m_scheduledUpdate;
+            UpdateScheduler::ScheduledUpdate m_scheduledUpdate;
             bool m_updateOnStartUp;
         };
     }
