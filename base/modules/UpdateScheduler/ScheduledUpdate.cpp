@@ -40,7 +40,7 @@ namespace UpdateScheduler
         // If the last update time is before the most recent scheduled time, we have missed an update.
         // Additionally, if the most recent scheduled time will be more than a week ago in ten minutes time then we are about to miss an update
         return (mostRecentScheduledTime > lastUpdateTimestamp ||
-                mostRecentScheduledTime < (now - 7 * 24 * 60 * 60 + 10 * 60));
+                mostRecentScheduledTime < (now - 7*24*60*60 + 10*60));
     }
 
     std::time_t ScheduledUpdate::calculateMostRecentScheduledTime() const
