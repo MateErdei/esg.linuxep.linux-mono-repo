@@ -32,7 +32,9 @@ add_library(updateschedulerimpl SHARED
         runnerModule/AsyncSulDownloaderRunner.cpp
         runnerModule/AsyncSulDownloaderRunner.h
         ../UpdateScheduler/IAsyncSulDownloaderRunner.h
-        ../UpdateScheduler/ICronSchedulerThread.h)
+        ../UpdateScheduler/ICronSchedulerThread.h
+        ../UpdateScheduler/ScheduledUpdate.cpp
+        ../UpdateScheduler/ScheduledUpdate.h)
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 

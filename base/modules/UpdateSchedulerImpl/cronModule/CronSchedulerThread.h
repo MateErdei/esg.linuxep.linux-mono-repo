@@ -5,8 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateScheduler/ICronSchedulerThread.h>
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateScheduler/ScheduledUpdate.h>
 #include <Common/Threads/AbstractThread.h>
 #include <memory>
 
@@ -36,9 +37,9 @@ namespace UpdateSchedulerImpl
 
             void setPeriodTime(DurationTime repeatPeriod) override;
 
-            void setScheduledUpdate(bool enabled) override;
+            void setScheduledUpdate(ScheduledUpdate scheduledUpdate) override;
 
-            void setScheduledUpdateTime(std::tm time) override;
+            void setUpdateOnStartUp(bool updateOnStartUp) override;
 
         private:
             void run() override;
@@ -57,8 +58,8 @@ namespace UpdateSchedulerImpl
             DurationTime m_firstTick;
             DurationTime m_periodTick;
             ActionOnInterrupt m_actionOnInterrupt;
-            std::tm m_scheduledUpdateTime;
-            bool m_scheduledUpdate;
+            ScheduledUpdate m_scheduledUpdate;
+            bool m_updateOnStartUp;
         };
     }
 

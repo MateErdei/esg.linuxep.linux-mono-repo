@@ -334,7 +334,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, false);
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), false);
 
 }
 
@@ -389,7 +389,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                                           "2"}};
     EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, false);
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), false);
 }
 
 TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
@@ -426,10 +426,11 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
     EXPECT_EQ(config.getProductSelection()[1].Primary, false);
     EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
 
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.second, true);
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_wday, 3);
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_hour, 17);
-    EXPECT_EQ(settingsHolder.scheduledUpdateTime.first.tm_min, 0);
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 17);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
 }
 
 TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT

@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "SchedulerTaskQueue.h"
+#include "ScheduledUpdate.h"
 #include <chrono>
 
 namespace UpdateScheduler
@@ -26,8 +27,8 @@ namespace UpdateScheduler
 
         virtual void setPeriodTime(DurationTime repeatPeriod) = 0;
 
-        virtual void setScheduledUpdate(bool enabled) = 0;
+        virtual void setScheduledUpdate(ScheduledUpdate scheduledUpdate) = 0;
 
-        virtual void setScheduledUpdateTime(std::tm time) = 0;
+        virtual void setUpdateOnStartUp(bool updateOnStartUp) = 0;
     };
 }

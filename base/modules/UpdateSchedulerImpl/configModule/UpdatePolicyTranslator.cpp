@@ -100,8 +100,7 @@ namespace UpdateSchedulerImpl
                 config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
             }
 
-            std::pair<std::tm, bool> scheduledUpdateTime;
-            scheduledUpdateTime.second = false;
+            ScheduledUpdate scheduledUpdate;
 
             auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
             std::string delayUpdatingDay = delayUpdating.value("Day");
@@ -109,9 +108,11 @@ namespace UpdateSchedulerImpl
             if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
             {
                 std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
-                if(strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime.first))
+                std::tm scheduledUpdateTime;
+                if(strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
                 {
-                    scheduledUpdateTime.second = true;
+                    scheduledUpdate.setScheduledTime(scheduledUpdateTime);
+                    scheduledUpdate.setEnabled(true);
                 }
             }
 
@@ -162,7 +163,7 @@ namespace UpdateSchedulerImpl
                 periodInt = std::stoi(period);
             }
 
-            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt), scheduledUpdateTime};
+            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt), scheduledUpdate};
         }
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const

@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateScheduler/IMapHostCacheId.h>
+#include <UpdateScheduler/ScheduledUpdate.h>
 #include <Common/Exceptions/IException.h>
 #include <chrono>
 
@@ -19,7 +20,7 @@ namespace UpdateSchedulerImpl
             SulDownloader::suldownloaderdata::ConfigurationData configurationData;
             std::string updateCacheCertificatesContent;
             std::chrono::minutes schedulerPeriod;
-            std::pair<std::tm, bool> scheduledUpdateTime;
+            ScheduledUpdate scheduledUpdate;
         };
 
         class PolicyValidationException : public Common::Exceptions::IException

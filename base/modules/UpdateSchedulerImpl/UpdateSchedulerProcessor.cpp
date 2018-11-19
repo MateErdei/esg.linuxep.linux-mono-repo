@@ -121,15 +121,21 @@ namespace UpdateSchedulerImpl
 
             UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
 
-            if (settingsHolder.scheduledUpdateTime.second)
+            m_cronThread->setScheduledUpdate(settingsHolder.scheduledUpdate);
+            if (settingsHolder.scheduledUpdate.getEnabled())
             {
+                char buffer[20];
+                std::tm scheduledTime = settingsHolder.scheduledUpdate.getScheduledTime();
+                if (strftime(buffer,sizeof(buffer),"%A %H:%M", &scheduledTime))
+                {
+                    LOGINFO("Scheduling an update for " << buffer);
+                }
+
                 m_cronThread->setPeriodTime(std::chrono::minutes(1));
-                m_cronThread->setScheduledUpdateTime(settingsHolder.scheduledUpdateTime.first);
-                m_cronThread->setScheduledUpdate(true);
+
             }
             else
             {
-                m_cronThread->setScheduledUpdate(false);
                 m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
             }
 
@@ -140,12 +146,26 @@ namespace UpdateSchedulerImpl
                 // ensure that recent results 'if available' are processed.
                 // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
                 // there is no new results to be processed.
-                processSulDownloaderFinished("report.json");
+                std::string lastUpdate = processSulDownloaderFinished("report.json");
 
+                // If scheduled updating is enabled, check if we have missed an update, if we have, ensure we
+                // run an update on startup
+                if (!lastUpdate.empty() && settingsHolder.scheduledUpdate.getEnabled())
+                {
+                    if (settingsHolder.scheduledUpdate.missedUpdate(lastUpdate))
+                    {
+                        LOGINFO("Missed a scheduled update. Updating in 5-10 minutes.");
+                    }
+                    else
+                    {
+                        m_cronThread->setUpdateOnStartUp(false);
+                    }
+                }
             }
+
             m_policyReceived = true;
 
-            if ( m_pendingUpdate)
+            if (m_pendingUpdate)
             {
                 m_pendingUpdate = false;
                 processScheduleUpdate();
@@ -207,7 +227,7 @@ namespace UpdateSchedulerImpl
         m_queueTask->pushStop();
     }
 
-    void UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/)
+    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/)
     {
 
         auto iFileSystem = Common::FileSystem::fileSystem();
@@ -226,7 +246,7 @@ namespace UpdateSchedulerImpl
         if (reportAndFiles.sortedFilePaths.empty())
         {
             LOGSUPPORT("No report to process");
-            return;
+            return std::string();
         }
 
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
@@ -273,6 +293,11 @@ namespace UpdateSchedulerImpl
         m_callback->setStatus(Common::PluginApi::StatusInfo{statusXML, statusWithoutTimeStamp, ALC_API});
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGSUPPORT("Send status to Central");
+        if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
+        {
+            return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
+        }
+        return std::string();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)

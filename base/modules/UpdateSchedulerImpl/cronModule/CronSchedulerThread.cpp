@@ -9,17 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include <cassert>
 
-namespace
-{
-    // Scheduled updating. Start an update if we are within 2 minutes of the target time
-    bool timeToUpdate(std::tm now, std::tm target)
-    {
-        return (now.tm_wday == target.tm_wday) &&
-               (now.tm_hour == target.tm_hour) &&
-               (abs(now.tm_min - target.tm_min) <= 2);
-    }
-}
-
 namespace UpdateSchedulerImpl
 {
     namespace cronModule
@@ -36,8 +25,8 @@ namespace UpdateSchedulerImpl
                 , m_firstTick(firstTick)
                 , m_periodTick(repeatPeriod)
                 , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
-                , m_scheduledUpdateTime()
-                , m_scheduledUpdate(false)
+                , m_scheduledUpdate()
+                , m_updateOnStartUp(true)
         {
 
         }
@@ -69,26 +58,27 @@ namespace UpdateSchedulerImpl
             m_periodTick = repeatPeriod;
         }
 
-        void CronSchedulerThread::setScheduledUpdate(bool enabled)
+        void CronSchedulerThread::setScheduledUpdate(ScheduledUpdate scheduledUpdate)
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
-            m_scheduledUpdate = enabled;
+            m_scheduledUpdate = scheduledUpdate;
         }
 
-        void CronSchedulerThread::setScheduledUpdateTime(std::tm time)
+        void CronSchedulerThread::setUpdateOnStartUp(bool updateOnStartUp)
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
-            m_scheduledUpdateTime = time;
+            m_updateOnStartUp = updateOnStartUp;
         }
 
         void CronSchedulerThread::run()
         {
             std::chrono::milliseconds timeToWait = m_firstTick;
+            bool firstUpdate = true;
+
             announceThreadStarted();
             auto poller = Common::ZeroMQWrapper::createPoller();
 
             auto pipePollerEntry = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-
 
             while (true)
             {
@@ -109,8 +99,21 @@ namespace UpdateSchedulerImpl
 
                 if (poll_result.empty())
                 {
+                    // First update after m_firstTick seconds
+                    if (firstUpdate && m_updateOnStartUp)
+                    {
+                        m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                        firstUpdate = false;
+
+                        if (m_scheduledUpdate.getEnabled())
+                        {
+                            // Wait for 5 minutes so we do not update more than once
+                            timeToWait = std::chrono::minutes(5);
+                        }
+                    }
+
                     // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
-                    if (!m_scheduledUpdate)
+                    else if (!m_scheduledUpdate.getEnabled())
                     {
                         m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
                     }
@@ -118,10 +121,7 @@ namespace UpdateSchedulerImpl
                     // scheduled updating is enabled. Check if it is time to update
                     else
                     {
-                        std::tm now = Common::UtilityImpl::TimeUtils::getLocalTime();
-                        std::tm target = m_scheduledUpdateTime;
-
-                        if (timeToUpdate(now, target))
+                        if (m_scheduledUpdate.timeToUpdate())
                         {
                             m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
 
