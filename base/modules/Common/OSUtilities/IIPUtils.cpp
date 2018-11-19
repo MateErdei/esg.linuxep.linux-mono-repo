@@ -16,7 +16,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <cstring>
-
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 namespace
 {
     using Common::OSUtilities::IP4;
@@ -151,6 +153,19 @@ namespace Common
                 }
             }
             return 0;
+        }
+
+        IP4::IP4(const std::string& stringAddress)
+        {
+            in_addr_t ip = inet_addr( stringAddress.c_str());
+            if( ip == -1 )
+            {
+                std::stringstream s ;
+                s<< "Invalid ip address: " << stringAddress;
+                throw std::runtime_error(s.str());
+            }
+            m_address = stringAddress;
+            m_ip4addr = ip;
         }
 
 

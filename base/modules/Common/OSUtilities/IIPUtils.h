@@ -26,9 +26,10 @@ namespace Common
             int bitLength(const Ip4addr & ip4addr ) const;
         public:
             explicit IP4( struct sockaddr_in * );
+            explicit IP4( const std::string & stringAddress);
             int distance( const IP4 & other) const;
             std::string stringAddress() const {return m_address;};
-            //Ip4addr ipAddress() const{ return m_ip4addr; };
+            Ip4addr ipAddress() const{ return m_ip4addr; };
         };
 
         struct IP6
