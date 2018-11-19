@@ -35,7 +35,7 @@ namespace
     /** uses the requester as implemented in PluginProxy::getReply and  Common::PluginApiImpl::BaseServiceAPI::getReply**/
     class Requester
     {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     public:
         explicit Requester(const std::string& serverAddress)
@@ -60,7 +60,7 @@ namespace
 
     class Replier
     {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
     public:
         explicit Replier(const std::string& serverAddress, int timeout = 1000)
@@ -84,7 +84,7 @@ namespace
     class Unreliable
     {
     protected:
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requestKillChannel;
 
         void requestKill()
@@ -460,14 +460,14 @@ namespace
         auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
             Requester requester( serveraddress );
             EXPECT_EQ(requester.sendReceive("a"), "a");
-            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); //NOLINT
+            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
             synchronizer.notify();
             EXPECT_EQ(requester.sendReceive("c"), "c");
         });
 
         // simulate a replier that answers after the requester timeout.
         auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            auto m_context = Common::ZeroMQWrapper::createContext();
+            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
             Common::ZeroMQWrapper::ISocketReplierPtr m_replier = m_context->getReplier();
             m_replier->setTimeout(5000);
             m_replier->setConnectionTimeout(5000);
@@ -486,8 +486,21 @@ namespace
 
         });
 
-        EXPECT_NO_THROW(futureRequester.get()); //NOLINT
-        EXPECT_NO_THROW(futureReplier.get()); //NOLINT
+        try
+        {
+            futureRequester.get();
+        }catch ( std::exception & ex)
+        {
+            EXPECT_TRUE(false) << "Does not expect futureRequester.get to throw, but it throw: "<< ex.what();
+        }
+
+        try
+        {
+            futureReplier.get();
+        }catch ( std::exception & ex)
+        {
+            EXPECT_TRUE(false) << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
+        }
 
 
     }
