@@ -7,13 +7,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
-
+#include <Common/UtilityImpl/StringUtils.h>
 #include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/consoleappender.h>
 #include <Common/Logging/LoggingSetup.h>
 #include <log4cplus/loggingmacros.h>
+
 
 Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase)
 {
@@ -30,6 +31,7 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
 {
     Path logDir;
 
+    std::string logfilename =  Common::UtilityImpl::StringUtils::endswith(logbase, ".log")? logbase : logbase + ".log";
     if (lowpriv)
     {
         logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplLogDirectory();
@@ -39,7 +41,7 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
         logDir = Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory();
     }
 
-    Path logFilename = Common::FileSystem::join(logDir, logbase+".log");
+    Path logFilename = Common::FileSystem::join(logDir, logfilename);
 
     log4cplus::initialize();
 
