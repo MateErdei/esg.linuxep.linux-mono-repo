@@ -1,6 +1,9 @@
 include(capnproto/CMakeLists.txt)
 
 add_library(eventtypesimplobject OBJECT
+        ../EventTypes/ICredentialEvent.h
+        CredentialEvent.h
+        CredentialEvent.cpp
         EventTypesImpl.cpp
         EventTypesImpl.h)
 

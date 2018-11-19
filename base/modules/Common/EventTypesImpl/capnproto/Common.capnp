@@ -161,3 +161,13 @@ struct VersionInfo4 {
     maintenance          @2 :UInt32;
     build                @3 :UInt32;
 }
+
+struct UserSID {
+    username             @0 :Text;
+    sid                  @1 :SID;
+    domain               @2 :Text;
+}
+
+struct NetworkAddress {
+    address             @0 :Text;
+}
