@@ -432,8 +432,21 @@ namespace
             replier->serveRequest();
         });
 
-        EXPECT_NO_THROW(futureRequester.get());
-        EXPECT_NO_THROW(futureReplier.get());
+        try
+        {
+            futureRequester.get();
+        }catch ( std::exception & ex)
+        {
+            EXPECT_TRUE(false) << "Does not expect futureRequester.get to throw, but it throw: "<< ex.what();
+        }
+
+        try
+        {
+            futureReplier.get();
+        }catch ( std::exception & ex)
+        {
+            EXPECT_TRUE(false) << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
+        }
 
     }
 
