@@ -8,9 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "IHasFD.h"
-
-#include <vector>
-#include <string>
+#include "IDataType.h"
 
 namespace Common
 {
@@ -19,7 +17,7 @@ namespace Common
         class IWritable : public virtual IHasFD
         {
         public:
-            using data_t = std::vector<std::string>;
+            using data_t = Common::ZeroMQWrapper::data_t;
             /**
              * Write a multi-part message from data
              */

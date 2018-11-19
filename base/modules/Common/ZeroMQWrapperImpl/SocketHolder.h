@@ -17,11 +17,11 @@ namespace Common
         {
         public:
             explicit SocketHolder(void* zmq_socket = nullptr);
-            explicit SocketHolder(ContextHolder& context, int type);
+            explicit SocketHolder(ContextHolderSharedPtr& context, int type);
             ~SocketHolder();
             void* skt();
             void reset(void* zmq_socket = nullptr);
-            void reset(ContextHolder& context, int type);
+            void reset(ContextHolderSharedPtr& context, int type);
         private:
             void* m_socket;
         };

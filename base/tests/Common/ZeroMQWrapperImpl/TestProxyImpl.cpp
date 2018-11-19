@@ -122,7 +122,7 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
     auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
     ASSERT_NE(proxyImpl,nullptr);
 
-    Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
+    Common::ZeroMQWrapperImpl::ContextHolderSharedPtr contextHolder(proxyImpl->ctx());
 
     // Directly creating to share the same context
     Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
@@ -172,7 +172,7 @@ TEST(TestProxyImpl, 2subscribers) // NOLINT
     auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
     ASSERT_NE(proxyImpl,nullptr);
 
-    Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
+    Common::ZeroMQWrapperImpl::ContextHolderSharedPtr contextHolder(proxyImpl->ctx());
 
     // Directly creating to share the same context
     Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
@@ -234,7 +234,7 @@ TEST(TestProxyImpl, 2Senders) // NOLINT
     auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
     ASSERT_NE(proxyImpl,nullptr);
 
-    Common::ZeroMQWrapperImpl::ContextHolder& contextHolder(proxyImpl->ctx());
+    Common::ZeroMQWrapperImpl::ContextHolderSharedPtr contextHolder(proxyImpl->ctx());
 
     // Directly creating to share the same context
     Common::ZeroMQWrapper::ISocketPublisherPtr publisher1(

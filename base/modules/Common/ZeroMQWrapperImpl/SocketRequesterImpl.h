@@ -18,7 +18,7 @@ namespace Common
         class SocketRequesterImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketRequester
         {
         public:
-            explicit SocketRequesterImpl(ContextHolder& context);
+            explicit SocketRequesterImpl(ContextHolderSharedPtr context);
 
             std::vector<std::string> read() override;
 

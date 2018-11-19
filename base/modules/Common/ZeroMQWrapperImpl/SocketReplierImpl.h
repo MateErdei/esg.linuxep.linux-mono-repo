@@ -20,7 +20,7 @@ namespace Common
                 virtual public Common::ZeroMQWrapper::ISocketReplier
         {
         public:
-            explicit SocketReplierImpl(ContextHolder& context);
+            explicit SocketReplierImpl(ContextHolderSharedPtr context);
 
             std::vector<std::string> read() override;
 

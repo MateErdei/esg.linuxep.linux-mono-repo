@@ -21,7 +21,7 @@ namespace Common
                 public virtual Common::ZeroMQWrapper::ISocketPublisher
         {
         public:
-            explicit SocketPublisherImpl(ContextHolder& context);
+            explicit SocketPublisherImpl(ContextHolderSharedPtr context);
 
             void write(const std::vector<std::string> &data) override;
         };

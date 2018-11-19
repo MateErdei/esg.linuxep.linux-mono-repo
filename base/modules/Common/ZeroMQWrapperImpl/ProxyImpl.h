@@ -34,13 +34,19 @@ namespace Common
             void stop() override;
 
             void run();
-            ContextHolder &ctx();
+
+            /**
+             * Method used by unit tests to get the context used by the proxy,
+             * so that we can use inproc addresses to access the proxy.
+             * @return
+             */
+            ContextHolderSharedPtr& ctx();
 
         private:
             std::string m_frontendAddress;
             std::string m_backendAddress;
             std::string m_controlAddress;
-            ContextHolder m_context;
+            ContextHolderSharedPtr m_context;
             std::thread m_thread;
             std::mutex m_threadStarted;
             bool m_threadStartedFlag;

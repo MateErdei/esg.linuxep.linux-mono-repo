@@ -9,8 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <zmq.h>
 
-Common::ZeroMQWrapperImpl::SocketPublisherImpl::SocketPublisherImpl(Common::ZeroMQWrapperImpl::ContextHolder &context)
-    : SocketImpl(context,ZMQ_PUB)
+Common::ZeroMQWrapperImpl::SocketPublisherImpl::SocketPublisherImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context)
+    : SocketImpl(std::move(context),ZMQ_PUB)
 {
     // the linger controls that the publisher will be kept running on its destructor to give
     // time to the subscriber to receive the remaining messages.

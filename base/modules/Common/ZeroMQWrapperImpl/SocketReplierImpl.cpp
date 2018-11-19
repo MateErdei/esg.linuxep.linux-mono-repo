@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <zmq.h>
 
-Common::ZeroMQWrapperImpl::SocketReplierImpl::SocketReplierImpl(Common::ZeroMQWrapperImpl::ContextHolder &context)
-        : SocketImpl(context, ZMQ_REP)
+Common::ZeroMQWrapperImpl::SocketReplierImpl::SocketReplierImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context)
+        : SocketImpl(std::move(context), ZMQ_REP)
 {
 
 }

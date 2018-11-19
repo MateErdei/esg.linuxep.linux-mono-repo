@@ -11,6 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
+    Common::ZeroMQWrapperImpl::ContextHolderSharedPtr createContext()
+    {
+        return std::make_shared<Common::ZeroMQWrapperImpl::ContextHolder>();
+    }
+
     TEST(TestSocketHolder, DefaultCreation) // NOLINT
     {
         Common::ZeroMQWrapperImpl::SocketHolder socket;
@@ -41,12 +46,11 @@ namespace
 
     TEST(TestSocketHolder, TestInternalCreation) // NOLINT
     {
-
-        Common::ZeroMQWrapperImpl::ContextHolder holder;
+        Common::ZeroMQWrapperImpl::ContextHolderSharedPtr holder = createContext();
         Common::ZeroMQWrapperImpl::SocketHolder socket(holder, ZMQ_REP);
         ASSERT_NE(socket.skt(), nullptr);
 
-        void* socket2 = zmq_socket(holder.ctx(), ZMQ_REP);
+        void* socket2 = zmq_socket(holder->ctx(), ZMQ_REP);
         socket.reset(socket2);
         ASSERT_EQ(socket.skt(),socket2);
     }

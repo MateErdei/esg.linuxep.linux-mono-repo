@@ -22,8 +22,8 @@ namespace Common
             virtual public Common::ZeroMQWrapper::ISocketSubscriber
         {
         public:
-            explicit SocketSubscriberImpl(ContextHolder& context)
-                : SocketImpl(context, ZMQ_SUB)
+            explicit SocketSubscriberImpl(ContextHolderSharedPtr context)
+                : SocketImpl(std::move(context), ZMQ_SUB)
             {}
 
             /**
@@ -41,6 +41,3 @@ namespace Common
 
     }
 }
-
-
-

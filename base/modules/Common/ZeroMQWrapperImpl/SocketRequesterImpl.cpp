@@ -11,8 +11,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace Common::ZeroMQWrapperImpl;
 
-SocketRequesterImpl::SocketRequesterImpl(Common::ZeroMQWrapperImpl::ContextHolder &context)
-    : SocketImpl(context, ZMQ_REQ)
+SocketRequesterImpl::SocketRequesterImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context)
+    : SocketImpl(std::move(context), ZMQ_REQ)
 {
 }
 

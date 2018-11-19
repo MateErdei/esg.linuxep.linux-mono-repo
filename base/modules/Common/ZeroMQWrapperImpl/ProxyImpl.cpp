@@ -27,6 +27,7 @@ Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, con
     :   m_frontendAddress(frontend),
         m_backendAddress(backend),
         m_controlAddress("inproc://PubSubControl"),
+        m_context(new ContextHolder()),
         m_threadStartedFlag(false),
         m_controlPub(m_context, ZMQ_PUSH)
 {
@@ -42,7 +43,8 @@ Common::ZeroMQWrapperImpl::ProxyImpl::~ProxyImpl()
 void Common::ZeroMQWrapperImpl::ProxyImpl::start()
 {
     // Start thread
-    assert(m_context.ctx() != nullptr);
+    assert(m_context.get() != nullptr);
+    assert(m_context->ctx() != nullptr);
     std::unique_lock<std::mutex> lock(m_threadStarted);
     m_thread = std::move(std::thread(&ProxyImpl::run,this));
     m_ensureThreadStarted.wait(lock,[this](){return m_threadStartedFlag;});
@@ -80,7 +82,7 @@ void ProxyImpl::announceThreadStarted()
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::run()
 {
-    if (m_context.ctx() == nullptr)
+    if (m_context->ctx() == nullptr)
     {
         announceThreadStarted();
         return;
@@ -104,7 +106,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::run()
     zmq_proxy_steerable(xsub.skt(), xpub.skt(), nullptr, controlSub.skt());
 }
 
-Common::ZeroMQWrapperImpl::ContextHolder & Common::ZeroMQWrapperImpl::ProxyImpl::ctx()
+Common::ZeroMQWrapperImpl::ContextHolderSharedPtr& Common::ZeroMQWrapperImpl::ProxyImpl::ctx()
 {
     return m_context;
 }

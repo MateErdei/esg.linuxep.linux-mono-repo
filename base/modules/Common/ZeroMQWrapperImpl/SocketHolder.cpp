@@ -37,20 +37,21 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void *zmq_socket)
     m_socket = zmq_socket;
 }
 
-Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl::ContextHolder &context, const int type)
+Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr& context, const int type)
     : m_socket(nullptr)
 {
     reset(context, type);
 }
 
-void Common::ZeroMQWrapperImpl::SocketHolder::reset(Common::ZeroMQWrapperImpl::ContextHolder& context, int type)
+void Common::ZeroMQWrapperImpl::SocketHolder::reset(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr& context, int type)
 {
-    assert(context.ctx() != nullptr);
+    assert(context.get() != nullptr);
+    assert(context->ctx() != nullptr);
     if( m_socket != nullptr)
     {
         zmq_close(m_socket);
     }
-    m_socket = zmq_socket(context.ctx(), type);
+    m_socket = zmq_socket(context->ctx(), type);
     if (m_socket == nullptr)
     {
         throw ZeroMQWrapperException("Failed to create socket");

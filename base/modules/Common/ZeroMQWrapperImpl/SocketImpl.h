@@ -36,7 +36,7 @@ namespace Common
         public:
             int fd() override;
 
-            explicit SocketImpl(ContextHolder& context, int type);
+            explicit SocketImpl(ContextHolderSharedPtr context, int type);
 
             void setTimeout(int timeoutMs) override;
 
@@ -58,7 +58,7 @@ namespace Common
             void refresh();
             int timeout() const;
         protected:
-            ContextHolder & m_referenceContext;
+            ContextHolderSharedPtr m_context;
             AppliedSettings m_appliedSettings;
             SocketHolder m_socket;
         };

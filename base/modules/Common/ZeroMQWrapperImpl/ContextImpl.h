@@ -18,7 +18,7 @@ namespace Common
         class ContextImpl : public virtual Common::ZeroMQWrapper::IContext
         {
         public:
-            ContextImpl() = default;
+            ContextImpl();
             ~ContextImpl() override = default;
 
             Common::ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() override;
@@ -30,7 +30,7 @@ namespace Common
             Common::ZeroMQWrapper::ISocketReplierPtr getReplier() override;
 
         private:
-            ContextHolder m_context;
+            ContextHolderSharedPtr m_context;
         };
     }
 }

@@ -14,8 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace Common::ZeroMQWrapperImpl;
 
-Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::ContextHolder &context, int type)
-        : m_referenceContext(context), m_socket(context,type)
+Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context, int type)
+        : m_context(context), m_socket(context,type)
 {
     m_appliedSettings.socketType = type;
 }
@@ -60,7 +60,9 @@ int SocketImpl::fd()
 
 void SocketImpl::refresh()
 {
-    m_socket.reset(m_referenceContext, m_appliedSettings.socketType);
+    assert(m_context.get() != nullptr);
+    assert(m_context->ctx() != nullptr);
+    m_socket.reset(m_context, m_appliedSettings.socketType);
     if (m_appliedSettings.timeout != -1)
     {
         setTimeout(m_appliedSettings.timeout);
