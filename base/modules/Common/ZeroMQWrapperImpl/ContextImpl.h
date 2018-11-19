@@ -19,7 +19,7 @@ namespace Common
         {
         public:
             ContextImpl();
-            ~ContextImpl() override = default;
+            ~ContextImpl() override;
 
             Common::ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() override;
 

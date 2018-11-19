@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <iostream>
 #include "ContextImpl.h"
 #include "SocketRequesterImpl.h"
 #include "SocketReplierImpl.h"
@@ -11,6 +12,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SocketSubscriberImpl.h"
 
 using namespace Common::ZeroMQWrapperImpl;
+
+ContextImpl::ContextImpl()
+        : m_context(new ContextHolder())
+{
+}
+
+ContextImpl::~ContextImpl()
+{
+    if (m_context.use_count() > 1)
+    {
+        std::cerr << "WARNING: Deleting m_context while use_count > 1: " << m_context.use_count() << std::endl;
+    }
+}
 
 Common::ZeroMQWrapper::ISocketSubscriberPtr ContextImpl::getSubscriber()
 {
@@ -38,11 +52,6 @@ Common::ZeroMQWrapper::ISocketReplierPtr ContextImpl::getReplier()
     return Common::ZeroMQWrapper::ISocketReplierPtr(
             new SocketReplierImpl(m_context)
             );
-}
-
-ContextImpl::ContextImpl()
-    : m_context(new ContextHolder())
-{
 }
 
 Common::ZeroMQWrapper::IContextSharedPtr Common::ZeroMQWrapper::createContext()
