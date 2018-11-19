@@ -31,7 +31,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #ifndef ARTISANBUILD
 
-#ifdef SKIPTHISTESTSTEMP
 using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
 using namespace Common::PluginApiImpl;
 using namespace Common::PluginApi;
@@ -202,5 +201,5 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     ASSERT_GT(receivedData.size(), 0);
 
 }
-#endif
+
 #endif
