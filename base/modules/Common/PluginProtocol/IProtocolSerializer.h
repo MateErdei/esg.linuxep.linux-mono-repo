@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "Common/PluginProtocol/DataMessage.h"
+#include "Common/ZeroMQWrapper/IDataType.h"
 
 #include <string>
 #include <vector>
@@ -16,7 +17,7 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        using data_t  = std::vector<std::string>;
+        using data_t =  Common::ZeroMQWrapper::data_t;
 
         class IProtocolSerializer
         {
@@ -27,8 +28,8 @@ namespace Common
             /**
              * Class used to abstract out the serialization and deserialization of messages based on message protocol
              *
-             * @param data DataMessage to convert to a data_t 'std::vector<std::string>'
-             * @return  data_t 'std::vector<std::string>' containing the data obtained from data message based on
+             * @param data DataMessage to convert to a PluginProtocolProto::PluginAPIMessage
+             * @return  PluginProtocolProto::PluginAPIMessage containing the data obtained from data message based on
              *          protocol specified in the data message.
              */
             virtual const data_t serialize(const DataMessage &data)const = 0;

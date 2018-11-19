@@ -38,7 +38,6 @@ public:
     {
         Common::PluginProtocol::DataMessage dataMessage;
         dataMessage.Command = command;
-        dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
         dataMessage.ApplicationId = appId;
         dataMessage.PluginName = appId;
         dataMessage.MessageId = "";

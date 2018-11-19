@@ -50,7 +50,7 @@ public:
         Common::PluginProtocol::Protocol protocol;
         auto request = protocol.deserialize(replier->read());
         assert( request.Command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
-        Common::PluginProtocol::MessageBuilder messageBuilder("v1", "plugin");
+        Common::PluginProtocol::MessageBuilder messageBuilder("plugin");
         auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
         replier->write(replyMessage);
 

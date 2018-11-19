@@ -17,26 +17,17 @@ namespace Common
         Protocol::Protocol(std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> protocolFactory)
         : m_protocolFactory(std::move(protocolFactory))
         {
-
         }
 
         const data_t Protocol::serialize(const Common::PluginProtocol::DataMessage &dataMessage)const
         {
-            auto serializer = m_protocolFactory->createProtocolSerializer(dataMessage.ProtocolVersion);
-
+            auto serializer = m_protocolFactory->createProtocolSerializer();
             return serializer->serialize(dataMessage);
         }
 
         const Common::PluginProtocol::DataMessage Protocol::deserialize(const data_t &data) const
         {
-            std::string protocolversion;
-            if (!data.empty())
-            {
-                protocolversion = data[0];
-            }
-
-            auto serializer = m_protocolFactory->createProtocolSerializer(protocolversion);
-
+            auto serializer = m_protocolFactory->createProtocolSerializer();
             return serializer->deserialize(data);
         }
 

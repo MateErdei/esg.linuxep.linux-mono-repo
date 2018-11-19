@@ -19,7 +19,7 @@ namespace Common
         class MessageBuilder
         {
         public:
-            MessageBuilder(const std::string &protocolVersion, const std::string &pluginName);
+            explicit MessageBuilder(const std::string &pluginName);
 
             /** Create the requests as client **/
             DataMessage requestSendEventMessage(const std::string &appId, const std::string &eventXml) const;
@@ -65,8 +65,6 @@ namespace Common
 
 
             std::string m_pluginName;
-            std::string m_protocolVersion;
-
         };
     }
 }

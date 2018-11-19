@@ -18,7 +18,7 @@ namespace PluginCommunicationImpl
 
     PluginProxy::PluginProxy(Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester, const std::string &pluginName) :
             m_socket(std::move(socketRequester)),
-            m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName),
+            m_messageBuilder(pluginName),
             m_name(pluginName)
     {
         m_appIdCollection.setAppIdsForStatus({pluginName});
@@ -89,8 +89,9 @@ namespace PluginCommunicationImpl
         if( reply.Command != request.Command)
         {
             throw PluginCommunication::IPluginCommunicationException(
-                    "Received reply from wrong command, expecting" + Common::PluginProtocol::SerializeCommand(request.Command) +
-                    ", Received: " + Common::PluginProtocol::SerializeCommand(request.Command));
+                    "Received reply from wrong command, expecting" +
+                            Common::PluginProtocol::ConvertCommandEnumToString(request.Command) +
+                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(request.Command));
         }
 
         if ( !reply.Error.empty())

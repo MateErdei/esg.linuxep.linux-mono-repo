@@ -17,7 +17,7 @@ namespace Common
                                                      std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
                                                      std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback):
                 AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::HANDLESHUTDOWN),
-                m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
+                m_messageBuilder(pluginName)
                 , m_pluginCallback(std::move(pluginCallback))
         {
         }

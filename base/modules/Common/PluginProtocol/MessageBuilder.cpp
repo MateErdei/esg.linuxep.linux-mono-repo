@@ -11,9 +11,8 @@ namespace Common
     {
         using namespace Common::PluginApi;
 
-        MessageBuilder::MessageBuilder(const std::string &protocolVersion, const std::string &pluginName)
+        MessageBuilder::MessageBuilder(const std::string &pluginName)
                 : m_pluginName(pluginName)
-        , m_protocolVersion(protocolVersion)
         {
 
         }
@@ -156,7 +155,6 @@ namespace Common
             dataMessage.ApplicationId = appId;
             dataMessage.PluginName = m_pluginName;
             dataMessage.Command = command;
-            dataMessage.ProtocolVersion = m_protocolVersion;
             if ( !payload.empty())
             {
                 dataMessage.Payload.push_back(payload);

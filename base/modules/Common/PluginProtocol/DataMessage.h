@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
+
 namespace Common
 {
     namespace PluginProtocol
@@ -27,12 +28,6 @@ namespace Common
 
         struct DataMessage
         {
-            /**
-                      * ProtocalVersion, used to identify what implementation of the message serialise and deserialise should be used.
-                      * to process the message.
-                      */
-            std::string ProtocolVersion;
-
             // see https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol
             /**
              * ApplicationId, used to store identifier for the application i.e. ALC, SAV etc..
@@ -65,8 +60,7 @@ namespace Common
             std::vector<std::string> Payload;
         };
 
-        std::string SerializeCommand( Commands  command);
-        Commands DeserializeCommand( const std::string & command_str);
+        std::string ConvertCommandEnumToString(Commands command);
 
     }
 }

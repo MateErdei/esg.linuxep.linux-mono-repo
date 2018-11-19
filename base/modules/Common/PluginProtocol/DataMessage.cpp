@@ -12,7 +12,7 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        std::string SerializeCommand(Commands command)
+        std::string ConvertCommandEnumToString(Commands command)
         {
             switch (command)
             {
@@ -37,43 +37,6 @@ namespace Common
                     return "InvalidCommand";
 
             }
-        }
-
-        Commands DeserializeCommand(const std::string& command_str)
-        {
-            if (command_str == SerializeCommand(Commands::PLUGIN_SEND_EVENT))
-            {
-                return Commands::PLUGIN_SEND_EVENT;
-            }
-            else if (command_str == SerializeCommand(Commands::PLUGIN_SEND_STATUS))
-            {
-                return Commands::PLUGIN_SEND_STATUS;
-            }
-            else if (command_str == SerializeCommand(Commands::PLUGIN_SEND_REGISTER))
-            {
-                return Commands::PLUGIN_SEND_REGISTER;
-            }
-            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_APPLY_POLICY))
-            {
-                return Commands::REQUEST_PLUGIN_APPLY_POLICY;
-            }
-            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_DO_ACTION))
-            {
-                return Commands::REQUEST_PLUGIN_DO_ACTION;
-            }
-            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_STATUS))
-            {
-                return Commands::REQUEST_PLUGIN_STATUS;
-            }
-            else if (command_str == SerializeCommand(Commands::REQUEST_PLUGIN_TELEMETRY))
-            {
-                return Commands::REQUEST_PLUGIN_TELEMETRY;
-            }
-            else if (command_str == SerializeCommand(Commands::PLUGIN_QUERY_CURRENT_POLICY))
-            {
-                return Commands::PLUGIN_QUERY_CURRENT_POLICY;
-            }
-            return Commands::UNKNOWN;
         }
     }
 }

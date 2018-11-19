@@ -15,7 +15,7 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        using data_t = std::vector<std::string>;
+        using data_t =  Common::ZeroMQWrapper::data_t;
 
         class Protocol
         {

@@ -14,10 +14,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 Common::PluginApiImpl::BaseServiceAPI::BaseServiceAPI(const std::string &pluginName,
                                                     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester)
         : m_pluginName(pluginName), m_socket(std::move(socketRequester)), m_pluginCallbackHandler(),
-          m_messageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion, pluginName)
+          m_messageBuilder(pluginName)
 {
     LOGSUPPORT("Plugin initialized: " << pluginName);
-    LOGSUPPORT("Uses protocol version :" << Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion);
 }
 
 void Common::PluginApiImpl::BaseServiceAPI::setPluginCallback(const std::string &pluginName,
@@ -129,8 +128,9 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
     if( reply.Command != request.Command)
     {
-        std::string errorMessage("Received reply from wrong command, expecting" + Common::PluginProtocol::SerializeCommand(request.Command) +
-                                 ", Received: " + Common::PluginProtocol::SerializeCommand(reply.Command));
+        std::string errorMessage("Received reply from wrong command, expecting" +
+                                         Common::PluginProtocol::ConvertCommandEnumToString(request.Command) +
+                                 ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.Command));
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }

@@ -12,20 +12,8 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        const char*  ProtocolSerializerFactory::ProtocolErrorMark = "Error";
-        const char*  ProtocolSerializerFactory::ProtocolVersion = "v1";
-
-        std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::createProtocolSerializer(
-                const std::string &protocolVersion)
+        std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::createProtocolSerializer()
         {
-
-            // using protocol verson 1.
-            if(protocolVersion == ProtocolSerializerFactory::ProtocolVersion)
-            {
-                return std::unique_ptr<Common::PluginProtocol::IProtocolSerializer>(new Common::PluginProtocol::ProtocolSerializer());
-            }
-
-            // default ProtocolSerializer so we can correctly respond with an error in a message.
             return std::unique_ptr<Common::PluginProtocol::IProtocolSerializer>(new Common::PluginProtocol::ProtocolSerializer());
         }
 

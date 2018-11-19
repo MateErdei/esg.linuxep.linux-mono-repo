@@ -1,3 +1,5 @@
+include(proto/CMakeLists.txt)
+
 add_library(pluginprotocolobject OBJECT
         DataMessage.h
         DataMessage.cpp
@@ -5,6 +7,8 @@ add_library(pluginprotocolobject OBJECT
         AbstractListenerServer.h
         MessageBuilder.cpp
         MessageBuilder.h
+        ${PLUGIN_API_MESSAGE_PROTO_SRC}
+        ${PLUGIN_API_MESSAGE_PROTO_H}
         Protocol.h
         Protocol.cpp
         ProtocolSerializer.h
@@ -18,7 +22,7 @@ add_library(pluginprotocolobject OBJECT
 target_include_directories(pluginprotocolobject PUBLIC ../ZeroMQWrapper ../Reactor ../../ ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginprotocol SHARED $<TARGET_OBJECTS:pluginprotocolobject> )
 
-target_link_libraries(pluginprotocol PUBLIC zeromqwrapperimpl reactorimpl ${LOG4CPLUS_LIBRARY})
+target_link_libraries(pluginprotocol PUBLIC zeromqwrapperimpl reactorimpl ${LOG4CPLUS_LIBRARY} ${Protobuf_LIBRARIES})
 
 SET_TARGET_PROPERTIES( pluginprotocol
         PROPERTIES INSTALL_RPATH "$ORIGIN")

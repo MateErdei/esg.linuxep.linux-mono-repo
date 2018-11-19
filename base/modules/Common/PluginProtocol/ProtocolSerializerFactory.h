@@ -17,10 +17,7 @@ namespace Common
         class ProtocolSerializerFactory
         {
         public:
-            static const char* ProtocolErrorMark;// = "Error";
-            static const char* ProtocolVersion;// = "v1";
-            std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> createProtocolSerializer(
-                    const std::string &protocolVersion);
+            std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> createProtocolSerializer();
         };
     }
 }

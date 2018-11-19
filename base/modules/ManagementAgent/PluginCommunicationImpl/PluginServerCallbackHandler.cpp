@@ -18,7 +18,7 @@ namespace ManagementAgent
                 std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
                 std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback) :
                 AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::DONOTARM),
-                m_messageBuilder("NotUsed", ProtocolSerializerFactory::ProtocolVersion),
+                m_messageBuilder("NotUsed"),
                 m_serverCallback(std::move(serverCallback))
         {
         }

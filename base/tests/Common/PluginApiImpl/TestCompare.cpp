@@ -16,13 +16,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
     std::stringstream s;
     s << m_expr << " and " << n_expr << " failed: ";
 
-    if (expected.ProtocolVersion != resulted.ProtocolVersion)
-    {
-        return ::testing::AssertionFailure() << s.str() << " Protocol differ: \n expected: "
-                                             << expected.ProtocolVersion
-                                             << "\n result: " << resulted.ProtocolVersion;
-    }
-
     if (expected.ApplicationId != resulted.ApplicationId)
     {
         return ::testing::AssertionFailure() << s.str() << " Application Id differ: \n expected: "
@@ -47,9 +40,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
     if (expected.Command != resulted.Command)
     {
         return ::testing::AssertionFailure() << s.str() << " command differ: \n expected: "
-                                             << Common::PluginProtocol::SerializeCommand(expected.Command)
+                                             << Common::PluginProtocol::ConvertCommandEnumToString(expected.Command)
                                              << "\n result: "
-                                             << Common::PluginProtocol::SerializeCommand(resulted.Command);
+                                             << Common::PluginProtocol::ConvertCommandEnumToString(resulted.Command);
     }
 
     if (expected.Error != resulted.Error)

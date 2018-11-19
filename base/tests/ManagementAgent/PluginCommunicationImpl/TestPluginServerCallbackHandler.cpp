@@ -52,7 +52,6 @@ public:
     {
         Common::PluginProtocol::DataMessage dataMessage;
         dataMessage.Command = command;
-        dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
         dataMessage.ApplicationId = "plugin";
         dataMessage.MessageId = "1";
         if (!firstPayloadItem.empty())

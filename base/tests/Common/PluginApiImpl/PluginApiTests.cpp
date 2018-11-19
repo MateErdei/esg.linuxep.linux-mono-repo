@@ -77,7 +77,6 @@ namespace
         {
             Common::PluginProtocol::DataMessage dataMessage;
             dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
-            dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
             dataMessage.ApplicationId = "plugin";
             dataMessage.MessageId = "1";
             dataMessage.Payload.emplace_back("ACK");

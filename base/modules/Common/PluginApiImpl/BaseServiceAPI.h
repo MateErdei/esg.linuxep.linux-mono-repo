@@ -46,7 +46,7 @@ namespace Common
             Common::ZeroMQWrapper::ISocketRequesterPtr  m_socket;
 
             std::unique_ptr<PluginCallBackHandler> m_pluginCallbackHandler;
-        Common::PluginProtocol::MessageBuilder m_messageBuilder;
+            Common::PluginProtocol::MessageBuilder m_messageBuilder;
     };
     }
 }

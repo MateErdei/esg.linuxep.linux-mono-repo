@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package PluginProtocolProto;
+
+
+//FIXME LINUXEP-6537: add information about the purpose of these entries.
+
+message PluginAPIMessage
+{
+    required string applicationId = 1;
+    required string pluginName = 2;
+    enum CommandOption
+    {
+        SendEvent = 1;
+        SendStatus = 2;
+        Registration = 3;
+        ApplyPolicy = 4;
+        DoAction = 5;
+        RequestStatus = 6;
+        Telemetry = 7;
+        RequestCurrentPolicy = 8;
+        InvalidCommand = 9;
+    }
+    required CommandOption command = 3;
+    required string MessageId = 4;
+    repeated string payload = 5;
+    optional string error = 6;
+    optional string acknowledge = 7;
+}
+

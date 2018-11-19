@@ -29,9 +29,7 @@ public:
         defaultAppId = "testApp";
         defaultPluginName = "PluginApp";
         m_messageBuilder = std::unique_ptr<MessageBuilder>(
-                new MessageBuilder(Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion,
-                                   defaultPluginName
-                ));
+                new MessageBuilder(defaultPluginName));
 
     }
 
@@ -43,7 +41,6 @@ public:
     DataMessage createDataMessage()
     {
         DataMessage dataMessage;
-        dataMessage.ProtocolVersion = Common::PluginProtocol::ProtocolSerializerFactory::ProtocolVersion;
         dataMessage.ApplicationId = defaultAppId;
         dataMessage.PluginName = defaultPluginName;
         dataMessage.MessageId = "";
