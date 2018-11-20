@@ -4,11 +4,11 @@ environment {
     PLUGIN_NAME = "${PLUGIN_NAME}"
 }
 
-def buildUsingScript()
+def buildUsingScript(PLUGIN_NAME)
 {
     checkout scm
     withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']) {
-        sh './build.sh --name ${PLUGIN_NAME}'
+        sh './build.sh --name "${PLUGIN_NAME}"'
     }
 }
 
@@ -30,7 +30,7 @@ pipeline {
                 }
             }
             steps {
-                buildUsingScript()
+                buildUsingScript("${PLUGIN_NAME}")
             }
             post {
                 success {
