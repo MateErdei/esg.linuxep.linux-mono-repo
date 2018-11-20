@@ -17,6 +17,7 @@ export PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
 export PRODUCT_NAME=
 export PRODUCT_LINE_ID=
 export DEFAULT_HOME_FOLDER=
+PLUGIN_TAR=
 
 while [[ $# -ge 1 ]]
 do
@@ -91,6 +92,7 @@ function untar_or_link_to_redist()
 {
     local input=$1
     local tarbase=$2
+    local override_tar=$3
     local tar
     if [[ -n $tarbase ]]
     then
@@ -99,7 +101,11 @@ function untar_or_link_to_redist()
         tar=${INPUT}/${input}.tar
     fi
 
-    if [[ -f "$tar" ]]
+    if [[ -n "$override_tar" ]]
+    then
+        echo "Untaring override $override_tar"
+        tar xzf "${override_tar}" -C "$REDIST"
+    elif [[ -f "$tar" ]]
     then
         echo "Untaring $tar"
         tar xf "$tar" -C "$REDIST"
@@ -140,7 +146,7 @@ function build()
         REDIST=$BASE/redist
         mkdir -p $REDIST
 
-        untar_or_link_to_redist pluginapi
+        untar_or_link_to_redist pluginapi "" ${PLUGIN_TAR}
         untar_or_link_to_redist cmake cmake-3.11.2-linux
 
     elif [[ -d "$ALLEGRO_REDIST" ]]
