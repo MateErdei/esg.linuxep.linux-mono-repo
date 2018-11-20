@@ -8,7 +8,7 @@ def buildUsingScript(PLUGIN_NAME)
 {
     checkout scm
     withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']) {
-        sh './build.sh --name "${PLUGIN_NAME}"'
+        sh "./build.sh --name ${PLUGIN_NAME}"
     }
 }
 
