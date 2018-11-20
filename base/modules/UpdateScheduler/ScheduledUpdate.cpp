@@ -20,8 +20,8 @@ namespace UpdateScheduler
     bool ScheduledUpdate::timeToUpdate(int offsetInMinutes) const
     {
         std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
-        time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes;
-        time_t lastScheduledUpdateTime = calculateLastScheduledUpdateTime(now) + offsetInMinutes;
+        time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes*60;
+        time_t lastScheduledUpdateTime = calculateLastScheduledUpdateTime(now) + offsetInMinutes*60;
         time_t timeUntilNextScheduledUpdateTime = nextScheduledUpdateTime - now;
         time_t timeSinceLastScheduledUpdateTime = now - lastScheduledUpdateTime;
 
