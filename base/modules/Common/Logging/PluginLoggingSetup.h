@@ -12,17 +12,13 @@ namespace Common
 {
     namespace Logging
     {
-        class FileLoggingSetup
+        class PluginLoggingSetup
         {
+
         public:
-            explicit FileLoggingSetup(const std::string& logbase);
-            ~FileLoggingSetup();
-            static void setupFileLogging(const std::string& logbase, bool lowpriv = false);
-            static void setupFileLoggingWithPath(
-                    const std::string& logfilepath
-                    );
+            explicit PluginLoggingSetup(const std::string& pluginName);
+            ~PluginLoggingSetup();
+            static void setupFileLogging(const std::string& pluginName);
         };
     }
 }
-
-

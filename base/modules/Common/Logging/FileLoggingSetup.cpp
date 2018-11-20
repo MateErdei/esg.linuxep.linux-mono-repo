@@ -42,7 +42,13 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
     }
 
     Path logFilename = Common::FileSystem::join(logDir, logfilename);
+    setupFileLoggingWithPath(logFilename);
 
+
+}
+
+void Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::string& logfilepath)
+{
     log4cplus::initialize();
 
     log4cplus::tstring datePattern;
@@ -52,7 +58,7 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
     const bool createDirs = true;
     log4cplus::SharedAppenderPtr appender(
             new log4cplus::RollingFileAppender(
-                    logFilename,
+                    logfilepath,
                     maxFileSize,
                     maxBackupIndex,
                     immediateFlush,
@@ -70,5 +76,4 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
     stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
     Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
     log4cplus::Logger::getRoot().addAppender(stderr_appender);
-
 }

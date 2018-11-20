@@ -5,7 +5,10 @@ add_library(loggingobject OBJECT
         ConsoleLoggingSetup.cpp
         ConsoleLoggingSetup.h
         FileLoggingSetup.cpp
-        FileLoggingSetup.h)
+        FileLoggingSetup.h
+        PluginLoggingSetup.cpp
+        PluginLoggingSetup.h
+        )
 
 target_include_directories(loggingobject SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
