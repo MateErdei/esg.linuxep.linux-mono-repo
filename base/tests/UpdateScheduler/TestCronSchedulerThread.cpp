@@ -121,7 +121,7 @@ TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdate) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20) );
+    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20), 0 );
 
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
@@ -142,16 +142,18 @@ TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdate) // NOLINT
     stopInserter.join();
 }
 
-TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateOneMinuteBehind) // NOLINT
+TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteBehind) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10), 0 );
 
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
 
-    std::time_t timeT =  std::time(nullptr) - 60;
+    std::time_t nowTime =  std::time(nullptr);
+    std::time_t mod = nowTime % 60;
+    std::time_t timeT = nowTime - mod;
     std::tm oneMinuteBehindTm = *std::localtime(&timeT);
     scheduledUpdate.setScheduledTime(oneMinuteBehindTm);
 
@@ -167,16 +169,18 @@ TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateOneMinuteBehind) 
     stopInserter.join();
 }
 
-TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateOneMinuteAhead) // NOLINT
+TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteAhead) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10), 0);
 
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
 
-    std::time_t timeT =  std::time(nullptr) + 60;
+    std::time_t nowTime =  std::time(nullptr);
+    std::time_t mod = nowTime % 60;
+    std::time_t timeT = nowTime + (60-mod);
     std::tm oneMinuteAheadTm = *std::localtime(&timeT);
     scheduledUpdate.setScheduledTime(oneMinuteAheadTm);
 
@@ -196,7 +200,7 @@ TEST(TestCronSchedulerThread, setScheduledTimeTwoMinutesButDoNotWait) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0);
 
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
@@ -220,7 +224,7 @@ TEST(TestCronSchedulerThread, setScheduledTimeOneHourButDoNotWait) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0 );
 
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
@@ -246,7 +250,7 @@ TEST(TestCronSchedulerThread, setScheduledTimeOneDayButDoNotWait) // NOLINT
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
 
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0 );
     std::time_t timeT =  std::time(nullptr) + (24 * 60 * 60);
     std::tm oneDayAheadTm = *std::localtime(&timeT);
     scheduledUpdate.setScheduledTime(oneDayAheadTm);
@@ -268,7 +272,7 @@ TEST(TestCronSchedulerThread, setScheduledTimeUpdateOnStart) // NOLINT
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
 
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10) );
+    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0 );
     std::time_t timeT =  std::time(nullptr) + (24 * 60 * 60);
     std::tm oneDayAheadTm = *std::localtime(&timeT);
     scheduledUpdate.setScheduledTime(oneDayAheadTm);

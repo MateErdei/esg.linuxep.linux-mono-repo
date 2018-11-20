@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <cassert>
 
 namespace UpdateSchedulerImpl
@@ -18,7 +19,8 @@ namespace UpdateSchedulerImpl
 
         CronSchedulerThread::CronSchedulerThread(std::shared_ptr<SchedulerTaskQueue> schedulerQueue,
                                                  CronSchedulerThread::DurationTime firstTick,
-                                                 CronSchedulerThread::DurationTime repeatPeriod)
+                                                 CronSchedulerThread::DurationTime repeatPeriod,
+                                                 int scheduledUpdateOffsetInMinutes)
                 :
                 m_sharedState()
                 , m_schedulerQueue(schedulerQueue)
@@ -26,6 +28,7 @@ namespace UpdateSchedulerImpl
                 , m_periodTick(repeatPeriod)
                 , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
                 , m_scheduledUpdate()
+                , m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes))
                 , m_updateOnStartUp(true)
         {
 
@@ -75,6 +78,9 @@ namespace UpdateSchedulerImpl
             std::chrono::milliseconds timeToWait = m_firstTick;
             bool firstUpdate = true;
 
+            Common::UtilityImpl::UniformIntDistribution distribution(-m_scheduledUpdateOffsetInMinutes, m_scheduledUpdateOffsetInMinutes);
+            int scheduledUpdateOffsetInMinutes = distribution.next();
+
             announceThreadStarted();
             auto poller = Common::ZeroMQWrapper::createPoller();
 
@@ -107,8 +113,8 @@ namespace UpdateSchedulerImpl
 
                         if (m_scheduledUpdate.getEnabled())
                         {
-                            // Wait for 5 minutes so we do not update more than once
-                            timeToWait = std::chrono::minutes(5);
+                            // Wait for 15 minutes so we do not update more than once
+                            timeToWait = std::chrono::minutes(15);
                         }
                     }
 
@@ -121,12 +127,12 @@ namespace UpdateSchedulerImpl
                     // scheduled updating is enabled. Check if it is time to update
                     else
                     {
-                        if (m_scheduledUpdate.timeToUpdate())
+                        if (m_scheduledUpdate.timeToUpdate(scheduledUpdateOffsetInMinutes))
                         {
                             m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
-
-                            // Wait for 5 minutes so we do not update more than once
-                            timeToWait = std::chrono::minutes(5);
+                            scheduledUpdateOffsetInMinutes = distribution.next();
+                            // Wait for 15 minutes so we do not update more than once
+                            timeToWait = std::chrono::minutes(15);
                         }
                     }
                 }

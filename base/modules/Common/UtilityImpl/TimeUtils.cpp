@@ -10,7 +10,6 @@ namespace  Common
 {
     namespace UtilityImpl
     {
-
         std::string TimeUtils::fromTime(std::time_t time_)
         {
             if ( time_ == -1 )
@@ -30,12 +29,6 @@ namespace  Common
             return std::time(nullptr);
         }
 
-        std::tm TimeUtils::getLocalTime()
-        {
-            time_t nowTime = getCurrTime();
-            return *std::localtime(&nowTime);
-        }
-
         std::string TimeUtils::getBootTime()
         {
             return  fromTime( getBootTimeAsTimet());
@@ -51,7 +44,6 @@ namespace  Common
             auto curr = getCurrTime();
             return curr - info.uptime;
         }
-
 
         std::string FormattedTime::currentTime() const
         {

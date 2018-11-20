@@ -17,63 +17,56 @@ namespace UpdateScheduler
             , m_scheduledTime()
     {}
 
-    bool ScheduledUpdate::timeToUpdate() const
+    bool ScheduledUpdate::timeToUpdate(int offsetInMinutes) const
     {
-        std::tm now = Common::UtilityImpl::TimeUtils::getLocalTime();
-        return (now.tm_wday == m_scheduledTime.tm_wday) &&
-               (now.tm_hour == m_scheduledTime.tm_hour) &&
-               (abs(now.tm_min - m_scheduledTime.tm_min) < 2);
+        std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+        time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes;
+        time_t lastScheduledUpdateTime = calculateLastScheduledUpdateTime(now) + offsetInMinutes;
+        time_t timeUntilNextScheduledUpdateTime = nextScheduledUpdateTime - now;
+        time_t timeSinceLastScheduledUpdateTime = now - lastScheduledUpdateTime;
+
+        return (timeUntilNextScheduledUpdateTime <= 60 || timeSinceLastScheduledUpdateTime <= 60);
     }
 
     bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate) const
     {
         std::tm lastUpdateTime;
-        char* returnCode = strptime(lastUpdate.c_str(), "%Y%m%d %H:%M:%S", &lastUpdateTime);
-        if (!returnCode)
+        char* returnChar = strptime(lastUpdate.c_str(), "%Y%m%d %H:%M:%S", &lastUpdateTime);
+        if (!returnChar)
         {
             return true;
         }
         std::time_t lastUpdateTimestamp = mktime(&lastUpdateTime);
-        std::time_t mostRecentScheduledTime = calculateMostRecentScheduledTime();
         std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
 
         // If the last update time is before the most recent scheduled time, we have missed an update.
-        // Additionally, if the most recent scheduled time will be more than a week ago in ten minutes time then we are about to miss an update
-        return (mostRecentScheduledTime > lastUpdateTimestamp ||
-                mostRecentScheduledTime < (now - 7*24*60*60 + 10*60));
+        // Additionally, if the next scheduled update time is in 10 minutes, we may miss an update.
+        return (calculateLastScheduledUpdateTime(now) > lastUpdateTimestamp ||
+                calculateNextScheduledUpdateTime(now) < (now + 10*60));
     }
 
-    std::time_t ScheduledUpdate::calculateMostRecentScheduledTime() const
+    std::time_t ScheduledUpdate::calculateNextScheduledUpdateTime(const std::time_t& nowTime) const
     {
-        std::time_t nowTime = Common::UtilityImpl::TimeUtils::getCurrTime();
         std::tm now = *std::localtime(&nowTime);
 
-        int carry = 0;
-        std::tm then = m_scheduledTime;
+        int dayDiff = m_scheduledTime.tm_wday - now.tm_wday;
+        int hourDiff = m_scheduledTime.tm_hour - now.tm_hour;
+        int minDiff = m_scheduledTime.tm_min - now.tm_min;
 
-        int minuteDifference = now.tm_min - then.tm_min;
-        if (minuteDifference < 0)
+        time_t totalDiff = (dayDiff*24*60*60) + (hourDiff*60*60) + (minDiff*60) - now.tm_sec;
+
+        // If totalDiff is negative it is in the past and a week should be added to get the next time
+        if (totalDiff < 0)
         {
-            minuteDifference += 60;
-            carry = 1;
+            totalDiff += 7*24*60*60;
         }
 
-        int hourDifference = (now.tm_hour - then.tm_hour) - carry;
-        carry = 0;
-        if (hourDifference < 0)
-        {
-            hourDifference += 24;
-            carry = 1;
-        }
+        return nowTime + totalDiff;
+    }
 
-        int dayDifference = (now.tm_wday - then.tm_wday) - carry;
-        if (dayDifference < 0)
-        {
-            dayDifference += 7;
-        }
-
-        std::chrono::minutes delay(((dayDifference * 24 * 60) + (hourDifference * 60) + minuteDifference) * 60);
-        return nowTime - delay.count();
+    std::time_t ScheduledUpdate::calculateLastScheduledUpdateTime(const std::time_t& nowTime) const
+    {
+        return calculateNextScheduledUpdateTime(nowTime) - 7*24*60*60;
     }
 
     bool ScheduledUpdate::getEnabled() const

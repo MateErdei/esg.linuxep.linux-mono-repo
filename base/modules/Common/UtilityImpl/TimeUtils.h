@@ -27,8 +27,7 @@ namespace Common
         {
 
         public:
-            static std::time_t getCurrTime() ;
-            static std::tm getLocalTime();
+            static std::time_t getCurrTime();
             static std::string getBootTime();
             static std::time_t getBootTimeAsTimet();
 
@@ -49,7 +48,6 @@ namespace Common
             std::string currentTime() const override ;
             std::string bootTime() const override ;
         };
-
     }
 }
 
