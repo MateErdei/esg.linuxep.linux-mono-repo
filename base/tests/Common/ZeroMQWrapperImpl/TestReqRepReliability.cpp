@@ -373,7 +373,6 @@ namespace
     {
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
-
         auto futureReplier = std::async(std::launch::async, [serveraddress]() {
             Replier replier( serveraddress );
             try
@@ -382,7 +381,7 @@ namespace
             }catch ( std::exception & ex)
             {
                 std::cout << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what();
-                // the first one may or may not throw, but the second must not throw. 
+                // the first one may or may not throw, but the second must not throw.
             }
 
             try
@@ -394,7 +393,6 @@ namespace
                 // the first one may or may not throw, but the second must not throw.
                 throw;
             }
-
         });
 
         RunInExternalProcess runInExternalProcess(m_testContext);
@@ -423,42 +421,38 @@ namespace
     {
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
-        Tests::TestExecutionSynchronizer requester2replier;
-        Tests::TestExecutionSynchronizer replier2requester;
-        auto futureRequester = std::async(std::launch::async, [serveraddress, &requester2replier, &replier2requester]() {
-            Requester requester( serveraddress );
-            try
-            {
-                EXPECT_EQ(requester.sendReceive("a"), "a");
-            }catch (std::exception & ex)
-            {
-                EXPECT_TRUE(false) << "Throw in the first send. Logic error";
-            }
+        Tests::ReentrantExecutionSynchronizer synchronizer;
 
+        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
+            Requester requester( serveraddress );
+            EXPECT_EQ(requester.sendReceive("a"), "a");
+            synchronizer.notify();
 
             EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
-            requester2replier.notify();
-            EXPECT_TRUE(replier2requester.waitfor(3000));
+            synchronizer.notify();
+            synchronizer.waitfor(3, 1000);
             try
             {
                 EXPECT_EQ(requester.sendReceive("c"), "c");
             }catch (std::exception & ex)
             {
                 EXPECT_TRUE(false) << "Throw in the second send";
+                throw;
             }
-
-
+            synchronizer.notify();
         });
 
         // simulate a replier that 'crashes' after first established req-reply, but them comes back and can serve the requester.
-        auto futureReplier = std::async(std::launch::async, [serveraddress, &requester2replier, &replier2requester]() {
+        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
             std::unique_ptr<Replier> replier( new Replier(serveraddress) );
             replier->serveRequest();
+            synchronizer.waitfor(1, 3000); // necessary to ensure that the socket is not closed before sending the message.
             replier.reset();
-            EXPECT_TRUE(requester2replier.waitfor(3000));
+            synchronizer.waitfor(2, 3000); // necessary to ensure that the requester timedout.
             replier.reset(new Replier(serveraddress));
-            replier2requester.notify();
+            synchronizer.notify(); //
             replier->serveRequest();
+            synchronizer.waitfor(4, 1000);
         });
 
         try
@@ -468,7 +462,6 @@ namespace
         {
             EXPECT_TRUE(false) << "Does not expect futureRequester.get to throw, but it throw: "<< ex.what();
         }
-
         try
         {
             futureReplier.get();
@@ -476,6 +469,7 @@ namespace
         {
             EXPECT_TRUE(false) << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
         }
+
 
     }
 
@@ -485,13 +479,14 @@ namespace
 
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
-        Tests::TestExecutionSynchronizer synchronizer;
+        Tests::ReentrantExecutionSynchronizer synchronizer;
         auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
             Requester requester( serveraddress );
             EXPECT_EQ(requester.sendReceive("a"), "a");
             EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException);
             synchronizer.notify();
             EXPECT_EQ(requester.sendReceive("c"), "c");
+            synchronizer.waitfor(2, 1000);
         });
 
         // simulate a replier that answers after the requester timeout.
@@ -506,12 +501,13 @@ namespace
             m_replier->write(req);
 
             req = m_replier->read();
-            synchronizer.waitfor(3000); // simulate an answer after the timeout.
+            synchronizer.waitfor(1, 3000); // simulate an answer after the timeout.
             m_replier->write(req);
 
             // restore normal answer
             req = m_replier->read();
             m_replier->write(req);
+            synchronizer.notify();
 
         });
 

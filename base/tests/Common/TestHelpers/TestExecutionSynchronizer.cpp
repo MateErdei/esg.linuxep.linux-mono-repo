@@ -36,4 +36,50 @@ namespace Tests
         return m_promise.get_future().wait_for(ms) == std::future_status::ready;
 
     }
+
+
+
+    ReentrantExecutionSynchronizer::ReentrantExecutionSynchronizer(): m_counter(0), m_FirstMutex(), m_waitsync()
+    {
+
+    }
+
+    void ReentrantExecutionSynchronizer::notify()
+    {
+        std::lock_guard<std::mutex> lock( m_FirstMutex);
+        m_counter++;
+        m_waitsync.notify_all();
+    }
+
+    void ReentrantExecutionSynchronizer::waitfor(int expectedCounter, int ms)
+    {
+        waitfor(expectedCounter, std::chrono::milliseconds(ms));
+    }
+
+    void ReentrantExecutionSynchronizer::waitfor(int expectedCounter, std::chrono::milliseconds ms)
+    {
+        std::unique_lock<std::mutex> lock( m_FirstMutex);
+        if( m_counter == expectedCounter)
+        {
+            return;
+        }
+
+        while( true )
+        {
+            std::cv_status cv_status = m_waitsync.wait_for(lock, ms);
+            if( cv_status == std::cv_status::timeout)
+            {
+                throw std::runtime_error("SyncTimeout");
+            }
+            else
+            {
+                int a = 0;
+            }
+            if( expectedCounter == m_counter)
+            {
+                return;
+            }
+        }
+    }
+
 }
