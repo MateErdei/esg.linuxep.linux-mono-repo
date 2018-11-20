@@ -26,7 +26,7 @@ namespace UpdateSchedulerImpl
             CronSchedulerThread(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerQueue,
                                 DurationTime firstTick,
                                 DurationTime repeatPeriod,
-                                int scheduledUpdateOffsetInMinutes=8);
+                                int scheduledUpdateOffsetInMinutes = 8);
 
             ~CronSchedulerThread();
 

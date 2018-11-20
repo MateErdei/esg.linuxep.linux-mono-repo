@@ -128,7 +128,7 @@ namespace UpdateSchedulerImpl
                 std::tm scheduledTime = settingsHolder.scheduledUpdate.getScheduledTime();
                 if (strftime(buffer,sizeof(buffer),"%A %H:%M", &scheduledTime))
                 {
-                    LOGINFO("Scheduling an update for " << buffer);
+                    LOGINFO("Scheduling updates for " << buffer);
                 }
 
                 m_cronThread->setPeriodTime(std::chrono::minutes(1));

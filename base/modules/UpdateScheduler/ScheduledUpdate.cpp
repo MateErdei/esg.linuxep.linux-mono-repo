@@ -15,9 +15,11 @@ namespace UpdateScheduler
             :
             m_enabled(false)
             , m_scheduledTime()
+            , m_nextScheduledUpdateTime(0)
+            , m_lastScheduledUpdateTime(0)
     {}
 
-    bool ScheduledUpdate::timeToUpdate(int offsetInMinutes) const
+    bool ScheduledUpdate::timeToUpdate(int offsetInMinutes)
     {
         std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
         time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes*60;
@@ -28,7 +30,7 @@ namespace UpdateScheduler
         return (timeUntilNextScheduledUpdateTime <= 60 || timeSinceLastScheduledUpdateTime <= 60);
     }
 
-    bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate) const
+    bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate)
     {
         std::tm lastUpdateTime;
         char* returnChar = strptime(lastUpdate.c_str(), "%Y%m%d %H:%M:%S", &lastUpdateTime);
@@ -45,28 +47,42 @@ namespace UpdateScheduler
                 calculateNextScheduledUpdateTime(now) < (now + 10*60));
     }
 
-    std::time_t ScheduledUpdate::calculateNextScheduledUpdateTime(const std::time_t& nowTime) const
+    std::time_t ScheduledUpdate::calculateNextScheduledUpdateTime(const std::time_t& nowTime)
     {
-        std::tm now = *std::localtime(&nowTime);
-
-        int dayDiff = m_scheduledTime.tm_wday - now.tm_wday;
-        int hourDiff = m_scheduledTime.tm_hour - now.tm_hour;
-        int minDiff = m_scheduledTime.tm_min - now.tm_min;
-
-        time_t totalDiff = (dayDiff*24*60*60) + (hourDiff*60*60) + (minDiff*60) - now.tm_sec;
-
-        // If totalDiff is negative it is in the past and a week should be added to get the next time
-        if (totalDiff < 0)
+        if (m_nextScheduledUpdateTime == 0)
         {
-            totalDiff += 7*24*60*60;
+            std::tm now = *std::localtime(&nowTime);
+
+            int dayDiff = m_scheduledTime.tm_wday - now.tm_wday;
+            int hourDiff = m_scheduledTime.tm_hour - now.tm_hour;
+            int minDiff = m_scheduledTime.tm_min - now.tm_min;
+
+            time_t totalDiff = (dayDiff*24*60*60) + (hourDiff*60*60) + (minDiff*60) - now.tm_sec;
+
+            // If totalDiff is negative it is in the past and a week should be added to get the next time
+            if (totalDiff < 0)
+            {
+                totalDiff += 7*24*60*60;
+            }
+            m_nextScheduledUpdateTime = nowTime + totalDiff;
         }
 
-        return nowTime + totalDiff;
+        return m_nextScheduledUpdateTime;
     }
 
-    std::time_t ScheduledUpdate::calculateLastScheduledUpdateTime(const std::time_t& nowTime) const
+    std::time_t ScheduledUpdate::calculateLastScheduledUpdateTime(const std::time_t& nowTime)
     {
-        return calculateNextScheduledUpdateTime(nowTime) - 7*24*60*60;
+        if (m_lastScheduledUpdateTime == 0)
+        {
+            m_lastScheduledUpdateTime = calculateNextScheduledUpdateTime(nowTime) - 7*24*60*60;
+        }
+        return m_lastScheduledUpdateTime;
+    }
+
+    void ScheduledUpdate::resetScheduledUpdateTimes()
+    {
+        m_nextScheduledUpdateTime = 0;
+        m_lastScheduledUpdateTime = 0;
     }
 
     bool ScheduledUpdate::getEnabled() const
@@ -87,5 +103,6 @@ namespace UpdateScheduler
     void ScheduledUpdate::setScheduledTime(const std::tm& time)
     {
         m_scheduledTime = time;
+        resetScheduledUpdateTimes();
     }
 }

@@ -16,13 +16,11 @@ namespace UpdateScheduler
     public:
         ScheduledUpdate();
 
-        bool timeToUpdate(int offsetInMinutes) const;
+        bool timeToUpdate(int offsetInMinutes);
 
-        bool missedUpdate(const std::string& lastUpdate) const;
+        bool missedUpdate(const std::string& lastUpdate);
 
-        std::time_t calculateNextScheduledUpdateTime(const std::time_t& nowTime) const;
-
-        std::time_t calculateLastScheduledUpdateTime(const std::time_t& nowTime) const;
+        void resetScheduledUpdateTimes();
 
         bool getEnabled() const;
 
@@ -33,7 +31,13 @@ namespace UpdateScheduler
         void setScheduledTime(const std::tm& time);
 
     private:
+        std::time_t calculateNextScheduledUpdateTime(const std::time_t& nowTime);
+
+        std::time_t calculateLastScheduledUpdateTime(const std::time_t& nowTime);
+
         bool m_enabled;
         std::tm m_scheduledTime;
+        std::time_t m_nextScheduledUpdateTime;
+        std::time_t m_lastScheduledUpdateTime;
     };
 }

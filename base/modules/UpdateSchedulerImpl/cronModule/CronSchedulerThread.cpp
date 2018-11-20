@@ -113,6 +113,7 @@ namespace UpdateSchedulerImpl
 
                         if (m_scheduledUpdate.getEnabled())
                         {
+                            m_scheduledUpdate.resetScheduledUpdateTimes();
                             // Wait for 15 minutes so we do not update more than once
                             timeToWait = std::chrono::minutes(15);
                         }
@@ -130,6 +131,8 @@ namespace UpdateSchedulerImpl
                         if (m_scheduledUpdate.timeToUpdate(scheduledUpdateOffsetInMinutes))
                         {
                             m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                            m_scheduledUpdate.resetScheduledUpdateTimes();
+
                             scheduledUpdateOffsetInMinutes = distribution.next();
                             // Wait for 15 minutes so we do not update more than once
                             timeToWait = std::chrono::minutes(15);
