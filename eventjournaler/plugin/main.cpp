@@ -11,7 +11,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/Logging/FileLoggingSetup.h>
+#include <Common/Logging/PluginLoggingSetup.h>
 
 const char * PluginName = PLUGIN_NAME;
 
@@ -20,12 +20,8 @@ const char * PluginName = PLUGIN_NAME;
 int main()
 {
     using namespace Plugin;
-    std::string logPath = Common::FileSystem::join(Common::PluginApi::getInstallRoot(), "plugins");
-    logPath = Common::FileSystem::join(logPath, PluginName);
-    logPath = Common::FileSystem::join(logPath, "log");
-    logPath = Common::FileSystem::join(logPath, std::string(PluginName) + ".log");
+    Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
 
-    Common::Logging::FileLoggingSetup loggerSetup(logPath);
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask            = std::make_shared<QueueTask>();
