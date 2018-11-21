@@ -9,8 +9,10 @@ add_library(processimpl SHARED
         StdPipeThread.h
         PipeHolder.cpp
         PipeHolder.h
-        Logger.h)
-target_include_directories(processimpl PUBLIC ../Process ../../Common)
+        Logger.h Logger.cpp)
+target_include_directories(processimpl PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+
+target_link_libraries(processimpl PUBLIC ${LOG4CPLUS_LIBRARY} )
 
 SET_TARGET_PROPERTIES( processimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

@@ -104,6 +104,10 @@ do
             shift
             BULLSEYE_SYSTEM_TEST_BRANCH=$1
             ;;
+        -j|--parallel)
+            shift
+            NPROC=$1
+            ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;
