@@ -491,8 +491,8 @@ namespace
 
         // simulate a replier that answers after the requester timeout.
         auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context = Common::ZeroMQWrapper::createContext();
-            Common::ZeroMQWrapper::ISocketReplierPtr m_replier = m_context->getReplier();
+            auto context = Common::ZeroMQWrapper::createContext();
+            Common::ZeroMQWrapper::ISocketReplierPtr m_replier = context->getReplier();
             m_replier->setTimeout(5000);
             m_replier->setConnectionTimeout(5000);
             m_replier->listen(serveraddress);

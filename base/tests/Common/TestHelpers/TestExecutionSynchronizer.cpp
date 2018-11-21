@@ -71,10 +71,6 @@ namespace Tests
             {
                 throw std::runtime_error("SyncTimeout");
             }
-            else
-            {
-                int a = 0;
-            }
             if( expectedCounter == m_counter)
             {
                 return;
