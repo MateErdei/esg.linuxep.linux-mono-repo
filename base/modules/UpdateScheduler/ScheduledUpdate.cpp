@@ -22,12 +22,12 @@ namespace UpdateScheduler
     bool ScheduledUpdate::timeToUpdate(int offsetInMinutes)
     {
         std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
-        time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes*60;
-        time_t lastScheduledUpdateTime = calculateLastScheduledUpdateTime(now) + offsetInMinutes*60;
+        time_t nextScheduledUpdateTime = calculateNextScheduledUpdateTime(now) + offsetInMinutes*SecondsInMin;
+        time_t lastScheduledUpdateTime = calculateLastScheduledUpdateTime(now) + offsetInMinutes*SecondsInMin;
         time_t timeUntilNextScheduledUpdateTime = nextScheduledUpdateTime - now;
         time_t timeSinceLastScheduledUpdateTime = now - lastScheduledUpdateTime;
 
-        return (timeUntilNextScheduledUpdateTime <= 60 || timeSinceLastScheduledUpdateTime <= 60);
+        return (timeUntilNextScheduledUpdateTime <= SecondsInMin || timeSinceLastScheduledUpdateTime <= SecondsInMin);
     }
 
     bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate)
@@ -44,7 +44,7 @@ namespace UpdateScheduler
         // If the last update time is before the most recent scheduled time, we have missed an update.
         // Additionally, if the next scheduled update time is in 10 minutes, we may miss an update.
         return (calculateLastScheduledUpdateTime(now) > lastUpdateTimestamp ||
-                calculateNextScheduledUpdateTime(now) < (now + 10*60));
+                calculateNextScheduledUpdateTime(now) < (now + 10*SecondsInMin));
     }
 
     std::time_t ScheduledUpdate::calculateNextScheduledUpdateTime(const std::time_t& nowTime)
@@ -57,12 +57,12 @@ namespace UpdateScheduler
             int hourDiff = m_scheduledTime.tm_hour - now.tm_hour;
             int minDiff = m_scheduledTime.tm_min - now.tm_min;
 
-            time_t totalDiff = (dayDiff*24*60*60) + (hourDiff*60*60) + (minDiff*60) - now.tm_sec;
+            time_t totalDiff = (dayDiff*SecondsInDay) + (hourDiff*SecondsInHour) + (minDiff*SecondsInMin) - now.tm_sec;
 
             // If totalDiff is negative it is in the past and a week should be added to get the next time
             if (totalDiff < 0)
             {
-                totalDiff += 7*24*60*60;
+                totalDiff += SecondsInWeek;
             }
             m_nextScheduledUpdateTime = nowTime + totalDiff;
         }
@@ -74,7 +74,7 @@ namespace UpdateScheduler
     {
         if (m_lastScheduledUpdateTime == 0)
         {
-            m_lastScheduledUpdateTime = calculateNextScheduledUpdateTime(nowTime) - 7*24*60*60;
+            m_lastScheduledUpdateTime = calculateNextScheduledUpdateTime(nowTime) - SecondsInWeek;
         }
         return m_lastScheduledUpdateTime;
     }

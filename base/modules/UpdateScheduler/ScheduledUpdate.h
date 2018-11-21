@@ -39,5 +39,10 @@ namespace UpdateScheduler
         std::tm m_scheduledTime;
         std::time_t m_nextScheduledUpdateTime;
         std::time_t m_lastScheduledUpdateTime;
+
+        constexpr static int SecondsInMin = 60;
+        constexpr static int SecondsInHour = 60 * SecondsInMin;
+        constexpr static int SecondsInDay = 24 * SecondsInHour;
+        constexpr static int SecondsInWeek = 7 * SecondsInDay;
     };
 }
