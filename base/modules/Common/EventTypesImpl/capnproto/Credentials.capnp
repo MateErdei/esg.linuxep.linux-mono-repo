@@ -35,4 +35,8 @@ struct CredentialsEvent {
     timestamp                   @4 :Common.Timestamp;
     logonID                     @5 :UInt32;
     remoteNetworkAddress        @6 :Common.NetworkAddress;
+
+    userGroupID                 @7 :UInt32;
+    userGroupName               @8 :Text;
+
 }

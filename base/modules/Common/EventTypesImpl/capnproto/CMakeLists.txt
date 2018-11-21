@@ -4,9 +4,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set( LD ${CAPNPROTO_LIBRARY_DIR}:${LD_LIBRARY_PATH} )
 set( CAPNPATH ${CAPNPROTO_EXECUTABLE_DIR}:${PATH} )
 set( COMMANDSTRING " LD_LIBRARY_PATH=${LD} PATH=${CAPNPATH} ${CAPNPROTO_EXECUTABLE} compile -oc++ --src-prefix=${CMAKE_CURRENT_LIST_DIR}")
+
 add_custom_target(
         capnproto_definitions
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Common.capnp"
+        COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Credentials.capnp"
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Directory.capnp"
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Dns.capnp"
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Driver.capnp"
@@ -24,9 +26,19 @@ add_custom_target(
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/System.capnp"
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Thread.capnp"
         COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Url.capnp"
-        COMMAND bash -c "${COMMANDSTRING} ${CMAKE_CURRENT_LIST_DIR}/Credentials.capnp"
-
 )
+
+
+execute_process(
+    COMMAND bash -c "mkdir -p ${CMAKE_CURRENT_LIST_DIR}/generated"
+)
+execute_process(
+        COMMAND bash -c "echo ${CMAKE_CURRENT_BINARY_DIR}"
+)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.h ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.c++ ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.c++ ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.h ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
 
 
 

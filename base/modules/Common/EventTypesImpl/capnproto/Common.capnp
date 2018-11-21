@@ -164,7 +164,7 @@ struct VersionInfo4 {
 
 struct UserSID {
     username             @0 :Text;
-    sid                  @1 :SID;
+    sid                  @1 :SID; # Windows only
     domain               @2 :Text;
 }
 

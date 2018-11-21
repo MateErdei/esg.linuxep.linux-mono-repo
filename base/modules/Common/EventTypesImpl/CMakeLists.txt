@@ -1,11 +1,16 @@
 include(capnproto/CMakeLists.txt)
 
 add_library(eventtypesimplobject OBJECT
+        ../EventTypes/CommonEventData.h
         ../EventTypes/ICredentialEvent.h
+        ../EventTypes/IEventType.h
+        ../EventTypes/IEventException.h
         CredentialEvent.h
         CredentialEvent.cpp
-        EventTypesImpl.cpp
-        EventTypesImpl.h)
+        EventConverter.h
+        EventConverter.cpp
+        capnproto/generated/Credentials.capnp.h
+        capnproto/generated/Credentials.capnp.c++)
 
 
 add_library(eventtypesimpl SHARED $<TARGET_OBJECTS:eventtypesimplobject>)
