@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/OSUtilities/IIPUtils.h>
 
 #include <algorithm>
 #include <regex>
@@ -68,10 +68,7 @@ namespace UpdateSchedulerImpl
                     m_Caches.emplace_back(Cache{hostname, priority, id});
                 }
 
-                std::stable_sort(m_Caches.begin(), m_Caches.end(),
-                                 [](const Cache& a, const Cache& b) { return a.priority < b.priority; }
-                );
-
+                m_Caches = sortUpdateCaches(m_Caches);
                 std::vector<std::string> updateCaches;
                 for (auto& cache : m_Caches)
                 {
@@ -100,21 +97,6 @@ namespace UpdateSchedulerImpl
                 config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
             }
 
-            UpdateScheduler::ScheduledUpdate scheduledUpdate;
-
-            auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
-            std::string delayUpdatingDay = delayUpdating.value("Day");
-            std::string delayUpdatingTime = delayUpdating.value("Time");
-            if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
-            {
-                std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
-                std::tm scheduledUpdateTime;
-                if(strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
-                {
-                    scheduledUpdate.setScheduledTime(scheduledUpdateTime);
-                    scheduledUpdate.setEnabled(true);
-                }
-            }
 
             auto primaryProxy = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/proxy");
             std::string proxyAddress = primaryProxy.value("ProxyAddress");
@@ -163,7 +145,7 @@ namespace UpdateSchedulerImpl
                 periodInt = std::stoi(period);
             }
 
-            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt), scheduledUpdate};
+            return SettingsHolder{config, certificateFileContent, std::chrono::minutes(periodInt)};
         }
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const
@@ -182,6 +164,33 @@ namespace UpdateSchedulerImpl
         std::string UpdatePolicyTranslator::revID() const
         {
             return m_revID;
+        }
+
+
+        std::vector<UpdatePolicyTranslator::Cache> UpdatePolicyTranslator::sortUpdateCaches(const std::vector<UpdatePolicyTranslator::Cache>& caches)
+        {
+            // requirement: update caches candidates must be sorted by the following criteria:
+            //  1. priority
+            //  2. ip-proximity
+            std::vector<std::string> cacheUrls;
+            for(auto & candidate: m_Caches)
+            {
+                cacheUrls.emplace_back( Common::OSUtilities::tryExtractServerFromHttpURL(candidate.hostname));
+            }
+
+            std::vector<int> sortedIndex = Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
+
+            std::vector<Cache> orderedCaches;
+            for( int index : sortedIndex)
+            {
+                orderedCaches.emplace_back( m_Caches.at(index) );
+            }
+
+            std::stable_sort(orderedCaches.begin(), orderedCaches.end(),
+                             [](const Cache& a, const Cache& b) { return a.priority < b.priority; }
+            );
+            return orderedCaches;
+
         }
 
 

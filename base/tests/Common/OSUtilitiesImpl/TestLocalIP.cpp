@@ -67,12 +67,26 @@ TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
 TEST(TestLocalIP, canMockLocalIPs) // NOLINT
 {
     std::unique_ptr<MockILocalIP> mocklocalIP (new StrictMock<MockILocalIP>());
-    EXPECT_CALL(*mocklocalIP, getLocalIPs()).WillOnce(Return(buildIPsHelper("10.10.101.34")));
+    EXPECT_CALL(*mocklocalIP, getLocalIPs()).WillOnce(Return(MockILocalIP::buildIPsHelper("10.10.101.34")));
     Common::OSUtilitiesImpl::replaceLocalIP(std::move( mocklocalIP));
 
     auto ips = Common::OSUtilities::localIP()->getLocalIPs();
     ASSERT_EQ( ips.ip4collection.size(), 1);
     EXPECT_EQ( ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
+    Common::OSUtilitiesImpl::restoreLocalIP();
+
+}
+
+
+TEST(TestLocalIP, canUsetheFakeLocalIPs) // NOLINT
+{
+    std::unique_ptr<FakeILocalIP> fakeILocalIP(new FakeILocalIP(std::vector<std::string>{"10.10.101.34", "10.10.101.35"}));
+    Common::OSUtilitiesImpl::replaceLocalIP( std::move(fakeILocalIP));
+
+    auto ips = Common::OSUtilities::localIP()->getLocalIPs();
+    ASSERT_EQ( ips.ip4collection.size(), 2);
+    EXPECT_EQ( ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
+    EXPECT_EQ( ips.ip4collection.at(1).stringAddress(), "10.10.101.35");
     Common::OSUtilitiesImpl::restoreLocalIP();
 
 }

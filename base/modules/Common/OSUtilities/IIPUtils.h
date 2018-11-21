@@ -50,7 +50,7 @@ namespace Common
             std::vector<IP6> ip6collection;
         };
 
-
+        std::string tryExtractServerFromHttpURL(const std::string & );
 
         std::vector<int> indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers);
 

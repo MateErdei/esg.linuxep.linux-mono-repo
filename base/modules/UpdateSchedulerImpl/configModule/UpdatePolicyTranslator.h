@@ -48,6 +48,7 @@ namespace UpdateSchedulerImpl
                 std::string priority;
                 std::string id;
             };
+            std::vector<Cache> sortUpdateCaches(const std::vector<Cache> & caches);
             std::vector<Cache> m_Caches;
             std::string m_revID;
         };

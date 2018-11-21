@@ -26,21 +26,6 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
         candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
     }
 
-    // requirement: update caches candidates must be sorted by the following criteria:
-    //  1. priority
-    //  2. ip-proximity
-    if( !candidates.empty())
-    {
-
-    }
-
-    for (auto& proxy: proxies)
-    {
-        // Update cache only pass the credentials not the url.
-
-        Proxy cachedProxy("", proxy.getCredentials());
-    }
-
     for (auto& proxy: proxies)
     {
         for (auto url : configurationData.getSophosUpdateUrls())
@@ -48,8 +33,6 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
             candidates.emplace_back(url, configurationData.getCredentials(), false, proxy);
         }
     }
-
-    // TODO LINUXEP-6117: sort to improve chances of using the best candidates first.
 
     return candidates;
 }

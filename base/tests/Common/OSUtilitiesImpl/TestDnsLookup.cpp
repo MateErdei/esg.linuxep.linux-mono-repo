@@ -4,6 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/OSUtilities/IDnsLookup.h>
+#include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
+#include "MockDnsLookup.h"
+#include "MockILocalIP.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -54,4 +57,39 @@ TEST(TestDnsLookup, shouldBeAbleToResolvValidIPv6) // NOLINT
     auto ips = dns->lookup("www.google.com");
     ASSERT_GT(ips.ip4collection.size(), 0);
     ASSERT_GT(ips.ip6collection.size(), 0);
+}
+
+TEST(TestDnsLookup, canMockDns) // NOLINT
+{
+    std::unique_ptr<MockIDnsLookup> mockDNS (new StrictMock<MockIDnsLookup>());
+    EXPECT_CALL(*mockDNS, lookup(_)).WillOnce(Return( MockILocalIP::buildIPsHelper("10.10.101.34")));
+    Common::OSUtilitiesImpl::replaceDnsLookup(std::move( mockDNS));
+
+    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com");
+    ASSERT_EQ( ips.ip4collection.size(), 1);
+    EXPECT_EQ( ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
+    Common::OSUtilitiesImpl::restoreDnsLookup();
+
+}
+
+
+TEST(TestDnsLookup, canUsetheFakeDns) // NOLINT
+{
+    std::unique_ptr<FakeIDnsLookup> mockDNS (new StrictMock<FakeIDnsLookup>());
+    mockDNS->addMap("server.com", {"10.10.101.34"});
+    mockDNS->addMap("server2.com", {"10.10.101.35"});
+    Common::OSUtilitiesImpl::replaceDnsLookup(std::move( mockDNS));
+
+    auto ips = Common::OSUtilities::dnsLookup()->lookup("server.com");
+    ASSERT_EQ( ips.ip4collection.size(), 1);
+    EXPECT_EQ( ips.ip4collection.at(0).stringAddress(), "10.10.101.34");
+
+    ips = Common::OSUtilities::dnsLookup()->lookup("server2.com");
+    ASSERT_EQ( ips.ip4collection.size(), 1);
+    EXPECT_EQ( ips.ip4collection.at(0).stringAddress(), "10.10.101.35");
+
+    EXPECT_THROW( Common::OSUtilities::dnsLookup()->lookup("no_server.com"), std::runtime_error);
+
+    Common::OSUtilitiesImpl::restoreDnsLookup();
+
 }

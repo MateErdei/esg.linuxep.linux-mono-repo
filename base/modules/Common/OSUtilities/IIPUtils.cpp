@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <regex>
 namespace
 {
     using Common::OSUtilities::IP4;
@@ -136,7 +137,6 @@ namespace Common
 
         int IP4::distance(const Common::OSUtilities::IP4& other) const
         {
-
             Ip4addr differentBits =  m_ip4addr ^ other.m_ip4addr;
             return bitLength(differentBits);
         }
@@ -144,7 +144,7 @@ namespace Common
         int IP4::bitLength(const Common::OSUtilities::Ip4addr& ip4addr) const
         {
             uint32_t hostEquivalent = ntohl(ip4addr);
-            for( int i =31; i>0; i--)
+            for( int i =31; i>=0; i--)
             {
                 uint32_t mask = 1 << i;
                 if ( hostEquivalent & mask)
@@ -158,7 +158,7 @@ namespace Common
         IP4::IP4(const std::string& stringAddress)
         {
             in_addr_t ip = inet_addr( stringAddress.c_str());
-            if( ip == -1 )
+            if( -1 == static_cast<int32_t>(ip))
             {
                 std::stringstream s ;
                 s<< "Invalid ip address: " << stringAddress;
@@ -234,6 +234,20 @@ namespace Common
             return sortedIndexes;
         }
 
+        std::string tryExtractServerFromHttpURL(const std::string& httpurl)
+        {
+            static std::regex pattern{R"((https?://)?([^:/]+?)(:\d+)?(/.*)?)"};
+            //pattern.
+            std::smatch match;
+            if( std::regex_match(httpurl, match, pattern ))
+            {
+                if( match.size()>3 && match[2].matched)
+                {
+                    return match[2];
+                }
+            }
+            return httpurl;
+        }
 
 
     }
