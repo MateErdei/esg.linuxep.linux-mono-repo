@@ -52,7 +52,22 @@ namespace Common
 
         std::string tryExtractServerFromHttpURL(const std::string & );
 
-        std::vector<int> indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers);
+        struct ServerURI
+        {
+            constexpr static int MaxDistance = 129;
+            std::string uri;
+            IPs ips;
+            std::string error = "";
+            int associatedMinDistance = MaxDistance;
+            int originalIndex = -1;
+        };
 
+        struct SortServersReport
+        {
+            IPs localIps;
+            std::vector<ServerURI> servers;
+        };
+        SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers);
+        std::vector<int> sortedIndexes( const SortServersReport & report);
     }
 }

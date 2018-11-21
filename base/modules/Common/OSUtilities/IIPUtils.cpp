@@ -27,6 +27,7 @@ namespace
     using Common::OSUtilities::IPs;
     using Common::OSUtilities::Ip6addr;
     using Common::OSUtilities::Ip4addr;
+    using Common::OSUtilities::ServerURI;
 
 
     template<typename CollectionType>
@@ -50,15 +51,6 @@ namespace
                 minDistanceCollection(localIps.ip6collection, remoteIps.ip6collection)
         );
     }
-
-    struct ServerURI
-    {
-        std::string uri;
-        IPs ips;
-        std::string error = "";
-        int associatedMinDistance = 129;
-        int originalIndex = 0;
-    };
 
     std::vector<ServerURI> dnsLookup(const std::vector<std::string>& serversuri)
     {
@@ -206,7 +198,7 @@ namespace Common
 
         }
 
-        std::vector<int> indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers)
+        SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers)
         {
 
             auto localips = Common::OSUtilities::localIP()->getLocalIPs();
@@ -225,13 +217,10 @@ namespace Common
             std::stable_sort(lookups.begin(), lookups.end(),
                              [](const ServerURI & lh, const ServerURI & rh){return lh.associatedMinDistance < rh.associatedMinDistance; });
 
-            std::vector<int> sortedIndexes;
-            for( const auto & entry : lookups)
-            {
-                sortedIndexes.emplace_back(entry.originalIndex);
-            }
-
-            return sortedIndexes;
+            SortServersReport report;
+            report.localIps = localips;
+            report.servers = lookups;
+            return report;
         }
 
         std::string tryExtractServerFromHttpURL(const std::string& httpurl)
@@ -247,6 +236,16 @@ namespace Common
                 }
             }
             return httpurl;
+        }
+
+        std::vector<int> sortedIndexes(const SortServersReport& report)
+        {
+            std::vector<int> answer;
+            for( auto & serverEntry : report.servers)
+            {
+                answer.push_back(serverEntry.originalIndex);
+            }
+            return answer;
         }
 
 

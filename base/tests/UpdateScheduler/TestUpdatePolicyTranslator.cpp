@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilities/IIPUtils.h>
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 
 static const std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
@@ -257,7 +257,21 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 
 using namespace UpdateSchedulerImpl::configModule;
 
-TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
+class TestUpdatePolicyTranslator
+        : public ::testing::Test
+{
+
+public:
+    TestUpdatePolicyTranslator()
+            : m_loggingSetup()
+    {
+
+    }
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+};
+
+
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 {
 
     std::unique_ptr<FakeILocalIP> fakeILocalIP(new FakeILocalIP(std::vector<std::string>{"192.168.10.5", "10.10.5.6"}));
@@ -310,7 +324,7 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
     UpdatePolicyTranslator translator;
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
@@ -321,7 +335,7 @@ TEST(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
     EXPECT_EQ(translator.revID(), "b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9");
 }
 
-TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 {
     UpdatePolicyTranslator translator;
 
@@ -363,13 +377,13 @@ TEST(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
 }
 
-TEST(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) //NOLINT
 {
     UpdatePolicyTranslator translator;
     EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error); //NOLINT
 }
 
-TEST(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
 {
 
     std::unique_ptr<FakeILocalIP> fakeILocalIP(new FakeILocalIP(std::vector<std::string>{"192.168.10.5", "10.10.5.6"}));
@@ -398,7 +412,7 @@ TEST(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
 {
 
     std::unique_ptr<FakeILocalIP> fakeILocalIP(new FakeILocalIP(std::vector<std::string>{"192.168.10.5", "10.10.5.6"}));

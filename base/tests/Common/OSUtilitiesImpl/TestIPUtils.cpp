@@ -134,11 +134,13 @@ public:
 };
 
 
+
+
 TEST_F(TestSortServers, ifNoDNSIsKnownTheOrderDoesNotChange) // NOLINT
 {
-    auto indexes = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
+    auto report = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
     std::vector<int> expectedValues{0,1,2};
-    ASSERT_EQ( indexes, expectedValues);
+    ASSERT_EQ( sortedIndexes(report), expectedValues);
 }
 
 TEST_F(TestSortServers, ifOnlyOneIsKnownItBecomeTheFirst) // NOLINT
@@ -146,9 +148,9 @@ TEST_F(TestSortServers, ifOnlyOneIsKnownItBecomeTheFirst) // NOLINT
     setupServers( {
       {"url2", {"201.20.5.6"}}
     });
-    auto indexes = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
+    auto report = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
     std::vector<int> expectedValues{1, 0,2};
-    ASSERT_EQ( indexes, expectedValues);
+    ASSERT_EQ( sortedIndexes(report), expectedValues);
 }
 
 TEST_F(TestSortServers, theEntriesAreSortedByIPProximity) // NOLINT
@@ -160,9 +162,9 @@ TEST_F(TestSortServers, theEntriesAreSortedByIPProximity) // NOLINT
                           {"url3", {"10.10.5.7"}}
 
                   });
-    auto indexes = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
+    auto report = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
     std::vector<int> expectedValues{2, 1,0};
-    ASSERT_EQ( indexes, expectedValues);
+    ASSERT_EQ( sortedIndexes(report), expectedValues);
 }
 
 
@@ -174,9 +176,9 @@ TEST_F(TestSortServers, theEntriesConsiderAllTheInterfaces) // NOLINT
                           {"url2", {"192.168.10.200"}},
                           {"url3", {"192.1.10.5"}}
                   });
-    auto indexes = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
+    auto report = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
     std::vector<int> expectedValues{1, 0,2};
-    ASSERT_EQ( indexes, expectedValues);
+    ASSERT_EQ( sortedIndexes(report), expectedValues);
 }
 
 
@@ -188,7 +190,7 @@ TEST_F(TestSortServers, theEntriesConsiderAllTheAvailableDNSEntries) // NOLINT
                           {"url2", {"192.168.10.200", "200.8.9.10"} },
                           {"url3", {"192.1.10.5", "8.10.5.6"}}
                   });
-    auto indexes = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
+    auto report = indexOfSortedURIsByIPProximity({"url1", "url2", "url3"});
     std::vector<int> expectedValues{1, 0,2};
-    ASSERT_EQ( indexes, expectedValues);
+    ASSERT_EQ( sortedIndexes(report), expectedValues);
 }

@@ -10,9 +10,89 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/OSUtilities/IIPUtils.h>
-
+#include <sstream>
 #include <algorithm>
 #include <regex>
+
+namespace
+{
+    template<typename IpCollection>
+    std::string ipCollectionToString(const IpCollection & ipCollection)
+    {
+        if ( ipCollection.empty())
+        {
+            return std::string{};
+        }
+        std::stringstream s;
+        bool first = true;
+        for( auto & ip : ipCollection)
+        {
+            if ( first )
+            {
+                s << "{";
+            }
+            else
+            {
+                s << ", ";
+            }
+            s << ip.stringAddress();
+            first = false;
+        }
+        s << "}";
+        return s.str();
+    }
+
+    std::string ipToString(const Common::OSUtilities::IPs& ips)
+    {
+        std::stringstream s;
+        bool hasip4 = false;
+        if( !ips.ip4collection.empty())
+        {
+            s << ipCollectionToString(ips.ip4collection);
+            hasip4 = true;
+        }
+
+        if( !ips.ip6collection.empty())
+        {
+            if( hasip4)
+            {
+                s<<"\n";
+            }
+            s << ipCollectionToString(ips.ip6collection);
+        }
+        return s.str();
+    }
+
+    std::string reportToString( const Common::OSUtilities::SortServersReport & report)
+    {
+        std::stringstream s;
+        s << "Local ips: \n"
+          << ipToString(report.localIps) << "\n"
+          << "Servers: \n";
+        for( auto & server : report.servers)
+        {
+            s<< server.uri << '\n';
+            if( !server.error.empty())
+            {
+                s << server.error << '\n';
+            }
+            else
+            {
+                s << ipToString(server.ips) << '\n';
+            }
+            s << "distance associated: ";
+            if( server.MaxDistance == server.associatedMinDistance)
+            {
+                s << "Max\n";
+            }
+            else
+            {
+                s << server.associatedMinDistance << " bits\n";
+            }
+        }
+        return s.str();
+    }
+}
 
 namespace UpdateSchedulerImpl
 {
@@ -178,12 +258,19 @@ namespace UpdateSchedulerImpl
                 cacheUrls.emplace_back( Common::OSUtilities::tryExtractServerFromHttpURL(candidate.hostname));
             }
 
-            std::vector<int> sortedIndex = Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
+            auto start = std::chrono::steady_clock::now();
+            Common::OSUtilities::SortServersReport report = Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+            std::string logReport = reportToString(report);
+            // FIXME: uncomment the line below after LINUXEP-5910
+            //LOGSUPPORT( "Sort update cache took " << elapsed << " ms. Entries: " << logReport);
+            std::vector<int> sortedIndex = Common::OSUtilities::sortedIndexes(report);
+
 
             std::vector<Cache> orderedCaches;
-            for( int index : sortedIndex)
+            for( auto & entry : report.servers)
             {
-                orderedCaches.emplace_back( m_Caches.at(index) );
+                orderedCaches.emplace_back( m_Caches.at(entry.originalIndex) );
             }
 
             std::stable_sort(orderedCaches.begin(), orderedCaches.end(),
