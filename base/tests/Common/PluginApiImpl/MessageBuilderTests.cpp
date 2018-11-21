@@ -41,10 +41,9 @@ public:
     DataMessage createDataMessage()
     {
         DataMessage dataMessage;
-        dataMessage.ApplicationId = defaultAppId;
-        dataMessage.PluginName = defaultPluginName;
-        dataMessage.MessageId = "";
-        dataMessage.Command = Common::PluginProtocol::Commands::UNKNOWN;
+        dataMessage.m_applicationId = defaultAppId;
+        dataMessage.m_pluginName = defaultPluginName;
+        dataMessage.m_command = Common::PluginProtocol::Commands::UNKNOWN;
         return dataMessage;
     }
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
@@ -58,9 +57,9 @@ TEST_F(MessageBuilderTests, requestSendEventMessageReturnsExpectedMessage)  // N
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
     std::string payload = "EventXml";
-    expectedMessage.Payload.push_back(payload);
+    expectedMessage.m_payload.push_back(payload);
 
     DataMessage actualMessage = m_messageBuilder->requestSendEventMessage(defaultAppId, payload);
 
@@ -71,13 +70,13 @@ TEST_F(MessageBuilderTests, requestSendStatusMessageReturnsExpectedMessage)  // 
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutTimestampsXml = "StatusWithoutTimeStampXml";
 
-    expectedMessage.Payload.push_back(statusInfo.statusXml);
-    expectedMessage.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
+    expectedMessage.m_payload.push_back(statusInfo.statusXml);
+    expectedMessage.m_payload.push_back(statusInfo.statusWithoutTimestampsXml);
 
 
     DataMessage actualMessage = m_messageBuilder->requestSendStatusMessage(defaultAppId, statusInfo.statusXml,
@@ -92,8 +91,8 @@ TEST_F(MessageBuilderTests, requestRegisterMessageReturnsExpectedMessage)  // NO
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
-    expectedMessage.ApplicationId = "";
+    expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER;
+    expectedMessage.m_applicationId = "";
 
     DataMessage actualMessage = m_messageBuilder->requestRegisterMessage();
 
@@ -104,7 +103,7 @@ TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage)  
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     DataMessage actualMessage = m_messageBuilder->requestCurrentPolicyMessage(defaultAppId);
 
@@ -114,9 +113,9 @@ TEST_F(MessageBuilderTests, requestCurrentPolicyMessageReturnsExpectedMessage)  
 TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
     std::string payload = "PolicyXml";
-    expectedMessage.Payload.push_back(payload);
+    expectedMessage.m_payload.push_back(payload);
 
     DataMessage actualMessage = m_messageBuilder->requestApplyPolicyMessage(defaultAppId, payload);
 
@@ -126,9 +125,9 @@ TEST_F(MessageBuilderTests, requestApplyPolicyMessageReturnsExpectedMessage)  //
 TEST_F(MessageBuilderTests, requestDoActionMessageReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
     std::string payload = "ActionXml";
-    expectedMessage.Payload.push_back(payload);
+    expectedMessage.m_payload.push_back(payload);
 
     DataMessage actualMessage = m_messageBuilder->requestDoActionMessage(defaultAppId, payload);
 
@@ -139,7 +138,7 @@ TEST_F(MessageBuilderTests, requestRequestPluginStatusMessageReturnsExpectedMess
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     DataMessage actualMessage = m_messageBuilder->requestRequestPluginStatusMessage(defaultAppId);
 
@@ -150,8 +149,8 @@ TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage
 {
 
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
-    expectedMessage.ApplicationId = "";
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.m_applicationId = "";
     DataMessage actualMessage = m_messageBuilder->requestRequestTelemetryMessage();
 
     EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedMessage, actualMessage );
@@ -161,11 +160,11 @@ TEST_F(MessageBuilderTests, requestRequestTelemetryMessageReturnsExpectedMessage
 TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     DataMessage actualMessage = m_messageBuilder->replyAckMessage(expectedMessage);
 
-    expectedMessage.Payload.emplace_back("ACK");
+    expectedMessage.m_acknowledge = true;
 
     EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedMessage, actualMessage );
 }
@@ -173,12 +172,12 @@ TEST_F(MessageBuilderTests, replyAckMessageReturnsExpectedMessage)  // NOLINT
 TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorIsEmpty)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string errorMessage = "Something went wrong";
 
     DataMessage actualMessage = m_messageBuilder->replySetErrorIfEmpty(expectedMessage, errorMessage);
 
-    expectedMessage.Error = errorMessage;
+    expectedMessage.m_error = errorMessage;
 
     EXPECT_PRED_FORMAT2( dataMessageSimilar, expectedMessage, actualMessage );
 }
@@ -186,9 +185,9 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorI
 TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorNotEmpty)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
     std::string errorMessage = "Something went wrong";
-    expectedMessage.Error = errorMessage;
+    expectedMessage.m_error = errorMessage;
 
     DataMessage actualMessage = m_messageBuilder->replySetErrorIfEmpty(expectedMessage, "New Error");
 
@@ -198,10 +197,10 @@ TEST_F(MessageBuilderTests, replySetErrorIfEmptyReturnsExpectedMessageWhenErrorN
 TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     std::string payload = "PolicyXml";
-    expectedMessage.Payload.push_back(payload);
+    expectedMessage.m_payload.push_back(payload);
 
     DataMessage actualMessage = m_messageBuilder->replyCurrentPolicy(expectedMessage, payload);
 
@@ -211,10 +210,10 @@ TEST_F(MessageBuilderTests, replyCurrentPolicyReturnsExpectedMessage)  // NOLINT
 TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     std::string payload = "TelemetryXml";
-    expectedMessage.Payload.push_back(payload);
+    expectedMessage.m_payload.push_back(payload);
 
     DataMessage actualMessage = m_messageBuilder->replyTelemetry(expectedMessage, payload);
 
@@ -224,14 +223,14 @@ TEST_F(MessageBuilderTests, replyTelemetryReturnsExpectedMessage)  // NOLINT
 TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)  // NOLINT
 {
     DataMessage expectedMessage = createDataMessage();
-    expectedMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
+    expectedMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo statusInfo;
     statusInfo.statusXml = "StatusXml";
     statusInfo.statusWithoutTimestampsXml = "StatusWithoutTimeStampXml";
 
-    expectedMessage.Payload.push_back(statusInfo.statusXml);
-    expectedMessage.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
+    expectedMessage.m_payload.push_back(statusInfo.statusXml);
+    expectedMessage.m_payload.push_back(statusInfo.statusWithoutTimestampsXml);
 
     DataMessage actualMessage = m_messageBuilder->replyStatus(expectedMessage, statusInfo);
 
@@ -241,11 +240,11 @@ TEST_F(MessageBuilderTests, replyStatusReturnsExpectedMessage)  // NOLINT
 TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+    message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
 
     std::string expectedResult = "EventXml";
 
-    message.Payload.push_back(expectedResult);
+    message.m_payload.push_back(expectedResult);
 
     std::string actualResult =  m_messageBuilder->requestExtractEvent(message);
 
@@ -255,14 +254,14 @@ TEST_F(MessageBuilderTests, requestExtractEventReturnsExpectedMessage)  // NOLIN
 TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
+    message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
 
     Common::PluginApi::StatusInfo expectedStatusInfo;
     expectedStatusInfo.statusXml = "StatusXml";
     expectedStatusInfo.statusWithoutTimestampsXml = "StatusWithoutTimeStampXml";
 
-    message.Payload.push_back(expectedStatusInfo.statusXml);
-    message.Payload.push_back(expectedStatusInfo.statusWithoutTimestampsXml);
+    message.m_payload.push_back(expectedStatusInfo.statusXml);
+    message.m_payload.push_back(expectedStatusInfo.statusWithoutTimestampsXml);
 
     Common::PluginApi::StatusInfo actualStatusInfo =  m_messageBuilder->requestExtractStatus(message);
 
@@ -273,11 +272,11 @@ TEST_F(MessageBuilderTests, requestExtractStatusReturnsExpectedMessage)  // NOLI
 TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
+    message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY;
 
     std::string expectedResult = "PolicyXml";
 
-    message.Payload.push_back(expectedResult);
+    message.m_payload.push_back(expectedResult);
 
     std::string actualResult =  m_messageBuilder->requestExtractPolicy(message);
 
@@ -287,11 +286,11 @@ TEST_F(MessageBuilderTests, requestExtractPolicyReturnsExpectedMessage)  // NOLI
 TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
+    message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION;
 
     std::string expectedResult = "ActionXml";
 
-    message.Payload.push_back(expectedResult);
+    message.m_payload.push_back(expectedResult);
 
     std::string actualResult =  m_messageBuilder->requestExtractAction(message);
 
@@ -302,11 +301,11 @@ TEST_F(MessageBuilderTests, requestExtractActionReturnsExpectedMessage)  // NOLI
 TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+    message.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
 
     std::string expectedResult = "PolicyXml";
 
-    message.Payload.push_back(expectedResult);
+    message.m_payload.push_back(expectedResult);
 
     std::string actualResult =  m_messageBuilder->replyExtractCurrentPolicy(message);
 
@@ -316,11 +315,11 @@ TEST_F(MessageBuilderTests, replyExtractCurrentPolicyReturnsExpectedMessage)  //
 TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
+    message.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY;
 
     std::string expectedResult = "TelemetryXml";
 
-    message.Payload.push_back(expectedResult);
+    message.m_payload.push_back(expectedResult);
 
     std::string actualResult =  m_messageBuilder->replyExtractTelemetry(message);
 
@@ -330,11 +329,9 @@ TEST_F(MessageBuilderTests, replyExtractTelemetryReturnsExpectedMessage)  // NOL
 TEST_F(MessageBuilderTests, hasAckReturnsTrue)  // NOLINT
 {
     DataMessage message = createDataMessage();
-    message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+    message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
 
-    std::string expectedResult = "ACK";
-
-    message.Payload.push_back(expectedResult);
+    message.m_acknowledge = true;
 
     EXPECT_TRUE( m_messageBuilder->hasAck(message) );
 }

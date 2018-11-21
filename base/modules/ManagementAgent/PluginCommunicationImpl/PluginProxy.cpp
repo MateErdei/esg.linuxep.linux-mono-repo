@@ -86,17 +86,17 @@ namespace PluginCommunicationImpl
             throw PluginCommunication::IPluginCommunicationException(ex.what());
         }
 
-        if( reply.Command != request.Command)
+        if( reply.m_command != request.m_command)
         {
             throw PluginCommunication::IPluginCommunicationException(
                     "Received reply from wrong command, expecting" +
-                            Common::PluginProtocol::ConvertCommandEnumToString(request.Command) +
-                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(request.Command));
+                            Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
+                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(request.m_command));
         }
 
-        if ( !reply.Error.empty())
+        if ( !reply.m_error.empty())
         {
-            throw PluginCommunication::IPluginCommunicationException(reply.Error);
+            throw PluginCommunication::IPluginCommunicationException(reply.m_error);
         }
 
         return reply;

@@ -16,7 +16,8 @@ namespace Common
     namespace PluginProtocol
     {
 
-        enum class Commands{UNKNOWN,
+        enum class Commands{UNSET,
+                            UNKNOWN,
                             PLUGIN_SEND_EVENT,
                             PLUGIN_SEND_STATUS,
                             PLUGIN_SEND_REGISTER,
@@ -28,36 +29,46 @@ namespace Common
 
         struct DataMessage
         {
+            DataMessage() : m_command(Commands::UNSET), m_acknowledge(false) {}
+            DataMessage(std::string applicationid,
+                        std::string pluginName,
+                        Commands command,
+                        std::string error,
+                        bool acknowledge,
+                        std::vector<std::string> payload) :
+                        m_applicationId(std::move(applicationid)), m_pluginName(std::move(pluginName)), m_command(command),
+                        m_error(std::move(error)), m_acknowledge(acknowledge), m_payload(std::move(payload)){}
             // see https://wiki.sophos.net/display/SophosCloud/Endpoint+Management+Protocol
             /**
-             * ApplicationId, used to store identifier for the application i.e. ALC, SAV etc..
+             * m_applicationId, used to store identifier for the application i.e. ALC, SAV etc..
              */
-            std::string ApplicationId;
+            std::string m_applicationId;
 
             /**
-             * PluginName, unique name of the plugin the data message is for.
+             * m_pluginName, unique name of the plugin the data message is for.
              */
-            std::string PluginName;
+            std::string m_pluginName;
 
             /**
-             * COMMAND, The type that the message should map to.
+             * m_command, The type that the message should map to.
              */
-            Commands Command;
+            Commands m_command;
 
             /**
-             * MessageId, used to tag the message with a unique id.
+             * m_error, used to store error message if required.
              */
-            std::string MessageId;
+            std::string m_error;
 
             /**
-             * Error, used to store error message if required.
+             * m_acknowledge, boolean that denotes the acknowledgement of a message received.
              */
-            std::string Error;
+            bool m_acknowledge;
 
             /**
-             * Payload, vector used to store the actual message data.
+             * m_payload, vector used to store the actual message data.
              */
-            std::vector<std::string> Payload;
+            std::vector<std::string> m_payload;
+
         };
 
         std::string ConvertCommandEnumToString(Commands command);

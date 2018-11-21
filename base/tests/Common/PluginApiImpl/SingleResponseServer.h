@@ -49,7 +49,7 @@ public:
         // handle registration
         Common::PluginProtocol::Protocol protocol;
         auto request = protocol.deserialize(replier->read());
-        assert( request.Command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+        assert( request.m_command == Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
         Common::PluginProtocol::MessageBuilder messageBuilder("plugin");
         auto replyMessage = protocol.serialize( messageBuilder.replyAckMessage(request) );
         replier->write(replyMessage);

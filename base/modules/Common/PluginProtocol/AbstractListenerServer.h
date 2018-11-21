@@ -59,7 +59,7 @@ namespace Common
 //        if ( message.command == Status)
 //        {
 //            m_callbackHandler->setStatus(xx, xx);
-//            message.Payload = OK;
+//            message.m_payload = OK;
 //            return message;
 //        }
 //    }

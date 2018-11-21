@@ -105,7 +105,7 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
     {
 
         std::string errorMessage = "Request policies failed with error: ";
-        errorMessage += reply.Error;
+        errorMessage += reply.m_error;
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
@@ -126,18 +126,18 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
         throw Common::PluginApi::ApiException(ex.what());
     }
 
-    if( reply.Command != request.Command)
+    if( reply.m_command != request.m_command)
     {
         std::string errorMessage("Received reply from wrong command, expecting" +
-                                         Common::PluginProtocol::ConvertCommandEnumToString(request.Command) +
-                                 ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.Command));
+                                         Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
+                                 ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.m_command));
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
 
-    if ( !reply.Error.empty())
+    if ( !reply.m_error.empty())
     {
-        std::string errorMessage("Invalid reply, error: " + reply.Error);
+        std::string errorMessage("Invalid reply, error: " + reply.m_error);
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }

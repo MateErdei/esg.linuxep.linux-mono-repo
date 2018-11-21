@@ -39,18 +39,16 @@ TEST_F(DataMessageTests, DataMessageCanBeCreatedSuccessfully) //NOLINT
     Common::PluginProtocol::Commands command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
 
     DataMessage dataMessage;
-    dataMessage.ApplicationId = applicationId;
-    dataMessage.MessageId = messageId;
-    dataMessage.Error = errorMessage;
-    dataMessage.Payload = payload;
-    dataMessage.Command = command;
+    dataMessage.m_applicationId = applicationId;
+    dataMessage.m_error = errorMessage;
+    dataMessage.m_payload = payload;
+    dataMessage.m_command = command;
 
 
-    EXPECT_EQ(dataMessage.ApplicationId, applicationId);
-    EXPECT_EQ(dataMessage.MessageId, messageId);
-    EXPECT_EQ(dataMessage.Error,errorMessage);
-    EXPECT_EQ(dataMessage.Payload, payload);
-    EXPECT_EQ(dataMessage.Command,command);
+    EXPECT_EQ(dataMessage.m_applicationId, applicationId);
+    EXPECT_EQ(dataMessage.m_error,errorMessage);
+    EXPECT_EQ(dataMessage.m_payload, payload);
+    EXPECT_EQ(dataMessage.m_command,command);
 }
 
 

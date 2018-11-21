@@ -2,34 +2,46 @@
 // Created by pair on 07/08/18.
 //
 
-#include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <iostream>
-#include <Common/UtilityImpl/UniformIntDistribution.h>
-#include "UpdateSchedulerBootstrap.h"
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <Common/Logging/FileLoggingSetup.h>
+#include "Logger.h"
+#include "LoggingSetup.h"
 #include "SchedulerPluginCallback.h"
+#include "UpdateSchedulerBootstrap.h"
+#include "UpdateSchedulerProcessor.h"
 #include "cronModule/CronSchedulerThread.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
-#include "UpdateSchedulerProcessor.h"
-#include "Logger.h"
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
+#include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/PluginApi/ApiException.h>
+
+#include <iostream>
+
+log4cplus::Logger GL_UPDSCH_LOGGER; //NOLINT
 
 namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     int main_entry()
     {
-        Common::Logging::FileLoggingSetup logging("updatescheduler");
+        LoggingSetup logging;
 
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
 
         std::shared_ptr<SchedulerTaskQueue> queueTask = std::make_shared<SchedulerTaskQueue>();
         auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>(queueTask);
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
+        try
+        {
+            baseService = resourceManagement->createPluginAPI("updatescheduler", sharedPluginCallBack);
+        }
+        catch (const Common::PluginApi::ApiException& apiException)
+        {
+            LOGERROR(apiException.what());
+            throw apiException;
+        }
 
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(
-                "updatescheduler", sharedPluginCallBack
-        );
         // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
 

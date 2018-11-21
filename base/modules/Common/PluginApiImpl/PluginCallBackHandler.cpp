@@ -27,7 +27,7 @@ namespace Common
             try
             {
 
-                switch (request.Command)
+                switch (request.m_command)
                 {
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY:
                         LOGSUPPORT("Received new policy");
@@ -41,7 +41,7 @@ namespace Common
                         {
                             LOGSUPPORT("Received request for current status");
                             Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus(
-                                    request.ApplicationId
+                                    request.m_applicationId
                             );
                             return m_messageBuilder.replyStatus(request, statusInfo);
                         }

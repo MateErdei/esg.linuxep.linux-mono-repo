@@ -83,29 +83,43 @@ namespace Common
         {
             PluginProtocolProto::PluginAPIMessage pluginAPIMessage;
 
-            pluginAPIMessage.set_applicationid(dataMessage.ApplicationId);
-            pluginAPIMessage.set_pluginname(dataMessage.PluginName);
-            pluginAPIMessage.set_command(PluginProtocol::serializeCommand(dataMessage.Command));
-            pluginAPIMessage.set_messageid(dataMessage.MessageId);
-            pluginAPIMessage.add_payload();
-
-            if (!dataMessage.Error.empty())
+            //Check minimum fields are set before creating message
+            std::stringstream missingFields;
+            if (dataMessage.m_pluginName.empty())
             {
-                pluginAPIMessage.set_error(dataMessage.Error);
+                missingFields << "PluginName ";
             }
-            else if (!dataMessage.Payload.empty()){
-                for (auto &message: dataMessage.Payload) {
+            if (dataMessage.m_command == PluginProtocol::Commands::UNSET)
+            {
+                missingFields << "Command ";
+            }
+            if (!missingFields.str().empty())
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Missing required fields for protobuf message: " << missingFields.str();
+                LOGERROR("Protocol Serializer error: " << errorMessage.str());
+                throw Common::PluginApi::ApiException(errorMessage.str());
+            }
+
+            pluginAPIMessage.set_applicationid(dataMessage.m_applicationId);
+            pluginAPIMessage.set_pluginname(dataMessage.m_pluginName);
+            pluginAPIMessage.set_command(PluginProtocol::serializeCommand(dataMessage.m_command));
+
+            if (!dataMessage.m_error.empty())
+            {
+                pluginAPIMessage.set_error(dataMessage.m_error);
+            }
+            else if (dataMessage.m_acknowledge)
+            {
+                pluginAPIMessage.set_acknowledge(dataMessage.m_acknowledge);
+            }
+            else if (!dataMessage.m_payload.empty()){
+                for (auto &message: dataMessage.m_payload) {
                     pluginAPIMessage.add_payload(message);
                 }
             }
-            std::string output;
-            if (!pluginAPIMessage.SerializeToString(&output)) {
-                std::string errorMessage = "Protocol Serializer error: Failed to serialize message";
-                LOGERROR(errorMessage);
-                throw Common::PluginApi::ApiException("Protocol Serializer error: Failed to serialize message");
-            }
             data_t returnData;
-            returnData.push_back(output);
+            returnData.push_back(pluginAPIMessage.SerializeAsString());
             return returnData;
         }
 
@@ -114,64 +128,63 @@ namespace Common
             Common::PluginProtocol::DataMessage message;
             PluginProtocolProto::PluginAPIMessage deserializedData;
 
-            if (serializedData.empty() || deserializedData.ParseFromString(serializedData[0]))
+            if (serializedData.empty() || !deserializedData.ParsePartialFromString(serializedData[0]))
             {
-                message = createDefaultErrorMessage();
-                message.Error = "Bad formed message: Protobuf parse error";
-                LOGERROR("Protocol Serializer error: " << message.Error);
+                message.m_error = "Bad formed message: Protobuf parse error";
+                LOGERROR("Protocol Serializer error: " << message.m_error);
                 return message;
             }
 
-            if (deserializedData.IsInitialized())
+
+            //Check minimum fields are defined post deserialisation
+            std::stringstream missingFields;
+            if (!deserializedData.has_pluginname())
             {
-                message = createDefaultErrorMessage();
-                std::string protobufErrorListString = deserializedData.InitializationErrorString();
+                missingFields << "PluginName ";
+            }
+            if (!deserializedData.has_command())
+            {
+                missingFields << "Command ";
+            }
+            if (!missingFields.str().empty())
+            {
                 std::stringstream errorMessage;
-                errorMessage << "Bad formed message : " << protobufErrorListString;
-                message.Error = errorMessage.str();
-
-                LOGERROR("Protocol Serializer error: " << message.Error);
+                errorMessage << "Bad formed message, missing required fields : " << missingFields.str();
+                message.m_error = errorMessage.str();
+                LOGERROR("Protocol Serializer error: " << message.m_error);
                 return message;
             }
 
-            message.ApplicationId = deserializedData.applicationid();
-            message.PluginName = deserializedData.pluginname();
-            message.Command = PluginProtocol::DeserializeCommand(deserializedData.command());
-            message.MessageId = deserializedData.messageid();
+            message.m_applicationId = deserializedData.applicationid();
+            message.m_pluginName = deserializedData.pluginname();
+            message.m_command = PluginProtocol::DeserializeCommand(deserializedData.command());
 
-            if(message.Command == PluginProtocol::Commands::UNKNOWN)
+            if (deserializedData.has_error())
             {
-                message.Error = "Invalid request";
-                LOGERROR("Protocol Serializer error: " << message.Error);
-            }
-
-            if (deserializedData.has_error()) {
-                message.Error = deserializedData.error();
+                message.m_error = deserializedData.error();
                 LOGERROR("Protocol Serializer message error: " << deserializedData.error());
-                return message;
             }
-
-            if (deserializedData.payload_size() > 0)
+            else if (message.m_command == PluginProtocol::Commands::UNKNOWN)
             {
-                for (auto & payload_content : deserializedData.payload())
+                message.m_error = "Invalid request";
+                LOGERROR("Protocol Serializer error: " << message.m_error);
+            }
+            else if (deserializedData.has_acknowledge())
+            {
+                message.m_acknowledge = true;
+            }
+            else
+            {
+                for (auto& payload_content : deserializedData.payload())
                 {
-                    message.Payload.push_back(payload_content);
+                    message.m_payload.push_back(payload_content);
                 }
             }
 
             return message;
         }
-
-        Common::PluginProtocol::DataMessage ProtocolSerializer::createDefaultErrorMessage()
-        {
-            Common::PluginProtocol::DataMessage dataMessage;
-            dataMessage.Command = Common::PluginProtocol::Commands::UNKNOWN;
-
-            return dataMessage;
-        }
-
-
     }
 
 }
+
 

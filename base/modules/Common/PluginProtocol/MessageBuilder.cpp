@@ -26,7 +26,7 @@ namespace Common
                                                              const std::string &statusWithoutTimeStamp) const
         {
             DataMessage dataMessage = createDefaultDataMessage(Commands::PLUGIN_SEND_STATUS, appId, statusXml);
-            dataMessage.Payload.push_back(statusWithoutTimeStamp);
+            dataMessage.m_payload.push_back(statusWithoutTimeStamp);
             return dataMessage;
         }
 
@@ -64,43 +64,43 @@ namespace Common
 
         std::string MessageBuilder::requestExtractEvent(const DataMessage & dataMessage) const
         {
-            assert( dataMessage.Command == Commands::PLUGIN_SEND_EVENT);
-            return dataMessage.Payload.at(0);
+            assert( dataMessage.m_command == Commands::PLUGIN_SEND_EVENT);
+            return dataMessage.m_payload.at(0);
         }
 
         Common::PluginApi::StatusInfo MessageBuilder::requestExtractStatus(const DataMessage &dataMessage) const
         {
-            assert( dataMessage.Command == Commands::PLUGIN_SEND_STATUS || dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
-            return {dataMessage.Payload.at(0), dataMessage.Payload.at(1), dataMessage.ApplicationId};
+            assert( dataMessage.m_command == Commands::PLUGIN_SEND_STATUS || dataMessage.m_command == Commands::REQUEST_PLUGIN_STATUS);
+            return {dataMessage.m_payload.at(0), dataMessage.m_payload.at(1), dataMessage.m_applicationId};
         }
 
         std::string MessageBuilder::requestExtractPolicy(const DataMessage &dataMessage) const
         {
-            assert( dataMessage.Command == Commands::REQUEST_PLUGIN_APPLY_POLICY);
-            return dataMessage.Payload.at(0);
+            assert( dataMessage.m_command == Commands::REQUEST_PLUGIN_APPLY_POLICY);
+            return dataMessage.m_payload.at(0);
         }
 
         std::string MessageBuilder::requestExtractAction(const DataMessage &dataMessage) const
         {
-            assert( dataMessage.Command == Commands::REQUEST_PLUGIN_DO_ACTION);
-            return dataMessage.Payload.at(0);
+            assert( dataMessage.m_command == Commands::REQUEST_PLUGIN_DO_ACTION);
+            return dataMessage.m_payload.at(0);
         }
 
         DataMessage MessageBuilder::replyAckMessage(const DataMessage &dataMessage) const
         {
             DataMessage reply(dataMessage);
-            reply.Payload.clear();
-            reply.Payload.emplace_back("ACK");
+            reply.m_payload.clear();
+            reply.m_acknowledge=true;
             return reply;
         }
 
         DataMessage MessageBuilder::replySetErrorIfEmpty(const DataMessage &dataMessage, const std::string &errorDescription) const
         {
             DataMessage reply(dataMessage);
-            reply.Payload.clear();
-            if ( reply.Error.empty())
+            reply.m_payload.clear();
+            if ( reply.m_error.empty())
             {
-                reply.Error = errorDescription;
+                reply.m_error = errorDescription;
             }
 
             return reply;
@@ -109,42 +109,42 @@ namespace Common
 
         DataMessage MessageBuilder::replyCurrentPolicy(const DataMessage &dataMessage, const std::string &policyContent) const
         {
-            assert(dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
+            assert(dataMessage.m_command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
             DataMessage reply(dataMessage);
-            reply.Payload.clear();
-            reply.Payload.push_back(policyContent);
+            reply.m_payload.clear();
+            reply.m_payload.push_back(policyContent);
             return reply;
         }
 
         DataMessage MessageBuilder::replyTelemetry(const DataMessage & dataMessage, const std::string &telemetryContent) const
         {
-            assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
+            assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_TELEMETRY);
             DataMessage reply(dataMessage);
-            reply.Payload.clear();
-            reply.Payload.push_back(telemetryContent);
+            reply.m_payload.clear();
+            reply.m_payload.push_back(telemetryContent);
             return reply;
         }
 
         DataMessage MessageBuilder::replyStatus(const DataMessage & dataMessage, const Common::PluginApi::StatusInfo &statusInfo) const
         {
-            assert(dataMessage.Command == Commands::REQUEST_PLUGIN_STATUS);
+            assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_STATUS);
             DataMessage reply(dataMessage);
-            reply.Payload.clear();
-            reply.Payload.push_back(statusInfo.statusXml);
-            reply.Payload.push_back(statusInfo.statusWithoutTimestampsXml);
+            reply.m_payload.clear();
+            reply.m_payload.push_back(statusInfo.statusXml);
+            reply.m_payload.push_back(statusInfo.statusWithoutTimestampsXml);
             return reply;
         }
 
         std::string MessageBuilder::replyExtractCurrentPolicy(const DataMessage &dataMessage) const
         {
-            assert(dataMessage.Command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
-            return dataMessage.Payload.at(0);
+            assert(dataMessage.m_command == Commands::PLUGIN_QUERY_CURRENT_POLICY);
+            return dataMessage.m_payload.at(0);
         }
 
         std::string MessageBuilder::replyExtractTelemetry(const DataMessage &dataMessage) const
         {
-            assert(dataMessage.Command == Commands::REQUEST_PLUGIN_TELEMETRY);
-            return dataMessage.Payload.at(0);
+            assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_TELEMETRY);
+            return dataMessage.m_payload.at(0);
         }
 
         DataMessage
@@ -152,24 +152,19 @@ namespace Common
                                                  const std::string &payload) const
         {
             DataMessage dataMessage;
-            dataMessage.ApplicationId = appId;
-            dataMessage.PluginName = m_pluginName;
-            dataMessage.Command = command;
+            dataMessage.m_applicationId = appId;
+            dataMessage.m_pluginName = m_pluginName;
+            dataMessage.m_command = command;
             if ( !payload.empty())
             {
-                dataMessage.Payload.push_back(payload);
+                dataMessage.m_payload.push_back(payload);
             }
             return dataMessage;
         }
 
         bool MessageBuilder::hasAck(const DataMessage &dataMessage) const
         {
-            if (!dataMessage.Payload.empty())
-            {
-                return dataMessage.Payload[0] == "ACK";
-            }
-
-            return false;
+            return dataMessage.m_acknowledge;
         }
 
     }

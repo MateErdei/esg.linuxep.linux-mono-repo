@@ -28,19 +28,19 @@ namespace ManagementAgent
             try
             {
                 std::string policyXml;
-                switch (request.Command)
+                switch (request.m_command)
                 {
                     case Commands::PLUGIN_SEND_EVENT:
-                        m_serverCallback->receivedSendEvent(request.ApplicationId,
+                        m_serverCallback->receivedSendEvent(request.m_applicationId,
                                                             m_messageBuilder.requestExtractEvent(request));
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_SEND_STATUS:
-                        m_serverCallback->receivedChangeStatus(request.ApplicationId,
+                        m_serverCallback->receivedChangeStatus(request.m_applicationId,
                                                                m_messageBuilder.requestExtractStatus(request));
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                         {
-                            if (m_serverCallback->receivedGetPolicyRequest(request.ApplicationId))
+                            if (m_serverCallback->receivedGetPolicyRequest(request.m_applicationId))
                             {
                                 return m_messageBuilder.replyAckMessage(request);
                             } else
@@ -49,7 +49,7 @@ namespace ManagementAgent
                             }
                         }
                     case Commands::PLUGIN_SEND_REGISTER:
-                        m_serverCallback->receivedRegisterWithManagementAgent(request.PluginName);
+                        m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
                         return m_messageBuilder.replyAckMessage(request);
                     default:
                         return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");

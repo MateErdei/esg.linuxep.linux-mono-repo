@@ -16,47 +16,47 @@ Copyright 2018, Sophos Limited.  All rights reserved.
     std::stringstream s;
     s << m_expr << " and " << n_expr << " failed: ";
 
-    if (expected.ApplicationId != resulted.ApplicationId)
+    if (expected.m_applicationId != resulted.m_applicationId)
     {
         return ::testing::AssertionFailure() << s.str() << " Application Id differ: \n expected: "
-                                             << expected.ApplicationId
-                                             << "\n result: " << resulted.ApplicationId;
+                                             << expected.m_applicationId
+                                             << "\n result: " << resulted.m_applicationId;
     }
 
-    if (expected.PluginName != resulted.PluginName)
+    if (expected.m_pluginName != resulted.m_pluginName)
     {
         return ::testing::AssertionFailure() << s.str() << " PluginName differ: \n expected: "
-                                             << expected.PluginName
-                                             << "\n result: " << resulted.PluginName;
+                                             << expected.m_pluginName
+                                             << "\n result: " << resulted.m_pluginName;
     }
 
-    if (expected.MessageId != resulted.MessageId)
-    {
-        return ::testing::AssertionFailure() << s.str() << " Message Id differ: \n expected: "
-                                             << expected.MessageId
-                                             << "\n result: " << resulted.MessageId;
-    }
-
-    if (expected.Command != resulted.Command)
+    if (expected.m_command != resulted.m_command)
     {
         return ::testing::AssertionFailure() << s.str() << " command differ: \n expected: "
-                                             << Common::PluginProtocol::ConvertCommandEnumToString(expected.Command)
+                                             << Common::PluginProtocol::ConvertCommandEnumToString(expected.m_command)
                                              << "\n result: "
-                                             << Common::PluginProtocol::ConvertCommandEnumToString(resulted.Command);
+                                             << Common::PluginProtocol::ConvertCommandEnumToString(resulted.m_command);
     }
 
-    if (expected.Error != resulted.Error)
+    if (expected.m_error != resulted.m_error)
     {
         return ::testing::AssertionFailure() << s.str() << " Error message differ: \n expected: "
-                                             << expected.Error
-                                             << "\n result: " << resulted.Error;
+                                             << expected.m_error
+                                             << "\n result: " << resulted.m_error;
     }
 
-    if (expected.Payload != resulted.Payload)
+    if (expected.m_acknowledge != resulted.m_acknowledge)
+    {
+        return ::testing::AssertionFailure() << s.str() << " Acknowledge differ: \n expected: "
+                                             << ::testing::PrintToString(expected.m_acknowledge)
+                                             << "\n result: " << ::testing::PrintToString(resulted.m_acknowledge);
+    }
+
+    if (expected.m_payload != resulted.m_payload)
     {
         return ::testing::AssertionFailure() << s.str() << " Payload differ: \n expected: "
-                                             << ::testing::PrintToString(expected.Payload)
-                                             << "\n result: " << ::testing::PrintToString(resulted.Payload);
+                                             << ::testing::PrintToString(expected.m_payload)
+                                             << "\n result: " << ::testing::PrintToString(resulted.m_payload);
     }
 
     return ::testing::AssertionSuccess();

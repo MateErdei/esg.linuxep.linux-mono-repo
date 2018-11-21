@@ -46,19 +46,29 @@ public:
 
     Common::PluginProtocol::Protocol m_Protocol;
 
-    Common::PluginProtocol::DataMessage
 
-    createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem)
+
+    Common::PluginProtocol::DataMessage createDefaultMessage(Common::PluginProtocol::Commands command, const std::string &firstPayloadItem)
     {
         Common::PluginProtocol::DataMessage dataMessage;
-        dataMessage.Command = command;
-        dataMessage.ApplicationId = "plugin";
-        dataMessage.MessageId = "1";
+        dataMessage.m_pluginName = "plugin";
+        dataMessage.m_command = command;
+        dataMessage.m_applicationId = "plugin";
         if (!firstPayloadItem.empty())
         {
-            dataMessage.Payload.push_back(firstPayloadItem);
+            dataMessage.m_payload.push_back(firstPayloadItem);
         }
 
+        return dataMessage;
+    }
+
+    Common::PluginProtocol::DataMessage createAcknowledgementMessage(Common::PluginProtocol::Commands command)
+    {
+        Common::PluginProtocol::DataMessage dataMessage;
+        dataMessage.m_pluginName = "plugin";
+        dataMessage.m_command = command;
+        dataMessage.m_applicationId = "plugin";
+        dataMessage.m_acknowledge = true;
         return dataMessage;
     }
 
@@ -79,10 +89,10 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
 {
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
-    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.m_applicationId, eventMessage.m_payload[0])).WillOnce(
             Return());
-    Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("ACK"));
+    Common::PluginProtocol::DataMessage ackMessage = createAcknowledgementMessage(
+            Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT);
     auto replyMessage = sendReceive(eventMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
@@ -91,12 +101,12 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
 {
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
-    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.m_applicationId, eventMessage.m_payload[0])).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, ""
     );
-    errorMessage.Error = "Dummy Exception";
+    errorMessage.m_error = "Dummy Exception";
 
     auto replyMessage = sendReceive(eventMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
@@ -108,12 +118,12 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendEvent
     Common::PluginProtocol::DataMessage eventMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, std::string("Event"));
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.ApplicationId, eventMessage.Payload[0])).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedSendEvent(eventMessage.m_applicationId, eventMessage.m_payload[0])).WillOnce(
             Throw(except));
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, ""
     );
-    errorMessage.Error = except.what();
+    errorMessage.m_error = except.what();
     auto replyMessage = sendReceive(eventMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 
@@ -127,14 +137,14 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
-    statusMessage.Payload.push_back(statusInfo.statusXml);
+    statusMessage.m_payload.push_back(statusInfo.statusXml);
 
     EXPECT_CALL(*m_mockServerCallback,
-                receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
+                receivedChangeStatus(statusMessage.m_applicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Return());
 
-    Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, std::string("ACK"));
+    Common::PluginProtocol::DataMessage ackMessage = createAcknowledgementMessage(
+            Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS);
     auto replyMessage = sendReceive(statusMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
@@ -147,15 +157,15 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatu
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
-    statusMessage.Payload.push_back(statusInfo.statusXml);
+    statusMessage.m_payload.push_back(statusInfo.statusXml);
 
     EXPECT_CALL(*m_mockServerCallback,
-                receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
+                receivedChangeStatus(statusMessage.m_applicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, ""
     );
-    errorMessage.Error = "Dummy Exception";
+    errorMessage.m_error = "Dummy Exception";
 
     auto replyMessage = sendReceive(statusMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
@@ -169,18 +179,18 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginSendStatu
     Common::PluginProtocol::DataMessage statusMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, statusInfo.statusWithoutTimestampsXml
     );
-    statusMessage.Payload.push_back(statusInfo.statusXml);
+    statusMessage.m_payload.push_back(statusInfo.statusXml);
 
     auto except = std::exception();
     EXPECT_CALL(*m_mockServerCallback,
-                receivedChangeStatus(statusMessage.ApplicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
+                receivedChangeStatus(statusMessage.m_applicationId, A<const Common::PluginApi::StatusInfo &>())).WillOnce(
             Throw(except));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, ""
     );
 
-    errorMessage.Error = except.what();
+    errorMessage.m_error = except.what();
 
     auto replyMessage = sendReceive(statusMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
@@ -193,14 +203,12 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
     auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId)).WillOnce(
             Return(true));
 
     auto replyMessage = sendReceive(queryPolicyMessage);
 
-    std::vector<std::string> expectedPayload = {"ACK"};
-
-    EXPECT_EQ(expectedPayload, replyMessage.Payload);
+    EXPECT_EQ(replyMessage.m_acknowledge, true);
 }
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPolicyReturnsErrorOnApiException) //NOLINT
@@ -209,13 +217,13 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
 
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId)).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
-    errorMessage.Error = "Dummy Exception";
+    errorMessage.m_error = "Dummy Exception";
 
     auto replyMessage = sendReceive(queryPolicyMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
@@ -228,14 +236,14 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     );
 
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.ApplicationId)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId)).WillOnce(
             Throw(except));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, ""
     );
 
-    errorMessage.Error = except.what();
+    errorMessage.m_error = except.what();
     auto replyMessage = sendReceive(queryPolicyMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
@@ -246,12 +254,11 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
 
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.m_pluginName)).WillOnce(
             Return());
 
-    Common::PluginProtocol::DataMessage ackMessage = createDefaultMessage(
-            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "ACK"
-    );
+    Common::PluginProtocol::DataMessage ackMessage = createAcknowledgementMessage(
+            Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
 
     auto replyMessage = sendReceive(registerMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
@@ -263,14 +270,14 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
 
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.m_pluginName)).WillOnce(
             Throw(Common::PluginApi::ApiException("Dummy Exception")));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
 
-    errorMessage.Error = "Dummy Exception";
+    errorMessage.m_error = "Dummy Exception";
     auto replyMessage = sendReceive(registerMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
@@ -282,14 +289,14 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginRegistrat
     );
 
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.PluginName)).WillOnce(
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.m_pluginName)).WillOnce(
             Throw(except));
 
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, ""
     );
 
-    errorMessage.Error = except.what();
+    errorMessage.m_error = except.what();
     auto replyMessage = sendReceive(registerMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
@@ -304,7 +311,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnB
     Common::PluginProtocol::DataMessage errorMessage = createDefaultMessage(
             Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, ""
     );
-    errorMessage.Error = "Request not supported";
+    errorMessage.m_error = "Request not supported";
     auto replyMessage = sendReceive(badMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }

@@ -7,8 +7,7 @@ package PluginProtocolProto;
 
 message PluginAPIMessage
 {
-    required string applicationId = 1;
-    required string pluginName = 2;
+    optional string pluginName = 1;
     enum CommandOption
     {
         SendEvent = 1;
@@ -21,10 +20,11 @@ message PluginAPIMessage
         RequestCurrentPolicy = 8;
         InvalidCommand = 9;
     }
-    required CommandOption command = 3;
-    required string MessageId = 4;
+    optional CommandOption command = 2;
+    optional string messageId = 3;
+    optional string applicationId = 4;
     repeated string payload = 5;
     optional string error = 6;
-    optional string acknowledge = 7;
+    optional bool acknowledge = 7;
 }
 

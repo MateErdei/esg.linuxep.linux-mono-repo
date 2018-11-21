@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
+#include <Common/PluginApi/ApiException.h>
 
 using namespace Common::PluginProtocol;
 using DataMessage = Common::PluginProtocol::DataMessage;
@@ -32,11 +33,10 @@ public:
     {
         DataMessage message;
 
-        message.ApplicationId = "1";
-        message.PluginName = "p2";
-        message.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
-        message.MessageId = "m1";
-        message.Payload = {"Hello"};
+        message.m_applicationId = "1";
+        message.m_pluginName = "p2";
+        message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+        message.m_payload = {"Hello"};
 
         return message;
     }
@@ -56,12 +56,7 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataString)  // NOLINT
 
     data_t serializedData = protocol.serialize(message);
 
-    EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[2], message.PluginName);
-    EXPECT_EQ(serializedData[3], toString(message.Command));
-    EXPECT_EQ(serializedData[4], message.MessageId);
-    EXPECT_EQ(serializedData[5], message.Payload[0]);
-
+    EXPECT_EQ(serializedData.size(), 1);
 }
 
 TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
@@ -70,132 +65,233 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)  // N
 
     DataMessage message = createDefaultMessage();
     std::string error = "Some error";
-    message.Error = error;
+    message.m_error = error;
 
     data_t serializedData = protocol.serialize(message);
 
-    EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[3], toString(message.Command));
-    EXPECT_EQ(serializedData[4], message.MessageId);
-    EXPECT_EQ(serializedData[5], "Error");
-    EXPECT_EQ(serializedData[6], error);
+    EXPECT_EQ(serializedData.size(), 1);
 }
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
+TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId)  // NOLINT
 {
     Protocol protocol;
 
-    DataMessage message = createDefaultMessage();
-    message.Payload.push_back("World");
-    message.Payload.push_back("how");
-    message.Payload.push_back("are");
-    message.Payload.push_back("you");
+    DataMessage message = {"", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {}};
 
-    data_t serializedData = protocol.serialize(message);
-
-    EXPECT_EQ(serializedData[1], message.ApplicationId);
-    EXPECT_EQ(serializedData[3], toString(message.Command));
-    EXPECT_EQ(serializedData[4], message.MessageId);
-
-    // copy Payload into another vector to make it easy to compare.
-    data_t payload(serializedData.begin() + 5, serializedData.end());
-
-    EXPECT_THAT(payload, message.Payload);
+    ASSERT_NO_THROW(protocol.serialize(message));
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataString)  // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageDoesNotContainPluginName)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Hello"};
+    DataMessage message = {"v1", "", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {}};
 
-    DataMessage message = protocol.deserialize(expectedData);
-
-    EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(message.PluginName, expectedData[2]);
-    EXPECT_EQ(toString(message.Command), expectedData[3]);
-    EXPECT_EQ(message.MessageId, expectedData[4]);
-    EXPECT_EQ(message.Payload[0], expectedData[5]);
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageContainsUnsetCommand)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Error", "Some error"};
+    DataMessage message = {"v1", "1", Common::PluginProtocol::Commands::UNSET, "", false, {}};
 
-    DataMessage message = protocol.deserialize(expectedData);
-
-    EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(message.PluginName, expectedData[2]);
-    EXPECT_EQ(toString(message.Command), expectedData[3]);
-    EXPECT_EQ(message.MessageId, expectedData[4]);
-    EXPECT_EQ("Error", expectedData[5]);
-    EXPECT_EQ(message.Error, expectedData[6]);
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "1", "p1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "", false, {"Hello"}};
 
-    DataMessage message = protocol.deserialize(expectedData);
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
-    EXPECT_EQ(message.ApplicationId, expectedData[1]);
-    EXPECT_EQ(message.PluginName, expectedData[2]);
-    EXPECT_EQ(toString(message.Command), expectedData[3]);
-    EXPECT_EQ(message.MessageId, expectedData[4]);
-
-    // copy Payload into another vector to make it easy to compare.
-    data_t payload(expectedData.begin() + 5, expectedData.end());
-
-    EXPECT_THAT(payload, message.Payload);
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
+    EXPECT_EQ(receivedMessage.m_payload[0], sendMessage.m_payload[0]);
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoDataProvided)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData;
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, "Some error", true, {"Hello", "This", "Is", "The", "Payload"}};
 
-    DataMessage message = protocol.deserialize(expectedData);
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
-    EXPECT_EQ(message.ApplicationId, "");
-    EXPECT_EQ(toString(message.Command), "InvalidCommand");
-    EXPECT_EQ(message.MessageId, "");
-    EXPECT_THAT(message.Payload.size(), 0);
-    EXPECT_EQ(message.Error, "Bad formed message");
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    //On sent error both the acknowledgement and payload are ignored
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_EQ(receivedMessage.m_payload.size(), 0);
 }
 
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenNoPayloadProvided)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"v1", "app1", "plugin", "Test", "mid1"};
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "", false, {"Hello"}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
-    DataMessage message = protocol.deserialize(expectedData);
-
-    EXPECT_EQ(message.ApplicationId, "app1");
-    EXPECT_EQ(message.PluginName, "plugin");
-    EXPECT_EQ(toString(message.Command), "InvalidCommand");
-    EXPECT_EQ(message.MessageId, "mid1");
-    EXPECT_THAT(message.Payload.size(), 0);
-    EXPECT_EQ(message.Error, "Invalid request");
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_EQ(receivedMessage.m_payload.size(), 1);
+    EXPECT_EQ(receivedMessage.m_payload[0],"Hello");
 }
 
-TEST_F(TestProtocol, Deserialise_ReturnsErrorShownInMessageWhenWrongProtocolProvided)  // NOLINT
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
 {
     Protocol protocol;
 
-    data_t expectedData = {"vNotKnown", "app1", "SendEvent", "1", "Hello", "World", "how", "are", "you"};
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "", false, {"Hello", "This", "Is", "The", "Payload"}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
-    DataMessage message = protocol.deserialize(expectedData);
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_EQ(receivedMessage.m_payload.size(), 5);
+    EXPECT_EQ(receivedMessage.m_payload[0],"Hello");
+    EXPECT_EQ(receivedMessage.m_payload[1],"This");
+    EXPECT_EQ(receivedMessage.m_payload[2],"Is");
+    EXPECT_EQ(receivedMessage.m_payload[3],"The");
+    EXPECT_EQ(receivedMessage.m_payload[4],"Payload");
 
-    EXPECT_EQ(message.ApplicationId, "");
-    EXPECT_EQ(toString(message.Command), "InvalidCommand");
-    EXPECT_EQ(message.MessageId, "");
-    EXPECT_THAT(message.Payload.size(), 0);
-    EXPECT_THAT(message.Error, testing::HasSubstr("Protocol not supported"));
 }
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenNoDataPassed)  // NOLINT
+{
+    Protocol protocol;
+
+    data_t serialisedMessage;
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, "");
+    EXPECT_EQ(receivedMessage.m_pluginName, "");
+    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
+    EXPECT_EQ(receivedMessage.m_error, "Bad formed message: Protobuf parse error");
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenGarbageSerialisedDataPassed)  // NOLINT
+{
+    Protocol protocol;
+
+    data_t serialisedMessage = {"ThisIsAGarbageString"};
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, "");
+    EXPECT_EQ(receivedMessage.m_pluginName, "");
+    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
+    EXPECT_EQ(receivedMessage.m_error, "Bad formed message: Protobuf parse error");
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField)  // NOLINT
+{
+    Protocol protocol;
+
+    DataMessage sendMessage = {"v1", "PluginName", Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "", true, {"Hello", "This", "Is", "The", "Payload"}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    //Remove the PluginName from the protobuf message
+    serialisedMessage[0].erase(serialisedMessage[0].find("\n\nPluginName"), 12);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, "");
+    EXPECT_EQ(receivedMessage.m_pluginName, "");
+    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
+    EXPECT_EQ(receivedMessage.m_error, "Bad formed message, missing required fields : PluginName ");
+    //On deserialise error payload and acknowledgement is ignored
+    EXPECT_EQ(receivedMessage.m_acknowledge, false);
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenCommandIsUnknown)  // NOLINT
+{
+    Protocol protocol;
+
+    DataMessage sendMessage = {"v1", "100", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {"Hello", "This", "Is", "The", "Payload"}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    //Change the command to unknown in the protobuf message
+    serialisedMessage[0].replace(serialisedMessage[0].find(char(1)), 1, 1, '\t');
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNKNOWN);
+    EXPECT_EQ(receivedMessage.m_error, "Invalid request");
+    EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
+    //On error payload is ignored
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent)  // NOLINT
+{
+    Protocol protocol;
+
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "", true, {"Hello", "This", "Is", "The", "Payload"}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
+    //On acknowledgement the payload is ignored
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent)  // NOLINT
+{
+    Protocol protocol;
+
+    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "", false, {}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
+    EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
+    EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownCommandSetsAnError)  // NOLINT
+{
+    Protocol protocol;
+    DataMessage sendMessage = {"v1", "1", static_cast<Common::PluginProtocol::Commands>(20), "", false, {}};
+    data_t serialisedMessage = protocol.serialize(sendMessage);
+    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
+
+    EXPECT_EQ(receivedMessage.m_applicationId, sendMessage.m_applicationId);
+    EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
+    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNKNOWN);
+    EXPECT_EQ(receivedMessage.m_error, "Invalid request");
+    EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
+    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+}
+
+
+

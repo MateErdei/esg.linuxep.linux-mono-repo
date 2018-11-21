@@ -61,6 +61,9 @@ namespace
 
             auto context = pluginResourceManagement.getSocketContext();
             server = std::thread(std::ref(responseServer), context);
+            //Set default timeouts to be short for timeout test below
+            pluginResourceManagement.setDefaultConnectTimeout(500);
+            pluginResourceManagement.setDefaultTimeout(500);
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback );
         }
         void TearDown() override
@@ -76,10 +79,10 @@ namespace
         Common::PluginProtocol::DataMessage createDefaultMessage()
         {
             Common::PluginProtocol::DataMessage dataMessage;
-            dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
-            dataMessage.ApplicationId = "plugin";
-            dataMessage.MessageId = "1";
-            dataMessage.Payload.emplace_back("ACK");
+            dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
+            dataMessage.m_pluginName = "plugin";
+            dataMessage.m_applicationId = "plugin";
+            dataMessage.m_acknowledge = true;
 
             return dataMessage;
         }
@@ -102,11 +105,11 @@ namespace
         EXPECT_NO_THROW(plugin->sendEvent("plugin", "eventContent")); //NOLINT
     }
 
-    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutPayloadFails) //NOLINT
+    TEST_F(PluginApiTests, pluginAPIcanSendEventWithoutAcknowledgmentFails) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
 
-        dataMessage.Payload.clear();
+        dataMessage.m_acknowledge = false;
 
         responseServer.setReply(dataMessage);
 
@@ -117,7 +120,7 @@ namespace
     TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfDifferentCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
+        dataMessage.m_command = Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS;
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
     }
@@ -125,7 +128,7 @@ namespace
     TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfErrorNotEmpty) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Error = "Server rejected call";
+        dataMessage.m_error = "Server rejected call";
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
     }
@@ -139,17 +142,16 @@ namespace
     }
 
 
-//    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer) //NOLINT
-//    {
-//        responseServer.doNotReply();
-//        // attention: this require PluginResrouceManager to configure the timeout of plugin.
-//        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
-//    }
+    TEST_F(PluginApiTests, pluginAPIcanSendEventFailIfNoAnswer) //NOLINT
+    {
+        responseServer.doNotReply();
+        EXPECT_THROW(plugin->sendEvent("plugin", "eventContent"), Common::PluginApi::ApiException); //NOLINT
+    }
 
     TEST_F(PluginApiTests, pluginAPIcanChangeStatusDoesNotFailWithCorrectCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
+        dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS;
         responseServer.setReply(dataMessage);
         EXPECT_NO_THROW(plugin->sendStatus("plugin", "statusContent", "statusContentWithoutTimeout")); //NOLINT
     }
@@ -157,8 +159,8 @@ namespace
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyFailIfErrorNotEmpty) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
-        dataMessage.Error = "Server rejected call";
+        dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        dataMessage.m_error = "Server rejected call";
         responseServer.setReply(dataMessage);
         EXPECT_THROW(plugin->requestPolicies("plugin"), Common::PluginApi::ApiException); //NOLINT
     }
@@ -166,9 +168,9 @@ namespace
     TEST_F(PluginApiTests, pluginAPIcanGetPolicyDoesNotFailWithCorrectCommand) //NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
-        dataMessage.Command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
-        dataMessage.Payload.clear();
-        dataMessage.Payload.emplace_back("ACK");
+        dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY;
+        dataMessage.m_payload.clear();
+        dataMessage.m_acknowledge = true;
         responseServer.setReply(dataMessage);
         EXPECT_NO_THROW(plugin->requestPolicies("plugin")); //NOLINT
     }
@@ -193,3 +195,4 @@ namespace
 
     }
 }
+
