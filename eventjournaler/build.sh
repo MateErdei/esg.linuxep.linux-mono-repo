@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+DEFAULT_PRODUCT=TemplatePlugin
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -13,7 +14,7 @@ STARTINGDIR=$(pwd)
 
 CMAKE_BUILD_TYPE=Release
 EXTRA_CMAKE_OPTIONS=
-export PRODUCT=${PLUGIN_NAME:-TemplatePlugin}
+export PRODUCT=${PLUGIN_NAME:-${DEFAULT_PRODUCT}}
 export PRODUCT_NAME=
 export PRODUCT_LINE_ID=
 export DEFAULT_HOME_FOLDER=
@@ -71,6 +72,8 @@ do
     shift
 done
 
+[[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
+[[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
 [[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
 [[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
@@ -169,6 +172,7 @@ function build()
     [[ -n ${NPROC:-} ]] || NPROC=2
     cmake -v -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
+            -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
             -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
             -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
