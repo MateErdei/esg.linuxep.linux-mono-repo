@@ -15,7 +15,7 @@ static std::string updateAction{R"sophos(<?xml version='1.0'?>
 static std::string invalidUpdateAction{R"sophos(<?xml version='1.0'?>
 <action type="sophos.mgt.action.ALCUpdate"/>)sophos"};
 
-TEST(TestUpdatePolicyTranslator, ParseUpdateAction) // NOLINT
+TEST(TestUpdatePolicy, ParseUpdateAction) // NOLINT
 {
     using namespace UpdateSchedulerImpl::configModule;
     EXPECT_TRUE(isUpdateNowAction(updateAction));
