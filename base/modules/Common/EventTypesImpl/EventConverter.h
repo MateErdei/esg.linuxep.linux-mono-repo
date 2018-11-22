@@ -26,7 +26,7 @@ namespace Common
             std::pair<std::string, std::string> eventToString(Common::EventTypes::IEventType* eventType) override;
 
             template <class EventT>
-            EventT createEventFromString(std::string& eventTypeAsString, std::string& eventObjectAsString)
+            EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
             {
                 if (eventTypeAsString == "Credentials")
                 {

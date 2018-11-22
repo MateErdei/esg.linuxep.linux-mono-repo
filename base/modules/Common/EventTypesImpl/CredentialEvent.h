@@ -18,8 +18,8 @@ namespace Common
     class CredentialEvent : public Common::EventTypes::ICredentialEvent
         {
         public:
-            CredentialEvent();
-            //CredentialEvent(std::string& sessionType, std::string& subjectUserSID, std::string& targetUserSID, std::string& timestamp, std::string& logonID, std::string& remoteNetworkAccess);
+            CredentialEvent() = default;
+
             ~CredentialEvent() = default;
 
             const Common::EventTypes::SessionType getSessionType() const override;
@@ -48,7 +48,7 @@ namespace Common
             * @param a objectAsString
             * @returns CredentialEvent object created from the capn byte string..
             */
-            CredentialEvent fromString(std::string& objectAsString);
+            CredentialEvent fromString(const std::string& objectAsString);
 
         private:
             Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::SessionType sessionType);

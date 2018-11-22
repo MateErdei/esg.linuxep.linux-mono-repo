@@ -16,12 +16,7 @@ class TestEventConverter : public ::testing::Test
 
 public:
 
-    TestEventConverter()
-    {
-
-    }
-
-
+    TestEventConverter() = default;
 
     CredentialEvent createDefaultCredentialEvent()
     {
@@ -123,24 +118,24 @@ public:
 };
 
 
-TEST_F(TestEventConverter, testConstructorDoesNotThrow)
+TEST_F(TestEventConverter, testConstructorDoesNotThrow) //NOLINT
 {
     EXPECT_NO_THROW(EventConverter eventConverter;);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedValues)
+TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
 
-    CredentialEvent eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
+    auto eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues)
+TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -154,7 +149,39 @@ TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObje
 
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
 
-    CredentialEvent eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
+    auto eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+}
+
+TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataIsEmptyString) //NOLINT
+{
+    EventConverter converter;
+    CredentialEvent eventExpected = createDefaultCredentialEvent();
+
+    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", ""), Common::EventTypes::IEventException);
+}
+
+TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+{
+    EventConverter converter;
+    CredentialEvent eventExpected = createDefaultCredentialEvent();
+
+    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", "Not Valid Capn String"), Common::EventTypes::IEventException);
+}
+
+TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfObjectTypeIsNotKnown) //NOLINT
+{
+    EventConverter converter;
+    CredentialEvent eventExpected = createDefaultCredentialEvent();
+
+    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
+}
+
+TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfObjectTypeStringIsEmpty) //NOLINT
+{
+    EventConverter converter;
+    CredentialEvent eventExpected = createDefaultCredentialEvent();
+
+    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("", ""), Common::EventTypes::IEventException);
 }

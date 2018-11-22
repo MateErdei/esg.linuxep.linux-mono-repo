@@ -20,10 +20,6 @@ namespace Common
 {
     namespace EventTypesImpl
     {
-        CredentialEvent::CredentialEvent()
-        {
-
-        }
 
         const std::string CredentialEvent::getEventTypeId() const
         {
@@ -225,45 +221,58 @@ namespace Common
             return dataAsString;
         }
 
-        CredentialEvent CredentialEvent::fromString(std::string& objectAsString)
+        CredentialEvent CredentialEvent::fromString(const std::string& objectAsString)
         {
 
-            const kj::ArrayPtr<const capnp::word> view(
-                    reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
-                    reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
+            if(objectAsString.empty())
+            {
+                throw Common::EventTypes::IEventException("Invalid capn byte string, string is empty");
+            }
 
-            capnp::FlatArrayMessageReader message(view);
-            Sophos::Journal::CredentialsEvent::Reader credentialsEvent = message.getRoot<Sophos::Journal::CredentialsEvent>();
+            try
+            {
+                const kj::ArrayPtr<const capnp::word> view(
+                        reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
+                        reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
 
-            Common::EventTypesImpl::CredentialEvent event;
 
-            event.setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
-            event.setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
+                capnp::FlatArrayMessageReader message(view);
+                Sophos::Journal::CredentialsEvent::Reader credentialsEvent = message.getRoot<Sophos::Journal::CredentialsEvent>();
 
-            credentialsEvent.getUserGroupName().cStr();
+                Common::EventTypesImpl::CredentialEvent event;
 
-            std::string groupName(credentialsEvent.getUserGroupName());
-            event.setGroupName(groupName);
+                event.setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
+                event.setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
 
-            event.setGroupId(credentialsEvent.getUserGroupID());
-            event.setTimestamp(credentialsEvent.getTimestamp());
-            event.setLogonId(credentialsEvent.getLogonID());
+                credentialsEvent.getUserGroupName().cStr();
 
-            Common::EventTypes::UserSid subjectUserId;
-            subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();;
-            subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
-            event.setSubjectUserSid(subjectUserId);
+                std::string groupName(credentialsEvent.getUserGroupName());
+                event.setGroupName(groupName);
 
-            Common::EventTypes::UserSid targetUserId;
-            targetUserId.username = credentialsEvent.getTargetUserSID().getUsername();
-            targetUserId.domain = credentialsEvent.getTargetUserSID().getDomain();
-            event.setTargetUserSid(targetUserId);
+                event.setGroupId(credentialsEvent.getUserGroupID());
+                event.setTimestamp(credentialsEvent.getTimestamp());
+                event.setLogonId(credentialsEvent.getLogonID());
 
-            Common::EventTypes::NetworkAddress networkAddress;
-            networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
-            event.setRemoteNetworkAccess(networkAddress);
+                Common::EventTypes::UserSid subjectUserId;
+                subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();;
+                subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
+                event.setSubjectUserSid(subjectUserId);
 
-            return event;
+                Common::EventTypes::UserSid targetUserId;
+                targetUserId.username = credentialsEvent.getTargetUserSID().getUsername();
+                targetUserId.domain = credentialsEvent.getTargetUserSID().getDomain();
+                event.setTargetUserSid(targetUserId);
+
+                Common::EventTypes::NetworkAddress networkAddress;
+                networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
+                event.setRemoteNetworkAccess(networkAddress);
+                return event;
+            }
+            catch(...)
+            {
+                throw Common::EventTypes::IEventException("Unknown exception: failed to process capn CredentialEvent string");
+            }
+
         }
     }
 }
