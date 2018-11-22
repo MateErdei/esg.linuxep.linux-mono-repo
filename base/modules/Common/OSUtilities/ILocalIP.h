@@ -14,6 +14,10 @@ namespace Common
         {
         public:
             virtual ~ILocalIP() = default;
+            /**
+             * Return the ips associated with the local machine.
+             * @return
+             */
             virtual IPs getLocalIPs() const = 0;
         };
 

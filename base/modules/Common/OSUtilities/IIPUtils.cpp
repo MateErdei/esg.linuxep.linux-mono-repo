@@ -52,6 +52,8 @@ namespace
         );
     }
 
+    // get dns resolution of the given servers using futures to allow the system
+    // to offload the requests to pool thread in runtime.
     std::vector<ServerURI> dnsLookup(const std::vector<std::string>& serversuri)
     {
         auto dnsLookupPtr = Common::OSUtilities::dnsLookup();
@@ -202,7 +204,7 @@ namespace Common
         {
 
             auto localips = Common::OSUtilities::localIP()->getLocalIPs();
-            //std::cout << "Local ips: " << localips << std::endl;
+
             auto lookups = ::dnsLookup(servers);
             int i=0;
             for( auto & entry : lookups)

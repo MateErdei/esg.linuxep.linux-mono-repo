@@ -14,6 +14,11 @@ namespace Common
         {
         public:
             virtual ~IDnsLookup() = default;
+            /**
+             * Return the ips associated with the given server address.
+             * @param uri
+             * @return the ips associated with the given server address or throw exception if it can not get the dns resolution of the given address.
+             */
             virtual IPs lookup(const std::string & uri) const = 0 ;
         };
 
