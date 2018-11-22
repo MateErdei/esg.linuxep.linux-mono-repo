@@ -44,7 +44,8 @@ TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
     EXPECT_GT(localips.ip4collection.size(), 0);
     for( auto & ip4 : localips.ip4collection)
     {
-        std::string fullipword = " " + ip4.stringAddress() + " ";
+        std::string fullipword = ip4.stringAddress();
+        EXPECT_GT( fullipword.size(), 6); 
         EXPECT_THAT(ifconfigOutput, ::testing::HasSubstr(fullipword));
 
     }

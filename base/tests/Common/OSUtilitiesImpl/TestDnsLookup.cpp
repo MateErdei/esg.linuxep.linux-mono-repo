@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#ifndef ARTISANBUILD
+
 using namespace Common::OSUtilities;
 
 using PairResult = std::pair<std::string , std::string >;
@@ -58,6 +60,7 @@ TEST(TestDnsLookup, shouldBeAbleToResolvValidIPv6) // NOLINT
     ASSERT_GT(ips.ip4collection.size(), 0);
     ASSERT_GT(ips.ip6collection.size(), 0);
 }
+#endif
 
 TEST(TestDnsLookup, canMockDns) // NOLINT
 {
