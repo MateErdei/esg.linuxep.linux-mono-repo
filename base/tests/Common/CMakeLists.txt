@@ -1,5 +1,6 @@
 
 add_subdirectory(DirectoryWatcherImpl)
+add_subdirectory(EventTypesImpl)
 add_subdirectory(FileSystemImpl)
 add_subdirectory(Logging)
 add_subdirectory(ObfuscationImpl)

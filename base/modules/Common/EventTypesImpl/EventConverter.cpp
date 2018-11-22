@@ -20,15 +20,5 @@ namespace Common
             return eventData;
         }
 
-        template <class EventT>
-        EventT EventConverter::createEventFromString(std::string& eventTypeAsString, std::string& eventObjectAsString)
-        {
-            if (eventTypeAsString == "Credential")
-            {
-                EventT event;
-                event = Common::EventTypesImpl::CredentialEvent();
-                event.fromString(eventObjectAsString);
-            }
-        }
     }
 }

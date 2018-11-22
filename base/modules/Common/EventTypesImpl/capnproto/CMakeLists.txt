@@ -35,10 +35,10 @@ execute_process(
 execute_process(
         COMMAND bash -c "echo ${CMAKE_CURRENT_BINARY_DIR}"
 )
-configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.h ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
-configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.c++ ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
-configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.c++ ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
-configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.h ${CMAKE_CURRENT_LIST_DIR}/generated COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.h ${CMAKE_CURRENT_LIST_DIR} COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Credentials.capnp.c++ ${CMAKE_CURRENT_LIST_DIR} COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.c++ ${CMAKE_CURRENT_LIST_DIR} COPYONLY)
+configure_file( ${CMAKE_CURRENT_BINARY_DIR}/Common.capnp.h ${CMAKE_CURRENT_LIST_DIR} COPYONLY)
 
 
 

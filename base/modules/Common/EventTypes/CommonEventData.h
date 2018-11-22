@@ -12,7 +12,7 @@ namespace Common
 {
     namespace EventTypes
     {
-        struct UserSID
+        struct UserSid
         {
         public:
             std::string username;

@@ -70,13 +70,16 @@ INCLUDE(FindProtobuf)
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
 
-list(APPEND CMAKE_PREFIX_PATH "/redist/binaries/linux11/input/capnproto/lib/" "/redist/binaries/linux11/input/capnproto/bin/" "/redist/binaries/linux11/input/capnproto/bin/")
+list(APPEND CMAKE_PREFIX_PATH "/redist/binaries/linux11/input/capnproto/lib/" "/redist/binaries/linux11/input/capnproto/bin/")
 set(CAPNPROTO_INPUT ${INPUT}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib)
 set(CAPNPROTO_EXECUTABLE_DIR ${CAPNPROTO_INPUT}/bin)
 set(CAPNPROTO_EXECUTABLE ${CAPNPROTO_INPUT}/bin/capnp)
+set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH} )
+set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
 
+message( ${CAPNPROTO_LD_LIBRARY_PATH})
 
 set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use pkg-config to get hints for 0mq locations

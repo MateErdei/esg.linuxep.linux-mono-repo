@@ -40,14 +40,14 @@ namespace Common
             return m_eventType;
         }
 
-        const Common::EventTypes::UserSID CredentialEvent::getSubjectUserSID() const
+        const Common::EventTypes::UserSid CredentialEvent::getSubjectUserSid() const
         {
-            return m_subjectUserID;
+            return m_subjectUserSid;
         }
 
-        const Common::EventTypes::UserSID CredentialEvent::getTargetUserSID() const
+        const Common::EventTypes::UserSid CredentialEvent::getTargetUserSid() const
         {
-            return m_targetUserSID;
+            return m_targetUserSid;
         }
 
         const unsigned long long CredentialEvent::getTimestamp() const
@@ -55,9 +55,9 @@ namespace Common
             return m_timestamp;
         }
 
-        const unsigned long CredentialEvent::getLogonID() const
+        const unsigned long CredentialEvent::getLogonId() const
         {
-            return m_logonID;
+            return m_logonId;
         }
 
         const Common::EventTypes::NetworkAddress CredentialEvent::getRemoteNetworkAccess() const
@@ -67,7 +67,7 @@ namespace Common
 
         const unsigned long CredentialEvent::getGroupId() const
         {
-            return m_groupID;
+            return m_groupId;
         }
 
         const std::string CredentialEvent::getGroupName() const
@@ -75,46 +75,46 @@ namespace Common
             return m_groupName;
         }
 
-        void CredentialEvent::setSessionType(Common::EventTypes::SessionType sessionType)
+        void CredentialEvent::setSessionType(const Common::EventTypes::SessionType sessionType)
         {
             m_sessionType = sessionType;
         }
 
-        void CredentialEvent::setEventType(Common::EventTypes::EventType eventType)
+        void CredentialEvent::setEventType(const Common::EventTypes::EventType eventType)
         {
             m_eventType = eventType;
         }
-        void CredentialEvent::setSubjectUserSID(Common::EventTypes::UserSID subjectUserSID)
+        void CredentialEvent::setSubjectUserSid(const Common::EventTypes::UserSid subjectUserSid)
         {
-            m_subjectUserID = subjectUserSID;
+            m_subjectUserSid = subjectUserSid;
         }
 
-        void CredentialEvent::setTargetUserSID(Common::EventTypes::UserSID targetUserSID)
+        void CredentialEvent::setTargetUserSid(const Common::EventTypes::UserSid targetUserSid)
         {
-            m_targetUserSID = targetUserSID;
+            m_targetUserSid = targetUserSid;
         }
 
-        void CredentialEvent::setTimestamp(unsigned long long timestamp)
+        void CredentialEvent::setTimestamp(const unsigned long long timestamp)
         {
             m_timestamp = timestamp;
         }
 
-        void CredentialEvent::setLogonID(unsigned long logonID)
+        void CredentialEvent::setLogonId(const unsigned long logonId)
         {
-            m_logonID = logonID;
+            m_logonId = logonId;
         }
 
-        void CredentialEvent::setRemoteNetworkAccess(Common::EventTypes::NetworkAddress remoteNetworkAccess)
+        void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess)
         {
             m_remoteNetworkAccess = remoteNetworkAccess;
         }
 
-        void CredentialEvent::setGroupId(unsigned long groupId)
+        void CredentialEvent::setGroupId(const unsigned long groupId)
         {
-            m_groupID = groupId;
+            m_groupId = groupId;
         }
 
-        void CredentialEvent::setGroupName(std::string& groupName)
+        void CredentialEvent::setGroupName(const std::string& groupName)
         {
             m_groupName = groupName;
         }
@@ -203,24 +203,18 @@ namespace Common
             credentialsEvent.setSessionType(convertToCapnSessionType(m_sessionType));
             credentialsEvent.setEventType(convertToCapnEventType(m_eventType));
 
-            Sophos::Journal::UserSID::Builder subjectUserId = credentialsEvent.initSubjectUserSID();
-            subjectUserId.setUsername(m_subjectUserID.username);
+            credentialsEvent.getSubjectUserSID().setUsername(m_subjectUserSid.username);
+            credentialsEvent.getSubjectUserSID().setDomain(m_subjectUserSid.domain);
 
-            subjectUserId.setDomain(m_subjectUserID.domain);
-            credentialsEvent.setSubjectUserSID(subjectUserId);
+            credentialsEvent.getTargetUserSID().setUsername(m_targetUserSid.username);
+            credentialsEvent.getTargetUserSID().setDomain(m_targetUserSid.domain);
 
-            Sophos::Journal::UserSID::Builder targetUserId = credentialsEvent.initTargetUserSID();
-            targetUserId.setUsername(m_targetUserSID.username);
-
-            targetUserId.setDomain(m_targetUserSID.domain);
-            credentialsEvent.setTargetUserSID(targetUserId);
-
+            credentialsEvent.getRemoteNetworkAddress().setAddress(m_remoteNetworkAccess.address);
 
             credentialsEvent.setTimestamp(m_timestamp);
-            credentialsEvent.setLogonID(m_logonID);
-            Sophos::Journal::NetworkAddress::Builder networkAddress = credentialsEvent.initRemoteNetworkAddress();
-            networkAddress.setAddress(m_remoteNetworkAccess.address);
-            credentialsEvent.setUserGroupID(m_groupID);
+            credentialsEvent.setLogonID(m_logonId);
+
+            credentialsEvent.setUserGroupID(m_groupId);
             credentialsEvent.setUserGroupName(m_groupName);
 
             // Convert to byte string
@@ -231,7 +225,7 @@ namespace Common
             return dataAsString;
         }
 
-        Common::EventTypes::ICredentialEvent* CredentialEvent::fromString(std::string& objectAsString)
+        CredentialEvent CredentialEvent::fromString(std::string& objectAsString)
         {
 
             const kj::ArrayPtr<const capnp::word> view(
@@ -253,23 +247,23 @@ namespace Common
 
             event.setGroupId(credentialsEvent.getUserGroupID());
             event.setTimestamp(credentialsEvent.getTimestamp());
-            event.setLogonID(credentialsEvent.getLogonID());
+            event.setLogonId(credentialsEvent.getLogonID());
 
-            Common::EventTypes::UserSID subjectUserId;
-            subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();
+            Common::EventTypes::UserSid subjectUserId;
+            subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();;
             subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
-            event.setSubjectUserSID(subjectUserId);
+            event.setSubjectUserSid(subjectUserId);
 
-            Common::EventTypes::UserSID targetUserId;
+            Common::EventTypes::UserSid targetUserId;
             targetUserId.username = credentialsEvent.getTargetUserSID().getUsername();
             targetUserId.domain = credentialsEvent.getTargetUserSID().getDomain();
-            event.setTargetUserSID(targetUserId);
+            event.setTargetUserSid(targetUserId);
 
             Common::EventTypes::NetworkAddress networkAddress;
             networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
             event.setRemoteNetworkAccess(networkAddress);
 
-            return &event;
+            return event;
         }
     }
 }
