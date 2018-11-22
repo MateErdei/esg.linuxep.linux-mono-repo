@@ -21,6 +21,7 @@ add_library(pluginprotocolobject OBJECT
         )
 target_include_directories(pluginprotocolobject PUBLIC ../ZeroMQWrapper ../Reactor ../../ ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginprotocol SHARED $<TARGET_OBJECTS:pluginprotocolobject> )
+add_dependencies(pluginprotocolobject generatePluginApiMessageProto)
 
 target_link_libraries(pluginprotocol PUBLIC zeromqwrapperimpl reactorimpl ${LOG4CPLUS_LIBRARY} ${Protobuf_LIBRARIES})
 

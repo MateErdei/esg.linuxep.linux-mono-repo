@@ -21,10 +21,9 @@ message PluginAPIMessage
         InvalidCommand = 9;
     }
     optional CommandOption command = 2;
-    optional string messageId = 3;
-    optional string applicationId = 4;
-    repeated string payload = 5;
-    optional string error = 6;
-    optional bool acknowledge = 7;
+    optional string applicationId = 3;
+    repeated string payload = 4;
+    optional string error = 5;
+    optional bool acknowledge = 6;
 }
 

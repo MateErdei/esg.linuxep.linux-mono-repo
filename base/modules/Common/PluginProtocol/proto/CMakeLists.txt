@@ -12,8 +12,9 @@ else()
 endif()
 
 PROTOBUF_GENERATE_CPP(PLUGIN_API_MESSAGE_PROTO_SRC PLUGIN_API_MESSAGE_PROTO_H proto/PluginAPIMessage.proto)
-
-add_custom_target(pluginapimessagespython ALL
-        DEPENDS ${PLUGIN_API_MESSAGE_PROTO_PYTHON})
 PROTOBUF_GENERATE_PYTHON(PLUGIN_API_MESSAGE_PROTO_PYTHON proto/PluginAPIMessage.proto)
 
+add_custom_target(generatePluginApiMessageProto
+        ${CMAKE_COMMAND} -E copy_if_different
+        ${PLUGIN_API_MESSAGE_PROTO_PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/
+        DEPENDS ${PLUGIN_API_MESSAGE_PROTO_PYTHON})

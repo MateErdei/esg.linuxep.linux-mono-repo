@@ -43,13 +43,14 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:loggingobject>
         )
 
-target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY})
+target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} ${PROTOBUF_LIBRARY})
 SET_TARGET_PROPERTIES( pluginapi
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
+FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 
 add_custom_target(
         plugintar
@@ -60,17 +61,11 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/Threads
-        COMMAND mkdir -p pluginapi/include/Common/Exceptions
-        COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
-        COMMAND mkdir -p pluginapi/include/Common/TestHelpers
-        COMMAND mkdir -p pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:testhelpers> pluginapi/tests/lib64
-        COMMAND ldconfig -vNn pluginapi/lib64
-        DEPENDS testhelpers
+        COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
 )
 
 function(add_copy_directory base)
@@ -93,9 +88,6 @@ add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/Threads)
-add_copy_directory(Common/ZeroMQWrapper)
-add_copy_directory(Common/TestHelpers)
-add_copy_directory(Common/Exceptions)
 
 file(GLOB_RECURSE distributionfiles
         LIST_DIRECTORIES false
