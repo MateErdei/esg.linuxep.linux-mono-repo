@@ -15,10 +15,32 @@
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 
-#include <thread>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
+#include <atomic>
+#include <thread>
+
+namespace
+{
+    std::string ToString( Common::ZeroMQWrapper::data_t data)
+    {
+        if( data.empty())
+        {
+            return "empty";
+        }
+        else
+        {
+            std::stringstream s;
+            s << "data =";
+            for( auto & entry: data)
+            {
+                s << " " <<entry;
+            }
+            return s.str();
+        }
+    }
+}
 
 using namespace Common::ZeroMQWrapper;
 
@@ -62,7 +84,7 @@ namespace
     private:
         Common::ZeroMQWrapper::ISocketPublisher& m_socket;
         std::thread m_thread;
-        bool m_stopThread;
+        std::atomic<bool> m_stopThread;
         const std::string m_frontendAddress;
         Common::ZeroMQWrapper::ISocketPublisher::data_t m_message;
 
@@ -266,10 +288,10 @@ TEST(TestProxyImpl, 2Senders) // NOLINT
 
     int count = 50;
 
-    while (!thread1Sent || !thread2Sent || count == 0)
+    while (!thread1Sent || !thread2Sent || count > 0)
     {
         auto data = socket->read();
-
+        ASSERT_GT( data.size(), 1) << "Socket->read() returned vector of size: " << ToString(data);
         EXPECT_EQ(data.at(0), "FOOBAR");
         std::string v = data.at(1);
         if (v == "DATA")
@@ -280,17 +302,9 @@ TEST(TestProxyImpl, 2Senders) // NOLINT
             thread2Sent = true;
         } else
         {
-            PRINT("Unexpected value of data.at(1): "<<v<<" @ "<<data.size()<<" @ "<<count);
-            if (data.size() == 3 )
-            {
-                PRINT("Got a vector of "<< data.at(0) <<", "<< data.at(1) << ", " << data.at(2));
-            }
-            else
-            {
-                EXPECT_TRUE(v == "DATA" || v == "OTHER");
-            }
+            EXPECT_TRUE(false) << "Unexpected value of received data. " << ToString(data);
         }
-        count -= 1;
+        count--;
     }
 
     socket.reset();
