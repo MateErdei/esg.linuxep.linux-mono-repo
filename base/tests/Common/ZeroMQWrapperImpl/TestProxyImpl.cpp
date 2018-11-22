@@ -68,17 +68,17 @@ namespace
 
         ~SenderThread()
         {
-            m_stopThread = true;
-            if (m_thread.joinable())
-            {
-                m_thread.join();
-            }
+            stop();
         }
 
         void start();
         void stop()
         {
             m_stopThread = true;
+            if (m_thread.joinable())
+            {
+                m_thread.join();
+            }
         }
 
     private:
