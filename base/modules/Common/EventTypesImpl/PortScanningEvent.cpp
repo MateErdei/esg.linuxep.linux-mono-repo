@@ -8,9 +8,47 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
-
+#include <PortScanning.capnp.h>
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
+
+namespace
+{
+    Sophos::Journal::PortEvent::EventType convertToCapnEventType(Common::EventTypes::IPortScanningEvent::EventType eventType)
+    {
+        switch(eventType)
+        {
+            case Common::EventTypes::IPortScanningEvent::EventType::closed:
+                return Sophos::Journal::PortEvent::EventType::CLOSED;
+            case Common::EventTypes::IPortScanningEvent::EventType::connected:
+                return Sophos::Journal::PortEvent::EventType::CONNECTED;
+            case Common::EventTypes::IPortScanningEvent::EventType::opened:
+                return Sophos::Journal::PortEvent::EventType::OPENED;
+            case Common::EventTypes::IPortScanningEvent::EventType::scanned:
+                return Sophos::Journal::PortEvent::EventType::SCANNED;
+            default:
+                throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
+        }
+    }
+
+    Common::EventTypes::IPortScanningEvent::EventType convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType)
+    {
+        switch(eventType)
+        {
+            case Sophos::Journal::PortEvent::EventType::CLOSED:
+                return Common::EventTypes::IPortScanningEvent::EventType::closed;
+            case Sophos::Journal::PortEvent::EventType::CONNECTED:
+                return Common::EventTypes::IPortScanningEvent::EventType::connected;
+            case Sophos::Journal::PortEvent::EventType::OPENED:
+                return Common::EventTypes::IPortScanningEvent::EventType::opened;
+            case Sophos::Journal::PortEvent::EventType::SCANNED:
+                return Common::EventTypes::IPortScanningEvent::EventType::scanned;
+            default:
+                throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
+        }
+    }
+
+}
 
 namespace Common
 {
@@ -42,39 +80,6 @@ namespace Common
             PortScanningEvent::m_connection = m_connection;
         }
 
-        Sophos::Journal::PortEvent::EventType PortScanningEvent::convertToCapnEventType(Common::EventTypes::IPortScanningEvent::EventType eventType)
-        {
-            switch(eventType)
-            {
-                case Common::EventTypes::IPortScanningEvent::EventType::closed:
-                    return Sophos::Journal::PortEvent::EventType::CLOSED;
-                case Common::EventTypes::IPortScanningEvent::EventType::connected:
-                    return Sophos::Journal::PortEvent::EventType::CONNECTED;
-                case Common::EventTypes::IPortScanningEvent::EventType::opened:
-                    return Sophos::Journal::PortEvent::EventType::OPENED;
-                case Common::EventTypes::IPortScanningEvent::EventType::scanned:
-                    return Sophos::Journal::PortEvent::EventType::SCANNED;
-                default:
-                    throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
-            }
-        }
-
-        Common::EventTypes::IPortScanningEvent::EventType PortScanningEvent::convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType)
-        {
-            switch(eventType)
-            {
-                case Sophos::Journal::PortEvent::EventType::CLOSED:
-                    return Common::EventTypes::IPortScanningEvent::EventType::closed;
-                case Sophos::Journal::PortEvent::EventType::CONNECTED:
-                    return Common::EventTypes::IPortScanningEvent::EventType::connected;
-                case Sophos::Journal::PortEvent::EventType::OPENED:
-                    return Common::EventTypes::IPortScanningEvent::EventType::opened;
-                case Sophos::Journal::PortEvent::EventType::SCANNED:
-                    return Common::EventTypes::IPortScanningEvent::EventType::scanned;
-                default:
-                    throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
-            }
-        }
 
         std::string PortScanningEvent::toString()
         {

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/CommonEventData.h>
 #include <Common/EventTypes/IPortScanningEvent.h>
-#include <Common/EventTypesImpl/capnproto/PortScanning.capnp.h>
+
 
 namespace Common
 {
@@ -36,8 +36,6 @@ namespace Common
             PortScanningEvent fromString(const std::string& objectAsString);
 
         private:
-            Sophos::Journal::PortEvent::EventType convertToCapnEventType(Common::EventTypes::IPortScanningEvent::EventType eventType);
-            Common::EventTypes::IPortScanningEvent::EventType convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType);
             Common::EventTypes::IPortScanningEvent::EventType m_eventType;
             Common::EventTypes::IpFlow m_connection;
         };
