@@ -313,6 +313,7 @@ function build()
     rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
     cp -a build${BITS}/modules/Common/PluginApiImpl/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
+    cp -a build${BITS}/SystemProductTestOutput/ output/SystemProductTestOutput || exitFailure 23 "Failed to copy SystemProductTestOutput package: $?"
     if [[ -d build${BITS}/symbols ]]
     then
         cp -a build${BITS}/symbols output/
