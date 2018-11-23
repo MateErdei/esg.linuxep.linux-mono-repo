@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/EventTypes/CommonEventData.h"
+#include <Common/EventTypes/CommonEventData.h>
 #include <Common/EventTypes/ICredentialEvent.h>
 
 #include <Common/EventTypesImpl/capnproto/Credentials.capnp.h>

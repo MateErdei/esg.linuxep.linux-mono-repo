@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "CredentialEvent.h"
+#include "PortScanningEvent.h"
 
 #include <Common/EventTypes/IEventType.h>
 #include <Common/EventTypes/IEventConverter.h>
@@ -28,18 +29,28 @@ namespace Common
             template <class EventT>
             EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
             {
+                EventT event;
+
                 if (eventTypeAsString == "Credentials")
                 {
-                    EventT event;
                     event = Common::EventTypesImpl::CredentialEvent();
-                    Common::EventTypesImpl::CredentialEvent eventCreated = event.fromString(eventObjectAsString);
-                    return eventCreated;
+                }
+                else if (eventTypeAsString == "Port Scanning")
+                {
+                    event = Common::EventTypesImpl::PortScanningEvent();
+                }
+                else
+                {
+                    std::stringstream errorMessage;
+                    errorMessage << "The Event Type passed in had an unknown eventTypeID: '" <<  eventTypeAsString << " '";
+                    throw Common::EventTypes::IEventException(errorMessage.str());
                 }
 
-                std::stringstream errorMessage;
-                errorMessage << "The Event Type passed in had an unknown eventTypeID: '" <<  eventTypeAsString << " '";
-                throw Common::EventTypes::IEventException(errorMessage.str());
+                return event.fromString(eventObjectAsString);
             }
+
+
+
         };
     }
 }

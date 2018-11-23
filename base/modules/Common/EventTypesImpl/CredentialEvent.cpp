@@ -244,8 +244,6 @@ namespace Common
                 event.setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
                 event.setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
 
-                credentialsEvent.getUserGroupName().cStr();
-
                 std::string groupName(credentialsEvent.getUserGroupName());
                 event.setGroupName(groupName);
 

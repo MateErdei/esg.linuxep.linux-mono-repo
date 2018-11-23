@@ -26,5 +26,21 @@ namespace Common
         public:
             std::string address;
         };
+
+        struct SocketAddress
+        {
+        public:
+            std::string address;
+            unsigned int port;
+        };
+
+        struct IpFlow
+        {
+        public:
+            SocketAddress sourceAddress;
+            SocketAddress destinationAddress;
+            unsigned short protocol;
+
+        };
     }
 }
