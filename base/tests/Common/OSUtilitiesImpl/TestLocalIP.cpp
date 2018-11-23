@@ -47,7 +47,6 @@ TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
         std::string fullipword = ip4.stringAddress();
         EXPECT_GT( fullipword.size(), 6); 
         EXPECT_THAT(ifconfigOutput, ::testing::HasSubstr(fullipword));
-
     }
 
     // it is not required to have ipv6 in our servers, but if they exists, check they are valid.
