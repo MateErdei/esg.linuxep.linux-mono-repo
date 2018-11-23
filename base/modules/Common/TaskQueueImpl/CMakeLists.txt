@@ -5,10 +5,11 @@ add_library(taskqueueimpl SHARED
         TaskProcessorImpl.h
         ../TaskQueue/ITask.h
         ../TaskQueue/ITaskQueue.h
-        )
+        Logger.cpp)
 
-target_include_directories(taskqueueimpl PUBLIC  )
-target_link_libraries(taskqueueimpl PUBLIC threads)
+target_include_directories(taskqueueimpl PUBLIC  ${LOG4CPLUS_INCLUDE_DIR} )
+target_link_libraries(taskqueueimpl PUBLIC threads
+        ${LOG4CPLUS_LIBRARY})
 
 SET_TARGET_PROPERTIES( taskqueueimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
