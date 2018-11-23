@@ -39,7 +39,7 @@ namespace UpdateSchedulerImpl
         catch (const Common::PluginApi::ApiException& apiException)
         {
             LOGERROR(apiException.what());
-            throw apiException;
+            throw;
         }
 
         // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
