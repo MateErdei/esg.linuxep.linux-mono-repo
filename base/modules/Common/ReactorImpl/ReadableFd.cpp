@@ -4,12 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Logger.h"
 #include "ReadableFd.h"
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
 
-#define LOGERROR(x) std::cerr << x << '\n'
 namespace Common
 {
     namespace ReactorImpl
