@@ -67,6 +67,7 @@ set(Protobuf_DEBUG 1)
 set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH} )
 set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 INCLUDE(FindProtobuf)
+INCLUDE(CAPN)
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
 
