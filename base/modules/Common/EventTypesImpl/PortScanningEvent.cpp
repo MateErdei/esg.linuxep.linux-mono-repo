@@ -8,7 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
+
 #include <PortScanning.capnp.h>
+
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
 
@@ -87,10 +89,21 @@ namespace Common
             Sophos::Journal::PortEvent::Builder portEvent = message.initRoot<Sophos::Journal::PortEvent>();
 
             portEvent.setEventType(convertToCapnEventType(m_eventType));
-            portEvent.getConnection().getSourceAddress().setAddress(m_connection.sourceAddress.address);
+
+            ::capnp::Data::Reader sourceAddress = ::capnp::Data::Reader(
+                    reinterpret_cast<const ::capnp::byte*>(
+                            m_connection.sourceAddress.address.c_str()),
+                            strlen(m_connection.sourceAddress.address.c_str()));
+
+            portEvent.getConnection().getSourceAddress().setAddress(sourceAddress);
             portEvent.getConnection().getSourceAddress().setPort(m_connection.sourceAddress.port);
 
-            portEvent.getConnection().getDestinationAddress()Address().setAddress(m_connection.destinationAddress.address);
+            ::capnp::Data::Reader destinationAddress = ::capnp::Data::Reader(
+                    reinterpret_cast<const ::capnp::byte*>(
+                            m_connection.destinationAddress.address.c_str()),
+                            strlen(m_connection.destinationAddress.address.c_str()));
+
+            portEvent.getConnection().getDestinationAddress().setAddress(destinationAddress);
             portEvent.getConnection().getDestinationAddress().setPort(m_connection.destinationAddress.port);
 
             portEvent.getConnection().setProtocol(m_connection.protocol);
@@ -124,13 +137,22 @@ namespace Common
 
                 event.setEventType(convertFromCapnEventType(portEvent.getEventType()));
 
-                event.getConnection().sourceAddress.address = portEvent.getConnection().getSourceAddress().getAddress();
-                event.getConnection().sourceAddress.port = portEvent.getConnection().getSourceAddress().getPort();
+                auto connection = event.getConnection();
 
-                event.getConnection().destinationAddress.address = portEvent.getConnection().getDestinationAddress().getAddress();
-                event.getConnection().destinationAddress.port = portEvent.getConnection().getDestinationAddress().getPort();
+                ::capnp::Data::Reader sourceAddressData = portEvent.getConnection().getSourceAddress().getAddress();
+                std::string sourceAddress(sourceAddressData.begin(), sourceAddressData.end());
+                connection.sourceAddress.address = sourceAddress;
 
-                event.getConnection().protocol = portEvent.getConnection().getProtocol();
+                connection.sourceAddress.port = portEvent.getConnection().getSourceAddress().getPort();
+
+                ::capnp::Data::Reader destinationAddressData = portEvent.getConnection().getDestinationAddress().getAddress();
+                std::string destinationAddress(destinationAddressData.begin(), destinationAddressData.end());
+                connection.destinationAddress.address = destinationAddress;
+
+                connection.destinationAddress.port = portEvent.getConnection().getDestinationAddress().getPort();
+
+                connection.protocol = portEvent.getConnection().getProtocol();
+                event.setConnection(connection);
                 return event;
             }
             catch(...)

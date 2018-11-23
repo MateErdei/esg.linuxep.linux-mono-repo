@@ -11,12 +11,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace Common::EventTypesImpl;
 
-class TestEventConverter : public ::testing::Test
+class TestEventConverterCredentialEvent : public ::testing::Test
 {
 
 public:
 
-    TestEventConverter() = default;
+    TestEventConverterCredentialEvent() = default;
 
     CredentialEvent createDefaultCredentialEvent()
     {
@@ -43,6 +43,7 @@ public:
 
         return event;
     }
+
 
     ::testing::AssertionResult credentialEventIsEquivalent( const char* m_expr,
                                                               const char* n_expr,
@@ -118,12 +119,12 @@ public:
 };
 
 
-TEST_F(TestEventConverter, testConstructorDoesNotThrow) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testConstructorDoesNotThrow) //NOLINT
 {
     EXPECT_NO_THROW(EventConverter eventConverter;);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -135,7 +136,7 @@ TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObje
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -154,7 +155,7 @@ TEST_F(TestEventConverter, testcreateEventFromStringCanCreateCredentialEventObje
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataIsEmptyString) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataIsEmptyString) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -162,7 +163,7 @@ TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataIsEmptyString) /
     EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", ""), Common::EventTypes::IEventException);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -170,7 +171,7 @@ TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfDataInvalidCapnStrin
     EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", "Not Valid Capn String"), Common::EventTypes::IEventException);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfObjectTypeIsNotKnown) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeIsNotKnown) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -178,10 +179,16 @@ TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfObjectTypeIsNotKnown
     EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
 }
 
-TEST_F(TestEventConverter, testcreateEventFromStringThrowsIfObjectTypeStringIsEmpty) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeStringIsEmpty) //NOLINT
 {
     EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
     EXPECT_THROW(converter.createEventFromString<CredentialEvent>("", ""), Common::EventTypes::IEventException);
 }
+
+
+
+
+
+

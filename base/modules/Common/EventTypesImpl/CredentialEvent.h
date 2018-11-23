@@ -9,8 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypes/CommonEventData.h>
 #include <Common/EventTypes/ICredentialEvent.h>
 
-#include <Credentials.capnp.h>
-
 namespace Common
 {
     namespace EventTypesImpl
@@ -51,10 +49,6 @@ namespace Common
             CredentialEvent fromString(const std::string& objectAsString);
 
         private:
-            Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::SessionType sessionType);
-            Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(Common::EventTypes::EventType eventType);
-            Common::EventTypes::SessionType convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType);
-            Common::EventTypes::EventType convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType);
             unsigned long m_groupId;
             std::string m_groupName;
             Common::EventTypes::SessionType m_sessionType;

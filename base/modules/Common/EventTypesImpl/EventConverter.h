@@ -29,28 +29,18 @@ namespace Common
             template <class EventT>
             EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
             {
-                EventT event;
-
-                if (eventTypeAsString == "Credentials")
+                // ensure that only expected event types are processed.
+                if (eventTypeAsString == "Credentials"
+                || eventTypeAsString == "Port Scanning")
                 {
-                    event = Common::EventTypesImpl::CredentialEvent();
-                }
-                else if (eventTypeAsString == "Port Scanning")
-                {
-                    event = Common::EventTypesImpl::PortScanningEvent();
-                }
-                else
-                {
-                    std::stringstream errorMessage;
-                    errorMessage << "The Event Type passed in had an unknown eventTypeID: '" <<  eventTypeAsString << " '";
-                    throw Common::EventTypes::IEventException(errorMessage.str());
+                    EventT event;
+                    return event.fromString(eventObjectAsString);
                 }
 
-                return event.fromString(eventObjectAsString);
+                std::stringstream errorMessage;
+                errorMessage << "The Event Type passed in had an unknown eventTypeID: '" <<  eventTypeAsString << " '";
+                throw Common::EventTypes::IEventException(errorMessage.str());
             }
-
-
-
         };
     }
 }

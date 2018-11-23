@@ -12,9 +12,88 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
+#include <Credentials.capnp.h>
 
 #include <iostream>
 #include <sstream>
+
+namespace
+{
+
+    Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::SessionType sessionType)
+    {
+        switch(sessionType)
+        {
+            case Common::EventTypes::SessionType::interactive:
+                return Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE;
+            case Common::EventTypes::SessionType::network:
+                return Sophos::Journal::CredentialsEvent::SessionType::NETWORK;
+            case Common::EventTypes::SessionType::networkInteractive:
+                return Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE;
+            default:
+                throw Common::EventTypes::IEventException("Common::EventTypes::SessionType, contained unknown type");
+        }
+    }
+
+    Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(Common::EventTypes::EventType eventType)
+    {
+        switch(eventType)
+        {
+            case Common::EventTypes::EventType::authFailure:
+                return Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE;
+            case Common::EventTypes::EventType::authSuccess:
+                return Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS;
+            case Common::EventTypes::EventType::created:
+                return Sophos::Journal::CredentialsEvent::EventType::CREATED;
+            case Common::EventTypes::EventType::deleted:
+                return Sophos::Journal::CredentialsEvent::EventType::DELETED;
+            case Common::EventTypes::EventType::passwordChange:
+                return Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE;
+            case Common::EventTypes::EventType::membershipChange:
+                return Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE;
+            default:
+                throw Common::EventTypes::IEventException("Common::EventTypes::EventType, contained unknown type");
+        }
+    }
+
+    Common::EventTypes::SessionType convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType)
+    {
+        switch(sessionType)
+        {
+            case Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE:
+                return Common::EventTypes::SessionType::interactive;
+            case Sophos::Journal::CredentialsEvent::SessionType::NETWORK:
+                return Common::EventTypes::SessionType::network;
+            case Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE:
+                return Common::EventTypes::SessionType::networkInteractive;
+            default:
+                throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::SessionType, contained unknown type");
+
+        }
+    }
+
+    Common::EventTypes::EventType convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType)
+    {
+        switch(eventType)
+        {
+            case Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE:
+                return Common::EventTypes::EventType::authFailure;
+            case Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS:
+                return Common::EventTypes::EventType::authSuccess;
+            case Sophos::Journal::CredentialsEvent::EventType::CREATED:
+                return Common::EventTypes::EventType::created;
+            case Sophos::Journal::CredentialsEvent::EventType::DELETED:
+                return Common::EventTypes::EventType::deleted;
+            case Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE:
+                return Common::EventTypes::EventType::passwordChange;
+            case Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE:
+                return Common::EventTypes::EventType::membershipChange;
+            default:
+                throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::EventType, contained unknown type");
+        }
+    }
+}
+
 
 namespace Common
 {
@@ -115,80 +194,6 @@ namespace Common
             m_groupName = groupName;
         }
 
-        Sophos::Journal::CredentialsEvent::SessionType CredentialEvent::convertToCapnSessionType(Common::EventTypes::SessionType sessionType)
-        {
-            switch(sessionType)
-            {
-                case Common::EventTypes::SessionType::interactive:
-                    return Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE;
-                case Common::EventTypes::SessionType::network:
-                    return Sophos::Journal::CredentialsEvent::SessionType::NETWORK;
-                case Common::EventTypes::SessionType::networkInteractive:
-                    return Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE;
-                default:
-                    throw Common::EventTypes::IEventException("Common::EventTypes::SessionType, contained unknown type");
-            }
-        }
-
-        Sophos::Journal::CredentialsEvent::EventType CredentialEvent::convertToCapnEventType(Common::EventTypes::EventType eventType)
-        {
-            switch(eventType)
-            {
-                case Common::EventTypes::EventType::authFailure:
-                    return Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE;
-                case Common::EventTypes::EventType::authSuccess:
-                    return Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS;
-                case Common::EventTypes::EventType::created:
-                    return Sophos::Journal::CredentialsEvent::EventType::CREATED;
-                case Common::EventTypes::EventType::deleted:
-                    return Sophos::Journal::CredentialsEvent::EventType::DELETED;
-                case Common::EventTypes::EventType::passwordChange:
-                    return Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE;
-                case Common::EventTypes::EventType::membershipChange:
-                    return Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE;
-                default:
-                    throw Common::EventTypes::IEventException("Common::EventTypes::EventType, contained unknown type");
-            }
-        }
-
-        Common::EventTypes::SessionType CredentialEvent::convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType)
-        {
-            switch(sessionType)
-            {
-                case Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE:
-                    return Common::EventTypes::SessionType::interactive;
-                case Sophos::Journal::CredentialsEvent::SessionType::NETWORK:
-                    return Common::EventTypes::SessionType::network;
-                case Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE:
-                    return Common::EventTypes::SessionType::networkInteractive;
-                default:
-                    throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::SessionType, contained unknown type");
-
-            }
-        }
-
-        Common::EventTypes::EventType CredentialEvent::convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType)
-        {
-            switch(eventType)
-            {
-                case Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE:
-                    return Common::EventTypes::EventType::authFailure;
-                case Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS:
-                    return Common::EventTypes::EventType::authSuccess;
-                case Sophos::Journal::CredentialsEvent::EventType::CREATED:
-                    return Common::EventTypes::EventType::created;
-                case Sophos::Journal::CredentialsEvent::EventType::DELETED:
-                    return Common::EventTypes::EventType::deleted;
-                case Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE:
-                    return Common::EventTypes::EventType::passwordChange;
-                case Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE:
-                    return Common::EventTypes::EventType::membershipChange;
-                default:
-                    throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::EventType, contained unknown type");
-            }
-
-
-        }
 
         std::string CredentialEvent::toString()
         {
