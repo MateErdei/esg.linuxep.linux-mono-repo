@@ -10,8 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "TestHelpers/TempDir.h"
 #include "DummyDirectoryWatcherListener.h"
+#include "../TestHelpers/TempDir.h"
 
 using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;

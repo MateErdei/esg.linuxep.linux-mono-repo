@@ -1,7 +1,8 @@
 include(GoogleTest)
 add_library(filesystemimpltests SHARED
         MockFileSystem.h
-        MockFilePermissions.h)
+        MockFilePermissions.h
+        )
 
 target_include_directories(filesystemimpltests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(filesystemimpltests BEFORE PUBLIC "${gtest_SOURCE_DIR}")

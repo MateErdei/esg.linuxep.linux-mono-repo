@@ -14,6 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockiNotifyWrapper.h"
 #include "DummyDirectoryWatcherListener.h"
 
+#include "../Logging/TestConsoleLoggingSetup.h"
+
 using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;
 
@@ -50,6 +52,7 @@ public:
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;
+    ::Test::TestConsoleLoggingSetup m_loggingSetup;
 
 };
 
@@ -57,7 +60,7 @@ TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT
 {
     auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
     EXPECT_CALL(*mockiNotifyWrapper, init()).WillOnce(Return(-1));
-    EXPECT_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper)), IDirectoryWatcherException);
+    EXPECT_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper)), IDirectoryWatcherException); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
@@ -67,7 +70,7 @@ TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
     {
         auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
         EXPECT_CALL(*mockiNotifyWrapper, init()).WillOnce(Return(local_pipe[0]));
-        EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper)));
+        EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper))); //NOLINT
     }
     close(local_pipe[1]);
 }
@@ -75,26 +78,26 @@ TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
 TEST_F(DirectoryWatcherTests, failAddListenerBeforeWatch) // NOLINT
 {
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(-1));
-    EXPECT_THROW(m_DirectoryWatcher->addListener(m_Listener1), IDirectoryWatcherException);
+    EXPECT_THROW(m_DirectoryWatcher->addListener(m_Listener1), IDirectoryWatcherException); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, succeedAddListenerBeforeWatch) // NOLINT
 {
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, succeedRemoveListenerBeforeWatch) // NOLINT
 {
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));
-    EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1));
+    EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1)); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, failRemoveListenerBeforeWatch) // NOLINT
 {
-    EXPECT_THROW(m_DirectoryWatcher->removeListener(m_Listener1), IDirectoryWatcherException);
+    EXPECT_THROW(m_DirectoryWatcher->removeListener(m_Listener1), IDirectoryWatcherException); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, succeedRemoveListenerDuringWatch) // NOLINT
@@ -102,21 +105,21 @@ TEST_F(DirectoryWatcherTests, succeedRemoveListenerDuringWatch) // NOLINT
     m_DirectoryWatcher->startWatch();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
-    EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
+    EXPECT_NO_THROW(m_DirectoryWatcher->removeListener(m_Listener1)); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, failRemoveListenerDuringWatch) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
-    EXPECT_THROW(m_DirectoryWatcher->removeListener(m_Listener1), IDirectoryWatcherException);
+    EXPECT_THROW(m_DirectoryWatcher->removeListener(m_Listener1), IDirectoryWatcherException); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, failAddListenerDuringWatch) // NOLINT
 {
     m_DirectoryWatcher->startWatch();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(-1));
-    EXPECT_THROW(m_DirectoryWatcher->addListener(m_Listener1), IDirectoryWatcherException);
+    EXPECT_THROW(m_DirectoryWatcher->addListener(m_Listener1), IDirectoryWatcherException); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, succeedAddListenerDuringWatch) // NOLINT
@@ -124,7 +127,7 @@ TEST_F(DirectoryWatcherTests, succeedAddListenerDuringWatch) // NOLINT
     m_DirectoryWatcher->startWatch();
     EXPECT_CALL(*m_MockiNotifyWrapper, addWatch(_, _, _)).WillOnce(Return(1));
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, _)).WillOnce(Return(0));  //Called by destructor
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
 }
 
 TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
@@ -137,8 +140,8 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 1)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));  //Called by destructor
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillRepeatedly(Invoke(&read));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
     MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, 16, "TestFile1.txt"};
     write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
     MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, 16, "TestFile2.txt"};
@@ -166,8 +169,8 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     EXPECT_CALL(*m_MockiNotifyWrapper, removeWatch(_, 2)).WillOnce(Return(0));
     int errCode = 7;
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillOnce(Invoke([&errCode](int, void*, size_t){errno = errCode; return -1;}));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1));
-    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2));
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
+    EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
     write(m_pipe_fd[1], "1", sizeof("1"));
     int retries = 0;
     while((m_Listener1.m_Active || m_Listener2.m_Active) && retries <1000) {
