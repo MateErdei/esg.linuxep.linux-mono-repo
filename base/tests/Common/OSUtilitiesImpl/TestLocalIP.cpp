@@ -52,14 +52,8 @@ TEST(TestLocalIP, shouldBeAbleToResolvValidHosts) // NOLINT
     // it is not required to have ipv6 in our servers, but if they exists, check they are valid.
     for( auto & ip6 : localips.ip6collection)
     {
-        std::string ip6String = ip6.stringAddress();
-        auto findPercentage = ip6String.find("%");
-        if ( findPercentage != std::string::npos)
-        {
-            std::string onlyip6 = ip6String.substr(0, findPercentage);
-            ip6String = onlyip6;
-        }
-        std::string fullipword = " " + ip6String + " ";
+        std::string fullipword = ip6.stringAddress();
+        EXPECT_GT( fullipword.size(), 6);
         EXPECT_THAT(ifconfigOutput, ::testing::HasSubstr(fullipword));
     }
 }
