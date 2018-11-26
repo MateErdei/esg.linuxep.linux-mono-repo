@@ -5,8 +5,10 @@ add_executable(PluginCommunicationImplTests
         TestPluginProxy.cpp
         MockPluginServerCallback.h
         MockSocketRequester.h
-        ../../../tests/Common/PluginApiImpl/TestCompare.h
-        ../../../tests/Common/PluginApiImpl/TestCompare.cpp
+        ../../Common/PluginApiImpl/TestCompare.h
+        ../../Common/PluginApiImpl/TestCompare.cpp
+        ../../Common/Logging/TestConsoleLoggingSetup.h
+        ../../Common/Logging/TestConsoleLoggingSetup.cpp
         )
 target_include_directories(PluginCommunicationImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(PluginCommunicationImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" ../../../)

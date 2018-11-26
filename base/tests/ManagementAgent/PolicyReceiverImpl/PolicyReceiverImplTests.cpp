@@ -5,24 +5,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class PolicyReceiverImplTests : public ::testing::Test
 {
 public:
 
-    PolicyReceiverImplTests()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
-
-    }
+    PolicyReceiverImplTests() = default;
 
     void SetUp() override
     {
@@ -36,7 +33,7 @@ public:
     StrictMock<MockPluginManager> m_mockPluginManager;
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 
@@ -45,12 +42,12 @@ TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThr
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
 
-    EXPECT_NO_THROW(
+    EXPECT_NO_THROW( //NOLINT
             ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager));
 
 }
 
-TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue)
+TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) //NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));

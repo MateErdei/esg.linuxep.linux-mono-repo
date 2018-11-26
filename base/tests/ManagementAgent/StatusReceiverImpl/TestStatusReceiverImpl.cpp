@@ -4,14 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class TestStatusReceiverImpl : public ::testing::Test
 {
@@ -19,20 +20,19 @@ class TestStatusReceiverImpl : public ::testing::Test
 public:
 
     TestStatusReceiverImpl()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+    : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
     {
-
     }
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 
 };
 
 TEST_F(TestStatusReceiverImpl, Construction) //NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
-    EXPECT_NO_THROW
+    EXPECT_NO_THROW //NOLINT
     (
             std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
             ManagementAgent::StatusReceiverImpl::StatusReceiverImpl

@@ -4,15 +4,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <ManagementAgent/StatusCacheImpl/StatusCache.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <modules/ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <modules/Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
 
 
 class TestStatusCache : public ::testing::Test
@@ -21,9 +22,7 @@ class TestStatusCache : public ::testing::Test
 public:
     TestStatusCache()
         : m_mockFileSystem(nullptr)
-        , m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
-
     }
 
     void SetUp() override
@@ -47,7 +46,7 @@ public:
     StrictMock<MockFileSystem>* m_mockFileSystem;
     std::string m_statusCachePath = "/tmp";
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestStatusCache, testConstruction) // NOLINT

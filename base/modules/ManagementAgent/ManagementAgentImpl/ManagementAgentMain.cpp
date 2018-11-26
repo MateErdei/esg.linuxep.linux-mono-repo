@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ManagementAgentMain.h"
 #include <ManagementAgent/LoggerImpl/Logger.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
@@ -14,8 +14,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
+
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
+#include <Common/Logging/FileLoggingSetup.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
@@ -34,7 +36,7 @@ namespace
 {
     std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
 
-    void s_signal_handler (int signal_value)
+    void s_signal_handler(int)
     {
         if ( !GL_signalPipe)
         {
@@ -53,7 +55,7 @@ namespace ManagementAgent
         {
             umask(S_IRWXG | S_IRWXO);  //Read and write for the owner
             static_cast<void>(argv); // unused
-            ManagementAgent::LoggerImpl::LoggingSetup loggerSetup;
+            Common::Logging::FileLoggingSetup loggerSetup("sophos_managementagent",true);
             if(argc > 1)
             {
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");
@@ -219,7 +221,7 @@ namespace ManagementAgent
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
             GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>( new Common::Threads::NotifyPipe());
-            struct sigaction action;
+            struct sigaction action; //NOLINT
             action.sa_handler = s_signal_handler;
             action.sa_flags = 0;
             sigemptyset (&action.sa_mask);

@@ -4,23 +4,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
+#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
-#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace
 {
@@ -50,8 +51,7 @@ namespace
     {
     public:
         ManagementAgentImplTests() :
-                m_mockApplicationManager(nullptr),
-                m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+                m_mockApplicationManager(nullptr)
         {
         }
 
@@ -101,7 +101,7 @@ namespace
         StrictMock<MockPluginManager> m_mockPluginManager;
         NiceMock<MockedApplicationPathManager>* m_mockApplicationManager;
     private:
-        std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+        TestLogging::TestConsoleLoggingSetup m_loggingSetup;
     };
 
     TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT

@@ -1,23 +1,24 @@
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 #include "MockPluginServerCallback.h"
+
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+
+#include <Common/PluginApi/ApiException.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/TestCompare.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 class TestPluginServerCallbackHandler : public TestCompare
 {
 public:
     TestPluginServerCallbackHandler()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
     {
         m_mockServerCallback = std::make_shared<StrictMock<MockPluginServerCallback>>();
         MockedApplicationPathManager *mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
@@ -72,7 +73,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent) //NOLINT

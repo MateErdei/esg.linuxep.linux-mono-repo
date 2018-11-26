@@ -1,14 +1,16 @@
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 #include "MockSocketRequester.h"
 
+#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <Common/ZeroMQWrapper/IContext.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
@@ -17,11 +19,9 @@ class TestPluginProxy : public ::testing::Test
 {
 public:
     TestPluginProxy()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+        : m_mockSocketRequester(new StrictMock<MockSocketRequester>())
     {
-        m_mockSocketRequester = new StrictMock<MockSocketRequester>();
-
-        m_pluginProxy = std::unique_ptr<PluginProxy>(
+        m_pluginProxy.reset(
                 new PluginProxy(std::unique_ptr<Common::ZeroMQWrapper::ISocketRequester>(m_mockSocketRequester),
                                 "plugin_one"
                 ));
@@ -51,7 +51,7 @@ public:
     }
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 // Reply error cases

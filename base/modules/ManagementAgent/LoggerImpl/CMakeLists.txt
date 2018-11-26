@@ -1,7 +1,6 @@
 add_library(managementagentloggerimpl SHARED
         Logger.h
-        LoggingSetup.cpp
-        LoggingSetup.h)
+        Logger.cpp)
 target_include_directories(managementagentloggerimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(managementagentloggerimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}

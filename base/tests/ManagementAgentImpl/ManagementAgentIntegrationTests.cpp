@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 

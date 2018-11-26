@@ -16,10 +16,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <log4cplus/loggingmacros.h>
 
 
-Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase)
+Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase, bool lowpriv)
 {
-    setupFileLogging(logbase);
-
+    setupFileLogging(logbase, lowpriv);
 }
 
 Common::Logging::FileLoggingSetup::~FileLoggingSetup()
@@ -43,8 +42,6 @@ void Common::Logging::FileLoggingSetup::setupFileLogging(const std::string& logb
 
     Path logFilename = Common::FileSystem::join(logDir, logfilename);
     setupFileLoggingWithPath(logFilename);
-
-
 }
 
 void Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::string& logfilepath)

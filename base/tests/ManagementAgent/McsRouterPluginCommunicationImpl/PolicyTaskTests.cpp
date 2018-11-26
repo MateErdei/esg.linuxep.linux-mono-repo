@@ -4,45 +4,42 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "MockPluginManager.h"
+
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 
-#include "MockPluginManager.h"
-
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-
 class PolicyTaskTests : public ::testing::Test
 {
 public:
-    PolicyTaskTests()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
-
-    }
+    PolicyTaskTests() = default;
 
     void SetUp() override
     {
-
     }
 
     void TearDown() override
     {
-
     }
+
     StrictMock<MockPluginManager> m_mockPluginManager;
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
 {
     EXPECT_CALL(m_mockPluginManager, applyNewPolicy("SAV", "Hello")).WillOnce(Return(1));
 
-    StrictMock<MockFileSystem> *filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 

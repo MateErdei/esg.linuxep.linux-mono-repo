@@ -4,11 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class TestEventReceiverImpl : public ::testing::Test
 {
@@ -16,13 +18,13 @@ class TestEventReceiverImpl : public ::testing::Test
 public:
 
     TestEventReceiverImpl()
-            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
     {
 
     }
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 
 };
 
@@ -33,7 +35,7 @@ TEST_F(TestEventReceiverImpl, Construction) //NOLINT
     Common::TaskQueue::ITaskQueueSharedPtr queue(
             new FakeQueue
             );
-    EXPECT_NO_THROW(
+    EXPECT_NO_THROW( //NOLINT
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo
             (
                     queue

@@ -4,29 +4,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <tests/Common/TaskQueueImpl/FakeQueue.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 class TestStatusTask : public ::testing::Test
 {
 
 public:
-
-    TestStatusTask()
-            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
-
-    }
+    TestStatusTask() = default;
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 
 };
 

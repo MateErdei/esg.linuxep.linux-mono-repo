@@ -4,10 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <ManagementAgent/EventReceiverImpl/EventTask.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 
 class TestEventTask : public ::testing::Test
@@ -16,20 +18,20 @@ class TestEventTask : public ::testing::Test
 public:
 
     TestEventTask()
-            : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
+            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
     {
 
     }
 
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 
 };
 
 
 TEST_F(TestEventTask, Construction) //NOLINT
 {
-    EXPECT_NO_THROW(
+    EXPECT_NO_THROW( //NOLINT
     ManagementAgent::EventReceiverImpl::EventTask task
             (
                     "APPID",

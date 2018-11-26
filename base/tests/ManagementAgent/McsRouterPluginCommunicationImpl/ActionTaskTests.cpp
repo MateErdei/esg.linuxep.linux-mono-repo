@@ -4,25 +4,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 #include "MockPluginManager.h"
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using ::testing::_;
 
 class ActionTaskTests : public ::testing::Test
 {
 public:
-    ActionTaskTests()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
+    ActionTaskTests() = default;
 
-    }
     void SetUp() override
     {
 
@@ -35,14 +34,14 @@ public:
 
     StrictMock<MockPluginManager> m_mockPluginManager;
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
 {
     EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello")).WillOnce(Return(1));
 
-    NiceMock<MockFileSystem> *filesystemMock = new NiceMock<MockFileSystem>();
+    auto filesystemMock = new NiceMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
@@ -59,7 +58,7 @@ TEST_F(ActionTaskTests, ActionTaskDeletesActionFileOnceQueued) // NOLINT
 {
     EXPECT_CALL(m_mockPluginManager, queueAction("SAV", "Hello")).WillOnce(Return(1));
 
-    StrictMock<MockFileSystem> *filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
     EXPECT_CALL(*filesystemMock, removeFile(_)).Times(1);
     Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));

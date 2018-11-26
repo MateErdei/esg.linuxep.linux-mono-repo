@@ -4,30 +4,28 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "TempDir.h"
 #include "MockPluginManager.h"
+#include "TempDir.h"
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueue/ITaskProcessor.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {
 public:
-    McsRouterPluginCommunicationImplTests()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
-
-    }
+    McsRouterPluginCommunicationImplTests() = default;
 
     void SetUp() override
     {
@@ -75,10 +73,10 @@ public:
     std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
     std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories)
+TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories) //NOLINT
 {
     std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1-1_policy.xml");
     std::string policyFileTmp1 = Common::FileSystem::join(m_policyFilePath, "policyFileTmp1.xml");
@@ -105,8 +103,8 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
     directoryWatcher->startWatch();
 
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(m_tempDir->absPath(policyFileTmp1), m_tempDir->absPath(policyFile1)));
-    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(m_tempDir->absPath(actionFileTmp1), m_tempDir->absPath(actionFile1)));
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(m_tempDir->absPath(policyFileTmp1), m_tempDir->absPath(policyFile1))); //NOLINT
+    EXPECT_NO_THROW(Common::FileSystem::fileSystem()->moveFile(m_tempDir->absPath(actionFileTmp1), m_tempDir->absPath(actionFile1))); //NOLINT
 
     // need to give enough time for the Directory watcher to detect and process files.
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -115,7 +113,7 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
 }
 
-TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessMultipleFilesFromMultipleDirectoriesAndWillNotThrowForUnknownFiles)
+TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessMultipleFilesFromMultipleDirectoriesAndWillNotThrowForUnknownFiles) //NOLINT
 {
     std::string policyFile1 = Common::FileSystem::join(m_policyFilePath, "appId1_policy.xml");
     std::string policyFile2 = Common::FileSystem::join(m_policyFilePath, "appId2-3_policy.xml");

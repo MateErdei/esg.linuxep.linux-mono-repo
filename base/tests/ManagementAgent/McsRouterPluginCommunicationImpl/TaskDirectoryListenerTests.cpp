@@ -4,28 +4,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include "MockPluginManager.h"
 #include "MockTaskQueue.h"
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 class TaskDirectoryListenerTests : public ::testing::Test
 {
 public:
-    TaskDirectoryListenerTests()
-    : m_loggingSetup(std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup>(new ManagementAgent::LoggerImpl::LoggingSetup(1)))
-    {
-
-    }
+    TaskDirectoryListenerTests() = default;
 
     void SetUp() override
     {
@@ -40,10 +39,10 @@ public:
     StrictMock<MockPluginManager> m_mockPluginManager;
     std::shared_ptr<StrictMock<MockTaskQueue>> m_mockTaskQueue;
 private:
-    std::unique_ptr<ManagementAgent::LoggerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles)
+TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles) //NOLINT
 {
     std::string filePath = "/tmp/base/policy"; //"/opt/sophos-sspl/base/policy"
     std::string filename = "appId1-unknown.txt";

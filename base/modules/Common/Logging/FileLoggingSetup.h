@@ -15,7 +15,7 @@ namespace Common
         class FileLoggingSetup
         {
         public:
-            explicit FileLoggingSetup(const std::string& logbase);
+            explicit FileLoggingSetup(const std::string& logbase, bool lowpriv = false);
             ~FileLoggingSetup();
             static void setupFileLogging(const std::string& logbase, bool lowpriv = false);
             static void setupFileLoggingWithPath(
