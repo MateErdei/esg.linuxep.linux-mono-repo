@@ -5,6 +5,7 @@ add_library(taskqueueimpl SHARED
         TaskProcessorImpl.h
         ../TaskQueue/ITask.h
         ../TaskQueue/ITaskQueue.h
+        Logger.h
         Logger.cpp)
 
 target_include_directories(taskqueueimpl PUBLIC  ${LOG4CPLUS_INCLUDE_DIR} )
