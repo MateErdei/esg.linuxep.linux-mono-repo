@@ -4,12 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include "watchdog_main.h"
 
 #include "Logger.h"
 #include "Watchdog.h"
-#include "LoggingSetup.h"
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/Logging/FileLoggingSetup.h>
 
 #include <unistd.h>
 
@@ -50,17 +51,18 @@ namespace
 int watchdog_main::main(int argc, char **argv)
 {
     static_cast<void>(argv); // unused
-    watchdog::watchdogimpl::LoggingSetup loggingSetup;
-    if(argc > 1)
-    {
-        LOGERROR("Error, invalid command line arguments. Usage: watchdog");
-        return 2;
-    }
+
     std::string installDir = work_out_install_directory();
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL,
             installDir
     );
+    Common::Logging::FileLoggingSetup logSetup("watchdog");
+    if(argc > 1)
+    {
+        LOGERROR("Error, invalid command line arguments. Usage: watchdog");
+        return 2;
+    }
 
     Watchdog m;
     return m.run();

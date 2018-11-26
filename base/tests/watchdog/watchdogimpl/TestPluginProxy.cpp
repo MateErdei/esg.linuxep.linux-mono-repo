@@ -5,23 +5,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <watchdog/watchdogimpl/PluginProxy.h>
-#include <watchdog/watchdogimpl/LoggingSetup.h>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
+
+#include <Common/ProcessImpl/ProcessImpl.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {
     class TestPluginProxy
             : public ::testing::Test
     {
-        std::unique_ptr<watchdog::watchdogimpl::LoggingSetup> m_loggingSetup;
+        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
     public:
         TestPluginProxy()
-                : m_loggingSetup(
-                std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
+                : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
         {}
     };
 }
@@ -29,7 +30,7 @@ namespace
 TEST_F(TestPluginProxy, TestConstruction) //NOLINT
 {
     Common::PluginRegistryImpl::PluginInfo info;
-    EXPECT_NO_THROW(watchdog::watchdogimpl::PluginProxy proxy(std::move(info)));
+    EXPECT_NO_THROW(watchdog::watchdogimpl::PluginProxy proxy(std::move(info))); //NOLINT
 }
 
 TEST_F(TestPluginProxy, WontStartPluginWithoutExecutable) //NOLINT

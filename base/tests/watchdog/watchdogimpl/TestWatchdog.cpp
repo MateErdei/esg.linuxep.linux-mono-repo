@@ -4,31 +4,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <watchdog/watchdogimpl/LoggingSetup.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
 
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/FileSystemImpl/MockFilePermissions.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/FileSystemImpl/FilePermissionsImpl.h>
-
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
+#include <gtest/gtest.h>
 
 namespace
 {
     class TestWatchdog
             : public ::testing::Test
     {
-        std::unique_ptr<watchdog::watchdogimpl::LoggingSetup> m_loggingSetup;
+        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
     public:
         TestWatchdog()
-                : m_loggingSetup(
-                std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
+                : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
         {
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);

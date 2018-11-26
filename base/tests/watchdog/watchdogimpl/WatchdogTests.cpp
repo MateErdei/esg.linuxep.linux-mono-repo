@@ -6,28 +6,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <watchdog/watchdogimpl/watchdog_main.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
-#include <watchdog/watchdogimpl/LoggingSetup.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
+#include <gtest/gtest.h>
 
 namespace
 {
     class TestWatchdog
         : public watchdog::watchdogimpl::Watchdog
     {
-        std::unique_ptr<watchdog::watchdogimpl::LoggingSetup> m_loggingSetup;
+        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
     public:
 
         TestWatchdog()
-                : m_loggingSetup(
-                std::unique_ptr<watchdog::watchdogimpl::LoggingSetup>(new watchdog::watchdogimpl::LoggingSetup(1)))
+                : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
         {}
 
         watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs()
