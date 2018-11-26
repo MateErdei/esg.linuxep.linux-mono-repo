@@ -10,7 +10,7 @@ target_include_directories(eventtypesimpltestsexe SYSTEM BEFORE PUBLIC "${gtest_
         "${CAPNPROTO_INCLUDE_DIR}")
 target_include_directories(eventtypesimpltestsexe BEFORE PUBLIC "${gtest_SOURCE_DIR}")
 target_link_libraries(eventtypesimpltestsexe gtest gtest_main)
-target_link_libraries(eventtypesimpltestsexe eventtypesimpl eventtypesimplobject)
+target_link_libraries(eventtypesimpltestsexe eventtypesimpl)
 message($ENV{LD_LIBRARY_PATH})
 
 gtest_discover_tests(eventtypesimpltestsexe)
