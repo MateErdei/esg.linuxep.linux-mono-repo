@@ -30,8 +30,8 @@ namespace Common
             EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
             {
                 // ensure that only expected event types are processed.
-                if (eventTypeAsString == "Credentials"
-                || eventTypeAsString == "Port Scanning")
+                if (eventTypeAsString == "Detector.Credentials"
+                || eventTypeAsString == "Detector.PortScanning")
                 {
                     EventT event;
                     return event.fromString(eventObjectAsString);
