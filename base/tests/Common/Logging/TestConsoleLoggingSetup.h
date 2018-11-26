@@ -5,8 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <memory>
 
-namespace Test
+namespace TestLogging
 {
     class TestConsoleLoggingSetup
     {
@@ -15,5 +16,6 @@ namespace Test
         ~TestConsoleLoggingSetup();
         static void consoleSetupLogging();
     };
+    using TestConsoleLoggingSetupPtr = std::unique_ptr<TestConsoleLoggingSetup>;
 }
 

@@ -262,8 +262,7 @@ namespace UpdateSchedulerImpl
             Common::OSUtilities::SortServersReport report = Common::OSUtilities::indexOfSortedURIsByIPProximity(cacheUrls);
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
             std::string logReport = reportToString(report);
-            // FIXME: uncomment the line below after LINUXEP-5910
-            //LOGSUPPORT( "Sort update cache took " << elapsed << " ms. Entries: " << logReport);
+            LOGSUPPORT( "Sort update cache took " << elapsed << " ms. Entries: " << logReport);
             std::vector<int> sortedIndex = Common::OSUtilities::sortedIndexes(report);
 
 

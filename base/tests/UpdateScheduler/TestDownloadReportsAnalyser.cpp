@@ -5,12 +5,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
 #include "DownloadReportTestBuilder.h"
+
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
@@ -24,7 +28,7 @@ public:
 
 
     TestDownloadReportAnalyser()
-            : m_loggingSetup(new UpdateSchedulerImpl::LoggingSetup(1))
+            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
     {
     }
 
@@ -212,7 +216,7 @@ public:
         return marks;
     }
 
-    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 };
 
 
@@ -682,7 +686,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
 
 
 
-TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport)
+TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) //NOLINT
 {
     std::string firstReport{R"sophos({ "finishTime": "20180821 121220",
 "status": "SUCCESS",

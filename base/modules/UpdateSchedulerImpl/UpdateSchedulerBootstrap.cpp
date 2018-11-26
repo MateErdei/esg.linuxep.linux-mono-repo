@@ -8,21 +8,19 @@
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include "UpdateSchedulerBootstrap.h"
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <Common/Logging/FileLoggingSetup.h>
 #include "SchedulerPluginCallback.h"
 #include "cronModule/CronSchedulerThread.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
 #include "UpdateSchedulerProcessor.h"
 #include "Logger.h"
-#include "LoggingSetup.h"
-
-log4cplus::Logger GL_UPDSCH_LOGGER; //NOLINT
 
 namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     int main_entry()
     {
-        LoggingSetup logging;
+        Common::Logging::FileLoggingSetup logging("updatescheduler");
 
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
 

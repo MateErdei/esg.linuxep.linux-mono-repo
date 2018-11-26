@@ -5,15 +5,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
+#include <UpdateSchedulerImpl/Logger.h>
+
 #include <Common/ProcessImpl/ProcessImpl.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/TestHelpers/TempDir.h>
-#include <UpdateSchedulerImpl/Logger.h>
-#include <gmock/gmock-matchers.h>
-#include <future>
-#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
 
-using namespace UpdateSchedulerImpl;
+#include <gmock/gmock-matchers.h>
+
+#include <future>
+
 using namespace UpdateScheduler;
 
 class TestAsyncSulDownloaderRunner
@@ -24,12 +27,13 @@ public:
 
     void SetUp() override
     {
-        m_loggingSetup.reset(new UpdateSchedulerImpl::LoggingSetup(1));
+        m_loggingSetup.reset(new TestLogging::TestConsoleLoggingSetup());
     }
 
     void TearDown() override
     {
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+        m_loggingSetup.reset();
     }
 
     MockProcess* setupMockProcess()
@@ -42,7 +46,7 @@ public:
         return mockProcess;
     }
 
-    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 };
 
 TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT

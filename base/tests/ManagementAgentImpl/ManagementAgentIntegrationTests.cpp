@@ -4,34 +4,35 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
+#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/UtilityImpl/StringUtils.h>
+
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
 #include <tests/Common/TestHelpers/TempDir.h>
 
-#include <ManagementAgent/LoggerImpl/LoggingSetup.h>
-#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <UpdateSchedulerImpl/LoggingSetup.h>
-#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/UtilityImpl/StringUtils.h>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
 #include <future>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 namespace
 {
 
-    static std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
+    std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
@@ -73,7 +74,7 @@ namespace
 </AUConfigurations>
 )sophos"};
 
-    static std::string updateAction{R"sophos(<?xml version='1.0'?>
+    std::string updateAction{R"sophos(<?xml version='1.0'?>
 <action type="sophos.mgt.action.ALCForceUpdate"/>)sophos"};
 
 
@@ -227,7 +228,7 @@ namespace
     class ManagementAgentIntegrationTests : public ::testing::Test
     {
     public:
-        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait"), m_loggerSetup(1), m_pluginLogging(1)
+        ManagementAgentIntegrationTests() : m_tempDir("/tmp", "mait")
         {
             if( m_tempDir.exists("base/mcs/action/ALC_action_1.xml"))
             {
@@ -270,8 +271,7 @@ namespace
             return jsonString;
         }
         Tests::TempDir m_tempDir;
-        ManagementAgent::LoggerImpl::LoggingSetup m_loggerSetup;
-        UpdateSchedulerImpl::LoggingSetup m_pluginLogging;
+        TestLogging::TestConsoleLoggingSetup m_loggerSetup;
     };
 
     TEST_F( ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly ) // NOLINT

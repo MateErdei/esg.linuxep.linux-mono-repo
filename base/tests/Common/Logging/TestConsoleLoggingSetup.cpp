@@ -12,17 +12,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/loggingmacros.h>
 
-Test::TestConsoleLoggingSetup::TestConsoleLoggingSetup()
+using namespace TestLogging;
+
+TestConsoleLoggingSetup::TestConsoleLoggingSetup()
 {
     consoleSetupLogging();
 }
 
-Test::TestConsoleLoggingSetup::~TestConsoleLoggingSetup()
+TestConsoleLoggingSetup::~TestConsoleLoggingSetup()
 {
     log4cplus::Logger::shutdown();
 }
 
-void Test::TestConsoleLoggingSetup::consoleSetupLogging()
+void TestConsoleLoggingSetup::consoleSetupLogging()
 {
 
     log4cplus::initialize();

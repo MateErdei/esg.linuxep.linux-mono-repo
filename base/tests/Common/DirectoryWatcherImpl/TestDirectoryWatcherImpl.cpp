@@ -52,8 +52,7 @@ public:
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;
-    ::Test::TestConsoleLoggingSetup m_loggingSetup;
-
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT

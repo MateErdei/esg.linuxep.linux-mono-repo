@@ -21,8 +21,6 @@ add_library(updateschedulerimpl SHARED
         SchedulerPluginCallback.h
         SchedulerPluginCallback.cpp
         Logger.h
-        LoggingSetup.h
-        LoggingSetup.cpp
         UpdateSchedulerProcessor.h
         UpdateSchedulerProcessor.cpp
         UpdateSchedulerBootstrap.h
@@ -34,7 +32,7 @@ add_library(updateschedulerimpl SHARED
         ../UpdateScheduler/IAsyncSulDownloaderRunner.h
         ../UpdateScheduler/ICronSchedulerThread.h
         ../UpdateScheduler/ScheduledUpdate.cpp
-        ../UpdateScheduler/ScheduledUpdate.h)
+        ../UpdateScheduler/ScheduledUpdate.h Logger.cpp)
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 

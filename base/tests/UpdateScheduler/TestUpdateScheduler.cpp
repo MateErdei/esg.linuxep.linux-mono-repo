@@ -4,21 +4,26 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
 #include "MockAsyncDownloaderRunner.h"
 #include "MockCronSchedulerThread.h"
-#include <tests/Common/PluginApiImpl/MockApiBaseServices.h>
+
+#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
 #include <UpdateSchedulerImpl/Logger.h>
-#include <gmock/gmock-matchers.h>
-#include <modules/UpdateSchedulerImpl/LoggingSetup.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <future>
-#include <modules/Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
+
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <tests/Common/PluginApiImpl/MockApiBaseServices.h>
+#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
+
+#include <gmock/gmock-matchers.h>
+
+#include <future>
 
 namespace
 {
@@ -269,8 +274,7 @@ class TestUpdateScheduler
 
 public:
     TestUpdateScheduler()
-            : m_loggingSetup(
-            std::unique_ptr<UpdateSchedulerImpl::LoggingSetup>(new UpdateSchedulerImpl::LoggingSetup(1)))
+            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
               , m_queue(std::make_shared<SchedulerTaskQueue>())
               , m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
     {
@@ -315,7 +319,7 @@ public:
     }
 
 
-    std::unique_ptr<UpdateSchedulerImpl::LoggingSetup> m_loggingSetup;
+    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
     std::shared_ptr<SchedulerTaskQueue> m_queue;
     std::shared_ptr<SchedulerPluginCallback> m_pluginCallback;
 };
@@ -333,8 +337,13 @@ TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT
 
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+        updateScheduler(
+                m_queue,
+                std::unique_ptr<IBaseServiceApi>(api),
+                m_pluginCallback,
+                std::unique_ptr<ICronSchedulerThread>(cron),
+                std::unique_ptr<IAsyncSulDownloaderRunner>(runner)
+                        );
 
     std::future<void> schedulerRunHandle = std::async(std::launch::async,
                                                       [&updateScheduler]() { updateScheduler.mainLoop(); }
