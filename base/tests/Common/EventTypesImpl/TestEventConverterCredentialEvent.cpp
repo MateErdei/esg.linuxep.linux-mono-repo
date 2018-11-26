@@ -21,6 +21,7 @@ public:
     CredentialEvent createDefaultCredentialEvent()
     {
         CredentialEvent event;
+        event.setEventType(Common::EventTypes::EventType::authFailure);
         event.setSessionType(Common::EventTypes::SessionType::interactive);
         event.setLogonId(1000);
         event.setTimestamp(123123123);
