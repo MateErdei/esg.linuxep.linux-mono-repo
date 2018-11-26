@@ -5,15 +5,13 @@ add_library(wdctlimpl STATIC
         wdctl_bootstrap.h
         StringVector.h
         Logger.h
-        LoggingSetup.cpp
-        LoggingSetup.h
-        )
+        Logger.cpp)
 
 target_include_directories(wdctlimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
 target_link_libraries(wdctlimpl PUBLIC
-        ${LOG4CPLUS_LIBRARY}
         applicationconfigurationimpl
         filesystemimpl
         wdctlactions
-        wdctlarguments)
+        wdctlarguments
+        logging)

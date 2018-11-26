@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/Logging/FileLoggingSetup.h>
 
 #include <cstdlib>
 #include <csignal>
@@ -27,11 +28,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace wdctl::wdctlimpl;
 
-log4cplus::Logger GL_WDCTL_LOGGER; //NOLINT
-
 int wdctl_bootstrap::main(int argc, char **argv)
 {
-    LoggingSetup logging;
+    Common::Logging::FileLoggingSetup logSetup("wdctl");
 
     if (argc != 3)
     {
