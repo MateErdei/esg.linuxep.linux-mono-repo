@@ -2,12 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 project(sspl_template_plugin)
 
 if(NOT DEFINED PLUGIN_NAME)
+    # developers may just add a file called PLUGINNAME to get all the variables
+    # set as the ./build.sh set them out.
+    if ( EXISTS "${CMAKE_SOURCE_DIR}/PLUGINNAME" )
+        file(READ "${CMAKE_SOURCE_DIR}/PLUGINNAME" PLUGIN_NAME_FROMFILE)
+        string( STRIP ${PLUGIN_NAME_FROMFILE} PLUGIN_NAME)
+    else()
     set(PLUGIN_NAME TemplatePlugin)
+    endif()
 endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-Template)
+    set(PRODUCT_LINE_ID ServerProtectionLinux-${PLUGIN_NAME})
+
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
