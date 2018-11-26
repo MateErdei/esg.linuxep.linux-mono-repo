@@ -132,7 +132,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
 
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
 
-    auto eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
+    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.first, data.second);
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
@@ -151,43 +151,68 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
 
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
 
-    auto eventActual = converter.createEventFromString<CredentialEvent>(data.first, data.second);
+    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.first, data.second);
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataIsEmptyString) //NOLINT
 {
-    EventConverter converter;
-    CredentialEvent eventExpected = createDefaultCredentialEvent();
+     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
-    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>("Credentials", ""), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
-    EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
-    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Credentials", "Not Valid Capn String"), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>("Credentials", "Not Valid Capn String"), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeIsNotKnown) //NOLINT
 {
-    EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
-    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeStringIsEmpty) //NOLINT
 {
-    EventConverter converter;
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
-    EXPECT_THROW(converter.createEventFromString<CredentialEvent>("", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>("", ""), Common::EventTypes::IEventException);
 }
 
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
+{
+    // test to prove that incomplete data is still valid a event, i.e addUser event will not generate all
+    // the data that could be stored.
+
+    EventConverter converter;
+    CredentialEvent eventExpected;
+    eventExpected.setEventType(Common::EventTypes::EventType::created);
+    auto subjectUserID = eventExpected.getSubjectUserSid();
+    subjectUserID.username = "TestUser";
+    eventExpected.setSubjectUserSid(subjectUserID);
+
+    auto targetUserID = eventExpected.getTargetUserSid();
+    targetUserID.username = "TestUser";
+    eventExpected.setTargetUserSid(targetUserID);
+
+    eventExpected.setGroupName("TestGroup");
+    eventExpected.setGroupId(1002);
+    eventExpected.setTimestamp(123123);
+    eventExpected.setLogonId(1234);
+
+    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+
+    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.first, data.second);
+
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+
+
+}
 
 
 

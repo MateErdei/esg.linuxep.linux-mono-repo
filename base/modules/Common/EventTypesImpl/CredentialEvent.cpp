@@ -99,7 +99,6 @@ namespace Common
 {
     namespace EventTypesImpl
     {
-
         const std::string CredentialEvent::getEventTypeId() const
         {
             return "Detector.Credentials";
@@ -271,11 +270,12 @@ namespace Common
                 event.setRemoteNetworkAccess(networkAddress);
                 return event;
             }
-            catch(...)
+            catch(std::exception& ex)
             {
-                throw Common::EventTypes::IEventException("Unknown exception: failed to process capn CredentialEvent string");
+                std::stringstream errorMessage;
+                errorMessage << "Error: failed to process capn CredentialEvent string, " << ex.what();
+                throw Common::EventTypes::IEventException(errorMessage.str());
             }
-
         }
     }
 }

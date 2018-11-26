@@ -92,7 +92,7 @@ TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringC
 
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
 
-    auto eventActual = converter.createEventFromString<PortScanningEvent>(data.first, data.second);
+    auto eventActual = EventConverter::createEventFromString<PortScanningEvent>(data.first, data.second);
 
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, eventActual);
 }
@@ -100,32 +100,28 @@ TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringC
 
 TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringThrowsIfDataIsEmptyString) //NOLINT
 {
-    EventConverter converter;
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter.createEventFromString<PortScanningEvent>("Port Scanning", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>("Port Scanning", ""), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
-    EventConverter converter;
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter.createEventFromString<PortScanningEvent>("Port Scanning", "Not Valid Capn String"), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>("Port Scanning", "Not Valid Capn String"), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeIsNotKnown) //NOLINT
 {
-    EventConverter converter;
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter.createEventFromString<PortScanningEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>("Not a Known Type", ""), Common::EventTypes::IEventException);
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringThrowsIfObjectTypeStringIsEmpty) //NOLINT
 {
-    EventConverter converter;
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter.createEventFromString<PortScanningEvent>("", ""), Common::EventTypes::IEventException);
+    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>("", ""), Common::EventTypes::IEventException);
 }

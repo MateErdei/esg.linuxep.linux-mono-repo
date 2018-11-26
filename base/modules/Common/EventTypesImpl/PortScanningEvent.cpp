@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
+#include <sstream>
 
 namespace
 {
@@ -155,14 +156,13 @@ namespace Common
                 event.setConnection(connection);
                 return event;
             }
-            catch(...)
+            catch(std::exception& ex)
             {
-                throw Common::EventTypes::IEventException("Unknown exception: failed to process capn CredentialEvent string");
+                std::stringstream errorMessage;
+                errorMessage << "Error: failed to process capn PortScanningEvent string, " << ex.what();
+                throw Common::EventTypes::IEventException(errorMessage.str());
             }
-
         }
-
     }
-
 }
 

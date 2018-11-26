@@ -27,19 +27,10 @@ namespace Common
             std::pair<std::string, std::string> eventToString(Common::EventTypes::IEventType* eventType) override;
 
             template <class EventT>
-            EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
+            static EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
             {
-                // ensure that only expected event types are processed.
-                if (eventTypeAsString == "Detector.Credentials"
-                || eventTypeAsString == "Detector.PortScanning")
-                {
-                    EventT event;
-                    return event.fromString(eventObjectAsString);
-                }
-
-                std::stringstream errorMessage;
-                errorMessage << "The Event Type passed in had an unknown eventTypeID: '" <<  eventTypeAsString << " '";
-                throw Common::EventTypes::IEventException(errorMessage.str());
+                EventT event;
+                return event.fromString(eventObjectAsString);               
             }
         };
     }
