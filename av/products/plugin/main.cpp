@@ -4,8 +4,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/pluginimpl/PluginAdapter.h"
-#include "modules/pluginimpl/Logger.h"
+#include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/pluginimpl/Logger.h>
 #include "config.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
