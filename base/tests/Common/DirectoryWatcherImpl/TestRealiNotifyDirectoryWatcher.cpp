@@ -4,14 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <cstring>
-#include "gmock/gmock.h"
-#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
-#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
-#include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include <Common/DirectoryWatcher/IDirectoryWatcher.h>
+#include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
+#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include "DummyDirectoryWatcherListener.h"
-#include "../TestHelpers/TempDir.h"
+#include <Common/TestHelpers/TempDir.h>
+#include "gmock/gmock.h"
+#include <cstring>
 
 using namespace Common::DirectoryWatcherImpl;
 using namespace ::testing;

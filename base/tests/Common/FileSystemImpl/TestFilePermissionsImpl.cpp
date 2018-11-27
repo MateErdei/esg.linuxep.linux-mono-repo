@@ -3,11 +3,11 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/TestHelpers/TempDir.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Common/FileSystem/IFilePermissions.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "../TestHelpers/TempDir.h"
 #include <grp.h>
 
 using namespace Common::FileSystem;

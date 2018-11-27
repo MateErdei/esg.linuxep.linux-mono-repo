@@ -7,7 +7,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
-#include "TempDir.h"
+#include <Common/TestHelpers/TempDir.h>
 namespace Tests
 {
 

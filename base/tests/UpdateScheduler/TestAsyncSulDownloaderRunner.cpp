@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <tests/Common/TestHelpers/TempDir.h>
+#include <Common/TestHelpers/TempDir.h>
 
 #include <gmock/gmock-matchers.h>
 

@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/TestHelpers/TempDir.h>
+#include <Common/TestHelpers/TempDir.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

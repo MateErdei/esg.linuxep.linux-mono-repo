@@ -5,10 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "../TestHelpers/TempDir.h"
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/TempDir.h>
 
 #include <fstream>
 

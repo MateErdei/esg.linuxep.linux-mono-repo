@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 
 #include "gtest/gtest.h"
-#include "TestExecutionSynchronizer.h"
+#include "../../../modules/Common/TestHelpers/TestExecutionSynchronizer.h"
 #include <future>
 #include <atomic>
 namespace

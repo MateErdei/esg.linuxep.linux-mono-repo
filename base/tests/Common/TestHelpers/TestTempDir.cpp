@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 
 #include "gtest/gtest.h"
-#include "TempDir.h"
+#include "../../../modules/Common/TestHelpers/TempDir.h"
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 namespace

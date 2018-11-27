@@ -17,7 +17,7 @@ add_executable(ReactorImplTests
                 ReactorImplTestsPath.cpp
                 testrunner_main.cpp)
 target_include_directories(ReactorImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${ZeroMQ_INCLUDE_DIR})
-target_include_directories(ReactorImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ../TestHelpers)
+target_include_directories(ReactorImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ../../../modules/Common/TestHelpers)
 target_link_libraries(ReactorImplTests gtest gmock)
 target_link_libraries(ReactorImplTests reactorimpl threads testhelpers processimpl)
 gtest_discover_tests(ReactorImplTests)

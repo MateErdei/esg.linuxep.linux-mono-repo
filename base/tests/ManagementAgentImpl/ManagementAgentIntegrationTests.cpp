@@ -19,8 +19,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/TestHelpers/TestExecutionSynchronizer.h>
-#include <tests/Common/TestHelpers/TempDir.h>
+#include <Common/TestHelpers/TestExecutionSynchronizer.h>
+#include <Common/TestHelpers/TempDir.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
