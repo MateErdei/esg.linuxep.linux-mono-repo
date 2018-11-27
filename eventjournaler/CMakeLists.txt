@@ -49,7 +49,7 @@ endif()
 if(NOT DEFINED INPUT)
     set( INPUT ${BINARIES_DIR}/linux11/input )
 endif()
-SET( PLUGINAPIPATH /tmp/pluginapi)
+
 if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
