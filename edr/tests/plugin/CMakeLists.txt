@@ -2,6 +2,12 @@ include(GoogleTest)
 
 SophosAddTest(TestPlugin
         TestPlugin.cpp
-        PROJECTS ${pluginapilib}
-        LIBS ${log4cpluslib}
-        INC_DIRS ${pluginapiinclude} )
+        PROJECTS pluginimpl
+)
+
+# example with third party dependencies
+#SophosAddTest(TestPlugin
+#        TestPlugin.cpp
+#        PROJECTS pluginimpl
+#        LIBS ${log4cpluslib} ${pluginapilib}
+#        INC_DIRS ${pluginapiinclude} )
