@@ -60,6 +60,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/Threads
+        COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
@@ -87,6 +88,7 @@ add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/Threads)
+add_copy_directory(Common/ZeroMQWrapper)
 
 file(GLOB_RECURSE distributionfiles
         LIST_DIRECTORIES false
