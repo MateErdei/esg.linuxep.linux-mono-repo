@@ -193,6 +193,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
     EventConverter converter;
     CredentialEvent eventExpected;
     eventExpected.setEventType(Common::EventTypes::EventType::created);
+    eventExpected.setSessionType(Common::EventTypes::SessionType::interactive);
     auto subjectUserID = eventExpected.getSubjectUserSid();
     subjectUserID.username = "TestUser";
     eventExpected.setSubjectUserSid(subjectUserID);
