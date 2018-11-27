@@ -188,6 +188,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
 {
     // test to prove that incomplete data is still valid a event, i.e addUser event will not generate all
     // the data that could be stored.
+    // network information will not be added, and should not be an issue.
 
     EventConverter converter;
     CredentialEvent eventExpected;
