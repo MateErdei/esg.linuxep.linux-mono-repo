@@ -16,7 +16,7 @@ def copyOutputToFiler(PLUGIN_NAME)
 {
     sh "sudo rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
     sh "sudo mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
-    sh "sudo cp -r output/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
+    sh "sudo rsync -rtp output/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
 }
 
 pipeline {
