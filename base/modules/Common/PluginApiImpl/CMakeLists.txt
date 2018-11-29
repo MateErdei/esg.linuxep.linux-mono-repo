@@ -44,6 +44,13 @@ add_library(pluginapi SHARED
         )
 
 target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} ${PROTOBUF_LIBRARY})
+
+add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
+target_link_libraries(sharedtesthelpers PUBLIC pluginapi)
+
+SET_TARGET_PROPERTIES( sharedtesthelpers
+        PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../../lib64")
+
 SET_TARGET_PROPERTIES( pluginapi
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
@@ -69,8 +76,8 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:testhelpers> pluginapi/tests/lib64
         COMMAND ldconfig -vNn pluginapi/lib64
         DEPENDS testhelpers
 )
