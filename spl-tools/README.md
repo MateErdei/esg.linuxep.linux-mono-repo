@@ -40,26 +40,77 @@ This call will ssh into the virtual box machine and run the robot test and bring
 If you want to ssh into the machine and re-run the tests, for example, for debug, do:
 
 ```commandline
-  vagrant ssh
+  vagrant ssh ubuntu
   cd /vagrant
   ./tmpscript.sh
 ```
 
-After running the first test the virtual machine will be running. You may shut it down by running:
+Other Vagrant Boxes
+===================
+
+The following 3 vagrant definitions can be used for AuditD work but will not run the robot tests. Note to run the amazon_linux box you may need to run *./setup/installvagrant.sh* to install the vagrant-aws plugin.
+
+amazon_linux
+centos
+rhel
+
+To start a vagrant instance use
 
 ```commandline
-vagrant halt
+vagrant up centos
+```
+
+To start all instances use
+```commandline
+vagrant up
+```
+
+To ssh to a vagrant instance use
+
+```commandline
+vagrant ssh rhel
+```
+
+The amazon_linux vagrant machine will start an AWS instance. To avoid wasting resources you should either halt or shutdown this box when you are finished using it
+```commandline
+vagrant halt amazon_linux
+```
+or
+```commandline
+vagrant destroy amazon_linux
+```
+
+For more information on how to create and edit boxes see the wiki: https://wiki.sophos.net/display/SAVLU/How+to+create+and+edit+a+vagrant+machine
+There is also more information about the boxes setup that can be found in the Vagrantfile
+
+Useful Vagrant Commands
+=======================
+
+After running the test suite the virtual machine will remain running.
+You may shut it down by running:
+
+```commandline
+vagrant halt ubuntu
 ```
 
 You may also completely remove the virtual machine by:
 ```commandline
-vagrant destroy
+vagrant destroy ubuntu
+```
+
+To find the status of installed vagrant boxes
+```commandline
+vagrant status
+```
+
+To list the installed vagrant boxes
+```commandline
+vagrant box list
+```
+
+To remove a box from vagrant
+```commandline
+vagrant box remove <box>
 ```
 
 For further information on vagrant, check [vagrant user guide](https://www.vagrantup.com/intro/getting-started/index.html).
-
-
-
-
-
-

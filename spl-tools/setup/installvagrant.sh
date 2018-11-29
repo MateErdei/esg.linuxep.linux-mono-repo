@@ -9,3 +9,11 @@ if [ "x$?" != "x0" ]; then
 else
   echo 'vagrant already installed'
 fi
+
+vagrant plugin list | grep vagrant-aws
+if [ "x$?" != "x0" ]; then
+  echo 'Installing the vagrant-aws plugin'
+  sudo vagrant plugin install vagrant-aws
+else
+  echo 'vagrant-aws plugin already installed'
+fi

@@ -26,7 +26,7 @@ def check_vagrant_up_and_running():
     output = sp.check_output(['/usr/bin/vagrant', 'status'])
     if 'running' not in output:
         print ('starting up vagrant')
-        sp.call(['/usr/bin/vagrant', 'up'])
+        sp.call(['/usr/bin/vagrant', 'up', 'ubuntu'])
 
 
 currdir = os.path.abspath(os.getcwd())
@@ -73,7 +73,7 @@ with open(hostfile, 'w') as f:
     f.write(tempfileContent)
 
 # run the command in the vagrant machine
-vagrant_cmd = ['/usr/bin/vagrant', 'ssh', '-c', 'bash %s' % remotefile]
+vagrant_cmd = ['/usr/bin/vagrant', 'ssh', 'ubuntu', '-c', 'bash %s' % remotefile]
 
 sp.call(vagrant_cmd)
 os.chdir(currdir)
