@@ -15,7 +15,7 @@ Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImp
 
 Common::TaskQueueImpl::TaskProcessorImplThread::TaskProcessorImplThread(
         Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue)
-        : m_taskQueue(taskQueue)
+        : Common::Threads::AbstractThread(), m_taskQueue(taskQueue)
 {
 }
 
@@ -71,4 +71,12 @@ void Common::TaskQueueImpl::TaskProcessorImplThread::run()
             LOGWARN("Failed to obtain task from queue");
         }
     }
+}
+
+Common::TaskQueueImpl::TaskProcessorImplThread::~TaskProcessorImplThread()
+{
+    // destructor must ensure that the thread is not running anymore or
+    // seg fault may occur.
+    requestStop();
+    join();
 }

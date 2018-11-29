@@ -36,7 +36,7 @@ namespace Common
              */
             explicit StdPipeThread(int fileDescriptor);
 
-            ~StdPipeThread() override = default;
+            ~StdPipeThread() override;
 
             std::string output();
 

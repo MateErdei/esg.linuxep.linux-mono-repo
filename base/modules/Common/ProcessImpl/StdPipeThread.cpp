@@ -37,6 +37,15 @@ Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor)
     setNonBlocking(fileDescriptor);
 }
 
+Common::ProcessImpl::StdPipeThread::~StdPipeThread()
+{
+    // destructor must ensure that the thread is not running anymore or
+    // seg fault may occur.
+    requestStop();
+    join();
+}
+
+
 void Common::ProcessImpl::StdPipeThread::run()
 {
     std::unique_lock <std::mutex> lock(m_mutex);
@@ -129,3 +138,4 @@ std::string Common::ProcessImpl::StdPipeThread::output()
     }
     return m_stdoutStream.str();
 }
+

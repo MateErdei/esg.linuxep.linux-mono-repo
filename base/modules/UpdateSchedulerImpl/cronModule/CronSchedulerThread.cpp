@@ -21,8 +21,8 @@ namespace UpdateSchedulerImpl
                                                  CronSchedulerThread::DurationTime firstTick,
                                                  CronSchedulerThread::DurationTime repeatPeriod,
                                                  int scheduledUpdateOffsetInMinutes)
-                :
-                m_sharedState()
+                : Common::Threads::AbstractThread()
+                , m_sharedState()
                 , m_schedulerQueue(schedulerQueue)
                 , m_firstTick(firstTick)
                 , m_periodTick(repeatPeriod)
@@ -36,8 +36,10 @@ namespace UpdateSchedulerImpl
 
         CronSchedulerThread::~CronSchedulerThread()
         {
-            std::lock_guard<std::mutex> lock(m_sharedState);
-            m_actionOnInterrupt = ActionOnInterrupt::STOP;
+            // destructor must ensure that the thread is not running anymore or
+            // seg fault may occur.
+            CronSchedulerThread::requestStop();
+            join();
         }
 
 
