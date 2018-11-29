@@ -80,6 +80,17 @@ or
 vagrant destroy amazon_linux
 ```
 
+You may need to run "aws configure" on your pairing station to run the amazon_linux box if you haven't already. to do this:
+
+'''
+aws configure
+'''
+You will then be prompted for an:
+    AWS Access Key ID -> Get from password state
+    AWS Secret Access Key -> Get from password state
+    Default region name -> Usually this is eu-west-1
+    Default output format -> Leave blank
+
 For more information on how to create and edit boxes see the wiki: https://wiki.sophos.net/display/SAVLU/How+to+create+and+edit+a+vagrant+machine
 There is also more information about the boxes setup that can be found in the Vagrantfile
 
