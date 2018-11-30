@@ -99,23 +99,27 @@ public:
 
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
 {
-    using ::testing::Invoke;
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
     Common::EventTypesImpl::EventConverter converter;
+
     Common::EventTypesImpl::CredentialEvent eventExpected = createDefaultCredentialEvent();
     std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
-
-    EXPECT_CALL(*mockRawDataCallback, receiveData(data.first, data.second)).Times(AtLeast(1)).WillRepeatedly(
-            Invoke([&notify](const std::string &, const std::string & ){notify.notify();})
-    );
 
     Common::EventTypesImpl::CredentialEvent eventExpected2 = createDefaultCredentialEvent();
     eventExpected2.setGroupId(1002);
     eventExpected2.setGroupName("TestGroup2");
     std::pair<std::string, std::string> data2 = converter.eventToString(&eventExpected2);
 
+    Common::EventTypesImpl::CredentialEvent eventExpected3 = createDefaultCredentialEvent();
+    eventExpected2.setGroupId(1003);
+    eventExpected2.setGroupName("TestGroup3");
+    std::pair<std::string, std::string> data3 = converter.eventToString(&eventExpected2);
+
+    EXPECT_CALL(*mockRawDataCallback, receiveData(data.first, data.second)).Times(AtLeast(1)).WillRepeatedly(
+            Invoke([&notify](const std::string &, const std::string & ){notify.notify();})
+    );
 
     EXPECT_CALL(*mockRawDataCallback, receiveData("Detector.Credentials2", _ )).Times(2).WillRepeatedly(
             Invoke([&testExecutionSynchronizer](const std::string &, const std::string & ){testExecutionSynchronizer.notify();})
@@ -136,10 +140,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     rawDataPublisher->sendData("otherArgument", "willNotBeReceived");
     rawDataPublisher->sendData("Detector.Credentials2", data2.second);
     rawDataPublisher->sendData("anyOtherKey", "willNotBeReceived");
-
-    eventExpected2.setGroupName("TestGroup3");
-    data2 = converter.eventToString(&eventExpected2);
-    rawDataPublisher->sendData("Detector.Credentials2", data2.second);
+    rawDataPublisher->sendData("Detector.Credentials2", data3.second);
 
     EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000));
 }
