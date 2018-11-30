@@ -17,7 +17,7 @@ namespace Common
         class IEventConverter
         {
         public:
-            virtual std::pair<std::string, std::string> eventToString(IEventType* eventType) = 0;
+            virtual const std::pair<std::string, std::string> eventToString(const IEventType* eventType) = 0;
 
         };
     }

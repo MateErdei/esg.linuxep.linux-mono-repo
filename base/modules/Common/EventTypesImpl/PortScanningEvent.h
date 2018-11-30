@@ -27,7 +27,7 @@ namespace Common
             void setEventType(EventType m_eventType) override;
             void setConnection(const EventTypes::IpFlow& m_connection) override;
 
-            std::string toString() override;
+            const std::string toString() const override;
             /**
             * Takes in a event object as a capn byte string.
             * @param a objectAsString

@@ -24,10 +24,10 @@ namespace Common
         class EventConverter : public Common::EventTypes::IEventConverter
         {
         public:
-            std::pair<std::string, std::string> eventToString(Common::EventTypes::IEventType* eventType) override;
+            const std::pair<std::string, std::string> eventToString(const Common::EventTypes::IEventType* eventType) override;
 
             template <class EventT>
-            static EventT createEventFromString(const std::string& eventTypeAsString, const std::string& eventObjectAsString)
+            static EventT createEventFromString(const std::string& eventObjectAsString)
             {
                 EventT event;
                 return event.fromString(eventObjectAsString);               

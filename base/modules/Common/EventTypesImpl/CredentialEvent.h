@@ -39,7 +39,7 @@ namespace Common
             void setTimestamp(const unsigned long long timestamp) override;
             void setLogonId(const unsigned long logonId) override;
             void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess) override;
-            std::string toString() override;
+            const std::string toString() const override;
 
             /**
             * Takes in a event object as a capn byte string.

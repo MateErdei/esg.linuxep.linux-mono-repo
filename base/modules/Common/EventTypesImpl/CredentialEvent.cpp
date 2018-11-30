@@ -194,7 +194,7 @@ namespace Common
         }
 
 
-        std::string CredentialEvent::toString()
+        const std::string CredentialEvent::toString() const
         {
 
             ::capnp::MallocMessageBuilder message;
