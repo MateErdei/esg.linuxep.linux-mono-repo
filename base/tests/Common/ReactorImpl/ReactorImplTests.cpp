@@ -227,7 +227,7 @@ TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) //NOLINT
         reactor->join();
     };
 
-    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associcated with the poller"); //NOLINT
+    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associated with the poller"); //NOLINT
 
 }
 
@@ -266,7 +266,7 @@ TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) //
         fut.get();
     };
 
-    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associcated with the poller"); //NOLINT
+    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associated with the poller"); //NOLINT
 
 }
 

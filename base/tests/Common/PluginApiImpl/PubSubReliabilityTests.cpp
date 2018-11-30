@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockSensorDataCallback.h"
+#include "MockRawDataCallback.h"
 
 #include "TestExecutionSynchronizer.h"
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
@@ -41,7 +41,7 @@ using ::testing::Invoke;
 
 
 
-class TrackSensorDataCallback: public Common::PluginApi::ISensorDataCallback
+class TrackSensorDataCallback: public Common::PluginApi::IRawDataCallback
 {
 
 public:
@@ -109,11 +109,11 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>();
     std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
 
-    std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> sensorDataSubscriber = pluginResourceManagement.createSensorDataSubscriber("news", trackBefore);
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("news", trackBefore);
     sensorDataSubscriber->start();
 
     auto future_pub = std::async(std::launch::async, [&pluginResourceManagement](){
-        auto sensorDataPublisher =  pluginResourceManagement.createSensorDataPublisher("plugin");
+        auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
         for( int i = 0 ; i< 1000; i++)
         {
             sensorDataPublisher->sendData("news", std::to_string(i));
@@ -125,7 +125,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     std::this_thread::sleep_for(std::chrono::milliseconds(600));
     // crash subscriber and return it.
     sensorDataSubscriber.reset();
-    sensorDataSubscriber = pluginResourceManagement.createSensorDataSubscriber("news", trackAfter);
+    sensorDataSubscriber = pluginResourceManagement.createSubscriber("news", trackAfter);
     sensorDataSubscriber->start();
 
     EXPECT_TRUE(future_pub.get());
@@ -174,11 +174,11 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
         }
     });
 
-    std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> sensorDataSubscriber = pluginResourceManagement.createSensorDataSubscriber("news", trackBefore);
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("news", trackBefore);
     sensorDataSubscriber->start();
 
 
-    auto sensorDataPublisher =  pluginResourceManagement.createSensorDataPublisher("plugin");
+    auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     for( int i = 0 ; i< 100; i++)
     {
@@ -186,7 +186,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     sensorDataPublisher.reset(); // simulation of crashes.
-    sensorDataPublisher =  pluginResourceManagement.createSensorDataPublisher("plugin");
+    sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     for( int i = 100 ; i< 200; i++)
     {

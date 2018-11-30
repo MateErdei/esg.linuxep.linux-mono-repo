@@ -7,6 +7,8 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/IPluginResourceManagement.h
         ../PluginApi/IPluginCallbackApi.h
         ../PluginApi/StatusInfo.h
+        AbstractRawDataCallback.h
+        AbstractRawDataCallback.cpp
         BaseServiceAPI.cpp
         BaseServiceAPI.h
         PluginCallBackHandler.cpp
@@ -19,6 +21,10 @@ add_library(pluginapiobjects OBJECT
         PluginResourceManagement.h
         Logger.cpp
         Logger.h
+        CredentialDetectorCallback.cpp
+        CredentialDetectorCallback.h
+        PortScanningDetectorCallback.cpp
+        PortScanningDetectorCallback.h
         )
 
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )

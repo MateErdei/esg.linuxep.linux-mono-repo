@@ -166,7 +166,7 @@ namespace Common
                 // since the reactor run in a different thread, the safest option when the system fails is to terminate.
             }catch ( Common::ZeroMQWrapperImpl::ZeroMQPollerException & ex)
             {
-                LOGERROR("Error associcated with the poller: " << ex.what());
+                LOGERROR("Error associated with the poller: " << ex.what());
                 std::terminate();
             }
             catch ( std::exception & ex)
