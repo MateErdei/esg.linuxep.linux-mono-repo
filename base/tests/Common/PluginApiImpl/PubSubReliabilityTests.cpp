@@ -113,7 +113,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     sensorDataSubscriber->start();
 
     auto future_pub = std::async(std::launch::async, [&pluginResourceManagement](){
-        auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
+        auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
         for( int i = 0 ; i< 1000; i++)
         {
             sensorDataPublisher->sendData("news", std::to_string(i));
@@ -178,7 +178,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     sensorDataSubscriber->start();
 
 
-    auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
+    auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     for( int i = 0 ; i< 100; i++)
     {
@@ -186,7 +186,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     sensorDataPublisher.reset(); // simulation of crashes.
-    sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher("plugin");
+    sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     for( int i = 100 ; i< 200; i++)
     {

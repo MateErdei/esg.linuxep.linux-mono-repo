@@ -52,7 +52,7 @@ public:
 
         subscriber = pluginResourceManagement.createSubscriber("Detector.Credentials", mockRawDataCallback);
         subscriber->start();
-        rawDataPublisher = pluginResourceManagement.createRawDataPublisher("plugin");
+        rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
     }
     void TearDown() override
     {

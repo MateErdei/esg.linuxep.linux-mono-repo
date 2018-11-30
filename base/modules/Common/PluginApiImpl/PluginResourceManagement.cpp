@@ -85,7 +85,7 @@ namespace Common
         }
 
         std::unique_ptr<Common::PluginApi::IRawDataPublisher>
-        PluginResourceManagement::createRawDataPublisher(const std::string &pluginName)
+        PluginResourceManagement::createRawDataPublisher()
         {
             auto socketPublisher = m_contextPtr->getPublisher();
             setTimeouts(*socketPublisher);

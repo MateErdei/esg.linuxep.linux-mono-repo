@@ -60,10 +60,9 @@ namespace Common
              *
              * In its creation, IPluginResourceManagement will setup the ipc channel that IRawDataPublisher will use to publish its data.
              *
-             * @param pluginName
              * @return IRawDataPublisher
              */
-            virtual std::unique_ptr<IRawDataPublisher> createRawDataPublisher(const std::string& pluginName) = 0;
+            virtual std::unique_ptr<IRawDataPublisher> createRawDataPublisher() = 0;
 
             /**
              * Creates and instance of Subscriber and define the DataCategory that the subscriber is interested into.
