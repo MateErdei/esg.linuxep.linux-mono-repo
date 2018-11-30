@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/TestHelpers/TestEventTypeHelper.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
@@ -36,7 +37,7 @@ using ::testing::StrictMock;
 using ::testing::Invoke;
 
 
-class RawDataCallbackTests : public ::testing::Test
+class RawDataCallbackTests : public Tests::TestEventTypeHelper
 {
 public:
     void SetUp() override
@@ -48,11 +49,7 @@ public:
         Common::ApplicationConfiguration::replaceApplicationPathManager(
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
-        mockRawDataCallback = std::make_shared<NiceMock<MockRawDataCallback>>();
 
-        subscriber = pluginResourceManagement.createSubscriber("Detector.Credentials", mockRawDataCallback);
-        subscriber->start();
-        rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
     }
     void TearDown() override
     {
@@ -62,31 +59,11 @@ public:
         subscriber.reset();
     }
 
-    Common::EventTypesImpl::CredentialEvent createDefaultCredentialEvent()
+    void setupPubSub(std::string eventTypeId, std::shared_ptr<IRawDataCallback> rawCallback)
     {
-        Common::EventTypesImpl::CredentialEvent event;
-        event.setEventType(Common::EventTypes::EventType::authFailure);
-        event.setSessionType(Common::EventTypes::SessionType::interactive);
-        event.setLogonId(1000);
-        event.setTimestamp(123123123);
-        event.setGroupId(1001);
-        event.setGroupName("TestGroup");
-
-        Common::EventTypes::UserSid subjectUserId;
-        subjectUserId.username = "TestSubUser";
-        subjectUserId.domain = "sophos.com";
-        event.setSubjectUserSid(subjectUserId);
-
-        Common::EventTypes::UserSid targetUserId;
-        targetUserId.username = "TestTarUser";
-        targetUserId.domain = "sophosTarget.com";
-        event.setTargetUserSid(targetUserId);
-
-        Common::EventTypes::NetworkAddress network;
-        network.address = "sophos.com:400";
-        event.setRemoteNetworkAccess(network);
-
-        return event;
+        subscriber = pluginResourceManagement.createSubscriber(eventTypeId, rawCallback);
+        subscriber->start();
+        rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
     }
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
@@ -97,10 +74,38 @@ public:
     std::unique_ptr<Common::PluginApi::ISubscriber> subscriber;
 };
 
+class FakePortScanningDealer : public AbstractRawDataCallback
+{
+public:
+
+    Common::EventTypesImpl::PortScanningEvent m_event;
+
+    void processEvent(Common::EventTypesImpl::PortScanningEvent& portScanningEvent)
+    {
+        m_event =  portScanningEvent;
+    }
+};
+
+class FakeCredentialsDealer : public AbstractRawDataCallback
+{
+public:
+
+    Common::EventTypesImpl::CredentialEvent m_event;
+
+    void processEvent(Common::EventTypesImpl::CredentialEvent& credentialEvent)
+    {
+        m_event =  credentialEvent;
+    }
+
+};
+
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
+
+    mockRawDataCallback = std::make_shared<NiceMock<MockRawDataCallback>>();
+    setupPubSub("Detector.Credentials",mockRawDataCallback);
 
     Common::EventTypesImpl::EventConverter converter;
 
@@ -143,4 +148,56 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     rawDataPublisher->sendData("Detector.Credentials2", data3.second);
 
     EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000));
+}
+
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialData)
+{
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
+
+    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>();
+
+    setupPubSub("Detector.Credentials",credentialCallback);
+
+    Common::EventTypesImpl::EventConverter converter;
+    Common::EventTypesImpl::CredentialEvent eventExpected = createDefaultCredentialEvent();
+    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+
+    rawDataPublisher->sendData(data.first, data.second);
+
+    int count = 0;
+    while( credentialCallback->m_event.getGroupName() == "")
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        count++;
+        ASSERT_TRUE(count < 10);
+    }
+
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, credentialCallback->m_event);
+}
+
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningData)
+{
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
+
+    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
+
+    setupPubSub("Detector.PortScanning",portScanningCallback);
+
+    Common::EventTypesImpl::EventConverter converter;
+    Common::EventTypesImpl::PortScanningEvent eventExpected = createDefaultPortScanningEvent();
+    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+
+    rawDataPublisher->sendData(data.first, data.second);
+
+    int count = 0;
+    while( portScanningCallback->m_event.getConnection().destinationAddress.address == "")
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        count++;
+        ASSERT_TRUE(count < 10);
+    }
+
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
 }

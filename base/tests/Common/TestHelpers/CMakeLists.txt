@@ -4,7 +4,6 @@ add_executable(TestHelpersTest
         TestTempDir.cpp
         TempDirBaseClassTest.cpp
         TempDirBaseClassTest.h
-
         ExampleTempDirSuiteTest.cpp
         ExampleTempDirSuiteTest.h
         TestTempDirBaseClassTest.cpp

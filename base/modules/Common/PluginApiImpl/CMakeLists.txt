@@ -21,10 +21,6 @@ add_library(pluginapiobjects OBJECT
         PluginResourceManagement.h
         Logger.cpp
         Logger.h
-        CredentialDetectorCallback.cpp
-        CredentialDetectorCallback.h
-        PortScanningDetectorCallback.cpp
-        PortScanningDetectorCallback.h
         )
 
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
