@@ -4,11 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SensorDataSubscriber.h"
+#include "Subscriber.h"
 #include "Logger.h"
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/PluginApi/ISensorDataSubscriber.h>
+#include <Common/PluginApi/ISubscriber.h>
 
 
 
@@ -17,7 +17,7 @@ namespace Common
     namespace PluginApiImpl
     {
         SensorDataSubscriber::SensorDataSubscriber(const std::string &sensorDataCategorySubscription,
-                                                   std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback,
+                                                   std::shared_ptr<Common::PluginApi::IRawDataCallback> sensorDataCallback,
                                                    Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber):
         m_socketSubscriber(std::move(socketSubscriber)), m_reactor(Common::Reactor::createReactor()), m_sensorDataCallback(sensorDataCallback)
         {
@@ -54,10 +54,3 @@ namespace Common
     }
 
 }
-
-
-//std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> Common::PluginApi::ISensorDataSubscriber::newSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
-//                                                                      std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback)
-//{
-//    return std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> (new Common::BaseServiceAPI::SensorDataSubscriber(sensorDataCategorySubscription, sensorDataCallback));
-//}

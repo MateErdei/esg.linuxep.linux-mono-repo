@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "IPluginCallbackApi.h"
-#include "ISensorDataCallback.h"
+#include "IRawDataCallback.h"
 #include <string>
 
 namespace Common

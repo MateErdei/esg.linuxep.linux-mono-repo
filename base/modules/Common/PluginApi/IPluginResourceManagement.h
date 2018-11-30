@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "IBaseServiceApi.h"
-#include "ISensorDataPublisher.h"
-#include "ISensorDataSubscriber.h"
+#include "IRawDataPublisher.h"
+#include "ISubscriber.h"
 
 #include <string>
 #include <memory>
@@ -20,7 +20,7 @@ namespace Common
     {
 
         /**
-         * IPluginResourceManagement is responsible for keeping threads that are needed by the IPluginAPI, ISensorDataPublisher and ISensorDataSubscriber.
+         * IPluginResourceManagement is responsible for keeping threads that are needed by the IPluginAPI, IRawDataPublisher and ISubscriber.
          * Hence the IPluginResourceManagement must be constructed before them which is trivial, as IPluginResourceManagement creates the other objects.
          *
          * @attention It must be destroyed only after the other objects that were constructed are already destroyed.
@@ -53,37 +53,38 @@ namespace Common
 
 
             /**
-             * Creates an instance of ISensorDataPublisher which allows Sensors inside Plugins to send SensorData which is meant to be eventually
+             * Creates an instance of IRawDataPublisher which allows Sensors inside Plugins to send RawData which is meant to be eventually
              * processed by analytics platform in order to monitor EndPoint.
              *
-             * Inside this project, data produced by ISensorDataPublisher can be subscribed by ISensorDataSubscriber to process them as necessary.
+             * Inside this project, data produced by IRawDataPublisher can be subscribed by ISubscriber to process them as necessary.
              *
-             * In its creation, IPluginResourceManagement will setup the ipc channel that ISensorDataPublisher will use to publish its data.
+             * In its creation, IPluginResourceManagement will setup the ipc channel that IRawDataPublisher will use to publish its data.
              *
              * @param pluginName
-             * @return ISensorDataPublisher
+             * @return IRawDataPublisher
              */
-            virtual std::unique_ptr<ISensorDataPublisher> createSensorDataPublisher(const std::string& pluginName) = 0;
+            virtual std::unique_ptr<IRawDataPublisher> createRawDataPublisher(const std::string& pluginName) = 0;
 
             /**
              * Creates and instance of Subscriber and define the DataCategory that the subscriber is interested into.
              *
              * On creation, the IPluginResourceManagement setup the ipc subscription channel and also apply the filter related to the
-             * category of SensorData that the given subscriber is interested into.
+             * category of RawData that the given subscriber is interested into.
              *
-             * Whenever data arrives in the subscription channel, it will be forwarded to the ISensorDataCallback::receiveData
+             * Whenever data arrives in the subscription channel, it will be forwarded to the IRawDataCallback::receiveData
              *
-             * @param sensorDataCategorySubscription : Empty string means interested in all the categories available.
-             *        Otherwise the subscriber will be notified only if sensorDataCategorySubscription is a prefix of the sensorDataCategory
+             * @param dataCategorySubscription : Empty string means interested in all the categories available.
+             *        Otherwise the subscriber will be notified only if dataCategorySubscription is a prefix of the rawDataCategory
              *        emitted by the publisher.
-             *        @see ISensorDataPublisher::sendData
+             *        @see IRawDataPublisher::sendData
              *
-             * @param sensorDataCallback: Instance of the object that will receive the notification os data arrival via its ISensorDataCallback::receiveData
-             * @return Instance of ISensorDataSubscriber.
+             * @param rawDataCallback: Instance of the object that will receive the notification os data arrival via its IRawDataCallback::receiveData
+             * @return Instance of ISubscriber.
              */
-            virtual std::unique_ptr<ISensorDataSubscriber>
-            createSensorDataSubscriber(const std::string& sensorDataCategorySubscription,
-                                       std::shared_ptr<ISensorDataCallback> sensorDataCallback) = 0;
+            virtual std::unique_ptr<ISubscriber>
+            createSubscriber(const std::string& dataCategorySubscription,
+                                       std::shared_ptr<IRawDataCallback> rawDataCallback) = 0;
+
         };
 
         std::unique_ptr<IPluginResourceManagement> createPluginResourceManagement();

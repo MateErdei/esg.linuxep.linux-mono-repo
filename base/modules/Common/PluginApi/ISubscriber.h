@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "ISensorDataCallback.h"
+#include "IRawDataCallback.h"
 
 namespace Common
 {
@@ -16,17 +16,17 @@ namespace Common
         /**
          * Holds the threads that listen to the ipc channel for data arriving for the subscriber.
          *
-         * When ISensorDataSubscriber is created it is given an ISensorDataCallback (@see IPluginResourceManagement::createSensorDataSubscriber)
+         * When IRawSubscriber is created it is given an IRawDataCallback (@see IPluginResourceManagement::createSubscriber)
          * and it is configured with the socket that listen to the ipc channel.
          *
-         * This allow the ISensorDataSubscriber to forward data incoming to the ipc channel to the
-         * ISensorDataCallback::receiveData.
+         * This allow the IRawSubscriber to forward data incoming to the ipc channel to the
+         * IRawDataCallback::receiveData.
          *
          */
-        class ISensorDataSubscriber
+        class ISubscriber
         {
         public:
-            virtual  ~ISensorDataSubscriber() = default;
+            virtual  ~ISubscriber() = default;
 
             /**
              * Start the thread that monitors the subscription ipc channel for incoming data.

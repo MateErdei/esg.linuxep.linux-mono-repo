@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SensorDataPublisher.h"
+#include "RawDataPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 
 namespace Common
@@ -12,12 +12,11 @@ namespace Common
     namespace PluginApiImpl
     {
 
-        void SensorDataPublisher::sendData(const std::string &sensorDataCategory, const std::string &sensorData)
+        void RawDataPublisher::sendData(const std::string &rawDataCategory, const std::string &rawData)
         {
-            m_socketPublisher->write({sensorDataCategory, sensorData});
+            m_socketPublisher->write({rawDataCategory, rawData});
         }
-
-        SensorDataPublisher::SensorDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher)
+        RawDataPublisher::RawDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher)
         : m_socketPublisher(std::move(socketPublisher))
         {
 

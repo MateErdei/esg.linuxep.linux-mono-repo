@@ -10,16 +10,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IContextPtr.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriberPtr.h>
 #include <Common/Reactor/IReactor.h>
-#include "ISensorDataSubscriber.h"
+#include "ISubscriber.h"
 namespace Common
 {
     namespace PluginApiImpl
     {
-        class SensorDataSubscriber : public virtual Common::PluginApi::ISensorDataSubscriber, public Common::Reactor::ICallbackListener
+        class SensorDataSubscriber : public virtual Common::PluginApi::ISubscriber, public Common::Reactor::ICallbackListener
         {
         public:
             SensorDataSubscriber(const std::string & sensorDataCategorySubscription,
-                                 std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback,
+                                 std::shared_ptr<Common::PluginApi::IRawDataCallback> sensorDataCallback,
                                  Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber);
 
             ~SensorDataSubscriber() override;
@@ -30,7 +30,7 @@ namespace Common
 
             Common::ZeroMQWrapper::ISocketSubscriberPtr m_socketSubscriber;
             std::unique_ptr<Common::Reactor::IReactor> m_reactor;
-            std::shared_ptr<Common::PluginApi::ISensorDataCallback> m_sensorDataCallback;
+            std::shared_ptr<Common::PluginApi::IRawDataCallback> m_sensorDataCallback;
         };
     }
 }

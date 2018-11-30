@@ -21,9 +21,9 @@ namespace Common
             explicit PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr);
 
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
-            std::unique_ptr<Common::PluginApi::ISensorDataPublisher> createSensorDataPublisher(const std::string & pluginName) override ;
-            std::unique_ptr<Common::PluginApi::ISensorDataSubscriber> createSensorDataSubscriber(const std::string & sensorDataCategorySubscription,
-                                                                                                 std::shared_ptr<Common::PluginApi::ISensorDataCallback> sensorDataCallback) override ;
+            std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher(const std::string & pluginName) override ;
+            std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(const std::string & sensorDataCategorySubscription,
+                                                                                                 std::shared_ptr<Common::PluginApi::IRawDataCallback> sensorDataCallback) override ;
 
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs) ;
@@ -32,7 +32,7 @@ namespace Common
         private:
             void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
             Common::ZeroMQWrapper::IContextSharedPtr m_contextPtr;
-            int m_defaulTimeout;
+            int m_defaultTimeout;
             int m_defaultConnectTimeout;
         };
 
