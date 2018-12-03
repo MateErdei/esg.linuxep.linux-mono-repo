@@ -38,7 +38,7 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
             compile "-oc++"
              ${FIL_WE}.capnp
             DEPENDS ${ABS_FIL} capnp
-            COMMENT "Running C++ capn compile buffer compiler on ${FIL} with LIBRARY_PATH ${LD_LIBRARY_PATH}"
+            COMMENT "Running C++ capn compile buffer compiler on ${FIL} with LIBRARY_PATH $ENV{LD_LIBRARY_PATH}"
             VERBATIM )
   endforeach()
 
