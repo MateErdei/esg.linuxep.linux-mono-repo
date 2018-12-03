@@ -45,7 +45,7 @@
             <include src="ps_rootca.crt" dest="ps_certificates"/>
         </package>
         <package name="capnprotolinux11" version="master/%LASTGOODBUILD%/capnprotolinux11/0.7.0/output" dest="input">
-            <include src="capnproto.tar.gz" dest="."/>
+            <include src="capnproto.tar" dest="."/>
         </package>
     </inputs>
     <buildcommands>
