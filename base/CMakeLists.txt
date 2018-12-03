@@ -71,8 +71,6 @@ INCLUDE(CAPN)
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
 
-message("contents of redist")
-execute_process( COMMAND bash ls /BaseFolder/sspl-base-build/redist)
 set(CAPNPROTO_INPUT ${INPUT}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib)

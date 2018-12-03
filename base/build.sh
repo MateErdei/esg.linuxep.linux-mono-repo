@@ -200,6 +200,7 @@ function build()
         untar_or_link_to_redist zeromq
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
         untar_or_link_to_redist protobuf
+        untar_or_link_to_redist capnproto
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
