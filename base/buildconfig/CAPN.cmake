@@ -29,7 +29,7 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
     set(_protobuf_protoc_hdr "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}.capnp.h")
     list(APPEND ${SRCS} "${_protobuf_protoc_src}")
     list(APPEND ${HDRS} "${_protobuf_protoc_hdr}")
-
+    execute_process(COMMAND ldd /BaseFolder/sspl-base-build/redist/capnproto/bin/capnp)
     add_custom_command(
             OUTPUT "${_protobuf_protoc_src}"
             "${_protobuf_protoc_hdr}"
