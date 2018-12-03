@@ -29,6 +29,7 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
     set(_protobuf_protoc_hdr "${CMAKE_CURRENT_BINARY_DIR}/${FIL_WE}.capnp.h")
     list(APPEND ${SRCS} "${_protobuf_protoc_src}")
     list(APPEND ${HDRS} "${_protobuf_protoc_hdr}")
+
     add_custom_command(
             OUTPUT "${_protobuf_protoc_src}"
             "${_protobuf_protoc_hdr}"
@@ -37,7 +38,7 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
             compile "-oc++"
              ${FIL_WE}.capnp
             DEPENDS ${ABS_FIL} capnp
-            COMMENT "Running C++ capn compile buffer compiler on ${FIL} with LIBRARY_PATH $ENV{LD_LIBRARY_PATH}"
+            COMMENT "Running C++ capn compile buffer compiler on ${FIL}"
             VERBATIM )
   endforeach()
 
