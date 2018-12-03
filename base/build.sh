@@ -289,7 +289,7 @@ function build()
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
-    make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
+    VERBOSE=1 make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
 
     if (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
     then
