@@ -33,8 +33,7 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
             OUTPUT "${_protobuf_protoc_src}"
             "${_protobuf_protoc_hdr}"
             COMMAND ${CMAKE_COMMAND} -E copy ${ABS_FIL} .
-            COMMAND ldd ${CAPNPROTO_EXECUTABLE}
-            COMMAND  "${CAPNPROTO_EXECUTABLE}"
+            COMMAND  ${CMAKE_COMMAND} -E env PATH=${CAPNPATH} "${CAPNPROTO_EXECUTABLE}"
             compile "-oc++"
              ${FIL_WE}.capnp
             DEPENDS ${ABS_FIL} capnp
