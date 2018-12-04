@@ -65,8 +65,11 @@ void Common::ProcessImpl::StdPipeThread::run()
     max_fd = addFD(&read_fds,m_fileDescriptor,max_fd);
     bool finished = false;
 
-    while (!finished && !stopRequested())
+    //Make sure that if this process finishes before this loop starts that one attempt is made to read from the pipe.
+    bool readPipeOnce = false;
+    while ((!finished && !stopRequested()) || !readPipeOnce)
     {
+        readPipeOnce = true;
         fd_set read_temp = read_fds;
         int ret = pselect(max_fd+1,&read_temp, nullptr, nullptr, nullptr, nullptr);
         if (ret < 0)
