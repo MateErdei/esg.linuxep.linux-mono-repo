@@ -89,6 +89,7 @@ public:
                                "proxyType": ""
                                 }
                                },
+                               "manifestNames" : ["manifest.dat"],
                                "installationRootPath": "absInstallationPath",
                                "certificatePath": "absCertificatePath",
                                "systemSslPath": "absSystemSslPath",

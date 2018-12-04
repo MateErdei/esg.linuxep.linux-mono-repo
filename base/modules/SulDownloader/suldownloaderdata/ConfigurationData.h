@@ -243,6 +243,18 @@ namespace SulDownloader
             void setInstallArguments(const std::vector<std::string>& installArguments);
 
             /**
+             * Get the list of allowed manifest names for the products downloaded.
+             * @return list of manifest names.
+             */
+            const std::vector<std::string>& getManifestNames() const;
+
+            /**
+             * Set the list of manifest names that are allowed for packages.
+             * @param manifestNames
+             */
+            void setManifestNames(const std::vector<std::string>& manifestNames);
+
+            /**
              * Used to verify all required settings stored in the ConfigurationData object
              * @test sophosUpdateUrls list is not empty
              * @test productSelection list is not empty
@@ -298,6 +310,7 @@ namespace SulDownloader
             std::vector<std::string> m_installArguments;
             LogLevel m_logLevel;
             bool m_forceReinstallAllProducts;
+            std::vector<std::string> m_manifestNames;
 
         };
     }

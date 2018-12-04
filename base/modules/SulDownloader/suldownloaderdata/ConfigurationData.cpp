@@ -449,6 +449,11 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setForceReinstallAllProducts(settings.forcereinstallallproducts());
 
+    std::vector<std::string> manifestnames(std::begin(settings.manifestnames()),
+                                         std::end(settings.manifestnames()));
+
+    configurationData.setManifestNames(manifestnames);
+
     return configurationData;
 }
 
@@ -460,6 +465,16 @@ const std::vector<std::string>& ConfigurationData::getInstallArguments() const
 void ConfigurationData::setInstallArguments(const std::vector<std::string>& installArguments)
 {
     m_installArguments = installArguments;
+}
+
+const std::vector<std::string>& ConfigurationData::getManifestNames() const
+{
+    return m_manifestNames;
+}
+
+void ConfigurationData::setManifestNames(const std::vector<std::string>& manifestNames)
+{
+    m_manifestNames = manifestNames;
 }
 
 std::vector<Proxy> ConfigurationData::proxiesList() const
@@ -561,6 +576,11 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     else
     {
         settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_VERBOSE);
+    }
+
+    for (auto& manifestName: configurationData.getManifestNames())
+    {
+        settings.add_manifestnames(manifestName);
     }
 
     return Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
