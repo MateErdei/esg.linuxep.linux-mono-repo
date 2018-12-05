@@ -48,6 +48,7 @@ VersigImpl::verify(const ConfigurationData& configurationData, const std::string
     int exitCode = -1;
     for (auto& relativeManifestPath : manifestPaths)
     {
+        // Check each manifest is correct
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
@@ -76,6 +77,7 @@ VersigImpl::verify(const ConfigurationData& configurationData, const std::string
             LOGERROR(ex.what());
             exitCode = -1;
         }
+        // Stop as soon as we get a failure
         if (exitCode != 0)
         {
             break;
