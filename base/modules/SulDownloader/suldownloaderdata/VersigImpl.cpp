@@ -32,7 +32,6 @@ VersigImpl::verify(const ConfigurationData& configurationData, const std::string
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-
     std::string versig_path = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
     if (!fileSystem->isExecutable(versig_path))
     {
@@ -40,34 +39,49 @@ VersigImpl::verify(const ConfigurationData& configurationData, const std::string
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-    std::string manifest_dat = Common::FileSystem::join(productDirectoryPath, "manifest.dat");
-    if (!fileSystem->isFile(manifest_dat))
+    auto manifestPaths = configurationData.getManifestNames();
+    if (manifestPaths.size() == 0)
     {
-        LOGERROR("No manifest.dat found. Path expected to be in: " << manifest_dat);
-        return VerifySignature::INVALID_ARGUMENTS;
+        manifestPaths.emplace_back("manifest.dat");
     }
 
-
-    std::vector<std::string> versigArgs;
-    versigArgs.emplace_back("-c" + certificate_path);
-    versigArgs.emplace_back("-f" + manifest_dat);
-    versigArgs.emplace_back("-d" + productDirectoryPath);
-    versigArgs.emplace_back("--silent-off");
-
-    auto process = ::Common::Process::createProcess();
-    int exitCode = 0;
-    try
+    int exitCode = -1;
+    for (auto& relativeManifestPath : manifestPaths)
     {
-        process->exec(versig_path, versigArgs);
-        auto output = process->output();
-        LOGSUPPORT(output);
-        exitCode = process->exitCode();
+        auto dir = Common::FileSystem::dirName(relativeManifestPath);
+        auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
+        auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
+        if (!fileSystem->isFile(manifestPath))
+        {
+            LOGERROR("Manifest not found. Path expected to be in: " << manifestPath);
+            return VerifySignature::INVALID_ARGUMENTS;
+        }
+
+        std::vector<std::string> versigArgs;
+        versigArgs.emplace_back("-c" + certificate_path);
+        versigArgs.emplace_back("-f" + manifestPath);
+        versigArgs.emplace_back("-d" + manifestDirectory);
+        versigArgs.emplace_back("--silent-off");
+
+        auto process = ::Common::Process::createProcess();
+        try
+        {
+            process->exec(versig_path, versigArgs);
+            auto output = process->output();
+            LOGSUPPORT(output);
+            exitCode = process->exitCode();
+        }
+        catch (Common::Process::IProcessException& ex)
+        {
+            LOGERROR(ex.what());
+            exitCode = -1;
+        }
+        if (exitCode != 0)
+        {
+            break;
+        }
     }
-    catch (Common::Process::IProcessException& ex)
-    {
-        LOGERROR(ex.what());
-        exitCode = -1;
-    }
+
     return exitCode == 0 ? VerifySignature::SIGNATURE_VERIFIED : VerifySignature::SIGNATURE_FAILED;
 }
 
