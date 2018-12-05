@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #include "IVersig.h"
+#include "ConfigurationData.h"
 #include <functional>
 namespace SulDownloader
 {
@@ -18,7 +19,8 @@ namespace SulDownloader
         {
         public:
             VerifySignature
-            verify(const std::string& certificate_path, const std::string& productDirectoryPath) const override;
+            verify(const SulDownloader::suldownloaderdata::ConfigurationData& certificate_path,
+                   const std::string& productDirectoryPath) const override;
         };
 
         using IVersigPtr = suldownloaderdata::IVersigPtr;

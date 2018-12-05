@@ -108,7 +108,6 @@ namespace SulDownloader
 
         auto products = warehouseRepository->getProducts();
         std::string sourceURL = warehouseRepository->getSourceURL();
-        std::string rootcaPath = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
 
         // Mark which products need to be forced to re/install.
         for(auto & product : products)
@@ -124,7 +123,7 @@ namespace SulDownloader
         {
             if(product.productHasChanged() || product.forceProductReinstall())
             {
-                product.verify(rootcaPath);
+                product.verify(configurationData);
             }
         }
 

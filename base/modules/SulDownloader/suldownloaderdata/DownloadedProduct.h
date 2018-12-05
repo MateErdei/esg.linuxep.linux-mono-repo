@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProductMetadata.h"
 #include "WarehouseError.h"
+#include "ConfigurationData.h"
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
@@ -30,11 +32,11 @@ namespace SulDownloader
 
             /**
              * Perform a versig verification.
-             * @param rootca_path: path to the rootca.crt certificate.
+             * @param configurationData: path to the rootca.crt certificate.
              * @note If the verification fails, internal error will be set and can be checked by hasError.
              * @pre ::setDistributePath called first and ::hasError return false.
              */
-            void verify(const std::string& rootca_path);
+            void verify(const ConfigurationData& configurationData);
 
             /**
              * Run the installer that should be in ::distributePath() + /install.sh.

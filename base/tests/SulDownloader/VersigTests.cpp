@@ -3,24 +3,30 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
+
 #include <SulDownloader/suldownloaderdata/IVersig.h>
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
 
-#include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 
 class VersigTests : public ::testing::Test
 {
 
 public:
     VersigTests()
+        : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
     {
-        rootca = "/installroot/cert/rootca.crt";
+        m_configurationData.setCertificatePath("/installroot/cert");
+        rootca = Common::FileSystem::join(m_configurationData.getCertificatePath(), "rootca.crt");
         productDir = "/installroot/cache/update/Primary/product";
         manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";
         versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
@@ -31,11 +37,13 @@ public:
     {
         Common::FileSystem::restoreFileSystem();
     }
+    SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
     std::string rootca;
     std::string productDir;
     std::string versigExec;
     std::string manifestdat;
     MockFileSystem * fileSystemMock;
+    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
 };
 using VS = SulDownloader::suldownloaderdata::IVersig::VerifySignature;
 
@@ -45,7 +53,7 @@ TEST_F( VersigTests, verifyReturnsInvalidForInvalidCertificatePath ) // NOLINT
 
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(false));
 
-    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
 TEST_F( VersigTests, verifyReturnsInvalidForInvalidDirectory ) // NOLINT
@@ -55,7 +63,7 @@ TEST_F( VersigTests, verifyReturnsInvalidForInvalidDirectory ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(false));
 
-    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
 TEST_F( VersigTests, returnInvalidIfFailsToFindVersigExecutable ) // NOLINT
@@ -67,7 +75,7 @@ TEST_F( VersigTests, returnInvalidIfFailsToFindVersigExecutable ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(false));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(false));
 
-    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
 TEST_F( VersigTests, returnInvalidIfNoManitestDatIsFound ) // NOLINT
@@ -80,7 +88,7 @@ TEST_F( VersigTests, returnInvalidIfNoManitestDatIsFound ) // NOLINT
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(manifestdat)).WillOnce(Return(false));
 
-    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
 
@@ -113,7 +121,7 @@ TEST_F( VersigTests, passTheCorrectParametersToProcess ) // NOLINT
        }
     );
 
-    ASSERT_EQ( VS::SIGNATURE_VERIFIED, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::SIGNATURE_VERIFIED, versig->verify(m_configurationData, productDir));
 }
 
 TEST_F( VersigTests, signatureFailureIsReportedAsFailure ) // NOLINT
@@ -145,5 +153,5 @@ TEST_F( VersigTests, signatureFailureIsReportedAsFailure ) // NOLINT
        }
     );
 
-    ASSERT_EQ( VS::SIGNATURE_FAILED, versig->verify(rootca, productDir));
+    ASSERT_EQ( VS::SIGNATURE_FAILED, versig->verify(m_configurationData, productDir));
 }

@@ -794,6 +794,9 @@ TEST_F( SULDownloaderTest, //NOLINT
     setupFileSystemAndGetMock();
     MockWarehouseRepository & mock = warehouseMocked();
 
+    auto configurationData = configData(defaultSettings());
+    configurationData.verifySettingsAreValid();
+
     DownloadedProductVector products = defaultProducts();
 
     for ( auto & product : products)
@@ -809,14 +812,14 @@ TEST_F( SULDownloaderTest, //NOLINT
         auto versig = new StrictMock<MockVersig>();
         if ( counter++ == 0 )
         {
-            EXPECT_CALL(*versig, verify("/installroot/base/update/certificates/rootca.crt",
+            EXPECT_CALL(*versig, verify(_,
                                         "/installroot/base/update/cache/primary/everest"
             ))
                     .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
         }
         else
         {
-            EXPECT_CALL(*versig, verify("/installroot/base/update/certificates/rootca.crt",
+            EXPECT_CALL(*versig, verify(_,
                                         "/installroot/base/update/cache/primary/everest-plugin-a"
             ))
                     .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_FAILED));
@@ -845,8 +848,6 @@ TEST_F( SULDownloaderTest, //NOLINT
                                                     "Update failed",productReports, false};
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
-    auto configurationData = configData(defaultSettings());
-    configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
     auto result = SulDownloader::runSULDownloader(configurationData, previousDownloadReport);
     EXPECT_PRED_FORMAT2( downloadReportSimilar, expectedDownloadReport, result);

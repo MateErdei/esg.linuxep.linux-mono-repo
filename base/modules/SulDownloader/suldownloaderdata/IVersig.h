@@ -6,8 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ConfigurationData.h"
+
 #include <string>
 #include <memory>
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
@@ -23,7 +26,7 @@ namespace SulDownloader
             };
 
             virtual VerifySignature
-            verify(const std::string& certificatePath, const std::string& productDirectoryPath) const = 0;
+            verify(const ConfigurationData& configurationData, const std::string& productDirectoryPath) const = 0;
         };
 
         using IVersigPtr = std::unique_ptr<IVersig>;

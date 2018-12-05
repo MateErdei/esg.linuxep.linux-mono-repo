@@ -14,8 +14,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace SulDownloader::suldownloaderdata;
 
 IVersig::VerifySignature
-VersigImpl::verify(const std::string& certificate_path, const std::string& productDirectoryPath) const
+VersigImpl::verify(const ConfigurationData& configurationData, const std::string& productDirectoryPath) const
 {
+    std::string certificate_path = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
     auto fileSystem = Common::FileSystem::fileSystem();
 
     if (!fileSystem->isFile(certificate_path))

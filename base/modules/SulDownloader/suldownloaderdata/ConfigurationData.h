@@ -6,11 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "Credentials.h"
 #include "Proxy.h"
+
+#include <string>
+#include <vector>
 
 namespace SulDownloader
 {
