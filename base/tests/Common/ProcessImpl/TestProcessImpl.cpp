@@ -166,6 +166,7 @@ namespace
         auto process = createProcess();
         EXPECT_THROW(process->output(), IProcessException); //NOLINT
     }
+    
     TEST( ProcessImpl, ExitCodeCannotBeCalledBeforeExec) //NOLINT
     {
         auto process = createProcess();
