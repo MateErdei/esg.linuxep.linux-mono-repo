@@ -78,7 +78,6 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
-        COMMAND ldconfig -vNn pluginapi/lib64
         DEPENDS testhelpers
 )
 
