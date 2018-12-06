@@ -21,15 +21,14 @@ namespace UpdateSchedulerImpl
                                                  CronSchedulerThread::DurationTime firstTick,
                                                  CronSchedulerThread::DurationTime repeatPeriod,
                                                  int scheduledUpdateOffsetInMinutes)
-                : Common::Threads::AbstractThread()
-                , m_sharedState()
-                , m_schedulerQueue(schedulerQueue)
-                , m_firstTick(firstTick)
-                , m_periodTick(repeatPeriod)
-                , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
-                , m_scheduledUpdate()
-                , m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes))
-                , m_updateOnStartUp(true)
+                 : m_sharedState()
+                 , m_schedulerQueue(schedulerQueue)
+                 , m_firstTick(firstTick)
+                 , m_periodTick(repeatPeriod)
+                 , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
+                 , m_scheduledUpdate()
+                 , m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes))
+                 , m_updateOnStartUp(true)
         {
 
         }
@@ -38,7 +37,7 @@ namespace UpdateSchedulerImpl
         {
             // destructor must ensure that the thread is not running anymore or
             // seg fault may occur.
-            CronSchedulerThread::requestStop();
+            requestStop();
             join();
         }
 

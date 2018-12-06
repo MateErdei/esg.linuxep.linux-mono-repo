@@ -15,7 +15,7 @@ Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImp
 
 Common::TaskQueueImpl::TaskProcessorImplThread::TaskProcessorImplThread(
         Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue)
-        : Common::Threads::AbstractThread(), m_taskQueue(taskQueue)
+        : m_taskQueue(taskQueue)
 {
 }
 
