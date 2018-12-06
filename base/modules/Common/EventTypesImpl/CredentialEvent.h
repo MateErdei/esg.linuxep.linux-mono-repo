@@ -20,6 +20,8 @@ namespace Common
 
             ~CredentialEvent() = default;
 
+            std::unique_ptr<Common::EventTypes::ICredentialEvent> createEmptyCredentialEvent();
+            std::unique_ptr<Common::EventTypes::ICredentialEvent> createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType);
             const Common::EventTypes::SessionType getSessionType() const override;
             const Common::EventTypes::EventType getEventType() const override;
             const std::string getEventTypeId() const override;

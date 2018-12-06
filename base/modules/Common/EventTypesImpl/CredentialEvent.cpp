@@ -94,6 +94,20 @@ namespace
     }
 }
 
+std::unique_ptr<Common::EventTypes::ICredentialEvent> createEmptyCredentialEvent()
+{
+    std::unique_ptr<Common::EventTypes::ICredentialEvent> event{new Common::EventTypesImpl::CredentialEvent};
+    return event;
+}
+
+std::unique_ptr<Common::EventTypes::ICredentialEvent> createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType)
+{
+    std::unique_ptr<Common::EventTypes::ICredentialEvent> event = createEmptyCredentialEvent();
+    event.get()->setSubjectUserSid(sid);
+    event.get()->setEventType(eventType);
+
+    return event;
+}
 
 namespace Common
 {

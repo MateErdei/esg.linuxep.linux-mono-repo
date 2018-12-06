@@ -53,10 +53,25 @@ namespace
 
 }
 
+
 namespace Common
 {
     namespace EventTypesImpl
     {
+        std::unique_ptr<Common::EventTypes::IPortScanningEvent> PortScanningEvent::createEmptyPortScanningEvent()
+        {
+            std::unique_ptr<Common::EventTypesImpl::PortScanningEvent> event{new Common::EventTypesImpl::PortScanningEvent};
+            return event;
+        }
+
+        std::unique_ptr<Common::EventTypes::IPortScanningEvent> PortScanningEvent::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::IPortScanningEvent::EventType eventType)
+        {
+            std::unique_ptr<Common::EventTypes::IPortScanningEvent> event = createEmptyPortScanningEvent();
+            event.get()->setConnection(ipFlow);
+            event.get()->setEventType(eventType);
+
+            return event;
+        }
 
         const std::string PortScanningEvent::getEventTypeId() const
         {

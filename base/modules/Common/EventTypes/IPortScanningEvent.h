@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IEventType.h"
 #include "Common/EventTypes/CommonEventData.h"
+#include <memory>
 
 namespace Common
 {
@@ -30,5 +31,9 @@ namespace Common
             virtual void setConnection(const EventTypes::IpFlow& m_connection) = 0;
 
         };
+
+        using IPortScanningEventPtr = std::unique_ptr<IPortScanningEvent>;
+        extern IPortScanningEventPtr createEmptyPortScanningEvent();
+        extern IPortScanningEventPtr createPortScanningEvent(EventTypes::IpFlow& ipFlow, Common::EventTypes::IPortScanningEvent::EventType eventType);
     }
 }

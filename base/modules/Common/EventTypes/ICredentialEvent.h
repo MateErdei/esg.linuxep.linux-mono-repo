@@ -145,7 +145,10 @@ namespace Common
              */
             virtual void setRemoteNetworkAccess(const NetworkAddress remoteNetworkAccess) = 0;
 
-
         };
+
+        using ICredentialEventPtr = std::unique_ptr<ICredentialEvent>;
+        extern ICredentialEventPtr createEmptyCredentialEvent();
+        extern ICredentialEventPtr createCredentialEvent(UserSid sid,EventType eventType);
     }
 }

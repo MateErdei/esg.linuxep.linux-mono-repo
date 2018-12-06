@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/EventTypes/IPortScanningEvent.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -200,4 +201,35 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     }
 
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
+}
+
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningDataUsingInterface)
+{
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
+
+    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
+    setupPubSub("Detector.PortScanning",portScanningCallback);
+
+    Common::EventTypesImpl::PortScanningEvent port;
+    Common::EventTypes::IPortScanningEvent::EventType eventType = Common::EventTypesImpl::PortScanningEvent::opened;
+    Common::EventTypes::IpFlow ipFlow;
+    ipFlow.destinationAddress.address="182";
+    ipFlow.destinationAddress.port=90;
+    std::unique_ptr<Common::EventTypes::IPortScanningEvent> eventExpected = port.createPortScanningEvent(ipFlow,eventType);
+
+    Common::EventTypesImpl::EventConverter converter;
+    std::pair<std::string, std::string> data = converter.eventToString(eventExpected.get());
+    rawDataPublisher->sendData(data.first, data.second);
+
+    int count = 0;
+    while( portScanningCallback->m_event.getConnection().destinationAddress.address == "")
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        count++;
+        ASSERT_TRUE(count < 10);
+    }
+    //TODO clean up this test and make it cover all varibles of PortScanning event
+    ASSERT_EQ( ipFlow.destinationAddress.address, portScanningCallback->m_event.getConnection().destinationAddress.address);
+    ASSERT_EQ( ipFlow.destinationAddress.port, portScanningCallback->m_event.getConnection().destinationAddress.port);
 }

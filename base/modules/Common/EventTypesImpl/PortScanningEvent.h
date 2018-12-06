@@ -20,6 +20,8 @@ namespace Common
             PortScanningEvent() = default;
             ~PortScanningEvent() = default;
 
+            std::unique_ptr<IPortScanningEvent> createEmptyPortScanningEvent();
+            std::unique_ptr<IPortScanningEvent> createPortScanningEvent(EventTypes::IpFlow& ipFlow, Common::EventTypes::IPortScanningEvent::EventType eventType);
             const std::string getEventTypeId() const override;
             EventType getEventType() const override;
             const EventTypes::IpFlow& getConnection() const override;
