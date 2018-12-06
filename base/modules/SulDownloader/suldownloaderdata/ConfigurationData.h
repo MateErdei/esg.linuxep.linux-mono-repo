@@ -65,7 +65,7 @@ namespace SulDownloader
                 NORMAL, VERBOSE
             };
 
-            explicit ConfigurationData(const std::vector<std::string>& sophosLocationURL,
+            explicit ConfigurationData(const std::vector<std::string>& sophosLocationURL = {},
                                        Credentials credentials = Credentials(),
                                        const std::vector<std::string>& updateCache = std::vector<std::string>(),
                                        Proxy policyProxy = Proxy());

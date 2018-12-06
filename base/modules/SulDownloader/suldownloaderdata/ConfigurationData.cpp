@@ -66,7 +66,14 @@ const std::vector<std::string>& ConfigurationData::getSophosUpdateUrls() const
 
 void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls)
 {
-    m_sophosUpdateUrls = sophosUpdateUrls;
+    if (sophosUpdateUrls.empty())
+    {
+        m_sophosUpdateUrls = DefaultSophosLocationsURL;
+    }
+    else
+    {
+        m_sophosUpdateUrls = sophosUpdateUrls;
+    }
 
     if (m_sophosUpdateUrls.empty())
     {
@@ -126,7 +133,14 @@ void ConfigurationData::setUpdateCacheSslCertificatePath(const std::string& cert
 
 void ConfigurationData::setSystemSslCertificatePath(const std::string& certificatePath)
 {
-    m_systemSslCertificatePath = certificatePath;
+    if (certificatePath == "")
+    {
+        m_systemSslCertificatePath = DoNotSetSslSystemPath;
+    }
+    else
+    {
+        m_systemSslCertificatePath = certificatePath;
+    }
 }
 
 void ConfigurationData::setInstallationRootPath(const std::string& installationRootPath)
@@ -390,8 +404,10 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     // and serialize the DownloadReport into json and give the error code/or success
     auto sUrls = settings.sophosurls();
     std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls));
+
     sUrls = settings.updatecache();
     std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls));
+
     Credentials credential(settings.credential().username(), settings.credential().password());
     Proxy proxy(settings.proxy().url(),
                 ProxyCredentials(settings.proxy().credential().username(),

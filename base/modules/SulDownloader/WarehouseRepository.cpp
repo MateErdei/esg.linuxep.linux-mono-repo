@@ -184,12 +184,12 @@ namespace SulDownloader
 
         SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);
 
-        for ( int index : selectedIndexes.selected)
+        for ( size_t index : selectedIndexes.selected)
         {
             LOGSUPPORT("Product will be downloaded: " << productMetadataList[index].getLine());
         }
 
-        for (  int index : selectedIndexes.notselected)
+        for (  size_t index : selectedIndexes.notselected)
         {
             auto & productPair = productInformationList[index];
             if(!SULUtils::isSuccess(SU_removeProduct(productPair.first)))

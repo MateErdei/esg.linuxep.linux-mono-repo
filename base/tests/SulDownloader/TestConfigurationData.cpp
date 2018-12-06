@@ -558,7 +558,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslC
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSslCertPathShouldFailValidation ) //NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSslCertPathShouldPassValidation ) //NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("systemSslPath": ")" + m_absSystemSslPath + R"(",)";
@@ -569,7 +569,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSs
 
     configurationData.verifySettingsAreValid();
 
-    EXPECT_FALSE(configurationData.isVerified());
+    EXPECT_TRUE(configurationData.isVerified());
+    EXPECT_EQ(configurationData.getSystemSslCertificatePath(),ConfigurationData::DoNotSetSslSystemPath);
 }
 
 
