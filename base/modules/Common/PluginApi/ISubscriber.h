@@ -16,10 +16,10 @@ namespace Common
         /**
          * Holds the threads that listen to the ipc channel for data arriving for the subscriber.
          *
-         * When IRawSubscriber is created it is given an IRawDataCallback (@see IPluginResourceManagement::createSubscriber)
+         * When ISubscriber is created it is given an IRawDataCallback (@see IPluginResourceManagement::createSubscriber)
          * and it is configured with the socket that listen to the ipc channel.
          *
-         * This allow the IRawSubscriber to forward data incoming to the ipc channel to the
+         * This allow the ISubscriber to forward data incoming to the ipc channel to the
          * IRawDataCallback::receiveData.
          *
          */
