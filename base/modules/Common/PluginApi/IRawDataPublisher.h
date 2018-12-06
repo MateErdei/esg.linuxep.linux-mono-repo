@@ -43,6 +43,7 @@ namespace Common
              * @param rawData: The content. It is meant to be json (binary or string) containing the full information.
              */
             virtual void sendData(const std::string& rawDataCategory, const std::string& rawData) = 0;
+            virtual void sendEvent(const Common::EventTypes::IEventType&) = 0;
         };
     }
 }
