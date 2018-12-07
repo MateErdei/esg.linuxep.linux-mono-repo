@@ -135,6 +135,16 @@ namespace Tests
             return event;
         }
 
+        Common::EventTypes::IpFlow createDefaultIpFlow()
+        {
+            Common::EventTypes::IpFlow ipFlow;
+            ipFlow.destinationAddress.address="182.158";
+            ipFlow.destinationAddress.port=90;
+            ipFlow.sourceAddress.address="182.136";
+            ipFlow.sourceAddress.port=800;
+            ipFlow.protocol=2;
+            return ipFlow;
+        }
 
         ::testing::AssertionResult portScanningEventIsEquivalent( const char* m_expr,
                                                                   const char* n_expr,

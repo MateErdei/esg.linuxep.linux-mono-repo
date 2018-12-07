@@ -213,9 +213,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
 
     Common::EventTypesImpl::PortScanningEvent port;
     Common::EventTypes::IPortScanningEvent::EventType eventType = Common::EventTypesImpl::PortScanningEvent::opened;
-    Common::EventTypes::IpFlow ipFlow;
-    ipFlow.destinationAddress.address="182";
-    ipFlow.destinationAddress.port=90;
+    Common::EventTypes::IpFlow ipFlow = createDefaultIpFlow();
     std::unique_ptr<Common::EventTypes::IPortScanningEvent> eventExpected = Common::EventTypes::createPortScanningEvent(ipFlow,eventType);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -229,9 +227,8 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
         count++;
         ASSERT_TRUE(count < 20);
     }
-    //TODO clean up this test and make it cover all variables of PortScanning event
-    ASSERT_EQ( ipFlow.destinationAddress.address, portScanningCallback->m_event->getConnection().destinationAddress.address);
-    ASSERT_EQ( ipFlow.destinationAddress.port, portScanningCallback->m_event->getConnection().destinationAddress.port);
+
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, *eventExpected, *(portScanningCallback->m_event));
 }
 
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningEventUsingInterface)
@@ -242,13 +239,9 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
-    Common::EventTypesImpl::PortScanningEvent port;
     Common::EventTypes::IPortScanningEvent::EventType eventType = Common::EventTypesImpl::PortScanningEvent::opened;
-    Common::EventTypes::IpFlow ipFlow;
-    ipFlow.destinationAddress.address="182";
-    ipFlow.destinationAddress.port=90;
+    Common::EventTypes::IpFlow ipFlow = createDefaultIpFlow();
     std::unique_ptr<Common::EventTypes::IPortScanningEvent> eventExpected = Common::EventTypes::createPortScanningEvent(ipFlow,eventType);
-
 
     rawDataPublisher->sendPluginEvent(*eventExpected);
 
@@ -260,6 +253,47 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
         ASSERT_TRUE(count < 20);
     }
 
-    ASSERT_EQ( ipFlow.destinationAddress.address, portScanningCallback->m_event->getConnection().destinationAddress.address);
-    ASSERT_EQ( ipFlow.destinationAddress.port, portScanningCallback->m_event->getConnection().destinationAddress.port);
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, *eventExpected, *(portScanningCallback->m_event));
+}
+
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialEventUsingInterface)
+{
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
+
+    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>();
+    setupPubSub("Detector.Credentials",credentialCallback);
+
+    Common::EventTypes::EventType eventType = Common::EventTypes::EventType::authFailure;
+    Common::EventTypes::UserSid usersid ;
+    usersid.username="TestUser";
+    usersid.domain="stuff.com";
+
+    std::unique_ptr<Common::EventTypes::ICredentialEvent> eventExpected = Common::EventTypes::createCredentialEvent(usersid,eventType);
+    eventExpected->setSessionType(Common::EventTypes::SessionType::interactive);
+    eventExpected->setLogonId(1000);
+    eventExpected->setTimestamp(123123123);
+    eventExpected->setGroupId(1001);
+    eventExpected->setGroupName("TestGroup");
+
+    Common::EventTypes::UserSid targetUserId;
+    targetUserId.username = "TestTarUser";
+    targetUserId.domain = "sophosTarget->com";
+    eventExpected->setTargetUserSid(targetUserId);
+
+    Common::EventTypes::NetworkAddress network;
+    network.address = "sophos.com:400";
+    eventExpected->setRemoteNetworkAccess(network);
+    rawDataPublisher->sendPluginEvent(*eventExpected);
+
+    int count = 0;
+    while( credentialCallback->m_event->getSubjectUserSid().username == "")
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        count++;
+        EXPECT_TRUE(count < 20);
+        if (count > 20); break;
+    }
+
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, *eventExpected, *(credentialCallback->m_event));
 }
