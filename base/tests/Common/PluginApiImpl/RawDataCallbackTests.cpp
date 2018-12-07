@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/AbstractRawDataCallback.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/PluginProtocol/Protocol.h>
