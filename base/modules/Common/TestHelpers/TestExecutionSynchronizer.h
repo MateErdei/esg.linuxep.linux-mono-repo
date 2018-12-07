@@ -20,6 +20,9 @@ namespace Tests
         int m_expectedCall;
     public:
         explicit TestExecutionSynchronizer(int toBeNotifiedNTimes = 1);
+        // we must not allow copy of the synchronizer.
+        TestExecutionSynchronizer(const TestExecutionSynchronizer&) = delete;
+        TestExecutionSynchronizer& operator=(const TestExecutionSynchronizer&) = delete;
         void notify();
         bool waitfor(int ms = 500);
         bool waitfor( std::chrono::milliseconds ms);

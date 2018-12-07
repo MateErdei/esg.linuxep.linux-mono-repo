@@ -68,7 +68,7 @@ public:
     }
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
-     PluginResourceManagement pluginResourceManagement;
+    PluginResourceManagement pluginResourceManagement;
 
     std::shared_ptr<MockEventVisitorCallback> mockRawDataCallback;
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
@@ -78,25 +78,38 @@ public:
 class FakePortScanningDealer : public AbstractRawDataCallback
 {
 public:
-    FakePortScanningDealer():m_event(Common::EventTypes::createEmptyPortScanningEvent()){}
+    FakePortScanningDealer(Common::Threads::NotifyPipe & notify):m_event(Common::EventTypes::createEmptyPortScanningEvent()), m_eventReceived{false}, m_notify{notify} {}
     Common::EventTypes::IPortScanningEventPtr  m_event;
+    std::atomic<bool> m_eventReceived;
+    Common::Threads::NotifyPipe m_notify;
 
     void processEvent(Common::EventTypes::IPortScanningEventPtr portScanningEvent) override
     {
+        if( m_eventReceived) return;
+
         m_event =  std::move(portScanningEvent);
+        m_eventReceived = true;
+        m_notify.notify();
     }
 };
 
 class FakeCredentialsDealer : public AbstractRawDataCallback
 {
 public:
-    FakeCredentialsDealer():m_event(Common::EventTypes::createEmptyCredentialEvent()){}
+    FakeCredentialsDealer(Common::Threads::NotifyPipe & notify)
+            : m_event(Common::EventTypes::createEmptyCredentialEvent()), m_eventReceived{false}, m_notify{notify} {}
 
     Common::EventTypes::ICredentialEventPtr m_event;
+    std::atomic<bool> m_eventReceived;
+    Common::Threads::NotifyPipe& m_notify;
 
     void processEvent(Common::EventTypes::ICredentialEventPtr credentialEvent) override
     {
+        if( m_eventReceived) return;
+
         m_event =  std::move(credentialEvent);
+        m_eventReceived = true;
+        m_notify.notify();
     }
 
 };
@@ -140,7 +153,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     {
         rawDataPublisher->sendData(data.first, data.second);
         rawDataPublisher->sendPluginEvent(eventExpected3);
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
         ASSERT_TRUE(count < 10);
     }
@@ -158,7 +171,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>();
+    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
     setupPubSub("Detector.Credentials",credentialCallback);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -168,11 +181,12 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( credentialCallback->m_event->getGroupName() == "")
+    while( !notify.notified())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        rawDataPublisher->sendData(data.first, data.second);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
-        ASSERT_TRUE(count < 20);
+        ASSERT_TRUE(count < 10);
     }
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *(credentialCallback->m_event));
@@ -183,7 +197,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
+    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -193,11 +207,12 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( portScanningCallback->m_event->getConnection().destinationAddress.address == "")
+    while(!notify.notified())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        rawDataPublisher->sendData(data.first, data.second);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
-        ASSERT_TRUE(count < 20);
+        ASSERT_TRUE(count < 10);
     }
 
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, *(portScanningCallback->m_event));
@@ -208,7 +223,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
+    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
     Common::EventTypesImpl::PortScanningEvent port;
@@ -221,11 +236,12 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( portScanningCallback->m_event->getConnection().destinationAddress.address == "")
+    while(!notify.notified())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        rawDataPublisher->sendData(data.first, data.second);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
-        ASSERT_TRUE(count < 20);
+        ASSERT_TRUE(count < 10);
     }
 
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, *eventExpected, *(portScanningCallback->m_event));
@@ -236,7 +252,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
+    std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
     Common::EventTypes::IPortScanningEvent::EventType eventType = Common::EventTypesImpl::PortScanningEvent::opened;
@@ -246,11 +262,12 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     rawDataPublisher->sendPluginEvent(*eventExpected);
 
     int count = 0;
-    while( portScanningCallback->m_event->getConnection().destinationAddress.address == "")
+    while(!notify.notified())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        rawDataPublisher->sendPluginEvent(*eventExpected);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
-        ASSERT_TRUE(count < 20);
+        ASSERT_TRUE(count < 10);
     }
 
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, *eventExpected, *(portScanningCallback->m_event));
@@ -261,7 +278,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>();
+    std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
     setupPubSub("Detector.Credentials",credentialCallback);
 
     Common::EventTypes::EventType eventType = Common::EventTypes::EventType::authFailure;
@@ -287,12 +304,12 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     rawDataPublisher->sendPluginEvent(*eventExpected);
 
     int count = 0;
-    while( credentialCallback->m_event->getSubjectUserSid().username == "")
+    while(!notify.notified())
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
+        rawDataPublisher->sendPluginEvent(*eventExpected);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
         count++;
-        EXPECT_TRUE(count < 20);
-        if (count > 20); break;
+        ASSERT_TRUE(count < 10);
     }
 
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, *eventExpected, *(credentialCallback->m_event));
