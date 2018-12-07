@@ -8,8 +8,8 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/IPluginResourceManagement.h
         ../PluginApi/IPluginCallbackApi.h
         ../PluginApi/StatusInfo.h
-        AbstractRawDataCallback.h
-        AbstractRawDataCallback.cpp
+        ../PluginApi/AbstractRawDataCallback.h
+        ../PluginApi/AbstractRawDataCallback.cpp
         BaseServiceAPI.cpp
         BaseServiceAPI.h
         PluginCallBackHandler.cpp
@@ -44,6 +44,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
+        $<TARGET_OBJECTS:eventtypesimplobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
@@ -76,6 +77,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND mkdir -p pluginapi/include/Common/TestHelpers
+        COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
@@ -108,6 +110,7 @@ add_copy_directory(Common/Reactor)
 add_copy_directory(Common/Threads)
 add_copy_directory(Common/ZeroMQWrapper)
 add_copy_directory(Common/TestHelpers)
+add_copy_directory(Common/EventTypes)
 add_copy_directory(Common/Exceptions)
 
 file(GLOB_RECURSE distributionfiles

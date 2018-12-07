@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "AbstractRawDataCallback.h"
-#include "Logger.h"
+#include "Common/PluginApiImpl/Logger.h"
 
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/PluginApi/ApiException.h>

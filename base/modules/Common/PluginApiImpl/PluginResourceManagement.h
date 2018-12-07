@@ -6,8 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "AbstractRawDataCallback.h"
-
+#include <Common/PluginApi/AbstractRawDataCallback.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/ZeroMQWrapper/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketSetup.h>
