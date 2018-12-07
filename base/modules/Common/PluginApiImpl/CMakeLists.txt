@@ -1,6 +1,7 @@
 
 add_library(pluginapiobjects OBJECT
         ../PluginApi/IBaseServiceApi.h
+        ../PluginApi/IEventVisitorCallback.h
         ../PluginApi/IRawDataCallback.h
         ../PluginApi/IRawDataPublisher.h
         ../PluginApi/ISubscriber.h

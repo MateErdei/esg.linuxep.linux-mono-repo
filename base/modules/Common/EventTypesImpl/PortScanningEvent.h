@@ -20,8 +20,7 @@ namespace Common
             PortScanningEvent() = default;
             ~PortScanningEvent() = default;
 
-            std::unique_ptr<IPortScanningEvent> createEmptyPortScanningEvent();
-            std::unique_ptr<IPortScanningEvent> createPortScanningEvent(EventTypes::IpFlow& ipFlow, Common::EventTypes::IPortScanningEvent::EventType eventType);
+
             const std::string getEventTypeId() const override;
             EventType getEventType() const override;
             const EventTypes::IpFlow& getConnection() const override;
@@ -35,12 +34,13 @@ namespace Common
             * @param a objectAsString
             * @returns PortScanningEvent object created from the capn byte string..
             */
-            PortScanningEvent fromString(const std::string& objectAsString);
+            void fromString(const std::string& objectAsString);
 
         private:
             Common::EventTypes::IPortScanningEvent::EventType m_eventType;
             Common::EventTypes::IpFlow m_connection;
         };
+
     }
 
 }

@@ -94,13 +94,13 @@ namespace
     }
 }
 
-std::unique_ptr<Common::EventTypes::ICredentialEvent> createEmptyCredentialEvent()
+std::unique_ptr<Common::EventTypes::ICredentialEvent> Common::EventTypes::createEmptyCredentialEvent()
 {
     std::unique_ptr<Common::EventTypes::ICredentialEvent> event{new Common::EventTypesImpl::CredentialEvent};
     return event;
 }
 
-std::unique_ptr<Common::EventTypes::ICredentialEvent> createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType)
+std::unique_ptr<Common::EventTypes::ICredentialEvent> Common::EventTypes::createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType)
 {
     std::unique_ptr<Common::EventTypes::ICredentialEvent> event = createEmptyCredentialEvent();
     event.get()->setSubjectUserSid(sid);
@@ -239,7 +239,7 @@ namespace Common
             return dataAsString;
         }
 
-        CredentialEvent CredentialEvent::fromString(const std::string& objectAsString)
+        void CredentialEvent::fromString(const std::string& objectAsString)
         {
 
             if(objectAsString.empty())
@@ -257,32 +257,29 @@ namespace Common
                 capnp::FlatArrayMessageReader message(view);
                 Sophos::Journal::CredentialsEvent::Reader credentialsEvent = message.getRoot<Sophos::Journal::CredentialsEvent>();
 
-                Common::EventTypesImpl::CredentialEvent event;
-
-                event.setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
-                event.setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
+                setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
+                setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
 
                 std::string groupName(credentialsEvent.getUserGroupName());
-                event.setGroupName(groupName);
+                setGroupName(groupName);
 
-                event.setGroupId(credentialsEvent.getUserGroupID());
-                event.setTimestamp(credentialsEvent.getTimestamp());
-                event.setLogonId(credentialsEvent.getLogonID());
+                setGroupId(credentialsEvent.getUserGroupID());
+                setTimestamp(credentialsEvent.getTimestamp());
+                setLogonId(credentialsEvent.getLogonID());
 
                 Common::EventTypes::UserSid subjectUserId;
                 subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();;
                 subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
-                event.setSubjectUserSid(subjectUserId);
+                setSubjectUserSid(subjectUserId);
 
                 Common::EventTypes::UserSid targetUserId;
                 targetUserId.username = credentialsEvent.getTargetUserSID().getUsername();
                 targetUserId.domain = credentialsEvent.getTargetUserSID().getDomain();
-                event.setTargetUserSid(targetUserId);
+                setTargetUserSid(targetUserId);
 
                 Common::EventTypes::NetworkAddress networkAddress;
                 networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
-                event.setRemoteNetworkAccess(networkAddress);
-                return event;
+                setRemoteNetworkAccess(networkAddress);
             }
             catch(std::exception& ex)
             {

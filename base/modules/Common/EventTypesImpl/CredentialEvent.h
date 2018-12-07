@@ -20,8 +20,6 @@ namespace Common
 
             ~CredentialEvent() = default;
 
-            std::unique_ptr<Common::EventTypes::ICredentialEvent> createEmptyCredentialEvent();
-            std::unique_ptr<Common::EventTypes::ICredentialEvent> createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType);
             const Common::EventTypes::SessionType getSessionType() const override;
             const Common::EventTypes::EventType getEventType() const override;
             const std::string getEventTypeId() const override;
@@ -48,7 +46,7 @@ namespace Common
             * @param a objectAsString
             * @returns CredentialEvent object created from the capn byte string..
             */
-            CredentialEvent fromString(const std::string& objectAsString);
+            void fromString(const std::string& objectAsString);
 
         private:
             unsigned long m_groupId;

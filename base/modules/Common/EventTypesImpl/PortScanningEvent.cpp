@@ -53,25 +53,26 @@ namespace
 
 }
 
+std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createEmptyPortScanningEvent()
+{
+    std::unique_ptr<Common::EventTypesImpl::PortScanningEvent> event{new Common::EventTypesImpl::PortScanningEvent};
+    return event;
+}
+
+std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::IPortScanningEvent::EventType eventType)
+{
+    std::unique_ptr<Common::EventTypes::IPortScanningEvent> event = createEmptyPortScanningEvent();
+    event.get()->setConnection(ipFlow);
+    event.get()->setEventType(eventType);
+
+    return event;
+}
 
 namespace Common
 {
     namespace EventTypesImpl
     {
-        std::unique_ptr<Common::EventTypes::IPortScanningEvent> PortScanningEvent::createEmptyPortScanningEvent()
-        {
-            std::unique_ptr<Common::EventTypesImpl::PortScanningEvent> event{new Common::EventTypesImpl::PortScanningEvent};
-            return event;
-        }
 
-        std::unique_ptr<Common::EventTypes::IPortScanningEvent> PortScanningEvent::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::IPortScanningEvent::EventType eventType)
-        {
-            std::unique_ptr<Common::EventTypes::IPortScanningEvent> event = createEmptyPortScanningEvent();
-            event.get()->setConnection(ipFlow);
-            event.get()->setEventType(eventType);
-
-            return event;
-        }
 
         const std::string PortScanningEvent::getEventTypeId() const
         {
@@ -132,7 +133,7 @@ namespace Common
             return dataAsString;
         }
 
-        PortScanningEvent PortScanningEvent::fromString(const std::string& objectAsString)
+        void PortScanningEvent::fromString(const std::string& objectAsString)
         {
             if(objectAsString.empty())
             {
@@ -149,11 +150,10 @@ namespace Common
                 capnp::FlatArrayMessageReader message(view);
                 Sophos::Journal::PortEvent::Reader portEvent = message.getRoot<Sophos::Journal::PortEvent>();
 
-                Common::EventTypesImpl::PortScanningEvent event;
 
-                event.setEventType(convertFromCapnEventType(portEvent.getEventType()));
+                setEventType(convertFromCapnEventType(portEvent.getEventType()));
 
-                auto connection = event.getConnection();
+                auto connection = getConnection();
 
                 ::capnp::Data::Reader sourceAddressData = portEvent.getConnection().getSourceAddress().getAddress();
                 std::string sourceAddress(sourceAddressData.begin(), sourceAddressData.end());
@@ -168,8 +168,8 @@ namespace Common
                 connection.destinationAddress.port = portEvent.getConnection().getDestinationAddress().getPort();
 
                 connection.protocol = portEvent.getConnection().getProtocol();
-                event.setConnection(connection);
-                return event;
+                setConnection(connection);
+
             }
             catch(std::exception& ex)
             {

@@ -18,7 +18,7 @@ namespace Common
         public:
             RawDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher);
             void sendData(const std::string& rawDataCategory, const std::string& rawData) override;
-            void sendEvent(const Common::EventTypes::IEventType&) override;
+            void sendPluginEvent(const Common::EventTypes::IEventType&) override;
 
         private:
             Common::ZeroMQWrapper::ISocketPublisherPtr m_socketPublisher;

@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Common/EventTypes/IEventType.h>
 
 #include <string>
-#include <Common/EventTypes/IEventType.h>
 
 namespace Common
 {
@@ -43,7 +43,7 @@ namespace Common
              * @param rawData: The content. It is meant to be json (binary or string) containing the full information.
              */
             virtual void sendData(const std::string& rawDataCategory, const std::string& rawData) = 0;
-            virtual void sendEvent(const Common::EventTypes::IEventType&) = 0;
+            virtual void sendPluginEvent(const Common::EventTypes::IEventType&) = 0;
         };
     }
 }

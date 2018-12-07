@@ -21,14 +21,14 @@ namespace Common
             if(key == "Detector.Credentials")
             {
                 EventConverter converter;
-                CredentialEvent event = converter.createEventFromString<CredentialEvent>(data);
-                processEvent(event);
+                auto event = converter.createEventFromString<CredentialEvent>(data);
+                processEvent(std::move(event));
             }
             else if(key == "Detector.PortScanning")
             {
                 EventConverter converter;
-                PortScanningEvent event = converter.createEventFromString<PortScanningEvent>(data);
-                processEvent(event);
+                auto event = converter.createEventFromString<PortScanningEvent>(data);
+                processEvent(std::move(event));
             }
             else
             {
@@ -36,15 +36,14 @@ namespace Common
             }
         }
 
-        void AbstractRawDataCallback::processEvent(Common::EventTypesImpl::CredentialEvent& event)
+        void AbstractRawDataCallback::processEvent(Common::EventTypes::ICredentialEventPtr event)
         {
 
-            throw Common::PluginApi::ApiException("CredentialEvent ReceiveData not implemented");
         }
 
-        void AbstractRawDataCallback::processEvent(PortScanningEvent& event)
+        void AbstractRawDataCallback::processEvent(Common::EventTypes::IPortScanningEventPtr event)
         {
-            throw Common::PluginApi::ApiException("PortScanningEvent ReceiveData not implemented");
+
         }
     }
 }

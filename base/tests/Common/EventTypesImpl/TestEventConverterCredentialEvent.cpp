@@ -36,7 +36,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
 
     auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
@@ -55,7 +55,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
 
     auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
@@ -99,6 +99,6 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
 
     auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
 
 }

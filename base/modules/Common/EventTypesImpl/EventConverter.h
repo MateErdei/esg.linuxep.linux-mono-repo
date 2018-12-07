@@ -27,10 +27,11 @@ namespace Common
             const std::pair<std::string, std::string> eventToString(const Common::EventTypes::IEventType* eventType) override;
 
             template <class EventT>
-            static EventT createEventFromString(const std::string& eventObjectAsString)
+            static std::unique_ptr<EventT> createEventFromString(const std::string& eventObjectAsString)
             {
-                EventT event;
-                return event.fromString(eventObjectAsString);               
+                std::unique_ptr<EventT> event{new EventT()};
+                event->fromString(eventObjectAsString);
+                return event;
             }
         };
     }

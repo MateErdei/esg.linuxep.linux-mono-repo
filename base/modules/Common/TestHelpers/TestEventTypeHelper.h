@@ -51,8 +51,8 @@ namespace Tests
 
         ::testing::AssertionResult credentialEventIsEquivalent( const char* m_expr,
                                                                 const char* n_expr,
-                                                                const Common::EventTypesImpl::CredentialEvent& expected,
-                                                                const Common::EventTypesImpl::CredentialEvent& resulted)
+                                                                const Common::EventTypes::ICredentialEvent& expected,
+                                                                const Common::EventTypes::ICredentialEvent& resulted)
         {
             std::stringstream s;
             s<< m_expr << " and " << n_expr << " failed: ";
@@ -138,8 +138,8 @@ namespace Tests
 
         ::testing::AssertionResult portScanningEventIsEquivalent( const char* m_expr,
                                                                   const char* n_expr,
-                                                                  const Common::EventTypesImpl::PortScanningEvent& expected,
-                                                                  const Common::EventTypesImpl::PortScanningEvent& resulted)
+                                                                  const Common::EventTypes::IPortScanningEvent& expected,
+                                                                  const Common::EventTypes::IPortScanningEvent& resulted)
         {
             std::stringstream s;
             s<< m_expr << " and " << n_expr << " failed: ";

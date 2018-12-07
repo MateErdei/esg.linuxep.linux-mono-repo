@@ -18,7 +18,7 @@ namespace Common
             m_socketPublisher->write({rawDataCategory, rawData});
         }
 
-        void sendEvent(const Common::EventTypes::IEventType& event)
+        void RawDataPublisher::sendPluginEvent(const Common::EventTypes::IEventType& event)
         {
             Common::PluginApiImpl::PluginResourceManagement pluginResourceManagement;
             std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;

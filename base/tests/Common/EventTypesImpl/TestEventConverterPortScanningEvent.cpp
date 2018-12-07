@@ -36,7 +36,7 @@ TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringC
 
     auto eventActual = EventConverter::createEventFromString<PortScanningEvent>(data.second);
 
-    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, *eventActual);
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreatePortScanningEventFromStringThrowsIfDataInvalidCapnString) //NOLINT

@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockRawDataCallback.h"
+#include "MockEventVisitorCallback.h"
 #include "TestExecutionSynchronizer.h"
 
 #include <Common/EventTypesImpl/EventConverter.h>
@@ -19,7 +19,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/EventTypes/IPortScanningEvent.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -27,6 +26,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <thread>
+#include <memory>
 
 
 using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
@@ -70,7 +70,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
      PluginResourceManagement pluginResourceManagement;
 
-    std::shared_ptr<MockRawDataCallback> mockRawDataCallback;
+    std::shared_ptr<MockEventVisitorCallback> mockRawDataCallback;
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
     std::unique_ptr<Common::PluginApi::ISubscriber> subscriber;
 };
@@ -78,24 +78,25 @@ public:
 class FakePortScanningDealer : public AbstractRawDataCallback
 {
 public:
+    FakePortScanningDealer():m_event(Common::EventTypes::createEmptyPortScanningEvent()){}
+    Common::EventTypes::IPortScanningEventPtr  m_event;
 
-    Common::EventTypesImpl::PortScanningEvent m_event;
-
-    void processEvent(Common::EventTypesImpl::PortScanningEvent& portScanningEvent)
+    void processEvent(Common::EventTypes::IPortScanningEventPtr portScanningEvent) override
     {
-        m_event =  portScanningEvent;
+        m_event =  std::move(portScanningEvent);
     }
 };
 
 class FakeCredentialsDealer : public AbstractRawDataCallback
 {
 public:
+    FakeCredentialsDealer():m_event(Common::EventTypes::createEmptyCredentialEvent()){}
 
-    Common::EventTypesImpl::CredentialEvent m_event;
+    Common::EventTypes::ICredentialEventPtr m_event;
 
-    void processEvent(Common::EventTypesImpl::CredentialEvent& credentialEvent)
+    void processEvent(Common::EventTypes::ICredentialEventPtr credentialEvent) override
     {
-        m_event =  credentialEvent;
+        m_event =  std::move(credentialEvent);
     }
 
 };
@@ -105,7 +106,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
 
-    mockRawDataCallback = std::make_shared<NiceMock<MockRawDataCallback>>();
+    mockRawDataCallback = std::make_shared<NiceMock<MockEventVisitorCallback>>();
     setupPubSub("Detector.Credentials",mockRawDataCallback);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -138,6 +139,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     while( !notify.notified())
     {
         rawDataPublisher->sendData(data.first, data.second);
+        rawDataPublisher->sendPluginEvent(eventExpected3);
         std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
         count++;
         ASSERT_TRUE(count < 10);
@@ -157,7 +159,6 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>();
-
     setupPubSub("Detector.Credentials",credentialCallback);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -167,14 +168,15 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( credentialCallback->m_event.getGroupName() == "")
+    while( credentialCallback->m_event->getGroupName() == "")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
         count++;
-        ASSERT_TRUE(count < 10);
+        EXPECT_TRUE(count< 10);
+        if(count > 10) break;
     }
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, credentialCallback->m_event);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *(credentialCallback->m_event));
 }
 
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningData)
@@ -183,7 +185,6 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>();
-
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
     Common::EventTypesImpl::EventConverter converter;
@@ -193,14 +194,14 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( portScanningCallback->m_event.getConnection().destinationAddress.address == "")
+    while( portScanningCallback->m_event->getConnection().destinationAddress.address == "")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
         count++;
         ASSERT_TRUE(count < 10);
     }
 
-    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, *(portScanningCallback->m_event));
 }
 
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningDataUsingInterface)
@@ -216,20 +217,20 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::EventTypes::IpFlow ipFlow;
     ipFlow.destinationAddress.address="182";
     ipFlow.destinationAddress.port=90;
-    std::unique_ptr<Common::EventTypes::IPortScanningEvent> eventExpected = port.createPortScanningEvent(ipFlow,eventType);
+    std::unique_ptr<Common::EventTypes::IPortScanningEvent> eventExpected = Common::EventTypes::createPortScanningEvent(ipFlow,eventType);
 
     Common::EventTypesImpl::EventConverter converter;
     std::pair<std::string, std::string> data = converter.eventToString(eventExpected.get());
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;
-    while( portScanningCallback->m_event.getConnection().destinationAddress.address == "")
+    while( portScanningCallback->m_event->getConnection().destinationAddress.address == "")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(30*(count+1)));
         count++;
         ASSERT_TRUE(count < 10);
     }
-    //TODO clean up this test and make it cover all varibles of PortScanning event
-    ASSERT_EQ( ipFlow.destinationAddress.address, portScanningCallback->m_event.getConnection().destinationAddress.address);
-    ASSERT_EQ( ipFlow.destinationAddress.port, portScanningCallback->m_event.getConnection().destinationAddress.port);
+    //TODO clean up this test and make it cover all variables of PortScanning event
+    ASSERT_EQ( ipFlow.destinationAddress.address, portScanningCallback->m_event->getConnection().destinationAddress.address);
+    ASSERT_EQ( ipFlow.destinationAddress.port, portScanningCallback->m_event->getConnection().destinationAddress.port);
 }
