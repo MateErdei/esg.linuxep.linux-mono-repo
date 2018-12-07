@@ -20,10 +20,7 @@ namespace Common
 
         void RawDataPublisher::sendPluginEvent(const Common::EventTypes::IEventType& event)
         {
-            Common::PluginApiImpl::PluginResourceManagement pluginResourceManagement;
-            std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
-            rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
-            rawDataPublisher->sendData(event.getEventTypeId(),event.toString());
+            sendData(event.getEventTypeId(),event.toString());
         }
 
         RawDataPublisher::RawDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher)
