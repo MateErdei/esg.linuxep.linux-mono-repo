@@ -111,12 +111,13 @@ path = /root/record_bin_events
 type = always
 format = binary
 EOF
-service auditd restart
 
 echo "\nMatch LocalAddress 127.0.0.1\n\tPasswordAuthentication yes" >> /etc/ssh/sshd_config
 service sshd restart
 
 setenforce Permissive
+sleep 5
+service auditd restart
 """
 
 ########################################################################################################################
