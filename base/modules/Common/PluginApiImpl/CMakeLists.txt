@@ -43,7 +43,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:loggingobject>
         )
 
-target_link_libraries(pluginapi PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} ${PROTOBUF_LIBRARY})
+target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
 
 add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 target_link_libraries(sharedtesthelpers PUBLIC pluginapi)
@@ -52,7 +52,9 @@ SET_TARGET_PROPERTIES( sharedtesthelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../../lib64")
 
 SET_TARGET_PROPERTIES( pluginapi
-        PROPERTIES INSTALL_RPATH "$ORIGIN")
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN")
 
 INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
