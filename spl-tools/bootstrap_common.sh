@@ -37,3 +37,5 @@ if [[ ! -d /mnt/filer6/bfr/ssp ]]
 then
   sudo mount /mnt/filer6/bfr
 fi
+
+sudo yum install sshpass --assumeyes || sudo apt-get install sshpass --assume-yes

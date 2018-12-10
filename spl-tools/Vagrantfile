@@ -51,7 +51,8 @@ Vagrant.configure("2") do |config|
             aws.ami = 'ami-edd2f094'
             aws.security_groups = ['SSH-FROM-SOPHOS']
             override.ssh.username = 'ec2-user'
-            override.ssh.private_key_path = '~/gitrepo/sspl-tools/ssh-keys/regressiontesting.pem'
+            override.ssh.private_key_path = './ssh-keys/regressiontesting.pem'
+            override.nfs.functional = false
             aws.tags = {
                 Name: 'Vagrant Amazon Linux 2',
                 Owner: 'ukdevsavlinux',
