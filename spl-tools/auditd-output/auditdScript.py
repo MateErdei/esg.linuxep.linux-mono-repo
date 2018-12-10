@@ -3,6 +3,7 @@
 import os
 import subprocess as sp
 import shutil
+import sys
 
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
 
@@ -12,42 +13,114 @@ platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
 #
 ########################################################################################################################
 
-add_user="""
+add_user = """
 useradd testuser
 """
-delete_user="""
+delete_user = """
 useradd testuser
 clearLogs
 userdel -r testuser &> /dev/null
 """
-change_password="""
+change_password = """
 useradd testuser
 clearLogs
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 """
-group_membership_change="""
+group_membership_change = """
 useradd testuser
 groupadd testgrp
 sleep 5
 clearLogs
 usermod -a -G testgrp testuser
 """
-failed_ssh_attempt="""
-HOSTNAME=$(hostname)
-sshpass -p badpassword ssh -o StrictHostKeyChecking=no vagrant@127.0.0.1 'echo succesfully sshd'
+failed_ssh_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
 """
-successful_ssh_attempt="""
-sshpass -p vagrant ssh -o StrictHostKeyChecking=no vagrant@127.0.0.1 'echo successfully sshd'
+successful_ssh_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
 """
 
-payloads={'add_user': add_user,
-          'delete_user':delete_user, 
-          'change_password':change_password,
-          'group_membership_change':group_membership_change,
-          'failed_ssh_attempt':failed_ssh_attempt,
-          'successful_ssh_attempt':successful_ssh_attempt}
+payloads = {'add_user': add_user,
+            'delete_user': delete_user,
+            'change_password': change_password,
+            'group_membership_change': group_membership_change,
+            'failed_ssh_attempt': failed_ssh_attempt,
+            'successful_ssh_attempt': successful_ssh_attempt}
 
 ########################################################################################################################
+
+########################################################################################################################
+#
+#   Script Templates
+#
+########################################################################################################################
+
+payloadRunnerScript = """
+#!/bin/bash
+
+export REMOTE_DIR="/vagrant/auditd-output/{platform}"
+
+function clearLogs()
+{{
+    > /var/log/audit/audit.log
+    > /root/AuditEvents.bin.tmp
+}}
+
+pushd "{remotedir}"
+echo "Running {filePrefix} script on {platform}!..."
+
+clearLogs
+
+{payload}
+
+cp /root/AuditEvents.bin.tmp ${{REMOTE_DIR}}/{filePrefix}AuditEvents.bin
+cat /var/log/audit/audit.log > ${{REMOTE_DIR}}/{filePrefix}AuditEvents.log
+ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
+
+#Clean-up
+userdel -r testuser &> /dev/null
+groupdel testgrp &> /dev/null
+
+popd
+"""
+
+platformSetupScript = """
+#!/bin/bash
+
+export REMOTE_DIR="/vagrant/auditd-output/{platform}"
+
+cat > /root/record_bin_events << EOF
+#!/bin/bash
+cat >> /root/AuditEvents.bin.tmp
+EOF
+
+chmod +x /root/record_bin_events
+
+cat > /etc/audisp/plugins.d/record_bin_events << EOF
+active = yes
+direction = out
+path = /root/record_bin_events
+type = always
+format = binary
+EOF
+service auditd restart
+
+echo "\nMatch LocalAddress 127.0.0.1\n\tPasswordAuthentication yes" >> /etc/ssh/sshd_config
+service sshd restart
+
+setenforce Permissive
+"""
+
+########################################################################################################################
+
 
 # auxiliary method to find the VagrantRoot folder (where the Vagrantfile is)
 def find_vagrant_root(start_from_dir):
@@ -58,96 +131,75 @@ def find_vagrant_root(start_from_dir):
             raise AssertionError('Failed to find Vagrantfile in directory or its parents: {}'.format(start_from_dir))
     return curr
 
+
 def check_vagrant_up_and_running():
     output = sp.check_output(['/usr/bin/vagrant', 'status'])
     if b'running' not in output:
         print ('starting up vagrant')
         sp.call(['/usr/bin/vagrant', 'up'])
 
-currdir = os.path.abspath(os.getcwd())
-VAGRANTROOT = os.path.join(find_vagrant_root(currdir))
 
-# define where the current directory will be in the vagrant machine
-if VAGRANTROOT in currdir:
-    remotedir = currdir.replace(VAGRANTROOT, '/vagrant')
-else:
-    # change directory to the vagrant root otherwise 'vagrant ssh' will not work
-    os.chdir(VAGRANTROOT)
-    remotedir = os.path.join('/vagrant', currdir[1:])
+def vagrant_rsync(platform):
+    sp.call(['/usr/bin/vagrant', 'rsync', platform])
 
 
-print(VAGRANTROOT)
-print(currdir)
-print(remotedir)
+def vagrant_pull_data(platform, localPath):
+    sp.call(['/usr/bin/vagrant', 'scp',  f"{platform}:/vagrant/auditd-output/{platform}/*", localPath], stdout=sp.PIPE)
 
-#sp.call(['vagrant', 'destroy', '-f'])
-check_vagrant_up_and_running()
 
-platformSetup = f"""
-cat > /vagrant/record_bin_events << EOF
-#!/bin/bash
-cat >> /vagrant/AuditEvents.bin.tmp
-EOF
+def vagrant_run(platform, bashString):
+    hostfile = os.path.join(VAGRANTROOT, 'tmpscript.sh')
+    remotefile = os.path.join('/vagrant', 'tmpscript.sh')
 
-chmod +x /vagrant/record_bin_events
+    with open(hostfile, 'w') as f:
+        f.write(bashString)
 
-cat > /etc/audisp/plugins.d/record_bin_events << EOF
-active = yes
-direction = out
-path = /bin/bash
-type = always
-format = binary
-args = /vagrant/record_bin_events
-EOF
-service auditd restart
-"""
+    if platform == "amazon_linux":
+        vagrant_rsync(platform)
 
-for platform in platforms:
+    vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo bash %s' % remotefile]
+    sp.call(vagrant_cmd)
 
-    newPath = os.path.join(currdir, platform)
-    if os.path.isdir(newPath):
-        shutil.rmtree(newPath)
-    os.mkdir(newPath)
 
-    for filePrefix, payload in payloads.items():
-        # create the temp file that will be executed inside the vagrant machine
-        tempfileContent = f"""
-#!/bin/bash
+def run_payload(platform, filePrefix, payload, remotedir):
+    tempfileContent = payloadRunnerScript.format(filePrefix=filePrefix,
+                                                 payload=payload,
+                                                 platform=platform,
+                                                 remotedir=remotedir)
+    vagrant_run(platform, tempfileContent)
 
-{platformSetup}
 
-function clearLogs()
-{{
-    > /var/log/audit/audit.log
-    > ./{platform}/AuditEvents.bin.tmp
-}}
+def main():
+    # define where the current directory will be in the vagrant machine
+    if VAGRANTROOT in currdir:
+        remotedir = currdir.replace(VAGRANTROOT, '/vagrant')
+    else:
+        # change directory to the vagrant root otherwise 'vagrant ssh' will not work
+        os.chdir(VAGRANTROOT)
+        remotedir = os.path.join('/vagrant', currdir[1:])
 
-pushd "{remotedir}"
-echo "Running {filePrefix} script on {platform}!..."
+    sp.call(['vagrant', 'destroy', '-f'])
+    check_vagrant_up_and_running()
 
-clearLogs
+    for platform in platforms:
 
-{payload}
+        vagrant_run(platform, platformSetupScript.format(platform=platform))
 
-cp ./{platform}/AuditEvents.bin.tmp ./{platform}/{filePrefix}AuditEvents.bin
-cat /var/log/audit/audit.log > ./{platform}/{filePrefix}AuditEvents.log
-ausearch -i > ./{platform}/{filePrefix}AuditEventsReport.log
+        newPath = os.path.join(currdir, platform)
+        if os.path.isdir(newPath):
+            shutil.rmtree(newPath)
+        os.mkdir(newPath)
 
-#Clean-up
-userdel -r testuser &> /dev/null
-groupdel testgrp &> /dev/null
+        for filePrefix, payload in payloads.items():
+            run_payload(platform, filePrefix, payload, remotedir)
 
-popd
-"""
+            if platform == "amazon_linux":
+                vagrant_pull_data(platform, newPath)
 
-        hostfile = os.path.join(VAGRANTROOT, 'tmpscript.sh')
-        remotefile = os.path.join('/vagrant', 'tmpscript.sh')
+        os.chdir(currdir)
 
-        with open(hostfile, 'w') as f:
-            f.write(tempfileContent)
 
-        # run the command in the vagrant machine
-        vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo bash %s' % remotefile]
-
-        sp.call(vagrant_cmd)
-    os.chdir(currdir)
+if __name__ == "__main__":
+    currdir = os.path.abspath(os.getcwd())
+    VAGRANTROOT = os.path.join(find_vagrant_root(currdir))
+    sys.exit(main())

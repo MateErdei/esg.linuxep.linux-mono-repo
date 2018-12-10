@@ -17,3 +17,11 @@ if [ "x$?" != "x0" ]; then
 else
   echo 'vagrant-aws plugin already installed'
 fi
+
+vagrant plugin list | grep vagrant-scp
+if [ "x$?" != "x0" ]; then
+  echo 'Installing the vagrant-scp plugin'
+  sudo vagrant plugin install vagrant-scp
+else
+  echo 'vagrant-aws plugin already installed'
+fi
