@@ -4,11 +4,13 @@ environment {
     PLUGIN_NAME = "${PLUGIN_NAME}"
 }
 
-def buildUsingScript(PLUGIN_NAME)
+def buildAndTestUsingScript(PLUGIN_NAME)
 {
     checkout scm
     withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']) {
-        sh "./build.sh --name ${PLUGIN_NAME}"
+        sh "rm -rf build64 && ./build.sh --name ${PLUGIN_NAME}"
+        // Timeout applies to each individual test. Stops hanging tests from hanging the build.
+        sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
 }
 
@@ -16,8 +18,31 @@ def copyOutputToFiler(PLUGIN_NAME)
 {
     sh "sudo rm -rf /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
     sh "sudo mkdir -p /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
-    sh "sudo rsync -rtp output/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
+    sh "sudo cp -r build64/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
+    sh "sudo cp -r output/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
 }
+
+
+def copyAndTest(PLUGIN_NAME)
+{
+    withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
+        sh "rm -rf build64"
+        sh "cp -r /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME} build64"
+        sh "sudo chown -R jenkins:jenkins build64"
+        // Timeout applies to each individual test. Stops hanging tests from hanging the build.
+        sh "cd build64 && ctest -V -T test --no-compress-output --timeout 60"
+    }
+}
+
+def processTestResults(osName)
+{
+    sh 'cd build64 && cp Testing/`head -n 1 Testing/TAG`/Test.xml ./CTestResults.xml'
+    // Change the top level "tests" directory to the OS name, so that you browse results by OS in Jenkins
+    sh 'sed -i "s_/tests/_/' + osName + '/_g" build64/CTestResults.xml'
+    // Thresholds will not pick up tests that have timed out unfortunately.
+    xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build64/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
+}
+
 
 pipeline {
     agent none
@@ -30,11 +55,67 @@ pipeline {
                 }
             }
             steps {
-                buildUsingScript("${PLUGIN_NAME}")
+                buildAndTestUsingScript("${PLUGIN_NAME}")
             }
             post {
                 success {
                     copyOutputToFiler("${PLUGIN_NAME}")
+                }
+                always {
+                    processTestResults("Builder CentOS")
+                }
+            }
+        }
+        stage('Tests') {
+            parallel {
+                stage('Test on Ubuntu') {
+                    agent {
+                        node {
+                            label 'ubuntu1804'
+                            // Custom Workspace needed so system tests know where to look for plugin
+                            customWorkspace "${PLUGIN_NAME}/${BRANCH_NAME}"
+                        }
+                    }
+                    steps {
+                        copyAndTest("${PLUGIN_NAME}")
+                    }
+                    post {
+                        always {
+                            processTestResults("Ubuntu")
+                        }
+                    }
+                }
+                stage('Test on CentOS') {
+                    agent {
+                        node {
+                            label 'centos7'
+                            customWorkspace "${PLUGIN_NAME}/${BRANCH_NAME}"
+                        }
+                    }
+                    steps {
+                        copyAndTest("${PLUGIN_NAME}")
+                    }
+                    post {
+                        always {
+                            processTestResults("CentOS")
+                        }
+                    }
+                }
+                stage('Test on Redhat') {
+                    agent {
+                        node {
+                            label 'rhel7'
+                            customWorkspace "${PLUGIN_NAME}/${BRANCH_NAME}"
+                        }
+                    }
+                    steps {
+                        copyAndTest("${PLUGIN_NAME}")
+                    }
+                    post {
+                        always {
+                            processTestResults("RHEL")
+                        }
+                    }
                 }
             }
         }
