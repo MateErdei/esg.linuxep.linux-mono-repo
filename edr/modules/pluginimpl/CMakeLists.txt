@@ -15,4 +15,13 @@ add_library(pluginimpl SHARED
         Telemetry.h
         config.h)
 target_include_directories(pluginimpl PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(pluginimpl PUBLIC ${pluginapilib} ${zmqlib} ${log4cpluslib})
+
+target_link_libraries(pluginimpl PUBLIC ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
+
+SET_TARGET_PROPERTIES( pluginimpl
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN")
+
+install(TARGETS pluginimpl
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

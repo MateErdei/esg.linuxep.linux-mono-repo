@@ -11,3 +11,11 @@ SophosAddTest(TestPlugin
 #        PROJECTS pluginimpl
 #        LIBS ${log4cpluslib} ${pluginapilib}
 #        INC_DIRS ${pluginapiinclude} )
+
+add_dependencies(TestPlugin copy_libs)
+
+SET_TARGET_PROPERTIES(TestPlugin
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
