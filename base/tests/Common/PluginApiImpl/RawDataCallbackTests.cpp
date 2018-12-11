@@ -233,7 +233,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::EventTypes::PortScanningEvent eventExpected = Common::EventTypes::createPortScanningEvent(ipFlow,eventType);
 
     Common::EventTypes::EventConverter converter;
-    std::pair<std::string, std::string> data = converter.eventToString(eventExpected);
+    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;

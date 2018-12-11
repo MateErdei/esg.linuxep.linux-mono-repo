@@ -7,7 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "CredentialEvent.h"
 
 #include <Common/EventTypes/IEventException.h>
-#include <Common/EventTypes/ICredentialEvent.h>
 #include <Common/EventTypes/CommonEventData.h>
 
 #include <capnp/message.h>
@@ -93,12 +92,6 @@ namespace
         }
     }
 }
-
-//Common::EventTypes::CredentialEvent Common::EventTypes::createEmptyCredentialEvent()
-//{
-//    Common::EventTypes::CredentialEvent event= ;
-//    return event;
-//}
 
 Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::CredentialEvent::EventType eventType)
 {

@@ -53,12 +53,6 @@ namespace
 
 }
 
-//std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createEmptyPortScanningEvent()
-//{
-//    std::unique_ptr<Common::EventTypes::PortScanningEvent> event{new Common::EventTypes::PortScanningEvent};
-//    return event;
-//}
-
 Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::PortScanningEvent::EventType eventType)
 {
     Common::EventTypes::PortScanningEvent event = PortScanningEvent();

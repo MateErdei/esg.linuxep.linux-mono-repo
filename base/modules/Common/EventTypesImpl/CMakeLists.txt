@@ -5,11 +5,9 @@ CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
 
 add_library(eventtypesimplobject OBJECT
         ../EventTypes/CommonEventData.h
-        ../EventTypes/ICredentialEvent.h
         ../EventTypes/IEventType.h
         ../EventTypes/IEventException.h
         ../EventTypes/IEventConverter.h
-        ../EventTypes/IPortScanningEvent.h
         ../EventTypes/CredentialEvent.h
         ../EventTypes/CredentialEvent.cpp
         ../EventTypes/PortScanningEvent.cpp
