@@ -2,14 +2,13 @@
 add_library(pluginapiobjects OBJECT
         ../PluginApi/IBaseServiceApi.h
         ../PluginApi/IEventVisitorCallback.h
-        ../PluginApi/IRawDataCallback.h
         ../PluginApi/IRawDataPublisher.h
         ../PluginApi/ISubscriber.h
         ../PluginApi/IPluginResourceManagement.h
         ../PluginApi/IPluginCallbackApi.h
         ../PluginApi/StatusInfo.h
-        ../PluginApi/AbstractRawDataCallback.h
-        ../PluginApi/AbstractRawDataCallback.cpp
+        ../PluginApi/AbstractEventVisitor.h
+        ../PluginApi/AbstractEventVisitor.cpp
         BaseServiceAPI.cpp
         BaseServiceAPI.h
         PluginCallBackHandler.cpp

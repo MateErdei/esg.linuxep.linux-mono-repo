@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 
-#include "IRawDataCallback.h"
+#include "IEventVisitorCallback.h"
 
 namespace Common
 {

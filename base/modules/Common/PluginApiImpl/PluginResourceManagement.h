@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/PluginApi/IRawDataCallback.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/ZeroMQWrapper/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketSetup.h>
@@ -24,7 +23,7 @@ namespace Common
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
             std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher() override ;
             std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(const std::string & sensorDataCategorySubscription,
-                                                                                                 std::shared_ptr<Common::PluginApi::IRawDataCallback> sensorDataCallback) override ;
+                                                                                                 std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override ;
 
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs) ;

@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Common/PluginApi/IRawDataCallback.h"
 #include <memory>
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 

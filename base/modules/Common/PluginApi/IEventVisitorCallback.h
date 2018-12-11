@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IRawDataCallback.h"
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
 
@@ -23,7 +22,7 @@ namespace Common
          * When data arrives in the ISubscriber that data will be forwarded to the
          * ::receiveData method of this callback.
          */
-        class IEventVisitorCallback : public virtual IRawDataCallback
+        class IEventVisitorCallback
         {
         public :
             virtual ~IEventVisitorCallback() = default;

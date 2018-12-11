@@ -98,7 +98,7 @@ namespace Common
 
         std::unique_ptr<Common::PluginApi::ISubscriber>
         PluginResourceManagement::createSubscriber(const std::string &dataCategorySubscription,
-                                                             std::shared_ptr<Common::PluginApi::IRawDataCallback> rawDataCallback)
+                                                             std::shared_ptr<Common::PluginApi::IEventVisitorCallback> rawDataCallback)
         {
             auto socketSubscriber = m_contextPtr->getSubscriber();
             setTimeouts(*socketSubscriber);

@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IBaseServiceApi.h"
 #include "IRawDataPublisher.h"
 #include "ISubscriber.h"
+#include "IEventVisitorCallback.h"
 
 #include <string>
 #include <memory>
@@ -82,7 +83,7 @@ namespace Common
              */
             virtual std::unique_ptr<ISubscriber>
             createSubscriber(const std::string& dataCategorySubscription,
-                                       std::shared_ptr<IRawDataCallback> rawDataCallback) = 0;
+                                       std::shared_ptr<IEventVisitorCallback> rawDataCallback) = 0;
 
         };
 

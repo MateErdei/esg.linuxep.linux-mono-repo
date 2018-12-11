@@ -30,7 +30,7 @@ namespace
             case Common::EventTypes::PortScanningEvent::EventType::scanned:
                 return Sophos::Journal::PortEvent::EventType::SCANNED;
             default:
-                throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException("Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
         }
     }
 
@@ -47,7 +47,7 @@ namespace
             case Sophos::Journal::PortEvent::EventType::SCANNED:
                 return Common::EventTypes::PortScanningEvent::EventType::scanned;
             default:
-                throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException("Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
         }
     }
 
