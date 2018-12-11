@@ -19,6 +19,8 @@ export PRODUCT_NAME=
 export PRODUCT_LINE_ID=
 export DEFAULT_HOME_FOLDER=
 PLUGIN_TAR=
+[[ -z "${CLEAN:-}" ]] && CLEAN=1
+UNITTEST=1
 
 while [[ $# -ge 1 ]]
 do
@@ -65,6 +67,25 @@ do
             shift
             DEFAULT_HOME_FOLDER="$1"
             ;;
+        -j)
+            shift
+            NPROC=$1
+            ;;
+        -j*)
+            NPROC=${1#-j}
+            ;;
+        --clean)
+            CLEAN=1
+            ;;
+        --no-clean|--noclean)
+            CLEAN=0
+            ;;
+        --unit-test)
+            UNITTEST=1
+            ;;
+        --no-unit-test)
+            UNITTEST=0
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -86,7 +107,6 @@ LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
 export NO_REMOVE_GCC=1
-[[ -z "${CLEAN:-}" ]] && CLEAN=1
 
 INPUT=$BASE/input
 ALLEGRO_REDIST=/redist/binaries/linux11/input
@@ -182,7 +202,10 @@ function build()
             ${EXTRA_CMAKE_OPTIONS} \
         .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
-
+    if [[ ${UNITTEST} == 1 ]]
+    then
+        make -j${NPROC} test || exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
+    fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
     cd ..

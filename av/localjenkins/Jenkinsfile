@@ -8,7 +8,7 @@ def buildAndTestUsingScript(PLUGIN_NAME)
 {
     checkout scm
     withEnv(['PATH+CMAKE=/build/input/gcc/bin:/build/input/cmake/bin:/usr/local/bin']) {
-        sh "rm -rf build64 && ./build.sh --name ${PLUGIN_NAME}"
+        sh "rm -rf build64 && ./build.sh --name ${PLUGIN_NAME} --no-unit-test"
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
     }
