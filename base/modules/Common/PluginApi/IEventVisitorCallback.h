@@ -23,7 +23,7 @@ namespace Common
          * When data arrives in the ISubscriber that data will be forwarded to the
          * ::receiveData method of this callback.
          */
-        class IEventVisitorCallback : public IRawDataCallback
+        class IEventVisitorCallback : public virtual IRawDataCallback
         {
         public :
             virtual ~IEventVisitorCallback() = default;

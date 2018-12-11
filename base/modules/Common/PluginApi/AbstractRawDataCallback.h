@@ -16,7 +16,7 @@ namespace Common
     namespace PluginApiImpl
     {
 
-    class AbstractRawDataCallback : public Common::PluginApi::IEventVisitorCallback
+    class AbstractRawDataCallback : public virtual Common::PluginApi::IEventVisitorCallback
         {
         public:
             virtual ~AbstractRawDataCallback() = default;
