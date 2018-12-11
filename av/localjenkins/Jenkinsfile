@@ -22,7 +22,6 @@ def copyOutputToFiler(PLUGIN_NAME)
     sh "sudo cp -r output/* /mnt/filer6/linux/SSPL/JenkinsBuildOutput/${PLUGIN_NAME}/${BRANCH_NAME}"
 }
 
-
 def copyAndTest(PLUGIN_NAME)
 {
     withEnv(['PATH+CMAKE=/usr/local/bin:/redist/binaries/everest/cmake/bin']){
