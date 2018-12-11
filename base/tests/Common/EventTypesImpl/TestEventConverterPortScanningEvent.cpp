@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
-using namespace Common::EventTypesImpl;
+using namespace Common::EventTypes;
 
 class TestEventConverterPortScanningEvent : public Tests::TestEventTypeHelper
 {

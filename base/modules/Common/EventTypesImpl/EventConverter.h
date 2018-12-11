@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace EventTypesImpl
+    namespace EventTypes
     {
         class EventConverter : public Common::EventTypes::IEventConverter
         {

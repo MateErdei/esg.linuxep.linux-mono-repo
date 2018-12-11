@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
-using namespace Common::EventTypesImpl;
+using namespace Common::EventTypes;
 
 class TestEventConverterCredentialEvent : public Tests::TestEventTypeHelper
 {
@@ -80,8 +80,8 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
 
     EventConverter converter;
     CredentialEvent eventExpected;
-    eventExpected.setEventType(Common::EventTypes::EventType::created);
-    eventExpected.setSessionType(Common::EventTypes::SessionType::interactive);
+    eventExpected.setEventType(Common::EventTypes::CredentialEvent::EventType::created);
+    eventExpected.setSessionType(Common::EventTypes::CredentialEvent::SessionType::interactive);
     auto subjectUserID = eventExpected.getSubjectUserSid();
     subjectUserID.username = "TestUser";
     eventExpected.setSubjectUserSid(subjectUserID);

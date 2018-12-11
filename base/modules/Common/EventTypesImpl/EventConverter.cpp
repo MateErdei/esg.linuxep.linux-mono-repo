@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace EventTypesImpl
+    namespace EventTypes
     {
         const std::pair<std::string, std::string> EventConverter::eventToString(const Common::EventTypes::IEventType* eventType)
         {

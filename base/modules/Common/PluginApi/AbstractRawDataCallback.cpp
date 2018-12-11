@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/PluginApi/ApiException.h>
 
-using namespace Common::EventTypesImpl;
+using namespace Common::EventTypes;
 
 namespace Common
 {
@@ -21,14 +21,14 @@ namespace Common
             if(key == "Detector.Credentials")
             {
                 EventConverter converter;
-                auto event = converter.createEventFromString<CredentialEvent>(data);
-                processEvent(std::move(event));
+                Common::EventTypes::CredentialEvent event = *converter.createEventFromString<CredentialEvent>(data).get();
+                processEvent(event);
             }
             else if(key == "Detector.PortScanning")
             {
                 EventConverter converter;
-                auto event = converter.createEventFromString<PortScanningEvent>(data);
-                processEvent(std::move(event));
+                Common::EventTypes::PortScanningEvent event = *converter.createEventFromString<PortScanningEvent>(data).get();
+                processEvent(event);
             }
             else
             {
@@ -36,12 +36,12 @@ namespace Common
             }
         }
 
-        void AbstractRawDataCallback::processEvent(Common::EventTypes::ICredentialEventPtr event)
+        void AbstractRawDataCallback::processEvent(Common::EventTypes::CredentialEvent event)
         {
 
         }
 
-        void AbstractRawDataCallback::processEvent(Common::EventTypes::IPortScanningEventPtr event)
+        void AbstractRawDataCallback::processEvent(Common::EventTypes::PortScanningEvent event)
         {
 
         }

@@ -23,8 +23,8 @@ namespace Common
 
             void receiveData(const std::string& key, const std::string& data) override;
             
-            virtual void processEvent(Common::EventTypes::ICredentialEventPtr event) override;
-            virtual void processEvent(Common::EventTypes::IPortScanningEventPtr event) override;
+            virtual void processEvent(Common::EventTypes::CredentialEvent event) override;
+            virtual void processEvent(Common::EventTypes::PortScanningEvent event) override;
         };
     }
 }

@@ -20,110 +20,110 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
 
-    Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::SessionType sessionType)
+    Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::CredentialEvent::SessionType sessionType)
     {
         switch(sessionType)
         {
-            case Common::EventTypes::SessionType::interactive:
+            case Common::EventTypes::CredentialEvent::SessionType::interactive:
                 return Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE;
-            case Common::EventTypes::SessionType::network:
+            case Common::EventTypes::CredentialEvent::SessionType::network:
                 return Sophos::Journal::CredentialsEvent::SessionType::NETWORK;
-            case Common::EventTypes::SessionType::networkInteractive:
+            case Common::EventTypes::CredentialEvent::SessionType::networkInteractive:
                 return Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE;
             default:
                 throw Common::EventTypes::IEventException("Common::EventTypes::SessionType, contained unknown type");
         }
     }
 
-    Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(Common::EventTypes::EventType eventType)
+    Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(Common::EventTypes::CredentialEvent::EventType eventType)
     {
         switch(eventType)
         {
-            case Common::EventTypes::EventType::authFailure:
+            case Common::EventTypes::CredentialEvent::EventType::authFailure:
                 return Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE;
-            case Common::EventTypes::EventType::authSuccess:
+            case Common::EventTypes::CredentialEvent::EventType::authSuccess:
                 return Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS;
-            case Common::EventTypes::EventType::created:
+            case Common::EventTypes::CredentialEvent::EventType::created:
                 return Sophos::Journal::CredentialsEvent::EventType::CREATED;
-            case Common::EventTypes::EventType::deleted:
+            case Common::EventTypes::CredentialEvent::EventType::deleted:
                 return Sophos::Journal::CredentialsEvent::EventType::DELETED;
-            case Common::EventTypes::EventType::passwordChange:
+            case Common::EventTypes::CredentialEvent::EventType::passwordChange:
                 return Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE;
-            case Common::EventTypes::EventType::membershipChange:
+            case Common::EventTypes::CredentialEvent::EventType::membershipChange:
                 return Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE;
             default:
                 throw Common::EventTypes::IEventException("Common::EventTypes::EventType, contained unknown type");
         }
     }
 
-    Common::EventTypes::SessionType convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType)
+    Common::EventTypes::CredentialEvent::SessionType convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType)
     {
         switch(sessionType)
         {
             case Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE:
-                return Common::EventTypes::SessionType::interactive;
+                return Common::EventTypes::CredentialEvent::SessionType::interactive;
             case Sophos::Journal::CredentialsEvent::SessionType::NETWORK:
-                return Common::EventTypes::SessionType::network;
+                return Common::EventTypes::CredentialEvent::SessionType::network;
             case Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE:
-                return Common::EventTypes::SessionType::networkInteractive;
+                return Common::EventTypes::CredentialEvent::SessionType::networkInteractive;
             default:
                 throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::SessionType, contained unknown type");
 
         }
     }
 
-    Common::EventTypes::EventType convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType)
+    Common::EventTypes::CredentialEvent::EventType convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType)
     {
         switch(eventType)
         {
             case Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE:
-                return Common::EventTypes::EventType::authFailure;
+                return Common::EventTypes::CredentialEvent::EventType::authFailure;
             case Sophos::Journal::CredentialsEvent::EventType::AUTH_SUCCESS:
-                return Common::EventTypes::EventType::authSuccess;
+                return Common::EventTypes::CredentialEvent::EventType::authSuccess;
             case Sophos::Journal::CredentialsEvent::EventType::CREATED:
-                return Common::EventTypes::EventType::created;
+                return Common::EventTypes::CredentialEvent::EventType::created;
             case Sophos::Journal::CredentialsEvent::EventType::DELETED:
-                return Common::EventTypes::EventType::deleted;
+                return Common::EventTypes::CredentialEvent::EventType::deleted;
             case Sophos::Journal::CredentialsEvent::EventType::PASSWORD_CHANGE:
-                return Common::EventTypes::EventType::passwordChange;
+                return Common::EventTypes::CredentialEvent::EventType::passwordChange;
             case Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE:
-                return Common::EventTypes::EventType::membershipChange;
+                return Common::EventTypes::CredentialEvent::EventType::membershipChange;
             default:
                 throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::EventType, contained unknown type");
         }
     }
 }
 
-std::unique_ptr<Common::EventTypes::ICredentialEvent> Common::EventTypes::createEmptyCredentialEvent()
-{
-    std::unique_ptr<Common::EventTypes::ICredentialEvent> event{new Common::EventTypesImpl::CredentialEvent};
-    return event;
-}
+//Common::EventTypes::CredentialEvent Common::EventTypes::createEmptyCredentialEvent()
+//{
+//    Common::EventTypes::CredentialEvent event= ;
+//    return event;
+//}
 
-std::unique_ptr<Common::EventTypes::ICredentialEvent> Common::EventTypes::createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::EventType eventType)
+Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::CredentialEvent::EventType eventType)
 {
-    std::unique_ptr<Common::EventTypes::ICredentialEvent> event = createEmptyCredentialEvent();
-    event.get()->setSubjectUserSid(sid);
-    event.get()->setEventType(eventType);
+    Common::EventTypes::CredentialEvent event = CredentialEvent();
+    event.setSubjectUserSid(sid);
+    event.setEventType(eventType);
 
     return event;
 }
 
 namespace Common
 {
-    namespace EventTypesImpl
+    namespace EventTypes
     {
         const std::string CredentialEvent::getEventTypeId() const
         {
             return "Detector.Credentials";
         }
 
-        const Common::EventTypes::SessionType CredentialEvent::getSessionType() const
+        const Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const
         {
             return m_sessionType;
         }
 
-        const Common::EventTypes::EventType CredentialEvent::getEventType() const
+        const Common::EventTypes::CredentialEvent::EventType CredentialEvent::getEventType() const
         {
             return m_eventType;
         }
@@ -163,12 +163,12 @@ namespace Common
             return m_groupName;
         }
 
-        void CredentialEvent::setSessionType(const Common::EventTypes::SessionType sessionType)
+        void CredentialEvent::setSessionType(const Common::EventTypes::CredentialEvent::SessionType sessionType)
         {
             m_sessionType = sessionType;
         }
 
-        void CredentialEvent::setEventType(const Common::EventTypes::EventType eventType)
+        void CredentialEvent::setEventType(const Common::EventTypes::CredentialEvent::EventType eventType)
         {
             m_eventType = eventType;
         }

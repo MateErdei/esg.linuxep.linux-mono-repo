@@ -16,7 +16,7 @@
 namespace Tests
 {
 
-    using namespace Common::EventTypesImpl;
+    using namespace Common::EventTypes;
 
     class TestEventTypeHelper : public ::testing::Test
     {
@@ -24,8 +24,8 @@ namespace Tests
         CredentialEvent createDefaultCredentialEvent()
         {
             CredentialEvent event;
-            event.setEventType(Common::EventTypes::EventType::authFailure);
-            event.setSessionType(Common::EventTypes::SessionType::interactive);
+            event.setEventType(Common::EventTypes::CredentialEvent::EventType::authFailure);
+            event.setSessionType(Common::EventTypes::CredentialEvent::SessionType::interactive);
             event.setLogonId(1000);
             event.setTimestamp(123123123);
             event.setGroupId(1001);
@@ -51,8 +51,8 @@ namespace Tests
 
         ::testing::AssertionResult credentialEventIsEquivalent( const char* m_expr,
                                                                 const char* n_expr,
-                                                                const Common::EventTypes::ICredentialEvent& expected,
-                                                                const Common::EventTypes::ICredentialEvent& resulted)
+                                                                const Common::EventTypes::CredentialEvent expected,
+                                                                const Common::EventTypes::CredentialEvent resulted)
         {
             std::stringstream s;
             s<< m_expr << " and " << n_expr << " failed: ";
@@ -131,7 +131,7 @@ namespace Tests
             connection.destinationAddress.port = 80;
             connection.protocol = 25;
             event.setConnection(connection);
-            event.setEventType(Common::EventTypesImpl::PortScanningEvent::opened);
+            event.setEventType(Common::EventTypes::PortScanningEvent::opened);
             return event;
         }
 
@@ -148,8 +148,8 @@ namespace Tests
 
         ::testing::AssertionResult portScanningEventIsEquivalent( const char* m_expr,
                                                                   const char* n_expr,
-                                                                  const Common::EventTypes::IPortScanningEvent& expected,
-                                                                  const Common::EventTypes::IPortScanningEvent& resulted)
+                                                                  const Common::EventTypes::PortScanningEvent expected,
+                                                                  const Common::EventTypes::PortScanningEvent resulted)
         {
             std::stringstream s;
             s<< m_expr << " and " << n_expr << " failed: ";

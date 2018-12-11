@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IRawDataCallback.h"
-#include <Common/EventTypes/ICredentialEvent.h>
-#include <Common/EventTypes/IPortScanningEvent.h>
+#include <Common/EventTypes/CredentialEvent.h>
+#include <Common/EventTypes/PortScanningEvent.h>
 
 #include <string>
 
@@ -28,8 +28,8 @@ namespace Common
         public :
             virtual ~IEventVisitorCallback() = default;
 
-            virtual void processEvent(Common::EventTypes::ICredentialEventPtr event) = 0;
-            virtual void processEvent(Common::EventTypes::IPortScanningEventPtr event) = 0;
+            virtual void processEvent(Common::EventTypes::CredentialEvent event) = 0;
+            virtual void processEvent(Common::EventTypes::PortScanningEvent event) = 0;
         };
     }
 }

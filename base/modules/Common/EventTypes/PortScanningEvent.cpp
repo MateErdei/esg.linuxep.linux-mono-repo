@@ -17,35 +17,35 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    Sophos::Journal::PortEvent::EventType convertToCapnEventType(Common::EventTypes::IPortScanningEvent::EventType eventType)
+    Sophos::Journal::PortEvent::EventType convertToCapnEventType(Common::EventTypes::PortScanningEvent::EventType eventType)
     {
         switch(eventType)
         {
-            case Common::EventTypes::IPortScanningEvent::EventType::closed:
+            case Common::EventTypes::PortScanningEvent::EventType::closed:
                 return Sophos::Journal::PortEvent::EventType::CLOSED;
-            case Common::EventTypes::IPortScanningEvent::EventType::connected:
+            case Common::EventTypes::PortScanningEvent::EventType::connected:
                 return Sophos::Journal::PortEvent::EventType::CONNECTED;
-            case Common::EventTypes::IPortScanningEvent::EventType::opened:
+            case Common::EventTypes::PortScanningEvent::EventType::opened:
                 return Sophos::Journal::PortEvent::EventType::OPENED;
-            case Common::EventTypes::IPortScanningEvent::EventType::scanned:
+            case Common::EventTypes::PortScanningEvent::EventType::scanned:
                 return Sophos::Journal::PortEvent::EventType::SCANNED;
             default:
                 throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
         }
     }
 
-    Common::EventTypes::IPortScanningEvent::EventType convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType)
+    Common::EventTypes::PortScanningEvent::EventType convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType)
     {
         switch(eventType)
         {
             case Sophos::Journal::PortEvent::EventType::CLOSED:
-                return Common::EventTypes::IPortScanningEvent::EventType::closed;
+                return Common::EventTypes::PortScanningEvent::EventType::closed;
             case Sophos::Journal::PortEvent::EventType::CONNECTED:
-                return Common::EventTypes::IPortScanningEvent::EventType::connected;
+                return Common::EventTypes::PortScanningEvent::EventType::connected;
             case Sophos::Journal::PortEvent::EventType::OPENED:
-                return Common::EventTypes::IPortScanningEvent::EventType::opened;
+                return Common::EventTypes::PortScanningEvent::EventType::opened;
             case Sophos::Journal::PortEvent::EventType::SCANNED:
-                return Common::EventTypes::IPortScanningEvent::EventType::scanned;
+                return Common::EventTypes::PortScanningEvent::EventType::scanned;
             default:
                 throw Common::EventTypes::IEventException("Common::EventTypes::IPortScanningEvent::EventType, contained unknown type");
         }
@@ -53,24 +53,24 @@ namespace
 
 }
 
-std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createEmptyPortScanningEvent()
-{
-    std::unique_ptr<Common::EventTypesImpl::PortScanningEvent> event{new Common::EventTypesImpl::PortScanningEvent};
-    return event;
-}
+//std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createEmptyPortScanningEvent()
+//{
+//    std::unique_ptr<Common::EventTypes::PortScanningEvent> event{new Common::EventTypes::PortScanningEvent};
+//    return event;
+//}
 
-std::unique_ptr<Common::EventTypes::IPortScanningEvent> Common::EventTypes::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::IPortScanningEvent::EventType eventType)
+Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::PortScanningEvent::EventType eventType)
 {
-    std::unique_ptr<Common::EventTypes::IPortScanningEvent> event = createEmptyPortScanningEvent();
-    event.get()->setConnection(ipFlow);
-    event.get()->setEventType(eventType);
+    Common::EventTypes::PortScanningEvent event = PortScanningEvent();
+    event.setConnection(ipFlow);
+    event.setEventType(eventType);
 
     return event;
 }
 
 namespace Common
 {
-    namespace EventTypesImpl
+    namespace EventTypes
     {
 
 
@@ -79,7 +79,7 @@ namespace Common
             return "Detector.PortScanning";
         }
 
-        EventTypes::IPortScanningEvent::EventType PortScanningEvent::getEventType() const
+        EventTypes::PortScanningEvent::EventType PortScanningEvent::getEventType() const
         {
             return m_eventType;
         }
@@ -89,7 +89,7 @@ namespace Common
             return m_connection;
         }
 
-        void PortScanningEvent::setEventType(EventTypes::IPortScanningEvent::EventType m_eventType)
+        void PortScanningEvent::setEventType(EventTypes::PortScanningEvent::EventType m_eventType)
         {
             PortScanningEvent::m_eventType = m_eventType;
         }

@@ -7,26 +7,35 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "CommonEventData.h"
-#include "IPortScanningEvent.h"
+#include "IEventType.h"
 
 
 namespace Common
 {
-    namespace EventTypesImpl
+    namespace EventTypes
     {
-        class PortScanningEvent : public Common::EventTypes::IPortScanningEvent
+
+    class PortScanningEvent : public Common::EventTypes::IEventType
         {
         public:
+
+        enum EventType
+        {
+            opened = 0,
+            closed = 1,
+            connected = 2,
+            scanned = 3
+        };
             PortScanningEvent() = default;
             ~PortScanningEvent() = default;
 
 
             const std::string getEventTypeId() const override;
-            EventType getEventType() const override;
-            const EventTypes::IpFlow& getConnection() const override;
+            EventType getEventType() const;
+            const EventTypes::IpFlow& getConnection() const;
 
-            void setEventType(EventType m_eventType) override;
-            void setConnection(const EventTypes::IpFlow& m_connection) override;
+            void setEventType(EventType m_eventType);
+            void setConnection(const EventTypes::IpFlow& m_connection);
 
             const std::string toString() const override;
             /**
@@ -37,10 +46,11 @@ namespace Common
             void fromString(const std::string& objectAsString);
 
         private:
-            Common::EventTypes::IPortScanningEvent::EventType m_eventType;
+            EventType m_eventType;
             Common::EventTypes::IpFlow m_connection;
         };
 
+        Common::EventTypes::PortScanningEvent createPortScanningEvent(EventTypes::IpFlow& ipFlow, Common::EventTypes::PortScanningEvent::EventType eventType);
     }
 
 }
