@@ -10,8 +10,8 @@
 #include "gtest/gtest.h"
 #include "TempDir.h"
 
-#include <Common/EventTypesImpl/CredentialEvent.h>
-#include <Common/EventTypesImpl/PortScanningEvent.h>
+#include <Common/EventTypes/CredentialEvent.h>
+#include <Common/EventTypes/PortScanningEvent.h>
 
 namespace Tests
 {

@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/EventTypes/CommonEventData.h>
-#include <Common/EventTypes/ICredentialEvent.h>
+#include "CommonEventData.h"
+#include "ICredentialEvent.h"
 
 namespace Common
 {

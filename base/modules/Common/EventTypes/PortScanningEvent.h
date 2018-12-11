@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/EventTypes/CommonEventData.h>
-#include <Common/EventTypes/IPortScanningEvent.h>
+#include "CommonEventData.h"
+#include "IPortScanningEvent.h"
 
 
 namespace Common

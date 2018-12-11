@@ -10,10 +10,10 @@ add_library(eventtypesimplobject OBJECT
         ../EventTypes/IEventException.h
         ../EventTypes/IEventConverter.h
         ../EventTypes/IPortScanningEvent.h
-        CredentialEvent.h
-        CredentialEvent.cpp
-        PortScanningEvent.cpp
-        PortScanningEvent.h
+        ../EventTypes/CredentialEvent.h
+        ../EventTypes/CredentialEvent.cpp
+        ../EventTypes/PortScanningEvent.cpp
+        ../EventTypes/PortScanningEvent.h
         EventConverter.h
         EventConverter.cpp
         ${CapNGeneratedFilesHeaders}

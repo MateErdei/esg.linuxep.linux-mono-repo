@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 
-#include <Common/EventTypesImpl/PortScanningEvent.h>
+#include <Common/EventTypes/PortScanningEvent.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 

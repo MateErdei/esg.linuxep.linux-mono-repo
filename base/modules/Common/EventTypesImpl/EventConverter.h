@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "CredentialEvent.h"
-#include "PortScanningEvent.h"
+#include "Common/EventTypes/CredentialEvent.h"
+#include "Common/EventTypes/PortScanningEvent.h"
 
 #include <Common/EventTypes/IEventType.h>
 #include <Common/EventTypes/IEventConverter.h>

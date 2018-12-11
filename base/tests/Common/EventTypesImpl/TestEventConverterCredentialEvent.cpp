@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 
-#include <Common/EventTypesImpl/CredentialEvent.h>
+#include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
