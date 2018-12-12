@@ -116,6 +116,25 @@ public:
 
 };
 
+class FakeDataDealer : public AbstractEventVisitor
+{
+public:
+    explicit FakeDataDealer(Common::Threads::NotifyPipe & notify)
+            :m_dataReceived{false}, m_notify{notify} {}
+
+    std::atomic<bool> m_dataReceived;
+    std::string m_data;
+    Common::Threads::NotifyPipe& m_notify;
+
+    void receiveData(const std::string& key, const std::string& data) override{
+        if( m_dataReceived) return;
+
+        m_data = data;
+        m_dataReceived = true;
+        m_notify.notify();
+    }
+};
+
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
@@ -159,6 +178,32 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData) //NO
     rawDataPublisher->sendData("Detector.Credentials2", data3.second);
 
     EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000)); //NOLINT
+}
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveRawData) //NOLINT
+{
+    Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
+    Common::Threads::NotifyPipe notify;
+
+    std::string random = "RandomString";
+    std::shared_ptr<FakeDataDealer> rawDataCallback = std::make_shared<FakeDataDealer>(notify);
+    setupPubSub("RawData",rawDataCallback);
+
+    std::pair<std::string, std::string> data;
+    data.first="RawData";
+    data.second= random;
+
+    int count = 0;
+    while( !notify.notified())
+    {
+        rawDataPublisher->sendData(data.first, data.second);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(3*(count+1)));
+        count++;
+        ASSERT_TRUE(count < 10);
+    }
+
+    EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000)); //NOLINT
+    EXPECT_EQ(random,rawDataCallback->m_data);
 }
 
 TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialData) //NOLINT
