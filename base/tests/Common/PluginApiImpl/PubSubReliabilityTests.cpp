@@ -46,9 +46,9 @@ class TrackSensorDataCallback: public Common::PluginApi::IRawDataCallback
 
 public:
     std::unordered_map<std::string, std::vector<int> > trackReceivedData;
-    std::function<void(std::string)> m_extraCallback;
+    std::function<void(int)> m_extraCallback;
     std::mutex mutex;
-    explicit TrackSensorDataCallback(std::function<void(std::string)> extraCallback = [](std::string){}) :
+    explicit TrackSensorDataCallback(std::function<void(int)> extraCallback = [](int){}) :
         trackReceivedData(), m_extraCallback(std::move(extraCallback))
     {
 
@@ -101,91 +101,89 @@ public:
     }
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;
-//
-//TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
-//{
-//    PluginResourceManagement pluginResourceManagement;
-//    Tests::TestEventTypeHelper* testEvent;
-//    Common::EventTypes::PortScanningEvent portevent = testEvent->createDefaultPortScanningEvent() ;
-//    auto connection = portevent.getConnection();
-//    std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>();
-//    std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
-//
-//    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackBefore);
-//    sensorDataSubscriber->start();
-//
-//    auto future_pub = std::async(std::launch::async, [&pluginResourceManagement,&portevent,&connection](){
-//        auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
-//        for( int i = 0 ; i< 1000; i++)
-//        {
-//            connection.sourceAddress.port=i;
-//            portevent.setConnection(connection);
-//            sensorDataPublisher->sendData("Detector.PortScanning",portevent.toString());
-//            std::this_thread::sleep_for(std::chrono::milliseconds(2));
-//        }
-//        return true;
-//    });
-//
-//    std::this_thread::sleep_for(std::chrono::milliseconds(600));
-//    // crash subscriber and return it.
-//    sensorDataSubscriber.reset();
-//    sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackAfter);
-//    sensorDataSubscriber->start();
-//
-//    EXPECT_TRUE(future_pub.get());
-//    sensorDataSubscriber.reset();
-//
-//    // expectations:
-//    EXPECT_EQ(trackBefore->trackReceivedData.size(), 1) ;
-//    std::vector<int> receivedData = trackBefore->trackReceivedData["Detector.PortScanning"];
-//    ASSERT_GT(receivedData.size(), 0);
-//    // every entry in the received data is the previous + 1
-//    int firstEntry = receivedData.at(0);
-//    for( size_t i =0; i< receivedData.size(); i++)
-//    {
-//        int expectedValue = firstEntry + i;
-//        if ( i == 1)
-//        {
-//            int a = 1;
-//        }
-//        EXPECT_EQ(expectedValue, receivedData.at(i)) << "Iteration: " << i ;
-//    }
-//
-//    EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
-//    std::vector<int> receivedAfter = trackAfter->trackReceivedData["Detector.PortScanning"];
-//    ASSERT_GT(receivedAfter.size(), 0);
-//    // every entry in the received data is the previous + 1
-//    firstEntry = receivedAfter.at(0);
-//    for( size_t i =0; i< receivedAfter.size(); i++)
-//    {
-//        int expectedValue = firstEntry + i;
-//        EXPECT_EQ(expectedValue, receivedAfter.at(i));
-//    }
-//
-//    int lastEntryFirst = receivedData.at(receivedData.size()-1);
-//    int firstEntryLast = receivedAfter.at(0);
-//    EXPECT_LT( lastEntryFirst, firstEntryLast);
-//    int lastEntryLast = receivedAfter.at(receivedAfter.size()-1);
-//    EXPECT_GT(lastEntryLast, 990);
-//
-//}
+
+TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
+{
+    PluginResourceManagement pluginResourceManagement;
+    Tests::TestEventTypeHelper* testEvent;
+    Common::EventTypes::PortScanningEvent portevent = testEvent->createDefaultPortScanningEvent() ;
+    auto connection = portevent.getConnection();
+
+    std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>();
+    std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
+
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackBefore);
+    sensorDataSubscriber->start();
+
+    auto future_pub = std::async(std::launch::async, [&pluginResourceManagement,&portevent,&connection](){
+        auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
+        for( int i = 0 ; i< 1000; i++)
+        {
+            connection.sourceAddress.port=i;
+            portevent.setConnection(connection);
+            sensorDataPublisher->sendData("Detector.PortScanning",portevent.toString());
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        return true;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    // crash subscriber and return it.
+    sensorDataSubscriber.reset();
+    sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackAfter);
+    sensorDataSubscriber->start();
+
+    EXPECT_TRUE(future_pub.get());
+    sensorDataSubscriber.reset();
+
+    // expectations:
+    EXPECT_EQ(trackBefore->trackReceivedData.size(), 1) ;
+    std::vector<int> receivedData = trackBefore->trackReceivedData["Detector.PortScanning"];
+    ASSERT_GT(receivedData.size(), 0);
+    // every entry in the received data is the previous + 1
+    int firstEntry = receivedData.at(0);
+    for( size_t i =0; i< receivedData.size(); i++)
+    {
+        int expectedValue = firstEntry + i;
+        if ( i == 1)
+        EXPECT_EQ(expectedValue, receivedData.at(i)) << "Iteration: " << i ;
+    }
+
+    EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
+    std::vector<int> receivedAfter = trackAfter->trackReceivedData["Detector.PortScanning"];
+    ASSERT_GT(receivedAfter.size(), 0);
+    // every entry in the received data is the previous + 1
+    firstEntry = receivedAfter.at(0);
+    for( size_t i =0; i< receivedAfter.size(); i++)
+    {
+        int expectedValue = firstEntry + i;
+        EXPECT_EQ(expectedValue, receivedAfter.at(i));
+    }
+
+    int lastEntryFirst = receivedData.at(receivedData.size()-1);
+    int firstEntryLast = receivedAfter.at(0);
+    EXPECT_LT( lastEntryFirst, firstEntryLast);
+    int lastEntryLast = receivedAfter.at(receivedAfter.size()-1);
+    EXPECT_GT(lastEntryLast, 990);
+
+}
 
 
 TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAndComeBack)  // NOLINT
 {
     PluginResourceManagement pluginResourceManagement;
     Tests::TestExecutionSynchronizer markReached;
-    std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>([&markReached](std::string data){
-        Common::EventTypes::EventConverter converter;
-        Common::EventTypes::PortScanningEvent event = *converter.createEventFromString<Common::EventTypes::PortScanningEvent>(data).get();
-        if( event.getConnection().sourceAddress.port == 150)
+    std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>([&markReached](int data){
+        if( data == 150)
         {
             markReached.notify();
         }
     });
+
     Tests::TestEventTypeHelper* testEvent;
     Common::EventTypes::PortScanningEvent portevent = testEvent->createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
+
     std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackBefore);
     sensorDataSubscriber->start();
 
