@@ -20,6 +20,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <Common/TestHelpers/TempDir.h>
+#include <Common/TestHelpers/TestEventTypeHelper.h>
+#include <Common/EventTypesImpl/EventConverter.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -41,7 +43,7 @@ using ::testing::Invoke;
 
 
 
-class TrackSensorDataCallback: public Common::PluginApi::IRawDataCallback
+class TrackSensorDataCallback : public Common::PluginApi::IEventVisitorCallback
 {
 
 public:
@@ -53,18 +55,25 @@ public:
     {
 
     }
-    void receiveData( const std::string & key, const std::string & data) override
+    void processEvent(Common::EventTypes::CredentialEvent event) override
     {
-        auto found = trackReceivedData.find(key);
+        // not using CredentialEvent for these tests as PortScanning is lighterweight
+    }
+
+    void processEvent(Common::EventTypes::PortScanningEvent event) override
+    {
+        std::lock_guard guard{mutex};
+        auto found = trackReceivedData.find("Detector.PortScanning");
         if ( found == trackReceivedData.end())
         {
-            trackReceivedData.emplace_hint(found, key, std::vector<std::string>{data});
+            int portNumber =event.getConnection().sourceAddress.port;
+            trackReceivedData.emplace_hint(found, "Detector.PortScanning", std::vector<int>{portNumber} );
         }
         else
         {
-            found->second.emplace_back(data);
+            found->second.emplace_back(event.getConnection().sourceAddress.port);
         }
-        m_extraCallback(data);
+        m_extraCallback(event.getConnection().sourceAddress.port);
     }
 };
 
