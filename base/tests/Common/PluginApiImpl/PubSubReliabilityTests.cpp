@@ -4,8 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockEventVisitorCallback.h"
-
 #include "TestExecutionSynchronizer.h"
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>

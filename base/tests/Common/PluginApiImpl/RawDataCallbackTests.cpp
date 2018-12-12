@@ -4,10 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockEventVisitorCallback.h"
 #include "TestExecutionSynchronizer.h"
 
-#include <Common/EventTypesImpl/EventConverter.h>
+#include <Common/EventTypes/IEventConverter.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
