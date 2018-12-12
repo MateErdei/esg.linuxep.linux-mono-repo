@@ -9,14 +9,26 @@ platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
 
 ########################################################################################################################
 #
-#   Payloads
+#   Payloads (Including Auditd Rules)
 #
 ########################################################################################################################
 
 add_user = """
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+
 useradd testuser
 """
 delete_user = """
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+
 useradd testuser
 clearLogs
 userdel -r testuser &> /dev/null
@@ -85,9 +97,10 @@ cp /root/AuditEvents.bin.tmp ${{REMOTE_DIR}}/{filePrefix}AuditEvents.bin
 cat /var/log/audit/audit.log > ${{REMOTE_DIR}}/{filePrefix}AuditEvents.log
 ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 
-#Clean-up
+# Clean-up - Delete users/groups and remove auditctl rules
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
+auditctl -D &> /dev/null
 
 popd
 """
@@ -136,7 +149,7 @@ def find_vagrant_root(start_from_dir):
 def check_vagrant_up_and_running():
     output = sp.check_output(['/usr/bin/vagrant', 'status'])
     if b'running' not in output:
-        print ('starting up vagrant')
+        print('starting up vagrant')
         sp.call(['/usr/bin/vagrant', 'up'])
 
 
@@ -144,8 +157,8 @@ def vagrant_rsync(platform):
     sp.call(['/usr/bin/vagrant', 'rsync', platform])
 
 
-def vagrant_pull_data(platform, localPath):
-    sp.call(['/usr/bin/vagrant', 'scp',  f"{platform}:/vagrant/auditd-output/{platform}/*", localPath], stdout=sp.PIPE)
+def vagrant_pull_data(platform, localPath, filePrefix):
+    sp.call(['/usr/bin/vagrant', 'scp',  f"{platform}:/vagrant/auditd-output/{platform}/{filePrefix}*", localPath], stdout=sp.PIPE)
 
 
 def vagrant_run(platform, bashString):
@@ -195,7 +208,7 @@ def main():
             run_payload(platform, filePrefix, payload, remotedir)
 
             if platform == "amazon_linux":
-                vagrant_pull_data(platform, newPath)
+                vagrant_pull_data(platform, newPath, filePrefix)
 
         os.chdir(currdir)
 
