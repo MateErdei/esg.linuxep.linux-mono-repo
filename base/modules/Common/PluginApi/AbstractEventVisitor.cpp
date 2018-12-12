@@ -19,17 +19,14 @@ namespace Common
 
         void AbstractEventVisitor::processEvent(Common::EventTypes::CredentialEvent)
         {
-            LOGERROR("Unexpected CredentialEvent received");
         }
 
         void AbstractEventVisitor::processEvent(Common::EventTypes::PortScanningEvent)
         {
-            LOGERROR("Unexpected PortScanningEvent received");
         }
 
         void AbstractEventVisitor::receiveData(const std::string& key, const std::string&)
         {
-            LOGERROR("Unknown event received, received event id = '" << key << "'");
         }
     }
 }

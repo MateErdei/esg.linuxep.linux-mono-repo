@@ -25,7 +25,7 @@ namespace Common
              * Converts event object to a capn byte string.
              * @return string of bytes representing capn object.
              */
-            virtual const std::string toString() const = 0;
+            virtual std::string toString() const = 0;
         };
     }
 }
