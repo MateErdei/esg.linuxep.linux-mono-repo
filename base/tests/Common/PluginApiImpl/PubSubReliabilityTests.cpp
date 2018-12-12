@@ -77,7 +77,7 @@ public:
     }
 };
 
-class PubSubTests : public ::testing::Test
+class PubSubTests : public Tests::TestEventTypeHelper
 {
 public:
     static std::unique_ptr<TempDir> tempDir;
@@ -114,8 +114,7 @@ std::unique_ptr<TempDir> PubSubTests::tempDir;
 TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
 {
     PluginResourceManagement pluginResourceManagement;
-    Tests::TestEventTypeHelper* testEvent;
-    Common::EventTypes::PortScanningEvent portevent = testEvent->createDefaultPortScanningEvent() ;
+    Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
 
     std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>();
@@ -154,8 +153,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     for( size_t i =0; i< receivedData.size(); i++)
     {
         int expectedValue = firstEntry + i;
-        if ( i == 1)
-        EXPECT_EQ(expectedValue, receivedData.at(i)) << "Iteration: " << i ;
+        EXPECT_EQ(expectedValue, receivedData.at(i));
     }
 
     EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
@@ -189,8 +187,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
         }
     });
 
-    Tests::TestEventTypeHelper* testEvent;
-    Common::EventTypes::PortScanningEvent portevent = testEvent->createDefaultPortScanningEvent() ;
+    Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
 
     std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber("Detector.PortScanning", trackBefore);

@@ -61,9 +61,9 @@ public:
         subscriber.reset();
     }
 
-    void setupPubSub(std::string eventTypeId, std::shared_ptr<IEventVisitorCallback> rawCallback)
+    void setupPubSub(const std::string& eventTypeId, std::shared_ptr<IEventVisitorCallback> rawCallback)
     {
-        subscriber = pluginResourceManagement.createSubscriber(eventTypeId, rawCallback);
+        subscriber = pluginResourceManagement.createSubscriber(eventTypeId, std::move(rawCallback));
         subscriber->start();
         rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
     }
@@ -79,7 +79,8 @@ public:
 class FakePortScanningDealer : public AbstractEventVisitor
 {
 public:
-    FakePortScanningDealer(Common::Threads::NotifyPipe & notify):m_event(Common::EventTypes::PortScanningEvent()), m_eventReceived{false}, m_notify{notify} {}
+    explicit FakePortScanningDealer(Common::Threads::NotifyPipe & notify)
+        : m_event(Common::EventTypes::PortScanningEvent()), m_eventReceived{false}, m_notify{notify} {}
     Common::EventTypes::PortScanningEvent  m_event;
     std::atomic<bool> m_eventReceived;
     Common::Threads::NotifyPipe m_notify;
@@ -88,7 +89,7 @@ public:
     {
         if( m_eventReceived) return;
 
-        m_event =  std::move(portScanningEvent);
+        m_event = portScanningEvent;
         m_eventReceived = true;
         m_notify.notify();
     }
@@ -97,7 +98,7 @@ public:
 class FakeCredentialsDealer : public AbstractEventVisitor
 {
 public:
-    FakeCredentialsDealer(Common::Threads::NotifyPipe & notify)
+    explicit FakeCredentialsDealer(Common::Threads::NotifyPipe & notify)
             : m_event(Common::EventTypes::CredentialEvent()), m_eventReceived{false}, m_notify{notify} {}
 
     Common::EventTypes::CredentialEvent m_event;
@@ -108,14 +109,14 @@ public:
     {
         if( m_eventReceived) return;
 
-        m_event =  std::move(credentialEvent);
+        m_event = credentialEvent;
         m_eventReceived = true;
         m_notify.notify();
     }
 
 };
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
@@ -164,10 +165,10 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData)
     rawDataPublisher->sendData("anyOtherKey", "willNotBeReceived");
     rawDataPublisher->sendData("Detector.Credentials2", data3.second);
 
-    EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000));
+    EXPECT_NO_THROW(testExecutionSynchronizer.waitfor(3000)); //NOLINT
 }
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialData)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialData) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
@@ -193,7 +194,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, credentialCallback->m_event);
 }
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningData)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningData) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
@@ -219,7 +220,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
 }
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningDataUsingInterface)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningDataUsingInterface) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
@@ -248,7 +249,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
 }
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningEventUsingInterface)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanningEventUsingInterface) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
@@ -274,7 +275,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, portScanningCallback->m_event);
 }
 
-TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialEventUsingInterface)
+TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredentialEventUsingInterface) //NOLINT
 {
     Tests::TestExecutionSynchronizer testExecutionSynchronizer(2);
     Common::Threads::NotifyPipe notify;
