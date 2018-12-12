@@ -8,16 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/IEventConverter.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/AbstractEventVisitor.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/PluginProtocol/MessageBuilder.h>
-#include <Common/PluginProtocol/Protocol.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/TestHelpers/TestEventTypeHelper.h>
 
@@ -70,7 +64,6 @@ public:
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
     PluginResourceManagement pluginResourceManagement;
 
-    std::shared_ptr<IEventVisitorCallback> mockRawDataCallback;
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
     std::unique_ptr<Common::PluginApi::ISubscriber> subscriber;
 };
