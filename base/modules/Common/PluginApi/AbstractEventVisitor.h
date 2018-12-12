@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginApi
     {
     class AbstractEventVisitor : public virtual Common::PluginApi::IEventVisitorCallback
         {

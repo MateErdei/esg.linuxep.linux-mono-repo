@@ -93,8 +93,7 @@ namespace Common
             PortScanningEvent::m_connection = m_connection;
         }
 
-
-        const std::string PortScanningEvent::toString() const
+        std::string PortScanningEvent::toString() const
         {
             ::capnp::MallocMessageBuilder message;
             Sophos::Journal::PortEvent::Builder portEvent = message.initRoot<Sophos::Journal::PortEvent>();

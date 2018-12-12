@@ -14,7 +14,7 @@ using namespace Common::EventTypes;
 
 namespace Common
 {
-    namespace PluginApiImpl
+    namespace PluginApi
     {
 
         void AbstractEventVisitor::processEvent(Common::EventTypes::CredentialEvent)
