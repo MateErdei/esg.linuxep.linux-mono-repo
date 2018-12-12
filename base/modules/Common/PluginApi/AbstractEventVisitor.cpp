@@ -27,6 +27,7 @@ namespace Common
 
         void AbstractEventVisitor::receiveData(const std::string& key, const std::string&)
         {
+            LOGERROR("Unknown event received, received event id = '" << key << "'");
         }
     }
 }
