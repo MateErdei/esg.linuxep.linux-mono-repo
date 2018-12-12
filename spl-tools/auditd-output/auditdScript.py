@@ -212,6 +212,8 @@ def main():
 
         os.chdir(currdir)
 
+    sp.call(['vagrant', 'suspend'])
+
 
 if __name__ == "__main__":
     currdir = os.path.abspath(os.getcwd())
