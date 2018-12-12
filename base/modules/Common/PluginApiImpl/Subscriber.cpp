@@ -90,6 +90,7 @@ namespace Common
         {
             LOGSUPPORT("Stopping SensorDataSubscriber reactor");
             m_reactor->stop();
+            m_reactor->join(); 
         }
 
     }

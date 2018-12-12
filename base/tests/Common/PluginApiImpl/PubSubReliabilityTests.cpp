@@ -215,7 +215,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
         sensorDataPublisher->sendData("Detector.PortScanning",portevent.toString());
     }
 
-    ASSERT_TRUE( markReached.waitfor(1000)); // demonstrate that subscriber received 150 which is after the crash. L
+    ASSERT_TRUE( markReached.waitfor(1000)); // demonstrate that subscriber received 150 which is after the crash.
     sensorDataSubscriber.reset();
     // expectations:
     EXPECT_EQ(trackBefore->trackReceivedData.size(), 1) ;
