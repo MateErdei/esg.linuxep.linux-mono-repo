@@ -124,28 +124,21 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData) //NO
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
     setupPubSub("Detector.Credentials",credentialCallback);
 
-    Common::EventTypes::EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
 
     Common::EventTypes::CredentialEvent eventExpected = createDefaultCredentialEvent();
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
     Common::EventTypes::CredentialEvent eventExpected2 = createDefaultCredentialEvent();
     eventExpected2.setGroupId(1002);
     eventExpected2.setGroupName("TestGroup2");
-    std::pair<std::string, std::string> data2 = converter.eventToString(&eventExpected2);
+    std::pair<std::string, std::string> data2 = converter->eventToString(&eventExpected2);
 
     Common::EventTypes::CredentialEvent eventExpected3 = createDefaultCredentialEvent();
     eventExpected2.setGroupId(1003);
     eventExpected2.setGroupName("TestGroup3");
-    std::pair<std::string, std::string> data3 = converter.eventToString(&eventExpected2);
+    std::pair<std::string, std::string> data3 = converter->eventToString(&eventExpected2);
 
-//    EXPECT_CALL(*mockRawDataCallback, receiveData(data.first, data.second)).Times(AtLeast(1)).WillRepeatedly(
-//            Invoke([&notify](const std::string &, const std::string & ){notify.notify();})
-//    );
-//
-//    EXPECT_CALL(*mockRawDataCallback, receiveData("Detector.Credentials2", _ )).Times(2).WillRepeatedly(
-//            Invoke([&testExecutionSynchronizer](const std::string &, const std::string & ){testExecutionSynchronizer.notify();})
-//    );
     /*It is documented that the subscriber will not receive data if the publisher sends data
      * before the subscription is in place. Hence, the test has a sync phase. In it the subscription is first ensured to be
      * working via multiples delay to receive the first message 'ensureSubscriptionStarted'
@@ -176,9 +169,9 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
     setupPubSub("Detector.Credentials",credentialCallback);
 
-    Common::EventTypes::EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     Common::EventTypes::CredentialEvent eventExpected = createDefaultCredentialEvent();
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
     rawDataPublisher->sendData(data.first, data.second);
 
@@ -202,9 +195,9 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
     setupPubSub("Detector.PortScanning",portScanningCallback);
 
-    Common::EventTypes::EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     Common::EventTypes::PortScanningEvent eventExpected = createDefaultPortScanningEvent();
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
     rawDataPublisher->sendData(data.first, data.second);
 
@@ -233,8 +226,8 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::EventTypes::IpFlow ipFlow = createDefaultIpFlow();
     Common::EventTypes::PortScanningEvent eventExpected = Common::EventTypes::createPortScanningEvent(ipFlow,eventType);
 
-    Common::EventTypes::EventConverter converter;
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
     rawDataPublisher->sendData(data.first, data.second);
 
     int count = 0;

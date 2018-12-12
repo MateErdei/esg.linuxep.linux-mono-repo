@@ -9,6 +9,8 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/StatusInfo.h
         ../PluginApi/AbstractEventVisitor.h
         ../PluginApi/AbstractEventVisitor.cpp
+        ../PluginApi/Logger.cpp
+        ../PluginApi/Logger.h
         BaseServiceAPI.cpp
         BaseServiceAPI.h
         PluginCallBackHandler.cpp

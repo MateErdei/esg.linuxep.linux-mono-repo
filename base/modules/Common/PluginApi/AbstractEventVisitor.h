@@ -14,14 +14,14 @@ namespace Common
 {
     namespace PluginApiImpl
     {
-
     class AbstractEventVisitor : public virtual Common::PluginApi::IEventVisitorCallback
         {
         public:
             virtual ~AbstractEventVisitor() = default;
 
-            virtual void processEvent(Common::EventTypes::CredentialEvent event) override;
-            virtual void processEvent(Common::EventTypes::PortScanningEvent event) override;
+            void processEvent(Common::EventTypes::CredentialEvent event) override;
+            void processEvent(Common::EventTypes::PortScanningEvent event) override;
+            void receiveData(const std::string& key, const std::string& data) override;
         };
     }
 }

@@ -21,34 +21,36 @@ public:
 
 };
 
-
 TEST_F(TestEventConverterPortScanningEvent, testConstructorDoesNotThrow) //NOLINT
 {
-    EXPECT_NO_THROW(EventConverter eventConverter;);
+    std::unique_ptr<Common::EventTypes::IEventConverter> p;
+    EXPECT_NO_THROW(p = Common::EventTypes::constructEventConverter();); //NOLINT
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
 {
-    EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
-    auto eventActual = EventConverter::createEventFromString<PortScanningEvent>(data.second);
+    auto eventActual = converter->stringToPortScanningEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, *eventActual);
+    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, eventActual);
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreatePortScanningEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>("Not Valid Capn String"), Common::EventTypes::IEventException);
+    EXPECT_THROW(converter->stringToPortScanningEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
 }
 
 TEST_F(TestEventConverterPortScanningEvent, testcreatePortScanningFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
 {
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(EventConverter::createEventFromString<PortScanningEvent>(""), Common::EventTypes::IEventException);
+    EXPECT_THROW(converter->stringToPortScanningEvent(""), Common::EventTypes::IEventException); //NOLINT
 }

@@ -6,10 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IRawDataCallback.h"
-
-#include <Common/EventTypes/CredentialEvent.h>
-#include <Common/EventTypes/PortScanningEvent.h>
 
 #include <string>
 
@@ -24,13 +20,17 @@ namespace Common
          * When data arrives in the ISubscriber that data will be forwarded to the
          * ::receiveData method of this callback.
          */
-        class IEventVisitorCallback : public virtual IRawDataCallback
+        class IRawDataCallback
         {
-        public :
-            virtual ~IEventVisitorCallback() = default;
+        public:
+            virtual ~IRawDataCallback() = default;
 
-            virtual void processEvent(Common::EventTypes::CredentialEvent event) = 0;
-            virtual void processEvent(Common::EventTypes::PortScanningEvent event) = 0;
+            /**
+             * It is via this method that the ISubscriber will pass data new subscription data.
+             * @param key This is the rawDataCategory as emitted by the publisher ( @see IRawDataPublisher::sendData)
+             * @param data The data content. It is meant to be a json (binary or string) containing relevant information.
+             */
+            virtual void receiveData(const std::string& key, const std::string& data) = 0;
         };
     }
 }

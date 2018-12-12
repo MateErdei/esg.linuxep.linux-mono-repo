@@ -42,8 +42,7 @@ using ::testing::StrictMock;
 using ::testing::Invoke;
 
 
-
-class TrackSensorDataCallback : public Common::PluginApi::IEventVisitorCallback
+class TrackSensorDataCallback : public virtual Common::PluginApi::IEventVisitorCallback
 {
 
 public:
@@ -55,6 +54,11 @@ public:
     {
 
     }
+
+    void receiveData(const std::string& key, const std::string& data) override
+    {
+    }
+
     void processEvent(Common::EventTypes::CredentialEvent event) override
     {
         // not using CredentialEvent for these tests as PortScanning is lighterweight
@@ -125,7 +129,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 
     auto future_pub = std::async(std::launch::async, [&pluginResourceManagement,&portevent,&connection](){
         auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
-        for( int i = 0 ; i< 1000; i++)
+        for( unsigned int i = 0 ; i< 1000; i++)
         {
             connection.sourceAddress.port=i;
             portevent.setConnection(connection);
@@ -152,7 +156,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     int firstEntry = receivedData.at(0);
     for( size_t i =0; i< receivedData.size(); i++)
     {
-        int expectedValue = firstEntry + i;
+        size_t expectedValue = firstEntry + i;
         EXPECT_EQ(expectedValue, receivedData.at(i));
     }
 
@@ -163,7 +167,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     firstEntry = receivedAfter.at(0);
     for( size_t i =0; i< receivedAfter.size(); i++)
     {
-        int expectedValue = firstEntry + i;
+        size_t expectedValue = firstEntry + i;
         EXPECT_EQ(expectedValue, receivedAfter.at(i));
     }
 
@@ -196,7 +200,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
 
     auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    for( int i = 0 ; i< 100; i++)
+    for( unsigned int i = 0 ; i< 100; i++)
     {
         connection.sourceAddress.port=i;
         portevent.setConnection(connection);
@@ -206,7 +210,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     sensorDataPublisher.reset(); // simulation of crashes.
     sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    for( int i = 100 ; i< 200; i++)
+    for( unsigned int i = 100 ; i< 200; i++)
     {
         connection.sourceAddress.port=i;
         portevent.setConnection(connection);

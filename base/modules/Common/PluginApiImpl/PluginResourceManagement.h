@@ -25,6 +25,9 @@ namespace Common
             std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(const std::string & sensorDataCategorySubscription,
                                                                                                  std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override ;
 
+            std::unique_ptr<PluginApi::ISubscriber> createRawSubscriber(const std::string& dataCategorySubscription,
+                                                                     std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback) override;
+
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs) ;
             void setDefaultConnectTimeout(int timeoutMs) ;

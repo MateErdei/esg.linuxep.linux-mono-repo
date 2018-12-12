@@ -98,14 +98,26 @@ namespace Common
 
         std::unique_ptr<Common::PluginApi::ISubscriber>
         PluginResourceManagement::createSubscriber(const std::string &dataCategorySubscription,
-                                                             std::shared_ptr<Common::PluginApi::IEventVisitorCallback> rawDataCallback)
+                                                             std::shared_ptr<Common::PluginApi::IEventVisitorCallback> eventCallback)
         {
             auto socketSubscriber = m_contextPtr->getSubscriber();
             setTimeouts(*socketSubscriber);
             std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
             socketSubscriber->listen(subscriberAddressChannel);
 
-            return std::unique_ptr<PluginApi::ISubscriber>( new SensorDataSubscriber( dataCategorySubscription, rawDataCallback, std::move(socketSubscriber) ));
+            return std::unique_ptr<PluginApi::ISubscriber>( new SensorDataSubscriber( dataCategorySubscription, std::move(eventCallback), std::move(socketSubscriber) ));
+        }
+
+        std::unique_ptr<PluginApi::ISubscriber>
+        PluginResourceManagement::createRawSubscriber(const std::string& dataCategorySubscription,
+                                                   std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback)
+        {
+            auto socketSubscriber = m_contextPtr->getSubscriber();
+            setTimeouts(*socketSubscriber);
+            std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
+            socketSubscriber->listen(subscriberAddressChannel);
+
+            return std::unique_ptr<PluginApi::ISubscriber>( new SensorDataSubscriber( dataCategorySubscription, std::move(rawDataCallback), std::move(socketSubscriber) ));
         }
 
         void PluginResourceManagement::setDefaultTimeout(int timeoutMs)
@@ -129,6 +141,7 @@ namespace Common
         {
             return m_contextPtr;
         }
+
 
     }
 }

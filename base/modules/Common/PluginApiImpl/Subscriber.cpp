@@ -19,8 +19,24 @@ namespace Common
     {
         SensorDataSubscriber::SensorDataSubscriber(const std::string &sensorDataCategorySubscription,
                                                    std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback,
-                                                   Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber):
-        m_socketSubscriber(std::move(socketSubscriber)), m_reactor(Common::Reactor::createReactor()), m_sensorDataCallback(sensorDataCallback)
+                                                   Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber)
+               :
+                    m_socketSubscriber(std::move(socketSubscriber)),
+                    m_reactor(Common::Reactor::createReactor()),
+                    m_sensorDataCallback(std::move(sensorDataCallback)),
+                    m_converter(Common::EventTypes::constructEventConverter())
+        {
+            m_socketSubscriber->subscribeTo(sensorDataCategorySubscription);
+            m_reactor->addListener(m_socketSubscriber.get(), this);
+        }
+
+        SensorDataSubscriber::SensorDataSubscriber(const std::string& sensorDataCategorySubscription,
+                                                   std::shared_ptr<Common::PluginApi::IRawDataCallback> rawDataCallback,
+                                                   Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber)
+                :
+                m_socketSubscriber(std::move(socketSubscriber)),
+                m_reactor(Common::Reactor::createReactor()),
+                m_rawDataCallback(std::move(rawDataCallback))
         {
             m_socketSubscriber->subscribeTo(sensorDataCategorySubscription);
             m_reactor->addListener(m_socketSubscriber.get(), this);
@@ -32,22 +48,31 @@ namespace Common
         {
             const std::string & key = request.at(0);
             const std::string & data = request.at(1);
-            if(key == "Detector.Credentials")
+
+            if (m_sensorDataCallback)
             {
-                Common::EventTypes::EventConverter converter;
-                Common::EventTypes::CredentialEvent event = *converter.createEventFromString<Common::EventTypes::CredentialEvent>(data).get();
-                m_sensorDataCallback->processEvent(event);
-            }
-            else if(key == "Detector.PortScanning")
-            {
-                Common::EventTypes::EventConverter converter;
-                Common::EventTypes::PortScanningEvent event = *converter.createEventFromString<Common::EventTypes::PortScanningEvent>(data).get();
-                m_sensorDataCallback->processEvent(event);
+                if (key == "Detector.Credentials")
+                {
+
+                    Common::EventTypes::CredentialEvent event =  m_converter->stringToCredentialEvent(data);
+                    m_sensorDataCallback->processEvent(event);
+                }
+                else if (key == "Detector.PortScanning")
+                {
+                    Common::EventTypes::PortScanningEvent event = m_converter->stringToPortScanningEvent(data);
+                    m_sensorDataCallback->processEvent(event);
+                }
+                else
+                {
+                    m_sensorDataCallback->receiveData(key, data);
+                }
             }
             else
             {
-                LOGERROR("Unknown event received, received event id = '" << key << "'");
+                assert(m_rawDataCallback);
+                m_rawDataCallback->receiveData(key, data);
             }
+
         }
 
         SensorDataSubscriber::~SensorDataSubscriber()

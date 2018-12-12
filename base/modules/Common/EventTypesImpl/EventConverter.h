@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/EventTypes/CredentialEvent.h"
-#include "Common/EventTypes/PortScanningEvent.h"
-
+#include <Common/EventTypes/CredentialEvent.h>
+#include <Common/EventTypes/PortScanningEvent.h>
 #include <Common/EventTypes/IEventType.h>
 #include <Common/EventTypes/IEventConverter.h>
 #include <Common/EventTypes/IEventException.h>
@@ -19,19 +18,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace EventTypes
+    namespace EventTypesImpl
     {
         class EventConverter : public Common::EventTypes::IEventConverter
         {
         public:
+
             const std::pair<std::string, std::string> eventToString(const Common::EventTypes::IEventType* eventType) override;
+            EventTypes::CredentialEvent stringToCredentialEvent(const std::string& event) override;
+            EventTypes::PortScanningEvent stringToPortScanningEvent(const std::string& event) override;
+
+        private:
 
             template <class EventT>
-            static std::unique_ptr<EventT> createEventFromString(const std::string& eventObjectAsString)
+            static EventT createEventFromString(const std::string& eventObjectAsString)
             {
-                std::unique_ptr<EventT> event{new EventT()};
-                event->fromString(eventObjectAsString);
-                return event;
+                EventT event;
+                event.fromString(eventObjectAsString);
+                return std::move(event);
             }
         };
     }

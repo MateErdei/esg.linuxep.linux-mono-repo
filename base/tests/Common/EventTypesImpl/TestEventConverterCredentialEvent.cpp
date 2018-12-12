@@ -21,27 +21,21 @@ public:
 
 };
 
-
-TEST_F(TestEventConverterCredentialEvent, testConstructorDoesNotThrow) //NOLINT
-{
-    EXPECT_NO_THROW(EventConverter eventConverter;);
-}
-
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
 {
-    EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
 
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
-    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
+    auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
 {
-    EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
     eventExpected.setGroupName("いいい");
 
@@ -51,34 +45,32 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
     subjectUserId.domain = "いいい";
     eventExpected.setSubjectUserSid(subjectUserId);
 
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
-    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
+    auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
-    CredentialEvent eventExpected = createDefaultCredentialEvent();
-
-    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>("Not Valid Capn String"), Common::EventTypes::IEventException);
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
+    EXPECT_THROW(converter->stringToCredentialEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
 }
 
 TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
 {
-    CredentialEvent eventExpected = createDefaultCredentialEvent();
-
-    EXPECT_THROW(EventConverter::createEventFromString<CredentialEvent>(""), Common::EventTypes::IEventException);
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
+    EXPECT_THROW(converter->stringToCredentialEvent(""), Common::EventTypes::IEventException); //NOLINT
 }
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
+TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser) //NOLINT
 {
     // test to prove that incomplete data is still valid a event, i.e addUser event will not generate all
     // the data that could be stored.
     // network information will not be added, and should not be an issue.
 
-    EventConverter converter;
+    std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected;
     eventExpected.setEventType(Common::EventTypes::CredentialEvent::EventType::created);
     eventExpected.setSessionType(Common::EventTypes::CredentialEvent::SessionType::interactive);
@@ -95,10 +87,10 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser)
     eventExpected.setTimestamp(123123);
     eventExpected.setLogonId(1234);
 
-    std::pair<std::string, std::string> data = converter.eventToString(&eventExpected);
+    std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
-    auto eventActual = EventConverter::createEventFromString<CredentialEvent>(data.second);
+    auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, *eventActual);
+    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 
 }
