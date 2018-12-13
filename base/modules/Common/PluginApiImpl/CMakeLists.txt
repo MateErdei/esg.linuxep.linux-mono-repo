@@ -28,7 +28,7 @@ add_library(pluginapiobjects OBJECT
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
 
-target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol ${LOG4CPLUS_LIBRARY} eventtypesimpl)
+target_link_libraries(pluginapiimpl PUBLIC threads reactorimpl pluginprotocol ${LOG4CPLUS_LIBRARY} eventtypesimpl testhelpers)
 
 SET_TARGET_PROPERTIES( pluginapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
@@ -46,6 +46,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:eventtypesimplobject>
+        $<TARGET_OBJECTS:testhelpersobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
