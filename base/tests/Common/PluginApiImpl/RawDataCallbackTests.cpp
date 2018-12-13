@@ -37,18 +37,12 @@ class RawDataCallbackTests : public Tests::TestEventTypeHelper
 public:
     void SetUp() override
     {
-        MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
-        MockedApplicationPathManager &mock(*mockAppManager);
-        ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
-        ON_CALL(mock, getSubscriberDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
-        Common::ApplicationConfiguration::replaceApplicationPathManager(
-                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
-
-
+        setUpApplicationManager();
     }
+
     void TearDown() override
     {
-        Common::ApplicationConfiguration::restoreApplicationPathManager();
+        ApplicationManagerTearDown();
         subscriber->stop();
         rawDataPublisher.reset();
         subscriber.reset();

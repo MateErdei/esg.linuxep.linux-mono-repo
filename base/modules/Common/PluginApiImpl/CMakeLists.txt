@@ -48,7 +48,13 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:eventtypesimplobject>
         )
 
-target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
+target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libkj.a"
+        )
 
 add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 target_link_libraries(sharedtesthelpers PUBLIC pluginapi)

@@ -2,7 +2,8 @@ add_library(testhelpersobject OBJECT
         TempDir.cpp
         TempDir.h
         TestExecutionSynchronizer.cpp
-        TestExecutionSynchronizer.h)
+        TestExecutionSynchronizer.h
+        MockPathManager.h)
 
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )

@@ -12,6 +12,7 @@
 
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
+#include <Common/TestHelpers/MockPathManager.h>
 
 namespace Tests
 {
@@ -186,6 +187,21 @@ namespace Tests
             }
 
             return ::testing::AssertionSuccess();
+        }
+
+        void setUpApplicationManager()
+        {
+            MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
+            MockedApplicationPathManager &mock(*mockAppManager);
+            ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
+            ON_CALL(mock, getSubscriberDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
+            Common::ApplicationConfiguration::replaceApplicationPathManager(
+                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+        }
+
+        void ApplicationManagerTearDown()
+        {
+            Common::ApplicationConfiguration::restoreApplicationPathManager();
         }
 
 
