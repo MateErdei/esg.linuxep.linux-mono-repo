@@ -2,6 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestPlugin
         TestPlugin.cpp
+        TestPubSub.cpp
         PROJECTS pluginimpl
 )
 
