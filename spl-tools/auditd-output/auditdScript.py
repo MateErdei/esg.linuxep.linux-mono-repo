@@ -212,7 +212,7 @@ def main():
 
         os.chdir(currdir)
 
-    sp.call(['vagrant', 'suspend'])
+    sp.call(['vagrant', 'destroy', '-f'])
 
 
 if __name__ == "__main__":
