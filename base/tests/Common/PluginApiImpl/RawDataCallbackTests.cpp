@@ -13,7 +13,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/TestHelpers/TestEventTypeHelper.h>
+#include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
+#include <Common/TestHelpers/PubSubPathReplacement.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
@@ -35,14 +36,9 @@ using ::testing::Invoke;
 class RawDataCallbackTests : public Tests::TestEventTypeHelper
 {
 public:
-    void SetUp() override
-    {
-        setUpApplicationManager();
-    }
 
     void TearDown() override
     {
-        ApplicationManagerTearDown();
         subscriber->stop();
         rawDataPublisher.reset();
         subscriber.reset();
@@ -56,6 +52,7 @@ public:
     }
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
+    Tests::PubSubPathReplacement m_pathReplacement; // This overrides ApplicationPathManager
     PluginResourceManagement pluginResourceManagement;
 
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;

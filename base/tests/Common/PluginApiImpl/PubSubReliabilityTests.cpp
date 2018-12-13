@@ -18,7 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <Common/TestHelpers/TempDir.h>
-#include <Common/TestHelpers/TestEventTypeHelper.h>
+#include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

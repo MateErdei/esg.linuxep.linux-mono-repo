@@ -3,7 +3,9 @@ include(GoogleTest)
 add_executable(
         eventtypesimpltestsexe
         TestEventConverterCredentialEvent.cpp
-        TestEventConverterPortScanningEvent.cpp)
+        TestEventConverterPortScanningEvent.cpp
+        TestEventTypeHelper.h)
+
 target_include_directories(eventtypesimpltestsexe SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include"
         "${gmock_SOURCE_DIR}/include"
         "${CMAKE_SOURCE_DIR}/modules/Common/EventTypesImpl/capnproto"

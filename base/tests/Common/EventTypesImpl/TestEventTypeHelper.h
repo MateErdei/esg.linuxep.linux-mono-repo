@@ -1,18 +1,16 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include "gtest/gtest.h"
-#include "TempDir.h"
 
+#include <Common/TestHelpers/TempDir.h>
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
-#include <Common/TestHelpers/MockPathManager.h>
 
 namespace Tests
 {
@@ -188,23 +186,6 @@ namespace Tests
 
             return ::testing::AssertionSuccess();
         }
-
-        void setUpApplicationManager()
-        {
-            MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
-            MockedApplicationPathManager &mock(*mockAppManager);
-            ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
-            ON_CALL(mock, getSubscriberDataChannelAddress()).WillByDefault(Return("inproc://datachannel.ipc"));
-            Common::ApplicationConfiguration::replaceApplicationPathManager(
-                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
-        }
-
-        void ApplicationManagerTearDown()
-        {
-            Common::ApplicationConfiguration::restoreApplicationPathManager();
-        }
-
-
     };
 
 }
