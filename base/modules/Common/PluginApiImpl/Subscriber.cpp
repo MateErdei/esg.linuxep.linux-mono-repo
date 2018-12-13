@@ -51,13 +51,13 @@ namespace Common
 
             if (m_sensorDataCallback)
             {
-                if (key == "Detector.Credentials")
+                if (key == Common::EventTypes::CredentialEvent().getEventTypeId())
                 {
 
                     Common::EventTypes::CredentialEvent event =  m_converter->stringToCredentialEvent(data);
                     m_sensorDataCallback->processEvent(event);
                 }
-                else if (key == "Detector.PortScanning")
+                else if (key == Common::EventTypes::PortScanningEvent().getEventTypeId())
                 {
                     Common::EventTypes::PortScanningEvent event = m_converter->stringToPortScanningEvent(data);
                     m_sensorDataCallback->processEvent(event);

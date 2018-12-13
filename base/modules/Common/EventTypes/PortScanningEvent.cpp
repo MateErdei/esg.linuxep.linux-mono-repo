@@ -70,7 +70,7 @@ namespace Common
 
         const std::string PortScanningEvent::getEventTypeId() const
         {
-            return "Detector.PortScanning";
+            return m_eventtypeid;
         }
 
         EventTypes::PortScanningEvent::EventType PortScanningEvent::getEventType() const

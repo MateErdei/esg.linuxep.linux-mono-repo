@@ -46,6 +46,7 @@ namespace Common
             void fromString(const std::string& objectAsString);
 
         private:
+            std::string m_eventtypeid = "Detector.PortScanning";
             EventType m_eventType;
             Common::EventTypes::IpFlow m_connection;
         };

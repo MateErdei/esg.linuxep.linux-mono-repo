@@ -108,7 +108,7 @@ namespace Common
     {
         const std::string CredentialEvent::getEventTypeId() const
         {
-            return "Detector.Credentials";
+            return m_eventtypeid;
         }
 
         const Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const
