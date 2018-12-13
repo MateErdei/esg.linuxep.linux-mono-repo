@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+//This is a copy of tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h used for pluginAPI
 
 using namespace ::testing;
 

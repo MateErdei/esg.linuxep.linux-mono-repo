@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+// IMPORTANT: Any changes made to this code should be copied over to Common/TestHelpers/MockPathManager
 
 using namespace ::testing;
 
