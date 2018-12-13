@@ -13,8 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/TestHelpers/TestEventTypeHelper.h>
-
+#include <Common/TestHelpers/PubSubPathReplacement.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -31,18 +30,12 @@ using ::testing::StrictMock;
 using ::testing::Invoke;
 
 
-class RawDataCallbackTests : public Tests::TestEventTypeHelper
+class RawDataCallbackTests : public ::testing::Test
 {
 public:
 
-    void SetUp()
+    void TearDown() override
     {
-        setApplicationManager();
-    }
-
-    void TearDown()
-    {
-        setApplicationTearDown();
         subscriber->stop();
         rawDataPublisher.reset();
         subscriber.reset();
@@ -56,6 +49,8 @@ public:
     }
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
+
+    Tests::PubSubPathReplacement m_pathReplacement; // This provides data channels for testing
     std::unique_ptr<IPluginResourceManagement> pluginResourceManagement = Common::PluginApi::createPluginResourceManagement();
 
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
