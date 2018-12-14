@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/TestHelpers/PubSubPathReplacement.h>
+#include <Common/EventTypes/EventStrings.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -82,7 +83,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
-    setupPubSub("Detector.PortScanning",portScanningCallback);
+    setupPubSub(Common::EventTypes::PortScanningEventName,portScanningCallback);
 
     Common::EventTypes::PortScanningEvent::EventType eventType = Common::EventTypes::PortScanningEvent::opened;
     Common::EventTypes::IpFlow ipFlow;
