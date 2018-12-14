@@ -16,7 +16,7 @@ add_library(eventtypesimplobject OBJECT
         EventConverter.cpp
         ${CapNGeneratedFilesHeaders}
         ${CapNGeneratedFilesSrcs}
-        )
+        ../EventTypes/EventStrings.h)
 
 
 target_include_directories(eventtypesimplobject PUBLIC "${CAPNPROTO_INCLUDE_DIR}" ${CMAKE_CURRENT_BINARY_DIR})

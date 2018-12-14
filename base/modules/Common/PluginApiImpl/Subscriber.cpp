@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ISubscriber.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/PluginApi/AbstractEventVisitor.h>
+#include <Common/EventTypes/EventStrings.h>
 
 namespace Common
 {
@@ -51,13 +52,13 @@ namespace Common
 
             if (m_sensorDataCallback)
             {
-                if (key == Common::EventTypes::CredentialEvent().getEventTypeId())
+                if (key == Common::EventTypes::CredentialEventName)
                 {
 
                     Common::EventTypes::CredentialEvent event =  m_converter->stringToCredentialEvent(data);
                     m_sensorDataCallback->processEvent(event);
                 }
-                else if (key == Common::EventTypes::PortScanningEvent().getEventTypeId())
+                else if (key == Common::EventTypes::PortScanningEventName)
                 {
                     Common::EventTypes::PortScanningEvent event = m_converter->stringToPortScanningEvent(data);
                     m_sensorDataCallback->processEvent(event);

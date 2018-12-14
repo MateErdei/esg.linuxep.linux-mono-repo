@@ -67,7 +67,6 @@ namespace Common
             void fromString(const std::string& objectAsString);
 
         private:
-            std::string m_eventtypeid = "Detector.Credentials";
             unsigned long m_groupId;
             std::string m_groupName;
             Common::EventTypes::CredentialEvent::SessionType m_sessionType;

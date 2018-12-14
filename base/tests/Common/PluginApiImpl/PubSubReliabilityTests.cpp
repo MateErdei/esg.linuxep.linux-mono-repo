@@ -28,6 +28,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unordered_map>
 #include <thread>
 #include <future>
+#include <Common/EventTypes/EventStrings.h>
 
 #ifndef ARTISANBUILD
 
@@ -64,7 +65,7 @@ public:
 
     void processEvent(Common::EventTypes::PortScanningEvent event) override
     {
-        std::string eventTypeId = Common::EventTypes::PortScanningEvent().getEventTypeId();
+        std::string eventTypeId = Common::EventTypes::PortScanningEventName;
         std::lock_guard guard{mutex};
         auto found = trackReceivedData.find(eventTypeId);
         if ( found == trackReceivedData.end())
@@ -123,7 +124,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>();
     std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
 
-    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(portevent.getEventTypeId(), trackBefore);
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackBefore);
     sensorDataSubscriber->start();
 
     auto future_pub = std::async(std::launch::async, [&pluginResourceManagement,&portevent,&connection](){
@@ -132,7 +133,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
         {
             connection.sourceAddress.port=i;
             portevent.setConnection(connection);
-            sensorDataPublisher->sendData(portevent.getEventTypeId(),portevent.toString());
+            sensorDataPublisher->sendData(Common::EventTypes::PortScanningEventName,portevent.toString());
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
         return true;
@@ -141,7 +142,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     std::this_thread::sleep_for(std::chrono::milliseconds(600));
     // crash subscriber and return it.
     sensorDataSubscriber.reset();
-    sensorDataSubscriber = pluginResourceManagement.createSubscriber(portevent.getEventTypeId(), trackAfter);
+    sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackAfter);
     sensorDataSubscriber->start();
 
     EXPECT_TRUE(future_pub.get());
@@ -149,7 +150,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 
     // expectations:
     EXPECT_EQ(trackBefore->trackReceivedData.size(), 1) ;
-    std::vector<int> receivedData = trackBefore->trackReceivedData[portevent.getEventTypeId()];
+    std::vector<int> receivedData = trackBefore->trackReceivedData[Common::EventTypes::PortScanningEventName];
     ASSERT_GT(receivedData.size(), 0);
     // every entry in the received data is the previous + 1
     int firstEntry = receivedData.at(0);
@@ -160,7 +161,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     }
 
     EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
-    std::vector<int> receivedAfter = trackAfter->trackReceivedData[portevent.getEventTypeId()];
+    std::vector<int> receivedAfter = trackAfter->trackReceivedData[Common::EventTypes::PortScanningEventName];
     ASSERT_GT(receivedAfter.size(), 0);
     // every entry in the received data is the previous + 1
     firstEntry = receivedAfter.at(0);
@@ -193,7 +194,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
 
-    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(portevent.getEventTypeId(), trackBefore);
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackBefore);
     sensorDataSubscriber->start();
 
 
@@ -203,7 +204,7 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     {
         connection.sourceAddress.port=i;
         portevent.setConnection(connection);
-        sensorDataPublisher->sendData(portevent.getEventTypeId(),portevent.toString());
+        sensorDataPublisher->sendData(Common::EventTypes::PortScanningEventName,portevent.toString());
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     sensorDataPublisher.reset(); // simulation of crashes.
@@ -213,14 +214,14 @@ TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAnd
     {
         connection.sourceAddress.port=i;
         portevent.setConnection(connection);
-        sensorDataPublisher->sendData(portevent.getEventTypeId(),portevent.toString());
+        sensorDataPublisher->sendData(Common::EventTypes::PortScanningEventName,portevent.toString());
     }
 
     ASSERT_TRUE( markReached.waitfor(1000)); // demonstrate that subscriber received 150 which is after the crash.
     sensorDataSubscriber.reset();
     // expectations:
     EXPECT_EQ(trackBefore->trackReceivedData.size(), 1) ;
-    std::vector<int> receivedData = trackBefore->trackReceivedData[portevent.getEventTypeId()];
+    std::vector<int> receivedData = trackBefore->trackReceivedData[Common::EventTypes::PortScanningEventName];
     ASSERT_GT(receivedData.size(), 0);
 
 }

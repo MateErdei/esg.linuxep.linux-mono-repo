@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "CredentialEvent.h"
+#include "EventStrings.h"
 
 #include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
@@ -108,7 +109,7 @@ namespace Common
     {
         const std::string CredentialEvent::getEventTypeId() const
         {
-            return m_eventtypeid;
+            return Common::EventTypes::CredentialEventName;
         }
 
         const Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const

@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PortScanningEvent.h"
+#include "EventStrings.h"
 
 #include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
@@ -70,7 +71,7 @@ namespace Common
 
         const std::string PortScanningEvent::getEventTypeId() const
         {
-            return m_eventtypeid;
+            return Common::EventTypes::PortScanningEventName;
         }
 
         EventTypes::PortScanningEvent::EventType PortScanningEvent::getEventType() const

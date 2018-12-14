@@ -22,6 +22,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <thread>
 #include <memory>
+#include <Common/EventTypes/EventStrings.h>
 
 
 using data_t = Common::ZeroMQWrapper::IReadable::data_t ;
@@ -124,7 +125,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveData) //NO
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
-    setupPubSub(Common::EventTypes::CredentialEvent().getEventTypeId(),credentialCallback);
+    setupPubSub(Common::EventTypes::CredentialEventName,credentialCallback);
 
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
 
@@ -195,7 +196,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
-    setupPubSub(Common::EventTypes::CredentialEvent().getEventTypeId(),credentialCallback);
+    setupPubSub(Common::EventTypes::CredentialEventName,credentialCallback);
 
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     Common::EventTypes::CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -221,7 +222,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
-    setupPubSub(Common::EventTypes::PortScanningEvent().getEventTypeId(),portScanningCallback);
+    setupPubSub(Common::EventTypes::PortScanningEventName,portScanningCallback);
 
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     Common::EventTypes::PortScanningEvent eventExpected = createDefaultPortScanningEvent();
@@ -247,7 +248,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
-    setupPubSub(Common::EventTypes::PortScanningEvent().getEventTypeId(),portScanningCallback);
+    setupPubSub(Common::EventTypes::PortScanningEventName,portScanningCallback);
 
     Common::EventTypes::PortScanningEvent port;
     Common::EventTypes::PortScanningEvent::EventType eventType = Common::EventTypes::PortScanningEvent::opened;
@@ -276,7 +277,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceivePortScanni
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakePortScanningDealer> portScanningCallback = std::make_shared<FakePortScanningDealer>(notify);
-    setupPubSub(Common::EventTypes::PortScanningEvent().getEventTypeId(),portScanningCallback);
+    setupPubSub(Common::EventTypes::PortScanningEventName,portScanningCallback);
 
     Common::EventTypes::PortScanningEvent::EventType eventType = Common::EventTypes::PortScanningEvent::opened;
     Common::EventTypes::IpFlow ipFlow = createDefaultIpFlow();
@@ -302,7 +303,7 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Common::Threads::NotifyPipe notify;
 
     std::shared_ptr<FakeCredentialsDealer> credentialCallback = std::make_shared<FakeCredentialsDealer>(notify);
-    setupPubSub(Common::EventTypes::CredentialEvent().getEventTypeId(),credentialCallback);
+    setupPubSub(Common::EventTypes::CredentialEventName,credentialCallback);
 
     Common::EventTypes::CredentialEvent::EventType eventType = Common::EventTypes::CredentialEvent::EventType::authFailure;
     Common::EventTypes::UserSid usersid ;
