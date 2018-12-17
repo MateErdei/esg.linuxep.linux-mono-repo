@@ -46,7 +46,6 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:eventtypesimplobject>
-        $<TARGET_OBJECTS:testhelpersobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
@@ -61,7 +60,7 @@ add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 target_link_libraries(sharedtesthelpers PUBLIC pluginapi)
 
 SET_TARGET_PROPERTIES( sharedtesthelpers
-        PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../../lib64")
+        PROPERTIES BUILD_RPATH "$ORIGIN:$ORIGIN/../../lib64")
 
 SET_TARGET_PROPERTIES( pluginapi
         PROPERTIES
