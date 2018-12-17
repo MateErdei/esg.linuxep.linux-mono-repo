@@ -9,8 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 
@@ -48,7 +49,7 @@ TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml","StatusWithTimestamp","tempDir")).WillOnce(Return());
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     std::string appId("APPID"), contents("StatusWithoutTimeStamp");
     ManagementAgent::StatusReceiverImpl::StatusTask task(
@@ -62,7 +63,7 @@ TEST_F(TestStatusTask, checkTaskWritesOutNewStatusToFile) //NOLINT
     std::string fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath(), appId + ".xml");
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents));
     task.run();
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 
 TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
@@ -75,7 +76,7 @@ TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/APPID_status.xml","StatusWithTimestamp","tempDir")).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
 
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     ManagementAgent::StatusReceiverImpl::StatusTask task(
             cache,
@@ -98,7 +99,7 @@ TEST_F(TestStatusTask, checkTwoIdentialTasksDontWriteTwice) //NOLINT
     task2.run();
 
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 
 TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
@@ -113,7 +114,7 @@ TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
             );
     EXPECT_CALL(*filesystemMock, writeFileAtomically("statusDir/_status.xml","","tempDir")).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFile(fullPath, contents)).WillOnce(Return());
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> cache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     ManagementAgent::StatusReceiverImpl::StatusTask task(
             cache,
@@ -124,5 +125,5 @@ TEST_F(TestStatusTask, checkTaskWorksWithEmptyAppIdAndStatusArguments) // NOLINT
             "statusDir"
     );
     task.run();
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }

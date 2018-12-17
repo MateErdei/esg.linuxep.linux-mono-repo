@@ -4,20 +4,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
-#include "Common/Exceptions/IException.h"
+
+#include "Common/FileSystem/IFileSystem.h"
 
 namespace Common
 {
-    namespace PluginRegistryImpl
+    namespace TestHelpers
     {
-        class PluginRegistryException : public Common::Exceptions::IException
-        {
-        public:
-            using Common::Exceptions::IException::IException;
-        };
+        void replaceFileSystem(Common::FileSystem::IFileSystemPtr);
+        void restoreFileSystem();
     }
 }
-

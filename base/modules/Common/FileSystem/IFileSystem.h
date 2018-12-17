@@ -182,7 +182,7 @@ namespace Common
             virtual Path make_absolute(const Path& path) const = 0;
         };
 
-        /**
+         /**
          * Return a BORROWED pointer to a static IFileSystem instance.
          *
          * Do not delete this yourself.
@@ -191,6 +191,7 @@ namespace Common
          */
         IFileSystem *fileSystem();
 
+        using IFileSystemPtr = std::unique_ptr<IFileSystem>;
     }
 }
 

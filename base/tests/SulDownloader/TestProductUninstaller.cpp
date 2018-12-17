@@ -10,10 +10,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/ProductUninstaller.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/Process/IProcessException.h>
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 using namespace SulDownloader;
@@ -24,13 +25,13 @@ class ProductUninstallerTest : public ::testing::Test
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
-        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
+        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
 
     }
 
     void TearDown() override
     {
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }
 

@@ -52,11 +52,6 @@ namespace Common
 
             void removeFile(const Path &path) const override;
         };
-
-        /** To be used in tests only */
-        using IFileSystemPtr = std::unique_ptr<Common::FileSystem::IFileSystem>;
-        void replaceFileSystem(IFileSystemPtr);
-        void restoreFileSystem();
     }
 }
 

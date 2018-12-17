@@ -7,7 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ProcessImpl/ArgcAndEnv.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <Common/TestHelpers/MockFileSystem.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -19,11 +20,11 @@ public:
     {
         std::unique_ptr<MockFileSystem> mockfileSystem (new StrictMock<MockFileSystem>());
         mockIFileSystemPtr = mockfileSystem.get();
-        Common::FileSystem::replaceFileSystem(std::move(mockfileSystem));
+        Common::TestHelpers::replaceFileSystem(std::move(mockfileSystem));
     }
     ~TestSXLMachineID()
     {
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
     MockFileSystem *  mockIFileSystemPtr;
 

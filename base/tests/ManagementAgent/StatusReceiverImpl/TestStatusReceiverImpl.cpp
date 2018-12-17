@@ -9,9 +9,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class TestStatusReceiverImpl : public ::testing::Test
@@ -63,7 +64,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
     EXPECT_NE(task.get(),nullptr);
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
 
     EXPECT_CALL(*filesystemMock,
@@ -76,5 +77,5 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
 
     task->run();
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }

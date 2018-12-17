@@ -9,8 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
@@ -31,11 +32,11 @@ public:
         manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";
         versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
         fileSystemMock = new MockFileSystem();
-        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
+        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
     }
     ~VersigTests() override
     {
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
     SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
     std::string rootca;

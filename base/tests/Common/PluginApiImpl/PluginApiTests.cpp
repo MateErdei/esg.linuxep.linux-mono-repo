@@ -6,10 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleResponseServer.h"
 
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <tests/Common/FileSystemImpl/MockFilePermissions.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
@@ -17,6 +13,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
+#include <Common/TestHelpers/MockFilePermissions.h>
+
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -48,11 +50,11 @@ namespace
 
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+            Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-            Common::FileSystem::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+            Common::TestHelpers::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
             EXPECT_CALL(*mockFilePermissions, chmod(_,_)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_,_,_)).WillRepeatedly(Return());

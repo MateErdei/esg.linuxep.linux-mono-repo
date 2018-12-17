@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
 
 #include <cassert>
 #include <cstring>
@@ -481,12 +482,12 @@ Common::FileSystem::IFileSystem * Common::FileSystem::fileSystem()
     return fileSystemStaticPointer().get();
 }
 
-void Common::FileSystem::replaceFileSystem(Common::FileSystem::IFileSystemPtr pointerToReplace)
+void Common::TestHelpers::replaceFileSystem(Common::FileSystem::IFileSystemPtr pointerToReplace)
 {
     fileSystemStaticPointer().reset(pointerToReplace.release());
 }
 
-void Common::FileSystem::restoreFileSystem()
+void Common::TestHelpers::restoreFileSystem()
 {
     fileSystemStaticPointer().reset( new Common::FileSystem::FileSystemImpl());
 }

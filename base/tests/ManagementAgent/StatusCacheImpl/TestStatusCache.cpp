@@ -7,9 +7,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gtest/gtest.h>
@@ -34,13 +35,13 @@ public:
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
         m_mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(m_mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
     }
 
     void TearDown() override
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
 
     StrictMock<MockFileSystem>* m_mockFileSystem;

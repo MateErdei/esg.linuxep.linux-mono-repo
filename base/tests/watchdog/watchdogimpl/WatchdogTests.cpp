@@ -9,9 +9,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gmock/gmock.h>
@@ -100,7 +101,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/PluginName.json");
@@ -117,14 +118,14 @@ namespace
 
         EXPECT_EQ(plugins.size(),1);
 
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
 
     TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) //NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
         std::string filename("/tmp/plugins/invalid.json");
@@ -136,14 +137,14 @@ namespace
         
         EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
 
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
 
     TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) //NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid.json");
@@ -164,7 +165,7 @@ namespace
 
         EXPECT_EQ(plugins.size(),1);
 
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
 
 
@@ -172,7 +173,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         std::vector<std::string> files;
         std::string filename1("/tmp/plugins/valid1.json");
@@ -194,6 +195,6 @@ namespace
 
         EXPECT_EQ(plugins.size(),2);
 
-        Common::FileSystem::restoreFileSystem();
+        Common::TestHelpers::restoreFileSystem();
     }
 }

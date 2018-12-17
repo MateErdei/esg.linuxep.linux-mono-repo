@@ -7,11 +7,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
@@ -50,7 +52,7 @@ TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThr
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) //NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -67,13 +69,13 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     EXPECT_NE(task.get(),nullptr);
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -98,6 +100,6 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
 
     task->run();
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 

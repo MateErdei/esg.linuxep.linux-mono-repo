@@ -17,16 +17,19 @@ namespace Common
         public:
             FilePermissionsImpl() = default;
 
-
             void chmod(const Path& path, __mode_t mode) const override;
 
             void chown(const Path& path, const std::string& user, const std::string& groupString) const override;
 
-            int getGroupId(const std::string& groupString) const override;
+            gid_t getGroupId(const std::string& groupString) const override;
 
+            std::string getGroupName(const gid_t & groupId) const override;
+
+            uid_t getUserId(const std::string& userString) const  override;
+
+            std::string getUserName(const uid_t & userId) const override;
         };
-        /** To be used in tests only */
-        using IFilePermissionsPtr = std::unique_ptr<Common::FileSystem::IFilePermissions>;
-        void replaceFilePermissions(IFilePermissionsPtr);
+
+
     }
 }

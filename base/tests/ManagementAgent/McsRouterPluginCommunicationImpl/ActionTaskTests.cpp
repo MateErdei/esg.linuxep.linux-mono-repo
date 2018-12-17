@@ -8,8 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gmock/gmock.h>
@@ -43,7 +44,7 @@ TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
 
     auto filesystemMock = new NiceMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(m_mockPluginManager,
@@ -51,7 +52,7 @@ TEST_F(ActionTaskTests, ActionTaskQueuesActionWhenRun) // NOLINT
     );
     task.run();
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 
 TEST_F(ActionTaskTests, ActionTaskDeletesActionFileOnceQueued) // NOLINT
@@ -61,14 +62,14 @@ TEST_F(ActionTaskTests, ActionTaskDeletesActionFileOnceQueued) // NOLINT
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
     EXPECT_CALL(*filesystemMock, removeFile(_)).Times(1);
-    Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask task(m_mockPluginManager,
                                                                        "/tmp/action/SAV_action_11.xml"
     );
     task.run();
 
-    Common::FileSystem::restoreFileSystem();
+    Common::TestHelpers::restoreFileSystem();
 }
 
 TEST_F(ActionTaskTests, ActionTaskHandlesNameWithoutHyphen) // NOLINT

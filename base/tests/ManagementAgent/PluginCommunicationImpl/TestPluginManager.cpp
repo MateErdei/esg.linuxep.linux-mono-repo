@@ -10,11 +10,13 @@
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
+#include <Common/TestHelpers/MockFilePermissions.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/MockedPluginApiCallback.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
-#include <tests/Common/FileSystemImpl/MockFilePermissions.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -90,7 +92,7 @@ public:
 
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-        Common::FileSystem::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        Common::TestHelpers::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
         EXPECT_CALL(*mockFilePermissions, chmod(_,_)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_,_,_)).WillRepeatedly(Return());
@@ -100,7 +102,7 @@ public:
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const std::string&b){return a + "/" + b; }));*/
         auto pointer = filesystemMock;
-        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
 

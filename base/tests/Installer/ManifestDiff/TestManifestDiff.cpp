@@ -4,15 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ExampleManifests.h"
 
 #include <Installer/ManifestDiff/Manifest.h>
 #include <Installer/ManifestDiff/ManifestDiff.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-
-#include "ExampleManifests.h"
-
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -32,7 +31,7 @@ namespace
     public:
         void TearDown() override
         {
-            Common::FileSystem::restoreFileSystem();
+            Common::TestHelpers::restoreFileSystem();
         }
     };
 
@@ -52,7 +51,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
@@ -68,7 +67,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(two_entries));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry));
@@ -84,7 +83,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::FileSystem::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry_changed));

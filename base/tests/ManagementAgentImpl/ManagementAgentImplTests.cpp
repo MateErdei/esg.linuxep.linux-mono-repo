@@ -5,18 +5,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-
+#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+#include <Common/TestHelpers/MockFileSystem.h>
 
+#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/FileSystemImpl/MockFileSystem.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
 #include <gtest/gtest.h>
@@ -112,7 +112,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
         std::vector<std::string> pluginFiles = {"PluginName.json"};
 
@@ -153,7 +153,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Common::FileSystem::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
         std::vector<std::string> pluginFiles = {"PluginName.json"};
 

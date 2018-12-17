@@ -15,18 +15,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/TestHelpers/TestExecutionSynchronizer.h>
+#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
+#include <Common/TestHelpers/TempDir.h>
 
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <Common/TestHelpers/TestExecutionSynchronizer.h>
-#include <Common/TestHelpers/TempDir.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 #include <future>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+
 
 namespace
 {
@@ -247,7 +249,7 @@ namespace
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_tempDir.dirPath() );
 
            std::unique_ptr<FilePermisssionsImplNoChmodChown> iFilePermissionsPtr = std::unique_ptr<FilePermisssionsImplNoChmodChown>(new FilePermisssionsImplNoChmodChown);
-            Common::FileSystem::replaceFilePermissions(std::move(iFilePermissionsPtr));
+            Common::TestHelpers::replaceFilePermissions(std::move(iFilePermissionsPtr));
         }
 
         void TearDown() override

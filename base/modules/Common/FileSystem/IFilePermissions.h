@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <memory>
+#include <map>
 #include <grp.h>
 
 using Path = std::string;
@@ -38,16 +39,47 @@ namespace Common
             virtual void chmod(const Path& path, __mode_t mode) const = 0;
 
             /**
-             * get the group info
+             * get the group id from group name
              *
              *
              * @param groupString, the group which we want information on
              * @return returns either the groupid or -1 if there is none
              */
-            virtual int getGroupId(const std::string& groupString) const = 0;
+            virtual gid_t getGroupId(const std::string& groupString) const = 0;
+
+
+            /**
+             * get the group name from the group id
+             *
+             * @param groupId
+             * @return returns either a group name or an empty string if the group
+             * doesn't exist.
+             */
+            virtual std::string getGroupName(const gid_t & groupId) const = 0;
+
+            /**
+             * get the user id from user name
+             *
+             *
+             * @param userString, the user which we want information on
+             * @return returns either the userId or -1 if there is none
+             */
+            virtual uid_t getUserId(const std::string& userString) const = 0;
+
+
+            /**
+             * get the user name from the user id
+             *
+             * @param userId
+             * @return returns either a user name or an empty string if the user
+             * doesn't exist.
+             */
+            virtual std::string getUserName(const uid_t & userId) const = 0;
+
+
         };
 
-        /**
+         /**
          * Return a BORROWED pointer to a static IFilePermissions instance.
          *
          * Do not delete this yourself.
@@ -55,6 +87,8 @@ namespace Common
          * @return BORROWED IFilePermissions pointer
          */
         IFilePermissions *filePermissions();
+
+        using IFilePermissionsPtr = std::unique_ptr<IFilePermissions>;
     }
 }
 

@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -58,9 +59,8 @@ namespace Common
             }
         }
 
-        int FilePermissionsImpl::getGroupId(const std::string& groupString) const
+        gid_t FilePermissionsImpl::getGroupId(const std::string& groupString) const
         {
-
 
             struct group groupbuf;
             struct group *replygroup;
@@ -83,6 +83,79 @@ namespace Common
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
+
+        std::string FilePermissionsImpl::getGroupName(const gid_t & groupId) const
+        {
+            struct group groupbuf;
+            struct group *replygroup;
+            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+
+            int err = getgrgid_r(groupId, &groupbuf, buffer.data(),buffer.size(), &replygroup);
+            if ( replygroup == nullptr) // no matching found
+            {
+                return "";
+            }
+
+            if( err == 0 || err == ERANGE) // no error
+            {
+                return groupbuf.gr_name;
+            }
+            else
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling getGroupName on " << groupId << " caused this error " << strerror(err);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+        }
+
+        uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
+        {
+            struct passwd userBuf;
+            struct passwd *replyUser;
+            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+
+            int err = getpwnam_r(userString.c_str(),&userBuf, buffer.data(),buffer.size(), &replyUser);
+            if ( replyUser == nullptr) // no matching found
+            {
+                return -1;
+            }
+
+            if( err == 0 || err == ERANGE) // no error
+            {
+                return userBuf.pw_uid;
+            }
+            else
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling getUserId on " << userString.c_str() << " caused this error " << strerror(err);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+        }
+
+        std::string FilePermissionsImpl::getUserName(const uid_t& userId) const
+        {
+            struct passwd userBuf;
+            struct passwd *replyUser;
+            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+
+            int err = getpwuid_r(userId, &userBuf, buffer.data(),buffer.size(), &replyUser);
+            if ( replyUser == nullptr) // no matching found
+            {
+                return "";
+            }
+
+            if( err == 0 || err == ERANGE) // no error
+            {
+                return userBuf.pw_name;
+            }
+            else
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Calling getUserName on " << userId << " caused this error " << strerror(err);
+                throw FileSystem::IFileSystemException(errorMessage.str());
+            }
+        }
+
     }
 
 }
@@ -100,8 +173,13 @@ Common::FileSystem::IFilePermissions * Common::FileSystem::filePermissions()
     return filePermissionsStaticPointer().get();
 }
 
-void Common::FileSystem::replaceFilePermissions(Common::FileSystem::IFilePermissionsPtr pointerToReplace)
+void Common::TestHelpers::replaceFilePermissions(Common::FileSystem::IFilePermissionsPtr pointerToReplace)
 {
     filePermissionsStaticPointer() = std::move(pointerToReplace);
+}
+
+void Common::TestHelpers::restoreFilePermissions()
+{
+    filePermissionsStaticPointer().reset( new Common::FileSystem::FilePermissionsImpl());
 }
 
