@@ -87,8 +87,6 @@ namespace Common
          * @return BORROWED IFilePermissions pointer
          */
         IFilePermissions *filePermissions();
-
-        using IFilePermissionsPtr = std::unique_ptr<IFilePermissions>;
     }
 }
 

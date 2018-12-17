@@ -12,7 +12,7 @@ namespace Common
 {
     namespace TestHelpers
     {
-        void replaceFilePermissions(Common::FileSystem::IFilePermissionsPtr);
+        void replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>);
         void restoreFilePermissions();
     }
 

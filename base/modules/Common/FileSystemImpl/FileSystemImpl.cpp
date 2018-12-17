@@ -464,7 +464,7 @@ namespace Common
             return Common::FileSystem::join(currentWorkingDirectory(),path);
         }
 
-
+        using IFileSystemPtr = std::unique_ptr<Common::FileSystem::IFileSystem>;
     }
 }
 

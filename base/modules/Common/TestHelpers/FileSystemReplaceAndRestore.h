@@ -13,7 +13,7 @@ namespace Common
 {
     namespace TestHelpers
     {
-        void replaceFileSystem(Common::FileSystem::IFileSystemPtr);
+        void replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>);
         void restoreFileSystem();
     }
 }

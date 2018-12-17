@@ -190,8 +190,6 @@ namespace Common
          * @return BORROWED IFileSystem pointer
          */
         IFileSystem *fileSystem();
-
-        using IFileSystemPtr = std::unique_ptr<IFileSystem>;
     }
 }
 

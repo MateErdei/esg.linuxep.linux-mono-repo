@@ -63,40 +63,45 @@ namespace Common
         {
 
             struct group groupbuf;
-            struct group *replygroup;
+            struct group* replygroup;
             std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            int err = getgrnam_r(groupString.c_str(),&groupbuf, buffer.data(),buffer.size(), &replygroup);
-            if ( replygroup == nullptr) // no matching found
+            int err = getgrnam_r(groupString.c_str(), &groupbuf, buffer.data(), buffer.size(), &replygroup);
+            if (replygroup == nullptr) // no matching found
             {
-                return -1;
+                std::stringstream errorMessage;
+                errorMessage << "Calling getGroupId on " << groupString << " caused this error : Unknown group name";
+                throw FileSystem::IFileSystemException(errorMessage.str();
             }
 
-            if( err == 0 || err == ERANGE) // no error
+            if (err == 0 || err == ERANGE) // no error
             {
                 return groupbuf.gr_gid;
             }
             else
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error " << strerror(err);
+                errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error "
+                             << strerror(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
 
-        std::string FilePermissionsImpl::getGroupName(const gid_t & groupId) const
+        std::string FilePermissionsImpl::getGroupName(const gid_t& groupId) const
         {
             struct group groupbuf;
-            struct group *replygroup;
+            struct group* replygroup;
             std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            int err = getgrgid_r(groupId, &groupbuf, buffer.data(),buffer.size(), &replygroup);
-            if ( replygroup == nullptr) // no matching found
+            int err = getgrgid_r(groupId, &groupbuf, buffer.data(), buffer.size(), &replygroup);
+            if (replygroup == nullptr) // no matching found
             {
-                return "";
+                std::stringstream errorMessage;
+                errorMessage << "Calling getGroupName on " << groupId << " caused this error : Unknown group ID";
+                throw FileSystem::IFileSystemException(errorMessage.str();
             }
 
-            if( err == 0 || err == ERANGE) // no error
+            if (err == 0 || err == ERANGE) // no error
             {
                 return groupbuf.gr_name;
             }
@@ -111,16 +116,18 @@ namespace Common
         uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
         {
             struct passwd userBuf;
-            struct passwd *replyUser;
+            struct passwd* replyUser;
             std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            int err = getpwnam_r(userString.c_str(),&userBuf, buffer.data(),buffer.size(), &replyUser);
-            if ( replyUser == nullptr) // no matching found
+            int err = getpwnam_r(userString.c_str(), &userBuf, buffer.data(), buffer.size(), &replyUser);
+            if (replyUser == nullptr) // no matching found
             {
-                return -1;
+                std::stringstream errorMessage;
+                errorMessage << "Calling getUserId on " << userString << " caused this error : Unknown user name";
+                throw FileSystem::IFileSystemException(errorMessage.str();
             }
 
-            if( err == 0 || err == ERANGE) // no error
+            if (err == 0 || err == ERANGE) // no error
             {
                 return userBuf.pw_uid;
             }
@@ -135,16 +142,18 @@ namespace Common
         std::string FilePermissionsImpl::getUserName(const uid_t& userId) const
         {
             struct passwd userBuf;
-            struct passwd *replyUser;
+            struct passwd* replyUser;
             std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            int err = getpwuid_r(userId, &userBuf, buffer.data(),buffer.size(), &replyUser);
-            if ( replyUser == nullptr) // no matching found
+            int err = getpwuid_r(userId, &userBuf, buffer.data(), buffer.size(), &replyUser);
+            if (replyUser == nullptr) // no matching found
             {
-                return "";
+                std::stringstream errorMessage;
+                errorMessage << "Calling getUserName on " << userId << " caused this error : Unknown user ID";
+                throw FileSystem::IFileSystemException(errorMessage.str();
             }
 
-            if( err == 0 || err == ERANGE) // no error
+            if (err == 0 || err == ERANGE) // no error
             {
                 return userBuf.pw_name;
             }
@@ -156,9 +165,11 @@ namespace Common
             }
         }
 
-    }
+        using IFilePermissionsPtr = std::unique_ptr<Common::FileSystem::IFilePermissions>;
 
+    }
 }
+
 namespace
 {
     Common::FileSystem::IFilePermissionsPtr& filePermissionsStaticPointer()
