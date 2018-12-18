@@ -10,9 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>

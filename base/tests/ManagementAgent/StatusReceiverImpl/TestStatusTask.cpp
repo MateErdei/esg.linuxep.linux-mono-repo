@@ -9,9 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 

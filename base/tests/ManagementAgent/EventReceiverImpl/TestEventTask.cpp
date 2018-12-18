@@ -7,9 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/EventReceiverImpl/EventTask.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class TestEventTask : public ::testing::Test

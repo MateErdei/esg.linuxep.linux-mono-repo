@@ -7,9 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 

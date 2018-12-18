@@ -10,11 +10,11 @@
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
-
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/MockedPluginApiCallback.h>
 

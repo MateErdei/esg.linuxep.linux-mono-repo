@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MockPluginManager.h"
-#include "TempDir.h"
 
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
@@ -15,8 +14,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gtest/gtest.h>
