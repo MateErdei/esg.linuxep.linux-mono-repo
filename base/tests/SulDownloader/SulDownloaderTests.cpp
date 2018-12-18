@@ -31,9 +31,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/Common/OSUtilitiesImpl/MockPidLockFileUtils.h>
 

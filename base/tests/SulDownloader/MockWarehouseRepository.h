@@ -12,6 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 
+#include "gmock/gmock.h"
+
 using namespace ::testing;
 using namespace SulDownloader;
 

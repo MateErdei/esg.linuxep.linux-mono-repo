@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gmock/gmock-matchers.h>

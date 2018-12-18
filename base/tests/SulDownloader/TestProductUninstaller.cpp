@@ -4,18 +4,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
 #include <SulDownloader/ProductUninstaller.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/Process/IProcessException.h>
 
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+
 
 using namespace SulDownloader;
 

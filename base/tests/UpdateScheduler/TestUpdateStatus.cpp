@@ -4,12 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock-matchers.h>
+#include "DownloadReportTestBuilder.h"
+
 #include <UpdateSchedulerImpl/configModule/UpdateStatus.h>
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
+
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
-#include "DownloadReportTestBuilder.h"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
 
 static std::string normalStatusXML{R"sophos(<?xml version="1.0" encoding="utf-8" ?>

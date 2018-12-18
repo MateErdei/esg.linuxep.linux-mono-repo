@@ -4,11 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
-
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 
-#include "../tests/Common/Helpers/TempDir.h"
+#include <tests/Common/Helpers/TempDir.h>
+
+#include <gmock/gmock-matchers.h>
 
 
 using namespace SulDownloader;

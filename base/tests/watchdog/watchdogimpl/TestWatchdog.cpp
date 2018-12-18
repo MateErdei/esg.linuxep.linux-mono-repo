@@ -10,11 +10,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
+
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
-
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 #include <gmock/gmock.h>

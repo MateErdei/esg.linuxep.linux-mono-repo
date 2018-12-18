@@ -4,18 +4,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+
+#include <gtest/gtest.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

@@ -9,13 +9,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include <gmock/gmock-matchers.h>
-#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
-#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
-#include <tests/Common/UtilityImpl/MockFormattedTime.h>
 #include "DownloadReportTestBuilder.h"
 #include "MockMapHostCacheId.h"
-#include "gtest/gtest.h"
+
+#include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
+
+#include <tests/Common/UtilityImpl/MockFormattedTime.h>
+
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 
 static std::string successEventXML{R"sophos(<?xml version="1.0"?>

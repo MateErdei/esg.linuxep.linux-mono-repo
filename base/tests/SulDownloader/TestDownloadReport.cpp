@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "TestWarehouseHelper.h"
+#include "MockWarehouseRepository.h"
 
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
@@ -13,10 +13,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
+
 #include <Common/UtilityImpl/TimeUtils.h>
 
-#include "TestWarehouseHelper.h"
-#include "MockWarehouseRepository.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace Common::UtilityImpl;
 

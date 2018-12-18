@@ -15,10 +15,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/TempDir.h>
-
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
