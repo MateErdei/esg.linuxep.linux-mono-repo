@@ -144,10 +144,7 @@ namespace Common
                     try
                     {
                         int groupId = filefunctions.getGroupId(groupName);
-                        if (groupId != -1)
-                        {
-                            m_executableGroup = groupId;
-                        }
+                        m_executableGroup = groupId;
                     }
                     catch (const Common::FileSystem::IFileSystemException & exception)
                     {
