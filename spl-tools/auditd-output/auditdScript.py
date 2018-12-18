@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import re
 import subprocess as sp
 import shutil
 import sys
 
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
+
 
 ########################################################################################################################
 #
@@ -19,7 +21,7 @@ auditctl -w /etc/passwd -p wa -k CFG_passwd
 auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
 auditctl -w /etc/shadow -p rwxa -k CFG_shadow
 auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
-
+clearLogs
 useradd testuser
 """
 delete_user = """
@@ -33,6 +35,7 @@ useradd testuser
 clearLogs
 userdel -r testuser &> /dev/null
 """
+
 change_password = """
 useradd testuser
 clearLogs
@@ -60,12 +63,53 @@ clearLogs
 sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
 """
 
+execute_file = """
+auditctl -a exit,always -F arch=b64 -S execve -k procmon
+auditctl -a exit,always -F arch=b32 -S execve -k procmon
+
+createExecutingFile auditd_test_file1.sh
+clearLogs
+~/auditd_test_file1.sh
+"""
+
+execute_file_with_quote = r"""
+auditctl -a exit,always -F arch=b64 -S execve -k procmon
+auditctl -a exit,always -F arch=b32 -S execve -k procmon
+
+createExecutingFile "auditd_test_file1.sh"
+mv ~/auditd_test_file1.sh ~/auditd_\"test_file1.sh
+clearLogs
+~/auditd_\"test_file1.sh
+"""
+
+execute_file_with_single_quote = r"""
+auditctl -a exit,always -F arch=b64 -S execve -k procmon
+auditctl -a exit,always -F arch=b32 -S execve -k procmon
+
+createExecutingFile auditd_test_file1.sh
+mv ~/auditd_test_file1.sh ~/auditd_\'test_file1.sh
+clearLogs
+~/auditd_\'test_file1.sh
+"""
+
+execute_file_jp_characters = u"""
+auditctl -a exit,always -F arch=b64 -S execve -k procmon
+auditctl -a exit,always -F arch=b32 -S execve -k procmon
+createExecutingFile テストファイル.sh
+clearLogs
+~/テストファイル.sh
+"""
+
 payloads = {'add_user': add_user,
             'delete_user': delete_user,
             'change_password': change_password,
             'group_membership_change': group_membership_change,
             'failed_ssh_attempt': failed_ssh_attempt,
-            'successful_ssh_attempt': successful_ssh_attempt}
+            'successful_ssh_attempt': successful_ssh_attempt,
+            'execute_file': execute_file,
+            'execute_file_with_quote': execute_file_with_quote,
+            'execute_file_with_single_quote': execute_file_with_single_quote,
+            'execute_file_jp_characters': execute_file_jp_characters}
 
 ########################################################################################################################
 
@@ -84,6 +128,16 @@ function clearLogs()
 {{
     > /var/log/audit/audit.log
     > /root/AuditEvents.bin.tmp
+}}
+
+function createExecutingFile()
+{{
+    cat > ~/$1 << EOF
+    #!/bin/bash
+    echo "hello"
+EOF
+
+    chmod +x ~/$1
 }}
 
 pushd "{remotedir}"
@@ -128,7 +182,7 @@ EOF
 echo "\nMatch LocalAddress 127.0.0.1\n\tPasswordAuthentication yes" >> /etc/ssh/sshd_config
 service sshd restart
 
-setenforce Permissive
+setenforce Permissive &> /dev/null
 sleep 5
 service auditd restart
 """
@@ -146,12 +200,13 @@ def find_vagrant_root(start_from_dir):
     return curr
 
 
-def check_vagrant_up_and_running():
+def check_vagrant_up_and_running(platform):
     output = sp.check_output(['/usr/bin/vagrant', 'status'])
-    if b'running' not in output:
-        print('starting up vagrant')
-        sp.call(['/usr/bin/vagrant', 'up'])
+    regex = platform + '[ ]*running'
 
+    if not re.search(regex, str(output)):
+        print('starting up vagrant')
+        sp.call(['/usr/bin/vagrant', 'up', platform])
 
 def vagrant_rsync(platform):
     sp.call(['/usr/bin/vagrant', 'rsync', platform])
@@ -193,10 +248,11 @@ def main():
         remotedir = os.path.join('/vagrant', currdir[1:])
 
     sp.call(['vagrant', 'destroy', '-f'])
-    check_vagrant_up_and_running()
 
     for platform in platforms:
+        check_vagrant_up_and_running(platform)
 
+    for platform in platforms:
         vagrant_run(platform, platformSetupScript.format(platform=platform))
 
         newPath = os.path.join(currdir, platform)
