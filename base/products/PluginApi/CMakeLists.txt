@@ -31,7 +31,7 @@ SET_TARGET_PROPERTIES( pluginapi
         INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "$ORIGIN")
 
-
+INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
