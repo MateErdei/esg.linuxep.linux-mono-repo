@@ -6,14 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/FileSystem/IFilePermissions.h"
 
-namespace Common
+#include "Common/FileSystem/IFileSystem.h"
+
+namespace Tests
 {
-    namespace TestHelpers
-    {
-        void replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>);
-        void restoreFilePermissions();
-    }
-
+    void replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>);
+    void restoreFileSystem();
 }

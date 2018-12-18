@@ -1,14 +1,16 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
+#include <tests/Common/Helpers/TempDir.h>
 
 #include "gtest/gtest.h"
-#include "../../../modules/Common/TestHelpers/TempDir.h"
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 namespace
 {
 using namespace Tests;

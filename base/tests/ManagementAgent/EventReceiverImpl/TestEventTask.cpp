@@ -7,8 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/EventReceiverImpl/EventTask.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
@@ -64,10 +64,10 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) //NOLINT
                 )
             ).WillOnce(Return());
 
-    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     task.run();
-    Common::TestHelpers::restoreFileSystem();
+    Tests::restoreFileSystem();
 }
 
 TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) //NOLINT
@@ -108,12 +108,12 @@ TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCre
                     )).WillOnce(SaveArg<0>(&base2)
             );
     }
-    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     task.run();
     task2.run();
 
-    Common::TestHelpers::restoreFileSystem();
+    Tests::restoreFileSystem();
 
 //    std::cerr << "base1=" << base1 << std::endl;
 //    std::cerr << "base2=" << base2 << std::endl;

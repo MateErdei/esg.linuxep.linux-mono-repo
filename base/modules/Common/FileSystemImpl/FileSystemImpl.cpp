@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
 #include <Common/FileSystem/IFilePermissions.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
 
 #include <cassert>
 #include <cstring>
@@ -464,32 +463,17 @@ namespace Common
             return Common::FileSystem::join(currentWorkingDirectory(),path);
         }
 
-        using IFileSystemPtr = std::unique_ptr<Common::FileSystem::IFileSystem>;
-    }
-}
-
-namespace
-{
-    Common::FileSystem::IFileSystemPtr& fileSystemStaticPointer()
-    {
-        static Common::FileSystem::IFileSystemPtr instance = Common::FileSystem::IFileSystemPtr(new Common::FileSystem::FileSystemImpl());
-        return instance;
+        std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
+        {
+            static std::unique_ptr<Common::FileSystem::IFileSystem> instance = std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
+            return instance;
+        }
     }
 }
 
 Common::FileSystem::IFileSystem * Common::FileSystem::fileSystem()
 {
-    return fileSystemStaticPointer().get();
-}
-
-void Common::TestHelpers::replaceFileSystem(Common::FileSystem::IFileSystemPtr pointerToReplace)
-{
-    fileSystemStaticPointer().reset(pointerToReplace.release());
-}
-
-void Common::TestHelpers::restoreFileSystem()
-{
-    fileSystemStaticPointer().reset( new Common::FileSystem::FileSystemImpl());
+    return Common::FileSystem::fileSystemStaticPointer().get();
 }
 
 

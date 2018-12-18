@@ -16,10 +16,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
-#include <Common/TestHelpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
@@ -75,7 +75,7 @@ namespace
 
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-            Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+            Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(

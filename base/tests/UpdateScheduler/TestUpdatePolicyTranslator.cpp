@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <Common/OSUtilities/IDnsLookup.h>
 #include <Common/OSUtilities/IIPUtils.h>
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>

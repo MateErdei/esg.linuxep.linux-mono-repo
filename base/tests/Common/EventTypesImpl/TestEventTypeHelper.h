@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 
-#include <Common/TestHelpers/TempDir.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
 

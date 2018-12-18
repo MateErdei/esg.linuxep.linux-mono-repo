@@ -4,12 +4,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "DummyDirectoryWatcherListener.h"
+
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 #include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include "DummyDirectoryWatcherListener.h"
-#include <Common/TestHelpers/TempDir.h>
+
+#include <tests/Common/Helpers/TempDir.h>
+
 #include "gmock/gmock.h"
 #include <cstring>
 

@@ -9,8 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
@@ -42,13 +42,13 @@ TEST_F(PolicyTaskTests, PolicyTaskAssignsPolicyWhenRun) // NOLINT
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("Hello"));
-    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
 
     ManagementAgent::McsRouterPluginCommunicationImpl::PolicyTask task(m_mockPluginManager,"/tmp/policy/SAV-11_policy.xml");
     task.run();
 
-    Common::TestHelpers::restoreFileSystem();
+    Tests::restoreFileSystem();
 }
 
 TEST_F(PolicyTaskTests, PolicyTaskHandlesNameWithoutHyphen) // NOLINT

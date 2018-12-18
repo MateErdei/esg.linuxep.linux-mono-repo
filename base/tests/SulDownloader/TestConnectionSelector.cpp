@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
-#include <Common/TestHelpers/TempDir.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 
 using namespace SulDownloader;

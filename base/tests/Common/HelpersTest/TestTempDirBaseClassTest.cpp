@@ -1,11 +1,12 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include "TempDirBaseClassTest.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 /**
  * This class is to show how TempDirBaseClassTest can be used in order to

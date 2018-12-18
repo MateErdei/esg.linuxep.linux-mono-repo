@@ -10,9 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
@@ -112,7 +112,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseWillSetupManagementAgentAndNotThrow) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
         std::vector<std::string> pluginFiles = {"PluginName.json"};
 
@@ -153,7 +153,7 @@ namespace
     TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
         std::vector<std::string> pluginFiles = {"PluginName.json"};
 

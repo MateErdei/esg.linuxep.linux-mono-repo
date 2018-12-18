@@ -1,14 +1,17 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
 #include "gtest/gtest.h"
-#include "../../../modules/Common/TestHelpers/TestExecutionSynchronizer.h"
+
 #include <future>
 #include <atomic>
+
 namespace
 {
     using namespace Tests;

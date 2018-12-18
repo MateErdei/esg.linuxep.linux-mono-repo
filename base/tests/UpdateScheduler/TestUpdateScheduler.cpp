@@ -15,8 +15,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/PluginApiImpl/MockApiBaseServices.h>
@@ -293,7 +293,7 @@ public:
 
     void TearDown() override
     {
-        Common::TestHelpers::restoreFileSystem();
+        Tests::restoreFileSystem();
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }
 
@@ -315,7 +315,7 @@ public:
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/rootca.crt")).WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs/ps_rootca.crt")).WillRepeatedly(Return(true));
 
-        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
 

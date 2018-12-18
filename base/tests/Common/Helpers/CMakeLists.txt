@@ -9,7 +9,7 @@ add_library(testhelpersobject OBJECT
         FilePermissionsReplaceAndRestore.h
         FileSystemReplaceAndRestore.h
         MockFilePermissions.h
-        MockFileSystem.h)
+        MockFileSystem.h FilePermissionsReplaceAndRestore.cpp FileSystemReplaceAndRestore.cpp)
 
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )

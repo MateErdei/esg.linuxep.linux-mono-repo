@@ -1,13 +1,15 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #pragma once
 
+#include <tests/Common/Helpers/TempDir.h>
+
 #include "gtest/gtest.h"
-#include "../../../modules/Common/TestHelpers/TempDir.h"
+
 namespace Tests
 {
 /**

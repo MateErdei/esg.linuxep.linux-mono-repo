@@ -52,8 +52,9 @@ namespace Common
 
             void removeFile(const Path &path) const override;
         };
+
+        std::unique_ptr<IFileSystem>& fileSystemStaticPointer();
+
     }
 }
-
-
 

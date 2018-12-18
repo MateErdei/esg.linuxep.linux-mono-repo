@@ -10,8 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
@@ -52,7 +52,7 @@ TEST_F(PolicyReceiverImplTests, PolicyReceiverConstructorWithValidDataDoesNotThr
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAddedToQeue) //NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -69,13 +69,13 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     EXPECT_NE(task.get(),nullptr);
 
-    Common::TestHelpers::restoreFileSystem();
+    Tests::restoreFileSystem();
 }
 
 TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLINT
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
-    Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     std::string appId = "AppID";
     std::string policyId = "25";
@@ -100,6 +100,6 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) //NOLIN
 
     task->run();
 
-    Common::TestHelpers::restoreFileSystem();
+    Tests::restoreFileSystem();
 }
 

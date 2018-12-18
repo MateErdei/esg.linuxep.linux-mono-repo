@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>

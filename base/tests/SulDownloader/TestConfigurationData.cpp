@@ -10,11 +10,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 
 using namespace SulDownloader;
@@ -45,7 +45,7 @@ public:
 
     void TearDown() override
     {
-        Common::TestHelpers::restoreFileSystem();
+        Tests::restoreFileSystem();
     }
 
     MockFileSystem& setupFileSystemAndGetMock()
@@ -65,7 +65,7 @@ public:
         ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
 
         auto pointer = filesystemMock;
-        Common::TestHelpers::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
 

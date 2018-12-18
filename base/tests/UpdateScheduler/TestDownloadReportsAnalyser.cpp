@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
@@ -427,7 +427,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
 
 
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     ReportAndFiles reportAndFiles =  DownloadReportsAnalyser::processReports();
     ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;

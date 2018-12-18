@@ -8,7 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/TempDir.h>
+
+#include <tests/Common/Helpers/TempDir.h>
 
 #include <fstream>
 

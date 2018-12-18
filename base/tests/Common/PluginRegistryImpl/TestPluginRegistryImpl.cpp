@@ -12,8 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
-#include <Common/TestHelpers/MockFileSystem.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
 using namespace ::testing;
 
@@ -768,7 +768,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenNoJso
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
@@ -782,7 +782,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenJsonF
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename("/tmp/file1.json");
@@ -801,7 +801,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMulti
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename1("/tmp/file1.json");
@@ -822,7 +822,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename1("/tmp/file1.json");
@@ -843,7 +843,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenMulti
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename1("/tmp/file1.json");
@@ -864,7 +864,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAtLea
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename1("/tmp/file1.json");
@@ -885,7 +885,7 @@ TEST_F(PluginRegistryTests, pluginInfoLoadFromDirectoryPathDoesNotThrowWhenAllJs
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
     std::vector<std::string> files;
     std::string filename1("/tmp/file1.json");

@@ -30,6 +30,6 @@ namespace Common
             std::string getUserName(const uid_t & userId) const override;
         };
 
-
+        std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();
     }
 }

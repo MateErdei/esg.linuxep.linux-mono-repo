@@ -83,7 +83,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Threads
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
-        COMMAND mkdir -p pluginapi/include/Common/TestHelpers
+        COMMAND mkdir -p pluginapi/include/Common/Helpers
         COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus

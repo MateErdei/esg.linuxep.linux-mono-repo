@@ -1,11 +1,13 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+
 #include "ExampleTempDirSuiteTest.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+
 using namespace Tests;
 
 // use this static global variable to check which test has run.

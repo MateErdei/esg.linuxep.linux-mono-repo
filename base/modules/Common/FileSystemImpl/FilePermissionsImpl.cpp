@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
-#include <Common/TestHelpers/FilePermissionsReplaceAndRestore.h>
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -71,7 +70,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Calling getGroupId on " << groupString << " caused this error : Unknown group name";
-                throw FileSystem::IFileSystemException(errorMessage.str();
+                throw FileSystem::IFileSystemException(errorMessage.str());
             }
 
             if (err == 0 || err == ERANGE) // no error
@@ -98,7 +97,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Calling getGroupName on " << groupId << " caused this error : Unknown group ID";
-                throw FileSystem::IFileSystemException(errorMessage.str();
+                throw FileSystem::IFileSystemException(errorMessage.str());
             }
 
             if (err == 0 || err == ERANGE) // no error
@@ -124,7 +123,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Calling getUserId on " << userString << " caused this error : Unknown user name";
-                throw FileSystem::IFileSystemException(errorMessage.str();
+                throw FileSystem::IFileSystemException(errorMessage.str());
             }
 
             if (err == 0 || err == ERANGE) // no error
@@ -150,7 +149,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Calling getUserName on " << userId << " caused this error : Unknown user ID";
-                throw FileSystem::IFileSystemException(errorMessage.str();
+                throw FileSystem::IFileSystemException(errorMessage.str());
             }
 
             if (err == 0 || err == ERANGE) // no error
@@ -165,32 +164,20 @@ namespace Common
             }
         }
 
-        using IFilePermissionsPtr = std::unique_ptr<Common::FileSystem::IFilePermissions>;
+        std::unique_ptr<Common::FileSystem::IFilePermissions>& filePermissionsStaticPointer()
+        {
+            static std::unique_ptr<Common::FileSystem::IFilePermissions> instance = std::unique_ptr<Common::FileSystem::IFilePermissions>(new Common::FileSystem::FilePermissionsImpl());
+            return instance;
+        }
 
     }
 }
 
-namespace
-{
-    Common::FileSystem::IFilePermissionsPtr& filePermissionsStaticPointer()
-    {
-        static Common::FileSystem::IFilePermissionsPtr instance = Common::FileSystem::IFilePermissionsPtr(new Common::FileSystem::FilePermissionsImpl());
-        return instance;
-    }
-}
+
 
 Common::FileSystem::IFilePermissions * Common::FileSystem::filePermissions()
 {
-    return filePermissionsStaticPointer().get();
+    return Common::FileSystem::filePermissionsStaticPointer().get();
 }
 
-void Common::TestHelpers::replaceFilePermissions(Common::FileSystem::IFilePermissionsPtr pointerToReplace)
-{
-    filePermissionsStaticPointer() = std::move(pointerToReplace);
-}
-
-void Common::TestHelpers::restoreFilePermissions()
-{
-    filePermissionsStaticPointer().reset( new Common::FileSystem::FilePermissionsImpl());
-}
 

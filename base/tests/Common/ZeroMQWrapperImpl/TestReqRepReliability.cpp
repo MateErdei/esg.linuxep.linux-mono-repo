@@ -14,8 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <Common/TestHelpers/TempDir.h>
-#include <Common/TestHelpers/TestExecutionSynchronizer.h>
+#include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

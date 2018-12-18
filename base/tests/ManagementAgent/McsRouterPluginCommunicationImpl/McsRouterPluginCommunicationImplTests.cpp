@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 

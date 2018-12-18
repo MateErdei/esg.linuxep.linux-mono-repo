@@ -10,8 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Installer/ManifestDiff/ManifestDiff.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/TestHelpers/FileSystemReplaceAndRestore.h>
-#include <Common/TestHelpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -31,7 +31,7 @@ namespace
     public:
         void TearDown() override
         {
-            Common::TestHelpers::restoreFileSystem();
+            Tests::restoreFileSystem();
         }
     };
 
@@ -51,7 +51,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(two_entries));
@@ -67,7 +67,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(two_entries));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry));
@@ -83,7 +83,7 @@ namespace
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
-        Common::TestHelpers::replaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));
         Installer::ManifestDiff::Manifest new_manifest(manifestFromString(one_entry_changed));

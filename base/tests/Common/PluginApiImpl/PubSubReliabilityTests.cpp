@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <Common/TestHelpers/TempDir.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <gtest/gtest.h>

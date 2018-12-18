@@ -11,7 +11,7 @@
 #include <Installer/VersionedCopy/VersionedCopy.h>
 #include <boost/filesystem.hpp>
 
-#include <Common/TestHelpers/TempDir.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 namespace
 {
