@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TestExecutionSynchronizer.h"
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
@@ -16,10 +15,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/EventTypesImpl/EventConverter.h>
+
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
-#include <Common/EventTypesImpl/EventConverter.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

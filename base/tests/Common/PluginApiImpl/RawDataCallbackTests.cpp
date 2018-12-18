@@ -4,8 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TestExecutionSynchronizer.h"
-
 #include <Common/EventTypes/IEventConverter.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/AbstractEventVisitor.h>
@@ -17,6 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
 #include <tests/Common/Helpers/PubSubPathReplacement.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
