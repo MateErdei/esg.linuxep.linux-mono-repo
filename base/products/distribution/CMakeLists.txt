@@ -43,6 +43,8 @@ add_custom_target(
 #        )
 #")
 
+INCLUDE(FindLibraryFullPath)
+
 function(add_third_party_library LIB LIBRARY_PATH)
     FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)

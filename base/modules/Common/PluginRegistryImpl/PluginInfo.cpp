@@ -141,10 +141,17 @@ namespace Common
                 else
                 {
                     FileSystem::FilePermissionsImpl filefunctions;
-                    int groupId = filefunctions.getGroupId(groupName);
-                    if (groupId != -1)
+                    try
                     {
-                        m_executableGroup = groupId;
+                        int groupId = filefunctions.getGroupId(groupName);
+                        if (groupId != -1)
+                        {
+                            m_executableGroup = groupId;
+                        }
+                    }
+                    catch (const Common::FileSystem::IFileSystemException & exception)
+                    {
+                        LOGERROR(exception.what());
                     }
                 }
             }

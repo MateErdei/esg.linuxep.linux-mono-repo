@@ -4,10 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+
 #include <tests/Common/Helpers/TempDir.h>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
 #include <grp.h>
 #include <pwd.h>
 
@@ -45,7 +49,7 @@ namespace
     //group id tests
     TEST(FilePermissionsImpl,checkGetGroupIdReturnsMinusOneWhenBadGroup)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("badgroup"),-1);
+        EXPECT_THROW(Common::FileSystem::filePermissions()->getGroupId("badgroup"), Common::FileSystem::IFileSystemException);
     }
 
     TEST(FilePermissionsImpl,checkGetGroupIdReturnsAGroupWhenGoodGroup)
@@ -64,9 +68,9 @@ namespace
     }
 
     //group name tests
-    TEST(FilePermissionsImpl,checkGetGroupNameReturnsEmptyStringWhenBadGroup)
+    TEST(FilePermissionsImpl,checkGetGroupNameThrowsWhenBadGroup)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupName(-1),"");
+        EXPECT_THROW(Common::FileSystem::filePermissions()->getGroupName(-1), Common::FileSystem::IFileSystemException);
     }
 
     TEST(FilePermissionsImpl,checkGetGroupNameReturnsAGroupWhenGoodGroup)
@@ -87,7 +91,7 @@ namespace
     //user id tests
     TEST(FilePermissionsImpl,checkGetUserIdReturnsMinusOneWhenBadUser)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("baduser"),-1);
+        EXPECT_THROW(Common::FileSystem::filePermissions()->getUserId("baduser"), Common::FileSystem::IFileSystemException);
     }
 
     TEST(FilePermissionsImpl,checkGetUserIdReturnsAUserWhenGoodUser)
@@ -109,7 +113,7 @@ namespace
     //user name tests
     TEST(FilePermissionsImpl,checkGetUserNameReturnsEmptyStringWhenBadUser)
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(-1),"");
+        EXPECT_THROW(Common::FileSystem::filePermissions()->getUserName(-1), Common::FileSystem::IFileSystemException);
     }
 
     TEST(FilePermissionsImpl,checkGetUserNameReturnsAUserWhenGoodUser)

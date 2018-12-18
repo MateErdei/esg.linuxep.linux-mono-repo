@@ -81,7 +81,7 @@ namespace
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(
                     mockFilePermissions
             );
-            Common::TestHelpers::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+            Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());

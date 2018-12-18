@@ -13,9 +13,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
-#include <Common/TestHelpers/PubSubPathReplacement.h>
 
+#include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
+#include <tests/Common/Helpers/PubSubPathReplacement.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 
 #include <gtest/gtest.h>
