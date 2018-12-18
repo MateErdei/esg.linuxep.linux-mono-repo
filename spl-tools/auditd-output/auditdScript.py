@@ -24,6 +24,37 @@ auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
 clearLogs
 useradd testuser
 """
+
+add_user_without_home_directory = """
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+clearLogs
+useradd -M testuser_no_home
+"""
+
+add_user_with_quote = r"""
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+clearLogs
+useradd test\"user
+"""
+
+add_user_with_single_quote = r"""
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+clearLogs
+useradd test\'user
+"""
+
 delete_user = """
 auditctl -w /etc/group -p wa -k CFG_group
 auditctl -w /etc/passwd -p wa -k CFG_passwd
@@ -41,13 +72,59 @@ useradd testuser
 clearLogs
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 """
-group_membership_change = """
+
+change_password_with_quote = r"""
+useradd testuser
+clearLogs
+echo -e "linux\"password\nlinux\"password" | passwd testuser
+"""
+
+change_password_with_single_quote = r"""
+useradd testuser
+clearLogs
+echo -e "linux\'password\nlinux\'password" | passwd testuser
+"""
+
+change_password_with_japanese_chars = u"""
+useradd testuser
+clearLogs
+echo -e "テストファイル\nテストファイル" | passwd testuser
+"""
+
+
+add_user_to_group = """
 useradd testuser
 groupadd testgrp
 sleep 5
 clearLogs
 usermod -a -G testgrp testuser
 """
+
+group_membership_change = """
+useradd testuser
+groupadd testgrp
+sleep 5
+groupadd test2grp
+sleep 5
+usermod -a -G testgrp testuser
+sleep 5
+clearLogs
+usermod -a -G test2grp testuser
+"""
+
+remove_user_from_group = """
+useradd testuser
+groupadd testgrp
+sleep 5
+usermod -a -G testgrp testuser
+clearLogs
+usermod -G "" testuser
+"""
+
+
+
+
+
 failed_ssh_attempt = """
 useradd testuser
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
@@ -61,6 +138,28 @@ echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 sleep 5
 clearLogs
 sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
+"""
+
+successful_ssh_multi_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
+sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
+sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
+sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
+"""
+
+failed_ssh_multi_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
 """
 
 execute_file = """
@@ -101,11 +200,21 @@ clearLogs
 """
 
 payloads = {'add_user': add_user,
+            'add_user_without_home_directory': add_user_without_home_directory,
+            'add_user_with_quote': add_user_with_quote,
+            'add_user_with_single_quote': add_user_with_single_quote,
             'delete_user': delete_user,
             'change_password': change_password,
+            'change_password_with_quote': change_password_with_quote,
+            'change_password_with_single_quote': change_password_with_single_quote,
+            'change_password_with_japanese_chars': change_password_with_japanese_chars,
+            'add_user_to_group': add_user_to_group,
+            'remove_user_from_group': remove_user_from_group,
             'group_membership_change': group_membership_change,
             'failed_ssh_attempt': failed_ssh_attempt,
             'successful_ssh_attempt': successful_ssh_attempt,
+            'failed_ssh_multi_attempt': failed_ssh_multi_attempt,
+            'successful_ssh_multi_attempt': successful_ssh_multi_attempt,
             'execute_file': execute_file,
             'execute_file_with_quote': execute_file_with_quote,
             'execute_file_with_single_quote': execute_file_with_single_quote,
