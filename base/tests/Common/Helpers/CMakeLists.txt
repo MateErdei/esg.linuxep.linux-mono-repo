@@ -7,9 +7,12 @@ add_library(testhelpersobject OBJECT
         PubSubPathReplacement.h
         TestExecutionSynchronizer.h
         FilePermissionsReplaceAndRestore.h
+        FilePermissionsReplaceAndRestore.cpp
         FileSystemReplaceAndRestore.h
+        FileSystemReplaceAndRestore.cpp
         MockFilePermissions.h
-        MockFileSystem.h FilePermissionsReplaceAndRestore.cpp FileSystemReplaceAndRestore.cpp)
+        MockFileSystem.h
+        )
 
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )
