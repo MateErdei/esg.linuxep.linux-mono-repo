@@ -3,29 +3,34 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include "MockCallBackListener.h"
+#include "PipeForTests.h"
+#include "ReactorImplTestsPath.h"
+#include "FakeServer.h"
+#include "FakeClient.h"
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include "Common/Process/IProcess.h"
 #include <Common/ReactorImpl/ReadableFd.h>
-#include <future>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include "TempDir.h"
-#include "TestExecutionSynchronizer.h"
+#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
-#include "MockCallBackListener.h"
-#include "PipeForTests.h"
-#include "Common/ZeroMQWrapper/IContext.h"
-#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapperImpl/SocketImpl.h>
-#include "FakeServer.h"
-#include "FakeClient.h"
-#include "Common/Process/IProcess.h"
-#include "ReactorImplTestsPath.h"
+
+#include <tests/Common/Helpers/TempDir.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <zmq.h>
+
+#include <future>
+
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
