@@ -7,7 +7,7 @@ target_include_directories(TestPluginProtocol
         "${gmock_SOURCE_DIR}"
         "${gmock_SOURCE_DIR}/include"
         ${CMAKE_SOURCE_DIR}/modules
-        ../../../
+        ${CMAKE_SOURCE_DIR}
         )
 target_link_libraries(TestPluginProtocol gtest gmock gtest_main)
 target_link_libraries(TestPluginProtocol pluginprotocol testhelpers logging)
