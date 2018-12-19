@@ -25,7 +25,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 BASEDIR=${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/bin}
 
 UNINSTALLDIR=$BASEDIR/plugins/${PLUGIN_NAME}
-SYMLINK=$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
+SYMLINK=$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
