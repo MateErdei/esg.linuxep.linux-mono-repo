@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/TestHelpers/PubSubPathReplacement.h>
+#include <Common/Helpers/PubSubPathReplacement.h>
 #include <Common/EventTypes/EventStrings.h>
 
 #include <gtest/gtest.h>

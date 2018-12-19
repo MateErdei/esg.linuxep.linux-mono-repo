@@ -17,6 +17,7 @@ add_library(pluginimpl SHARED
 target_include_directories(pluginimpl PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(pluginimpl PUBLIC ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
+add_dependencies(pluginimpl copy_libs)
 
 SET_TARGET_PROPERTIES( pluginimpl
         PROPERTIES
