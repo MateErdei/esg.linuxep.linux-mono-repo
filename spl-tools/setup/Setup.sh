@@ -2,9 +2,9 @@
 
 # Ensure we run script from within sspl-tools directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
-TOTAL_STEPS=$(grep -c [e]choProgress ${SCRIPT_DIR}/Setup.sh)
-pushd "${SCRIPT_DIR}../" &> /dev/null
+pushd "${SCRIPT_DIR}/../" &> /dev/null
 
+TOTAL_STEPS=$(grep -c [e]choProgress ${SCRIPT_DIR}/Setup.sh)
 TOTAL_STEPS=$(( TOTAL_STEPS - 1))
 CURRENT_STEP=1
 
@@ -114,8 +114,8 @@ function setupMounts()
 
 # Update and Upgrade OS
 echoProgress "Updating and Upgrading OS"
-#sudo apt-get update || error "Failed to update"
-#sudo apt-get -y upgrade || error "Failed to upgrade"
+sudo apt-get update || error "Failed to update"
+sudo apt-get -y upgrade || error "Failed to upgrade"
 
 # Install required packages
 echoProgress "Installing Required Packages"
@@ -139,3 +139,5 @@ then
 else
     error "Cannot execute ${installVagrantScript}"
 fi
+
+popd &> /dev/null
