@@ -39,8 +39,10 @@ def main(argv):
 
     touchedFiles = []
 
+    ret = 0
+
     for t in targets:
-        assert os.path.isfile(t)
+        assert os.path.isfile(t), "target %s doesn't exist or is not a file" % t
         base = os.path.basename(t)
         target_dest = os.path.join(dest, base)
         touchedFiles.append(base)
@@ -63,7 +65,8 @@ def main(argv):
         if os.path.islink(full) and not os.path.isfile(full):
             os.unlink(full)
 
-    return 0
+    return ret
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
