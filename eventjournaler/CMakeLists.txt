@@ -18,7 +18,7 @@ endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)
 
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID ServerProtectionLinux-${PLUGIN_NAME})
+    set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${PLUGIN_NAME})
 
 endif()
 
