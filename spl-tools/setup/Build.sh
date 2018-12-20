@@ -10,10 +10,9 @@ pushd "${SCRIPT_DIR}/../" &> /dev/null
 function error()
 {
     sleep 0.5
-	printf '\033[0;31m'
-	echo "ERROR: $1"
-	printf '\033[0m'
-	exit 1
+    printf '\033[0;31m'
+    echo "ERROR: $1"
+    printf '\033[0m'
 }
 
 function prefixwith() {
@@ -23,15 +22,26 @@ function prefixwith() {
     "$@" > >(sed "s_^_\\o033[32mBuilding $prefix:\\o033[0m _")  2> >(sed "s_^_\\o033[32mBuilding $prefix:\\o033[0m _" >&2)
 }
 
+failedBuilds=()
 
-for buildScript in $(find . -name "build.sh")
+for repo in $(cat setup/gitRepos.txt)
 do
-    directory=$(dirname $buildScript)
-    pushd $directory &> /dev/null
+    echo $repo 
+    repoName=$(echo $repo | awk '{n=split($0, a, "/"); print a[n]}' | sed -n "s_\([^\.]*\).*_\1_p")
+    ls $repoName
+    pushd $repoName &> /dev/null
 
-    chmod +x build.sh
-    prefixwith "$directory" ./build.sh || error "Build of ${directory} failed!"
+    if [[ -f build.sh ]] 
+    then
+        chmod +x build.sh
+        prefixwith "$repoName" ./build.sh || failedBuilds+=($repoName)    
+    fi
     popd &> /dev/null
+done
+
+for build in ${failedBuilds[@]}
+do
+    error "Build of ${build} failed!"
 done
 
 popd &> /dev/null
