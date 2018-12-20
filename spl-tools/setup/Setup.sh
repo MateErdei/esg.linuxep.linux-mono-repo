@@ -93,6 +93,9 @@ function mountFiler6()
     filer6Loc="/mnt/filer6/bfr"
     filer6mount="//UK-FILER6.ENG.SOPHOS/BFR  $filer6Loc cifs   noauto,users,rw,domain=GREEN,username=USERNAME,password=PASSWORD,vers=2.0   0   0"
     mountShare "${filer6Loc}" "${filer6mount}"
+    filer6Loc="/mnt/filer6/linux"
+    filer6mount="//UK-FILER6.ENG.SOPHOS/LINUX  $filer6Loc cifs   noauto,users,rw,domain=GREEN,username=USERNAME,password=PASSWORD,vers=2.0   0   0"
+    mountShare "${filer6Loc}" "${filer6mount}"
 }
 
 function mountAllegro()
@@ -119,7 +122,7 @@ sudo apt-get -y upgrade || error "Failed to upgrade"
 
 # Install required packages
 echoProgress "Installing Required Packages"
-sudo apt-get -y install zip openssh-server cmake make nfs-common cifs-utils gcc python-pip \
+sudo apt-get -y install zip openssh-server cmake make nfs-common cifs-utils gcc python-pip awscli \
 	|| error "Failed to install required packages"
 
 # Clone all SSPL Repos
@@ -138,6 +141,16 @@ then
     ${installVagrantScript}
 else
     error "Cannot execute ${installVagrantScript}"
+fi
+
+# Setup robot test symlink
+echoProgress "Creating robot test Symlink"
+if [[ -L ./everest-systemproducttests/robot ]]
+then
+    warning "Symlink already exists"
+else
+    ln -s ../tests/remoterobot.py everest-systemproducttests/robot
+    chmod +x tests/remoterobot.py
 fi
 
 popd &> /dev/null

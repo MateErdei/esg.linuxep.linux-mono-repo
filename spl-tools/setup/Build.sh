@@ -7,6 +7,15 @@ pushd "${SCRIPT_DIR}/../" &> /dev/null
 # Do not run as root - we do not want the builds to be root owned
 [[ $EUID -ne 0 ]] || error "Please do not run the script as root"
 
+function error()
+{
+    sleep 0.5
+	printf '\033[0;31m'
+	echo "ERROR: $1"
+	printf '\033[0m'
+	exit 1
+}
+
 function prefixwith() {
     local prefix="$1"
     shift
@@ -21,7 +30,7 @@ do
     pushd $directory &> /dev/null
 
     chmod +x build.sh
-    prefixwith "$directory" ./build.sh || "Build of ${directory} failed!"
+    prefixwith "$directory" ./build.sh || error "Build of ${directory} failed!"
     popd &> /dev/null
 done
 
