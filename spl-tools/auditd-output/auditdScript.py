@@ -121,10 +121,6 @@ clearLogs
 usermod -G "" testuser
 """
 
-
-
-
-
 failed_ssh_attempt = """
 useradd testuser
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
@@ -199,6 +195,66 @@ clearLogs
 ~/テストファイル.sh
 """
 
+watch_directory_for_file_changes_create_file = """
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+clearLogs
+createConfigFile test_watch_dir configfile1.conf
+"""
+
+watch_directory_for_file_changes_modify_file = """
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+createConfigFile test_watch_dir configfile1.conf
+clearLogs
+echo "hello" >> ~/test_watch_dir/configfile1.conf
+"""
+
+watch_directory_for_file_changes_create_file_with_quote = r"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+clearLogs
+createConfigFile test_watch_dir config\"file1.conf
+"""
+
+watch_directory_for_file_changes_modify_file_with_quote = r"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+createConfigFile test_watch_dir config\"file1.conf
+clearLogs
+echo "hello" >> ~/test_watch_dir/config\"file1.conf
+"""
+
+watch_directory_for_file_changes_create_file_with_single_quote = r"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+clearLogs
+createConfigFile test_watch_dir config\'file1.conf
+"""
+
+watch_directory_for_file_changes_modify_file_with_single_quote = r"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+createConfigFile test_watch_dir config\'file1.conf
+clearLogs
+echo "hello" >> ~/test_watch_dir/config\'file1.conf
+"""
+
+watch_directory_for_file_changes_create_jp_file = u"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+clearLogs
+createConfigFile test_watch_dir テストファイル.conf
+"""
+
+watch_directory_for_file_changes_modify_jp_file = u"""
+auditctl -w ~/test_watch_dir/ -k test_watch
+mkdir -p ~/test_watch_dir
+createConfigFile test_watch_dir テストファイル.conf
+clearLogs
+echo "hello" >> ~/test_watch_dir/テストファイル.conf
+"""
+
 payloads = {'add_user': add_user,
             'add_user_without_home_directory': add_user_without_home_directory,
             'add_user_with_quote': add_user_with_quote,
@@ -218,7 +274,15 @@ payloads = {'add_user': add_user,
             'execute_file': execute_file,
             'execute_file_with_quote': execute_file_with_quote,
             'execute_file_with_single_quote': execute_file_with_single_quote,
-            'execute_file_jp_characters': execute_file_jp_characters}
+            'execute_file_jp_characters': execute_file_jp_characters,
+            'watch_directory_for_file_changes_create_file': watch_directory_for_file_changes_create_file,
+            'watch_directory_for_file_changes_modify_file': watch_directory_for_file_changes_modify_file,
+            'watch_directory_for_file_changes_create_file_with_quote': watch_directory_for_file_changes_create_file_with_quote,
+            'watch_directory_for_file_changes_modify_file_with_quote': watch_directory_for_file_changes_modify_file_with_quote,
+            'watch_directory_for_file_changes_create_file_with_single_quote': watch_directory_for_file_changes_create_file_with_single_quote,
+            'watch_directory_for_file_changes_modify_file_with_single_quote': watch_directory_for_file_changes_modify_file_with_single_quote,
+            'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
+            'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file}
 
 ########################################################################################################################
 
@@ -249,6 +313,13 @@ EOF
     chmod +x ~/$1
 }}
 
+function createConfigFile()
+{{
+    cat > ~/$1/$2 << EOF
+    some_config_item some_config_value
+EOF
+}}
+
 pushd "{remotedir}"
 echo "Running {filePrefix} script on {platform}!..."
 
@@ -272,6 +343,8 @@ platformSetupScript = """
 #!/bin/bash
 
 export REMOTE_DIR="/vagrant/auditd-output/{platform}"
+
+mkdir -p $REMOTE_DIR
 
 cat > /root/record_bin_events << EOF
 #!/bin/bash
@@ -320,6 +393,11 @@ def check_vagrant_up_and_running(platform):
 def vagrant_rsync(platform):
     sp.call(['/usr/bin/vagrant', 'rsync', platform])
 
+def vagrant_push_data(platform, local_path):
+    filename = os.path.basename(local_path)
+    destination = f"{platform}:/vagrant/{filename}"
+    sp.call(['/usr/bin/vagrant', 'scp',  local_path, destination], stdout=sp.PIPE)
+
 
 def vagrant_pull_data(platform, localPath, filePrefix):
     sp.call(['/usr/bin/vagrant', 'scp',  f"{platform}:/vagrant/auditd-output/{platform}/{filePrefix}*", localPath], stdout=sp.PIPE)
@@ -333,7 +411,11 @@ def vagrant_run(platform, bashString):
         f.write(bashString)
 
     if platform == "amazon_linux":
-        vagrant_rsync(platform)
+        vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo mkdir /vagrant']
+        sp.call(vagrant_cmd)
+        vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo chown ec2-user:ec2-user /vagrant']
+        sp.call(vagrant_cmd)
+        vagrant_push_data(platform, hostfile)
 
     vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo bash %s' % remotefile]
     sp.call(vagrant_cmd)
