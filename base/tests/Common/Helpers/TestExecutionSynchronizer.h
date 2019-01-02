@@ -36,6 +36,7 @@ namespace Tests
     public:
         explicit ReentrantExecutionSynchronizer();
         void notify();
+        void notify(int expectedCounter);
         void waitfor(int expectedCounter, int ms = 500);
         void waitfor( int expectedCounter, std::chrono::milliseconds ms);
     };

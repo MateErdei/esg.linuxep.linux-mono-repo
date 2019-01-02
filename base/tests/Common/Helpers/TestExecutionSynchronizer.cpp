@@ -51,6 +51,17 @@ namespace Tests
         m_waitsync.notify_all();
     }
 
+    void ReentrantExecutionSynchronizer::notify(int expectedCounter)
+    {
+        std::lock_guard<std::mutex> lock( m_FirstMutex);
+        m_counter++;
+        if (m_counter != expectedCounter)
+        {
+            throw std::runtime_error("notify with bad counter");
+        }
+        m_waitsync.notify_all();
+    }
+
     void ReentrantExecutionSynchronizer::waitfor(int expectedCounter, int ms)
     {
         waitfor(expectedCounter, std::chrono::milliseconds(ms));
@@ -77,5 +88,6 @@ namespace Tests
             }
         }
     }
+
 
 }
