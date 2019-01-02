@@ -49,6 +49,9 @@ do
         --clean)
             CLEAN=1
             ;;
+        --no-clean|--noclean)
+            CLEAN=0
+            ;;
         --remove-gcc)
             NO_REMOVE_GCC=0
             ;;
@@ -107,6 +110,9 @@ do
         -j|--parallel)
             shift
             NPROC=$1
+            ;;
+        -j*)
+            NPROC=${1#-j}
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
