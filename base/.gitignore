@@ -8,7 +8,7 @@
 .idea/workspace.xml
 .idea/shelf/
 .idea/markdown-exported-files.xml
-./idea/codeStyles/Project.xml
+.idea/codeStyles/Project.xml
 build64
 cmake-build-debug
 *.pyc
