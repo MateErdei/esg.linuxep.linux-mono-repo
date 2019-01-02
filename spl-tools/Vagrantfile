@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
         end
         amazon_linux.vm.provision :shell, path: "bootstrap_common.sh"
 
-        # By default vagrant will rync everything in route folder.
+        # By default vagrant will rsync everything in root folder.
         # the line below will prevent this.  This is to ensure we do not upload source code to AWS.
         amazon_linux.vm.synced_folder '.', '/vagrant', disabled: true
 

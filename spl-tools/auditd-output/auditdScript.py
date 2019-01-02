@@ -7,7 +7,7 @@ import shutil
 import sys
 
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
-
+#platforms = ['amazon_linux']
 
 ########################################################################################################################
 #
