@@ -378,22 +378,24 @@ namespace
         std::string killch = m_testContext.killChannel();
 
         auto futureReplier = std::async(std::launch::async, [serveraddress]() {
-            Replier replier( serveraddress );
+            Replier replier( serveraddress, 10000 );
             try
             {
                 replier.serveRequest();
-            }catch ( std::exception & ex)
+            }
+            catch ( std::exception & ex)
             {
-                std::cout << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what();
+                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what() << std::endl;
                 // the first one may or may not throw, but the second must not throw.
             }
 
             try
             {
                 replier.serveRequest();
-            }catch ( std::exception & ex)
+            }
+            catch ( std::exception & ex)
             {
-                std::cout << "There was exception for replierShouldNotBreakIfRequesterFails 2: " << ex.what();
+                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 2: " << ex.what() << std::endl;
                 // the first one may or may not throw, but the second must not throw.
                 throw;
             }
@@ -402,18 +404,19 @@ namespace
         // the fact that the first request break after the send message has no implication on the replier
         runInExternalProcess.runFork(
                 [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.breakAfterSendRequest("hello"); }
-
         );
 
         runInExternalProcess.runFork(
                 [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
         );
+
         try
         {
             futureReplier.get();
-        }catch ( std::exception & ex)
+        }
+        catch ( std::exception & ex)
         {
-            ADD_FAILURE() << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
+            ADD_FAILURE() << "We do not expect futureReplier.get to throw, but it threw: "<< ex.what();
         }
 
 
