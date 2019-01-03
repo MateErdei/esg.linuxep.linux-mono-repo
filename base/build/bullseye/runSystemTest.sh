@@ -53,13 +53,17 @@ then
     cd "${SYSTEM_TEST_CHECKOUT}"
     git pull \
             || failure 80 "Failed to pull system tests"
+    git fetch origin "${BULLSEYE_SYSTEM_TEST_BRANCH}":"${BULLSEYE_SYSTEM_TEST_BRANCH}" \
+            --deepen=1 \
+            --update-shallow \
+            || failure 83 "Failed to fetch ${BULLSEYE_SYSTEM_TEST_BRANCH}"
     git checkout "${BULLSEYE_SYSTEM_TEST_BRANCH}" \
             || failure 81 "Failed to checkout required branch"
 else
     git clone \
             --branch "${BULLSEYE_SYSTEM_TEST_BRANCH}" \
-            --single-branch \
             --depth 1 \
+            --no-single-branch \
             ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git "${SYSTEM_TEST_CHECKOUT}" \
             || failure 82 "Failed to clone system tests"
     cd "${SYSTEM_TEST_CHECKOUT}"
