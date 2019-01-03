@@ -51,14 +51,14 @@ unset LD_LIBRARY_PATH
 if [[ -d "${SYSTEM_TEST_CHECKOUT}/.git" ]]
 then
     cd "${SYSTEM_TEST_CHECKOUT}"
-    git pull \
-            || failure 80 "Failed to pull system tests"
-    git fetch origin "${BULLSEYE_SYSTEM_TEST_BRANCH}":"${BULLSEYE_SYSTEM_TEST_BRANCH}" \
+    git fetch origin \
             --deepen=1 \
             --update-shallow \
             || failure 83 "Failed to fetch ${BULLSEYE_SYSTEM_TEST_BRANCH}"
     git checkout "${BULLSEYE_SYSTEM_TEST_BRANCH}" \
             || failure 81 "Failed to checkout required branch"
+    git pull \
+            || failure 80 "Failed to pull system tests"
 else
     git clone \
             --branch "${BULLSEYE_SYSTEM_TEST_BRANCH}" \
