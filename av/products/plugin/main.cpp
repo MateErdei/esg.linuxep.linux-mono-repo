@@ -5,6 +5,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/pluginimpl/PluginCallback.h>
 #include <modules/pluginimpl/Logger.h>
 #include "config.h"
 
@@ -25,19 +26,19 @@ int main()
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement = Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask            = std::make_shared<QueueTask>();
-    auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
+    auto sharedPluginCallBack =  std::make_shared<PluginCallback>(queueTask);
 
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
-
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
-
-    try
-    {
-        pluginAdapter.mainLoop();
-    }
-    catch (const std::exception& ex)
-    {
-        LOGERROR("Plugin threw an exception at top level: "<<ex.what());
-    }
-    LOGINFO("Plugin Finished.");
+//    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+//
+//    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+//
+//    try
+//    {
+//        pluginAdapter.mainLoop();
+//    }
+//    catch (const std::exception& ex)
+//    {
+//        LOGERROR("Plugin threw an exception at top level: "<<ex.what());
+//    }
+//    LOGINFO("Plugin Finished.");
 }

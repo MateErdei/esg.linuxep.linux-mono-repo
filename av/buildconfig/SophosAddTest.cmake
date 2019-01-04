@@ -11,7 +11,7 @@
 #  PathOfThirdPartyIncludes: optional. Example: ${pluginapiinclude}
 #
 
-macro(SophosAddTest )
+macro(SophosAddTest TARGET)
     set(multiValueArgs PROJECTS LIBS INC_DIRS )
 
     if (ARGC LESS 1)
@@ -25,9 +25,6 @@ macro(SophosAddTest )
     if( NOT AddTest_UNPARSED_ARGUMENTS )
             message(FATAL_ERROR "No target supplied to SophosAddTest()")
     endif()
-
-    list(GET AddTest_UNPARSED_ARGUMENTS 0 TARGET)
-    list(REMOVE_AT AddTest_UNPARSED_ARGUMENTS 0)
 
     if( NOT AddTest_UNPARSED_ARGUMENTS )
         message(FATAL_ERROR "No files supplied to SophosAddTest()")
