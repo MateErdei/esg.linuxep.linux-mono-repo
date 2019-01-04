@@ -28,17 +28,17 @@ int main()
     auto queueTask            = std::make_shared<QueueTask>();
     auto sharedPluginCallBack =  std::make_shared<PluginCallback>(queueTask);
 
-//    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
-//
-//    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
-//
-//    try
-//    {
-//        pluginAdapter.mainLoop();
-//    }
-//    catch (const std::exception& ex)
-//    {
-//        LOGERROR("Plugin threw an exception at top level: "<<ex.what());
-//    }
-//    LOGINFO("Plugin Finished.");
+    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+
+    try
+    {
+        pluginAdapter.mainLoop();
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("Plugin threw an exception at top level: "<<ex.what());
+    }
+    LOGINFO("Plugin Finished.");
 }
