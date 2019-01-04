@@ -1,6 +1,6 @@
 configure_file(config.h.in config.h )
 
-add_library(pluginimpl SHARED
+sophos_add_library(pluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
         QueueTask.cpp
@@ -13,16 +13,7 @@ add_library(pluginimpl SHARED
         StringReplace.h
         Telemetry.cpp
         Telemetry.h
-        config.h)
-target_include_directories(pluginimpl PUBLIC ${pluginapiinclude}  ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-
-target_link_libraries(pluginimpl PUBLIC ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
-add_dependencies(pluginimpl copy_libs)
-
-SET_TARGET_PROPERTIES( pluginimpl
-        PROPERTIES
-        INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "$ORIGIN")
-
-install(TARGETS pluginimpl
-        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+        config.h
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
+)
