@@ -21,11 +21,6 @@ macro(SophosAddTest TARGET)
     cmake_parse_arguments(AddTest "" ""
             "${multiValueArgs}" ${ARGN} )
 
-    # decompose the inputs between the Target and the supplied files
-    if( NOT AddTest_UNPARSED_ARGUMENTS )
-            message(FATAL_ERROR "No target supplied to SophosAddTest()")
-    endif()
-
     if( NOT AddTest_UNPARSED_ARGUMENTS )
         message(FATAL_ERROR "No files supplied to SophosAddTest()")
     endif()
