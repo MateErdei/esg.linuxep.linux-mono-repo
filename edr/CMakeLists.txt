@@ -4,6 +4,7 @@ project(sspl_template_plugin)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")
 include(SophosAddTest)
+include(SophosAddLibrary)
 
 if(NOT DEFINED PLUGIN_NAME)
     # developers may just add a file called PLUGINNAME to get all the variables
