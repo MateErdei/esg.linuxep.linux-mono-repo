@@ -15,6 +15,14 @@ function error()
     printf '\033[0m'
 }
 
+function success()
+{
+    sleep 0.5
+    printf '\033[0;32m'
+    echo "$1"
+    printf '\033[0m'
+}
+
 function prefixwith() {
     local prefix="$1"
     shift
@@ -23,6 +31,7 @@ function prefixwith() {
 }
 
 failedBuilds=()
+successBuilds=()
 
 for repo in $(cat setup/gitRepos.txt)
 do
@@ -34,9 +43,20 @@ do
     if [[ -f build.sh ]] 
     then
         chmod +x build.sh
-        prefixwith "$repoName" ./build.sh || failedBuilds+=($repoName)    
+        if prefixwith "$repoName" ./build.sh 
+		then
+            successBuilds+=($repoName)
+		else
+		    failedBuilds+=($repoName)    
+        fi
     fi
     popd &> /dev/null
+	echo ""
+done
+
+for build in ${successBuilds[@]}
+do
+    success "Build of ${build} succeeded!"
 done
 
 for build in ${failedBuilds[@]}
