@@ -122,8 +122,10 @@ sudo apt-get -y upgrade || error "Failed to upgrade"
 
 # Install required packages
 echoProgress "Installing Required Packages"
-sudo apt-get -y install zip openssh-server cmake make nfs-common cifs-utils gcc python-pip awscli \
+sudo apt-get -y install zip openssh-server cmake make nfs-common cifs-utils gcc python-pip awscli virtualbox \
+                        virtualbox-dkms \
 	|| error "Failed to install required packages"
+sudo dpkg-reconfigure virtualbox-dkms
 
 # Clone all SSPL Repos
 echoProgress "Cloning SSPL Repos"
