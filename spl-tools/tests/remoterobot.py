@@ -4,8 +4,6 @@ import os
 import subprocess as sp
 import glob
 
-REQUIRED_BUILDS=["everest-base", "exampleplugin"]
-
 # auxiliary method to add quotes to arguments
 def add_quote(inp):
     if inp[0] == '"' or inp[0] == "'":
@@ -30,6 +28,21 @@ def check_vagrant_up_and_running():
         print ('starting up vagrant')
         sp.call(['/usr/bin/vagrant', 'up', 'ubuntu'])
 
+def get_repos():
+    gitRepos = os.path.join(VAGRANTROOT, "setup/gitRepos.txt")
+
+    if not os.path.exists(gitRepos):
+        return []
+
+    repos = []
+    with open(gitRepos, "r") as f:
+        for line in f.readlines():
+            line = line.strip()
+            if line:
+                directoryName = line.split("/")[-1][:-4]
+                repos.append(directoryName)
+    return repos
+
 def newer_folder(folder_one, folder_two):
     newest_timestamp_folder_one = max([os.path.getctime(file) for file in glob.glob(os.path.join(folder_one, "*"))])
     newest_timestamp_folder_two = max([os.path.getctime(file) for file in glob.glob(os.path.join(folder_two, "*"))])
@@ -39,32 +52,40 @@ def newer_folder(folder_one, folder_two):
     else:
         return folder_two
 
-def check_build_folders():
-    base_build_folder = os.path.join(VAGRANTROOT, "everest-base/build64/distribution")
-    base_debug_folder = os.path.join(VAGRANTROOT, "everest-base/cmake-build-debug/distribution")
-    example_plugin_build_folder = os.path.join(VAGRANTROOT, "exampleplugin/build64/sdds")
-    example_plugin_debug_folder = os.path.join(VAGRANTROOT, "exampleplugin/cmake-build-debug/sdds")
-    if os.path.exists(base_build_folder):
-        if newer_folder(base_build_folder, base_debug_folder) == base_debug_folder:
-            print("Warning: Debug build of Everest Base more recent than build64 folder")
-            exit(1)
-    else:
-        print("Warning: build64 folder does not exist in Everest Base")
-        exit(1)
+def find_and_verify_build_folders(repo, build64_candidates, debug_candidates):
+    for build64candidate in build64_candidates:
+        build64path = os.path.join(VAGRANTROOT, repo, build64candidate)
+        if os.path.exists(build64path):
+            for debugcandidate in debug_candidates:
+                debugpath = os.path.join(VAGRANTROOT, repo, debugcandidate)
+                if os.path.exists(debugpath):
+                    if newer_folder(build64path, debugpath) == debugpath:
+                        print("Warning: Debug build of {} more recent than build64 folder. Please run build.sh.".format(repo))
+                        return False
+    return True
 
-    if os.path.exists(example_plugin_build_folder):
-        if newer_folder(example_plugin_build_folder, example_plugin_debug_folder) == example_plugin_debug_folder:
-            print("Warning: Debug build of ExamplePlugin more recent than build64 folder")
-            exit(1)
-    else:
-        print("Warning: build64 folder does not exist in ExamplePlugin")
-        exit(1)
+
+def check_build_folder_errors():
+    build64_candidates = ["build64/distribution", "build64/sdds"]
+    debug_candidates = ["cmake-build-debug/distribution", "cmake-build-debug/sdds"]
+
+    gitRepos = get_repos()
+
+    build_errors = False
+    for repo in gitRepos:
+        if not find_and_verify_build_folders(repo, build64_candidates, debug_candidates):
+            build_errors = True
+
+    return build_errors
+
 
 currdir = os.path.abspath(os.getcwd())
 
 VAGRANTROOT = find_vagrant_root(currdir)
 
-check_build_folders()
+# Ensure that the build.sh build of a component is newer than the debug build
+if check_build_folder_errors():
+    exit(1)
 
 # translate the arguments from the host machine to the vagrant machine
 remote_args = []

@@ -1,16 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import subprocess as sp
 import argparse
 
-TMPSCRIPT="tmpscript.sh"
-REMOTEDIR="/vagrant"
-INSTALLEXAMPLEPLUGIN=False
+TMPSCRIPT = "tmpscript.sh"
+REMOTEDIR = "/vagrant"
+INSTALLEXAMPLEPLUGIN = False
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Install Base and Plugins to Vagrant VM")
+    parser = argparse.ArgumentParser(description="Install Base and Plugins to an Ubuntu Vagrant VM")
     parser.add_argument('--mcsurl', dest="mcsurl", action="store",
                         help="MCS URL for Central (No Central connection if unset)")
     parser.add_argument('--mcstoken', dest="mcstoken", action="store",
@@ -60,12 +60,14 @@ def find_all_installers():
 def run_tempfile_vagrant(contents):
     with open(TMPSCRIPT, 'w') as f:
         f.write(contents)
+    print("Connecting to 127.0.0.1 (vagrant)")
     vagrant_cmd = ['/usr/bin/vagrant', 'ssh', 'ubuntu', '-c', f"bash {REMOTEDIR}/{TMPSCRIPT}"]
     sp.call(vagrant_cmd)
 
 
 def install_base(url, token):
     print("Installing Base on Vagrant")
+    print(f"MCSURL={url} MCSTOKEN={token}")
     script = f"""
     
 # Uninstall Base if already installed
