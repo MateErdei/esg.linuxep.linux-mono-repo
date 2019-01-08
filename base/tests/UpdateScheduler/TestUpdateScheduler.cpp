@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-#include <tests/Common/PluginApiImpl/MockApiBaseServices.h>
+#include <tests/Common/Helpers/MockApiBaseServices.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <gmock/gmock-matchers.h>

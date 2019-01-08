@@ -68,7 +68,7 @@ public:
     std::atomic<bool> m_eventReceived;
     Common::Threads::NotifyPipe m_notify;
 
-    void processEvent(Common::EventTypes::PortScanningEvent portScanningEvent) override
+    void processEvent(const Common::EventTypes::PortScanningEvent & portScanningEvent) override
     {
         if( m_eventReceived) return;
 
@@ -88,7 +88,7 @@ public:
     std::atomic<bool> m_eventReceived;
     Common::Threads::NotifyPipe& m_notify;
 
-    void processEvent(Common::EventTypes::CredentialEvent credentialEvent) override
+    void processEvent(const Common::EventTypes::CredentialEvent & credentialEvent) override
     {
         if( m_eventReceived) return;
 

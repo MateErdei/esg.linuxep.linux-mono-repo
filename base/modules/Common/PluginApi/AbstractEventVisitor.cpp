@@ -17,11 +17,11 @@ namespace Common
     namespace PluginApi
     {
 
-        void AbstractEventVisitor::processEvent(Common::EventTypes::CredentialEvent)
+        void AbstractEventVisitor::processEvent(const Common::EventTypes::CredentialEvent &)
         {
         }
 
-        void AbstractEventVisitor::processEvent(Common::EventTypes::PortScanningEvent)
+        void AbstractEventVisitor::processEvent(const Common::EventTypes::PortScanningEvent &)
         {
         }
 

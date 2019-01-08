@@ -29,8 +29,8 @@ namespace Common
         public :
             virtual ~IEventVisitorCallback() = default;
 
-            virtual void processEvent(Common::EventTypes::CredentialEvent event) = 0;
-            virtual void processEvent(Common::EventTypes::PortScanningEvent event) = 0;
+            virtual void processEvent(const Common::EventTypes::CredentialEvent & event) = 0;
+            virtual void processEvent(const Common::EventTypes::PortScanningEvent & event) = 0;
         };
     }
 }

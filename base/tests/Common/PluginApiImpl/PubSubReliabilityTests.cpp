@@ -60,12 +60,12 @@ public:
     {
     }
 
-    void processEvent(Common::EventTypes::CredentialEvent event) override
+    void processEvent(const Common::EventTypes::CredentialEvent & event) override
     {
         // not using CredentialEvent for these tests as PortScanning is lighterweight
     }
 
-    void processEvent(Common::EventTypes::PortScanningEvent event) override
+    void processEvent(const Common::EventTypes::PortScanningEvent & event) override
     {
         std::string eventTypeId = Common::EventTypes::PortScanningEventName;
         std::lock_guard guard{mutex};

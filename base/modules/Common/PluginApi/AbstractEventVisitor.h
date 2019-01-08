@@ -19,8 +19,8 @@ namespace Common
         public:
             virtual ~AbstractEventVisitor() = default;
 
-            void processEvent(Common::EventTypes::CredentialEvent event) override;
-            void processEvent(Common::EventTypes::PortScanningEvent event) override;
+            void processEvent(const Common::EventTypes::CredentialEvent & event) override;
+            void processEvent(const Common::EventTypes::PortScanningEvent & event) override;
             void receiveData(const std::string& key, const std::string& data) override;
         };
     }
