@@ -87,9 +87,9 @@ else
     [[ -d /uk-filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/uk-filer5/prodro/bir
     [[ -d /mnt/filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/mnt/filer5/prodro/bir
 
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/ExamplePlugin/master/SDDS-COMPONENT" ]]
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT" ]]
     then
-        export EXAMPLE_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/ExamplePlugin/master/SDDS-COMPONENT
+        export EXAMPLE_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT
     elif [[ -d "$FILER_5_BIR/sspl-exampleplugin" ]]
     then
         DIR=$(ls -1 "$FILER_5_BIR/sspl-exampleplugin/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
