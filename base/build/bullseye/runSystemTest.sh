@@ -105,15 +105,16 @@ fi
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT
 LOG_LEVEL=TRACE
+EXCLUSION="--exclude manual --exclude WEEKLY"
 if [[ -n "${TEST_SELECTOR}" ]]
 then
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" --exclude manual --test "${TEST_SELECTOR}" tests
+        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --test "${TEST_SELECTOR}" tests
 else
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" --exclude manual tests
+        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --exclude WEEKLY tests
 fi
 
 echo "Tests exited with $?"
