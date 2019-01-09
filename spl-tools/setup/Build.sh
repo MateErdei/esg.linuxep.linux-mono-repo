@@ -4,9 +4,29 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
 pushd "${SCRIPT_DIR}/../" &> /dev/null
 
-CLION_ROOT=/home/pair/clion
-CMAKE=${CLION_ROOT}/bin/cmake/linux/bin/cmake
-[[ -x ${CMAKE} ]] || CMAKE=$(which cmake)
+
+CMAKE_CANDIDATES=("/home/pair/clion/bin/cmake" \
+                  "/home/pair/clion/bin/cmake/bin/cmake" \
+                  "/home/pair/clion/bin/cmake/linux/bin/cmake" \
+                  "/opt/clion-2018.2.3/bin/cmake/linux/bin/cmake"
+                  )
+
+for candidate in ${CMAKE_CANDIDATES[@]}
+do
+    if [[ -x ${candidate} ]] && [[ ! -d ${candidate} ]]
+    then
+        CMAKE=${candidate}
+        break
+    fi
+done
+
+if [[ ! -x ${CMAKE} ]]
+then
+    echo "Warning: Could not find cmake executable. Using system cmake. \
+Please update this script with the correct cmake location for CLion"
+    CMAKE=$(which cmake)
+    sleep 5
+fi
 
 # Do not run as root - we do not want the builds to be root owned
 [[ $EUID -ne 0 ]] || error "Please do not run the script as root"
