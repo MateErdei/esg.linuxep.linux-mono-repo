@@ -1,8 +1,7 @@
 everest-base
 everest-systemproducttests
 exampleplugin
-sspl-plugin-template
-sspl-plugin-audit
+sspl-plugin-*
 sspl-aws-runner
 3rdparty-jsoncpp
 3rdparty-log4cpp
