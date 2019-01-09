@@ -22,6 +22,8 @@ steps:
 #### Build / Install
 *./setup/Build.sh* : Build all products listed in *gitRepos.txt*.
 
+*./setup/Build.sh --debug* : Perform a clion debug build of all products listed in *gitRepos.txt*.
+
 *./setup/Install.py* : Install Base and Plugins to Ubuntu vagrant VM. Once installed, use ```vagrant ssh ubuntu``` to 
 interact with the product. 
 ```commandline
@@ -150,9 +152,7 @@ Helper Scripts List
 
 *./setup/Install.py* : install Base and Plugins to Ubuntu vagrant VM
 
-*./setup/copyPlugin.sh* : copies and renames exampleplugin for rapid plugin prototyping 
-
-*./setup/clionbuildall.sh* : build the products as clion debug does which can be handy for updating all the install/dist products. 
+*./setup/copyPlugin.sh* : copies and renames exampleplugin for rapid plugin prototyping  
 
 *./setup/installvagrant.sh* : installs vagrant
 
