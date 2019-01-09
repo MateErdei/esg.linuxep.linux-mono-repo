@@ -4,3 +4,4 @@ ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-audit.git
 ssh://git@stash.sophos.net:7999/linuxep/exampleplugin.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-eventprocessor.git

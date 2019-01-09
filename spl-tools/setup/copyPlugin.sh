@@ -39,6 +39,10 @@ do
             shift
             PLUGIN_NAME=$1
             ;;
+        -h | --h | --help)
+            usage
+            exit 0
+            ;;
         --project)
             shift
             PROJECT_NAME=$1

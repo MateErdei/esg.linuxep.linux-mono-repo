@@ -1,26 +1,123 @@
-General Tools For sspl
+General Tools for SSPL
 ======================
 
-
-Setting up developer environment for sspl
+Setting up Developer Environment for SSPL
 =========================================
+#### Prerequisites: 
+* Install an Ubuntu x64 machine, 64GB HDD, 4GB RAM
+* Install git
+* Setup SSH keys for Stash account
+* Clone this repository
 
-Run the sspl-repositories.sh. This will clone the repositories of sspl putting them as children of the sspl-tools
-  which allow them to share the resources and enable the tests to run easily.
+#### Setup
+*./setup/Setup.sh* : Setup an Ubuntu machine ready for SSPL development. Performs the following 
+steps:
+1. Update / Upgrade the OS
+2. Install required packages for SSPL
+3. Clone all git repositories required for SSPL development. (As listed in *./gitRepos.txt*)
+4. Setup NFS mounts - filers, redist etc.
+5. Install vagrant
+6. Setup robot test symlink in the everest-systemproducttests repo
 
-Install vagrant: *./setup/installvagrant.sh*
+#### Build / Install
+*./setup/Build.sh* : Build all products listed in *gitRepos.txt*.
 
-Setup the vagrant with *vagrant up*
+*./setup/Install.py* : Install Base and Plugins to Ubuntu vagrant VM. Once installed, use ```vagrant ssh ubuntu``` to 
+interact with the product. 
+```commandline
+usage: Install.py [-h] [--mcsurl MCSURL] [--mcstoken MCSTOKEN]
+                  [--exampleplugin]
 
-Helper scripts
---------------
-*./setup/clionbuildall.sh* : build the products as clion debug does which can be handy for updating all the install/dist products. 
+Install Base and Plugins to an Ubuntu Vagrant VM
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --mcsurl MCSURL      MCS URL for Central (No Central connection if unset)
+  --mcstoken MCSTOKEN  MCS Token for Central (No Central connection if unset)
+  --exampleplugin      Install exampleplugin
+
+```
+ 
+Rapid Prototyping of New Plugin
+=========================================
+Follow these instructions if you are new to SSPL Plugin development to quickly have a new plugin up and running.
+In this tutorial we will create a new plugin called 'TestScanner'.
+
+##### Create a copy of exampleplugin
+*./setup/copyPlugin.sh* will copy and rename the Example plugin. It will also remove the git history from the copy.
+```commandline
+$ ./setup/copyPlugin.sh --help
+Usage: ./setup/copyPlugin.sh --name <plugin_name> --project <project_name> [--gitrepo <git_repo>]
+
+$ ./setup/copyPlugin.sh --name TestScanner --project sspl-testscanner
+
+$ ls testscanner
+build  
+buildconfig  
+build-files  
+build.sh  
+CMakeLists.txt  
+Jenkinsfile  
+localjenkins  
+modules  
+PLUGINNAME  
+products  
+README.md  
+tests  
+tools
+```
+
+##### Build the TestScanner plugin
+Use *build.sh* to build the new plugin and run any unit tests.
+```commandline
+$ cd testscanner
+$ ./build.sh
+```
+
+##### Install the TestScanner plugin with Base (without Central connection)
+```commandline
+$ ./setup/Install.py
+Installing Base on Vagrant
+MCSURL=None MCSTOKEN=None
+Connecting to 127.0.0.1 (vagrant)
+Connection to 127.0.0.1 closed.
+Running ./testscanner/build64/sdds/install.sh on Vagrant
+Connecting to 127.0.0.1 (vagrant)
+Connection to 127.0.0.1 closed.
+Running ./sspl-plugin-audit/build64/sdds/install.sh on Vagrant
+Connecting to 127.0.0.1 (vagrant)
+Connection to 127.0.0.1 closed.
+```
+
+##### Verify that the TestScanner plugin is running
+```commandline
+$ vagrant ssh ubuntu
+
+vagrant@vagrant$ ps -ef | grep [T]estScanner
+sophos-+ 28144 27823  0 11:51 ?        00:00:00 /opt/sophos-spl/plugins/TestScanner/bin/testscanner
+
+vagrant@vagrant$ sudo su
+root@vagrant$ tail /opt/sophos-spl/plugins/TestScanner/bin/testscanner
+0       [2019-01-09T11:51:24.626.289] DEBUG [2850219904] TestScanner <> Plugin Callback Started
+0       [2019-01-09T11:51:24.626.551]  INFO [2850219904] pluginapi <> Plugin initialized: TestScanner
+0       [2019-01-09T11:51:24.626.674]  INFO [2850219904] pluginapi <> Registering 'TestScanner' with management agent
+1       [2019-01-09T11:51:24.627.126]  INFO [2850219904] TestScanner <> Request SAV policy
+1       [2019-01-09T11:51:24.627.134]  INFO [2850219904] pluginapi <> Request policy message for AppId: SAV
+1       [2019-01-09T11:51:24.627.358] ERROR [2850219904] pluginapi <> Protocol Serializer message error: No policy available
+1       [2019-01-09T11:51:24.627.381] ERROR [2850219904] pluginapi <> Invalid reply, error: No policy available
+1       [2019-01-09T11:51:24.627.407] ERROR [2850219904] TestScanner <> Request of Policies for SAV failed. Error: Invalid reply, error: No policy available
+1       [2019-01-09T11:51:24.627.421]  INFO [2850219904] TestScanner <> Entering the main loop
+
+root@vagrant$ exit
+
+```
+Note that it does not receive a policy because there is no Central connection in this scenario.
 
 
 Running Robot Tests
 ===================
 
-create a link to the tests/remoterobot.py inside the everest-systemproducttests (For example: *ln -s ../tests/remoterobot.py robot*)
+If not done already by *./setup/Setup.sh*, create a link to the tests/remoterobot.py inside the everest-systemproducttests (For example: *ln -s ../tests/remoterobot.py robot*)
 Run tests as:
 ```python
 ./robot [any argument you would want to give to robot tests]
@@ -44,6 +141,22 @@ If you want to ssh into the machine and re-run the tests, for example, for debug
   cd /vagrant
   ./tmpscript.sh
 ```
+
+Helper Scripts List
+=========================================
+*./setup/Setup.sh* : setup Ubuntu machine ready for SSPL development
+
+*./setup/Build.sh* : build all products listed in *gitRepos.txt*
+
+*./setup/Install.py* : install Base and Plugins to Ubuntu vagrant VM
+
+*./setup/copyPlugin.sh* : copies and renames exampleplugin for rapid plugin prototyping 
+
+*./setup/clionbuildall.sh* : build the products as clion debug does which can be handy for updating all the install/dist products. 
+
+*./setup/installvagrant.sh* : installs vagrant
+
+*./setup/installsav.sh* : installs SAV to Ubuntu machine using dogfood account
 
 Other Vagrant Boxes
 ===================
