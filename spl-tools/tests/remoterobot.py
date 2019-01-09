@@ -120,7 +120,6 @@ tempfileContent = """#!/bin/bash
 pushd "%s"
 export BASE_DIST=%s
 export EXAMPLE_PLUGIN_SDDS=%s
-sudo -E echo $BASE_DIST
 sudo -E /usr/bin/python -m robot %s
 popd
 """ % (remotedir, base_folder, example_folder,  ' '.join(quoted_args))

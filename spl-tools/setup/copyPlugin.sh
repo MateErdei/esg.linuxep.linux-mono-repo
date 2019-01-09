@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-FAILURE_BAD_ARG=5
+FAILURE_BAD_ARG=2
+FAILURE_MISSING_ARG=3
+FAILURE_MISSING_BASE=4
+FAILURE_SETUP_PLUGIN=5
 
 # Ensure we run script from within sspl-tools directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
@@ -52,22 +55,22 @@ do
 done
 
 if [ "x$PLUGIN_NAME" == "x" ]; then
-    usageAndExit 3 "Please provide plugin name. E.g. Example"
+    usageAndExit ${FAILURE_MISSING_ARG} "Please provide plugin name. E.g. Example"
 fi
 
 if [ "x$PROJECT_NAME" == "x" ]; then
-    usageAndExit 3 "Please provide project name. E.g. sspl-exampleplugin"
+    usageAndExit ${FAILURE_MISSING_ARG} "Please provide project name. E.g. sspl-exampleplugin"
 fi
 
 if [ ! -d "exampleplugin" ]; then
-    exitFailure 4 "exampleplugin repository not found. Run Setup.sh to install all required repos."
+    exitFailure ${FAILURE_MISSING_BASE} "exampleplugin repository not found. Run Setup.sh to install all required repos."
 fi
 
 PLUGIN_NAME_LOWER="${PLUGIN_NAME,,}"
 
-mkdir $PLUGIN_NAME_LOWER || exitFailure 6 "Could not create $PLUGIN_NAME_LOWER directory"
-cp -r exampleplugin/* "$PLUGIN_NAME_LOWER/" || exitFailure 6 "Could not copy exampleplugin to $PLUGIN_NAME_LOWER"
-pushd "$PLUGIN_NAME_LOWER" || exitFailure 6 "Could not change directory to $PLUGIN_NAME_LOWER"
+mkdir $PLUGIN_NAME_LOWER || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not create $PLUGIN_NAME_LOWER directory"
+cp -r exampleplugin/* "$PLUGIN_NAME_LOWER/" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not copy exampleplugin to $PLUGIN_NAME_LOWER"
+pushd "$PLUGIN_NAME_LOWER" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not change directory to $PLUGIN_NAME_LOWER"
 
 [[ -d cmake-build-debug ]] && rm -rf cmake-build-debug
 [[ -d build64 ]] && rm -rf build64

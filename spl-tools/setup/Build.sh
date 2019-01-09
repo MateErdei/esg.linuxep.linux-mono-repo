@@ -35,9 +35,7 @@ successBuilds=()
 
 for repo in $(cat setup/gitRepos.txt)
 do
-    echo $repo 
     repoName=$(echo $repo | awk '{n=split($0, a, "/"); print a[n]}' | sed -n "s_\([^\.]*\).*_\1_p")
-    ls $repoName
     pushd $repoName &> /dev/null
 
     if [[ -f build.sh ]] 
