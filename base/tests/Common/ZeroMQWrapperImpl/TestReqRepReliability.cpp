@@ -25,7 +25,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 
 #ifndef ARTISANBUILD
-#ifdef DISABLETHIS
+
 namespace
 {
     Common::ZeroMQWrapper::IContextSharedPtr createContext()
@@ -41,7 +41,7 @@ namespace
     /** uses the requester as implemented in PluginProxy::getReply and  Common::PluginApiImpl::BaseServiceAPI::getReply**/
     class Requester
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
+        Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     public:
         explicit Requester(const std::string& serverAddress)
@@ -66,7 +66,7 @@ namespace
 
     class Replier
     {
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
+        Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
     public:
         explicit Replier(const std::string& serverAddress, int timeout = 1000)
@@ -90,7 +90,7 @@ namespace
     class Unreliable
     {
     protected:
-        std::unique_ptr<Common::ZeroMQWrapper::IContext> m_context;
+        Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requestKillChannel;
 
         void requestKill()
@@ -287,7 +287,7 @@ namespace
         ReqRepReliabilityTests() = default;
     };
 
-    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWork ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, DISABLED_normalReqReplyShouldWork ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -305,7 +305,7 @@ namespace
     }
 
 
-    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, DISABLED_normalReqReplyShouldWorkUsingReply ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -322,7 +322,7 @@ namespace
     }
 
 
-    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierFailure ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -345,7 +345,7 @@ namespace
     }
 
 
-    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierSendingBrokenMessage ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -370,7 +370,7 @@ namespace
 }
 
 
-    //Test disabled as there is some instability caused by running a thread in parallel with a fork
+
     TEST_F( ReqRepReliabilityTests, DISABLED_replierShouldNotBreakIfRequesterFails ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
@@ -537,5 +537,4 @@ namespace
 
     }
 }
-#endif
 #endif
