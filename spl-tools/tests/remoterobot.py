@@ -37,7 +37,7 @@ def get_plugin_names():
             if "plugin" in line.lower():
                 plugin_name = line.split("/")[-1].split(".")[0]
                 plugin["name"] = plugin_name
-                plugin["envName"] = plugin_name.upper() + "_SDDS"
+                plugin["envName"] = plugin_name.upper().replace("-","_") + "_SDDS"
                 repos.append(plugin)
     return repos
 
