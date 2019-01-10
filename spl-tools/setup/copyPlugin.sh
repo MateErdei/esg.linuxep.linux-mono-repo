@@ -21,7 +21,7 @@ function exitFailure()
 
 function usage
 {
-   echo "Usage: $PROG --name <plugin_name> --project <project_name> [--gitrepo <git_repo>]"
+   echo "Usage: $PROG --name <plugin_name> [--gitrepo <git_repo>]"
 }
 
 function usageAndExit()
@@ -43,10 +43,6 @@ do
             usage
             exit 0
             ;;
-        --project)
-            shift
-            PROJECT_NAME=$1
-            ;;
         --gitrepo)
             shift
             GITREPO=$1
@@ -62,19 +58,16 @@ if [ "x$PLUGIN_NAME" == "x" ]; then
     usageAndExit ${FAILURE_MISSING_ARG} "Please provide plugin name. E.g. Example"
 fi
 
-if [ "x$PROJECT_NAME" == "x" ]; then
-    usageAndExit ${FAILURE_MISSING_ARG} "Please provide project name. E.g. sspl-exampleplugin"
-fi
-
 if [ ! -d "exampleplugin" ]; then
     exitFailure ${FAILURE_MISSING_BASE} "exampleplugin repository not found. Run Setup.sh to install all required repos."
 fi
 
 PLUGIN_NAME_LOWER="${PLUGIN_NAME,,}"
+PROJECT_NAME="sspl-plugin-${PLUGIN_NAME_LOWER}"
 
-mkdir $PLUGIN_NAME_LOWER || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not create $PLUGIN_NAME_LOWER directory"
-cp -r exampleplugin/* "$PLUGIN_NAME_LOWER/" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not copy exampleplugin to $PLUGIN_NAME_LOWER"
-pushd "$PLUGIN_NAME_LOWER" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not change directory to $PLUGIN_NAME_LOWER"
+mkdir $PROJECT_NAME || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not create $PROJECT_NAME directory"
+cp -r exampleplugin/* "$PROJECT_NAME/" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not copy exampleplugin to $PROJECT_NAME"
+pushd "$PROJECT_NAME" || exitFailure ${FAILURE_SETUP_PLUGIN} "Could not change directory to $PROJECT_NAME"
 
 [[ -d cmake-build-debug ]] && rm -rf cmake-build-debug
 [[ -d build64 ]] && rm -rf build64

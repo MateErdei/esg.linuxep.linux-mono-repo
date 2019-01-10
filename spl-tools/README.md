@@ -49,11 +49,11 @@ In this tutorial we will create a new plugin called 'TestScanner'.
 *./setup/copyPlugin.sh* will copy and rename the Example plugin. It will also remove the git history from the copy.
 ```commandline
 $ ./setup/copyPlugin.sh --help
-Usage: ./setup/copyPlugin.sh --name <plugin_name> --project <project_name> [--gitrepo <git_repo>]
+Usage: ./setup/copyPlugin.sh --name <plugin_name> [--gitrepo <git_repo>]
 
-$ ./setup/copyPlugin.sh --name TestScanner --project sspl-testscanner
+$ ./setup/copyPlugin.sh --name TestScanner
 
-$ ls testscanner
+$ ls sspl-plugin-testscanner
 build  
 buildconfig  
 build-files  
@@ -72,7 +72,7 @@ tools
 ##### Build the TestScanner plugin
 Use *build.sh* to build the new plugin and run any unit tests.
 ```commandline
-$ cd testscanner
+$ cd sspl-plugin-testscanner
 $ ./build.sh
 ```
 
@@ -83,7 +83,7 @@ Installing Base on Vagrant
 MCSURL=None MCSTOKEN=None
 Connecting to 127.0.0.1 (vagrant)
 Connection to 127.0.0.1 closed.
-Running ./testscanner/build64/sdds/install.sh on Vagrant
+Running ./sspl-plugin-testscanner/build64/sdds/install.sh on Vagrant
 Connecting to 127.0.0.1 (vagrant)
 Connection to 127.0.0.1 closed.
 Running ./sspl-plugin-audit/build64/sdds/install.sh on Vagrant
@@ -99,7 +99,7 @@ vagrant@vagrant$ ps -ef | grep [T]estScanner
 sophos-+ 28144 27823  0 11:51 ?        00:00:00 /opt/sophos-spl/plugins/TestScanner/bin/testscanner
 
 vagrant@vagrant$ sudo su
-root@vagrant$ tail /opt/sophos-spl/plugins/TestScanner/bin/testscanner
+root@vagrant$ tail /opt/sophos-spl/plugins/TestScanner/log/TestScanner.log
 0       [2019-01-09T11:51:24.626.289] DEBUG [2850219904] TestScanner <> Plugin Callback Started
 0       [2019-01-09T11:51:24.626.551]  INFO [2850219904] pluginapi <> Plugin initialized: TestScanner
 0       [2019-01-09T11:51:24.626.674]  INFO [2850219904] pluginapi <> Registering 'TestScanner' with management agent
