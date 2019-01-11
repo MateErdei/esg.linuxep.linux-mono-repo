@@ -178,55 +178,6 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
     proxy.reset();
 }
 
-TEST(TestProxyImpl, PassMessageIPC) // NOLINT
-{
-    // Need to share the context to use inproc addresses
-
-    const std::string frontend="ipc:///tmp/frontend";
-    const std::string backend="ipc:///tmp/backend";
-    IProxyPtr proxy = createProxy(frontend,backend);
-    ASSERT_NE(proxy.get(),nullptr);
-
-    proxy->start();
-
-    auto proxyImpl(dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(proxy.get()));
-    ASSERT_NE(proxyImpl,nullptr);
-
-    Common::ZeroMQWrapperImpl::ContextHolderSharedPtr contextHolder(new Common::ZeroMQWrapperImpl::ContextHolder());
-
-    // Directly creating to share the same context
-    Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
-            new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder)
-    );
-
-    Common::ZeroMQWrapper::ISocketSubscriberPtr socket(
-            new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(contextHolder)
-    );
-
-    ASSERT_NE(socket.get(), nullptr);
-    socket->setTimeout(2000);
-    socket->connect(backend);
-    socket->subscribeTo("FOOBAR");
-
-    // Start sender thread - since we need to wait for subscription to propagate
-    SenderThread thread(*publisher,frontend,{"FOOBAR", "DATA"});
-    thread.start();
-
-    auto data = socket->read();
-
-    EXPECT_EQ(data.at(0),"FOOBAR");
-    EXPECT_EQ(data.at(1),"DATA");
-
-    socket.reset();
-
-    thread.stop();
-    publisher.reset();
-
-    proxy->stop();
-    proxy.reset();
-}
-
-
 TEST(TestProxyImpl, 2subscribers) // NOLINT
 {
 

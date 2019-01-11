@@ -121,7 +121,6 @@ namespace Common
 
                     for (auto& ireader : m_callbackListeners)
                     {
-                        auto& callBack = ireader;
                         //LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
                         if (hasFd->fd() == ireader.reader->fd())
                         {

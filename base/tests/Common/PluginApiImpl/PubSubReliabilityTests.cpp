@@ -16,7 +16,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/PluginApiImpl/Logger.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -60,7 +59,6 @@ public:
 
     void receiveData(const std::string& key, const std::string& data) override
     {
-        LOGINFO("Receieved Data" << data);
     }
 
     void processEvent(const Common::EventTypes::CredentialEvent & event) override
@@ -126,7 +124,6 @@ std::unique_ptr<TempDir> PubSubTests::tempDir;
 
 TEST_F(PubSubTests, PubSendsDataReceiverReceives)
 {
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
     PluginResourceManagement pluginResourceManagement;
     auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
     std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
@@ -149,7 +146,6 @@ TEST_F(PubSubTests, PubSendsDataReceiverReceives)
 
 TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
 {
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
     PluginResourceManagement pluginResourceManagement;
     Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
