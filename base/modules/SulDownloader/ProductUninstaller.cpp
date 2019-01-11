@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "suldownloaderdata/Logger.h"
+#include "Logger.h"
 #include "ProductUninstaller.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -16,6 +16,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <map>
 #include <sstream>
+
+namespace
+{
+    using namespace SulDownloader;
+    std::string getLines(const std::vector<suldownloaderdata::DownloadedProduct> &downloadedProducts)
+    {
+        std::ostringstream ost;
+        bool first = true;
+        for (const auto& downloadedProduct : downloadedProducts)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                ost << ", ";
+            }
+            ost << downloadedProduct.getLine();
+        }
+        return ost.str();
+    }
+}
 
 namespace SulDownloader
 {
@@ -36,6 +59,9 @@ namespace SulDownloader
 
             if(productItr == downloadedProducts.end())
             {
+                LOGWARN("Uninstalling plugin " << productLine << " since it was removed from warehouse");
+                LOGWARN("Downloaded products: "<< getLines(downloadedProducts));
+
                 suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
                 suldownloaderdata::DownloadedProduct product(metadata);
