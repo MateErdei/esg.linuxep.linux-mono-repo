@@ -103,7 +103,7 @@ namespace Common
             auto socketSubscriber = m_contextPtr->getSubscriber();
             setTimeouts(*socketSubscriber);
             std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
-            socketSubscriber->listen(subscriberAddressChannel);
+            socketSubscriber->connect(subscriberAddressChannel);
 
             return std::unique_ptr<PluginApi::ISubscriber>( new SensorDataSubscriber( dataCategorySubscription, std::move(eventCallback), std::move(socketSubscriber) ));
         }
@@ -115,7 +115,7 @@ namespace Common
             auto socketSubscriber = m_contextPtr->getSubscriber();
             setTimeouts(*socketSubscriber);
             std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
-            socketSubscriber->listen(subscriberAddressChannel);
+            socketSubscriber->connect(subscriberAddressChannel);
 
             return std::unique_ptr<PluginApi::ISubscriber>( new SensorDataSubscriber( dataCategorySubscription, std::move(rawDataCallback), std::move(socketSubscriber) ));
         }

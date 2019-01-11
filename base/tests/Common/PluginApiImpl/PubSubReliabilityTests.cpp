@@ -9,12 +9,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/PluginProtocol/Protocol.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/PluginApiImpl/Logger.h>
 #include <Common/EventTypesImpl/EventConverter.h>
 
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -58,6 +60,7 @@ public:
 
     void receiveData(const std::string& key, const std::string& data) override
     {
+        LOGINFO("Receieved Data" << data);
     }
 
     void processEvent(const Common::EventTypes::CredentialEvent & event) override
@@ -100,11 +103,14 @@ public:
 
     void SetUp() override
     {
-        std::string tempdirPath = "ipc://" + tempDir->absPath("datachannel.ipc");
+        std::string tempdirPubPath = "ipc://" + tempDir->absPath("datachannelpub.ipc");
+        std::string tempdirSubPath = "ipc://" + tempDir->absPath("datachannelsub.ipc");
+
+        Common::ZeroMQWrapper::createProxy( tempdirSubPath, tempdirPubPath);
         MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
         MockedApplicationPathManager &mock(*mockAppManager);
-        ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return(tempdirPath));
-        ON_CALL(mock, getSubscriberDataChannelAddress()).WillByDefault(Return(tempdirPath));
+        ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return(tempdirSubPath));
+        ON_CALL(mock, getSubscriberDataChannelAddress()).WillByDefault(Return(tempdirPubPath));
         Common::ApplicationConfiguration::replaceApplicationPathManager(
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
 
@@ -117,8 +123,31 @@ public:
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;
 
+TEST_F(PubSubTests, PubSendsDataReceiverReceives)
+{
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+    PluginResourceManagement pluginResourceManagement;
+    auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
+    std::shared_ptr<TrackSensorDataCallback> trackAfter = std::make_shared<TrackSensorDataCallback>();
+    Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent();
+    std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackAfter);
+    sensorDataSubscriber->start();
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    auto connection = portevent.getConnection();
+    for( unsigned int i = 0 ; i< 1000; i++)
+    {
+        connection.sourceAddress.port=i;
+        portevent.setConnection(connection);
+        sensorDataPublisher->sendData(Common::EventTypes::PortScanningEventName,portevent.toString());
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+    sensorDataSubscriber->stop();
+    EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
+}
+
 TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications) // NOLINT
 {
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
     PluginResourceManagement pluginResourceManagement;
     Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent() ;
     auto connection = portevent.getConnection();
@@ -128,7 +157,6 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 
     std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackBefore);
     sensorDataSubscriber->start();
-
     auto future_pub = std::async(std::launch::async, [&pluginResourceManagement,&portevent,&connection](){
         auto sensorDataPublisher =  pluginResourceManagement.createRawDataPublisher();
         for( unsigned int i = 0 ; i< 1000; i++)
@@ -142,11 +170,11 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(600));
-    // crash subscriber and return it.
+    // crash subscriber and restart it.
+    std::this_thread::sleep_for(std::chrono::seconds(6));
     sensorDataSubscriber.reset();
     sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackAfter);
     sensorDataSubscriber->start();
-
     EXPECT_TRUE(future_pub.get());
     sensorDataSubscriber.reset();
 
@@ -184,6 +212,7 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 
 TEST_F(PubSubTests, SubscribersShouldContinueToReceiveDataIfPublishersCrashesAndComeBack)  // NOLINT
 {
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
     PluginResourceManagement pluginResourceManagement;
     Tests::TestExecutionSynchronizer markReached;
     std::shared_ptr<TrackSensorDataCallback> trackBefore = std::make_shared<TrackSensorDataCallback>([&markReached](int data){

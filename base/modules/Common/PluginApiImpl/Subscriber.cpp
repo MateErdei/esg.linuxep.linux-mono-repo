@@ -50,6 +50,7 @@ namespace Common
             const std::string & key = request.at(0);
             const std::string & data = request.at(1);
 
+            LOGINFO("Received Message!");
             if (m_sensorDataCallback)
             {
                 if (key == Common::EventTypes::CredentialEventName)

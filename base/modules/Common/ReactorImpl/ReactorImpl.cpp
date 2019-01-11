@@ -121,7 +121,8 @@ namespace Common
 
                     for (auto& ireader : m_callbackListeners)
                     {
-                        //LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
+                        auto& callBack = ireader;
+                        LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
                         if (hasFd->fd() == ireader.reader->fd())
                         {
                             Common::ZeroMQWrapper::IReadable::data_t request = ireader.reader->read();
