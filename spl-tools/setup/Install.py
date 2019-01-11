@@ -17,6 +17,8 @@ def parse_arguments():
                         help="MCS Token for Central (No Central connection if unset)")
     parser.add_argument("--exampleplugin", dest="exampleplugin", default=False, action="store_true",
                         help="Install exampleplugin")
+    parser.add_argument("--noVagrant", dest="noVagrant", default=False, action="store_true",
+                        help="Install SSPL to the Host machine, rather than a vagrant VM")
     return parser.parse_args()
 
 
@@ -56,16 +58,19 @@ def find_all_installers():
             result.append(os.path.join(root, "install.sh"))
     return result
 
+def run_tempfile(contents):
+    with open(TMPSCRIPT, 'w') as f:
+        f.write(contents)
+    sp.call(["bash", f"{TMPSCRIPT}"])
 
-def run_tempfile_vagrant(contents):
+def run_tempfile_on_vagrant(contents):
     with open(TMPSCRIPT, 'w') as f:
         f.write(contents)
     print("Connecting to 127.0.0.1 (vagrant)")
     vagrant_cmd = ['/usr/bin/vagrant', 'ssh', 'ubuntu', '-c', f"bash {REMOTEDIR}/{TMPSCRIPT}"]
     sp.call(vagrant_cmd)
 
-
-def install_base(url, token):
+def install_base(url, token, noVagrant):
     print("Installing Base on Vagrant")
     print(f"MCSURL={url} MCSTOKEN={token}")
     script = f"""
@@ -79,14 +84,20 @@ sudo {REMOTEDIR}/everest-base/output/SDDS-COMPONENT/install.sh \
 {"--mcs-url " + url if url else ""}
 
 """
-    run_tempfile_vagrant(script)
+    if noVagrant:
+        run_tempfile(script)
+    else:
+        run_tempfile_on_vagrant(script)
 
 
-def install_plugins():
+def install_plugins(noVagrant):
     for installer in find_all_installers():
         script = f"sudo {os.path.join(REMOTEDIR, installer)}"
         print(f"Running {installer} on Vagrant")
-        run_tempfile_vagrant(script)
+        if noVagrant:
+            run_tempfile(script)
+        else:
+            run_tempfile_on_vagrant(script)
 
 
 def main():
@@ -99,10 +110,11 @@ def main():
     vagrantroot = find_vagrant_root(currdir)
     os.chdir(vagrantroot)
 
-    check_vagrant_up_and_running()
+    if not args.noVagrant:
+        check_vagrant_up_and_running()
 
-    install_base(args.mcsurl, args.mcstoken)
-    install_plugins()
+    install_base(args.mcsurl, args.mcstoken, args.noVagrant)
+    install_plugins(args.noVagrant)
 
     if os.path.exists(TMPSCRIPT):
         os.remove(TMPSCRIPT)
