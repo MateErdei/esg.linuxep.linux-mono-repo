@@ -71,7 +71,7 @@ def run_tempfile_on_vagrant(contents):
     sp.call(vagrant_cmd)
 
 def install_base(url, token, noVagrant):
-    print("Installing Base on Vagrant")
+    print("Installing Base")
     print(f"MCSURL={url} MCSTOKEN={token}")
     script = f"""
     
@@ -79,7 +79,7 @@ def install_base(url, token, noVagrant):
 [[ -d /opt/sophos-spl ]] && sudo /opt/sophos-spl/bin/uninstall.sh --force
 
 # Install Base, setting MCS URL/Token if necessary
-sudo {REMOTEDIR}/everest-base/output/SDDS-COMPONENT/install.sh \
+sudo {REMOTEDIR if not noVagrant else "."}/everest-base/output/SDDS-COMPONENT/install.sh \
 {"--mcs-token " + token if token else ""} \
 {"--mcs-url " + url if url else ""}
 
@@ -92,8 +92,11 @@ sudo {REMOTEDIR}/everest-base/output/SDDS-COMPONENT/install.sh \
 
 def install_plugins(noVagrant):
     for installer in find_all_installers():
-        script = f"sudo {os.path.join(REMOTEDIR, installer)}"
-        print(f"Running {installer} on Vagrant")
+        if noVagrant:
+            script = f"sudo {installer}"
+        else:
+            script = f"sudo {os.path.join(REMOTEDIR, installer)}"
+        print(f"Running {installer}")
         if noVagrant:
             run_tempfile(script)
         else:

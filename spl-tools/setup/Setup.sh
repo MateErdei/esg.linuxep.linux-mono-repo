@@ -123,7 +123,7 @@ sudo apt-get -y upgrade || error "Failed to upgrade"
 # Install required packages
 echoProgress "Installing Required Packages"
 sudo apt-get -y install zip openssh-server cmake make nfs-common cifs-utils gcc python-pip awscli virtualbox \
-                        virtualbox-dkms python-devel\
+                        virtualbox-dkms python-dev\
 	|| error "Failed to install required packages"
 
 #Gives the ability to run robot tests locally but none of these scripts will do this themselves
