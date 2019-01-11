@@ -18,6 +18,11 @@ ContextImpl::ContextImpl()
 {
 }
 
+ContextImpl::ContextImpl(ContextHolderSharedPtr context)
+        : m_context(std::move(context))
+{
+}
+
 ContextImpl::~ContextImpl()
 {
     if (m_context.use_count() > 1)

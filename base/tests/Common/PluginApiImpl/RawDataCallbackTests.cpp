@@ -11,6 +11,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
+#include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
+#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
 
 #include <tests/Common/EventTypesImpl/TestEventTypeHelper.h>
 #include <tests/Common/Helpers/PubSubPathReplacement.h>
@@ -46,15 +49,24 @@ public:
 
     void setupPubSub(const std::string& eventTypeId, std::shared_ptr<IEventVisitorCallback> rawCallback)
     {
-        subscriber = pluginResourceManagement.createSubscriber(eventTypeId, std::move(rawCallback));
+        m_proxy = Common::ZeroMQWrapper::createProxy(
+                Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
+                Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress()
+                );
+        m_proxy->start();
+        auto proxyImpl = dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(m_proxy.get());
+        Common::ZeroMQWrapper::IContextSharedPtr sharedPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>(proxyImpl->ctx());
+        m_pluginResourceManagement = std::unique_ptr<PluginResourceManagement>( new PluginResourceManagement(sharedPtr));
+        subscriber = m_pluginResourceManagement->createSubscriber(eventTypeId, std::move(rawCallback));
         subscriber->start();
-        rawDataPublisher = pluginResourceManagement.createRawDataPublisher();
+        rawDataPublisher = m_pluginResourceManagement->createRawDataPublisher();
     }
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
     Tests::PubSubPathReplacement m_pathReplacement; // This overrides ApplicationPathManager
-    PluginResourceManagement pluginResourceManagement;
+    std::unique_ptr<PluginResourceManagement> m_pluginResourceManagement;
 
+    Common::ZeroMQWrapper::IProxyPtr m_proxy;
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
     std::unique_ptr<Common::PluginApi::ISubscriber> subscriber;
 };

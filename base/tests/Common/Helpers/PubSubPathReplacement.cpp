@@ -16,11 +16,11 @@ namespace
     {
         std::string getPublisherDataChannelAddress() const override
         {
-            return "inproc://datachannel.ipc";
+            return "inproc://datachannelpub.ipc";
         }
         std::string getSubscriberDataChannelAddress() const override
         {
-            return getPublisherDataChannelAddress();
+            return "inproc://datachannelsub.ipc";
         }
 
     };
