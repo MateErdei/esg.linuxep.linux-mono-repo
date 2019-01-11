@@ -173,7 +173,6 @@ TEST_F(PubSubTests, WhenSubscriberReconnectItShouldContinueToReceivePublications
 
     std::this_thread::sleep_for(std::chrono::milliseconds(600));
     // crash subscriber and restart it.
-    std::this_thread::sleep_for(std::chrono::seconds(6));
     sensorDataSubscriber.reset();
     sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackAfter);
     sensorDataSubscriber->start();
