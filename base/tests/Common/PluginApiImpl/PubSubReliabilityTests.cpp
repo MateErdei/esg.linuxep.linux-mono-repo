@@ -105,8 +105,8 @@ public:
     {
         std::string tempdirPubPath = "ipc://" + tempDir->absPath("datachannelpub.ipc");
         std::string tempdirSubPath = "ipc://" + tempDir->absPath("datachannelsub.ipc");
-
-        Common::ZeroMQWrapper::createProxy( tempdirSubPath, tempdirPubPath);
+        m_proxy = Common::ZeroMQWrapper::createProxy( tempdirSubPath, tempdirPubPath);
+        m_proxy->start();
         MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
         MockedApplicationPathManager &mock(*mockAppManager);
         ON_CALL(mock, getPublisherDataChannelAddress()).WillByDefault(Return(tempdirSubPath));
@@ -120,6 +120,7 @@ public:
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
+    Common::ZeroMQWrapper::IProxyPtr m_proxy;
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;
 
@@ -132,7 +133,7 @@ TEST_F(PubSubTests, PubSendsDataReceiverReceives)
     Common::EventTypes::PortScanningEvent portevent = createDefaultPortScanningEvent();
     std::unique_ptr<Common::PluginApi::ISubscriber> sensorDataSubscriber = pluginResourceManagement.createSubscriber(Common::EventTypes::PortScanningEventName, trackAfter);
     sensorDataSubscriber->start();
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     auto connection = portevent.getConnection();
     for( unsigned int i = 0 ; i< 1000; i++)
     {
@@ -141,6 +142,7 @@ TEST_F(PubSubTests, PubSendsDataReceiverReceives)
         sensorDataPublisher->sendData(Common::EventTypes::PortScanningEventName,portevent.toString());
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
+
     sensorDataSubscriber->stop();
     EXPECT_EQ(trackAfter->trackReceivedData.size(), 1) ;
 }
