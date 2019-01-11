@@ -218,4 +218,31 @@ namespace
     }
 
 
+    TEST(TestPollerImpl, ThePollerShouldReturnThatDataIsAvailableWhileItIsAvailable) // NOLINT
+    {
+        int filedes[2];
+        ASSERT_EQ(pipe(filedes),0);
+        int readFd = filedes[0];
+        int writeFd = filedes[1];
+        std::string writeCnt = "1";
+        EXPECT_EQ( ::write(writeFd, writeCnt.c_str(), writeCnt.size()), writeCnt.size());
+        IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+        auto pipeFD = poller->addEntry(readFd, Common::ZeroMQWrapper::IPoller::POLLIN);
+        auto res = poller->poll(std::chrono::milliseconds(200));
+        EXPECT_EQ( res.size(), 1);
+        EXPECT_EQ(::close(writeFd), 0);
+        // closed but with data available should return the file descriptor from where data can be read.
+        res = poller->poll(std::chrono::milliseconds(200));
+        EXPECT_EQ( res.size(), 1);
+
+        // read all the information from the buffer.
+        std::array<unsigned char, 10> buffer;
+        EXPECT_EQ( ::read(readFd, buffer.data(), writeCnt.size() ), writeCnt.size());
+
+        EXPECT_THROW(poller->poll(Common::ZeroMQWrapper::ms(2000)),Common::ZeroMQWrapperImpl::ZeroMQPollerException ); //NOLINT
+
+        EXPECT_EQ(::close(readFd), 0);
+//
+    }
+
 }

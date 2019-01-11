@@ -88,7 +88,12 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
     {
         if (items[i].revents != 0)
         {
-            if ( items[i].revents & ZMQ_POLLERR )
+
+            if( items[i].revents & ZMQ_POLLIN)
+            {
+                results.push_back(m_entries[i].entry);
+            }
+            else if ( items[i].revents & ZMQ_POLLERR )
             {
                 std::string info = "Error while polling associated to file descriptor ";
                 info += std::to_string(items[i].fd);
@@ -97,7 +102,8 @@ std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImp
             }
             else
             {
-                results.push_back(m_entries[i].entry);
+                assert( false);
+                throw ZeroMQPollerException("Case not expected.");
             }
 
         }
