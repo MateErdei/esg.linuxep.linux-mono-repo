@@ -1,7 +1,8 @@
 CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         capnproto/Common.capnp
         capnproto/PortScanning.capnp
-        capnproto/Credentials.capnp)
+        capnproto/Credentials.capnp
+        capnproto/Process.capnp)
 
 add_library(eventtypesimplobject OBJECT
         ../EventTypes/CommonEventData.h
@@ -12,6 +13,8 @@ add_library(eventtypesimplobject OBJECT
         ../EventTypes/CredentialEvent.cpp
         ../EventTypes/PortScanningEvent.cpp
         ../EventTypes/PortScanningEvent.h
+        ../EventTypes/ProcessEvent.h
+        ../EventTypes/ProcessEvent.cpp
         EventConverter.h
         EventConverter.cpp
         ${CapNGeneratedFilesHeaders}

@@ -42,5 +42,34 @@ namespace Common
             unsigned short protocol;
 
         };
-    }
+
+        struct OptionalUInt64
+        {
+        public:
+            std::uint64_t value;
+        };
+
+        struct TextOffsetLength
+        {
+        public:
+            std::uint32_t length;
+            std::uint32_t offset;
+        };
+
+        struct PathName
+        {
+        public:
+            std::uint16_t flags;
+            std::uint32_t fileSystemType;
+            std::uint8_t driveLetter;
+            std::string pathname;
+            TextOffsetLength openName;
+            TextOffsetLength volumeName;
+            TextOffsetLength shareName;
+            TextOffsetLength extensionName;
+            TextOffsetLength streamName;
+            TextOffsetLength finalComponentName;
+            TextOffsetLength parentDirName;
+        };
+    };
 }
