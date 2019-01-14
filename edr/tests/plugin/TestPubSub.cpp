@@ -44,6 +44,7 @@ public:
 
     void setupPubSub(const std::string& eventTypeId, std::shared_ptr<IEventVisitorCallback> rawCallback)
     {
+        pluginResourceManagement = m_pathReplacement.createPluginResourceManagement();
         subscriber = pluginResourceManagement->createSubscriber(eventTypeId, std::move(rawCallback));
         subscriber->start();
         rawDataPublisher = pluginResourceManagement->createRawDataPublisher();
@@ -52,7 +53,7 @@ public:
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 
     Tests::PubSubPathReplacement m_pathReplacement; // This provides data channels for testing
-    std::unique_ptr<IPluginResourceManagement> pluginResourceManagement = Common::PluginApi::createPluginResourceManagement();
+    std::unique_ptr<IPluginResourceManagement> pluginResourceManagement;
 
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;
     std::unique_ptr<Common::PluginApi::ISubscriber> subscriber;
@@ -67,7 +68,7 @@ public:
     std::atomic<bool> m_eventReceived;
     Common::Threads::NotifyPipe m_notify;
 
-    void processEvent(Common::EventTypes::PortScanningEvent portScanningEvent) override
+    void processEvent(const Common::EventTypes::PortScanningEvent & portScanningEvent) override
     {
         if( m_eventReceived) return;
 
