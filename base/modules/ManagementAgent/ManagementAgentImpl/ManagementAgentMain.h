@@ -29,7 +29,6 @@ namespace ManagementAgent
             void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
             void loadPlugins();
             void initialiseTaskQueue();
-            void initialiseDataChannelRouter();
             void initialiseDirectoryWatcher();
             void initialisePluginReceivers();
             void sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins);
@@ -40,7 +39,6 @@ namespace ManagementAgent
             void test_request_stop();
 
             ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
-            Common::ZeroMQWrapper::IProxyPtr m_dataChannelRouter;
 
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_policyListener;
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_actionListener;

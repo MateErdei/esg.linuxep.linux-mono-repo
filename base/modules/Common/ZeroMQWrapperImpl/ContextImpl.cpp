@@ -10,16 +10,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SocketReplierImpl.h"
 #include "SocketPublisherImpl.h"
 #include "SocketSubscriberImpl.h"
+#include "ProxyImpl.h"
 
 using namespace Common::ZeroMQWrapperImpl;
 
 ContextImpl::ContextImpl()
         : m_context(new ContextHolder())
-{
-}
-
-ContextImpl::ContextImpl(ContextHolderSharedPtr context)
-        : m_context(std::move(context))
 {
 }
 
@@ -57,6 +53,13 @@ Common::ZeroMQWrapper::ISocketReplierPtr ContextImpl::getReplier()
     return Common::ZeroMQWrapper::ISocketReplierPtr(
             new SocketReplierImpl(m_context)
             );
+}
+
+Common::ZeroMQWrapper::IProxyPtr ContextImpl::getProxy(const std::string& frontend, const std::string& backend)
+{
+    return Common::ZeroMQWrapper::IProxyPtr(
+            new Common::ZeroMQWrapperImpl::ProxyImpl(frontend, backend, m_context)
+    );
 }
 
 Common::ZeroMQWrapper::IContextSharedPtr Common::ZeroMQWrapper::createContext()

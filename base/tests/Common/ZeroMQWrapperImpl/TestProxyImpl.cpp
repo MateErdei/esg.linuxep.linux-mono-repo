@@ -16,6 +16,7 @@
 #include <Common/ZeroMQWrapper/IContext.h>
 
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
+#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
 #include <atomic>
@@ -46,13 +47,15 @@ using namespace Common::ZeroMQWrapper;
 
 TEST(TestProxyImpl, Creation) // NOLINT
 {
-    IProxyPtr proxy = createProxy("inproc://frontend","inproc://backend");
+    IContextSharedPtr sharedContextPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend","inproc://backend");
     EXPECT_NE(proxy.get(),nullptr);
 }
 
 TEST(TestProxyImpl, StartStop) // NOLINT
 {
-    IProxyPtr proxy = createProxy("inproc://frontend","inproc://backend");
+    IContextSharedPtr sharedContextPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend","inproc://backend");
     ASSERT_NE(proxy.get(),nullptr);
 
     proxy->start();
@@ -136,7 +139,8 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
 
     const std::string frontend="inproc://frontend";
     const std::string backend="inproc://backend";
-    IProxyPtr proxy = createProxy(frontend,backend);
+    IContextSharedPtr sharedContextPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    IProxyPtr proxy = sharedContextPtr->getProxy(frontend,backend);
     ASSERT_NE(proxy.get(),nullptr);
 
     proxy->start();
@@ -185,7 +189,8 @@ TEST(TestProxyImpl, 2subscribers) // NOLINT
 
     const std::string frontend="inproc://frontend";
     const std::string backend="inproc://backend";
-    IProxyPtr proxy = createProxy(frontend,backend);
+    IContextSharedPtr sharedContextPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    IProxyPtr proxy = sharedContextPtr->getProxy(frontend,backend);
     ASSERT_NE(proxy.get(),nullptr);
 
     proxy->start();
@@ -247,7 +252,8 @@ TEST(TestProxyImpl, 2Senders) // NOLINT
     // Need to share the context to use inproc addresses
     const std::string frontend="inproc://frontend";
     const std::string backend="inproc://backend";
-    IProxyPtr proxy = createProxy(frontend,backend);
+    IContextSharedPtr sharedContextPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    IProxyPtr proxy = sharedContextPtr->getProxy(frontend,backend);
     ASSERT_NE(proxy.get(),nullptr);
 
     proxy->start();

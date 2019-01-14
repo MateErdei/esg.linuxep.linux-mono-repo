@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
 
 #include <string>
 #include <map>
@@ -70,6 +71,7 @@ namespace ManagementAgent
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
 
             Common::ZeroMQWrapper::IContextSharedPtr m_context;
+            Common::ZeroMQWrapper::IProxyPtr m_proxy;
             std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
 

@@ -14,6 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/PluginProtocol/Protocol.h>
 #include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IContextPtr.h>
+#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/EventTypesImpl/EventConverter.h>
@@ -103,7 +105,8 @@ public:
     {
         std::string tempdirPubPath = "ipc://" + tempDir->absPath("datachannelpub.ipc");
         std::string tempdirSubPath = "ipc://" + tempDir->absPath("datachannelsub.ipc");
-        m_proxy = Common::ZeroMQWrapper::createProxy( tempdirSubPath, tempdirPubPath);
+        m_context = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+        m_proxy = m_context->getProxy( tempdirSubPath, tempdirPubPath);
         m_proxy->start();
         MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
         MockedApplicationPathManager &mock(*mockAppManager);
@@ -118,6 +121,7 @@ public:
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
+    Common::ZeroMQWrapper::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::IProxyPtr m_proxy;
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;

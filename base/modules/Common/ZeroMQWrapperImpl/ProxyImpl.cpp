@@ -16,18 +16,11 @@
 
 using Common::ZeroMQWrapperImpl::ProxyImpl;
 
-Common::ZeroMQWrapper::IProxyPtr Common::ZeroMQWrapper::createProxy(const std::string& frontend, const std::string& backend)
-{
-    return Common::ZeroMQWrapper::IProxyPtr(
-                    new Common::ZeroMQWrapperImpl::ProxyImpl(frontend,backend)
-                );
-}
-
-Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend)
+Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend, ContextHolderSharedPtr context)
     :   m_frontendAddress(frontend),
         m_backendAddress(backend),
         m_controlAddress("inproc://PubSubControl"),
-        m_context(new ContextHolder()),
+        m_context(std::move(context)),
         m_threadStartedFlag(false),
         m_controlPub(m_context, ZMQ_PUSH)
 {

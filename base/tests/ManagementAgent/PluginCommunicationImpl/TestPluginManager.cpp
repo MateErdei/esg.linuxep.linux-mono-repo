@@ -30,23 +30,24 @@ class TestPluginManager : public ::testing::Test
 public:
     TestPluginManager()
     {
-        plugin_one_name = "plugin_one";
-        plugin_two_name = "plugin_two";
+        m_pluginOneName = "plugin_one";
+        m_pluginTwoName = "plugin_two";
         MockedApplicationPathManager *mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
         Common::ApplicationConfiguration::replaceApplicationPathManager(
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
         ON_CALL(*mockApplicationPathManager, getManagementAgentSocketAddress()).WillByDefault(
                 Return("inproc:///tmp/management.ipc"));
-        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(plugin_one_name)).WillByDefault(
+        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginOneName)).WillByDefault(
                 Return("inproc:///tmp/plugin_one"));
-        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(plugin_two_name)).WillByDefault(
+        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginTwoName)).WillByDefault(
                 Return("inproc:///tmp/plugin_two"));
-        registrypath = "/registry";
+        ON_CALL(*mockApplicationPathManager, getPublisherDataChannelAddress()).WillByDefault(
+                Return("inproc:///tmp/pubchannel.ipc"));
+        ON_CALL(*mockApplicationPathManager, getSubscriberDataChannelAddress()).WillByDefault(
+                Return("inproc:///tmp/subchannel.ipc"));
+        m_registryPath = "/registry";
         ON_CALL(*mockApplicationPathManager, getPluginRegistryPath()).WillByDefault(
-                Return(registrypath));
-
-
-
+                Return(m_registryPath));
 
 
 
@@ -57,7 +58,7 @@ public:
         m_mgmtCommon.reset(
                 new Common::PluginApiImpl::PluginResourceManagement(m_pluginManagerPtr->getSocketContext()));
         setupFileSystemAndGetMock();
-        m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, m_mockedPluginApiCallback);
+        m_pluginApi = m_mgmtCommon->createPluginAPI(m_pluginOneName, m_mockedPluginApiCallback);
     }
 
     MockFileSystem& setupFileSystemAndGetMock()
@@ -71,9 +72,8 @@ public:
 "statusAppIds": ["plugin_two"],
 "pluginName": "plugin_two"})sophos";
 
-
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        ON_CALL(*filesystemMock, listFiles(registrypath)).WillByDefault(
+        ON_CALL(*filesystemMock, listFiles(m_registryPath)).WillByDefault(
                 Return(std::vector<std::string>{
                                {"/registry/plugin_one.json"},
                                {"/registry/plugin_two.json"}
@@ -109,9 +109,10 @@ public:
 
     ~TestPluginManager() override = default;
 
-    std::string plugin_one_name;
-    std::string plugin_two_name;
-    std::string registrypath;
+    std::string m_pluginOneName;
+    std::string m_pluginTwoName;
+    std::string m_pluginThreeName;
+    std::string m_registryPath;
     std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement> m_mgmtCommon;
     std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
@@ -125,7 +126,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicy")).Times(1);
     std::thread applyPolicy([this]() {
-        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(plugin_one_name, "testpolicy"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicy"), 1);
     });
     applyPolicy.join();
 }
@@ -147,7 +148,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForPolicy)  //
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicynotsent"), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->registerAndSetAppIds(plugin_one_name, appIds, appIds);
+        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("wrongappid", "testpolicysent"), 1);
     });
     applyPolicy.join();
@@ -158,9 +159,58 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins)  // NOLINT
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicyone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicytwo")).Times(1);
     std::thread applyPolicy([this]() {
-        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(plugin_two_name, m_mockedPluginApiCallback);
-        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(plugin_one_name, "testpolicyone"), 1);
-        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(plugin_two_name, "testpolicytwo"), 1);
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo"), 1);
+    });
+    applyPolicy.join();
+}
+
+
+TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPluginList)  // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicyone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicytwo")).Times(0);
+    auto &fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json")).WillOnce(Return(true))  //Registeer
+                                                                    .WillOnce(Return(true)); //Check it is still in Register
+    std::thread applyPolicy([this]() {
+        m_pluginManagerPtr->setDefaultConnectTimeout(10);
+        m_pluginManagerPtr->setDefaultTimeout(10);
+        //Register plugin with management and add to proxy list
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        //Shutdown plugin - management agent doesn't know it has gone away until it attempts to communicate with it
+        m_pluginApiTwo.reset();
+        std::vector<std::string> pluginsBeforeRemoval = {m_pluginOneName, m_pluginTwoName};
+        std::vector<std::string> pluginsAfterRemoval = {m_pluginOneName, m_pluginTwoName};
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
+    });
+    applyPolicy.join();
+}
+
+TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList)  // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicyone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicy("testpolicytwo")).Times(0);
+    auto &fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json")).WillOnce(Return(true))  //Registeer
+                                                                    .WillOnce(Return(false));//Check it is still in Register
+    std::thread applyPolicy([this]() {
+        m_pluginManagerPtr->setDefaultConnectTimeout(10);
+        m_pluginManagerPtr->setDefaultTimeout(10);
+        //Register plugin with management and add to proxy list
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        //Shutdown plugin - management agent doesn't know it has gone away until it attempts to communicate with it
+        m_pluginApiTwo.reset();
+        std::vector<std::string> pluginsBeforeRemoval = {m_pluginOneName, m_pluginTwoName};
+        std::vector<std::string> pluginsAfterRemoval = {m_pluginOneName};
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
+        EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
 }
@@ -169,7 +219,7 @@ TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(1);
     std::thread applyAction([this]() {
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testaction"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction"), 1);
     });
     applyAction.join();
 }
@@ -191,7 +241,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)  //
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent"), 0);
         std::vector<std::string> appIds;
         appIds.emplace_back("wrongappid");
-        m_pluginManagerPtr->registerAndSetAppIds(plugin_one_name, appIds, appIds);
+        m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds);
         EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent"), 1);
     });
     applyAction.join();
@@ -202,27 +252,76 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins)  // NOLINT
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
     std::thread applyAction([this]() {
-        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(plugin_two_name, m_mockedPluginApiCallback);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_two_name, "testactiontwo"), 1);
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 1);
     });
     applyAction.join();
+}
+
+
+TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginList)  // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
+    auto &fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json")).WillOnce(Return(true))  //Register it
+                                                                    .WillOnce(Return(true)); //Check it is still in Register
+    std::thread applyPolicy([this]() {
+        m_pluginManagerPtr->setDefaultConnectTimeout(10);
+        m_pluginManagerPtr->setDefaultTimeout(10);
+        //Register Plugin with management and add to proxy list
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        //Shutdown plugin - management agent doesn't know it has gone away until it attempts to communicate with it
+        m_pluginApiTwo.reset();
+        std::vector<std::string> pluginsBeforeRemoval = {m_pluginOneName, m_pluginTwoName};
+        std::vector<std::string> pluginsAfterRemoval = {m_pluginOneName, m_pluginTwoName};
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
+    });
+    applyPolicy.join();
+}
+
+TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList)  // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
+    auto &fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json")).WillOnce(Return(true))  //Register it
+                                                                    .WillOnce(Return(false));//Check it is still in Register
+    std::thread applyPolicy([this]() {
+        m_pluginManagerPtr->setDefaultConnectTimeout(10);
+        m_pluginManagerPtr->setDefaultTimeout(10);
+        //Register Plugin with management and add to proxy list
+        m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+        //Shutdown plugin - management agent doesn't know it has gone away until it attempts to communicate with it
+        m_pluginApiTwo.reset();
+        std::vector<std::string> pluginsBeforeRemoval = {m_pluginOneName, m_pluginTwoName};
+        std::vector<std::string> pluginsAfterRemoval = {m_pluginOneName};
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 0);
+        EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
+    });
+    applyPolicy.join();
 }
 
 TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(1);
-    m_pluginApiTwo = m_mgmtCommon->createPluginAPI(plugin_two_name, m_mockedPluginApiCallback);
-    EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
-    EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_two_name, "testactiontwo"), 1);
+    m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
+    EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo"), 1);
 }
 
 TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins)  // NOLINT
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(plugin_one_name)).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(m_pluginOneName)).Times(1);
     std::thread getStatus([this]() {
-        m_pluginManagerPtr->getStatus(plugin_one_name);
+        m_pluginManagerPtr->getStatus(m_pluginOneName);
     });
     getStatus.join();
 }
@@ -235,13 +334,13 @@ TEST_F(TestPluginManager, TestGetStatusOnUnregisteredPluginThrows) //NOLINT
 
 TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)  // NOLINT
 {
-    EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(plugin_one_name)).Times(1);
+    EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(m_pluginOneName)).Times(1);
     std::thread getStatus([this]() {
-        m_pluginManagerPtr->getStatus(plugin_one_name);
-        m_pluginManagerPtr->removePlugin(plugin_one_name);
+        m_pluginManagerPtr->getStatus(m_pluginOneName);
+        m_pluginManagerPtr->removePlugin(m_pluginOneName);
     });
     getStatus.join();
-    EXPECT_THROW(m_pluginManagerPtr->getStatus(plugin_one_name), //NOLINT
+    EXPECT_THROW(m_pluginManagerPtr->getStatus(m_pluginOneName), //NOLINT
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -249,7 +348,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1).WillOnce(Return("telemetryContent"));
     std::thread getTelemetry([this]() {
-        ASSERT_EQ(m_pluginManagerPtr->getTelemetry(plugin_one_name), "telemetryContent");
+        ASSERT_EQ(m_pluginManagerPtr->getTelemetry(m_pluginOneName), "telemetryContent");
     });
     getTelemetry.join();
 }
@@ -264,11 +363,11 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)  // NOLINT
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1);
     std::thread getTelemetry([this]() {
-        m_pluginManagerPtr->getTelemetry(plugin_one_name);
-        m_pluginManagerPtr->removePlugin(plugin_one_name);
+        m_pluginManagerPtr->getTelemetry(m_pluginOneName);
+        m_pluginManagerPtr->removePlugin(m_pluginOneName);
     });
     getTelemetry.join();
-    EXPECT_THROW(m_pluginManagerPtr->getTelemetry(plugin_one_name), //NOLINT
+    EXPECT_THROW(m_pluginManagerPtr->getTelemetry(m_pluginOneName), //NOLINT
                  ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
@@ -278,10 +377,10 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)  // N
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*secondMockedPluginApiCallback, queueAction("testaction_after_re-registration")).Times(1);
     std::thread secondRegistration([this, &secondMockedPluginApiCallback]() {
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testactionone"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testactionone"), 1);
 
         // the system will fail to create a plugin to bind to the same address.
-        ASSERT_THROW( m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback), Common::PluginApi::ApiException); //NOLINT
+        ASSERT_THROW( m_mgmtCommon->createPluginAPI(m_pluginOneName, secondMockedPluginApiCallback), Common::PluginApi::ApiException); //NOLINT
         // shutdown the plugin
         m_pluginApi.reset();
 
@@ -292,7 +391,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)  // N
         {
             try
             {
-                m_pluginApi = m_mgmtCommon->createPluginAPI(plugin_one_name, secondMockedPluginApiCallback);
+                m_pluginApi = m_mgmtCommon->createPluginAPI(m_pluginOneName, secondMockedPluginApiCallback);
                 // on success of creating the m_pluginApi... carry on.
                 break;
             }catch( Common::PluginApi::ApiException & ex)
@@ -308,7 +407,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)  // N
         ASSERT_TRUE( m_pluginApi) << "Failed to create a new plugin api binding to the same address. ";
 
 
-        EXPECT_EQ(m_pluginManagerPtr->queueAction(plugin_one_name, "testaction_after_re-registration"), 1);
+        EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginOneName, "testaction_after_re-registration"), 1);
 
     });
     secondRegistration.join();

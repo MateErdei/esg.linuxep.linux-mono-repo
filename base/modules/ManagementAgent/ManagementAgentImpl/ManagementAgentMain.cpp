@@ -77,8 +77,6 @@ namespace ManagementAgent
             m_pluginManager = &pluginManager;
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
             m_statusCache->loadCacheFromDisk();
-
-            initialiseDataChannelRouter();
             // order is important.
             loadPlugins();
             initialiseTaskQueue();
@@ -121,13 +119,6 @@ namespace ManagementAgent
             m_directoryWatcher->addListener(*m_policyListener);
             m_directoryWatcher->addListener(*m_actionListener);
 
-        }
-
-        void ManagementAgentMain::initialiseDataChannelRouter()
-        {
-            m_dataChannelRouter = Common::ZeroMQWrapper::createProxy(
-                                  Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
-                                  Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());
         }
 
         void ManagementAgentMain::initialisePluginReceivers()
@@ -231,7 +222,6 @@ namespace ManagementAgent
             shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
             // start running background threads
-            m_dataChannelRouter->start();
             m_taskQueueProcessor->start();
             m_directoryWatcher->startWatch();
 
@@ -249,7 +239,6 @@ namespace ManagementAgent
             }
 
             // pre-pare and stop back ground threads
-            m_dataChannelRouter->stop();
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
             m_taskQueueProcessor->stop();

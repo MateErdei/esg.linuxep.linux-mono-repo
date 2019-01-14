@@ -49,14 +49,7 @@ public:
 
     void setupPubSub(const std::string& eventTypeId, std::shared_ptr<IEventVisitorCallback> rawCallback)
     {
-        m_proxy = Common::ZeroMQWrapper::createProxy(
-                Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
-                Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress()
-                );
-        m_proxy->start();
-        auto proxyImpl = dynamic_cast<Common::ZeroMQWrapperImpl::ProxyImpl*>(m_proxy.get());
-        Common::ZeroMQWrapper::IContextSharedPtr sharedPtr= std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>(proxyImpl->ctx());
-        m_pluginResourceManagement = std::unique_ptr<PluginResourceManagement>( new PluginResourceManagement(sharedPtr));
+        m_pluginResourceManagement = std::move(m_pathReplacement.createPluginResourceManagement());
         subscriber = m_pluginResourceManagement->createSubscriber(eventTypeId, std::move(rawCallback));
         subscriber->start();
         rawDataPublisher = m_pluginResourceManagement->createRawDataPublisher();
@@ -64,7 +57,7 @@ public:
 
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
     Tests::PubSubPathReplacement m_pathReplacement; // This overrides ApplicationPathManager
-    std::unique_ptr<PluginResourceManagement> m_pluginResourceManagement;
+    std::unique_ptr<IPluginResourceManagement> m_pluginResourceManagement;
 
     Common::ZeroMQWrapper::IProxyPtr m_proxy;
     std::unique_ptr<Common::PluginApi::IRawDataPublisher> rawDataPublisher;

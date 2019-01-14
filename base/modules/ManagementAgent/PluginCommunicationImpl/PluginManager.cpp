@@ -29,6 +29,10 @@ namespace PluginCommunicationImpl
             m_defaultConnectTimeout(5000)
     {
         auto replier = m_context->getReplier();
+        m_proxy = m_context->getProxy(
+                Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
+                Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());
+        m_proxy->start();
         setTimeouts(*replier);
         std::string managementSocketAdd = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
         replier->listen(managementSocketAdd);
@@ -39,6 +43,10 @@ namespace PluginCommunicationImpl
 
     PluginManager::~PluginManager()
     {
+        if (m_proxy)
+        {
+            m_proxy->stop();
+        }
         if (m_serverCallbackHandler)
         {
             m_serverCallbackHandler->stop();

@@ -19,7 +19,7 @@ add_library(testhelpersobject OBJECT
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )
 
 target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include")
-target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock)
+target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock pluginapiimpl)
 
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")

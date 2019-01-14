@@ -26,6 +26,10 @@ public:
                 std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
         ON_CALL(*mockApplicationPathManager, getManagementAgentSocketAddress()).WillByDefault(
                 Return("inproc:///tmp/management.ipc"));
+        ON_CALL(*mockApplicationPathManager, getPublisherDataChannelAddress()).WillByDefault(
+                Return("inproc:///tmp/pubchannel.ipc"));
+        ON_CALL(*mockApplicationPathManager, getSubscriberDataChannelAddress()).WillByDefault(
+                Return("inproc:///tmp/subchannel.ipc"));
         m_context = Common::ZeroMQWrapper::createContext();
         auto replier = m_context->getReplier();
         m_requester = m_context->getRequester();

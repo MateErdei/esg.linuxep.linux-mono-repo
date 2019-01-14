@@ -26,7 +26,7 @@ namespace Common
             : public ZeroMQWrapper::IProxy
         {
         public:
-            ProxyImpl(const std::string& frontend, const std::string& backend);
+            ProxyImpl(const std::string& frontend, const std::string& backend, ContextHolderSharedPtr context);
             ~ProxyImpl() override;
 
             void start() override;

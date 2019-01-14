@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ZeroMQWrapper/IContext.h>
 
+
 namespace Common
 {
     namespace ZeroMQWrapperImpl
@@ -19,7 +20,6 @@ namespace Common
         {
         public:
             ContextImpl();
-            ContextImpl(ContextHolderSharedPtr context);
             ~ContextImpl() override;
 
             Common::ZeroMQWrapper::ISocketSubscriberPtr getSubscriber() override;
@@ -29,6 +29,8 @@ namespace Common
             Common::ZeroMQWrapper::ISocketRequesterPtr getRequester() override;
 
             Common::ZeroMQWrapper::ISocketReplierPtr getReplier() override;
+
+            Common::ZeroMQWrapper::IProxyPtr getProxy(const std::string& frontend, const std::string& backend) override;
 
         private:
             ContextHolderSharedPtr m_context;

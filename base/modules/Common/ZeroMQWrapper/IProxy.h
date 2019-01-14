@@ -9,7 +9,6 @@
 
 #include <string>
 #include <memory>
-#include "IContext.h"
 
 namespace Common
 {
@@ -24,8 +23,6 @@ namespace Common
         };
 
         using IProxyPtr = std::unique_ptr<IProxy>;
-
-        extern IProxyPtr createProxy(const std::string& frontend, const std::string& backend);
     }
 }
 
