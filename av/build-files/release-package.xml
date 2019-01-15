@@ -6,7 +6,7 @@
 
     <inputs>
         <workingdir>sspl-template-plugin-build</workingdir>
-	<package name="sspl-base" version="0-5-0-523/214019/output" dest="input">
+	<package name="sspl-base" version="0-5-0-560/214079/output" dest="input">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
