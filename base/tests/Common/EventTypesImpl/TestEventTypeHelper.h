@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <tests/Common/Helpers/TempDir.h>
 #include <Common/EventTypes/CredentialEvent.h>
+#include <Common/EventTypes/ProcessEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
 
 namespace Tests
@@ -114,6 +115,198 @@ namespace Tests
             if (expected.getRemoteNetworkAccess().address != resulted.getRemoteNetworkAccess().address)
             {
                 return ::testing::AssertionFailure() << s.str() << "RemoteNetworkAccess address differs";
+            }
+
+            return ::testing::AssertionSuccess();
+        }
+
+        ProcessEvent createDefaultProcessEvent()
+        {
+            ProcessEvent event;
+
+            event.setEventType(Common::EventTypes::ProcessEvent::EventType::end);
+            event.setEndTime(1510293458);
+            Common::EventTypes::OptionalUInt64 fileSize;
+            fileSize.value = 123;
+            event.setFileSize(fileSize);
+            event.setFlags(48);
+            event.setSessionId(312);
+
+            Common::EventTypes::Pathname pathname;
+            Common::EventTypes::TextOffsetLength openName;
+            Common::EventTypes::TextOffsetLength volumeName;
+            Common::EventTypes::TextOffsetLength shareName;
+            Common::EventTypes::TextOffsetLength extensionName;
+            Common::EventTypes::TextOffsetLength streamName;
+            Common::EventTypes::TextOffsetLength finalComponentName;
+            Common::EventTypes::TextOffsetLength parentDirName;
+            pathname.flags = 12;
+            pathname.fileSystemType = 452;
+            pathname.driveLetter = 6;
+            pathname.pathname = "/name/of/path";
+            openName.length = 23;
+            openName.offset = 22;
+            pathname.openName = openName;
+            volumeName.length = 21;
+            volumeName.offset = 20;
+            pathname.volumeName = volumeName;
+            shareName.length = 19;
+            shareName.offset = 18;
+            pathname.shareName = shareName;
+            extensionName.length = 17;
+            extensionName.offset = 16;
+            pathname.extensionName = extensionName;
+            streamName.length = 15;
+            streamName.offset = 14;
+            pathname.streamName = streamName;
+            finalComponentName.length = 13;
+            finalComponentName.offset = 12;
+            pathname.finalComponentName = finalComponentName;
+            parentDirName.length = 11;
+            parentDirName.offset = 10;
+            pathname.parentDirName = parentDirName;
+            event.setPathname(pathname);
+
+            event.setCmdLine("example cmd line");
+
+            return event;
+        }
+
+
+        ::testing::AssertionResult processEventIsEquivalent( const char* m_expr,
+                                                                const char* n_expr,
+                                                                const Common::EventTypes::ProcessEvent expected,
+                                                                const Common::EventTypes::ProcessEvent actual)
+        {
+            std::stringstream s;
+            s<< m_expr << " and " << n_expr << " failed: ";
+
+            if ( expected.getEventType() != actual.getEventType())
+            {
+                return ::testing::AssertionFailure() << s.str() << "EventType differs";
+            }
+
+            if (expected.getEventTypeId() != actual.getEventTypeId())
+            {
+                return ::testing::AssertionFailure() << s.str() << "EventTypeId differs";
+            }
+
+            if (expected.getEndTime() != actual.getEndTime())
+            {
+                return ::testing::AssertionFailure() << s.str() << "EndTime differs";
+            }
+
+            if (expected.getFileSize().value != actual.getFileSize().value)
+            {
+                return ::testing::AssertionFailure() << s.str() << "FileSize differs";
+            }
+
+            if (expected.getFlags() != actual.getFlags())
+            {
+                return ::testing::AssertionFailure() << s.str() << "Flags differ";
+            }
+
+            if (expected.getSessionId() != actual.getSessionId())
+            {
+                return ::testing::AssertionFailure() << s.str() << "SessionId differ";
+            }
+
+            Common::EventTypes::Pathname expectedPathname = expected.getPathname();
+            Common::EventTypes::Pathname actualPathname = actual.getPathname();
+
+            if (expectedPathname.flags != actualPathname.flags)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName Flags differ";
+            }
+
+            if (expectedPathname.fileSystemType != actualPathname.fileSystemType)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName FileSystemType differs";
+            }
+
+            if (expectedPathname.driveLetter != actualPathname.driveLetter)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName DriveLetter differs";
+            }
+
+            if (expectedPathname.pathname != actualPathname.pathname)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName PathName differs";
+            }
+
+            if (expectedPathname.openName.offset != actualPathname.openName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName OpenName Offset differs";
+            }
+
+            if (expectedPathname.openName.length != actualPathname.openName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName OpenName Length differs";
+            }
+
+            if (expectedPathname.volumeName.length != actualPathname.volumeName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName VolumeName Length differs";
+            }
+
+            if (expectedPathname.volumeName.offset != actualPathname.volumeName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName VolumeName Offset differs";
+            }
+
+            if (expectedPathname.shareName.length != actualPathname.shareName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ShareName Length differs";
+            }
+
+            if (expectedPathname.shareName.offset != actualPathname.shareName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ShareName Offset differs";
+            }
+
+            if (expectedPathname.extensionName.length != actualPathname.extensionName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ExtensionName Length differs";
+            }
+
+            if (expectedPathname.extensionName.offset != actualPathname.extensionName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ExtensionName Offset differs";
+            }
+
+            if (expectedPathname.streamName.length != actualPathname.streamName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName StreamName Length differs";
+            }
+
+            if (expectedPathname.streamName.offset != actualPathname.streamName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName StreamName Offset differs";
+            }
+
+            if (expectedPathname.finalComponentName.length != actualPathname.finalComponentName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName FinalComponentName Length differs";
+            }
+
+            if (expectedPathname.finalComponentName.offset != actualPathname.finalComponentName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName FinalComponentName Offset differs";
+            }
+
+            if (expectedPathname.parentDirName.length != actualPathname.parentDirName.length)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ParentDirName Length differs";
+            }
+
+            if (expectedPathname.parentDirName.offset != actualPathname.parentDirName.offset)
+            {
+                return ::testing::AssertionFailure() << s.str() << "PathName ParentDirName Offset differs";
+            }
+
+            if (expected.getCmdLine() != actual.getCmdLine())
+            {
+                return ::testing::AssertionFailure() << s.str() << "CMDLine differs";
             }
 
             return ::testing::AssertionSuccess();

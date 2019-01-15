@@ -56,7 +56,7 @@ namespace Common
             std::uint32_t offset;
         };
 
-        struct PathName
+        struct Pathname
         {
         public:
             std::uint16_t flags;

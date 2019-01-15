@@ -27,6 +27,11 @@ namespace Common
         {
             return createEventFromString<EventTypes::PortScanningEvent>(event);
         }
+
+        EventTypes::ProcessEvent EventConverter::stringToProcessEvent(const std::string& event)
+        {
+            return createEventFromString<EventTypes::ProcessEvent>(event);
+        }
     }
 
     namespace EventTypes

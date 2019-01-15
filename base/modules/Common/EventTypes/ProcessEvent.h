@@ -6,10 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <capnp/blob.h>
 #include "CommonEventData.h"
 #include "IEventType.h"
-#include "PortScanningEvent.h"
+
 
 namespace Common
 {
@@ -35,8 +34,8 @@ namespace Common
             const std::uint32_t getFlags() const ;
             const std::uint32_t getSessionId() const ;
 //            const std::string getSId() const ; //We think this is windows only
-            const Common::EventTypes::PathName getPathName() const ;
-            const std::string getcmdLine() const ;
+            const Common::EventTypes::Pathname getPathname() const ;
+            const std::string getCmdLine() const ;
 //            const Common::EventType::Data getSha256() const ;
 //            const Common::EventType::Data getSha1() const ;
 //            const Common::EventType::Data getPeSha256() const ;
@@ -48,7 +47,7 @@ namespace Common
             void setFlags(const std::uint32_t flags) ;
             void setSessionId(const std::uint32_t sessionId) ;
 //            void setSid(const Common::EventTypes::Data sid) ;
-            void setPathName(const Common::EventTypes::PathName pathName) ;
+            void setPathname(const Common::EventTypes::Pathname pathname) ;
             void setCmdLine(const std::string cmdLine) ;
 //            void setSha256(const Common::EventTypes::Data sha256) ;
 //            void setSha1(const Common::EventTypes::Data sha1) ;
@@ -71,8 +70,8 @@ namespace Common
             Common::EventTypes::OptionalUInt64 m_fileSize;
             std::uint32_t m_flags;
             std::uint32_t m_sessionId;
-            std::string m_sid;
-            Common::EventTypes::PathName m_pathName;
+//            std::string m_sid;
+            Common::EventTypes::Pathname m_pathname;
             std::string m_cmdLine;
 //            Common::EventTypes::Data m_sha256;
 //            Common::EventTypes::Data m_sha1;

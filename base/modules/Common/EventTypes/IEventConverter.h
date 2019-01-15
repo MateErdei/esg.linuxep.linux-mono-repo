@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "IEventType.h"
 #include "CredentialEvent.h"
 #include "PortScanningEvent.h"
+#include "ProcessEvent.h"
 
 #include <string>
 #include <memory>
@@ -25,6 +26,7 @@ namespace Common
             virtual const std::pair<std::string, std::string> eventToString(const IEventType* eventType) = 0;
             virtual CredentialEvent stringToCredentialEvent(const std::string& event) = 0;
             virtual PortScanningEvent stringToPortScanningEvent(const std::string& event) = 0;
+            virtual ProcessEvent stringToProcessEvent(const std::string& event) = 0;
         };
 
         extern std::unique_ptr<IEventConverter> constructEventConverter();
