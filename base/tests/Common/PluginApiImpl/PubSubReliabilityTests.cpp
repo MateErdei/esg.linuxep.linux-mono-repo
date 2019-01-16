@@ -68,6 +68,11 @@ public:
         // not using CredentialEvent for these tests as PortScanning is lighterweight
     }
 
+    void processEvent(const Common::EventTypes::ProcessEvent & event) override
+    {
+        // not using ProcessEvent for these tests as PortScanning is lighterweight
+    }
+
     void processEvent(const Common::EventTypes::PortScanningEvent & event) override
     {
         std::string eventTypeId = Common::EventTypes::PortScanningEventName;
