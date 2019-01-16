@@ -18,7 +18,6 @@ namespace Common
             std::string username;
             std::string sid;
             std::string domain;
-
         };
 
         struct NetworkAddress
@@ -70,6 +69,28 @@ namespace Common
             TextOffsetLength streamName;
             TextOffsetLength finalComponentName;
             TextOffsetLength parentDirName;
+        };
+
+        struct SophosPid
+        {
+        public:
+
+            // Process ID
+            std::uint64_t pid;
+
+            // Timestamp the process was started
+            std::uint64_t timestamp;
+        };
+
+        struct SophosTid
+        {
+        public:
+
+            // Thread ID
+            std::uint64_t tid;
+
+            // Timestamp the thread was started
+            std::uint64_t timestamp;
         };
     };
 }

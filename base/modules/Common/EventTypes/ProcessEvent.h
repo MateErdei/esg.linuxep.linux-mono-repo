@@ -27,33 +27,34 @@ namespace Common
 
             ~ProcessEvent() = default;
 
-            const EventType getEventType() const ;
+            const EventType getEventType() const;
+            const Common::EventTypes::SophosPid getSophosPid() const;
+            const Common::EventTypes::SophosPid getParentSophosPid() const;
+            const Common::EventTypes::SophosTid getParentSophosTid() const;
             const std::string getEventTypeId() const override;
-            const unsigned long long getEndTime() const ;
+            const unsigned long long getEndTime() const;
             const Common::EventTypes::OptionalUInt64 getFileSize() const ;
-            const std::uint32_t getFlags() const ;
-            const std::uint32_t getSessionId() const ;
-//            const std::string getSId() const ; //We think this is windows only
-            const Common::EventTypes::Pathname getPathname() const ;
-            const std::string getCmdLine() const ;
-//            const Common::EventType::Data getSha256() const ;
-//            const Common::EventType::Data getSha1() const ;
-//            const Common::EventType::Data getPeSha256() const ;
-//            const Common::EventType::Data getPeSha1() const ;
+            const std::uint32_t getFlags() const;
+            const std::uint32_t getSessionId() const;
+            const std::string getSid() const ;
+            const Common::EventTypes::Pathname getPathname() const;
+            const std::string getCmdLine() const;
+            const std::string getSha256() const;
+            const std::string getSha1() const;
 
-            void setEventType(const EventType eventType) ;
-            void setEndTime(const unsigned long long endTime) ;
-            void setFileSize(const Common::EventTypes::OptionalUInt64 fileSize) ;
-            void setFlags(const std::uint32_t flags) ;
-            void setSessionId(const std::uint32_t sessionId) ;
-//            void setSid(const Common::EventTypes::Data sid) ;
-            void setPathname(const Common::EventTypes::Pathname pathname) ;
-            void setCmdLine(const std::string cmdLine) ;
-//            void setSha256(const Common::EventTypes::Data sha256) ;
-//            void setSha1(const Common::EventTypes::Data sha1) ;
-//            void setPeSha256(const Common::EventTypes::Data pesha256) ;
-//            void setPeSha1(const Common::EventTypes::Data pesha1) ;
-
+            void setEventType(const EventType eventType);
+            void setSophosPid(Common::EventTypes::SophosPid sophosPid);
+            void setParentSophosPid(Common::EventTypes::SophosPid parentSophosPid);
+            void setParentSophosTid(Common::EventTypes::SophosTid parentSophosTid);
+            void setEndTime(const unsigned long long endTime);
+            void setFileSize(const Common::EventTypes::OptionalUInt64 fileSize);
+            void setFlags(const std::uint32_t flags);
+            void setSessionId(const std::uint32_t sessionId);
+            void setSid(const std::string sid) ;
+            void setPathname(const Common::EventTypes::Pathname pathname);
+            void setCmdLine(std::string cmdLine);
+            void setSha256(const std::string sha256);
+            void setSha1(const std::string sha1);
 
             std::string toString() const override;
 
@@ -66,17 +67,22 @@ namespace Common
 
         private:
             Common::EventTypes::ProcessEvent::EventType m_eventType;
+            Common::EventTypes::SophosPid m_sophosPid;
+            Common::EventTypes::SophosPid m_parentSophosPid;
+            Common::EventTypes::SophosTid m_parentSophosTid;
             unsigned long long m_endTime;
             Common::EventTypes::OptionalUInt64 m_fileSize;
             std::uint32_t m_flags;
+
+            // On linux this is the process namespace.
             std::uint32_t m_sessionId;
-//            std::string m_sid;
+
+            // On linux this is the UID, on windows SID (Security Identifier) has a specific meaning.
+            std::string m_sid;
             Common::EventTypes::Pathname m_pathname;
             std::string m_cmdLine;
-//            Common::EventTypes::Data m_sha256;
-//            Common::EventTypes::Data m_sha1;
-//            Common::EventTypes::Data m_pesha256;
-//            Common::EventTypes::Data m_pesha1;
+            std::string m_sha256;
+            std::string m_sha1;
         };
 
         Common::EventTypes::ProcessEvent createProcessEvent(Common::EventTypes::ProcessEvent::EventType eventType);

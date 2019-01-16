@@ -125,6 +125,22 @@ namespace Tests
             ProcessEvent event;
 
             event.setEventType(Common::EventTypes::ProcessEvent::EventType::end);
+
+            Common::EventTypes::SophosPid sophosPid;
+            sophosPid.pid = 10084;
+            sophosPid.timestamp = 13175849586748;
+            event.setSophosPid(sophosPid);
+
+            Common::EventTypes::SophosPid parentSophosPid;
+            parentSophosPid.pid = 10124;
+            parentSophosPid.timestamp = 1317195849586748;
+            event.setParentSophosPid(parentSophosPid);
+
+            Common::EventTypes::SophosTid parentSophosTid;
+            parentSophosTid.tid = 8124;
+            parentSophosTid.timestamp = 13171163969586748;
+            event.setParentSophosTid(parentSophosTid);
+
             event.setEndTime(1510293458);
             Common::EventTypes::OptionalUInt64 fileSize;
             fileSize.value = 123;
@@ -168,6 +184,8 @@ namespace Tests
             event.setPathname(pathname);
 
             event.setCmdLine("example cmd line");
+            event.setSha256("howgoodisthissha256");
+            event.setSha1("notasgoodasthissha1");
 
             return event;
         }
@@ -189,6 +207,45 @@ namespace Tests
             if (expected.getEventTypeId() != actual.getEventTypeId())
             {
                 return ::testing::AssertionFailure() << s.str() << "EventTypeId differs";
+            }
+
+            Common::EventTypes::SophosPid expectedSophosPid = expected.getSophosPid();
+            Common::EventTypes::SophosPid actualSophosPid = actual.getSophosPid();
+
+            if (expectedSophosPid.pid != actualSophosPid.pid)
+            {
+                return ::testing::AssertionFailure() << s.str() << "SophosPID PID differs";
+            }
+
+            if (expectedSophosPid.timestamp != actualSophosPid.timestamp)
+            {
+                return ::testing::AssertionFailure() << s.str() << "SophosPID Timestamp differs";
+            }
+
+            Common::EventTypes::SophosPid expectedParentSophosPid = expected.getParentSophosPid();
+            Common::EventTypes::SophosPid actualParentSophosPid = actual.getParentSophosPid();
+
+            if (expectedParentSophosPid.pid != actualParentSophosPid.pid)
+            {
+                return ::testing::AssertionFailure() << s.str() << "ParentSophosPID PID differs";
+            }
+
+            if (expectedParentSophosPid.timestamp != actualParentSophosPid.timestamp)
+            {
+                return ::testing::AssertionFailure() << s.str() << "ParentSophosPID Timestamp differs";
+            }
+
+            Common::EventTypes::SophosTid expectedParentSophosTid = expected.getParentSophosTid();
+            Common::EventTypes::SophosTid actualParentSophosTid = actual.getParentSophosTid();
+
+            if (expectedParentSophosTid.tid != actualParentSophosTid.tid)
+            {
+                return ::testing::AssertionFailure() << s.str() << "ParentSophosTID TID differs";
+            }
+
+            if (expectedParentSophosTid.timestamp != actualParentSophosTid.timestamp)
+            {
+                return ::testing::AssertionFailure() << s.str() << "ParentSophosTID Timestamp differs";
             }
 
             if (expected.getEndTime() != actual.getEndTime())

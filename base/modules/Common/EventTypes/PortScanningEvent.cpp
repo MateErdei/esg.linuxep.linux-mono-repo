@@ -103,16 +103,16 @@ namespace Common
 
             ::capnp::Data::Reader sourceAddress = ::capnp::Data::Reader(
                     reinterpret_cast<const ::capnp::byte*>(
-                            m_connection.sourceAddress.address.c_str()),
-                            strlen(m_connection.sourceAddress.address.c_str()));
+                            m_connection.sourceAddress.address.data()),
+                            m_connection.sourceAddress.address.size());
 
             portEvent.getConnection().getSourceAddress().setAddress(sourceAddress);
             portEvent.getConnection().getSourceAddress().setPort(m_connection.sourceAddress.port);
 
             ::capnp::Data::Reader destinationAddress = ::capnp::Data::Reader(
                     reinterpret_cast<const ::capnp::byte*>(
-                            m_connection.destinationAddress.address.c_str()),
-                            strlen(m_connection.destinationAddress.address.c_str()));
+                            m_connection.destinationAddress.address.data()),
+                            m_connection.destinationAddress.address.size());
 
             portEvent.getConnection().getDestinationAddress().setAddress(destinationAddress);
             portEvent.getConnection().getDestinationAddress().setPort(m_connection.destinationAddress.port);
