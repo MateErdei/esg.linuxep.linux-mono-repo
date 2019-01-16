@@ -63,6 +63,11 @@ namespace Common
                     Common::EventTypes::PortScanningEvent event = m_converter->stringToPortScanningEvent(data);
                     m_sensorDataCallback->processEvent(event);
                 }
+                else if (key == Common::EventTypes::ProcessEventName)
+                {
+                    Common::EventTypes::ProcessEvent event = m_converter->stringToProcessEvent(data);
+                    m_sensorDataCallback->processEvent(event);
+                }
                 else
                 {
                     m_sensorDataCallback->receiveData(key, data);

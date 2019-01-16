@@ -73,10 +73,10 @@ public:
         std::string eventTypeId = Common::EventTypes::PortScanningEventName;
         std::lock_guard guard{mutex};
         auto found = trackReceivedData.find(eventTypeId);
-        if ( found == trackReceivedData.end())
+        if (found == trackReceivedData.end())
         {
-            int portNumber =event.getConnection().sourceAddress.port;
-            trackReceivedData.emplace_hint(found, eventTypeId, std::vector<int>{portNumber} );
+            int portNumber = event.getConnection().sourceAddress.port;
+            trackReceivedData.emplace_hint(found, eventTypeId, std::vector<int>{portNumber});
         }
         else
         {

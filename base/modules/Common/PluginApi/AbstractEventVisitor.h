@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
+#include <Common/EventTypes/ProcessEvent.h>
 #include <Common/PluginApi/IEventVisitorCallback.h>
 
 namespace Common
@@ -21,6 +22,7 @@ namespace Common
 
             void processEvent(const Common::EventTypes::CredentialEvent & event) override;
             void processEvent(const Common::EventTypes::PortScanningEvent & event) override;
+            void processEvent(const Common::EventTypes::ProcessEvent & event) override;
             void receiveData(const std::string& key, const std::string& data) override;
         };
     }
