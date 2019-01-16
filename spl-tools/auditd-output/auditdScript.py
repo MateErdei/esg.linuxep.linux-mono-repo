@@ -255,6 +255,21 @@ clearLogs
 echo "hello" >> ~/test_watch_dir/テストファイル.conf
 """
 
+execute_32_bit_file = """
+auditctl -a exit,always -F arch=b64 -S execve -k archFileExe
+auditctl -a exit,always -F arch=b32 -S execve -k archFileExe
+clearLogs
+/vagrant/payload32 payload32_ouput
+"""
+
+execute_64_bit_file = """
+auditctl -a exit,always -F arch=b64 -S execve -k archFileExe
+auditctl -a exit,always -F arch=b32 -S execve -k archFileExe
+
+clearLogs
+/vagrant/payload64 payload64_ouput
+"""
+
 payloads = {'add_user': add_user,
             'add_user_without_home_directory': add_user_without_home_directory,
             'add_user_with_quote': add_user_with_quote,
@@ -282,7 +297,9 @@ payloads = {'add_user': add_user,
             'watch_directory_for_file_changes_create_file_with_single_quote': watch_directory_for_file_changes_create_file_with_single_quote,
             'watch_directory_for_file_changes_modify_file_with_single_quote': watch_directory_for_file_changes_modify_file_with_single_quote,
             'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
-            'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file}
+            'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file,
+            'execute_32_bit_file': execute_32_bit_file,
+            'execute_64_bit_file': execute_64_bit_file}
 
 ########################################################################################################################
 
@@ -409,6 +426,12 @@ def vagrant_run(platform, bashString):
 
     with open(hostfile, 'w') as f:
         f.write(bashString)
+
+    exe32file = "/redist/binaries/linux11/input/auditDTestFiles/payload32"
+    exe64file = "/redist/binaries/linux11/input/auditDTestFiles/payload64"
+
+    vagrant_push_data(platform, exe32file)
+    vagrant_push_data(platform, exe64file)
 
     if platform == "amazon_linux":
         vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo mkdir /vagrant']

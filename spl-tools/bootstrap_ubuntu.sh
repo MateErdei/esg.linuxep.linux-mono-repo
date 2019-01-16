@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 echo "Bootstrapping Ubuntu"
 sudo mkdir -p /redist
@@ -40,6 +40,6 @@ then
 fi
 
 sudo apt-get update --fix-missing
-sudo apt-get install build-essential cmake python-pip auditd --assume-yes
+sudo apt-get install build-essential cmake python-pip auditd libc6-i386 --assume-yes
 sudo pip install robotframework pyzmq watchdog protobuf paramiko pycapnp
 
