@@ -42,6 +42,14 @@ def processTestResults(osName)
     xunit testTimeMargin: '3000', thresholdMode: 2, thresholds: [failed(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0'), skipped(failureNewThreshold: '100', failureThreshold: '100', unstableNewThreshold: '100', unstableThreshold: '100')], tools: [CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build64/CTestResults.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
 }
 
+def cleanupDirs()
+{
+    deleteDir()
+    dir("${env.$WORKSPACE}@tmp")
+    {
+        deleteDir()
+    }
+}
 
 pipeline {
     agent none
@@ -63,6 +71,9 @@ pipeline {
                 always {
                     processTestResults("Builder CentOS")
                 }
+                cleanup {
+                    cleanupDirs()
+                }
             }
         }
         stage('Tests') {
@@ -82,6 +93,9 @@ pipeline {
                         always {
                             processTestResults("Ubuntu")
                         }
+                        cleanup {
+                            cleanupDirs()
+                        }
                     }
                 }
                 stage('Test on CentOS') {
@@ -98,6 +112,9 @@ pipeline {
                         always {
                             processTestResults("CentOS")
                         }
+                        cleanup {
+                            cleanupDirs()
+                        }
                     }
                 }
                 stage('Test on Redhat') {
@@ -113,6 +130,9 @@ pipeline {
                     post {
                         always {
                             processTestResults("RHEL")
+                        }
+                        cleanup {
+                            cleanupDirs()
                         }
                     }
                 }
