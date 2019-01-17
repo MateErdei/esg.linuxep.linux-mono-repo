@@ -45,7 +45,7 @@ def processTestResults(osName)
 def cleanupDirs()
 {
     deleteDir()
-    dir("${env.$WORKSPACE}@tmp")
+    dir("${env.WORKSPACE}@tmp")
     {
         deleteDir()
     }
