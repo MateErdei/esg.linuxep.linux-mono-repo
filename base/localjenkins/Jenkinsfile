@@ -63,6 +63,9 @@ pipeline {
                 always {
                     processTestResults("Builder CentOS")
                 }
+                cleanup {
+                    deleteDir()
+                }
             }
         }
         stage('Tests') {
@@ -82,6 +85,9 @@ pipeline {
                         always {
                             processTestResults("Ubuntu")
                         }
+                        cleanup {
+                            deleteDir()
+                        }
                     }
                 }
                 stage('Test on CentOS') {
@@ -98,6 +104,9 @@ pipeline {
                         always {
                             processTestResults("CentOS")
                         }
+                        cleanup {
+                            deleteDir()
+                        }
                     }
                 }
                 stage('Test on Redhat') {
@@ -113,6 +122,9 @@ pipeline {
                     post {
                         always {
                             processTestResults("RHEL")
+                        }
+                        cleanup {
+                            deleteDir()
                         }
                     }
                 }
