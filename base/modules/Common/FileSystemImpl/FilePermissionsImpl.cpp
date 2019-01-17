@@ -142,7 +142,7 @@ namespace Common
         {
             struct passwd userBuf;
             struct passwd* replyUser;
-            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+            std::array<char, NSS_BUFLEN_PASSWD> buffer; // placeholder, event if it is not sufficient
 
             int err = getpwuid_r(userId, &userBuf, buffer.data(), buffer.size(), &replyUser);
             if (replyUser == nullptr) // no matching found
