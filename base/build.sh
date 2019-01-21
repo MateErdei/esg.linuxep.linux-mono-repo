@@ -41,7 +41,9 @@ COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
 BULLSEYE_SYSTEM_TEST_BRANCH=master
 export TEST_SELECTOR=
-CMAKE_BUILD_TYPE=Release
+CMAKE_BUILD_TYPE=RelWithDebInfo
+DEBUG=0
+export ENABLE_STRIP=1
 
 while [[ $# -ge 1 ]]
 do
@@ -65,6 +67,13 @@ do
             ;;
         --debug)
             CMAKE_BUILD_TYPE=Debug
+            DEBUG=1
+            export ENABLE_STRIP=0
+            ;;
+        --release)
+            CMAKE_BUILD_TYPE=RelWithDebInfo
+            DEBUG=0
+            export ENABLE_STRIP=1
             ;;
         --build-type)
             shift
@@ -121,6 +130,13 @@ do
     shift
 done
 
+case ${CMAKE_BUILD_TYPE} in
+    Debug|DEBUG)
+        DEBUG=1
+        export ENABLE_STRIP=0
+        ;;
+esac
+
 function untar_or_link_to_redist()
 {
     local input=$1
@@ -147,6 +163,8 @@ function build()
     echo "BASE=$BASE"
     echo "Initial PATH=$PATH"
     echo "Initial LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
+    echo "Build type=${CMAKE_BUILD_TYPE}"
+    echo "Debug=${DEBUG}"
 
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
@@ -162,7 +180,7 @@ function build()
         exitFailure 33 "Failed to get googletest via git"
     }
 
-    if [[ -d $INPUT ]]
+    if [[ -d "$INPUT" ]]
     then
 
         unpack_scaffold_gcc_make "$INPUT"
