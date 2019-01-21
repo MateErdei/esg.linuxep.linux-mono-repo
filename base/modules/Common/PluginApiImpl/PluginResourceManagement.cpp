@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ApiException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-
+#include "Logger.h"
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -92,8 +92,36 @@ namespace Common
             std::string publishAddressChannel = ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress();
             socketPublisher->connect(publishAddressChannel);
 
+            // auxiliar subscriber created to prove that pub/sub is setup and in working condition.
+            auto socketSubscriber = m_contextPtr->getSubscriber();
+            socketSubscriber->setConnectionTimeout(100);
+            std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
+            socketSubscriber->connect(subscriberAddressChannel);
+            std::string checkconnection{"checkconnection"};
+            socketSubscriber->subscribeTo(checkconnection);
 
-            return std::unique_ptr<PluginApi::IRawDataPublisher>(new RawDataPublisher(std::move(socketPublisher)));
+            auto mypid = std::to_string(getpid());
+            // allow up to 2 seconds for the pub/sub to be setup correctly.
+            for( int i = 0; i< 20; i++)
+            {
+
+                socketPublisher->write( {checkconnection, mypid});
+                try
+                {
+                    auto arrived_data = socketSubscriber->read();
+                    if( arrived_data.at(arrived_data.size()-1) == mypid)
+                    {
+                        return std::unique_ptr<PluginApi::IRawDataPublisher>(new RawDataPublisher(std::move(socketPublisher)));
+                    }
+
+                }catch ( std::exception & ex)
+                {
+                    LOGDEBUG("Setting up publisher intermediate exception: " << ex.what());
+                }
+            }
+            LOGWARN("Failed to setup the publisher as messages are not going to the subscriber. Publisher channel: " << publishAddressChannel);
+            throw std::runtime_error( "Failed to setup publisher");
+            
         }
 
         std::unique_ptr<Common::PluginApi::ISubscriber>

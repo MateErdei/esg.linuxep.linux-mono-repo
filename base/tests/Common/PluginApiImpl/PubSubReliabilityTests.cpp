@@ -126,6 +126,7 @@ public:
     {
         Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
+    Common::Logging::ConsoleLoggingSetup m_consoleLog;
     Common::ZeroMQWrapper::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::IProxyPtr m_proxy;
 };
