@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "BaseServiceAPI.h"
 #include "RawDataPublisher.h"
 #include "Subscriber.h"
+#include "Logger.h"
 
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
@@ -17,7 +18,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ApiException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include "Logger.h"
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -92,7 +92,7 @@ namespace Common
             std::string publishAddressChannel = ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress();
             socketPublisher->connect(publishAddressChannel);
 
-            // auxiliar subscriber created to prove that pub/sub is setup and in working condition.
+            // auxiliary subscriber created to prove that pub/sub is setup and in working condition.
             auto socketSubscriber = m_contextPtr->getSubscriber();
             socketSubscriber->setConnectionTimeout(100);
             std::string subscriberAddressChannel = Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress();
@@ -121,7 +121,7 @@ namespace Common
             }
             LOGWARN("Failed to setup the publisher as messages are not going to the subscriber. Publisher channel: " << publishAddressChannel);
             throw std::runtime_error( "Failed to setup publisher");
-            
+
         }
 
         std::unique_ptr<Common::PluginApi::ISubscriber>
