@@ -17,23 +17,28 @@ set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
+set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
+set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
 add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE}
         )
 
 add_custom_target(
         dist
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE}
 )
 
 add_custom_target(
         forcedist
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE}
 )
 

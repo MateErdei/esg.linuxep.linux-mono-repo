@@ -12,7 +12,7 @@ set -o pipefail
 
 STARTINGDIR=$(pwd)
 
-CMAKE_BUILD_TYPE=Release
+CMAKE_BUILD_TYPE=RelWithDebInfo
 EXTRA_CMAKE_OPTIONS=
 export PRODUCT=${PLUGIN_NAME:-${DEFAULT_PRODUCT}}
 export PRODUCT_NAME=
@@ -21,6 +21,7 @@ export DEFAULT_HOME_FOLDER=
 PLUGIN_TAR=
 [[ -z "${CLEAN:-}" ]] && CLEAN=1
 UNITTEST=1
+export ENABLE_STRIP=1
 
 while [[ $# -ge 1 ]]
 do
@@ -31,6 +32,10 @@ do
         --build-type)
             shift
             CMAKE_BUILD_TYPE="$1"
+            ;;
+        --debug)
+            export ENABLE_STRIP=0
+            CMAKE_BUILD_TYPE=Debug
             ;;
         --strip)
             export ENABLE_STRIP=1
@@ -219,6 +224,10 @@ function build()
 
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
 
+    if [[ -d build${BITS}/symbols ]]
+    then
+        cp -a build${BITS}/symbols output/
+    fi
     echo "Build Successful"
     return 0
 }
