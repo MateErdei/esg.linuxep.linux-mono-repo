@@ -102,6 +102,7 @@ add_copy_test_directory(Common/Helpers)
 file(GLOB_RECURSE distributionfiles
         LIST_DIRECTORIES false
         ${CMAKE_SOURCE_DIR}/products/distribution/*.py
+        ${CMAKE_SOURCE_DIR}/products/distribution/addSymbols.sh
         )
 
 add_custom_command(
