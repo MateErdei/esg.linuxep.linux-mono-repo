@@ -1,0 +1,48 @@
+Adding Symbols to build
+=======================
+
+1. Get Symbols output
+---------------------
+
+Find the symbols for the components you want to debug from Base, Plugins.
+
+2. Copy .debug files to machine
+-------------------------------
+
+3. Run addSymbols.sh
+--------------------
+
+Specify installation dir, if not the default
+
+./addSymbols.sh <install dir>
+
+4. Run gdb
+----------
+
+4a. Locally
+-----------
+
+gdb -p $(pgrep sophos_watchdog)
+
+4b. Remotely - vagrant
+----------------------
+
+gdb sophos_watchdog
+target remote | vagrant ssh -t ubuntu -- -T sudo gdbserver --attach - <PID of watchdog>
+
+4c. Remotely - ssh
+------------------
+
+gdb sophos_watchdog
+target remote | ssh -t user@host -T sudo gdbserver --attach - <PID of watchdog>
+
+
+4d. From CLion
+--------------
+
+1) Setup gdbserver on port 9000 on test machine
+2) Port forward 9000 to local machine
+3) Setup new run settings: https://www.jetbrains.com/help/clion/remote-debug.html
+4) Copy /opt/sophos-spl, /lib and /lib64 from test machine to a sysroot
+
+
