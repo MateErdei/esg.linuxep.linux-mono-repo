@@ -85,6 +85,9 @@ namespace Common
                     reinterpret_cast<const ::capnp::byte*>(m_sid.data()), m_sid.size());
             processEvent.setSid(sidReader);
 
+            processEvent.getProcessOwnerUserSID().setUsername(m_processOwnerUserSid.username);
+            processEvent.getProcessOwnerUserSID().setDomain(m_processOwnerUserSid.domain);
+
             processEvent.getFileSize().setValue(m_fileSize.value);
             processEvent.getPathname().setFlags(m_pathname.flags);
             processEvent.getPathname().setFileSystemType(m_pathname.fileSystemType);
@@ -168,6 +171,11 @@ namespace Common
                 ::capnp::Data::Reader sidReader = processEvent.getSid();
                 std::string sidString(sidReader.begin(), sidReader.end());
                 setSid(sidString);
+
+                Common::EventTypes::UserSid processOwner;
+                processOwner.username = processEvent.getProcessOwnerUserSID().getUsername();
+                processOwner.domain = processEvent.getProcessOwnerUserSID().getDomain();
+                setProcessOwnerUserSid(processOwner);
 
                 Common::EventTypes::Pathname pathname;
                 pathname.flags = processEvent.getPathname().getFlags();
@@ -259,6 +267,11 @@ namespace Common
             return m_sid;
         }
 
+        const Common::EventTypes::UserSid ProcessEvent::getProcessOwnerUserSid() const
+        {
+            return m_processOwnerUserSid;
+        }
+
         const Common::EventTypes::Pathname ProcessEvent::getPathname() const
         {
             return m_pathname;
@@ -324,6 +337,11 @@ namespace Common
         void ProcessEvent::setSid(const std::string sid)
         {
             m_sid = sid;
+        }
+
+        void ProcessEvent::setProcessOwnerUserSid(const Common::EventTypes::UserSid processOwnerUserSid)
+        {
+            m_processOwnerUserSid = processOwnerUserSid;
         }
 
         void ProcessEvent::setPathname(const Common::EventTypes::Pathname pathname)

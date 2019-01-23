@@ -88,6 +88,12 @@ namespace Common
             const std::string getSid() const ;
 
             /**
+             * Return a struct that holds information about the user that owns a process
+             * @return
+             */
+            const Common::EventTypes::UserSid getProcessOwnerUserSid() const ;
+
+            /**
              * Return a struct that holds information about the path of the binary file.
              * @return
              */
@@ -164,7 +170,13 @@ namespace Common
              * Sets the sid property of this ProcessEvent object
              * @param sid
              */
-            void setSid(const std::string sid) ;
+            void setSid(const std::string sid);
+
+            /**
+             * Sets the processOwnerUserSid property of this ProcessEvent object
+             * @param processOwnerUserSid
+             */
+            void setProcessOwnerUserSid(const Common::EventTypes::UserSid processOwnerUserSid);
 
             /**
              * Sets the pathname property of this ProcessEvent object
@@ -224,9 +236,14 @@ namespace Common
             // On linux this is the process namespace.
             std::uint32_t m_sessionId;
 
+            //a struct that holds information about the path of the binary file
+            Common::EventTypes::Pathname m_pathname;
+
             // On linux this is the UID, on windows SID (Security Identifier) has a specific meaning.
             std::string m_sid;
-            Common::EventTypes::Pathname m_pathname;
+
+            // A Struct that holds information about the user that owns a process
+            Common::EventTypes::UserSid m_processOwnerUserSid;
 
             // Command line of running process - e.g. what you get when you run a ps on Linux.
             std::string m_cmdLine;

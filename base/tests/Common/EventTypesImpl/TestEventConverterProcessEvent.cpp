@@ -93,6 +93,11 @@ TEST_F(TestEventConverterProcessEvent, testcreateProcessEventForStartProcess) //
     event.setSessionId(312);
     event.setSid("sid");
 
+    Common::EventTypes::UserSid userSid;
+    userSid.username = "testUser";
+    userSid.domain = "testDomain";
+    event.setProcessOwnerUserSid(userSid);
+
     Common::EventTypes::Pathname pathname;
     pathname.flags = 12;
     pathname.fileSystemType = 452;
