@@ -14,7 +14,7 @@ Find the symbols for the components you want to debug from Base, Plugins.
 
 Specify installation dir, if not the default
 
-./addSymbols.sh <install dir>
+$ ./addSymbols.sh <install dir>
 
 4. Run gdb
 ----------
@@ -22,19 +22,19 @@ Specify installation dir, if not the default
 4a. Locally
 -----------
 
-gdb -p $(pgrep sophos_watchdog)
+$ gdb -p $(pgrep sophos_watchdog)
 
 4b. Remotely - vagrant
 ----------------------
 
-gdb sophos_watchdog
-target remote | vagrant ssh -t ubuntu -- -T sudo gdbserver --attach - <PID of watchdog>
+$ gdb sophos_watchdog
+gdb> target remote | vagrant ssh -t ubuntu -- -T sudo gdbserver --attach - <PID of watchdog>
 
 4c. Remotely - ssh
 ------------------
 
-gdb sophos_watchdog
-target remote | ssh -t user@host -T sudo gdbserver --attach - <PID of watchdog>
+$ gdb sophos_watchdog
+gdb> target remote | ssh -t user@host -T sudo gdbserver --attach - <PID of watchdog>
 
 
 4d. From CLion
@@ -46,3 +46,8 @@ target remote | ssh -t user@host -T sudo gdbserver --attach - <PID of watchdog>
 4) Copy /opt/sophos-spl, /lib and /lib64 from test machine to a sysroot
 
 
+Appendix
+--------
+
+$ - run an the command-line
+gdb> - run on the gdb interactive command-line.
