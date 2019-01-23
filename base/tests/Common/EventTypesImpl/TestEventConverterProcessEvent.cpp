@@ -21,7 +21,7 @@ public:
 
 };
 
-TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringCanCreateProcessEventObjectWithExpectedValues) //NOLINT
+TEST_F(TestEventConverterProcessEvent, testCreateProcessEventFromStringCanCreateProcessEventObjectWithExpectedValues) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     ProcessEvent eventExpected = createDefaultProcessEvent();
@@ -33,7 +33,7 @@ TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringCanCreate
     EXPECT_PRED_FORMAT2( processEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringCanCreateProcessEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
+TEST_F(TestEventConverterProcessEvent, testCreateProcessEventFromStringCanCreateProcessEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     ProcessEvent eventExpected = createDefaultProcessEvent();
@@ -47,19 +47,19 @@ TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringCanCreate
 }
 
 
-TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+TEST_F(TestEventConverterProcessEvent, testCreateProcessEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     EXPECT_THROW(converter->stringToProcessEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
 }
 
-TEST_F(TestEventConverterProcessEvent, testcreateProcessEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
+TEST_F(TestEventConverterProcessEvent, testCreateProcessEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     EXPECT_THROW(converter->stringToProcessEvent(""), Common::EventTypes::IEventException); //NOLINT
 }
 
-TEST_F(TestEventConverterProcessEvent, testcreateProcessEventForStartProcess) //NOLINT
+TEST_F(TestEventConverterProcessEvent, testCreateProcessEventForStartProcess) //NOLINT
 {
     // test to prove that incomplete data is still valid a event, i.e a start process event will not have an end time.
 
@@ -96,7 +96,7 @@ TEST_F(TestEventConverterProcessEvent, testcreateProcessEventForStartProcess) //
     Common::EventTypes::UserSid userSid;
     userSid.username = "testUser";
     userSid.domain = "testDomain";
-    event.setProcessOwnerUserSid(userSid);
+    event.setOwnerUserSid(userSid);
 
     Common::EventTypes::Pathname pathname;
     pathname.flags = 12;

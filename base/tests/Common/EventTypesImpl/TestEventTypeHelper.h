@@ -148,6 +148,13 @@ namespace Tests
             event.setFlags(48);
             event.setSessionId(312);
 
+            event.setSid("1001");
+
+            Common::EventTypes::UserSid userSid;
+            userSid.username = "testUser";
+            userSid.domain = "testDomain";
+            event.setOwnerUserSid(userSid);
+
             Common::EventTypes::Pathname pathname;
             Common::EventTypes::TextOffsetLength openName;
             Common::EventTypes::TextOffsetLength volumeName;
@@ -266,6 +273,18 @@ namespace Tests
             if (expected.getSessionId() != actual.getSessionId())
             {
                 return ::testing::AssertionFailure() << s.str() << "SessionId differ";
+            }
+
+            if (expected.getSid() != actual.getSid())
+            {
+                return ::testing::AssertionFailure() << s.str() << "SID differ";
+            }
+
+            if ((expected.getOwnerUserSid().username != actual.getOwnerUserSid().username) ||
+                (expected.getOwnerUserSid().domain != actual.getOwnerUserSid().domain) ||
+                (expected.getOwnerUserSid().sid != actual.getOwnerUserSid().sid))
+            {
+                return ::testing::AssertionFailure() << s.str() << "Owner User Sid differ";
             }
 
             Common::EventTypes::Pathname expectedPathname = expected.getPathname();

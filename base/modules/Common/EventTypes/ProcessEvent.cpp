@@ -85,8 +85,8 @@ namespace Common
                     reinterpret_cast<const ::capnp::byte*>(m_sid.data()), m_sid.size());
             processEvent.setSid(sidReader);
 
-            processEvent.getProcessOwnerUserSID().setUsername(m_processOwnerUserSid.username);
-            processEvent.getProcessOwnerUserSID().setDomain(m_processOwnerUserSid.domain);
+            processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username);
+            processEvent.getOwnerUserSID().setDomain(m_ownerUserSid.domain);
 
             processEvent.getFileSize().setValue(m_fileSize.value);
             processEvent.getPathname().setFlags(m_pathname.flags);
@@ -173,9 +173,9 @@ namespace Common
                 setSid(sidString);
 
                 Common::EventTypes::UserSid processOwner;
-                processOwner.username = processEvent.getProcessOwnerUserSID().getUsername();
-                processOwner.domain = processEvent.getProcessOwnerUserSID().getDomain();
-                setProcessOwnerUserSid(processOwner);
+                processOwner.username = processEvent.getOwnerUserSID().getUsername();
+                processOwner.domain = processEvent.getOwnerUserSID().getDomain();
+                setOwnerUserSid(processOwner);
 
                 Common::EventTypes::Pathname pathname;
                 pathname.flags = processEvent.getPathname().getFlags();
@@ -267,9 +267,9 @@ namespace Common
             return m_sid;
         }
 
-        const Common::EventTypes::UserSid ProcessEvent::getProcessOwnerUserSid() const
+        const Common::EventTypes::UserSid ProcessEvent::getOwnerUserSid() const
         {
-            return m_processOwnerUserSid;
+            return m_ownerUserSid;
         }
 
         const Common::EventTypes::Pathname ProcessEvent::getPathname() const
@@ -339,9 +339,9 @@ namespace Common
             m_sid = sid;
         }
 
-        void ProcessEvent::setProcessOwnerUserSid(const Common::EventTypes::UserSid processOwnerUserSid)
+        void ProcessEvent::setOwnerUserSid(const Common::EventTypes::UserSid ownerUserSid)
         {
-            m_processOwnerUserSid = processOwnerUserSid;
+            m_ownerUserSid = ownerUserSid;
         }
 
         void ProcessEvent::setPathname(const Common::EventTypes::Pathname pathname)
