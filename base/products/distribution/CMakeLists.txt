@@ -28,8 +28,7 @@ add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
 
 add_custom_target(
         dist
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${SYMBOLS_DIR}
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE}
 )
@@ -38,7 +37,7 @@ add_custom_target(
 add_custom_target(
         forcedist
         COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${CMAKE_BINARY_DIR}/symbols ${CMAKE_BUILD_TYPE}
+        COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE}
 )

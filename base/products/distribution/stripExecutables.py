@@ -25,6 +25,9 @@ def main(argv):
     buildType = argv[3]
     stripEnv = os.environ.get("ENABLE_STRIP", None)
 
+    ## Ensure the debug directory is created, regardless if we are doing the strip or not
+    safe_makedir(debug)
+
     if stripEnv == "0":
         print("NOT stipping binaries due to ENABLE_STRIP=0")
         return 0
