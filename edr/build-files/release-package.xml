@@ -7,7 +7,7 @@
     <inputs>
         <workingdir>sspl-template-plugin-build</workingdir>
 	    <!--Plugin Api Dev Build - This will check filer 5 first and then filer 6 getting the latest build of the two-->
-        <package buildtype="dev" name="sspl-base" version="%LASTGOODCOMPONENTBUILD%/output" dest="input">
+        <package buildtype="dev" name="bfr/sspl-base" version="%LASTGOODCOMPONENTBUILD%/output" dest="input">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
