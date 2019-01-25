@@ -21,7 +21,7 @@ public:
 
 };
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -33,7 +33,7 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -52,19 +52,19 @@ TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringCan
     EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     EXPECT_THROW(converter->stringToCredentialEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
 }
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     EXPECT_THROW(converter->stringToCredentialEvent(""), Common::EventTypes::IEventException); //NOLINT
 }
 
-TEST_F(TestEventConverterCredentialEvent, testcreateCredentialEventForAddUser) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) //NOLINT
 {
     // test to prove that incomplete data is still valid a event, i.e addUser event will not generate all
     // the data that could be stored.
