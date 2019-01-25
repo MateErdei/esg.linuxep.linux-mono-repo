@@ -4,6 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#ifndef ARTISANBUILD
+
+#include "ReqRepTestImplementations.h"
+
 #include <Common/ZeroMQWrapper/IReadable.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
@@ -22,168 +26,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <future>
 #include <zmq.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-
-#ifndef ARTISANBUILD
+extern char **environ;
 
 namespace
 {
-    Common::ZeroMQWrapper::IContextSharedPtr createContext()
-    {
-        std::cerr << "createContext from "<<::getpid() << std::endl;
-        return Common::ZeroMQWrapper::createContext();
-    }
-
-    using data_t = Common::ZeroMQWrapper::IReadable::data_t;
     using ::testing::NiceMock;
     using ::testing::StrictMock;
-
-    /** uses the requester as implemented in PluginProxy::getReply and  Common::PluginApiImpl::BaseServiceAPI::getReply**/
-    class Requester
-    {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
-        Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
-    public:
-        explicit Requester(const std::string& serverAddress)
-        {
-
-            m_context = createContext();
-            m_requester = m_context->getRequester();
-            m_requester->setTimeout(1000);
-            m_requester->setConnectionTimeout(1000);
-            m_requester->connect(serverAddress);
-        }
-
-        std::string sendReceive(const std::string& value)
-        {
-            m_requester->write(data_t{value});
-            data_t answer = m_requester->read();
-            return answer.at(0);
-        }
-        ~Requester() = default;
-    };
-
-
-    class Replier
-    {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
-        Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
-    public:
-        explicit Replier(const std::string& serverAddress, int timeout = 1000)
-        {
-
-            m_context = createContext();
-            m_replier = m_context->getReplier();
-            m_replier->setTimeout(timeout);
-            m_replier->setConnectionTimeout(timeout);
-            m_replier->listen(serverAddress);
-        }
-
-        void serveRequest()
-        {
-            auto request = m_replier->read();
-            m_replier->write(request);
-        }
-        ~Replier() = default;
-    };
-
-    class Unreliable
-    {
-    protected:
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
-        Common::ZeroMQWrapper::ISocketRequesterPtr m_requestKillChannel;
-
-        void requestKill()
-        {
-            m_requestKillChannel->write(data_t{"killme"});
-        }
-        void notifyShutdonw()
-        {
-            m_requestKillChannel->write(data_t{"close"});
-        }
-    public:
-        explicit Unreliable( const std::string & killChannelAddress )
-        {
-            m_context = createContext();
-            m_requestKillChannel = m_context->getRequester();
-            m_requestKillChannel->connect(killChannelAddress);
-        }
-    };
-
-    class UnreliableReplier : public Unreliable
-    {
-        Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
-    public:
-        UnreliableReplier(const std::string& serverAddress, const std::string& killChannelAddress)
-                : Unreliable(killChannelAddress)
-        {
-            m_replier = m_context->getReplier();
-            m_replier->setTimeout(1000);
-            m_replier->setConnectionTimeout(1000);
-            m_replier->listen(serverAddress);
-        }
-
-        void serveRequest()
-        {
-            data_t request = m_replier->read();
-            m_replier->write(data_t{"granted"});
-            notifyShutdonw();
-        }
-        void breakAfterReceiveMessage()
-        {
-            data_t request = m_replier->read();
-            requestKill();
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }
-
-        void servePartialReply()
-        {
-            auto * socketHolder = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*> (m_replier.get());
-            assert(socketHolder);
-            data_t request = m_replier->read();
-
-            void* socket = socketHolder->skt();
-            int rc;
-            std::string firstElement = "firstElement";
-            // send the first element but do not send the rest
-            rc = zmq_send(socket, firstElement.data(), firstElement.size(), ZMQ_SNDMORE);
-            assert(rc >= 0);
-            requestKill();
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }
-    };
-
-    class UnreliableRequester : public Unreliable
-    {
-        Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
-    public:
-        UnreliableRequester( const std::string & serverAddress, const std::string & killChannelAddress )
-                : Unreliable( killChannelAddress)
-        {
-            m_requester = m_context->getRequester();
-            m_requester->setTimeout(1000);
-            m_requester->setConnectionTimeout(1000);
-            m_requester->connect(serverAddress);
-        }
-
-        std::string sendReceive(const std::string& value)
-        {
-            m_requester->write(data_t{value});
-            data_t answer = m_requester->read();
-            notifyShutdonw();
-            return answer.at(0);
-        }
-
-        std::string breakAfterSendRequest(const std::string& value)
-        {
-            m_requester->write(data_t{value});
-            requestKill();
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-            return "";
-        }
-
-
-    };
+    using namespace ReqRepTest;
 
     class TestContext
     {
@@ -254,7 +107,6 @@ namespace
 
         }
 
-
         void runFork(std::function<void()>  functor)
         {
             std::cerr << "Fork from "<<::getpid() << std::endl;
@@ -272,7 +124,48 @@ namespace
             {
                 monitorChild(child);
             }
+        }
 
+        void runExec(std::vector<std::string> args)
+        {
+            // Find executable
+            std::string exe = CMAKE_CURRENT_BINARY_DIR;
+            exe += "/TestReqRepTool";
+            // Create argument list
+            char** newargv = static_cast<char**>(malloc(sizeof(char*)*(args.size()+2)));
+            const char* exe_cstr = exe.c_str();
+            newargv[0] = const_cast<char*>(exe_cstr); // Not actually modified
+            for (size_t i=0; i< args.size();i++)
+            {
+                newargv[i+1] = const_cast<char*>(args[i].c_str()); // Not actually modified
+            }
+            newargv[args.size() + 1] = nullptr;
+
+
+            char *newenviron[] = { nullptr };
+
+
+            // Fork
+
+            std::cerr << "Fork from "<<::getpid() << std::endl;
+            std::cerr << "Will exec "<< exe << std::endl;
+
+            pid_t child = fork();
+
+            if ( child == -1)
+            {
+                throw std::logic_error( "Failed to create process");
+            }
+            if ( child != 0)
+            {
+                monitorChild(child);
+                return;
+            }
+
+            // Exec
+            ::execve(exe_cstr, newargv, newenviron);
+            perror("execve");   /* execve() returns only on error */
+            _exit(70);
         }
 
 
@@ -287,7 +180,7 @@ namespace
         ReqRepReliabilityTests() = default;
     };
 
-    TEST_F( ReqRepReliabilityTests, DISABLED_normalReqReplyShouldWork ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWork ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -297,15 +190,18 @@ namespace
             Requester requester( serveraddress );
             return requester.sendReceive("hello");
         });
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//                );
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableReplier","serveRequest" }
                 );
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
     }
 
 
-    TEST_F( ReqRepReliabilityTests, DISABLED_normalReqReplyShouldWorkUsingReply ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -315,14 +211,17 @@ namespace
             Replier replier( serveraddress );
             replier.serveRequest();
         });
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
+//                );
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableRequester","sendReceive","hello"}
                 );
         EXPECT_NO_THROW(futureReplier.get()); //NOLINT
     }
 
 
-    TEST_F( ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierFailure ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -334,18 +233,24 @@ namespace
             return requester.sendReceive("hello2");
         });
 
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.breakAfterReceiveMessage(); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.breakAfterReceiveMessage(); }
+//                );
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableReplier","breakAfterReceiveMessage" }
                 );
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//        );
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableReplier","serveRequest" }
         );
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
     }
 
 
-    TEST_F( ReqRepReliabilityTests, DISABLED_requesterShouldRecoverAReplierSendingBrokenMessage ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -357,21 +262,28 @@ namespace
             return requester.sendReceive("hello2");
         });
 
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.servePartialReply(); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.servePartialReply(); }
+//
+//        );
 
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableReplier","servePartialReply" }
         );
 
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+//        );
+
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableReplier","serveRequest" }
         );
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
 }
 
 
-
-    TEST_F( ReqRepReliabilityTests, DISABLED_replierShouldNotBreakIfRequesterFails ) // NOLINT
+    TEST_F( ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails ) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
@@ -402,12 +314,19 @@ namespace
         });
 
         // the fact that the first request break after the send message has no implication on the replier
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.breakAfterSendRequest("hello"); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.breakAfterSendRequest("hello"); }
+//        );
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableRequester","breakAfterSendRequest","hello" }
         );
 
-        runInExternalProcess.runFork(
-                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
+//        runInExternalProcess.runFork(
+//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
+//        );
+
+        runInExternalProcess.runExec(
+                {serveraddress, killch,"UnreliableRequester","sendReceive","hello" }
         );
 
         try
