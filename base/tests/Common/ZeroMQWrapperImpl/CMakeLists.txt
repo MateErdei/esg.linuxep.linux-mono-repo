@@ -30,3 +30,9 @@ add_executable(TestReqRepTool
 
 target_include_directories(TestReqRepTool SYSTEM BEFORE PUBLIC ${ZeroMQ_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
 target_link_libraries(TestReqRepTool zeromqwrapperimpl threads testhelpers)
+
+SET_TARGET_PROPERTIES(TestReqRepTool
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
