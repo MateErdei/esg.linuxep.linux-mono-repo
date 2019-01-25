@@ -107,6 +107,16 @@ namespace Common
 {
     namespace EventTypes
     {
+        CredentialEvent::CredentialEvent()
+        : unsetId(4294967295)
+        , unsetAcctName("746573742275736572")
+        , m_groupId(unsetId)
+        , m_groupName("")
+        , m_timestamp(0)
+        , m_logonId(unsetId)
+        {
+        }
+
         const std::string CredentialEvent::getEventTypeId() const
         {
             return Common::EventTypes::CredentialEventName;
@@ -168,12 +178,18 @@ namespace Common
         }
         void CredentialEvent::setSubjectUserSid(const Common::EventTypes::UserSid subjectUserSid)
         {
-            m_subjectUserSid = subjectUserSid;
+            if(m_subjectUserSid.username.empty())
+            {
+                m_subjectUserSid = subjectUserSid;
+            }
         }
 
         void CredentialEvent::setTargetUserSid(const Common::EventTypes::UserSid targetUserSid)
         {
-            m_targetUserSid = targetUserSid;
+            if(m_targetUserSid.username.empty())
+            {
+                m_targetUserSid = targetUserSid;
+            }
         }
 
         void CredentialEvent::setTimestamp(const unsigned long long timestamp)
@@ -183,22 +199,34 @@ namespace Common
 
         void CredentialEvent::setLogonId(const unsigned long logonId)
         {
-            m_logonId = logonId;
+            if (logonId != unsetId)
+            {
+                m_logonId = logonId;
+            }
         }
 
         void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess)
         {
-            m_remoteNetworkAccess = remoteNetworkAccess;
+            if (m_remoteNetworkAccess.address.empty() && remoteNetworkAccess.address!="?")
+            {
+                m_remoteNetworkAccess = remoteNetworkAccess;
+            }
         }
 
         void CredentialEvent::setGroupId(const unsigned long groupId)
         {
-            m_groupId = groupId;
+            if (groupId != unsetId)
+            {
+                m_groupId = groupId;
+            }
         }
 
         void CredentialEvent::setGroupName(const std::string& groupName)
         {
-            m_groupName = groupName;
+            if (m_groupName.empty())
+            {
+                m_groupName = groupName;
+            }
         }
 
 

@@ -34,7 +34,7 @@ namespace Common
             passwordChange = 4,
             membershipChange = 5
         };
-            CredentialEvent() = default;
+            CredentialEvent();
 
             ~CredentialEvent() = default;
 
@@ -67,15 +67,17 @@ namespace Common
             void fromString(const std::string& objectAsString);
 
         private:
+            unsigned long unsetId;
+            std::string unsetAcctName;
             unsigned long m_groupId;
             std::string m_groupName;
+            unsigned long long m_timestamp;
+            unsigned long m_logonId;
+            Common::EventTypes::NetworkAddress m_remoteNetworkAccess;
             Common::EventTypes::CredentialEvent::SessionType m_sessionType;
             Common::EventTypes::CredentialEvent::EventType m_eventType;
             Common::EventTypes::UserSid m_subjectUserSid;
             Common::EventTypes::UserSid m_targetUserSid;
-            unsigned long long m_timestamp;
-            unsigned long m_logonId;
-            Common::EventTypes::NetworkAddress m_remoteNetworkAccess;
         };
 
         Common::EventTypes::CredentialEvent createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::CredentialEvent::EventType eventType);
