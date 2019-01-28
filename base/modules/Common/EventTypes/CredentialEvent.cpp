@@ -103,17 +103,21 @@ Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(Co
     return event;
 }
 
+namespace
+{
+    const unsigned long GL_UNSET_ID = 0xFFFFFFFF;
+}
+
 namespace Common
 {
     namespace EventTypes
     {
+
         CredentialEvent::CredentialEvent()
-        : unsetId(4294967295)
-        , unsetAcctName("746573742275736572")
-        , m_groupId(unsetId)
+        : m_groupId(GL_UNSET_ID)
         , m_groupName("")
         , m_timestamp(0)
-        , m_logonId(unsetId)
+        , m_logonId(GL_UNSET_ID)
         {
         }
 
@@ -199,7 +203,7 @@ namespace Common
 
         void CredentialEvent::setLogonId(const unsigned long logonId)
         {
-            if (logonId != unsetId)
+            if (logonId != GL_UNSET_ID)
             {
                 m_logonId = logonId;
             }
@@ -215,7 +219,7 @@ namespace Common
 
         void CredentialEvent::setGroupId(const unsigned long groupId)
         {
-            if (groupId != unsetId)
+            if (groupId != GL_UNSET_ID)
             {
                 m_groupId = groupId;
             }

@@ -67,8 +67,6 @@ namespace Common
             void fromString(const std::string& objectAsString);
 
         private:
-            unsigned long unsetId;
-            std::string unsetAcctName;
             unsigned long m_groupId;
             std::string m_groupName;
             unsigned long long m_timestamp;
