@@ -152,8 +152,9 @@ namespace Tests
 
             Common::EventTypes::UserSid userSid;
             userSid.username = "testUser";
-            userSid.domain = "testDomain";
+            userSid.sid = "1001";
             event.setOwnerUserSid(userSid);
+            userSid.domain = "testDomain";
 
             Common::EventTypes::Pathname pathname;
             Common::EventTypes::TextOffsetLength openName;

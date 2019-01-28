@@ -86,6 +86,7 @@ namespace Common
             processEvent.setSid(sidReader);
 
             processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username);
+            processEvent.getOwnerUserSID().setSid(sidReader);
             processEvent.getOwnerUserSID().setDomain(m_ownerUserSid.domain);
 
             processEvent.getFileSize().setValue(m_fileSize.value);
@@ -174,6 +175,7 @@ namespace Common
 
                 Common::EventTypes::UserSid processOwner;
                 processOwner.username = processEvent.getOwnerUserSID().getUsername();
+                processOwner.sid = sidString;
                 processOwner.domain = processEvent.getOwnerUserSID().getDomain();
                 setOwnerUserSid(processOwner);
 

@@ -91,10 +91,11 @@ TEST_F(TestEventConverterProcessEvent, testCreateProcessEventForStartProcess) //
 
     event.setFlags(48);
     event.setSessionId(312);
-    event.setSid("sid");
+    event.setSid("1001");
 
     Common::EventTypes::UserSid userSid;
     userSid.username = "testUser";
+    userSid.sid = "1001";
     userSid.domain = "testDomain";
     event.setOwnerUserSid(userSid);
 
