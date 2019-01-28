@@ -191,8 +191,8 @@ namespace Tests
             event.setPathname(pathname);
 
             event.setCmdLine("example cmd line");
-            event.setSha256("howgoodisthissha256");
-            event.setSha1("notasgoodasthissha1");
+            event.setSha256("somesha256");
+            event.setSha1("somesha1");
 
             return event;
         }
@@ -383,6 +383,16 @@ namespace Tests
             if (expected.getCmdLine() != actual.getCmdLine())
             {
                 return ::testing::AssertionFailure() << s.str() << "CMDLine differs";
+            }
+
+            if (expected.getSha256() != actual.getSha256())
+            {
+                return ::testing::AssertionFailure() << s.str() << "sha256 differs";
+            }
+
+            if (expected.getSha1() != actual.getSha1())
+            {
+                return ::testing::AssertionFailure() << s.str() << "sha1 differs";
             }
 
             return ::testing::AssertionSuccess();

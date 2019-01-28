@@ -206,7 +206,7 @@ namespace Common
 
                 ::capnp::Data::Reader sha1Reader = processEvent.getSha1();
                 std::string sha1String(sha1Reader.begin(), sha1Reader.end());
-                setSha256(sha1String);
+                setSha1(sha1String);
             }
             catch(std::exception& ex)
             {
