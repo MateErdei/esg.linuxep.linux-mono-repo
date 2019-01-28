@@ -18,22 +18,26 @@ namespace Common
         {
         public:
 
-        enum SessionType
-        {
-            network = 0,
-            networkInteractive = 1,
-            interactive = 2
-        };
+            using windows_timestamp_t = unsigned long long;
+            using login_id_t = unsigned long;
 
-        enum EventType
-        {
-            authSuccess = 0,
-            authFailure = 1,
-            created = 2,
-            deleted = 3,
-            passwordChange = 4,
-            membershipChange = 5
-        };
+            enum SessionType
+            {
+                network = 0,
+                networkInteractive = 1,
+                interactive = 2
+            };
+
+            enum EventType
+            {
+                authSuccess = 0,
+                authFailure = 1,
+                created = 2,
+                deleted = 3,
+                passwordChange = 4,
+                membershipChange = 5
+            };
+
             CredentialEvent();
 
             ~CredentialEvent() = default;
@@ -45,8 +49,8 @@ namespace Common
             const Common::EventTypes::UserSid getTargetUserSid() const ;
             const unsigned long getGroupId() const ;
             const std::string getGroupName() const ;
-            const unsigned long long getTimestamp() const ;
-            const unsigned long getLogonId() const ;
+            const windows_timestamp_t getTimestamp() const;
+            const login_id_t getLogonId() const ;
             const Common::EventTypes::NetworkAddress getRemoteNetworkAccess() const ;
             void setSessionType(const SessionType sessionType) ;
             void setEventType(const EventType eventType) ;
@@ -54,8 +58,8 @@ namespace Common
             void setTargetUserSid(const Common::EventTypes::UserSid targetUserSid) ;
             void setGroupId(const unsigned long groupId) ;
             void setGroupName(const std::string& groupName) ;
-            void setTimestamp(const unsigned long long timestamp) ;
-            void setLogonId(const unsigned long logonId) ;
+            void setTimestamp(const windows_timestamp_t timestamp) ;
+            void setLogonId(const login_id_t logonId) ;
             void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess) ;
             std::string toString() const override;
 
