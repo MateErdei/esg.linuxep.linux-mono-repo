@@ -16,6 +16,8 @@ EXCLUDE_LIST = (
     '.json',
     '.zip',
     '.crt',
+    '.xml',
+    '.dat',
 )
 
 
