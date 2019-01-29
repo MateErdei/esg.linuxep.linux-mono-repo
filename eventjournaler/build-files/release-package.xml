@@ -11,7 +11,7 @@
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
         <!--Plugin Api Production Build - Change values below to match the latest production build of base.
-            On release, make sure you build a produciton build of base first before building any production builds of plugins-->
+            On release, make sure you build a production build of base first before building any production builds of plugins-->
         <package name="sspl-base" version="0-5-0-560/214079/output" dest="input" buildtype="prod">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
