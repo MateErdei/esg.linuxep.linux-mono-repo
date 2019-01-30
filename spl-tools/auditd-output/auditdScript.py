@@ -8,7 +8,6 @@ import sys
 
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
 #platforms = ['amazon_linux']
-
 ########################################################################################################################
 #
 #   Payloads (Including Auditd Rules)
@@ -54,18 +53,6 @@ auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
 clearLogs
 useradd test\'user
 """
-
-add_existing_user = """
-auditctl -w /etc/group -p wa -k CFG_group
-auditctl -w /etc/passwd -p wa -k CFG_passwd
-auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
-auditctl -w /etc/shadow -p rwxa -k CFG_shadow
-auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
-clearLogs
-useradd testuser
-useradd testuser
-"""
-
 
 delete_user = """
 auditctl -w /etc/group -p wa -k CFG_group
@@ -133,14 +120,7 @@ clearLogs
 usermod -G "" testuser
 """
 
-failed_ssh_attempt = """
-useradd testuser
-echo -e "linuxpassword\nlinuxpassword" | passwd testuser
-sleep 5
-clearLogs
-sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
-"""
-successful_ssh_attempt = """
+successful_ssh_password_command_attempt = """
 useradd testuser
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 sleep 5
@@ -148,7 +128,23 @@ clearLogs
 sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
 """
 
-successful_ssh_multi_attempt = """
+failed_ssh_password_command_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
+"""
+
+failed_ssh_password_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1
+"""
+
+successful_ssh_multi_password_command_attempt = """
 useradd testuser
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 sleep 5
@@ -159,7 +155,18 @@ sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'ech
 sshpass -p linuxpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo successfully sshd'
 """
 
-failed_ssh_multi_attempt = """
+failed_ssh_multi_password_attempt = """
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1
+sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1
+"""
+
+failed_ssh_multi_password_command_attempt = """
 useradd testuser
 echo -e "linuxpassword\nlinuxpassword" | passwd testuser
 sleep 5
@@ -168,6 +175,67 @@ sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo 
 sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
 sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
 sshpass -p badpassword ssh -o StrictHostKeyChecking=no testuser@127.0.0.1 'echo succesfully sshd'
+"""
+
+failed_ssh_single_attempt_with_key = """
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1
+"""
+
+failed_ssh_multiple_attempts_with_key = """
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 
+"""
+
+success_ssh_command_single_attempt_with_key = """
+setupSshKey
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+cleanUpsshKey
+"""
+
+# Should run this by itself... if required.
+success_ssh_command_single_attempt_with_key_amazon = """
+setupAmazonSshKey
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+cleanUpAmazonSshKey
+"""
+failed_ssh_command_single_attempt_with_key = """
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
+"""
+
+success_ssh_command_multiple_attempt_with_key = """
+setupSshKey
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no vagrant@127.0.0.1 'ls /'
+
+cleanUpsshKey
+"""
+
+failed_ssh_command_multiple_attempt_with_key = """
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no -o PasswordAuthentication=no vagrant@127.0.0.1 'ls /'
 """
 
 execute_file = """
@@ -282,47 +350,27 @@ clearLogs
 /vagrant/payload64 payload64_ouput
 """
 
-call_wget_on_a_url = r"""
-auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
-wget http://allegro.eng.sophos/
-clearLogs
-"""
+amazon_specific_payloads = {
+            'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
+}
 
-call_wget_via_symbolic_link_on_a_url = r"""
-auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
-ln -s $(which wget) fakeget
-./fakeget http://allegro.eng.sophos/
-clearLogs
-"""
+non_amazon_specific_payloads = {
+    'success_ssh_command_single_attempt_with_key': success_ssh_command_single_attempt_with_key,
+    'success_ssh_command_multiple_attempt_with_key': success_ssh_command_multiple_attempt_with_key
+}
 
-call_wget_via_hard_link_on_a_url = r"""
-auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
-sudo ln $(which wget) fakeget
-./fakeget http://allegro.eng.sophos/
-clearLogs
-"""
-
-call_failing_wget_on_a_url = r"""
-auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
-wget definitelynotaurlanywhereintheworldprobably
-clearLogs
-"""
-
-
-
-payloads = {'add_user': add_user,
+payloads = {
+            'successful_ssh_password_command_attempt': successful_ssh_password_command_attempt,
+            'successful_ssh_multi_password_command_attempt': successful_ssh_multi_password_command_attempt,
+            'failed_ssh_password_attempt': failed_ssh_password_attempt,
+            'failed_ssh_password_command_attempt': failed_ssh_password_command_attempt,
+            'failed_ssh_multi_password_command_attempt': failed_ssh_multi_password_command_attempt,
+            'failed_ssh_multi_password_attempt': failed_ssh_multi_password_attempt,
+            'failed_ssh_single_attempt_with_key': failed_ssh_single_attempt_with_key,
+            'failed_ssh_command_single_attempt_with_key' : failed_ssh_command_single_attempt_with_key,
+            'failed_ssh_command_multiple_attempt_with_key' : failed_ssh_command_multiple_attempt_with_key,
+            'failed_ssh_multiple_attempts_with_key' : failed_ssh_multiple_attempts_with_key,
+            'add_user': add_user,
             'add_user_without_home_directory': add_user_without_home_directory,
             'add_user_with_quote': add_user_with_quote,
             'add_user_with_single_quote': add_user_with_single_quote,
@@ -334,10 +382,6 @@ payloads = {'add_user': add_user,
             'add_user_to_group': add_user_to_group,
             'remove_user_from_group': remove_user_from_group,
             'group_membership_change': group_membership_change,
-            'failed_ssh_attempt': failed_ssh_attempt,
-            'successful_ssh_attempt': successful_ssh_attempt,
-            'failed_ssh_multi_attempt': failed_ssh_multi_attempt,
-            'successful_ssh_multi_attempt': successful_ssh_multi_attempt,
             'execute_file': execute_file,
             'execute_file_with_quote': execute_file_with_quote,
             'execute_file_with_single_quote': execute_file_with_single_quote,
@@ -351,11 +395,8 @@ payloads = {'add_user': add_user,
             'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
             'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file,
             'execute_32_bit_file': execute_32_bit_file,
-            'execute_64_bit_file': execute_64_bit_file,
-            'call_wget_on_a_url': call_wget_on_a_url,
-            'call_wget_via_symbolic_link_on_a_url': call_wget_via_symbolic_link_on_a_url,
-            'call_wget_via_hard_link_on_a_url': call_wget_via_hard_link_on_a_url,
-            'call_failing_wget_on_a_url': call_failing_wget_on_a_url}
+            'execute_64_bit_file': execute_64_bit_file
+            }
 
 ########################################################################################################################
 
@@ -393,6 +434,27 @@ function createConfigFile()
 EOF
 }}
 
+function setupSshKey()
+{{
+    cp -a /home/vagrant/.ssh/authorized_keys /home/vagrant/.ssh/authorized_keys.bak
+    cat /vagrant/id_rsa_vagrant.pub >>  /home/vagrant/.ssh/authorized_keys
+}}
+
+function setupAmazonSshKey()
+{{
+    cp -a /home/ec2-user/.ssh/authorized_keys /home/ec2-user/.ssh/authorized_keys.bak
+    cat /vagrant/id_rsa_vagrant.pub >>  /home/ec2-user/.ssh/authorized_keys
+}}
+
+function cleanUpsshKey()
+{{
+     cp -a /home/vagrant/.ssh/authorized_keys.bak ~/.ssh/authorized_keys
+}}
+
+function cleanUpAmazonSshKey()
+{{
+     cp -a /home/ec2-user/.ssh/authorized_keys.bak /home/ec2-user/.ssh/authorized_keys
+}}
 pushd "{remotedir}"
 echo "Running {filePrefix} script on {platform}!..."
 
@@ -408,8 +470,6 @@ ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
 auditctl -D &> /dev/null
-rm -f index.html &> /dev/null
-rm -f fakeget &> /dev/null
 
 popd
 """
@@ -488,8 +548,14 @@ def vagrant_run(platform, bashString):
     exe32file = "/redist/binaries/linux11/input/auditDTestFiles/payload32"
     exe64file = "/redist/binaries/linux11/input/auditDTestFiles/payload64"
 
+    publicKey = "/home/pair/id_rsa_vagrant.pub"
+    privateKey = "/home/pair/id_rsa_vagrant"
+
+
     vagrant_push_data(platform, exe32file)
     vagrant_push_data(platform, exe64file)
+    vagrant_push_data(platform, publicKey)
+    vagrant_push_data(platform, privateKey)
 
     if platform == "amazon_linux":
         vagrant_cmd = ['/usr/bin/vagrant', 'ssh', platform, '-c', 'sudo mkdir /vagrant']
@@ -536,6 +602,15 @@ def main():
             run_payload(platform, filePrefix, payload, remotedir)
 
             if platform == "amazon_linux":
+                vagrant_pull_data(platform, newPath, filePrefix)
+
+        if platform != "amazon_linux":
+            for filePrefix, payload in non_amazon_specific_payloads.items():
+                run_payload(platform, filePrefix, payload, remotedir)
+
+        elif platform == "amazon_linux":
+            for filePrefix, payload in amazon_specific_payloads.items():
+                run_payload(platform, filePrefix, payload, remotedir)
                 vagrant_pull_data(platform, newPath, filePrefix)
 
         os.chdir(currdir)
