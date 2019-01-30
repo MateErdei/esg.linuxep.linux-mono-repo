@@ -14,6 +14,8 @@ namespace Common
 {
     namespace EventTypes
     {
+        const unsigned long GL_UNSET_ID = 0xFFFFFFFF;
+
     class CredentialEvent : public Common::EventTypes::IEventType
         {
         public:

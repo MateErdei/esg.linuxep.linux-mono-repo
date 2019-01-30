@@ -103,16 +103,10 @@ Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(Co
     return event;
 }
 
-namespace
-{
-    const unsigned long GL_UNSET_ID = 0xFFFFFFFF;
-}
-
 namespace Common
 {
     namespace EventTypes
     {
-
         CredentialEvent::CredentialEvent()
         : m_groupId(GL_UNSET_ID)
         , m_groupName("")
@@ -182,18 +176,12 @@ namespace Common
         }
         void CredentialEvent::setSubjectUserSid(const Common::EventTypes::UserSid subjectUserSid)
         {
-            if(m_subjectUserSid.username.empty())
-            {
-                m_subjectUserSid = subjectUserSid;
-            }
+            m_subjectUserSid = subjectUserSid;
         }
 
         void CredentialEvent::setTargetUserSid(const Common::EventTypes::UserSid targetUserSid)
         {
-            if(m_targetUserSid.username.empty())
-            {
-                m_targetUserSid = targetUserSid;
-            }
+            m_targetUserSid = targetUserSid;
         }
 
         void CredentialEvent::setTimestamp(const unsigned long long timestamp)
@@ -203,34 +191,22 @@ namespace Common
 
         void CredentialEvent::setLogonId(const unsigned long logonId)
         {
-            if (logonId != GL_UNSET_ID)
-            {
-                m_logonId = logonId;
-            }
+            m_logonId = logonId;
         }
 
         void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess)
         {
-            if (m_remoteNetworkAccess.address.empty() && remoteNetworkAccess.address!="?")
-            {
-                m_remoteNetworkAccess = remoteNetworkAccess;
-            }
+            m_remoteNetworkAccess = remoteNetworkAccess;
         }
 
         void CredentialEvent::setGroupId(const unsigned long groupId)
         {
-            if (groupId != GL_UNSET_ID)
-            {
-                m_groupId = groupId;
-            }
+            m_groupId = groupId;
         }
 
         void CredentialEvent::setGroupName(const std::string& groupName)
         {
-            if (m_groupName.empty())
-            {
-                m_groupName = groupName;
-            }
+            m_groupName = groupName;
         }
 
 
