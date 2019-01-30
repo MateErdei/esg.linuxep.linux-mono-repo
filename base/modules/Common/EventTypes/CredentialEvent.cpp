@@ -108,10 +108,10 @@ namespace Common
     namespace EventTypes
     {
         CredentialEvent::CredentialEvent()
-        : m_groupId(GL_UNSET_ID)
+        : m_groupId(G_UNSET_ID)
         , m_groupName("")
         , m_timestamp(0)
-        , m_logonId(GL_UNSET_ID)
+        , m_logonId(G_UNSET_ID)
         {
         }
 
