@@ -55,6 +55,18 @@ clearLogs
 useradd test\'user
 """
 
+add_existing_user = """
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+clearLogs
+useradd testuser
+useradd testuser
+"""
+
+
 delete_user = """
 auditctl -w /etc/group -p wa -k CFG_group
 auditctl -w /etc/passwd -p wa -k CFG_passwd
@@ -270,6 +282,46 @@ clearLogs
 /vagrant/payload64 payload64_ouput
 """
 
+call_wget_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+wget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_wget_via_symbolic_link_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+ln -s $(which wget) fakeget
+./fakeget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_wget_via_hard_link_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+sudo ln $(which wget) fakeget
+./fakeget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_failing_wget_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+wget definitelynotaurlanywhereintheworldprobably
+clearLogs
+"""
+
+
+
 payloads = {'add_user': add_user,
             'add_user_without_home_directory': add_user_without_home_directory,
             'add_user_with_quote': add_user_with_quote,
@@ -299,7 +351,11 @@ payloads = {'add_user': add_user,
             'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
             'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file,
             'execute_32_bit_file': execute_32_bit_file,
-            'execute_64_bit_file': execute_64_bit_file}
+            'execute_64_bit_file': execute_64_bit_file,
+            'call_wget_on_a_url': call_wget_on_a_url,
+            'call_wget_via_symbolic_link_on_a_url': call_wget_via_symbolic_link_on_a_url,
+            'call_wget_via_hard_link_on_a_url': call_wget_via_hard_link_on_a_url,
+            'call_failing_wget_on_a_url': call_failing_wget_on_a_url}
 
 ########################################################################################################################
 
@@ -352,6 +408,8 @@ ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
 auditctl -D &> /dev/null
+rm -f index.html &> /dev/null
+rm -f fakeget &> /dev/null
 
 popd
 """
