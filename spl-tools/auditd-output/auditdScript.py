@@ -367,6 +367,7 @@ auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+
 wget http://allegro.eng.sophos/
 clearLogs
 """
@@ -376,6 +377,7 @@ auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+
 ln -s $(which wget) fakeget
 ./fakeget http://allegro.eng.sophos/
 clearLogs
@@ -386,6 +388,7 @@ auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+
 sudo ln $(which wget) fakeget
 ./fakeget http://allegro.eng.sophos/
 clearLogs
@@ -396,17 +399,18 @@ auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+
 wget definitelynotaurlanywhereintheworldprobably
 clearLogs
 """
 
 amazon_specific_payloads = {
-            'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
+    # 'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
 }
 
 non_amazon_specific_payloads = {
-    'success_ssh_command_single_attempt_with_key': success_ssh_command_single_attempt_with_key,
-    'success_ssh_command_multiple_attempt_with_key': success_ssh_command_multiple_attempt_with_key
+    # 'success_ssh_command_single_attempt_with_key': success_ssh_command_single_attempt_with_key,
+    # 'success_ssh_command_multiple_attempt_with_key': success_ssh_command_multiple_attempt_with_key
 }
 
 payloads = {
