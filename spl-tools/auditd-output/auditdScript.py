@@ -608,8 +608,8 @@ def vagrant_run(platform, bashString):
     exe32file = "/redist/binaries/linux11/input/auditDTestFiles/payload32"
     exe64file = "/redist/binaries/linux11/input/auditDTestFiles/payload64"
 
-    publicKey = "/home/pair/id_rsa_vagrant.pub"
-    privateKey = "/home/pair/id_rsa_vagrant"
+    publicKey = "/redist/binaries/linux11/input/auditDTestFiles/id_rsa_vagrant.pub"
+    privateKey = "/redist/binaries/linux11/input/auditDTestFiles/id_rsa_vagrant"
 
 
     vagrant_push_data(platform, exe32file)
