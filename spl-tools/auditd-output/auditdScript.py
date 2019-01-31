@@ -54,6 +54,18 @@ clearLogs
 useradd test\'user
 """
 
+add_existing_user = """
+auditctl -w /etc/group -p wa -k CFG_group
+auditctl -w /etc/passwd -p wa -k CFG_passwd
+auditctl -w /etc/gshadow -p rwxa -k CFG_gshadow
+auditctl -w /etc/shadow -p rwxa -k CFG_shadow
+auditctl -w /etc/security/opasswd -p rwxa -k CFG_opasswd
+clearLogs
+useradd testuser
+useradd testuser
+"""
+
+
 delete_user = """
 auditctl -w /etc/group -p wa -k CFG_group
 auditctl -w /etc/passwd -p wa -k CFG_passwd
@@ -350,6 +362,44 @@ clearLogs
 /vagrant/payload64 payload64_ouput
 """
 
+call_wget_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+wget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_wget_via_symbolic_link_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+ln -s $(which wget) fakeget
+./fakeget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_wget_via_hard_link_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+sudo ln $(which wget) fakeget
+./fakeget http://allegro.eng.sophos/
+clearLogs
+"""
+
+call_failing_wget_on_a_url = r"""
+auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
+auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+wget definitelynotaurlanywhereintheworldprobably
+clearLogs
+"""
+
 amazon_specific_payloads = {
             'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
 }
@@ -360,43 +410,47 @@ non_amazon_specific_payloads = {
 }
 
 payloads = {
-            'successful_ssh_password_command_attempt': successful_ssh_password_command_attempt,
-            'successful_ssh_multi_password_command_attempt': successful_ssh_multi_password_command_attempt,
-            'failed_ssh_password_attempt': failed_ssh_password_attempt,
-            'failed_ssh_password_command_attempt': failed_ssh_password_command_attempt,
-            'failed_ssh_multi_password_command_attempt': failed_ssh_multi_password_command_attempt,
-            'failed_ssh_multi_password_attempt': failed_ssh_multi_password_attempt,
-            'failed_ssh_single_attempt_with_key': failed_ssh_single_attempt_with_key,
-            'failed_ssh_command_single_attempt_with_key' : failed_ssh_command_single_attempt_with_key,
-            'failed_ssh_command_multiple_attempt_with_key' : failed_ssh_command_multiple_attempt_with_key,
-            'failed_ssh_multiple_attempts_with_key' : failed_ssh_multiple_attempts_with_key,
-            'add_user': add_user,
-            'add_user_without_home_directory': add_user_without_home_directory,
-            'add_user_with_quote': add_user_with_quote,
-            'add_user_with_single_quote': add_user_with_single_quote,
-            'delete_user': delete_user,
-            'change_password': change_password,
-            'change_password_with_quote': change_password_with_quote,
-            'change_password_with_single_quote': change_password_with_single_quote,
-            'change_password_with_japanese_chars': change_password_with_japanese_chars,
-            'add_user_to_group': add_user_to_group,
-            'remove_user_from_group': remove_user_from_group,
-            'group_membership_change': group_membership_change,
-            'execute_file': execute_file,
-            'execute_file_with_quote': execute_file_with_quote,
-            'execute_file_with_single_quote': execute_file_with_single_quote,
-            'execute_file_jp_characters': execute_file_jp_characters,
-            'watch_directory_for_file_changes_create_file': watch_directory_for_file_changes_create_file,
-            'watch_directory_for_file_changes_modify_file': watch_directory_for_file_changes_modify_file,
-            'watch_directory_for_file_changes_create_file_with_quote': watch_directory_for_file_changes_create_file_with_quote,
-            'watch_directory_for_file_changes_modify_file_with_quote': watch_directory_for_file_changes_modify_file_with_quote,
-            'watch_directory_for_file_changes_create_file_with_single_quote': watch_directory_for_file_changes_create_file_with_single_quote,
-            'watch_directory_for_file_changes_modify_file_with_single_quote': watch_directory_for_file_changes_modify_file_with_single_quote,
-            'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
-            'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file,
-            'execute_32_bit_file': execute_32_bit_file,
-            'execute_64_bit_file': execute_64_bit_file
-            }
+            # 'successful_ssh_password_command_attempt': successful_ssh_password_command_attempt,
+            # 'successful_ssh_multi_password_command_attempt': successful_ssh_multi_password_command_attempt,
+            # 'failed_ssh_password_attempt': failed_ssh_password_attempt,
+            # 'failed_ssh_password_command_attempt': failed_ssh_password_command_attempt,
+            # 'failed_ssh_multi_password_command_attempt': failed_ssh_multi_password_command_attempt,
+            # 'failed_ssh_multi_password_attempt': failed_ssh_multi_password_attempt,
+            # 'failed_ssh_single_attempt_with_key': failed_ssh_single_attempt_with_key,
+            # 'failed_ssh_command_single_attempt_with_key' : failed_ssh_command_single_attempt_with_key,
+            # 'failed_ssh_command_multiple_attempt_with_key' : failed_ssh_command_multiple_attempt_with_key,
+            # 'failed_ssh_multiple_attempts_with_key' : failed_ssh_multiple_attempts_with_key,
+            # 'add_user': add_user,
+            # 'add_user_without_home_directory': add_user_without_home_directory,
+            # 'add_user_with_quote': add_user_with_quote,
+            # 'add_user_with_single_quote': add_user_with_single_quote,
+            # 'delete_user': delete_user,
+            # 'change_password': change_password,
+            # 'change_password_with_quote': change_password_with_quote,
+            # 'change_password_with_single_quote': change_password_with_single_quote,
+            # 'change_password_with_japanese_chars': change_password_with_japanese_chars,
+            # 'add_user_to_group': add_user_to_group,
+            # 'remove_user_from_group': remove_user_from_group,
+            # 'group_membership_change': group_membership_change,
+            # 'execute_file': execute_file,
+            # 'execute_file_with_quote': execute_file_with_quote,
+            # 'execute_file_with_single_quote': execute_file_with_single_quote,
+            # 'execute_file_jp_characters': execute_file_jp_characters,
+            # 'watch_directory_for_file_changes_create_file': watch_directory_for_file_changes_create_file,
+            # 'watch_directory_for_file_changes_modify_file': watch_directory_for_file_changes_modify_file,
+            # 'watch_directory_for_file_changes_create_file_with_quote': watch_directory_for_file_changes_create_file_with_quote,
+            # 'watch_directory_for_file_changes_modify_file_with_quote': watch_directory_for_file_changes_modify_file_with_quote,
+            # 'watch_directory_for_file_changes_create_file_with_single_quote': watch_directory_for_file_changes_create_file_with_single_quote,
+            # 'watch_directory_for_file_changes_modify_file_with_single_quote': watch_directory_for_file_changes_modify_file_with_single_quote,
+            # 'watch_directory_for_file_changes_create_jp_file': watch_directory_for_file_changes_create_jp_file,
+            # 'watch_directory_for_file_changes_modify_jp_file': watch_directory_for_file_changes_modify_jp_file,
+            # 'execute_32_bit_file': execute_32_bit_file,
+            # 'execute_64_bit_file': execute_64_bit_file,
+            'call_wget_on_a_url': call_wget_on_a_url,
+            'call_wget_via_symbolic_link_on_a_url': call_wget_via_symbolic_link_on_a_url,
+            'call_wget_via_hard_link_on_a_url': call_wget_via_hard_link_on_a_url,
+            'call_failing_wget_on_a_url': call_failing_wget_on_a_url
+}
 
 ########################################################################################################################
 
@@ -470,6 +524,8 @@ ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
 auditctl -D &> /dev/null
+rm -f index.html &> /dev/null
+rm -f fakeget &> /dev/null
 
 popd
 """
