@@ -15,25 +15,29 @@ namespace Common
     namespace EventTypes
     {
 
-    class PortScanningEvent : public Common::EventTypes::IEventType
+        class PortScanningEvent : public virtual Common::EventTypes::IEventType
         {
         public:
 
-        enum EventType
-        {
-            opened = 0,
-            closed = 1,
-            connected = 2,
-            scanned = 3
-        };
-            PortScanningEvent() = default;
-            ~PortScanningEvent() = default;
+            enum EventType
+            {
+                opened = 0,
+                closed = 1,
+                connected = 2,
+                scanned = 3
+            };
+            PortScanningEvent();
 
-
-            const std::string getEventTypeId() const override;
+            /*
+             * Getters
+             */
+            std::string getEventTypeId() const override;
             EventType getEventType() const;
             const EventTypes::IpFlow& getConnection() const;
 
+            /*
+             * Setters
+             */
             void setEventType(EventType m_eventType);
             void setConnection(const EventTypes::IpFlow& m_connection);
 
@@ -50,7 +54,7 @@ namespace Common
             Common::EventTypes::IpFlow m_connection;
         };
 
-        Common::EventTypes::PortScanningEvent createPortScanningEvent(EventTypes::IpFlow& ipFlow, Common::EventTypes::PortScanningEvent::EventType eventType);
+        Common::EventTypes::PortScanningEvent createPortScanningEvent(const EventTypes::IpFlow& ipFlow, Common::EventTypes::PortScanningEvent::EventType eventType);
     }
 
 }

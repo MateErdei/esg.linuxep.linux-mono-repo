@@ -94,7 +94,7 @@ namespace
     }
 }
 
-Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::CredentialEvent::EventType eventType)
+Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(const Common::EventTypes::UserSid& sid,Common::EventTypes::CredentialEvent::EventType eventType)
 {
     Common::EventTypes::CredentialEvent event = CredentialEvent();
     event.setSubjectUserSid(sid);
@@ -112,55 +112,57 @@ namespace Common
         , m_groupName("")
         , m_timestamp(0)
         , m_logonId(G_UNSET_ID)
+        , m_sessionType(network)
+        , m_eventType(authSuccess)
         {
         }
 
-        const std::string CredentialEvent::getEventTypeId() const
+        std::string CredentialEvent::getEventTypeId() const
         {
             return Common::EventTypes::CredentialEventName;
         }
 
-        const Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const
+        Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const
         {
             return m_sessionType;
         }
 
-        const Common::EventTypes::CredentialEvent::EventType CredentialEvent::getEventType() const
+        Common::EventTypes::CredentialEvent::EventType CredentialEvent::getEventType() const
         {
             return m_eventType;
         }
 
-        const Common::EventTypes::UserSid CredentialEvent::getSubjectUserSid() const
+        Common::EventTypes::UserSid CredentialEvent::getSubjectUserSid() const
         {
             return m_subjectUserSid;
         }
 
-        const Common::EventTypes::UserSid CredentialEvent::getTargetUserSid() const
+        Common::EventTypes::UserSid CredentialEvent::getTargetUserSid() const
         {
             return m_targetUserSid;
         }
 
-        const unsigned long long CredentialEvent::getTimestamp() const
+        windows_timestamp_t CredentialEvent::getTimestamp() const
         {
             return m_timestamp;
         }
 
-        const unsigned long CredentialEvent::getLogonId() const
+        unsigned long CredentialEvent::getLogonId() const
         {
             return m_logonId;
         }
 
-        const Common::EventTypes::NetworkAddress CredentialEvent::getRemoteNetworkAccess() const
+        Common::EventTypes::NetworkAddress CredentialEvent::getRemoteNetworkAccess() const
         {
             return m_remoteNetworkAccess;
         }
 
-        const unsigned long CredentialEvent::getGroupId() const
+        unsigned long CredentialEvent::getGroupId() const
         {
             return m_groupId;
         }
 
-        const std::string CredentialEvent::getGroupName() const
+        std::string CredentialEvent::getGroupName() const
         {
             return m_groupName;
         }
@@ -174,17 +176,17 @@ namespace Common
         {
             m_eventType = eventType;
         }
-        void CredentialEvent::setSubjectUserSid(const Common::EventTypes::UserSid subjectUserSid)
+        void CredentialEvent::setSubjectUserSid(const Common::EventTypes::UserSid& subjectUserSid)
         {
             m_subjectUserSid = subjectUserSid;
         }
 
-        void CredentialEvent::setTargetUserSid(const Common::EventTypes::UserSid targetUserSid)
+        void CredentialEvent::setTargetUserSid(const Common::EventTypes::UserSid& targetUserSid)
         {
             m_targetUserSid = targetUserSid;
         }
 
-        void CredentialEvent::setTimestamp(const unsigned long long timestamp)
+        void CredentialEvent::setTimestamp(windows_timestamp_t timestamp)
         {
             m_timestamp = timestamp;
         }
@@ -194,7 +196,7 @@ namespace Common
             m_logonId = logonId;
         }
 
-        void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess)
+        void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress& remoteNetworkAccess)
         {
             m_remoteNetworkAccess = remoteNetworkAccess;
         }

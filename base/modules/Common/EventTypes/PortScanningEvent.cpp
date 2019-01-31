@@ -54,7 +54,7 @@ namespace
 
 }
 
-Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::PortScanningEvent::EventType eventType)
+Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(const Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::PortScanningEvent::EventType eventType)
 {
     Common::EventTypes::PortScanningEvent event = PortScanningEvent();
     event.setConnection(ipFlow);
@@ -68,8 +68,14 @@ namespace Common
     namespace EventTypes
     {
 
+        PortScanningEvent::PortScanningEvent()
+            :
+            m_eventType(opened)
+        {
 
-        const std::string PortScanningEvent::getEventTypeId() const
+        }
+
+        std::string PortScanningEvent::getEventTypeId() const
         {
             return Common::EventTypes::PortScanningEventName;
         }
@@ -172,6 +178,7 @@ namespace Common
                 throw Common::EventTypes::IEventException(errorMessage.str());
             }
         }
+
     }
 }
 

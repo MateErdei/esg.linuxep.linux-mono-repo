@@ -26,20 +26,23 @@ namespace Common
             std::string address;
         };
 
+        using socket_port_t = uint16_t;
+
         struct SocketAddress
         {
         public:
             std::string address;
-            unsigned int port;
+            socket_port_t port;
         };
+
+        using sophos_ip_flow_protocol_t = std::uint8_t;
 
         struct IpFlow
         {
         public:
             SocketAddress sourceAddress;
             SocketAddress destinationAddress;
-            unsigned short protocol;
-
+            sophos_ip_flow_protocol_t protocol;
         };
 
         struct OptionalUInt64
@@ -71,15 +74,20 @@ namespace Common
             TextOffsetLength parentDirName;
         };
 
+
+        using windows_timestamp_t = std::uint64_t;
+        using sophos_pid_t = std::uint64_t;
+        using sophos_tid_t = std::uint64_t;
+
         struct SophosPid
         {
         public:
 
             // Process ID
-            std::uint64_t pid;
+            sophos_pid_t pid;
 
             // Timestamp the process was started
-            std::uint64_t timestamp;
+            windows_timestamp_t timestamp;
         };
 
         struct SophosTid
@@ -87,10 +95,11 @@ namespace Common
         public:
 
             // Thread ID
-            std::uint64_t tid;
+            sophos_tid_t tid;
 
             // Timestamp the thread was started
-            std::uint64_t timestamp;
+            windows_timestamp_t timestamp;
         };
+
     };
 }

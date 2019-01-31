@@ -14,12 +14,13 @@ namespace Common
         class IEventType
         {
         public:
+            virtual ~IEventType() = default;
 
             /**
            * Gets the type of event as a string used to identify class to reconstruct.
            * @return the name of the eventtype e.g. Credentials
            */
-            virtual const std::string getEventTypeId() const = 0;
+            virtual std::string getEventTypeId() const = 0;
 
             /**
              * Converts event object to a capn byte string.

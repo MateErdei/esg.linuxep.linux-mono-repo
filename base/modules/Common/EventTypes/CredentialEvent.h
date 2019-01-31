@@ -16,11 +16,11 @@ namespace Common
     {
         const unsigned long G_UNSET_ID = 0xFFFFFFFF;
 
-    class CredentialEvent : public Common::EventTypes::IEventType
+        class CredentialEvent : public virtual Common::EventTypes::IEventType
         {
         public:
 
-            using windows_timestamp_t = unsigned long long;
+            using windows_timestamp_t = Common::EventTypes::windows_timestamp_t;
             using login_id_t = unsigned long;
 
             enum SessionType
@@ -44,25 +44,34 @@ namespace Common
 
             ~CredentialEvent() = default;
 
-            const SessionType getSessionType() const ;
-            const EventType getEventType() const ;
-            const std::string getEventTypeId() const override;
-            const Common::EventTypes::UserSid getSubjectUserSid() const ;
-            const Common::EventTypes::UserSid getTargetUserSid() const ;
-            const unsigned long getGroupId() const ;
-            const std::string getGroupName() const ;
-            const windows_timestamp_t getTimestamp() const;
-            const login_id_t getLogonId() const ;
-            const Common::EventTypes::NetworkAddress getRemoteNetworkAccess() const ;
-            void setSessionType(const SessionType sessionType) ;
-            void setEventType(const EventType eventType) ;
-            void setSubjectUserSid(const Common::EventTypes::UserSid subjectUserSid) ;
-            void setTargetUserSid(const Common::EventTypes::UserSid targetUserSid) ;
-            void setGroupId(const unsigned long groupId) ;
+            /*
+             * Getters
+             */
+            SessionType getSessionType() const ;
+            EventType getEventType() const ;
+            std::string getEventTypeId() const override;
+            Common::EventTypes::UserSid getSubjectUserSid() const ;
+            Common::EventTypes::UserSid getTargetUserSid() const ;
+            unsigned long getGroupId() const ;
+            std::string getGroupName() const ;
+            windows_timestamp_t getTimestamp() const;
+            login_id_t getLogonId() const ;
+            Common::EventTypes::NetworkAddress getRemoteNetworkAccess() const ;
+
+            /*
+             * Setters
+             */
+            void setSessionType(SessionType sessionType) ;
+            void setEventType(EventType eventType) ;
+            void setSubjectUserSid(const Common::EventTypes::UserSid& subjectUserSid) ;
+            void setTargetUserSid(const Common::EventTypes::UserSid& targetUserSid) ;
+            void setGroupId(unsigned long groupId) ;
             void setGroupName(const std::string& groupName) ;
-            void setTimestamp(const windows_timestamp_t timestamp) ;
-            void setLogonId(const login_id_t logonId) ;
-            void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress remoteNetworkAccess) ;
+            void setTimestamp(windows_timestamp_t timestamp) ;
+            void setLogonId(login_id_t logonId) ;
+            void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress& remoteNetworkAccess) ;
+
+
             std::string toString() const override;
 
             /**
@@ -84,7 +93,7 @@ namespace Common
             Common::EventTypes::UserSid m_targetUserSid;
         };
 
-        Common::EventTypes::CredentialEvent createCredentialEvent(Common::EventTypes::UserSid sid,Common::EventTypes::CredentialEvent::EventType eventType);
+        Common::EventTypes::CredentialEvent createCredentialEvent(const Common::EventTypes::UserSid& sid, Common::EventTypes::CredentialEvent::EventType eventType);
     }
 
 }
