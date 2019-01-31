@@ -1,6 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'socket'
+
+hostname = Socket.gethostname
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -57,7 +61,7 @@ Vagrant.configure("2") do |config|
             override.ssh.private_key_path = 'ssh-keys/regressiontesting.pem'
             override.nfs.functional = false
             aws.tags = {
-                Name: 'Vagrant Amazon Linux 2',
+                Name: "Vagrant Amazon Linux 2 for #{hostname}",
                 Owner: 'ukdevsavlinux',
                 SupportEmail: 'ukdevsavlinux@sophos.com',
                 BusinessUnit: 'esg',
@@ -66,7 +70,8 @@ Vagrant.configure("2") do |config|
                 Application: 'Manual',
                 Environment: 'development',
                 AutomationExcluded: 'true',
-                SecurityClassification: 'none low'
+                SecurityClassification: 'none low',
+                DevBox: "#{hostname}"
             }
         end
         amazon_linux.vm.provision :shell, path: "bootstrap_common.sh"
