@@ -51,8 +51,8 @@ namespace Tests
 
         ::testing::AssertionResult credentialEventIsEquivalent( const char* m_expr,
                                                                 const char* n_expr,
-                                                                const Common::EventTypes::CredentialEvent expected,
-                                                                const Common::EventTypes::CredentialEvent resulted)
+                                                                const Common::EventTypes::CredentialEvent& expected,
+                                                                const Common::EventTypes::CredentialEvent& resulted)
         {
             std::stringstream s;
             s<< m_expr << " and " << n_expr << " failed: ";
