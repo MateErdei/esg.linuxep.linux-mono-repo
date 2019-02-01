@@ -56,7 +56,7 @@ int unreliableRequester(const std::string& serveraddress, const std::string& kil
     return 0;
 }
 
-int main(int argc, char* argv[])
+static int main_inner(int argc, char* argv[])
 {
     std::cerr << "ReqRepTool PID="<<::getpid() << std::endl;
     for (int i=0; i<argc; i++)
@@ -79,9 +79,22 @@ int main(int argc, char* argv[])
     }
     else if (actor == "UnreliableRequester")
     {
-        assert(argc >= 5);
-        return unreliableRequester(serveraddress, killch, action, argv[4]);
+        assert(argc > 5);
+        return unreliableRequester(serveraddress, killch, action, argv[5]);
     }
     std::cerr << "Unknown actor: "<<actor << std::endl;
     return 2;
+}
+
+int main(int argc, char* argv[])
+{
+    try
+    {
+        return main_inner(argc, argv);
+    }
+    catch (const std::exception& ex)
+    {
+        std::cerr << "Uncaught exception at top-level: "<<ex.what()<<std::endl;
+        return 80;
+    }
 }
