@@ -67,6 +67,13 @@ namespace Common
                 m_flags(0),
                 m_sessionId(0)
         {
+            m_sophosPid.pid = 0;
+            m_sophosPid.timestamp = 0;
+            m_parentSophosPid.pid = 0;
+            m_parentSophosPid.timestamp = 0;
+            m_parentSophosTid.tid = 0;
+            m_parentSophosTid.timestamp = 0;
+            m_fileSize.value = 0;
         }
 
         std::string ProcessEvent::toString() const
