@@ -152,11 +152,17 @@ namespace
 
             pid_t child = fork();
 
+            if(child != 0)
+            {
+                // Must not do memory operations in child process
+                free(newargv);
+            }
+
             if ( child == -1)
             {
                 throw std::logic_error( "Failed to create process");
             }
-            if ( child != 0)
+            else if ( child != 0)
             {
                 monitorChild(child);
                 return;
@@ -190,9 +196,6 @@ namespace
             Requester requester( serveraddress );
             return requester.sendReceive("hello");
         });
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
-//                );
         runInExternalProcess.runExec(
                 {serveraddress, killch,"UnreliableReplier","serveRequest" }
                 );
@@ -211,9 +214,6 @@ namespace
             Replier replier( serveraddress );
             replier.serveRequest();
         });
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
-//                );
         runInExternalProcess.runExec(
                 {serveraddress, killch,"UnreliableRequester","sendReceive","hello"}
                 );
@@ -233,9 +233,6 @@ namespace
             return requester.sendReceive("hello2");
         });
 
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.breakAfterReceiveMessage(); }
-//                );
         runInExternalProcess.runExec(
                 {serveraddress, killch,"UnreliableReplier","breakAfterReceiveMessage" }
                 );
