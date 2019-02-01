@@ -73,6 +73,7 @@ namespace
             auto m_context = Common::ZeroMQWrapper::createContext();
             auto publisher = m_context->getPublisher();
             auto publisherimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketPublisherImpl*>(publisher.get());
+            ASSERT_NE(publisherimpl,nullptr);
 
             // force hwm, but next test show that even without forcing it, eventually messages will be dropped.
             int hwm=10;
