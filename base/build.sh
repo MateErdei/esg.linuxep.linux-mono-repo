@@ -44,6 +44,7 @@ export TEST_SELECTOR=
 CMAKE_BUILD_TYPE=RelWithDebInfo
 DEBUG=0
 export ENABLE_STRIP=1
+VALGRIND=0
 
 while [[ $# -ge 1 ]]
 do
@@ -122,6 +123,9 @@ do
             ;;
         -j*)
             NPROC=${1#-j}
+            ;;
+        --valgrind)
+            VALGRIND=1
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -315,7 +319,18 @@ function build()
         || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
 
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+    if (( ${VALGRIND} == 1 ))
+    then
+        valgrind --leak-check=full --error-exitcode=70 \
+            --trace-children=yes \
+            --show-leak-kinds=definite,possible,indirect \
+            --suppressions=$BASE/build/valgrind/suppressions.supp \
+            --gen-suppressions=all \
+            ctest --parallel ${NPROC} --output-on-failure || {
+            local EXITCODE=$?
+            exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+        }
+    elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
     then
         ## If we are doing bullseye system tests then don't run unit test first
         make CTEST_OUTPUT_ON_FAILURE=1 test || {

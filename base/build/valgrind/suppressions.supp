@@ -1,0 +1,26 @@
+{
+   log4cplus init
+   Memcheck:Leak
+   match-leak-kinds: definite,possible
+   ...
+   fun:emplace_back_worker
+   fun:ThreadPool
+   fun:DefaultContext
+   fun:_ZN9log4cplus12_GLOBAL__N_1L8alloc_dcEv
+   fun:get_dc
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.222
+   fun:call_init
+   fun:_dl_init
+}
+{
+   SUL 1
+   Memcheck:Cond
+   ...
+   fun:_ZN2SU8Metadata18readRemoteMetadataEPNS_6HandleE
+}
+{
+   SUL 2
+   Memcheck:Addr32
+   ...
+   fun:_ZN2SU8Metadata18readRemoteMetadataEPNS_6HandleE
+}
