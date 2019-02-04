@@ -364,8 +364,10 @@ clearLogs
 call_wget_on_a_url = r"""
 auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b64 -S exit_group -k sophos_exec_exit_group
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S exit_group -k sophos_exec_exit_group
 clearLogs
 wget http://sophos.com/
 """
@@ -373,8 +375,10 @@ wget http://sophos.com/
 call_wget_via_symbolic_link_on_a_url = r"""
 auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b64 -S exit_group -k sophos_exec_exit_group
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S exit_group -k sophos_exec_exit_group
 clearLogs
 ln -s $(which wget) fakeget
 ./fakeget http://sophos.com/
@@ -383,8 +387,10 @@ ln -s $(which wget) fakeget
 call_wget_via_hard_link_on_a_url = r"""
 auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b64 -S exit_group -k sophos_exec_exit_group
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S exit_group -k sophos_exec_exit_group
 clearLogs
 pushd $(dirname $(which wget))
 sudo ln wget fakeget
@@ -395,8 +401,10 @@ fakeget http://sophos.com/
 call_failing_wget_on_a_url = r"""
 auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b64 -S exit_group -k sophos_exec_exit_group
 auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
 auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
+auditctl -a always,exit -F arch=b32 -S exit_group -k sophos_exec_exit_group
 clearLogs
 wget definitelynotaurlanywhereintheworldprobably
 """
@@ -636,7 +644,7 @@ def run_payload(platform, filePrefix, payload, remotedir):
 
 
 def main():
-    # define where the current directory will be in the vagrant machine
+    #define where the current directory will be in the vagrant machine
     if VAGRANTROOT in currdir:
         remotedir = currdir.replace(VAGRANTROOT, '/vagrant')
     else:
@@ -674,10 +682,25 @@ def main():
 
         os.chdir(currdir)
 
-    #sp.call(['vagrant', 'destroy', '-f'])
+    #Run the executable to convert the binary into a text file if available.
+    conversion_done = False
+    possible_binary_converter_locations = ["../sspl-plugin-audit/build64/tests/PipelineForDebug/ConvertAuditBinToUnitTestStandard",
+                                           "../sspl-plugin-audit/cmake-build-debug/tests/PipelineForDebug/ConvertAuditBinToUnitTestStandard"]
+
+    for location in possible_binary_converter_locations:
+        if os.path.exists(location):
+            os.system("ls -1 */*.bin | xargs -I rep_str {} rep_str".format(location))
+            conversion_done = True
+            break
+
+    if not conversion_done:
+        print("Conversion of bin to txt not done:\n\tCould not find ConvertAuditBinToUnitTestStandard in the following locations:\n\t\t{}".format(possible_binary_converter_locations))
+
+    sp.call(['vagrant', 'destroy', '-f'])
 
 
 if __name__ == "__main__":
     currdir = os.path.abspath(os.getcwd())
     VAGRANTROOT = os.path.join(find_vagrant_root(currdir))
     sys.exit(main())
+
