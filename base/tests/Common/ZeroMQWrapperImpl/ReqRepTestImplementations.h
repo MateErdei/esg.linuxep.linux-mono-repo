@@ -93,7 +93,7 @@ namespace ReqRepTest
         {
             m_requestKillChannel->write(data_t{"killme"});
         }
-        void notifyShutdonw()
+        void notifyShutdown()
         {
             m_requestKillChannel->write(data_t{"close"});
         }
@@ -123,7 +123,7 @@ namespace ReqRepTest
         {
             data_t request = m_replier->read();
             m_replier->write(data_t{"granted"});
-            notifyShutdonw();
+            notifyShutdown();
         }
         void breakAfterReceiveMessage()
         {
@@ -167,7 +167,7 @@ namespace ReqRepTest
         {
             m_requester->write(data_t{value});
             data_t answer = m_requester->read();
-            notifyShutdonw();
+            notifyShutdown();
             return answer.at(0);
         }
 
