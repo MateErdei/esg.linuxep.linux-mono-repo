@@ -1,3 +1,4 @@
+# log4cplus global data
 {
    log4cplus init
    Memcheck:Leak
@@ -12,6 +13,7 @@
    fun:call_init
    fun:_dl_init
 }
+# ZMQ suppressions from http://zeromq.org/docs:using-valgrind
 {
    ZMQ <socketcall_sendto>
    Memcheck:Param
@@ -26,6 +28,8 @@
    fun:send
    ...
 }
+# Some sort of string error from SUL, not interesting to fix here
+# May be optimised string operations (in other words intentional)
 {
    SUL 1
    Memcheck:Cond
