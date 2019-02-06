@@ -321,12 +321,10 @@ function build()
 
     if (( ${VALGRIND} == 1 ))
     then
-        valgrind --leak-check=full --error-exitcode=70 \
-            --trace-children=yes \
-            --show-leak-kinds=definite,possible,indirect \
-            --suppressions=$BASE/build/valgrind/suppressions.supp \
-            --gen-suppressions=all \
-            ctest --parallel ${NPROC} --output-on-failure || {
+        ctest -VV --debug \
+        --test-action memcheck --parallel ${NPROC} \
+        --output-on-failure \
+         || {
             local EXITCODE=$?
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
