@@ -101,6 +101,89 @@ struct Pathname {
     parentDirName       @10 :TextOffsetLength;
 }
 
+# pathname
+#
+# This is the pathname used to open the file.  The pathname data has
+# several attributes:
+#
+#    pathname.flags
+#
+#    This is a 16bit integer with various flags for the pathname.  The values
+#    are the following and are defined in SgEventJournalFormat.hpp:
+#
+#    SG_EVT_JRN_PATHNAME_NORMALIZED          0x0001  This is the normalized pathname that the kernel was able to determine.  If
+#                                                      this flag is not set, then the pathname is the one used in the open call.
+#    SG_EVT_JRN_PATHNAME_NETWORK             0x0002  If set, the pathname is a network device
+#    SG_EVT_JRN_PATHNAME_IS_SNAPSHOT         0x0004  If set, the pathname is a Windows snapshot volume.
+#    SG_EVT_JRN_PATHNAME_DRV_LETTER_SET      0x0008  If set, the drive letter character is set
+#    SG_EVT_JRN_PATHNAME_HAS_MULTIBYTE_UTF8  0x0010  If set, the pathname contains one or more multi-byte UTF8 characters
+#    SG_EVT_JRN_PATHNAME_OFFSETS_SET         0x0020  If set, the pathname component lengths and offsets are set.  Some may still be
+#                                                      set to zero if not used (i.e. shareName and streamName)
+#    SG_EVT_JRN_PATHNAME_MAY_BE_REPLACED     0x0040  If set, this flag indicates that the file referenced by the pathname may
+#                                                      have been replaced during this call.  Examples include opening a file
+#                                                      with SUPERCEDE, renaming a file with FILE_RENAME_REPLACE_IF_EXISTS, etc...
+#
+#    pathname.fileSystemType
+#
+#    This value indicates the filesystem type using Microsoft defined values and
+#    are defined in SgEventJournalFormat.hpp:
+#
+#    SG_MS_FILESYSTEM_TYPE_UNKNOWN       0     an unknown file system type
+#    SG_MS_FILESYSTEM_TYPE_RAW           1     Microsoft's RAW file system                  (\FileSystem\RAW)
+#    SG_MS_FILESYSTEM_TYPE_NTFS          2     Microsoft's NTFS file system                 (\FileSystem\Ntfs)
+#    SG_MS_FILESYSTEM_TYPE_FAT           3     Microsoft's FAT file system                  (\FileSystem\Fastfat)
+#
+#    pathname.driveLetter
+#
+#    This is the drive letter (if set).  A value of 67 is the 'C' drive.
+#
+#    pathname.pathname
+#
+#    This is the pathname in UTF8.  The Windows kernel supports pathnames of
+#    up to 32767 UTF16 characters.  When converted to UTF8, the pathname could
+#    take up to 98301 characters since a single UTF16 character could be
+#    converted into a 3 byte UTF8 multi-byte character.
+#
+# The following fields represent full or partial views into the pathname.
+# Each consists of an offset into the pathname in bytes and the length
+# in bytes.  For example, we will use the following pathname for illustration:
+#
+#       \Device\HarddiskVolume1\Documents and Settings\MyUser\My Documents\Test Results.txt:stream1
+#
+#    pathname.openName                Full pathname the stream was opened with (in bytes)
+#                                     The name offset must be 0 since it is the complete name
+#
+#    pathname.volumeName              Volume name = "\Device\HarddiskVolume1"
+#                                     The volume offset must be 0 since it starts the name
+#
+#    pathname.shareName               The share component of the file name requested.
+#                                     The offset and length will always be 0 for local files.
+#
+#    pathname.extensionName           Extension = "txt"
+#
+#    pathname.streamName              Stream = ":stream1"
+#
+#    pathname.finalComponentName      FinalComponent = "Test Results.txt:stream1"
+#                                     This may not be set if the opened pathname is a top level
+#                                       directory for a volume (i.e. "\Device\HarddiskVolume1\"
+#                                       In this example, the ParentDirName would be "\")
+#
+#    pathname.parentDirName           ParentDir = "\Documents and Settings\MyUser\My Documents\"
+#
+#   Here would be a similar breakdown in Linux for:
+#
+#               /home/johndoe/Documents/Sample.odt
+#
+#   pathname.openName:              /home/johndoe/Documents/Sample.odt
+#   pathname.finalComponentName:    Sample.odt
+#   pathname.parentDirName:         /home/johndoe/Documents
+#   pathname.extensionName:         odt
+#   pathname.streamName:            is not used since this represents alternate data streams for files
+#                                   on NTFS file systems.
+#   pathname.volumeName:            is not used since Linux the file system is not part of the pathname.
+#                                   For example, the /dev/sda1 file system may be mounted at /
+#   pathname.shareName:             is also probably not used since the remote share is not part of the local pathname.
+
 struct OptionalTimestamp { # Use this when when a Timestamp is immediately enclosed in a "optional :group" at the top level.
     value                @0 :Timestamp;
 }
