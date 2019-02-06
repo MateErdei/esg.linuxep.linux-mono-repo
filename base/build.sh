@@ -321,7 +321,8 @@ function build()
 
     if (( ${VALGRIND} == 1 ))
     then
-        ctest -VV --debug \
+        ## -VV --debug
+        ctest \
         --test-action memcheck --parallel ${NPROC} \
         --output-on-failure \
          || {
