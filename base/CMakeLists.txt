@@ -10,8 +10,9 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN")
 
 
 # Check process children and give detail for each leak
+## --trace-children=yes
 set(MEMORYCHECK_COMMAND_OPTIONS
-        "${MEMORYCHECK_COMMAND_OPTIONS} --trace-children=yes --leak-check=full --error-exitcode=80")
+        "${MEMORYCHECK_COMMAND_OPTIONS} --leak-check=full --error-exitcode=80")
 
 set(MEMORYCHECK_COMMAND_OPTIONS
         "${MEMORYCHECK_COMMAND_OPTIONS} --gen-suppressions=all --suppressions=${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")

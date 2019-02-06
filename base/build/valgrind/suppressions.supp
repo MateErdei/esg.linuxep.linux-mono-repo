@@ -13,6 +13,20 @@
    fun:_dl_init
 }
 {
+   ZMQ <socketcall_sendto>
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   ...
+}
+{
+   ZMQ <socketcall_send>
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   ...
+}
+{
    SUL 1
    Memcheck:Cond
    ...
@@ -23,4 +37,46 @@
    Memcheck:Addr32
    ...
    fun:_ZN2SU8Metadata18readRemoteMetadataEPNS_6HandleE
+}
+{
+   SUL 3
+   Memcheck:Value8
+   ...
+   fun:_ZN2SU8Metadata18readRemoteMetadataEPNS_6HandleE
+}
+{
+   SUL 4
+   Memcheck:Cond
+   ...
+   fun:_ZNK6badger18detailed_exception8asStringB5cxx11Ev
+}
+{
+   SUL 5
+   Memcheck:Value8
+   ...
+   fun:_ZNK6badger18detailed_exception8asStringB5cxx11Ev
+}
+{
+   SUL 6
+   Memcheck:Cond
+   ...
+   fun:_ZN2SU8internal12CustomerFile13getWarehousesB5cxx11Ev
+}
+{
+   SUL 7
+   Memcheck:Cond
+   ...
+   fun:_ZN2SU8internal12CustomerFile35getWarehousesFromSophosUpdateSourceERSt10shared_ptrINS_12UpdateSourceEERNSt7__cxx114listIPNS0_9WarehouseESaIS9_EEE
+}
+{
+   SUL 8
+   Memcheck:Cond
+   ...
+   fun:_ZN2SU8internal12CustomerFile25createCachedPackageSourceEPKNS_12UpdateSourceERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+}
+{
+   SUL 9
+   Memcheck:Value8
+   ...
+   fun:_ZN2SU8internal12CustomerFile25createCachedPackageSourceEPKNS_12UpdateSourceERNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
 }
