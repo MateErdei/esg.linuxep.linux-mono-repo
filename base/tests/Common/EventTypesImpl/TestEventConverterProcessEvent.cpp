@@ -146,6 +146,7 @@ TEST_F(TestEventConverterProcessEvent, testCreateProcessEventForStartProcess) //
 
     event.setSha256("somesha256");
     event.setSha1("somesha1");
+    event.setProcTitle("some proctitle");
 
     std::pair<std::string, std::string> data = converter->eventToString(&event);
 

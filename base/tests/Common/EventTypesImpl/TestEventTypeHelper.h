@@ -396,6 +396,11 @@ namespace Tests
                 return ::testing::AssertionFailure() << s.str() << "sha1 differs";
             }
 
+            if (expected.getProcTitle() != actual.getProcTitle())
+            {
+                return ::testing::AssertionFailure() << s.str() << "procTitle differs";
+            }
+
             return ::testing::AssertionSuccess();
         }
 

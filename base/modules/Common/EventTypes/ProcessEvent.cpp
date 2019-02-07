@@ -135,6 +135,8 @@ namespace Common
                     reinterpret_cast<const ::capnp::byte*>(m_sha1.data()), m_sha1.size());
             processEvent.setSha1(sha1Reader);
 
+            processEvent.setProcTitle(m_procTitle);
+
             // Convert to byte string
             kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
             kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
@@ -225,6 +227,8 @@ namespace Common
                 ::capnp::Data::Reader sha1Reader = processEvent.getSha1();
                 std::string sha1String(sha1Reader.begin(), sha1Reader.end());
                 setSha1(sha1String);
+
+                setProcTitle(processEvent.getProcTitle());
             }
             catch(std::exception& ex)
             {
@@ -310,6 +314,10 @@ namespace Common
             return m_sha1;
         }
 
+        std::string ProcessEvent::getProcTitle() const
+        {
+            return m_procTitle;
+        }
 
         // Setters
         void ProcessEvent::setEventType(const ProcessEvent::EventType eventType)
@@ -380,6 +388,11 @@ namespace Common
         void ProcessEvent::setSha1(const std::string& sha1)
         {
             m_sha1 = sha1;
+        }
+
+        void ProcessEvent::setProcTitle(const std::string& procTitle)
+        {
+            m_procTitle = procTitle;
         }
     }
 }

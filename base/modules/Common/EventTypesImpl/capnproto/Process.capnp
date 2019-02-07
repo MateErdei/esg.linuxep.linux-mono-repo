@@ -35,6 +35,8 @@ struct ProcessEvent {
     pesha256                    @14 :Common.SHA256;
     pesha1                      @15 :Common.SHA1;
 
-    # below is values we have added that are unique for linux
-    ownerUserSID         @16 :Common.UserSID;
+    # Below is values we have added that are unique for linux
+    ownerUserSID                @16 :Common.UserSID;
+    procTitle                   @17 :Text;
+
 }

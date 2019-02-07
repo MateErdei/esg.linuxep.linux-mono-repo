@@ -116,6 +116,14 @@ namespace Common
              */
             std::string getSha1() const;
 
+            /*
+             * Return the procTitle of the this process event.
+             * This is the cmd line string of the originating top level process.
+             * When processes are nested this will be the same for all child processes that are spawned from the
+             * top level process, which will have a matching cmdline as this value.
+             */
+            std::string getProcTitle() const;
+
             /**
              * Sets the type of process event, either it's a process starting or ending.
              * @param eventType
@@ -201,6 +209,15 @@ namespace Common
              */
             void setSha1(const std::string& sha1);
 
+            /*
+             * Sets the procTitle property of this ProcessEvent object.
+             * This is the cmd line string of the originating top level process.
+             * When processes are nested this will be the same for all child processes that are spawned from the
+             * top level process, which will have a matching cmdline as this value.
+             * @param sha1
+             */
+            void setProcTitle(const std::string& procTitle);
+
             /**
              * Turns this ProcessEvent object into a capn byte string.
              * @return a capn byte string of the ProcessEvent.
@@ -248,6 +265,10 @@ namespace Common
             std::string m_cmdLine;
             std::string m_sha256;
             std::string m_sha1;
+
+            // m_procTitle is the command of the originating process,
+            // i.e.this will be the same as cmdLine for the top level process in a series of nested process calls.
+            std::string m_procTitle;
         };
 
         Common::EventTypes::ProcessEvent createProcessEvent(Common::EventTypes::ProcessEvent::EventType eventType);
