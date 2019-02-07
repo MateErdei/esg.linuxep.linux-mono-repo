@@ -11,10 +11,18 @@ int main(int argc, char * argv[])
     try{
         auto context = Common::ZeroMQWrapper::createContext();
 
-        FakeServer fakeServer(argv[1], true);
+        if (argc == 2)
+        {
+            FakeServer fakeServer(argv[1], true);
 
-        fakeServer.run(*context);
-        fakeServer.join();
+            fakeServer.run(*context);
+            fakeServer.join();
+        }
+        else
+        {
+            std::cerr << "not enough arguments passed" << std::endl;
+        }
+
         return 0;
     }catch (std::exception & ex)
     {
