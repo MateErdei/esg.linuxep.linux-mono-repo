@@ -375,6 +375,46 @@ namespace Common
             m_pathname = pathname;
         }
 
+        void ProcessEvent::setPathname(const std::string& pathnameString)
+        {
+            Common::EventTypes::Pathname pathname;
+            pathname.pathname = pathnameString;
+
+            // Find the last slash to identify the executable name and set the finalComponentName and parentDirName
+            size_t lastSlashPosition = pathname.pathname.rfind('/');
+
+            // If the path string contains a '/'
+            if (lastSlashPosition != std::string::npos)
+            {
+                if (pathname.pathname.back() != '/')
+                {
+                    pathname.finalComponentName.offset = static_cast<uint32_t>(lastSlashPosition) + 1;
+                    pathname.finalComponentName.length = static_cast<uint32_t>(pathname.pathname.size() -
+                                                                               pathname.finalComponentName.offset);
+                }
+
+                pathname.parentDirName.offset = 0;
+                pathname.parentDirName.length = static_cast<uint32_t>(lastSlashPosition + 1);
+            }
+            pathname.openName = {static_cast<uint32_t>(pathname.pathname.size()), 0};
+
+            // Find the final period in the finalComponent name and set the extension if there is a final component name
+            if (pathname.finalComponentName.length != 0)
+            {
+                std::string finalComponentName = pathname.pathname.substr( pathname.finalComponentName.offset,
+                                                                           pathname.finalComponentName.length);
+                size_t periodPosition = finalComponentName.rfind('.');
+                if (periodPosition != std::string::npos && periodPosition < pathname.pathname.size() - 1)
+                {
+                    pathname.extensionName.offset = static_cast<uint32_t>(pathname.finalComponentName.offset +
+                                                                          periodPosition + 1);
+                    pathname.extensionName.length = static_cast<uint32_t>(pathname.pathname.size() -
+                                                                          pathname.extensionName.offset);
+                }
+            }
+            m_pathname = pathname;
+        }
+
         void ProcessEvent::setCmdLine(const std::string& cmdLine)
         {
             m_cmdLine = cmdLine;

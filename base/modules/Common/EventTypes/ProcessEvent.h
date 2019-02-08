@@ -192,6 +192,13 @@ namespace Common
             void setPathname(const Common::EventTypes::Pathname& pathname);
 
             /**
+            * Constructs the pathname property of this ProcessEvent object
+            * from the given string
+            * @param pathnameString
+            */
+            void setPathname(const std::string& pathnameString);
+
+            /**
              * Sets the command line property of this ProcessEvent object
              * @param cmdLine
              */
