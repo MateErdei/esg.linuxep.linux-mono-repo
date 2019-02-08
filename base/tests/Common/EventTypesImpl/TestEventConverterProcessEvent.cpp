@@ -121,8 +121,8 @@ TEST_F(TestEventConverterProcessEvent, testCreateProcessEventForStartProcess) //
     pathname.shareName = shareName;
 
     Common::EventTypes::TextOffsetLength extensionName;
-    extensionName.length = 14;
-    extensionName.offset = 3;
+    extensionName.length = 3;
+    extensionName.offset = 14;
     pathname.extensionName = extensionName;
 
     Common::EventTypes::TextOffsetLength streamName;
