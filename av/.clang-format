@@ -1,0 +1,69 @@
+# Format file for Sophos C++ code.
+#
+# This is based on clang-format 6.0.0, which is the version
+# that ships with Visual Studio 15.8.  Some settings for 
+# future versions are specified but commented out; code should
+# try to respect those settings but auto-formatting will not
+# be available until we upgrade to a newer version of
+# clang-format.
+
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
+AlignOperands: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: AfterColon
+# BreakInheritanceList: AfterColon
+ColumnLimit: 120
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+Cpp11BracedListStyle: false
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+IncludeCategories: 
+  - Regex: 'stdafx.h'
+    Priority: -1
+  - Regex: '"[^/]*"'
+    Priority: 2
+  - Regex: '".*"'
+    Priority: 3
+  - Regex: '<[^/]*>'
+    Priority: 5
+  - Regex: '<.*>'
+    Priority: 4
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false
+NamespaceIndentation: All
+ReflowComments: true
+PenaltyBreakFirstLessLess: 0
+PenaltyReturnTypeOnItsOwnLine: 1000
+PointerAlignment: Left
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+# SpaceBeforeCpp11BracedList: true
+# SpaceBeforeCtorInitializerColon: true
+# SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+# SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SortIncludes: true
+SortUsingDeclarations: true
+Standard: Cpp11
+TabWidth: 4
+UseTab: Never
+
