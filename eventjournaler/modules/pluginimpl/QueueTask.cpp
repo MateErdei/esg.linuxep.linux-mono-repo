@@ -7,7 +7,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "QueueTask.h"
 namespace Plugin
 {
-
     void QueueTask::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
@@ -15,9 +14,10 @@ namespace Plugin
         m_cond.notify_one();
     }
 
-    Task QueueTask::pop() {
+    Task QueueTask::pop()
+    {
         std::unique_lock<std::mutex> lck(m_mutex);
-        m_cond.wait(lck, [this]{return !m_list.empty();});
+        m_cond.wait(lck, [this] { return !m_list.empty(); });
         Task val = m_list.front();
         m_list.pop_front();
         return val;
@@ -25,7 +25,7 @@ namespace Plugin
 
     void QueueTask::pushStop()
     {
-        Task stopTask{Task::TaskType::Stop};
+        Task stopTask{ Task::TaskType::Stop };
         push(stopTask);
     }
-}
+} // namespace Plugin
