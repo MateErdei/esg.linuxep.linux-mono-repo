@@ -41,6 +41,7 @@ BULLSEYE=0
 BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-audit-unittest
+VALGRIND=0
 
 while [[ $# -ge 1 ]]
 do
@@ -117,6 +118,9 @@ do
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
+            ;;
+        --valgrind)
+            VALGRIND=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -237,7 +241,18 @@ function build()
             ${EXTRA_CMAKE_OPTIONS} \
         .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
-    if [[ ${UNITTEST} == 1 ]]
+
+    if (( ${VALGRIND} == 1 ))
+    then
+        ## -VV --debug
+        ctest \
+        --test-action memcheck --parallel ${NPROC} \
+        --output-on-failure \
+         || {
+            local EXITCODE=$?
+            exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+        }
+    elif (( ${UNITTEST} == 1 ))
     then
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?

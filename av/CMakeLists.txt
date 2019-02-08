@@ -36,7 +36,19 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
+
+# Check process children and give detail for each leak
+## --trace-children=yes
+set(MEMORYCHECK_COMMAND_OPTIONS
+        "${MEMORYCHECK_COMMAND_OPTIONS} --leak-check=full --error-exitcode=80")
+
+set(MEMORYCHECK_COMMAND_OPTIONS
+        "${MEMORYCHECK_COMMAND_OPTIONS} --gen-suppressions=all --suppressions=${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")
+
+
+include (CTest)
 enable_testing()
+
 set(REL_DIST sdds)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
