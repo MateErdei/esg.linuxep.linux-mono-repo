@@ -12,8 +12,7 @@ namespace Plugin
 {
     struct TelemetryInfo
     {
-        TelemetryInfo(): NoScans(0), AvgPerformance(0), NoFilesScanned(0), NoInfections(0)
-        {}
+        TelemetryInfo() : NoScans(0), AvgPerformance(0), NoFilesScanned(0), NoInfections(0) {}
         int NoScans;
         // MB/s
         double AvgPerformance;
@@ -27,8 +26,8 @@ namespace Plugin
         TelemetryInfo m_info;
 
     public:
-        static Telemetry & instance();
+        static Telemetry& instance();
         std::string getJson() const;
         void clear();
     };
-}
+} // namespace Plugin
