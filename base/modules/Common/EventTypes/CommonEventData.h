@@ -61,9 +61,7 @@ namespace Common
         struct Pathname
         {
         public:
-            std::uint16_t flags = 0;
             std::uint32_t fileSystemType = 0;
-            std::uint8_t driveLetter = 0;
             std::string pathname;
             TextOffsetLength openName;
             TextOffsetLength volumeName;
@@ -72,6 +70,8 @@ namespace Common
             TextOffsetLength streamName;
             TextOffsetLength finalComponentName;
             TextOffsetLength parentDirName;
+            std::uint16_t flags = 0;
+            std::uint8_t driveLetter = 0;
         };
 
 
