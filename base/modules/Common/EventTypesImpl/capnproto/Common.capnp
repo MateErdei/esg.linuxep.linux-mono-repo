@@ -176,7 +176,7 @@ struct Pathname {
 #
 #   pathname.openName:              /home/johndoe/Documents/Sample.odt
 #   pathname.finalComponentName:    Sample.odt
-#   pathname.parentDirName:         /home/johndoe/Documents
+#   pathname.parentDirName:         /home/johndoe/Documents/
 #   pathname.extensionName:         odt
 #   pathname.streamName:            is not used since this represents alternate data streams for files
 #                                   on NTFS file systems.
