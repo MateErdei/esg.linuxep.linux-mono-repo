@@ -4,6 +4,8 @@ DEFAULT_PRODUCT=TemplatePlugin
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
 FAILURE_INPUT_NOT_AVAILABLE=50
+FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
+FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 
 source /etc/profile
@@ -11,6 +13,19 @@ set -ex
 set -o pipefail
 
 STARTINGDIR=$(pwd)
+
+cd ${0%/*}
+BASE=$(pwd)
+OUTPUT=$BASE/output
+
+LOG=$BASE/log/build.log
+mkdir -p $BASE/log || exit 1
+
+## These can't be exitFailure since it doesn't exist till the sourcing is done
+[ -f "$BASE"/build-files/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
+source "$BASE"/build-files/pathmgr.sh
+[ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
+source "$BASE"/build-files/common.sh
 
 CMAKE_BUILD_TYPE=RelWithDebInfo
 EXTRA_CMAKE_OPTIONS=
@@ -22,6 +37,10 @@ PLUGIN_TAR=
 [[ -z "${CLEAN:-}" ]] && CLEAN=1
 UNITTEST=1
 export ENABLE_STRIP=1
+BULLSEYE=0
+BULLSEYE_UPLOAD=0
+COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
+COV_HTML_BASE=sspl-plugin-audit-unittest
 
 while [[ $# -ge 1 ]]
 do
@@ -91,6 +110,14 @@ do
         --no-unit-test)
             UNITTEST=0
             ;;
+        --bullseye|--bulleye)
+            BULLSEYE=1
+            BULLSEYE_UPLOAD=1
+            UNITTEST=1
+            ;;
+        --bullseye-upload-unittest|--bullseye-upload)
+            BULLSEYE_UPLOAD=1
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -103,13 +130,6 @@ done
 [[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
 [[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-$PRODUCT"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
-
-cd ${0%/*}
-BASE=$(pwd)
-OUTPUT=$BASE/output
-
-LOG=$BASE/log/build.log
-mkdir -p $BASE/log || exit 1
 
 export NO_REMOVE_GCC=1
 
@@ -154,12 +174,6 @@ function build()
 {
     local BITS=$1
 
-    ## These can't be exitFailure since it doesn't exist till the sourcing is done
-    [ -f "$BASE"/build-files/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-    source "$BASE"/build-files/pathmgr.sh
-    [ -f "$BASE"/build-files/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
-    source "$BASE"/build-files/common.sh
-
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
     echo "PATH=$PATH"
@@ -186,6 +200,22 @@ function build()
     fi
     addpath "$REDIST/cmake/bin"
 
+    if [[ ${BULLSEYE} == 1 ]]
+    then
+        BULLSEYE_DIR=/opt/BullseyeCoverage
+        [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
+        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+        addpath ${BULLSEYE_DIR}/bin:$PATH
+        export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
+        export COVFILE
+        export COV_HTML_BASE
+        export BULLSEYE_DIR
+        bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
+        export CC=$BULLSEYE_DIR/bin/gcc
+        export CXX=$BULLSEYE_DIR/bin/g++
+        covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+    fi
+
     [[ -n $CC ]] || CC=$(which gcc)
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
@@ -209,7 +239,12 @@ function build()
     make -j${NPROC} CXX=$CXX CC=$CC || exitFailure 15 "Failed to build $PRODUCT"
     if [[ ${UNITTEST} == 1 ]]
     then
-        make -j${NPROC} test || exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
+        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+            local EXITCODE=$?
+            echo "Unit tests failed with $EXITCODE"
+            cat Testing/Temporary/LastTest.log || true
+            exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
+        }
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
@@ -228,6 +263,16 @@ function build()
     then
         cp -a build${BITS}/symbols output/
     fi
+
+    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
+    then
+        ## Process bullseye output
+        ## upload unit tests
+        cd $BASE
+        export BASE
+        bash -x build/bullseye/uploadResults.sh || exit $?
+    fi
+
     echo "Build Successful"
     return 0
 }
