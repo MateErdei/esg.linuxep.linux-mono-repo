@@ -25,9 +25,7 @@ namespace VerificationTool
         X509* m_Cert;
 
     public:
-        explicit CertFreer(X509* cert) : m_Cert(cert)
-        {
-        }
+        explicit CertFreer(X509* cert) : m_Cert(cert) {}
         ~CertFreer()
         {
             if (m_Cert)
@@ -42,9 +40,7 @@ namespace VerificationTool
         list<X509*>& m_List;
 
     public:
-        explicit CertListFreer(list<X509*>& list) : m_List(list)
-        {
-        }
+        explicit CertListFreer(list<X509*>& list) : m_List(list) {}
         ~CertListFreer()
         {
             for (list<X509*>::iterator i = m_List.begin(); i != m_List.end(); ++i)
@@ -59,9 +55,7 @@ namespace VerificationTool
         EVP_PKEY* m_Key;
 
     public:
-        explicit KeyFreer(EVP_PKEY* key) : m_Key(key)
-        {
-        }
+        explicit KeyFreer(EVP_PKEY* key) : m_Key(key) {}
         ~KeyFreer()
         {
             if (m_Key)

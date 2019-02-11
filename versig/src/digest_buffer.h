@@ -25,27 +25,13 @@ namespace VerificationTool
         list<string> _cert_chain;    // the chain of certificates needed to verify the file's authenticity
 
     public:
-        digest_file_buffer() : _file_buf_max(1024 * 128)
-        {
-        }
+        digest_file_buffer() : _file_buf_max(1024 * 128) {}
         // void set_file_body_limit(unsigned long lim) { _file_buf_max = lim; }
 
-        const string& file_body() const
-        {
-            return _file_buf;
-        }
-        const string& signature() const
-        {
-            return _signature;
-        }
-        const string& certificate() const
-        {
-            return _certificate;
-        }
-        const list<string>& cert_chain() const
-        {
-            return _cert_chain;
-        }
+        const string& file_body() const { return _file_buf; }
+        const string& signature() const { return _signature; }
+        const string& certificate() const { return _certificate; }
+        const list<string>& cert_chain() const { return _cert_chain; }
 
         friend istream& operator>>(istream& s, digest_file_buffer& v);
     };
