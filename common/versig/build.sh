@@ -14,17 +14,17 @@ OUTPUT=$BASE/output
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
+## These can't be exitFailure since it doesn't exist till the sourcing is done
+[ -f "$BASE"/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
+source "$BASE"/pathmgr.sh
+[ -f "$BASE"/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
+source "$BASE"/common.sh
+
 export NO_REMOVE_GCC=1
 
 function build()
 {
     local BITS=$1
-
-    ## These can't be exitFailure since it doesn't exist till the sourcing is done
-    [ -f "$BASE"/pathmgr.sh ] || { echo "Can't find pathmgr.sh" ; exit 10 ; }
-    source "$BASE"/pathmgr.sh
-    [ -f "$BASE"/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
-    source "$BASE"/common.sh
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
