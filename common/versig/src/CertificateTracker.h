@@ -28,9 +28,7 @@ namespace verify_exceptions
     class CertificateTracker
     {
         // Private constructor
-        CertificateTracker()
-        {
-        }
+        CertificateTracker() {}
         vector<string> m_CertProblems;
         // This holds the name(s) of each bad cert found.
         // This is intended as a simpler way to expose
@@ -45,10 +43,7 @@ namespace verify_exceptions
         void AddProblem(string TheProblem, string CertName);
         vector<string>::const_iterator GetProblems();
         vector<string>::const_iterator GetEnd();
-        string GetNames()
-        {
-            return m_CertNames;
-        }
+        string GetNames() { return m_CertNames; }
         void Clear();
     };
 } // namespace verify_exceptions

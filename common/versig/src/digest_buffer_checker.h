@@ -16,7 +16,7 @@ namespace VerificationTool
     class digest_buffer_checker : public digest_file_buffer
     {
     public:
-        bool verify_all(const string& trusted_certs_file, const string& crl_file, bool fixDate);
+        bool verify_all(const string& trusted_certs_file, const string& crl_file, const bool fixDate);
     };
 
 } // namespace VerificationTool

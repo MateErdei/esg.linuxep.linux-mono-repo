@@ -47,7 +47,7 @@ namespace VerificationTool
             (const string& SignedFilepath, //[i] Path to signed file
              const string& CertFilepath,   //[i] Path to CA certificate file
              const string& CRLFilepath,    //[i] Path to (optional) certificate revocation list
-             bool fixDate                  //[i] Fix the date of verification to work with old certs
+             const bool fixDate            //[i] Fix the date of verification to work with old certs
             );
 
         bool IsValid();

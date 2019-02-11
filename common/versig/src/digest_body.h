@@ -26,26 +26,14 @@ namespace VerificationTool
         string _sha256;      // ansi hex representation of sha256 checksum of the file, if present, or "" if not
 
     public:
-        string path() const
-        {
-            return _path;
-        };
+        string path() const { return _path; };
 
         // unsigned long size() const { return _size; };
-        string checksum() const
-        {
-            return _checksum;
-        };
+        string checksum() const { return _checksum; };
 
-        string sha256() const
-        {
-            return _sha256;
-        };
+        string sha256() const { return _sha256; };
 
-        void setSha256(const std::string& h)
-        {
-            _sha256 = h;
-        }
+        void setSha256(const std::string& h) { _sha256 = h; }
 
         typedef enum
         {
@@ -59,7 +47,7 @@ namespace VerificationTool
         file_info(string path, unsigned long size, string checksum) :
             _path(STDMOVE(path)),
             _size(size),
-            _checksum(STDMOVE(checksum)) {};
+            _checksum(STDMOVE(checksum)){};
     };
 
     // This class represents the body of a digest file.
@@ -72,15 +60,9 @@ namespace VerificationTool
         typedef list<file_info>::const_iterator files_iter;
 
         // begin & end iterators for the collection of files
-        files_iter files_begin() const
-        {
-            return _files.begin();
-        };
+        files_iter files_begin() const { return _files.begin(); };
 
-        files_iter files_end() const
-        {
-            return _files.end();
-        };
+        files_iter files_end() const { return _files.end(); };
 
         friend istream& operator>>(istream& s, digest_file_body& v);
     };
