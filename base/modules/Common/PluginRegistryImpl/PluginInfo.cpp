@@ -8,16 +8,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginInfo.h"
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include "Common/UtilityImpl/MessageUtility.h"
 #include "Logger.h"
-#include <google/protobuf/util/json_util.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
 #include <pwd.h>
 #include <grp.h>
 #include <unistd.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+#include <google/protobuf/util/json_util.h>
+
+#pragma GCC diagnostic pop
 
 namespace Common
 {

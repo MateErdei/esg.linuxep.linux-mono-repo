@@ -209,11 +209,12 @@ namespace
         std::string startingDirectory = m_fileSystem->currentWorkingDirectory();
 
         std::string expectedPath("/tmp");
-        chdir(expectedPath.c_str());
+        int ret = chdir(expectedPath.c_str());
 
         EXPECT_EQ(m_fileSystem->currentWorkingDirectory(), expectedPath);
 
-        chdir(startingDirectory.c_str());
+        ret = chdir(startingDirectory.c_str());
+        static_cast<void>(ret);
 
         EXPECT_EQ(m_fileSystem->currentWorkingDirectory(), startingDirectory);
     }
@@ -340,7 +341,8 @@ namespace
         tempDir.makeDirs("Root/subdir");
         tempDir.createFile("Root/file1", "hello" );
         tempDir.createFile("Root/file2", "hello" );
-        ::symlink(tempDir.absPath("Root/symlink").c_str(),"/etc/hosts");
+        int ret = ::symlink(tempDir.absPath("Root/symlink").c_str(),"/etc/hosts");
+        static_cast<void>(ret);
 
         std::vector<std::string> fileList = m_fileSystem->listFilesAndDirectories(tempDir.absPath("Root"));
 

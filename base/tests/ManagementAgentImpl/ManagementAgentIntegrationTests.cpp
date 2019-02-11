@@ -222,8 +222,8 @@ namespace
     {
     public:
         //Dummy function override to allow the rest of filesystem to be used
-        void chmod(const Path& path, __mode_t mode) const override {}
-        void chown(const Path& path, const std::string& user, const std::string& group) const override {}
+        void chmod(const Path& /*path*/, __mode_t /*mode*/) const override {}
+        void chown(const Path& /*path*/, const std::string& /*user*/, const std::string& /*group*/) const override {}
     };
 
     class ManagementAgentIntegrationTests : public ::testing::Test

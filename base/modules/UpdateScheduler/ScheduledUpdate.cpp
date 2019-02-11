@@ -32,7 +32,7 @@ namespace UpdateScheduler
 
     bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate)
     {
-        std::tm lastUpdateTime = {0};
+        std::tm lastUpdateTime; //NOLINT
         char* returnChar = strptime(lastUpdate.c_str(), "%Y%m%d %H:%M:%S", &lastUpdateTime);
         lastUpdateTime.tm_isdst = -1; // We don't know if this time is in DST or not
         if (!returnChar)

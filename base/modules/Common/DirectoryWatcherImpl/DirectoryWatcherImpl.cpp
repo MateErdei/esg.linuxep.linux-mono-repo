@@ -77,6 +77,7 @@ namespace DirectoryWatcherImpl
         {
             int watchDescRemoved = m_iNotifyWrapperPtr->removeWatch(m_inotifyFd, delIter->first);
             assert(watchDescRemoved == 0);
+            static_cast<void>(watchDescRemoved);
             m_listenerMap.erase(delIter);
         }
         else

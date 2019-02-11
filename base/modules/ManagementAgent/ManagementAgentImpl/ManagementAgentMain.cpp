@@ -83,9 +83,9 @@ namespace ManagementAgent
             initialiseDirectoryWatcher();
             initialisePluginReceivers();
             std::vector<std::string> registeredPlugins = m_pluginManager->getRegisteredPluginNames();
-            sendCurrentPluginPolicies(registeredPlugins);
+            sendCurrentPluginPolicies();
             sendCurrentPluginsStatus(registeredPlugins);
-            sendCurrentActions(registeredPlugins);
+            sendCurrentActions();
 
         }
 
@@ -173,7 +173,7 @@ namespace ManagementAgent
             }
         }
 
-        void ManagementAgentMain::sendCurrentPluginPolicies(const std::vector<std::string>& registeredPlugins)
+        void ManagementAgentMain::sendCurrentPluginPolicies()
         {
             std::string mcsDir = ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
 
@@ -187,7 +187,7 @@ namespace ManagementAgent
             }
         }
 
-        void ManagementAgentMain::sendCurrentActions(const std::vector<std::string>& registeredPlugins)
+        void ManagementAgentMain::sendCurrentActions()
         {
             std::string actionDir = ApplicationConfiguration::applicationPathManager().getMcsActionFilePath();
 

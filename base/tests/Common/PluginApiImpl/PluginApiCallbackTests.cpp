@@ -142,7 +142,7 @@ namespace
                 Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, ""
         );
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginApi::StatusInfo statusInfo{"statusContent", "statusNoTimestamp"};
+        Common::PluginApi::StatusInfo statusInfo{"statusContent", "statusNoTimestamp",""};
         expectedAnswer.m_payload.clear();
         expectedAnswer.m_payload.push_back(statusInfo.statusXml);
         expectedAnswer.m_payload.push_back(statusInfo.statusWithoutTimestampsXml);

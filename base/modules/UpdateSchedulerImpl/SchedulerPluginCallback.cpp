@@ -47,7 +47,7 @@ namespace UpdateSchedulerImpl
 
     }
 
-    Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string &appId)
+    Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string& /*appId*/)
     {
         LOGSUPPORT("Received get status request");
         if (m_statusInfo.statusXml.empty())

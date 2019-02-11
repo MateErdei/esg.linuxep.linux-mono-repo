@@ -17,6 +17,7 @@ namespace
         assert(ret == 0);
         ret = ::fcntl(fd, F_SETFD, O_CLOEXEC);
         assert(ret == 0);
+        static_cast<void>(ret); //this is to stop the compiler complaining about unused variables in release builds
     }
 
     int addFD(fd_set* fds, int fd, int maxfd)

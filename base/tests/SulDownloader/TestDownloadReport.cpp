@@ -97,7 +97,7 @@ public:
 
     }
 
-    void checkReportValue(DownloadReport &report, SulDownloader::suldownloaderdata::ProductMetadata &metadata, SulDownloader::suldownloaderdata::DownloadedProduct &downloadedProduct)
+    void checkReportValue(DownloadReport &report, SulDownloader::suldownloaderdata::ProductMetadata &metadata)
     {
         EXPECT_EQ(report.getProducts().size(), 1);
 
@@ -213,7 +213,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRep
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  "");
 
     EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
@@ -246,7 +246,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
     EXPECT_NO_THROW(DownloadReport::fromReport(report)); //NOLINT
@@ -280,7 +280,7 @@ TEST_F(DownloadReportTest, //NOLINT
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::PACKAGESOURCEMISSING);
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
     EXPECT_NO_THROW(DownloadReport::fromReport(report));
@@ -325,7 +325,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalle
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
 
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
 
@@ -356,7 +356,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  "");
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
@@ -393,7 +393,7 @@ TEST_F( DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCre
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
 
@@ -427,7 +427,7 @@ TEST_F( DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRe
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
-    checkReportValue(report, metadata, downloadedProduct);
+    checkReportValue(report, metadata);
 
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(),  errorString.c_str());
 

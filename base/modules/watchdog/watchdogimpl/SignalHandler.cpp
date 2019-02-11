@@ -30,7 +30,7 @@ namespace
 
     void setSignalHandler()
     {
-        struct sigaction signalBuf{0}; //NOLINT
+        struct sigaction signalBuf; //NOLINT
         signalBuf.sa_handler = signal_handler;
         sigemptyset(&signalBuf.sa_mask);
         signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; //NOLINT
@@ -41,7 +41,7 @@ namespace
 
     void clearSignalHandler()
     {
-        struct sigaction signalBuf{0}; //NOLINT
+        struct sigaction signalBuf; //NOLINT
         signalBuf.sa_handler = SIG_DFL;
         sigemptyset(&signalBuf.sa_mask);
         signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_NOCLDWAIT; //NOLINT

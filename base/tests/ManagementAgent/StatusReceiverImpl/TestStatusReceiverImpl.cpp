@@ -48,7 +48,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) //NOLINT
     );
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue, statusCache);
-    foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp"});
+    foo.receivedChangeStatus("APPID",{"WithTimestamp","WithoutTimestamp",""});
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
 }
@@ -59,7 +59,7 @@ TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueuedThatWritesToAS
     std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
     ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue, statusCache);
     std::string appId("APPID"), contents("WithoutTimeStamp");
-    foo.receivedChangeStatus(appId,{"WithTimestamp",contents});
+    foo.receivedChangeStatus(appId,{"WithTimestamp",contents,""});
     Common::TaskQueueImpl::ITaskPtr task = fakeQueue->popTask();
     EXPECT_NE(task.get(),nullptr);
 

@@ -4,7 +4,7 @@ project(everest_base CXX)
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")
 set(CMAKE_INSTALL_RPATH "$ORIGIN")
 

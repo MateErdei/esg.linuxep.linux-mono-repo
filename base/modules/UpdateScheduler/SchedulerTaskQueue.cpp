@@ -26,7 +26,7 @@ namespace UpdateScheduler
 
     void SchedulerTaskQueue::pushStop()
     {
-        SchedulerTask stopTask{SchedulerTask::TaskType::Stop};
+        SchedulerTask stopTask{SchedulerTask::TaskType::Stop,""};
         push(stopTask);
     }
 }

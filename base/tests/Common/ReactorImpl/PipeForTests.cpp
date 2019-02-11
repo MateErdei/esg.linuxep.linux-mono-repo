@@ -18,6 +18,7 @@ PipeForTests::PipeForTests()
     assert(m_readFd >= 0);
     m_writeFd = filedes[1];
     assert(m_writeFd >= 0);
+    static_cast<void>(ret);
 }
 
 PipeForTests::~PipeForTests()
@@ -30,6 +31,7 @@ void PipeForTests::write(const std::string & data)
 {
     ssize_t nbytes = ::write( m_writeFd, data.data(), data.size());
     assert(nbytes == (ssize_t)data.size());
+    static_cast<void>(nbytes);
 }
 
 int PipeForTests::readFd()

@@ -162,17 +162,17 @@ namespace Common
 
                 setEventType(convertFromCapnEventType(processEvent.getEventType()));
 
-                Common::EventTypes::SophosPid sophosPid{0};
+                Common::EventTypes::SophosPid sophosPid{0, 0};
                 sophosPid.pid = processEvent.getSophosPID().getOsPID();
                 sophosPid.timestamp = processEvent.getSophosPID().getCreateTime();
                 setSophosPid(sophosPid);
 
-                Common::EventTypes::SophosPid parentSophosPid{0};
+                Common::EventTypes::SophosPid parentSophosPid{0, 0};
                 parentSophosPid.pid = processEvent.getParentSophosPID().getOsPID();
                 parentSophosPid.timestamp = processEvent.getParentSophosPID().getCreateTime();
                 setParentSophosPid(parentSophosPid);
 
-                Common::EventTypes::SophosTid parentSophosTid{0};
+                Common::EventTypes::SophosTid parentSophosTid{0, 0};
                 parentSophosTid.tid = processEvent.getParentSophosTID().getOsTID();
                 parentSophosTid.timestamp = processEvent.getParentSophosTID().getCreateTime();
                 setParentSophosTid(parentSophosTid);

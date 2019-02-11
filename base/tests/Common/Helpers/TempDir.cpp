@@ -51,8 +51,8 @@ namespace Tests
         m_fileSystem.reset();
         // clear the temporary directory recursively
         std::string quoted_command = "rm -rf \"" + m_rootpath + "\"";
-        ::system(quoted_command.c_str());
-
+        int ret = ::system(quoted_command.c_str());
+        static_cast<void>(ret); //we don't care about the return value
     }
 
     std::string TempDir::dirPath() const

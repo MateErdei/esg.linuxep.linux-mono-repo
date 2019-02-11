@@ -247,7 +247,7 @@ namespace UpdateSchedulerImpl
         }
 
 
-        std::vector<UpdatePolicyTranslator::Cache> UpdatePolicyTranslator::sortUpdateCaches(const std::vector<UpdatePolicyTranslator::Cache>& caches)
+        std::vector<UpdatePolicyTranslator::Cache> UpdatePolicyTranslator::sortUpdateCaches(const std::vector<UpdatePolicyTranslator::Cache>& /*caches*/)
         {
             // requirement: update caches candidates must be sorted by the following criteria:
             //  1. priority

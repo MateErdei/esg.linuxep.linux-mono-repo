@@ -106,7 +106,7 @@ namespace
         {
             throw XmlUtilitiesException("Stack overflow. Max depth for the xml exceeded. ");
         }
-        m_stack.push(AttributesEntry{elementPath, attributes});
+        m_stack.push(AttributesEntry{elementPath, attributes,""});
     }
 
     void SimpleXmlParser::onEndElement(const std::string &element)

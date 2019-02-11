@@ -36,7 +36,7 @@ public:
 };
 
 
-void pureCallBackFunction(data_t data)
+void pureCallBackFunction(data_t /*data*/)
 {
     callbackCalled = 1;
 }

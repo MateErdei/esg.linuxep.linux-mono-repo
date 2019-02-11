@@ -27,12 +27,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
     bool isReaddirSafe(const std::string& directoryPath)
     {
         auto nameMax = pathconf(directoryPath.c_str(), _PC_NAME_MAX);
         struct dirent structdirent;
         return nameMax <= 255 && sizeof( structdirent) > 256;
     }
+#pragma GCC diagnostic pop
 }
 
 
@@ -363,7 +366,6 @@ namespace Common
             std::vector<Path> files;
             DIR * directoryPtr;
 
-            struct dirent dirEntity; //NOLINT
             struct dirent *outDirEntity;
 
             directoryPtr = opendir(directoryPath.c_str());
@@ -379,9 +381,11 @@ namespace Common
 
             while (true)
             {
-                int errorcode = readdir_r(directoryPtr, &dirEntity, &outDirEntity);
+                errno = 0;
+                outDirEntity = readdir(directoryPtr);
 
-                if(errorcode !=0 || !outDirEntity)
+
+                if(errno !=0 || outDirEntity == nullptr)
                 {
                     break;
                 }
@@ -406,7 +410,6 @@ namespace Common
             std::vector<Path> files;
             DIR * directoryPtr;
 
-            struct dirent dirEntity; //NOLINT
             struct dirent *outDirEntity;
 
             directoryPtr = opendir(directoryPath.c_str());
@@ -422,9 +425,11 @@ namespace Common
 
             while (true)
             {
-                int errorcode = readdir_r(directoryPtr, &dirEntity, &outDirEntity);
 
-                if(errorcode !=0 || !outDirEntity)
+                errno =0;
+                outDirEntity = readdir(directoryPtr);
+
+                if(errno !=0 || outDirEntity == nullptr)
                 {
                     break;
                 }

@@ -60,6 +60,7 @@ namespace
         return false;
     }
 
+#ifndef NDEBUG
     void displayProductTags(SU_PHandle product, const std::vector<std::string> & attributes)
     {
         LOGDEBUG("\nNew Product");
@@ -80,6 +81,8 @@ namespace
                                      "SAVLine", "ResubscriptionsLine", "Resubscriptions",
                                      "ResubscriptionsVersion"});
     }
+
+#endif
 
 }
 

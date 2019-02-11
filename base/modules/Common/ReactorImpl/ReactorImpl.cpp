@@ -17,7 +17,7 @@ namespace
     std::mutex GL_signalMutex;
     std::unique_ptr<Common::Threads::NotifyPipe> GL_signalPipe;
 
-    void s_signal_handler (int signal_value)
+    void s_signal_handler (int)
     {
         if ( !GL_signalPipe)
         {

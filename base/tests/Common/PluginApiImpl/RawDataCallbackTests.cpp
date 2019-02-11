@@ -114,7 +114,8 @@ public:
     std::string m_data;
     Common::Threads::NotifyPipe& m_notify;
 
-    void receiveData(const std::string& key, const std::string& data) override{
+    // key is used in the base Implementation for the error message
+    void receiveData(const std::string& /*key*/, const std::string& data) override{
         if( m_dataReceived) return;
 
         m_data = data;

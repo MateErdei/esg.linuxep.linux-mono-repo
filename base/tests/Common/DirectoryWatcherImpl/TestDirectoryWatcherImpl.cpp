@@ -37,6 +37,7 @@ public:
         m_MockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
         int r = pipe(m_pipe_fd);
         assert(r==0);
+        static_cast<void>(r);
         EXPECT_CALL(*m_MockiNotifyWrapper, init()).WillOnce(Return(m_pipe_fd[0]));
         m_DirectoryWatcher = std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::unique_ptr<IiNotifyWrapper>(m_MockiNotifyWrapper)));
     }
@@ -65,13 +66,14 @@ TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT
 TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
 {
     int local_pipe[2];
-    pipe(local_pipe);
+    int ret = pipe(local_pipe);
     {
         auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();
         EXPECT_CALL(*mockiNotifyWrapper, init()).WillOnce(Return(local_pipe[0]));
         EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper))); //NOLINT
     }
     close(local_pipe[1]);
+    static_cast<void>(ret);
 }
 
 TEST_F(DirectoryWatcherTests, failAddListenerBeforeWatch) // NOLINT
@@ -142,9 +144,10 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
     MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, 16, "TestFile1.txt"};
-    write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
+    ssize_t ret = write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
     MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, 16, "TestFile2.txt"};
-    write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
+    ret = write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
+    static_cast<void>(ret);
     int retries = 0;
     while(!(m_Listener1.hasData() && m_Listener2.hasData()) && retries <1000) {
         retries ++;
@@ -170,7 +173,8 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     EXPECT_CALL(*m_MockiNotifyWrapper, read(_, _, _)).WillOnce(Invoke([&errCode](int, void*, size_t){errno = errCode; return -1;}));
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
-    write(m_pipe_fd[1], "1", sizeof("1"));
+    ssize_t ret = write(m_pipe_fd[1], "1", sizeof("1"));
+    static_cast<void>(ret);
     int retries = 0;
     while((m_Listener1.m_Active || m_Listener2.m_Active) && retries <1000) {
         retries ++;
