@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
+import re
 import os
 import xml.dom.minidom
 
@@ -98,6 +99,21 @@ def readVersionIniFile():
             for line in f.readlines():
                 if "ComponentAutoVersion=" in line:
                     return line.strip().split("=")[1]
+
+    ## Try reading from Jenkinsfile
+    productsDir = os.path.dirname(scriptPath)
+    srcdir = os.path.dirname(productsDir)
+    jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+    if os.path.isfile(jenkinsfile):
+        lines = open(jenkinsfile).readlines()
+        print("Reading version from {}".format(jenkinsfile))
+        LINE_RE=re.compile(r"version_key = '([\d.]+)'$")
+        for line in lines:
+            line = line.strip()
+            mo = LINE_RE.match(line)
+            if mo:
+                return mo.group(1)
+
     print ("Failed to get AutoVersion from {}, using default".format(autoVersionFile))
     return "0.5.0"
 

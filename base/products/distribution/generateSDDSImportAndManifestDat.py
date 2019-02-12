@@ -5,6 +5,8 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import fileInfo
 import generateManifestDat
 import generateSDDSImport
+
+import os
 import sys
 
 
@@ -18,7 +20,9 @@ def main(argv):
     file_objects = fileInfo.load_file_info(dist, distribution_list)
 
     changed = generateManifestDat.generate_manifest(dist, file_objects)
-    if not changed:
+
+    sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
+    if os.path.isfile(sdds_import_path) and not changed:
         print("Contents not changed: not regenerating manifest.dat and SDDS-Import.xml")
         return 0
 
