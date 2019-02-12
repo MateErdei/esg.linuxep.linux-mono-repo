@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(TestVersionedCopy TestVersionedCopy.cpp)
-target_include_directories(TestVersionedCopy SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TestVersionedCopy BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${BOOST_INCLUDE}" "${CMAKE_SOURCE_DIR}" )
+target_include_directories(TestVersionedCopy SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${BOOST_INCLUDE}" )
+target_include_directories(TestVersionedCopy BEFORE PUBLIC "${CMAKE_SOURCE_DIR}" )
 
 set (BOOST_LIB_DIRS "${BOOST_INPUT}/lib64")
 set (TestVersionedCopy_RPATH "${CMAKE_BINARY_DIR}/libs:${BOOST_LIB_DIRS}" )
