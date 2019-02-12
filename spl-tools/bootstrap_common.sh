@@ -2,10 +2,14 @@
 
 if which yum &> /dev/null
 then
-    sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &> /dev/null
-    sudo yum install sshpass --assumeyes
-    sudo yum install wget --assumeyes
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &> /dev/null
+    yum install sshpass --assumeyes
+    yum install wget --assumeyes
 else
-    sudo apt-get install sshpass --assume-yes
-    sudo apt-get install wget --assume-yes
+    apt-get install sshpass --assume-yes
+    apt-get install wget --assume-yes
 fi
+
+cp /vagrant/auditdConfig.txt /etc/audit/auditd.conf
+service auditd restart
+
