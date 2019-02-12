@@ -27,7 +27,7 @@ namespace
         t.start();
         std::string expected_output("EXPECTED OUTPUT");
         int ret = ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, expected_output.size());
         pipe.closeWrite();
         // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
@@ -43,7 +43,7 @@ namespace
         t.start();
         std::string expected_output("EXPECTED OUTPUT");
         int ret = ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, expected_output.size());
         pipe.closeWrite();
         // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
@@ -60,7 +60,7 @@ namespace
         t.start();
         std::string expected_output("EXPECTED OUTPUT");
         int ret = ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, expected_output.size());
         pipe.closeWrite();
         // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
@@ -77,7 +77,7 @@ namespace
         t.start();
         std::string expected_output("EXPECTED OUTPUT");
         int ret = ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, expected_output.size());
         pipe.closeWrite();
         // Don't request stop - wait for EOF to terminate the thread instead.
         std::string actual_output = t.output();
@@ -92,7 +92,7 @@ namespace
         t.setOutputLimit(limit);
         std::string expected_output("EXPECTED OUTPUT");
         int ret = ::write(pipe.writeFd(),expected_output.c_str(),expected_output.size());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, expected_output.size());
         pipe.closeWrite();
         //Note request for stop occurs before we request the thread to start
         t.requestStop();

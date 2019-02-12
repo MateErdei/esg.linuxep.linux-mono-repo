@@ -210,11 +210,11 @@ namespace
 
         std::string expectedPath("/tmp");
         int ret = chdir(expectedPath.c_str());
-
+        ASSERT_EQ(ret, 0);
         EXPECT_EQ(m_fileSystem->currentWorkingDirectory(), expectedPath);
 
         ret = chdir(startingDirectory.c_str());
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, 0);
 
         EXPECT_EQ(m_fileSystem->currentWorkingDirectory(), startingDirectory);
     }
@@ -342,7 +342,7 @@ namespace
         tempDir.createFile("Root/file1", "hello" );
         tempDir.createFile("Root/file2", "hello" );
         int ret = ::symlink(tempDir.absPath("Root/symlink").c_str(),"/etc/hosts");
-        static_cast<void>(ret);
+        ASSERT_EQ(ret, -1);
 
         std::vector<std::string> fileList = m_fileSystem->listFilesAndDirectories(tempDir.absPath("Root"));
 

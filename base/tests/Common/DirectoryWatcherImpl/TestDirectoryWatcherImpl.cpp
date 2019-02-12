@@ -73,7 +73,8 @@ TEST_F(DirectoryWatcherTests, succeediNotifyInit) // NOLINT
         EXPECT_NO_THROW(std::make_shared<DirectoryWatcher>(std::unique_ptr<IiNotifyWrapper>(mockiNotifyWrapper))); //NOLINT
     }
     close(local_pipe[1]);
-    static_cast<void>(ret);
+
+    ASSERT_EQ(ret, 0);
 }
 
 TEST_F(DirectoryWatcherTests, failAddListenerBeforeWatch) // NOLINT
@@ -145,9 +146,10 @@ TEST_F(DirectoryWatcherTests, twoListenersGetCorrectFileInfo) // NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
     MockInotifyEvent inotifyEvent1 = {1, IN_MOVED_TO, 1, 16, "TestFile1.txt"};
     ssize_t ret = write(m_pipe_fd[1], &inotifyEvent1, sizeof(struct MockInotifyEvent));
+    ASSERT_EQ(ret, sizeof(struct MockInotifyEvent));
     MockInotifyEvent inotifyEvent2 = {2, IN_MOVED_TO, 1, 16, "TestFile2.txt"};
     ret = write(m_pipe_fd[1], &inotifyEvent2, sizeof(struct MockInotifyEvent));
-    static_cast<void>(ret);
+    ASSERT_EQ(ret, sizeof(struct MockInotifyEvent));
     int retries = 0;
     while(!(m_Listener1.hasData() && m_Listener2.hasData()) && retries <1000) {
         retries ++;
@@ -174,7 +176,7 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener1)); //NOLINT
     EXPECT_NO_THROW(m_DirectoryWatcher->addListener(m_Listener2)); //NOLINT
     ssize_t ret = write(m_pipe_fd[1], "1", sizeof("1"));
-    static_cast<void>(ret);
+    ASSERT_EQ(ret, sizeof("1"));
     int retries = 0;
     while((m_Listener1.m_Active || m_Listener2.m_Active) && retries <1000) {
         retries ++;
