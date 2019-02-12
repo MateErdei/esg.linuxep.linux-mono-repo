@@ -41,9 +41,19 @@ namespace ReqRepTest
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     public:
         explicit Requester(const std::string& serverAddress)
+                :
+                m_context(createContext())
         {
+            m_requester = m_context->getRequester();
+            m_requester->setTimeout(1000);
+            m_requester->setConnectionTimeout(1000);
+            m_requester->connect(serverAddress);
+        }
 
-            m_context = createContext();
+        explicit Requester(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context)
+            :
+                m_context(std::move(context))
+        {
             m_requester = m_context->getRequester();
             m_requester->setTimeout(1000);
             m_requester->setConnectionTimeout(1000);
@@ -66,9 +76,19 @@ namespace ReqRepTest
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
     public:
         explicit Replier(const std::string& serverAddress, int timeout = 1000)
+                :
+                m_context(createContext())
         {
+            m_replier = m_context->getReplier();
+            m_replier->setTimeout(timeout);
+            m_replier->setConnectionTimeout(timeout);
+            m_replier->listen(serverAddress);
+        }
 
-            m_context = createContext();
+        Replier(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context, int timeout = 1000)
+                :
+                m_context(std::move(context))
+        {
             m_replier = m_context->getReplier();
             m_replier->setTimeout(timeout);
             m_replier->setConnectionTimeout(timeout);

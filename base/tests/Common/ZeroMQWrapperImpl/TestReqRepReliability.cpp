@@ -32,6 +32,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 extern char **environ;
 
+#define PRINT(_X) std::cerr << _X << std::endl
+
 namespace
 {
     using ::testing::NiceMock;
@@ -61,11 +63,12 @@ namespace
     class RunInExternalProcess
     {
         std::string m_killchannel;
+        Common::ZeroMQWrapper::IContextSharedPtr m_zmq_context;
+
         void monitorChild( int pid)
         {
             try{
-                auto context = createContext();
-                auto replierKillChannel = context->getReplier();
+                auto replierKillChannel = m_zmq_context->getReplier();
                 replierKillChannel->setTimeout(1000);
                 replierKillChannel->listen(m_killchannel);
                 data_t request = replierKillChannel->read();
@@ -81,9 +84,7 @@ namespace
             }catch (std::exception & ex)
             {
                 std::cout << "monitor child: " << ex.what() << std::endl;
-
             }
-
         }
 
         void runChild(std::function<void()> && functor)
@@ -102,9 +103,16 @@ namespace
 
     public:
         explicit RunInExternalProcess( const TestContext & context):
-            m_killchannel( context.killChannel())
+            m_killchannel( context.killChannel()),
+            m_zmq_context(createContext())
         {
+        }
 
+        RunInExternalProcess( const TestContext & context, Common::ZeroMQWrapper::IContextSharedPtr zmq_context)
+            :
+            m_killchannel( context.killChannel()),
+            m_zmq_context(std::move(zmq_context))
+        {
         }
 
         void runFork(std::function<void()>  functor)
@@ -282,12 +290,13 @@ namespace
 
     TEST_F( ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails ) // NOLINT
     {
-        RunInExternalProcess runInExternalProcess(m_testContext);
+        auto zmq_context = createContext();
+        RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(std::launch::async, [serveraddress]() {
-            Replier replier( serveraddress, 10000 );
+        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Replier replier( serveraddress, zmq_context, 10000 );
             try
             {
                 replier.serveRequest();
@@ -297,6 +306,7 @@ namespace
                 std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what() << std::endl;
                 // the first one may or may not throw, but the second must not throw.
             }
+            PRINT("Served first request by "<<getpid());
 
             try
             {
@@ -308,6 +318,7 @@ namespace
                 // the first one may or may not throw, but the second must not throw.
                 throw;
             }
+            PRINT("Served second request by "<<getpid());
         });
 
         // the fact that the first request break after the send message has no implication on the replier
