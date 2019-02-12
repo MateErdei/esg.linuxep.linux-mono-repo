@@ -76,7 +76,7 @@ Vagrant.configure("2") do |config|
             }
         end
 
-        #aws doesn't rsync the root of sspl-tools. Therefore we need to use a file provisioner to scp auditdConfig.txt to ~/auditdConfig.txt (cant go to /vagrant/auditdConfig.txt due to permissions)
+        #aws doesn't rsync the root of sspl-tools. Therefore we need to use a file provisioner to scp auditdConfig.txt to /home/ec2-user/auditdConfig.txt (cant copy directly to /vagrant/auditdConfig.txt due to permissions)
         config.vm.provision "file", source: "./auditdConfig.txt", destination: "/home/ec2-user/auditdConfig.txt"
 
         amazon_linux.vm.provision :shell, path: "bootstrap_amazon_linux.sh"
@@ -89,5 +89,3 @@ Vagrant.configure("2") do |config|
     end
 
 end
-
-
