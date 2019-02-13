@@ -3,28 +3,72 @@
 #
 
 local_events = yes
+# no specifies only events from the network should be logged.
+
 write_logs = yes
+# no would cause no logging at all.
+
 log_file = /var/log/audit/audit.log
+# sets the log file path
+
 log_group = root
+# sets the group of the log file permissions
+
 log_format = RAW
+# RAW writes logs in the format the kernel sends. Enriched decorates it. RAW has lower overhead
+
 flush = INCREMENTAL_ASYNC
-freq = 50
+# INCREMENTAL means the "freq" setting below is used as a limit to how many audit records can be written before an explicit flush to disk is issued
+
+freq = 100
+# Default = 50
+#redhat recommends 100 (bigger number = less often)
+
 max_log_file = 5
+# Default = 8
+# this will set the maximum logfile size to 5MB. Action on reaching this limit is defined by max_log_file_action
+
+max_log_file_action = ROTATE
+# ROTATE tells auditd to use the same convention as the logrotate utility to rename filled logs with incrementing labels up to the num_logs setting.
+
 num_logs = 2
+# Default = 5
+# this sets the maximum number of log files to keep to 2 (one being written to, and the previously filled file(s)). This will give us two logs max.
+
 priority_boost = 4
+# nice value of auditd = 0 - priority_boost
+
 disp_qos = lossy
+# non-blocking/lossy or blocking/lossless
+
 dispatcher = /sbin/audispd
 name_format = NONE
 ##name = mydomain
-max_log_file_action = ROTATE
-space_left = 75
-space_left_action = SYSLOG
-verify_email = yes
-action_mail_acct = root
-admin_space_left = 50
+
+space_left = 50
+# amount remaining (in MB) of space on the disk which will trigger the space_left_action
+
+space_left_action = ROTATE
+# SYSLOG sends a warning to the syslog. ROTATE rotates the logs to free up space, removing the oldest and starting to write to a fresh logfile. IGNORE does nothing
+
+admin_space_left = 25
+# Default = 50
 admin_space_left_action = SUSPEND
+# these are similar to space_left_action, but more extreme. When 50MB is reached, auditd will be suspended.
+
+##verify_email = yes
+##action_mail_acct = root
+# we don't care about these options.
+
 disk_full_action = SUSPEND
+# same as space_left_action, but for the specific partition being written to
+# Default = SUSPEND
+
 disk_error_action = SUSPEND
+# action to take when there is an error writing to disk
+# Default = SUSPEND
+
+# the bellow options are about getting logs from networked machines
 use_libwrap = yes
 ##tcp_listen_port = 60
 tcp_listen_queue = 5
