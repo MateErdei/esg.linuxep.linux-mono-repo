@@ -45,14 +45,12 @@ dispatcher = /sbin/audispd
 name_format = NONE
 ##name = mydomain
 
-space_left = 50
+space_left = 75
 # amount remaining (in MB) of space on the disk which will trigger the space_left_action
-
 space_left_action = ROTATE
 # SYSLOG sends a warning to the syslog. ROTATE rotates the logs to free up space, removing the oldest and starting to write to a fresh logfile. IGNORE does nothing
 
-admin_space_left = 25
-# Default = 50
+admin_space_left = 50
 admin_space_left_action = SUSPEND
 # these are similar to space_left_action, but more extreme. When 50MB is reached, auditd will be suspended.
 
@@ -62,11 +60,9 @@ admin_space_left_action = SUSPEND
 
 disk_full_action = SUSPEND
 # same as space_left_action, but for the specific partition being written to
-# Default = SUSPEND
 
 disk_error_action = SUSPEND
 # action to take when there is an error writing to disk
-# Default = SUSPEND
 
 # the bellow options are about getting logs from networked machines
 use_libwrap = yes
