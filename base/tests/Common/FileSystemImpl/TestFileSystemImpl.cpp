@@ -341,8 +341,8 @@ namespace
         tempDir.makeDirs("Root/subdir");
         tempDir.createFile("Root/file1", "hello" );
         tempDir.createFile("Root/file2", "hello" );
-        int ret = ::symlink(tempDir.absPath("Root/symlink").c_str(),"/etc/hosts");
-        ASSERT_EQ(ret, -1);
+        int ret = ::symlink("/etc/hosts",tempDir.absPath("Root/symlink").c_str());
+        ASSERT_EQ(ret, 0);
 
         std::vector<std::string> fileList = m_fileSystem->listFilesAndDirectories(tempDir.absPath("Root"));
 

@@ -19,6 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -439,7 +440,15 @@ namespace Common
                      outDirEntity->d_name != dotdot )
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                    files.push_back(fullPath);
+
+                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this method again on the returned directories
+                    struct stat buf;
+                    int ret = ::lstat(fullPath.c_str(), &buf);
+
+                    if (ret == 0 && !S_ISLNK(buf.st_mode))
+                    {
+                        files.push_back(fullPath);
+                    }
                 }
             }
 
