@@ -15,13 +15,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <DownloadReport.pb.h>
 
 #include <sstream>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 #include <google/protobuf/util/json_util.h>
-
-#pragma GCC diagnostic pop
-
 
 using namespace SulDownloader::suldownloaderdata;
 

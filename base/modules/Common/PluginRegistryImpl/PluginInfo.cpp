@@ -19,12 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <grp.h>
 #include <unistd.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
 #include <google/protobuf/util/json_util.h>
-
-#pragma GCC diagnostic pop
 
 namespace Common
 {

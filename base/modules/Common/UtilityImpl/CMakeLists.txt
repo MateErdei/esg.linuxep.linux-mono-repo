@@ -14,7 +14,9 @@ add_library(utilityimpl SHARED
         VectorAsSet.cpp
         VectorAsSet.h)
 
-target_include_directories(utilityimpl PUBLIC ../../Common ${Protobuf_INCLUDE_DIR})
+
+target_include_directories(utilityimpl SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})
+target_include_directories(utilityimpl PUBLIC ../../Common )
 target_link_libraries(utilityimpl PUBLIC ${Protobuf_LIBRARIES})
 
 SET_TARGET_PROPERTIES( utilityimpl
