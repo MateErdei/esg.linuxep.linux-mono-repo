@@ -99,11 +99,18 @@ def readVersionIniFile():
             for line in f.readlines():
                 if "ComponentAutoVersion=" in line:
                     return line.strip().split("=")[1]
+    else:
+        print("Failed to get AutoVersion from {}".format(autoVersionFile))
 
     ## Try reading from Jenkinsfile
     productsDir = os.path.dirname(scriptPath)
     srcdir = os.path.dirname(productsDir)
     jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+    if not os.path.isfile(jenkinsfile):
+        ## if we are in a plugin then the script is in a sub-directory 1 deeper.
+        srcdir = os.path.dirname(srcdir)
+        jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+
     if os.path.isfile(jenkinsfile):
         lines = open(jenkinsfile).readlines()
         print("Reading version from {}".format(jenkinsfile))
@@ -113,9 +120,12 @@ def readVersionIniFile():
             mo = LINE_RE.match(line)
             if mo:
                 return mo.group(1)
+    else:
+        print("Failed to find Jenkinsfile {} from {}".format(jenkinsfile, scriptPath))
 
-    print ("Failed to get AutoVersion from {}, using default".format(autoVersionFile))
-    return "0.5.0"
+    defaultValue = "0.5.1"
+    print ("Using default {}".format(defaultValue))
+    return defaultValue
 
 def getVariable(environmentVariable, fileName, variableName, defaultValue):
     temp = os.environ.get(environmentVariable, None)
