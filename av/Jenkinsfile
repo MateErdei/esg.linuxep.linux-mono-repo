@@ -2,7 +2,7 @@
 library "standardPipeline"
 
 project = 'sspl-template-plugin'
-version = '0.5.0'
+version_key = '0.5.0'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git'
 project_builddir = 'sspl-template-plugin-build'
 project_release_xml = 'build-files/release-package.xml'
@@ -17,7 +17,7 @@ properties([
 
 skipDefaultCheckout()
 try{
-	version_number = GetVersionNumber(version, project)
+	version_number = GetVersionNumber(version_key, project)
     PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
 
     parallel Build:{
