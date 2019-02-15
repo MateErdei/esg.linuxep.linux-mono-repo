@@ -1,5 +1,6 @@
 #
 # This file controls the configuration of the audit daemon
+# Stored in everest-systemproducttests/SupportFiles/jenkins/auditdConfig.txt
 #
 
 ## Values we have changed
