@@ -31,14 +31,15 @@ namespace watchdog
             ~Watchdog();
             int run();
             PluginInfoVector read_plugin_configs();
+
         protected:
             std::string getIPCPath();
             void setupSocket();
             void handleSocketRequest();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
 
-            std::string disablePlugin(const std::string &pluginName);
-            std::string enablePlugin(const std::string &pluginName);
+            std::string disablePlugin(const std::string& pluginName);
+            std::string enablePlugin(const std::string& pluginName);
 
             /**
              * Stop the plugin if it is running, and remove it from m_pluginProxies.
@@ -57,9 +58,8 @@ namespace watchdog
             Common::ZeroMQWrapper::IContextSharedPtr m_context;
             ProxyList m_pluginProxies;
 
-
         private:
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
         };
-    }
-}
+    } // namespace watchdogimpl
+} // namespace watchdog

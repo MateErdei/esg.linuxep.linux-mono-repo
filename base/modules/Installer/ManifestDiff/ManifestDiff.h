@@ -5,8 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <Common/Datatypes/StringVector.h>
 #include "Manifest.h"
+
+#include <Common/Datatypes/StringVector.h>
 
 namespace Installer
 {
@@ -22,12 +23,20 @@ namespace Installer
             static std::string toString(const PathSet& paths);
             static void writeFile(const std::string& destination, const PathSet& paths);
 
-            static void writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
+            static void writeAdded(
+                const std::string& destination,
+                const Manifest& oldManifest,
+                const Manifest& newManifest);
             static std::set<std::string> calculateAdded(const Manifest& oldManifest, const Manifest& newManifest);
 
-            static void writeRemoved(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
-            static void writeChanged(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest);
-
+            static void writeRemoved(
+                const std::string& destination,
+                const Manifest& oldManifest,
+                const Manifest& newManifest);
+            static void writeChanged(
+                const std::string& destination,
+                const Manifest& oldManifest,
+                const Manifest& newManifest);
         };
-    }
-}
+    } // namespace ManifestDiff
+} // namespace Installer

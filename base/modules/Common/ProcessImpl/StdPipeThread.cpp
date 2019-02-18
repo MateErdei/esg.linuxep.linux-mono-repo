@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "StdPipeThread.h"
 
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 namespace
 {
@@ -17,23 +17,22 @@ namespace
         assert(ret == 0);
         ret = ::fcntl(fd, F_SETFD, O_CLOEXEC);
         assert(ret == 0);
-        static_cast<void>(ret); //this is to stop the compiler complaining about unused variables in release builds
+        static_cast<void>(ret); // this is to stop the compiler complaining about unused variables in release builds
     }
 
     int addFD(fd_set* fds, int fd, int maxfd)
     {
-        FD_SET(fd,fds); //NOLINT
-        return std::max(maxfd,fd);
+        FD_SET(fd, fds); // NOLINT
+        return std::max(maxfd, fd);
     }
-}
+} // namespace
 
-Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor)
-        :
-        Common::Threads::AbstractThread(),
-        m_fileDescriptor(fileDescriptor),
-        m_stdoutStream(std::ios_base::out | std::ios_base::ate),
-        m_outputLimit(0),
-        m_outputSize(0)
+Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor) :
+    Common::Threads::AbstractThread(),
+    m_fileDescriptor(fileDescriptor),
+    m_stdoutStream(std::ios_base::out | std::ios_base::ate),
+    m_outputLimit(0),
+    m_outputSize(0)
 {
     setNonBlocking(fileDescriptor);
 }
@@ -46,10 +45,9 @@ Common::ProcessImpl::StdPipeThread::~StdPipeThread()
     join();
 }
 
-
 void Common::ProcessImpl::StdPipeThread::run()
 {
-    std::unique_lock <std::mutex> lock(m_mutex);
+    std::unique_lock<std::mutex> lock(m_mutex);
 
     announceThreadStarted();
 
@@ -57,29 +55,28 @@ void Common::ProcessImpl::StdPipeThread::run()
 
     int exitFd = m_notifyPipe.readFd();
 
-
     fd_set read_fds;
     int max_fd = 0;
     FD_ZERO(&read_fds);
 
-    max_fd = addFD(&read_fds,exitFd,max_fd);
-    max_fd = addFD(&read_fds,m_fileDescriptor,max_fd);
+    max_fd = addFD(&read_fds, exitFd, max_fd);
+    max_fd = addFD(&read_fds, m_fileDescriptor, max_fd);
     bool finished = false;
 
-    //Make sure that if this process finishes before this loop starts that one attempt is made to read from the pipe.
+    // Make sure that if this process finishes before this loop starts that one attempt is made to read from the pipe.
     bool readPipeOnce = false;
     while ((!finished && !stopRequested()) || !readPipeOnce)
     {
         readPipeOnce = true;
         fd_set read_temp = read_fds;
-        int ret = pselect(max_fd+1,&read_temp, nullptr, nullptr, nullptr, nullptr);
+        int ret = pselect(max_fd + 1, &read_temp, nullptr, nullptr, nullptr, nullptr);
         if (ret < 0)
         {
             continue;
         }
         if (ret > 0)
         {
-            if (FD_ISSET(exitFd, &read_temp)) //NOLINT
+            if (FD_ISSET(exitFd, &read_temp)) // NOLINT
             {
                 finished = true;
             }
@@ -102,7 +99,7 @@ void Common::ProcessImpl::StdPipeThread::run()
 #if EAGAIN != EWOULDBLOCK
                     || err == EWOULDBLOCK
 #endif
-                    )
+                )
                 {
                     break;
                 }
@@ -128,7 +125,7 @@ void Common::ProcessImpl::StdPipeThread::trimStream()
 {
     if (m_outputLimit > 0 && m_outputSize > m_outputLimit * 2)
     {
-        m_stdoutStream.str(m_stdoutStream.str().substr(m_outputSize-m_outputLimit));
+        m_stdoutStream.str(m_stdoutStream.str().substr(m_outputSize - m_outputLimit));
         m_outputSize = m_outputLimit;
     }
 }
@@ -142,4 +139,3 @@ std::string Common::ProcessImpl::StdPipeThread::output()
     }
     return m_stdoutStream.str();
 }
-

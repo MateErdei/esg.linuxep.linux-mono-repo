@@ -6,21 +6,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-extern "C" {
+extern "C"
+{
 #include <SUL.h>
 }
 #include <memory>
 
-namespace SulDownloader{
+namespace SulDownloader
+{
     class SULSession
     {
     public:
-        SULSession()
-        {
-            m_session = SU_beginSession();
-        }
-        SULSession(const SULSession& ) = delete;
-        SULSession& operator=(const SULSession& ) = delete;
+        SULSession() { m_session = SU_beginSession(); }
+        SULSession(const SULSession&) = delete;
+        SULSession& operator=(const SULSession&) = delete;
 
         ~SULSession()
         {
@@ -36,23 +35,12 @@ namespace SulDownloader{
     class SULInit
     {
     public:
-        SULInit(const SULInit& ) = delete;
-        SULInit& operator=(const SULInit& ) = delete;
+        SULInit(const SULInit&) = delete;
+        SULInit& operator=(const SULInit&) = delete;
 
-        SULInit()
-        {
-            SU_init();
-        }
+        SULInit() { SU_init(); }
 
-        ~SULInit()
-        {
-            SU_deinit();
-        }
+        ~SULInit() { SU_deinit(); }
     };
 
-
-
-}
-
-
-
+} // namespace SulDownloader

@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <ctime>
 #include <string>
 namespace SulDownloader
@@ -34,12 +33,9 @@ namespace SulDownloader
             void setSyncTime();
 
         private:
-
             std::time_t m_startTime = -1;
             std::time_t m_finishedTime = -1;
             bool m_syncTimeSet = false;
-
         };
-    }
-}
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
 #include <regex>
+#include <string>
 
 namespace Common
 {
@@ -15,8 +15,5 @@ namespace Common
         std::string returnFirstMatch(const std::string& stringpattern, const std::string& content);
 
         std::string returnFirstMatch(const std::regex& regexPattern, const std::string& content);
-    }
-}
-
-
-
+    } // namespace UtilityImpl
+} // namespace Common

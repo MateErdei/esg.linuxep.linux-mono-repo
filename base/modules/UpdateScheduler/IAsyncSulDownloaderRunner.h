@@ -21,7 +21,8 @@ namespace UpdateScheduler
         virtual void triggerAbort() = 0;
     };
 
-    std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue>,
-                                                                         std::string dirPath);
+    std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(
+        std::shared_ptr<SchedulerTaskQueue>,
+        std::string dirPath);
 
-}
+} // namespace UpdateScheduler

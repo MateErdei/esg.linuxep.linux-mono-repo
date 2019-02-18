@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
 #include <Common/Datatypes/StringVector.h>
 
 namespace Installer
@@ -22,7 +21,5 @@ namespace Installer
             std::string m_added;
             std::string m_removed;
         };
-    }
-}
-
-
+    } // namespace ManifestDiff
+} // namespace Installer

@@ -5,25 +5,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "CopyPlugin.h"
+
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
 #include <grp.h>
-
-
+#include <unistd.h>
 
 using namespace wdctl::wdctlactions;
 
-CopyPlugin::CopyPlugin(const Action::Arguments& args)
-    : Action(args)
-{
-}
+CopyPlugin::CopyPlugin(const Action::Arguments& args) : Action(args) {}
 
 int CopyPlugin::run()
 {
@@ -31,17 +28,15 @@ int CopyPlugin::run()
 
     std::string basePluginName = Common::FileSystem::basename(m_args.m_argument);
 
-    if (basePluginName.length() > 25 ) { //Assumes that .json is included in the filename
-        LOGFATAL( "Plugin name is longer than the maximum 20 characters.");
+    if (basePluginName.length() > 25)
+    { // Assumes that .json is included in the filename
+        LOGFATAL("Plugin name is longer than the maximum 20 characters.");
         return 1;
     }
 
-    Path destination = Common::FileSystem::join(
-            pluginRegistry,
-            Common::FileSystem::basename(m_args.m_argument)
-            );
+    Path destination = Common::FileSystem::join(pluginRegistry, Common::FileSystem::basename(m_args.m_argument));
 
-    LOGDEBUG("Copying "<< m_args.m_argument << " to "<< destination);
+    LOGDEBUG("Copying " << m_args.m_argument << " to " << destination);
     Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
 
     try
@@ -51,7 +46,7 @@ int CopyPlugin::run()
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
-        LOGFATAL( error.what());
+        LOGFATAL(error.what());
         return 1;
     }
 

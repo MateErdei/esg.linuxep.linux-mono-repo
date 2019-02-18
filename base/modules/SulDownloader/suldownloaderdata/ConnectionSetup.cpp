@@ -5,22 +5,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ConnectionSetup.h"
+
 #include "SulDownloaderException.h"
 
 #include <cassert>
 #include <sstream>
 
-
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-ConnectionSetup::ConnectionSetup(const std::string& updateLocationURL,
-                                 const Credentials& credentials,
-                                 bool isCacheUpdate,
-                                 const Proxy& proxy)
-        : m_credentials(credentials)
-          , m_isUpdateCache(isCacheUpdate)
-          , m_proxy(proxy)
+ConnectionSetup::ConnectionSetup(
+    const std::string& updateLocationURL,
+    const Credentials& credentials,
+    bool isCacheUpdate,
+    const Proxy& proxy) :
+    m_credentials(credentials),
+    m_isUpdateCache(isCacheUpdate),
+    m_proxy(proxy)
 {
     setUpdateLocationURL(updateLocationURL);
 }
@@ -51,7 +52,6 @@ void ConnectionSetup::setUpdateLocationURL(const std::string& updateLocationURL)
     assert(!m_updateLocationURL.empty());
 }
 
-
 std::string ConnectionSetup::toString() const
 {
     std::stringstream ss;
@@ -72,14 +72,12 @@ std::string ConnectionSetup::toString() const
     }
 
     return ss.str();
-
 }
 
 bool ConnectionSetup::isCacheUpdate() const
 {
     return m_isUpdateCache;
 }
-
 
 const std::string& ConnectionSetup::getUpdateLocationURL() const
 {

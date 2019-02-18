@@ -6,10 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <vector>
-#include <type_traits>
-#include <string>
 #include <array>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 namespace Common
 {
@@ -22,14 +22,13 @@ namespace Common
          * @tparam Collection
          */
         template<typename Collection>
-        class SecureCollection
-                : public Collection
+        class SecureCollection : public Collection
         {
-            //Disable destroying SecureCollection polymorphically
-            void* operator new( std::size_t  ) = delete;
-            void* operator new[](std::size_t ) = delete;
-            void  operator delete(void * )     = delete;
-            void  operator delete[](void * )   = delete;
+            // Disable destroying SecureCollection polymorphically
+            void* operator new(std::size_t) = delete;
+            void* operator new[](std::size_t) = delete;
+            void operator delete(void*) = delete;
+            void operator delete[](void*) = delete;
 
         public:
             using type = typename std::remove_const<typename Collection::value_type>::type;
@@ -47,7 +46,8 @@ namespace Common
         };
 
         using SecureDynamicBuffer = SecureCollection<std::vector<unsigned char>>;
-        using SecureString        = SecureCollection<std::string>;
-        template<size_t N> using SecureFixedBuffer   = SecureCollection<std::array<unsigned char, N>>;
-    }
-}
+        using SecureString = SecureCollection<std::string>;
+        template<size_t N>
+        using SecureFixedBuffer = SecureCollection<std::array<unsigned char, N>>;
+    } // namespace ObfuscationImpl
+} // namespace Common

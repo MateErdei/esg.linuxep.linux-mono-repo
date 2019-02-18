@@ -12,8 +12,7 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        class SulDownloaderException
-                : public std::exception
+        class SulDownloaderException : public std::exception
         {
         public:
             explicit SulDownloaderException(std::string message);
@@ -24,6 +23,5 @@ namespace SulDownloader
             std::string m_message;
         };
 
-    }
-}
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

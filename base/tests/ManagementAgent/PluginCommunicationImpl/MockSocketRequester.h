@@ -6,11 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include <memory>
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include <memory>
 
 using namespace ::testing;
 
@@ -25,5 +25,3 @@ public:
     MOCK_METHOD1(connect, void(const std::string&));
     MOCK_METHOD1(listen, void(const std::string&));
 };
-
-

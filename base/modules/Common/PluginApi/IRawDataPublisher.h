@@ -39,13 +39,12 @@ namespace Common
 
             /**
              * Publishes the data
-             * @param rawDataCategory: The category of the data. Bear in mind that subscribers express their filter as matching prefix of rawDataCategory.
+             * @param rawDataCategory: The category of the data. Bear in mind that subscribers express their filter as
+             * matching prefix of rawDataCategory.
              * @param rawData: The content. It is meant to be json (binary or string) containing the full information.
              */
             virtual void sendData(const std::string& rawDataCategory, const std::string& rawData) = 0;
             virtual void sendPluginEvent(const Common::EventTypes::IEventType&) = 0;
         };
-    }
-}
-
-
+    } // namespace PluginApi
+} // namespace Common

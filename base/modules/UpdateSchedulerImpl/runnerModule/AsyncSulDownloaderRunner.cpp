@@ -11,14 +11,14 @@ namespace UpdateSchedulerImpl
     {
         using namespace UpdateScheduler;
 
-        AsyncSulDownloaderRunner::AsyncSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue> taskQueue,
-                                                           const std::string& dirPath)
-                : m_dirPath(dirPath)
-                  , m_taskQueue(taskQueue)
-                  , m_sulDownloaderRunner()
-                  , m_sulDownloaderExecHandle()
+        AsyncSulDownloaderRunner::AsyncSulDownloaderRunner(
+            std::shared_ptr<SchedulerTaskQueue> taskQueue,
+            const std::string& dirPath) :
+            m_dirPath(dirPath),
+            m_taskQueue(taskQueue),
+            m_sulDownloaderRunner(),
+            m_sulDownloaderExecHandle()
         {
-
         }
 
         void AsyncSulDownloaderRunner::triggerSulDownloader()
@@ -34,16 +34,9 @@ namespace UpdateSchedulerImpl
                 m_sulDownloaderRunner.reset();
             }
 
-            m_sulDownloaderRunner.reset(new SulDownloaderRunner(
-                    m_taskQueue,
-                    m_dirPath,
-                    "report.json",
-                    std::chrono::minutes(10)
-            ));
-            m_sulDownloaderExecHandle = std::async(std::launch::async,
-                                                   [this]() { m_sulDownloaderRunner->run(); }
-            );
-
+            m_sulDownloaderRunner.reset(
+                new SulDownloaderRunner(m_taskQueue, m_dirPath, "report.json", std::chrono::minutes(10)));
+            m_sulDownloaderExecHandle = std::async(std::launch::async, [this]() { m_sulDownloaderRunner->run(); });
         }
 
         bool AsyncSulDownloaderRunner::isRunning()
@@ -64,6 +57,6 @@ namespace UpdateSchedulerImpl
                 m_sulDownloaderRunner->abortWaitingForReport();
             }
         }
-    }
+    } // namespace runnerModule
 
-}
+} // namespace UpdateSchedulerImpl

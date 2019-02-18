@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <exception>
 #include <stdexcept>
 
@@ -18,11 +17,7 @@ namespace Common
         {
         public:
             virtual ~IException() = default;
-            explicit IException(const std::string& what)
-                    : std::runtime_error(what)
-            {}
+            explicit IException(const std::string& what) : std::runtime_error(what) {}
         };
-    }
-}
-
-
+    } // namespace Exceptions
+} // namespace Common

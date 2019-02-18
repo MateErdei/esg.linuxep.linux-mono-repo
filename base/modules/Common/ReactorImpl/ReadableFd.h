@@ -11,14 +11,14 @@ namespace Common
 {
     namespace ReactorImpl
     {
-        class ReadableFd: virtual public Common::ZeroMQWrapper::IReadable
+        class ReadableFd : virtual public Common::ZeroMQWrapper::IReadable
         {
         public:
-            ReadableFd( int fd , bool closeOnDestructor);
+            ReadableFd(int fd, bool closeOnDestructor);
             ~ReadableFd();
 
-            Common::ZeroMQWrapper::IReadable::data_t read() override ;
-            int fd() override ;
+            Common::ZeroMQWrapper::IReadable::data_t read() override;
+            int fd() override;
             void close();
             void release();
 
@@ -26,10 +26,5 @@ namespace Common
             int m_fd;
             bool m_closeOnDestructor;
         };
-    }
-}
-
-
-
-
-
+    } // namespace ReactorImpl
+} // namespace Common

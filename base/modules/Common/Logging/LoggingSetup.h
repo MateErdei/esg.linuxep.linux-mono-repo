@@ -15,7 +15,6 @@ namespace Common
 
         class LoggingSetup
         {
-
         public:
             /**
              * Log pattern for standard log files
@@ -29,7 +28,6 @@ namespace Common
             static void applyDefaultPattern(AppenderPtr& appender);
 
             static void applyPattern(AppenderPtr& appender, const char* pattern);
-
         };
-    }
-}
+    } // namespace Logging
+} // namespace Common

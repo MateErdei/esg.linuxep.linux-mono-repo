@@ -9,15 +9,13 @@ namespace Common
 {
     namespace Threads
     {
-
-        AbstractThread::AbstractThread():
+        AbstractThread::AbstractThread() :
             m_threadStarted(),
             m_ensureThreadStarted(),
             m_notifyPipe(),
             m_thread(),
             m_threadStartedFlag(false)
         {
-
         }
 
         AbstractThread::~AbstractThread()
@@ -32,14 +30,11 @@ namespace Common
         void AbstractThread::start()
         {
             std::unique_lock<std::mutex> lock(m_threadStarted);
-            m_thread = std::thread(&AbstractThread::run,this);
-            m_ensureThreadStarted.wait(lock, [this](){return m_threadStartedFlag;});
+            m_thread = std::thread(&AbstractThread::run, this);
+            m_ensureThreadStarted.wait(lock, [this]() { return m_threadStartedFlag; });
         }
 
-        void AbstractThread::requestStop()
-        {
-            m_notifyPipe.notify();
-        }
+        void AbstractThread::requestStop() { m_notifyPipe.notify(); }
 
         void AbstractThread::join()
         {
@@ -49,10 +44,7 @@ namespace Common
             }
         }
 
-        bool AbstractThread::stopRequested()
-        {
-            return m_notifyPipe.notified();
-        }
+        bool AbstractThread::stopRequested() { return m_notifyPipe.notified(); }
 
         void AbstractThread::announceThreadStarted()
         {
@@ -62,5 +54,5 @@ namespace Common
             m_threadStartedFlag = true;
             m_ensureThreadStarted.notify_all();
         }
-    }
-}
+    } // namespace Threads
+} // namespace Common

@@ -4,29 +4,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
-#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
+#include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
+#include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
+#include <gmock/gmock-matchers.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
+#include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 
 namespace
 {
-    class TestManagementAgent
-            : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
+    class TestManagementAgent : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
     {
     public:
         TestManagementAgent() = default;
@@ -36,42 +32,30 @@ namespace
             initialise(pluginManager);
         }
 
-        void runWrapper()
-        {
-            run();
-        }
+        void runWrapper() { run(); }
 
-        Common::TaskQueue::ITaskQueueSharedPtr getTaskQueue()
-        {
-            return m_taskQueue;
-        }
+        Common::TaskQueue::ITaskQueueSharedPtr getTaskQueue() { return m_taskQueue; }
     };
 
     class ManagementAgentImplTests : public ::testing::Test
     {
     public:
-        ManagementAgentImplTests() :
-                m_mockApplicationManager(nullptr)
-        {
-        }
+        ManagementAgentImplTests() : m_mockApplicationManager(nullptr) {}
 
         void SetUp() override
         {
-            const std::string frontend="inproc://frontend";
-            const std::string backend="inproc://backend";
+            const std::string frontend = "inproc://frontend";
+            const std::string backend = "inproc://backend";
 
             m_mockApplicationManager = new NiceMock<MockedApplicationPathManager>();
-            MockedApplicationPathManager &mockPathManager(*m_mockApplicationManager);
+            MockedApplicationPathManager& mockPathManager(*m_mockApplicationManager);
             ON_CALL(mockPathManager, getManagementAgentSocketAddress()).WillByDefault(Return(frontend));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
-                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(m_mockApplicationManager)); // DONATED
-
+                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(
+                    m_mockApplicationManager)); // DONATED
         }
 
-        void TearDown() override
-        {
-            Common::ApplicationConfiguration::restoreApplicationPathManager();
-        }
+        void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
 
         std::string createJsonString()
         {
@@ -100,6 +84,7 @@ namespace
 
         StrictMock<MockPluginManager> m_mockPluginManager;
         NiceMock<MockedApplicationPathManager>* m_mockApplicationManager;
+
     private:
         TestLogging::TestConsoleLoggingSetup m_loggingSetup;
     };
@@ -114,18 +99,19 @@ namespace
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-        std::vector<std::string> pluginFiles = {"PluginName.json"};
+        std::vector<std::string> pluginFiles = { "PluginName.json" };
 
         std::string jsonContent = createJsonString();
 
-        std::vector<std::string> registeredPlugins = {"PluginName"};
-        std::vector<std::string> policyIds = {"app1"};
-        std::vector<std::string> statusIds = {"app2"};
+        std::vector<std::string> registeredPlugins = { "PluginName" };
+        std::vector<std::string> policyIds = { "app1" };
+        std::vector<std::string> statusIds = { "app2" };
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
         EXPECT_CALL(*m_mockApplicationManager, getPluginRegistryPath()).WillRepeatedly(Return(pluginPath));
-        EXPECT_CALL(*m_mockApplicationManager, getManagementAgentStatusCacheFilePath()).WillRepeatedly(Return(statusCachePath));
+        EXPECT_CALL(*m_mockApplicationManager, getManagementAgentStatusCacheFilePath())
+            .WillRepeatedly(Return(statusCachePath));
         EXPECT_CALL(*filesystemMock, listFiles(pluginPath)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, listFiles(statusCachePath)).WillOnce(Return(statusCacheFiles));
         EXPECT_CALL(*filesystemMock, listFiles("/tmp")).WillRepeatedly(Return(std::vector<std::string>{}));
@@ -145,28 +131,28 @@ namespace
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); //NOLINT
-        EXPECT_EQ(1,1);
-
-     }
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); // NOLINT
+        EXPECT_EQ(1, 1);
+    }
 
     TEST_F(ManagementAgentImplTests, initialiseManagementAgentWillAddStatusTaskToQueue) // NOLINT
     {
         auto filesystemMock = new NiceMock<MockFileSystem>();
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
-        std::vector<std::string> pluginFiles = {"PluginName.json"};
+        std::vector<std::string> pluginFiles = { "PluginName.json" };
 
         std::string jsonContent = createJsonString();
 
-        std::vector<std::string> registeredPlugins = {"PluginName"};
-        std::vector<std::string> policyIds = {"app1"};
-        std::vector<std::string> statusIds = {"app2"};
+        std::vector<std::string> registeredPlugins = { "PluginName" };
+        std::vector<std::string> policyIds = { "app1" };
+        std::vector<std::string> statusIds = { "app2" };
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
         EXPECT_CALL(*m_mockApplicationManager, getPluginRegistryPath()).WillRepeatedly(Return(pluginPath));
-        EXPECT_CALL(*m_mockApplicationManager, getManagementAgentStatusCacheFilePath()).WillRepeatedly(Return(statusCachePath));
+        EXPECT_CALL(*m_mockApplicationManager, getManagementAgentStatusCacheFilePath())
+            .WillRepeatedly(Return(statusCachePath));
 
         EXPECT_CALL(*filesystemMock, listFiles(pluginPath)).WillOnce(Return(pluginFiles));
         EXPECT_CALL(*filesystemMock, listFiles(statusCachePath)).WillOnce(Return(statusCacheFiles));
@@ -193,7 +179,7 @@ namespace
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); //NOLINT
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); // NOLINT
 
         Common::TaskQueue::ITaskQueueSharedPtr actualTaskQueue = managementAgent.getTaskQueue();
         Common::TaskQueue::ITaskPtr task = actualTaskQueue->popTask();
@@ -201,6 +187,4 @@ namespace
         EXPECT_NE(task, nullptr);
     }
 
-}
-
-
+} // namespace

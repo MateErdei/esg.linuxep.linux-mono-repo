@@ -5,10 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ProtocolSerializer.h"
-#include "ProtocolSerializerFactory.h"
+
 #include "Logger.h"
-#include <PluginAPIMessage.pb.h>
+#include "ProtocolSerializerFactory.h"
+
 #include "Common/PluginApi/ApiException.h"
+
+#include <PluginAPIMessage.pb.h>
 
 namespace Common
 {
@@ -19,29 +22,36 @@ namespace Common
             switch (command)
             {
                 case Commands::PLUGIN_SEND_EVENT:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_SendEvent;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_SendEvent;
                 case Commands::PLUGIN_SEND_STATUS:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_SendStatus;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_SendStatus;
                 case Commands::PLUGIN_SEND_REGISTER:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_Registration;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_Registration;
                 case Commands::REQUEST_PLUGIN_APPLY_POLICY:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_ApplyPolicy;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_ApplyPolicy;
                 case Commands::REQUEST_PLUGIN_DO_ACTION:
                     return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_DoAction;
                 case Commands::REQUEST_PLUGIN_STATUS:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_RequestStatus;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_RequestStatus;
                 case Commands::REQUEST_PLUGIN_TELEMETRY:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_Telemetry;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_Telemetry;
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_RequestCurrentPolicy;
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_RequestCurrentPolicy;
                 case Commands::UNKNOWN:
                 default:
-                    return PluginProtocolProto::PluginAPIMessage_CommandOption::PluginAPIMessage_CommandOption_InvalidCommand;
-
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_InvalidCommand;
             }
         }
 
-        Commands DeserializeCommand(const PluginProtocolProto::PluginAPIMessage_CommandOption &commandOption)
+        Commands DeserializeCommand(const PluginProtocolProto::PluginAPIMessage_CommandOption& commandOption)
         {
             if (commandOption == serializeCommand(Commands::PLUGIN_SEND_EVENT))
             {
@@ -78,12 +88,11 @@ namespace Common
             return Commands::UNKNOWN;
         }
 
-
-        const data_t ProtocolSerializer::serialize(const Common::PluginProtocol::DataMessage &dataMessage)const
+        const data_t ProtocolSerializer::serialize(const Common::PluginProtocol::DataMessage& dataMessage) const
         {
             PluginProtocolProto::PluginAPIMessage pluginAPIMessage;
 
-            //Check minimum fields are set before creating message
+            // Check minimum fields are set before creating message
             std::stringstream missingFields;
             if (dataMessage.m_pluginName.empty())
             {
@@ -113,8 +122,10 @@ namespace Common
             {
                 pluginAPIMessage.set_acknowledge(dataMessage.m_acknowledge);
             }
-            else if (!dataMessage.m_payload.empty()){
-                for (auto &message: dataMessage.m_payload) {
+            else if (!dataMessage.m_payload.empty())
+            {
+                for (auto& message : dataMessage.m_payload)
+                {
                     pluginAPIMessage.add_payload(message);
                 }
             }
@@ -123,7 +134,7 @@ namespace Common
             return returnData;
         }
 
-        const Common::PluginProtocol::DataMessage ProtocolSerializer::deserialize(const data_t &serializedData)
+        const Common::PluginProtocol::DataMessage ProtocolSerializer::deserialize(const data_t& serializedData)
         {
             Common::PluginProtocol::DataMessage message;
             PluginProtocolProto::PluginAPIMessage deserializedData;
@@ -135,8 +146,7 @@ namespace Common
                 return message;
             }
 
-
-            //Check minimum fields are defined post deserialisation
+            // Check minimum fields are defined post deserialisation
             std::stringstream missingFields;
             if (!deserializedData.has_pluginname())
             {
@@ -183,8 +193,6 @@ namespace Common
 
             return message;
         }
-    }
+    } // namespace PluginProtocol
 
-}
-
-
+} // namespace Common

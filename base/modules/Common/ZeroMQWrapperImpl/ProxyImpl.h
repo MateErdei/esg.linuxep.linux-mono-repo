@@ -6,24 +6,22 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-
 #include "ContextHolder.h"
 #include "SocketHolder.h"
 #include "SocketUtil.h"
 
 #include <Common/ZeroMQWrapper/IProxy.h>
 
+#include <condition_variable>
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
 
 namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
-        class ProxyImpl
-            : public ZeroMQWrapper::IProxy
+        class ProxyImpl : public ZeroMQWrapper::IProxy
         {
         public:
             ProxyImpl(const std::string& frontend, const std::string& backend, ContextHolderSharedPtr context);
@@ -54,10 +52,6 @@ namespace Common
             SocketHolder m_controlPub;
 
             void announceThreadStarted();
-
         };
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapperImpl
+} // namespace Common

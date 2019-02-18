@@ -10,21 +10,19 @@ namespace UpdateSchedulerImpl
 {
     namespace runnerModule
     {
-        SulDownloaderResultDirectoryListener::SulDownloaderResultDirectoryListener(const std::string& directory,
-                                                                                   const std::string& nameOfFileToWaitFor)
-                : m_directoryToWatch(directory)
-                  , m_foundFilePath("")
-                  , m_nameOfFileToWaitFor(nameOfFileToWaitFor)
-                  , m_active(false)
-                  , m_fileFound(false)
-                  , m_aborted(false)
+        SulDownloaderResultDirectoryListener::SulDownloaderResultDirectoryListener(
+            const std::string& directory,
+            const std::string& nameOfFileToWaitFor) :
+            m_directoryToWatch(directory),
+            m_foundFilePath(""),
+            m_nameOfFileToWaitFor(nameOfFileToWaitFor),
+            m_active(false),
+            m_fileFound(false),
+            m_aborted(false)
         {
         }
 
-        std::string SulDownloaderResultDirectoryListener::getPath() const
-        {
-            return m_directoryToWatch;
-        }
+        std::string SulDownloaderResultDirectoryListener::getPath() const { return m_directoryToWatch; }
 
         void SulDownloaderResultDirectoryListener::fileMoved(const std::string& filename)
         {
@@ -38,10 +36,7 @@ namespace UpdateSchedulerImpl
             m_fileDetected.notify_all();
         }
 
-        void SulDownloaderResultDirectoryListener::watcherActive(bool active)
-        {
-            m_active = active;
-        }
+        void SulDownloaderResultDirectoryListener::watcherActive(bool active) { m_active = active; }
 
         std::string SulDownloaderResultDirectoryListener::waitForFile(std::chrono::seconds timeoutInSeconds)
         {
@@ -60,14 +55,8 @@ namespace UpdateSchedulerImpl
             m_fileDetected.notify_all();
         }
 
-        bool SulDownloaderResultDirectoryListener::wasAborted()
-        {
-            return m_aborted;
-        }
+        bool SulDownloaderResultDirectoryListener::wasAborted() { return m_aborted; }
 
-        bool SulDownloaderResultDirectoryListener::shouldStop()
-        {
-            return m_fileFound || m_aborted;
-        }
-    }
-}
+        bool SulDownloaderResultDirectoryListener::shouldStop() { return m_fileFound || m_aborted; }
+    } // namespace runnerModule
+} // namespace UpdateSchedulerImpl

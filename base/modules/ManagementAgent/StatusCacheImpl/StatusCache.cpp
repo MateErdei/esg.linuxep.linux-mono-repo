@@ -5,11 +5,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "StatusCache.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 using namespace ManagementAgent::StatusCache;
 
@@ -17,9 +17,7 @@ namespace ManagementAgent
 {
     namespace StatusCacheImpl
     {
-
-        bool StatusCache::statusChanged(const std::string& appid,
-                                        const std::string& statusForComparison)
+        bool StatusCache::statusChanged(const std::string& appid, const std::string& statusForComparison)
         {
             auto search = m_statusCache.find(appid);
 
@@ -41,7 +39,8 @@ namespace ManagementAgent
 
         void StatusCache::loadCacheFromDisk()
         {
-            std::string statusCachePath = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath();
+            std::string statusCachePath =
+                Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath();
             std::vector<std::string> files = Common::FileSystem::fileSystem()->listFiles(statusCachePath);
 
             for (auto& file : files)
@@ -58,21 +57,21 @@ namespace ManagementAgent
                         std::string statusContents = Common::FileSystem::fileSystem()->readFile(file);
                         m_statusCache[appId] = statusContents;
                     }
-                    catch(Common::FileSystem::IFileSystemException& e)
+                    catch (Common::FileSystem::IFileSystemException& e)
                     {
-                        LOGERROR("Failed to read status file from status cache, file: '" << file
-                                                                                     << "' with error, "
-                                                                                     << e.what());
+                        LOGERROR(
+                            "Failed to read status file from status cache, file: '" << file << "' with error, "
+                                                                                    << e.what());
                     }
                 }
             }
         }
 
-        void StatusCache::updateStatus(const std::string& appid,
-                                       const std::string& statusForComparison)
+        void StatusCache::updateStatus(const std::string& appid, const std::string& statusForComparison)
         {
             m_statusCache[appid] = statusForComparison;
-            std::string statusCachePath = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath();
+            std::string statusCachePath =
+                Common::ApplicationConfiguration::applicationPathManager().getManagementAgentStatusCacheFilePath();
             std::string filename = appid + ".xml";
             std::string statusCacheFullFilePath = Common::FileSystem::join(statusCachePath, filename);
 
@@ -80,11 +79,13 @@ namespace ManagementAgent
             {
                 Common::FileSystem::fileSystem()->writeFile(statusCacheFullFilePath, statusForComparison);
             }
-            catch(Common::FileSystem::IFileSystemException& e)
+            catch (Common::FileSystem::IFileSystemException& e)
             {
-                LOGERROR("Failed to persist status to status cache, path: '" << statusCacheFullFilePath << "' with error, " << e.what());
+                LOGERROR(
+                    "Failed to persist status to status cache, path: '" << statusCacheFullFilePath << "' with error, "
+                                                                        << e.what());
             }
         }
 
-    }
-}
+    } // namespace StatusCacheImpl
+} // namespace ManagementAgent

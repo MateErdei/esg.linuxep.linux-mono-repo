@@ -3,21 +3,17 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/UtilityImpl/StringUtils.h>
-#include <tuple>
 #include "ManifestEntry.h"
+
+#include <Common/UtilityImpl/StringUtils.h>
+
+#include <tuple>
 
 using namespace Installer::ManifestDiff;
 
-ManifestEntry::ManifestEntry()
-    : m_size(0)
-{
-}
+ManifestEntry::ManifestEntry() : m_size(0) {}
 
-ManifestEntry::ManifestEntry(std::string path)
-    : m_size(0),m_path(toPosixPath(path))
-{
-}
+ManifestEntry::ManifestEntry(std::string path) : m_size(0), m_path(toPosixPath(path)) {}
 
 ManifestEntry& ManifestEntry::withSHA1(const std::string& hash)
 {
@@ -59,10 +55,8 @@ std::string ManifestEntry::path() const
 
 std::string ManifestEntry::toPosixPath(const std::string& p)
 {
-    std::string result = Common::UtilityImpl::StringUtils::replaceAll(p,
-            "\\",
-            "/");
-    if (Common::UtilityImpl::StringUtils::startswith(result,"./"))
+    std::string result = Common::UtilityImpl::StringUtils::replaceAll(p, "\\", "/");
+    if (Common::UtilityImpl::StringUtils::startswith(result, "./"))
     {
         result = result.substr(2);
     }

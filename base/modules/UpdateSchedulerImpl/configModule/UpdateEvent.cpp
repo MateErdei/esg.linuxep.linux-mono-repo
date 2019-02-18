@@ -3,25 +3,25 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <Common/UtilityImpl/StringUtils.h>
 #include "UpdateEvent.h"
+
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace
 {
     using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
-std::string insertTemplate{
-"        <insert>@@entryname@@</insert>"
-};
+    std::string insertTemplate{ "        <insert>@@entryname@@</insert>" };
 
-std::string messageTemplate{
-R"sophos(
+    std::string messageTemplate{
+        R"sophos(
     <message>
       <message_inserts>
 @@inserts@@
       </message_inserts>
-    </message>)sophos"};
+    </message>)sophos"
+    };
 
-std::string eventTemplate{R"sophos(<?xml version="1.0"?>
+    std::string eventTemplate{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
   <timestamp>@@timestamp@@</timestamp>
   <appInfo>
@@ -29,64 +29,70 @@ std::string eventTemplate{R"sophos(<?xml version="1.0"?>
   <updateSource>@@updateSource@@</updateSource>
   </appInfo>
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
-</event>)sophos"};
+</event>)sophos" };
 
     std::string getMessageContent(const UpdateEvent& event)
-{
-    if ( event.Messages.empty())
     {
-        return std::string();
-    }
-    std::string allInserts;
-    for( auto & e : event.Messages)
-    {
-        std::string insertEntry;
-        if ( !e.PackageName.empty())
+        if (event.Messages.empty())
         {
-            insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@", e.PackageName}});
+            return std::string();
         }
-        /*if( !e.ErrorDetails.empty())
+        std::string allInserts;
+        for (auto& e : event.Messages)
         {
-            if( !insertEntry.empty())
+            std::string insertEntry;
+            if (!e.PackageName.empty())
             {
-                insertEntry += "\n";
+                insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(
+                    insertTemplate, { { "@@entryname@@", e.PackageName } });
             }
-            //FIXME LINUXEP-6473: Get the correct error code to send to Central.
-            insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@", "CodeErrorA"}});
-        }*/
+            /*if( !e.ErrorDetails.empty())
+            {
+                if( !insertEntry.empty())
+                {
+                    insertEntry += "\n";
+                }
+                //FIXME LINUXEP-6473: Get the correct error code to send to Central.
+                insertEntry += Common::UtilityImpl::StringUtils::orderedStringReplace(insertTemplate, {{"@@entryname@@",
+            "CodeErrorA"}});
+            }*/
 
-        if( !allInserts.empty())
-        {
-            allInserts += "\n";
+            if (!allInserts.empty())
+            {
+                allInserts += "\n";
+            }
+            allInserts += insertEntry;
         }
-        allInserts += insertEntry;
+
+        return Common::UtilityImpl::StringUtils::orderedStringReplace(
+            messageTemplate, { { "@@inserts@@", allInserts } });
     }
 
-    return Common::UtilityImpl::StringUtils::orderedStringReplace(messageTemplate, {{"@@inserts@@", allInserts}});
-}
-
-
-std::string eventXML( const std::string & timestamp, const std::string & messageNumber, const std::string & messageElement, const std::string & updateSource)
-{
-    return Common::UtilityImpl::StringUtils::orderedStringReplace(eventTemplate, {
-            {"@@timestamp@@", timestamp},
-            {"@@messagenumber@@", messageNumber},
-            {"@@message@@", messageElement},
-            {"@@updateSource@@", updateSource}
-    });
-}
-}
-
+    std::string eventXML(
+        const std::string& timestamp,
+        const std::string& messageNumber,
+        const std::string& messageElement,
+        const std::string& updateSource)
+    {
+        return Common::UtilityImpl::StringUtils::orderedStringReplace(
+            eventTemplate,
+            { { "@@timestamp@@", timestamp },
+              { "@@messagenumber@@", messageNumber },
+              { "@@message@@", messageElement },
+              { "@@updateSource@@", updateSource } });
+    }
+} // namespace
 
 namespace UpdateSchedulerImpl
 {
     namespace configModule
     {
-
         using namespace UpdateScheduler;
 
-        std::string serializeUpdateEvent(const UpdateEvent& updateEvent, const IMapHostCacheId& iMapHostCacheId,
-                                         const Common::UtilityImpl::IFormattedTime& iFormattedTime)
+        std::string serializeUpdateEvent(
+            const UpdateEvent& updateEvent,
+            const IMapHostCacheId& iMapHostCacheId,
+            const Common::UtilityImpl::IFormattedTime& iFormattedTime)
         {
             std::string timestamp = iFormattedTime.currentTime();
             std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
@@ -95,5 +101,5 @@ namespace UpdateSchedulerImpl
 
             return eventXML(timestamp, messageNumber, messageContent, updateSource);
         }
-    }
-}
+    } // namespace configModule
+} // namespace UpdateSchedulerImpl

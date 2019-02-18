@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
 #include <string>
@@ -20,7 +19,5 @@ namespace ManagementAgent
 
             virtual bool receivedGetPolicyRequest(const std::string& appId) = 0;
         };
-    }
-}
-
-
+    } // namespace PluginCommunication
+} // namespace ManagementAgent

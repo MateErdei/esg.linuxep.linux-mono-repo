@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SulDownloaderRunner.h"
+
 #include "../Logger.h"
 
 namespace UpdateSchedulerImpl
@@ -14,16 +15,15 @@ namespace UpdateSchedulerImpl
         using namespace UpdateScheduler;
 
         SulDownloaderRunner::SulDownloaderRunner(
-                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
-                const std::string& directoryToWatch,
-                const std::string& nameOfFileToWaitFor,
-                std::chrono::seconds timeout)
-                :
-                m_listener(directoryToWatch, nameOfFileToWaitFor)
-                , m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(
-                new Common::DirectoryWatcherImpl::DirectoryWatcher()))
-                , m_schedulerTaskQueue(std::move(schedulerTaskQueue))
-                , m_timeout(timeout)
+            std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+            const std::string& directoryToWatch,
+            const std::string& nameOfFileToWaitFor,
+            std::chrono::seconds timeout) :
+            m_listener(directoryToWatch, nameOfFileToWaitFor),
+            m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(
+                new Common::DirectoryWatcherImpl::DirectoryWatcher())),
+            m_schedulerTaskQueue(std::move(schedulerTaskQueue)),
+            m_timeout(timeout)
         {
             m_directoryWatcher->addListener(m_listener);
         }
@@ -47,7 +47,8 @@ namespace UpdateSchedulerImpl
             // Wait for the SUL Downloader results file to be created or a timeout or abortWaitingForReport is called.
             std::string reportFileLocation = m_listener.waitForFile(m_timeout);
 
-            // If the file failed to be created it means either an abortWaitingForReport was called or the wait timed out and no file was found.
+            // If the file failed to be created it means either an abortWaitingForReport was called or the wait timed
+            // out and no file was found.
             if (reportFileLocation.empty())
             {
                 if (m_listener.wasAborted())
@@ -75,15 +76,12 @@ namespace UpdateSchedulerImpl
         std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()
         {
             auto process = Common::Process::createProcess();
-            process->exec("/bin/systemctl", {"start", "sophos-spl-update.service"});
+            process->exec("/bin/systemctl", { "start", "sophos-spl-update.service" });
             return std::make_tuple(process->exitCode(), process->output());
         }
 
-        void SulDownloaderRunner::abortWaitingForReport()
-        {
-            m_listener.abort();
-        }
+        void SulDownloaderRunner::abortWaitingForReport() { m_listener.abort(); }
 
-    }
+    } // namespace runnerModule
 
-}
+} // namespace UpdateSchedulerImpl

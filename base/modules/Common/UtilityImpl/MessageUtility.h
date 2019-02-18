@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 
 namespace google
@@ -15,7 +14,7 @@ namespace google
     {
         class Message;
     }
-}
+} // namespace google
 namespace Common
 {
     namespace UtilityImpl
@@ -23,9 +22,8 @@ namespace Common
         class MessageUtility
         {
         public:
-            static std::string protoBuf2Json(const google::protobuf::Message &message);
+            static std::string protoBuf2Json(const google::protobuf::Message& message);
         };
 
-    }
-}
-
+    } // namespace UtilityImpl
+} // namespace Common

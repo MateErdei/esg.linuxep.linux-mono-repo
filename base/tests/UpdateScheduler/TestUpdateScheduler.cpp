@@ -7,28 +7,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockAsyncDownloaderRunner.h"
 #include "MockCronSchedulerThread.h"
 
-#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
-#include <UpdateSchedulerImpl/Logger.h>
-
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-
+#include <Common/UtilityImpl/StringUtils.h>
+#include <UpdateSchedulerImpl/Logger.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
+#include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockApiBaseServices.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-#include <tests/Common/Helpers/MockApiBaseServices.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-
-#include <gmock/gmock-matchers.h>
 
 #include <future>
 
 namespace
 {
-    std::string updatePolicyWithProxy{R"sophos(<?xml version="1.0"?>
+    std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
@@ -68,8 +65,8 @@ namespace
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
 </AUConfigurations>
-)sophos"};
-    std::string updatePolicyWithCache{R"sophos(<?xml version="1.0"?>
+)sophos" };
+    std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <AUConfig platform="Linux">
@@ -189,10 +186,10 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
   </update_cache>
   <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>
-)sophos"};
+)sophos" };
 
-    std::string updateAction{R"sophos(<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>)sophos"};
-    std::string downloadReport{R"sophos({ "startTime": "20180810 10:00:00",
+    std::string updateAction{ R"sophos(<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>)sophos" };
+    std::string downloadReport{ R"sophos({ "startTime": "20180810 10:00:00",
  "finishTime": "20180810 11:00:00",
  "syncTime": "20180810 11:00:00",
  "status": "SUCCESS",
@@ -218,10 +215,10 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
   }
  ]
 }
-)sophos"};
-}
+)sophos" };
+} // namespace
 
-static const std::string updatePolicyWithScheduledUpdate{R"sophos(<?xml version="1.0"?>
+static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
   <AUConfig platform="Linux">
@@ -262,33 +259,27 @@ static const std::string updatePolicyWithScheduledUpdate{R"sophos(<?xml version=
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
 </AUConfigurations>
-)sophos"};
-
+)sophos" };
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
 using namespace Common::PluginApi;
 
-class TestUpdateScheduler
-        : public ::testing::Test
+class TestUpdateScheduler : public ::testing::Test
 {
-
 public:
-    TestUpdateScheduler()
-            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
-              , m_queue(std::make_shared<SchedulerTaskQueue>())
-              , m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
+    TestUpdateScheduler() :
+        m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()),
+        m_queue(std::make_shared<SchedulerTaskQueue>()),
+        m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
     {
         Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot"
-        );
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
 
         Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
-                                                                           auto mockProcess = new StrictMock<MockProcess>();
-                                                                           return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-                                                                       }
-        );
-
+            auto mockProcess = new StrictMock<MockProcess>();
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
     }
 
     void TearDown() override
@@ -308,7 +299,8 @@ public:
 
         // required to pass general validation of configuration data
         EXPECT_CALL(*pointer, isDirectory("/installroot")).WillRepeatedly(Return(true));
-        EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primarywarehouse")).WillRepeatedly(Return(true));
+        EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primarywarehouse"))
+            .WillRepeatedly(Return(true));
         EXPECT_CALL(*pointer, isDirectory("/installroot/base/update/cache/primary")).WillRepeatedly(Return(true));
 
         EXPECT_CALL(*pointer, exists("/installroot/base/update/certs")).WillRepeatedly(Return(true));
@@ -318,7 +310,6 @@ public:
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *pointer;
     }
-
 
     TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
     std::shared_ptr<SchedulerTaskQueue> m_queue;
@@ -336,26 +327,20 @@ TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     setupFileSystemMock();
 
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-        updateScheduler(
-                m_queue,
-                std::unique_ptr<IBaseServiceApi>(api),
-                m_pluginCallback,
-                std::unique_ptr<ICronSchedulerThread>(cron),
-                std::unique_ptr<IAsyncSulDownloaderRunner>(runner)
-                        );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
 
     schedulerRunHandle.get(); // synchronize stop
-
 }
-
 
 TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
 {
@@ -374,24 +359,25 @@ TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithProxy});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
-
 }
 
 TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) // NOLINT
@@ -411,22 +397,24 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/certs/cache_certificates.crt", _));
     EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithCache});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithCache });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
@@ -452,44 +440,45 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
     EXPECT_CALL(*runner, triggerSulDownloader());
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    std::string reportPath = Common::ApplicationConfiguration::applicationPathManager()
-            .getSulDownloaderReportGeneratedFilePath();
+    std::string reportPath =
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
-            .WillOnce(Return(false)) // after policy no report exist
-            .WillOnce(Return(true))  // after the first report is created
-            .WillOnce(Return(false)); // after checking if it is safe to move file
+        .WillOnce(Return(false))  // after policy no report exist
+        .WillOnce(Return(true))   // after the first report is created
+        .WillOnce(Return(false)); // after checking if it is safe to move file
     EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
     // the real name would be different as the file has been moved. But, ignoring here.
-    std::vector<std::string> files{reportPath, "/installroot/base/update/var/config.json"};
-    std::vector<std::string> noReportFiles{"/installroot/base/update/var/config.json"};
+    std::vector<std::string> files{ reportPath, "/installroot/base/update/var/config.json" };
+    std::vector<std::string> noReportFiles{ "/installroot/base/update/var/config.json" };
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
-            .WillOnce(Return(noReportFiles)) // after policy it process current reports (empty)
-            .WillOnce(Return(files)); // report generated by suldownloader
+        .WillOnce(Return(noReportFiles)) // after policy it process current reports (empty)
+        .WillOnce(Return(files));        // report generated by suldownloader
     EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(downloadReport));
 
     EXPECT_CALL(*api, sendEvent("ALC", _));
     EXPECT_CALL(*api, sendStatus("ALC", _, _));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithProxy});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::UpdateNow, updateAction});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::UpdateNow, updateAction });
 
     // on success... runner will add task to the queue
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::SulDownloaderFinished, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::SulDownloaderFinished, "" });
 
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
@@ -515,44 +504,45 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) /
     EXPECT_CALL(*api, sendEvent("ALC", _));
     EXPECT_CALL(*api, sendStatus("ALC", _, _));
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    std::string reportPath = Common::ApplicationConfiguration::applicationPathManager()
-            .getSulDownloaderReportGeneratedFilePath();
+    std::string reportPath =
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
-            .WillOnce(Return(true))  // after the first report is created
-            .WillOnce(Return(false)); // after checking if it is safe to move file
+        .WillOnce(Return(true))   // after the first report is created
+        .WillOnce(Return(false)); // after checking if it is safe to move file
     EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
     // the real name would be different as the file has been moved. But, ignoring here.
-    std::vector<std::string> files{reportPath, "/installroot/base/update/var/config.json"};
-    std::vector<std::string> noReportFiles{"/installroot/base/update/var/config.json"};
+    std::vector<std::string> files{ reportPath, "/installroot/base/update/var/config.json" };
+    std::vector<std::string> noReportFiles{ "/installroot/base/update/var/config.json" };
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
-            .WillOnce(Return(files)); // after policy it process current reports (empty)
-
+        .WillOnce(Return(files)); // after policy it process current reports (empty)
 
     // Set last update time to a week ago (in case the test runs at the same time as the scheduled update)
-    time_t nowTime = std::time(nullptr) - 7*24*60*60;
+    time_t nowTime = std::time(nullptr) - 7 * 24 * 60 * 60;
     std::tm now = *std::localtime(&nowTime);
     char formattedTime[18];
     strftime(formattedTime, 18, "%Y%m%d %H:%M:%S", &now);
     std::string timeString(formattedTime);
 
-    std::string newDownloadReport = Common::UtilityImpl::StringUtils::replaceAll(downloadReport,
-                                                                                 R"sophos(20180810 11:00:00)sophos", timeString);
+    std::string newDownloadReport =
+        Common::UtilityImpl::StringUtils::replaceAll(downloadReport, R"sophos(20180810 11:00:00)sophos", timeString);
 
     EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(newDownloadReport));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), true);
@@ -579,24 +569,26 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     EXPECT_CALL(*api, sendEvent("ALC", _));
     EXPECT_CALL(*api, sendStatus("ALC", _, _));
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    std::string reportPath = Common::ApplicationConfiguration::applicationPathManager()
-            .getSulDownloaderReportGeneratedFilePath();
+    std::string reportPath =
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
-            .WillOnce(Return(true))  // after the first report is created
-            .WillOnce(Return(false)); // after checking if it is safe to move file
+        .WillOnce(Return(true))   // after the first report is created
+        .WillOnce(Return(false)); // after checking if it is safe to move file
     EXPECT_CALL(fileSystemMock, moveFile(reportPath, _));
     // the real name would be different as the file has been moved. But, ignoring here.
-    std::vector<std::string> files{reportPath, "/installroot/base/update/var/config.json"};
-    std::vector<std::string> noReportFiles{"/installroot/base/update/var/config.json"};
+    std::vector<std::string> files{ reportPath, "/installroot/base/update/var/config.json" };
+    std::vector<std::string> noReportFiles{ "/installroot/base/update/var/config.json" };
     EXPECT_CALL(fileSystemMock, listFiles("/installroot/base/update/var"))
-            .WillOnce(Return(files)); // after policy it process current reports (empty)
-
+        .WillOnce(Return(files)); // after policy it process current reports (empty)
 
     time_t nowTime = std::time(nullptr);
     std::tm now = *std::localtime(&nowTime);
@@ -604,18 +596,17 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     strftime(formattedTime, 18, "%Y%m%d %H:%M:%S", &now);
     std::string timeString(formattedTime);
 
-    std::string newDownloadReport = Common::UtilityImpl::StringUtils::replaceAll(downloadReport,
-            R"sophos(20180810 11:00:00)sophos", timeString);
+    std::string newDownloadReport =
+        Common::UtilityImpl::StringUtils::replaceAll(downloadReport, R"sophos(20180810 11:00:00)sophos", timeString);
 
     EXPECT_CALL(fileSystemMock, readFile(reportPath)).WillOnce(Return(newDownloadReport));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), true);
@@ -635,32 +626,34 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
 
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     // no config will be created when an invalid policy is given
     EXPECT_CALL(*cron, setPeriodTime(time)).Times(0);
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(0);
 
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::string invalidPolicyEmptyUserName = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithProxy, { { "UserPassword=\"54m5ung\"", "UserPassword=\"\"" } });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName });
 
-    std::string invalidPolicyEmptyUserName = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithProxy,{{"UserPassword=\"54m5ung\"","UserPassword=\"\""}} );
+    std::string invalidPolicyPeriod = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithProxy,
+        { { R"sophos(SchedEnable="true" Frequency="50")sophos",
+            R"sophos(SchedEnable="true" Frequency="50000000")sophos" } });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyPeriod });
 
-    std::string invalidPolicyPeriod = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithProxy,
-            {{R"sophos(SchedEnable="true" Frequency="50")sophos", R"sophos(SchedEnable="true" Frequency="50000000")sophos" }} );
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyPeriod});
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
-
 }
 
 TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLINT
@@ -680,20 +673,22 @@ TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLIN
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithScheduledUpdate });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     // Saturday(6th day of the week), 9:41
@@ -722,25 +717,26 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadD
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::string invalidPolicyScheduleDay = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
-            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Blahday" Time="09:41:00")sophos" }} );
+    std::string invalidPolicyScheduleDay = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithScheduledUpdate,
+        { { R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Blahday" Time="09:41:00")sophos" } });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyScheduleDay });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleDay});
-
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
@@ -763,24 +759,26 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::string invalidPolicyScheduleTime = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
-            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Saturday" Time="24:00:00")sophos" }} );
+    std::string invalidPolicyScheduleTime = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithScheduledUpdate,
+        { { R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Saturday" Time="24:00:00")sophos" } });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleTime});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyScheduleTime });
 
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
@@ -803,25 +801,26 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::string invalidPolicyScheduleTimeType = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
-            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Monday" Time="a:a:a")sophos" }} );
+    std::string invalidPolicyScheduleTimeType = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithScheduledUpdate,
+        { { R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="Monday" Time="a:a:a")sophos" } });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyScheduleTimeType });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleTimeType});
-
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
@@ -844,25 +843,26 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleDayT
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
     auto& fileSystemMock = setupFileSystemMock();
 
-    UpdateSchedulerImpl::UpdateSchedulerProcessor
-    updateScheduler(m_queue, std::unique_ptr<IBaseServiceApi>(api), m_pluginCallback,
-                    std::unique_ptr<ICronSchedulerThread>(cron), std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
-    std::future<void> schedulerRunHandle = std::async(std::launch::async,
-                                                      [&updateScheduler]() { updateScheduler.mainLoop(); }
-    );
+    std::future<void> schedulerRunHandle =
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::string invalidPolicyScheduleDayType = Common::UtilityImpl::StringUtils::orderedStringReplace(updatePolicyWithScheduledUpdate,
-            {{R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="0" Time="11:11:11")sophos" }} );
+    std::string invalidPolicyScheduleDayType = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        updatePolicyWithScheduledUpdate,
+        { { R"sophos(Day="Saturday" Time="09:41:00")sophos", R"sophos(Day="0" Time="11:11:11")sophos" } });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyScheduleDayType });
 
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::Policy, invalidPolicyScheduleDayType});
-
-
-    m_queue->push(SchedulerTask{SchedulerTask::TaskType::ShutdownReceived, ""});
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);

@@ -5,17 +5,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ProtocolSerializerFactory.h"
-#include "ProtocolSerializer.h"
+
 #include "Logger.h"
+#include "ProtocolSerializer.h"
 
 namespace Common
 {
     namespace PluginProtocol
     {
-        std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::createProtocolSerializer()
+        std::unique_ptr<Common::PluginProtocol::IProtocolSerializer> ProtocolSerializerFactory::
+            createProtocolSerializer()
         {
-            return std::unique_ptr<Common::PluginProtocol::IProtocolSerializer>(new Common::PluginProtocol::ProtocolSerializer());
+            return std::unique_ptr<Common::PluginProtocol::IProtocolSerializer>(
+                new Common::PluginProtocol::ProtocolSerializer());
         }
 
-    }
-}
+    } // namespace PluginProtocol
+} // namespace Common

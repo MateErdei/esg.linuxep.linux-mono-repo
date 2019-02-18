@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ProductMetadata.h"
+
 #include <cassert>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -32,7 +33,6 @@ void ProductMetadata::setTags(const std::vector<Tag>& tags)
 {
     m_tags = tags;
 }
-
 
 bool ProductMetadata::hasTag(const std::string& releaseTag) const
 {

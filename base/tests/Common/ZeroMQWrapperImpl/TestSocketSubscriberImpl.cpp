@@ -4,16 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-
-#include <gtest/gtest.h>
-
 #include <Common/Exceptions/Print.h>
-
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <gtest/gtest.h>
 
 #include <thread>
 
@@ -43,7 +39,8 @@ namespace
     {
     public:
         explicit SenderThread(Common::ZeroMQWrapper::IContext& context);
-        ~SenderThread() {
+        ~SenderThread()
+        {
             m_stopThread = true;
             if (m_thread.joinable())
             {
@@ -51,6 +48,7 @@ namespace
             }
         }
         void start();
+
     private:
         Common::ZeroMQWrapper::IContext& m_context;
         std::thread m_thread;
@@ -58,17 +56,14 @@ namespace
         void run();
     };
 
-    SenderThread::SenderThread(Common::ZeroMQWrapper::IContext &context)
-        : m_context(context),
-          m_thread(),
-          m_stopThread(false)
+    SenderThread::SenderThread(Common::ZeroMQWrapper::IContext& context) :
+        m_context(context),
+        m_thread(),
+        m_stopThread(false)
     {
     }
 
-    void SenderThread::start()
-    {
-        m_thread = std::thread(&SenderThread::run,this);
-    }
+    void SenderThread::start() { m_thread = std::thread(&SenderThread::run, this); }
 
     void SenderThread::run()
     {
@@ -81,14 +76,14 @@ namespace
         {
             try
             {
-                sender->write({"FOOBAR", "DATA"});
+                sender->write({ "FOOBAR", "DATA" });
             }
             catch (const Common::ZeroMQWrapper::IIPCException& e)
             {
-                PRINT("Failed to send subscription data: "<< e.what());
+                PRINT("Failed to send subscription data: " << e.what());
             }
 
-            std::this_thread::sleep_for( std::chrono::milliseconds(10) );
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
@@ -106,8 +101,8 @@ namespace
         thread.start();
 
         auto data = socket->read();
-        EXPECT_EQ(data.at(0),"FOOBAR");
-        EXPECT_EQ(data.at(1),"DATA");
+        EXPECT_EQ(data.at(0), "FOOBAR");
+        EXPECT_EQ(data.at(1), "DATA");
     }
 
-}
+} // namespace

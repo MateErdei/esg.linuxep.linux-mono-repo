@@ -45,4 +45,4 @@ namespace UpdateScheduler
         constexpr static int SecondsInDay = 24 * SecondsInHour;
         constexpr static int SecondsInWeek = 7 * SecondsInDay;
     };
-}
+} // namespace UpdateScheduler

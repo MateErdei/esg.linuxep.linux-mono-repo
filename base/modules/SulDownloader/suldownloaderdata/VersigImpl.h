@@ -6,21 +6,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "IVersig.h"
 #include "ConfigurationData.h"
+#include "IVersig.h"
+
 #include <functional>
 namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        class VersigImpl
-                : public virtual suldownloaderdata::IVersig
+        class VersigImpl : public virtual suldownloaderdata::IVersig
         {
         public:
-            VerifySignature
-            verify(const SulDownloader::suldownloaderdata::ConfigurationData& certificate_path,
-                   const std::string& productDirectoryPath) const override;
+            VerifySignature verify(
+                const SulDownloader::suldownloaderdata::ConfigurationData& certificate_path,
+                const std::string& productDirectoryPath) const override;
         };
 
         using IVersigPtr = suldownloaderdata::IVersigPtr;
@@ -31,6 +30,7 @@ namespace SulDownloader
             VersigFactory();
 
             VersigCreatorFunc m_creator;
+
         public:
             static VersigFactory& instance();
 
@@ -41,7 +41,5 @@ namespace SulDownloader
 
             void restoreCreator();
         };
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

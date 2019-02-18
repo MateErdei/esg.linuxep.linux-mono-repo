@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
 #include <ctime>
+#include <string>
 
 namespace Common
 {
@@ -25,7 +25,6 @@ namespace Common
 
         class TimeUtils
         {
-
         public:
             static std::time_t getCurrTime();
             static std::string getBootTime();
@@ -41,14 +40,11 @@ namespace Common
             static std::string fromTime(std::time_t);
         };
 
-        class FormattedTime
-                : public virtual IFormattedTime
+        class FormattedTime : public virtual IFormattedTime
         {
         public:
-            std::string currentTime() const override ;
-            std::string bootTime() const override ;
+            std::string currentTime() const override;
+            std::string bootTime() const override;
         };
-    }
-}
-
-
+    } // namespace UtilityImpl
+} // namespace Common

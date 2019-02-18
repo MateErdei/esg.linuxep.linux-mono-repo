@@ -4,13 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "TaskDirectoryListener.h"
-#include "PolicyTask.h"
+
 #include "ActionTask.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
+#include "PolicyTask.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <ManagementAgent/LoggerImpl/Logger.h>
+
 #include <cassert>
 
 namespace ManagementAgent
@@ -18,30 +19,26 @@ namespace ManagementAgent
     namespace McsRouterPluginCommunicationImpl
     {
         TaskDirectoryListener::TaskDirectoryListener(
-                const std::string &directoryPath,
-                ITaskQueueSharedPtr taskQueue,
-                PluginCommunication::IPluginManager& pluginManager)
-        :
-             m_pluginManager(pluginManager)
-            ,m_directoryPath(directoryPath)
-            ,m_taskQueue(taskQueue)
-            ,m_active(false)
+            const std::string& directoryPath,
+            ITaskQueueSharedPtr taskQueue,
+            PluginCommunication::IPluginManager& pluginManager) :
+            m_pluginManager(pluginManager),
+            m_directoryPath(directoryPath),
+            m_taskQueue(taskQueue),
+            m_active(false)
         {
         }
 
-        std::string TaskDirectoryListener::getPath() const
-        {
-            return m_directoryPath;
-        }
-        
-        void TaskDirectoryListener::fileMoved(const std::string & filename)
+        std::string TaskDirectoryListener::getPath() const { return m_directoryPath; }
+
+        void TaskDirectoryListener::fileMoved(const std::string& filename)
         {
             assert(Common::FileSystem::basename(filename) == filename);
             std::string fullPath = Common::FileSystem::join(getPath(), filename);
 
             Common::TaskQueue::ITaskPtr task;
 
-            LOGDEBUG("filename="<<filename);
+            LOGDEBUG("filename=" << filename);
 
             if (filename.find("policy") != std::string::npos)
             {
@@ -53,18 +50,14 @@ namespace ManagementAgent
             }
             else
             {
-                LOGWARN("Invalid file "<< filename << " moved into "<< getPath());
+                LOGWARN("Invalid file " << filename << " moved into " << getPath());
                 return;
             }
 
             assert(task != nullptr);
             m_taskQueue->queueTask(task);
         }
-        
 
-        void TaskDirectoryListener::watcherActive(bool active)
-        {
-            m_active = active;
-        }
-    }
-}
+        void TaskDirectoryListener::watcherActive(bool active) { m_active = active; }
+    } // namespace McsRouterPluginCommunicationImpl
+} // namespace ManagementAgent

@@ -5,174 +5,189 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "DownloadReportTestBuilder.h"
 
-#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-
+#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-
-class TestDownloadReportAnalyser : public  ::testing::Test
+class TestDownloadReportAnalyser : public ::testing::Test
 {
 public:
+    TestDownloadReportAnalyser() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
 
-
-    TestDownloadReportAnalyser()
-            : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
-    {
-    }
-
-    ::testing::AssertionResult insertMessagesAreEquivalent( const char* m_expr,
-                                                           const char* n_expr,
-                                                           const std::vector<MessageInsert> &  expected,
-                                                           const std::vector<MessageInsert> & resulted)
+    ::testing::AssertionResult insertMessagesAreEquivalent(
+        const char* m_expr,
+        const char* n_expr,
+        const std::vector<MessageInsert>& expected,
+        const std::vector<MessageInsert>& resulted)
     {
         std::stringstream s;
-        s<< m_expr << " and " << n_expr << " failed: ";
+        s << m_expr << " and " << n_expr << " failed: ";
 
-        if( expected.size() != resulted.size())
+        if (expected.size() != resulted.size())
         {
-            return ::testing::AssertionFailure() << s.str() << " messages insert differ. Expected " << expected.size() << " messages, but received: " << resulted.size() << ".";
+            return ::testing::AssertionFailure() << s.str() << " messages insert differ. Expected " << expected.size()
+                                                 << " messages, but received: " << resulted.size() << ".";
         }
 
-        for (size_t i = 0; i< expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
-            auto & expectedInsert = expected[i];
-            auto & resultedInsert = resulted[i];
-            if ( expectedInsert.PackageName != resultedInsert.PackageName)
+            auto& expectedInsert = expected[i];
+            auto& resultedInsert = resulted[i];
+            if (expectedInsert.PackageName != resultedInsert.PackageName)
             {
-                return ::testing::AssertionFailure() << s.str() << " package name differ. Expected " << expectedInsert.PackageName << " received: " << resultedInsert.PackageName << ".";
+                return ::testing::AssertionFailure()
+                       << s.str() << " package name differ. Expected " << expectedInsert.PackageName
+                       << " received: " << resultedInsert.PackageName << ".";
             }
-            if ( expectedInsert.ErrorDetails != resultedInsert.ErrorDetails)
+            if (expectedInsert.ErrorDetails != resultedInsert.ErrorDetails)
             {
-                return ::testing::AssertionFailure() << s.str() << " error details differ. Expected " << expectedInsert.ErrorDetails << " received: " << resultedInsert.ErrorDetails << ".";
+                return ::testing::AssertionFailure()
+                       << s.str() << " error details differ. Expected " << expectedInsert.ErrorDetails
+                       << " received: " << resultedInsert.ErrorDetails << ".";
             }
-
         }
         return ::testing::AssertionSuccess();
-
     }
 
-    ::testing::AssertionResult productsAreEquivalent( const char* m_expr,
-                                                            const char* n_expr,
-                                                            const std::vector<ProductStatus> &  expected,
-                                                            const std::vector<ProductStatus> & resulted)
+    ::testing::AssertionResult productsAreEquivalent(
+        const char* m_expr,
+        const char* n_expr,
+        const std::vector<ProductStatus>& expected,
+        const std::vector<ProductStatus>& resulted)
     {
         std::stringstream s;
-        s<< m_expr << " and " << n_expr << " failed: ";
+        s << m_expr << " and " << n_expr << " failed: ";
 
-        if( expected.size() != resulted.size())
+        if (expected.size() != resulted.size())
         {
-            return ::testing::AssertionFailure() << s.str() << " products status differ. Expected " << expected.size() << " products, but received: " << resulted.size() << ".";
+            return ::testing::AssertionFailure() << s.str() << " products status differ. Expected " << expected.size()
+                                                 << " products, but received: " << resulted.size() << ".";
         }
 
-        for (size_t i = 0; i< expected.size(); i++)
+        for (size_t i = 0; i < expected.size(); i++)
         {
-            auto & expectedInsert = expected[i];
-            auto & resultedInsert = resulted[i];
-            if ( expectedInsert.RigidName != resultedInsert.RigidName)
+            auto& expectedInsert = expected[i];
+            auto& resultedInsert = resulted[i];
+            if (expectedInsert.RigidName != resultedInsert.RigidName)
             {
-                return ::testing::AssertionFailure() << s.str() << " rigidname differ. Expected " << expectedInsert.RigidName << " received: " << resultedInsert.RigidName << ".";
+                return ::testing::AssertionFailure()
+                       << s.str() << " rigidname differ. Expected " << expectedInsert.RigidName
+                       << " received: " << resultedInsert.RigidName << ".";
             }
-            if ( expectedInsert.ProductName != resultedInsert.ProductName)
+            if (expectedInsert.ProductName != resultedInsert.ProductName)
             {
-                return ::testing::AssertionFailure() << s.str() << " ProductName differ. Expected " << expectedInsert.ProductName << " received: " << resultedInsert.ProductName << ".";
+                return ::testing::AssertionFailure()
+                       << s.str() << " ProductName differ. Expected " << expectedInsert.ProductName
+                       << " received: " << resultedInsert.ProductName << ".";
             }
-            if ( expectedInsert.DownloadedVersion != resultedInsert.DownloadedVersion)
+            if (expectedInsert.DownloadedVersion != resultedInsert.DownloadedVersion)
             {
                 return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ";
             }
         }
         return ::testing::AssertionSuccess();
-
     }
 
-
-    ::testing::AssertionResult schedulerEventIsEquivalent( const char* m_expr,
-                                                              const char* n_expr,
-                                                              const UpdateEvent &  expected,
-                                                              const UpdateEvent & resulted)
+    ::testing::AssertionResult schedulerEventIsEquivalent(
+        const char* m_expr,
+        const char* n_expr,
+        const UpdateEvent& expected,
+        const UpdateEvent& resulted)
     {
         std::stringstream s;
-        s<< m_expr << " and " << n_expr << " failed: ";
+        s << m_expr << " and " << n_expr << " failed: ";
 
-        if ( expected.IsRelevantToSend != resulted.IsRelevantToSend)
+        if (expected.IsRelevantToSend != resulted.IsRelevantToSend)
         {
-            return ::testing::AssertionFailure() << s.str() << "flag relevant to send differ. Expected: " << expected.IsRelevantToSend << ". Received: " << resulted.IsRelevantToSend;
+            return ::testing::AssertionFailure()
+                   << s.str() << "flag relevant to send differ. Expected: " << expected.IsRelevantToSend
+                   << ". Received: " << resulted.IsRelevantToSend;
         }
-        if ( !expected.IsRelevantToSend)
+        if (!expected.IsRelevantToSend)
         {
             // nothing else is important
             return ::testing::AssertionSuccess();
         }
 
-        if ( expected.MessageNumber != resulted.MessageNumber)
+        if (expected.MessageNumber != resulted.MessageNumber)
         {
-            return ::testing::AssertionFailure() << s.str() << " message number differ. Expected: " << expected.MessageNumber << ". Received: " << resulted.MessageNumber;
+            return ::testing::AssertionFailure()
+                   << s.str() << " message number differ. Expected: " << expected.MessageNumber
+                   << ". Received: " << resulted.MessageNumber;
         }
 
-        if ( expected.UpdateSource != resulted.UpdateSource)
+        if (expected.UpdateSource != resulted.UpdateSource)
         {
-            return ::testing::AssertionFailure() << s.str() << " update source differ. Expected: " << expected.UpdateSource << ". Received: " << resulted.UpdateSource;
+            return ::testing::AssertionFailure()
+                   << s.str() << " update source differ. Expected: " << expected.UpdateSource
+                   << ". Received: " << resulted.UpdateSource;
         }
 
-        return insertMessagesAreEquivalent( m_expr, n_expr, expected.Messages, resulted.Messages);
+        return insertMessagesAreEquivalent(m_expr, n_expr, expected.Messages, resulted.Messages);
     }
 
-
-    ::testing::AssertionResult schedulerStatusIsEquivalent( const char* m_expr,
-                                                           const char* n_expr,
-                                                           const UpdateStatus &  expected,
-                                                           const UpdateStatus & resulted)
+    ::testing::AssertionResult schedulerStatusIsEquivalent(
+        const char* m_expr,
+        const char* n_expr,
+        const UpdateStatus& expected,
+        const UpdateStatus& resulted)
     {
-
         std::stringstream s;
-        s<< m_expr << " and " << n_expr << " failed: ";
+        s << m_expr << " and " << n_expr << " failed: ";
 
         // ignore LastBootTime
 
-        if ( expected.LastStartTime != resulted.LastStartTime)
+        if (expected.LastStartTime != resulted.LastStartTime)
         {
-            return ::testing::AssertionFailure() << s.str() << "LastStartTime differ. Expected: " << expected.LastStartTime << ", received: " << resulted.LastStartTime;
+            return ::testing::AssertionFailure()
+                   << s.str() << "LastStartTime differ. Expected: " << expected.LastStartTime
+                   << ", received: " << resulted.LastStartTime;
         }
 
-        if ( expected.LastSyncTime != resulted.LastSyncTime)
+        if (expected.LastSyncTime != resulted.LastSyncTime)
         {
-            return ::testing::AssertionFailure() << s.str() << "LastSyncTime differ. Expected: " << expected.LastSyncTime << ", received: " << resulted.LastSyncTime;
+            return ::testing::AssertionFailure()
+                   << s.str() << "LastSyncTime differ. Expected: " << expected.LastSyncTime
+                   << ", received: " << resulted.LastSyncTime;
         }
 
-        if ( expected.LastFinishdTime != resulted.LastFinishdTime)
+        if (expected.LastFinishdTime != resulted.LastFinishdTime)
         {
-            return ::testing::AssertionFailure() << s.str() << " LastFinishdTime differ. Expected: " << expected.LastFinishdTime << ", received: " << resulted.LastFinishdTime;
+            return ::testing::AssertionFailure()
+                   << s.str() << " LastFinishdTime differ. Expected: " << expected.LastFinishdTime
+                   << ", received: " << resulted.LastFinishdTime;
         }
 
-        if ( expected.LastInstallStartedTime != resulted.LastInstallStartedTime)
+        if (expected.LastInstallStartedTime != resulted.LastInstallStartedTime)
         {
-            return ::testing::AssertionFailure() << s.str() << "LastInstallStartedTime differ. Expected: " << expected.LastInstallStartedTime << ", received: " << resulted.LastInstallStartedTime;
+            return ::testing::AssertionFailure()
+                   << s.str() << "LastInstallStartedTime differ. Expected: " << expected.LastInstallStartedTime
+                   << ", received: " << resulted.LastInstallStartedTime;
         }
 
-        if ( expected.LastResult != resulted.LastResult)
+        if (expected.LastResult != resulted.LastResult)
         {
-            return ::testing::AssertionFailure() << s.str() << "LastResult differ. Expected: " << expected.LastResult << ", received: " << resulted.LastResult;
+            return ::testing::AssertionFailure() << s.str() << "LastResult differ. Expected: " << expected.LastResult
+                                                 << ", received: " << resulted.LastResult;
         }
 
-        if ( expected.FirstFailedTime != resulted.FirstFailedTime)
+        if (expected.FirstFailedTime != resulted.FirstFailedTime)
         {
-            return ::testing::AssertionFailure() << s.str() << "FirstFailedTime differ. Expected: " << expected.FirstFailedTime << ", received: " << resulted.FirstFailedTime;
+            return ::testing::AssertionFailure()
+                   << s.str() << "FirstFailedTime differ. Expected: " << expected.FirstFailedTime
+                   << ", received: " << resulted.FirstFailedTime;
         }
 
-
-        return productsAreEquivalent( m_expr, n_expr, expected.Products, resulted.Products);
+        return productsAreEquivalent(m_expr, n_expr, expected.Products, resulted.Products);
     }
 
     UpdateEvent upgradeEvent()
@@ -194,24 +209,23 @@ public:
         status.LastInstallStartedTime = StartTimeTest;
         status.LastResult = 0;
         status.FirstFailedTime.clear();
-        //Products
+        // Products
         //        std::string RigidName;
         //        std::string ProductName;
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
-        status.Products = {
-                {  "BaseRigidName"  , "BaseName"  , "0.5.0"}
-                , {"PluginRigidName", "PluginName", "0.5.0"}
-        };
+        status.Products = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
         return status;
     }
 
     std::vector<ReportCollectionResult::SignificantReportMark> shouldKeep(std::vector<bool> values)
     {
         std::vector<ReportCollectionResult::SignificantReportMark> marks;
-        for( auto  v: values)
+        for (auto v : values)
         {
-            marks.push_back( v? ReportCollectionResult::SignificantReportMark::MustKeepReport : ReportCollectionResult::SignificantReportMark::RedundantReport);
+            marks.push_back(
+                v ? ReportCollectionResult::SignificantReportMark::MustKeepReport
+                  : ReportCollectionResult::SignificantReportMark::RedundantReport);
         }
         return marks;
     }
@@ -219,103 +233,92 @@ public:
     TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
 };
 
-
 TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpgrade) // NOLINT
 {
-    DownloadReportsAnalyser::DownloadReportVector singleReport{DownloadReportTestBuilder::goodReport()};
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(singleReport);
+    DownloadReportsAnalyser::DownloadReportVector singleReport{ DownloadReportTestBuilder::goodReport() };
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(singleReport);
 
     // send upgrade successful.
     UpdateEvent expectedEvent = upgradeEvent();
     UpdateStatus expectedStatus = upgradeStatus();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true}));
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
 TEST_F(TestDownloadReportAnalyser, OnTwoSuccessfullUpgradeKeepSecondOnly) // NOLINT
 {
-    DownloadReportsAnalyser::DownloadReportVector reports{
-        DownloadReportTestBuilder::goodReport(),
-        DownloadReportTestBuilder::goodReport()
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ DownloadReportTestBuilder::goodReport(),
+                                                           DownloadReportTestBuilder::goodReport() };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
-
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     UpdateStatus expectedStatus = upgradeStatus();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({false, true}));
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
-
 
 TEST_F(TestDownloadReportAnalyser, SecondEventNotUpgradeDoNotSendEvent) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
     };
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[1]);
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
-
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastInstallStartedTime = PreviousStartTime;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep both as the later is also the latest one.
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
-
 
 TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
     };
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[1]);
     DownloadReportTestBuilder::setReportNoUpgrade(&reports[2]);
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
-
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastInstallStartedTime = PreviousStartTime;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep first as the most relevant (upgrade) and last as the most recent, second one not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
 TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // NOLINT
 {
     auto report = DownloadReportTestBuilder::badReport(
-            DownloadReportTestBuilder::UseTime::Later,
-            WarehouseStatus::CONNECTIONERROR, "failed2connect");
+        DownloadReportTestBuilder::UseTime::Later, WarehouseStatus::CONNECTIONERROR, "failed2connect");
 
-    DownloadReportsAnalyser::DownloadReportVector reports{
-        report
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ report };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 112;
-    expectedEvent.Messages.emplace_back("","failed2connect");
+    expectedEvent.Messages.emplace_back("", "failed2connect");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
     expectedStatus.LastSyncTime.clear();
@@ -323,116 +326,114 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
     expectedStatus.FirstFailedTime = StartTimeTest;
     expectedStatus.Products.clear();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep first as the most relevant (upgrade) and last as the most recent, second one not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
-
 
 TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported) // NOLINT
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
 
-    DownloadReportsAnalyser::DownloadReportVector reports{
-            report
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ report };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
-    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = StartTimeTest;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep first as the most relevant (upgrade) and last as the most recent, second one not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
-
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
     };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
-    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
     expectedStatus.LastSyncTime = PreviousFinishTime;
-    expectedStatus.LastInstallStartedTime= PreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousStartTime;
     expectedStatus.FirstFailedTime = StartTimeTest;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep first as the most relevant (upgrade) and last as the most recent, second one not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious),
-            DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious),
+        DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
     };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
     expectedEvent.MessageNumber = 103;
-    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
     expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
-    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime = PreviousStartTime;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // all as relevant. First one is the good one
     // second has the FirstFailedTime
     // third one is the latest.
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
-
 
 TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLINT
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
-    std::string file1 = DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
-    std::string file2 = DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Previous);
-    std::string file3 = DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
-    // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the files in the chronological order.
-    std::vector<std::string> files{"file3","file1","file2"};
+    std::string file1 =
+        DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    std::string file2 =
+        DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Previous);
+    std::string file3 =
+        DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
+    // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
+    // files in the chronological order.
+    std::vector<std::string> files{ "file3", "file1", "file2" };
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("file1")).WillOnce(Return(file1));
     EXPECT_CALL(*mockFileSystem, readFile("file2")).WillOnce(Return(file2));
     EXPECT_CALL(*mockFileSystem, readFile("file3")).WillOnce(Return(file3));
 
-
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
-    ReportAndFiles reportAndFiles =  DownloadReportsAnalyser::processReports();
+    ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
     ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
 
-    std::vector<std::string> sortedOrder{"file1", "file2", "file3"};
+    std::vector<std::string> sortedOrder{ "file1", "file2", "file3" };
 
     EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
 
@@ -440,83 +441,81 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
     expectedEvent.MessageNumber = 103;
-    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
     expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
-    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime = PreviousStartTime;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) //NOLINT
+TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) // NOLINT
 {
-    DownloadReportsAnalyser::DownloadReportVector twoReports{DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous), DownloadReportTestBuilder::connectionError()};
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(twoReports);
+    DownloadReportsAnalyser::DownloadReportVector twoReports{ DownloadReportTestBuilder::goodReport(
+                                                                  DownloadReportTestBuilder::UseTime::Previous),
+                                                              DownloadReportTestBuilder::connectionError() };
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(twoReports);
 
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
     expectedStatus.LastSyncTime = PreviousFinishTime;
-    expectedStatus.LastInstallStartedTime= PreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousStartTime;
     expectedStatus.FirstFailedTime = StartTimeTest;
 
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
-
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 }
 
 TEST_F(TestDownloadReportAnalyser, SerializationOfDownloadReports) // NOLINT
 {
-
     auto report = DownloadReportTestBuilder::goodReport();
     auto serializedString = DownloadReportsAnalyser::DownloadReport::fromReport(report);
     auto deserializedReport = DownloadReportsAnalyser::DownloadReport::toReport(serializedString);
     auto re_serialized = DownloadReportsAnalyser::DownloadReport::fromReport(deserializedReport);
-    EXPECT_EQ( serializedString, re_serialized);
-    EXPECT_THAT( serializedString, ::testing::HasSubstr(SophosURL));
+    EXPECT_EQ(serializedString, re_serialized);
+    EXPECT_THAT(serializedString, ::testing::HasSubstr(SophosURL));
 }
-
 
 /**Acceptance criteria LINUXEP-6391 **/
 
-TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) //NOLINT
+TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later)
     };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
     expectedEvent.IsRelevantToSend = true;
     expectedEvent.MessageNumber = 103;
-    expectedEvent.Messages.emplace_back("PluginName","Plugin failed to install");
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
     expectedStatus.LastSyncTime = PreviousFinishTime;
-    expectedStatus.LastInstallStartedTime= PreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousStartTime;
     expectedStatus.FirstFailedTime = StartTimeTest;
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep first as the most relevant (upgrade) and last as the most recent and the first failure
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true }));
 }
 
-
-TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) //NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
 {
     DownloadReportsAnalyser::DownloadReportVector reports{
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
-            DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous),
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later)
     };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
@@ -525,28 +524,25 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) //NOLINT
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
-    expectedStatus.LastInstallStartedTime= StartTimeTest;
+    expectedStatus.LastInstallStartedTime = StartTimeTest;
     expectedStatus.FirstFailedTime.clear();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // keep only the later as the first is not necessary any more.
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
 
-
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache) //NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithNoCache) // NOLINT
 {
     auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious);
     // flag upgraded = false
     auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false);
     auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false);
 
-    DownloadReportsAnalyser::DownloadReportVector reports{
-            upgradeReport, updateReport, lastUpdateReport
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ upgradeReport, updateReport, lastUpdateReport };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
@@ -555,28 +551,28 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
-    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime.clear();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // first is the upgrade and the later the last one the second one is not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache) //NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCache) // NOLINT
 {
-    auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
+    auto upgradeReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
     // flag upgraded = false
-    auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
-    auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache1");
+    auto updateReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
+    auto lastUpdateReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache1");
 
-    DownloadReportsAnalyser::DownloadReportVector reports{
-            upgradeReport, updateReport, lastUpdateReport
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ upgradeReport, updateReport, lastUpdateReport };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
@@ -586,27 +582,28 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
-    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime.clear();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // first is the upgrade and the later the last one the second one is not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged) //NOLINT
+TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithCacheChanged) // NOLINT
 {
-    auto upgradeReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
+    auto upgradeReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::PreviousPrevious, true, "cache1");
     // flag upgraded = false
-    auto updateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
-    auto lastUpdateReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache2");
+    auto updateReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Previous, false, "cache1");
+    auto lastUpdateReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, false, "cache2");
 
-    DownloadReportsAnalyser::DownloadReportVector reports{
-            upgradeReport, updateReport, lastUpdateReport
-    };
+    DownloadReportsAnalyser::DownloadReportVector reports{ upgradeReport, updateReport, lastUpdateReport };
 
-    ReportCollectionResult collectionResult =  DownloadReportsAnalyser::processReports(reports);
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
     std::string d = DownloadReportsAnalyser::DownloadReport::fromReport(reports.at(0));
     UpdateEvent expectedEvent = upgradeEvent();
     // send event because cache changed
@@ -616,19 +613,18 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
-    expectedStatus.LastInstallStartedTime= PreviousPreviousStartTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime.clear();
 
-    EXPECT_PRED_FORMAT2( schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
-    EXPECT_PRED_FORMAT2( schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
+    EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
+    EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // first is the upgrade and the later the last one the second one is not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true, false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, false, true }));
 }
 
-
-TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
+TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
 {
-    static std::string reportExample{R"sophos({
+    static std::string reportExample{ R"sophos({
         "finishTime": "20180822 121220",
         "status": "INSTALLFAILED",
         "sulError": "",
@@ -652,11 +648,10 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
         "errorDescription": "",
         "urlSource": "Sophos",
         "syncTime": "20180821 121220"
-    })sophos"};
+    })sophos" };
     DownloadReportsAnalyser::DownloadReport report = DownloadReportsAnalyser::DownloadReport::toReport(reportExample);
-    DownloadReportsAnalyser::DownloadReportVector reports{report};
+    DownloadReportsAnalyser::DownloadReportVector reports{ report };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
-
 
     UpdateEvent expectedEvent;
     // send event because cache changed
@@ -664,7 +659,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
     expectedEvent.MessageNumber = 103;
     expectedEvent.UpdateSource = "Sophos";
 
-    //FIXME: LINUXEP-6473
+    // FIXME: LINUXEP-6473
     expectedEvent.Messages.emplace_back("ServerProtectionLinux-Plugin#0.5", "Failed to install");
 
     UpdateStatus expectedStatus;
@@ -677,18 +672,15 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) //NOLINT
     expectedStatus.Products.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
     expectedStatus.Products.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
-
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // first is the upgrade and the later the last one the second one is not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
 }
 
-
-
-TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) //NOLINT
+TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
 {
-    std::string firstReport{R"sophos({ "finishTime": "20180821 121220",
+    std::string firstReport{ R"sophos({ "finishTime": "20180821 121220",
 "status": "SUCCESS",
 "sulError": "",
 "products": [ { "errorDescription": "",
@@ -704,8 +696,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) //NOLINT
 "startTime": "20180821 121220",
 "errorDescription": "",
 "urlSource": "Sophos",
-"syncTime": "20180821 121220" })sophos"};
-    std::string lastReport{R"sophos({
+"syncTime": "20180821 121220" })sophos" };
+    std::string lastReport{ R"sophos({
     "finishTime": "20180822 121220",
     "status": "SUCCESS",
     "sulError": "",
@@ -729,11 +721,11 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) //NOLINT
     "errorDescription": "",
     "urlSource": "Sophos",
     "syncTime": "20180821 121220"
-})sophos"};
+})sophos" };
     suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
     suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
 
-    std::vector<suldownloaderdata::DownloadReport> reports{report1, report2};
+    std::vector<suldownloaderdata::DownloadReport> reports{ report1, report2 };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(reports);
 
     UpdateEvent expectedEvent;
@@ -749,18 +741,13 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) //NOLINT
     expectedStatus.LastSyncTime = "20180821 121220";
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0"});
-    expectedStatus.Products.push_back(ProductStatus{"ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0"});
-
+    expectedStatus.Products.push_back(
+        ProductStatus{ "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0" });
+    expectedStatus.Products.push_back(
+        ProductStatus{ "ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0" });
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
     // first is the upgrade and the later the last one the second one is not necessary
-    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({false, true}));
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ false, true }));
 }
-
-
-
-
-
-

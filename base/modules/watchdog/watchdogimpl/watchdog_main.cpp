@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 
 #ifndef PATH_MAX
-# define PATH_MAX 2048
+#    define PATH_MAX 2048
 #endif
 
 using namespace watchdog::watchdogimpl;
@@ -40,7 +40,7 @@ namespace
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
-}
+} // namespace
 
 /**
  * Static method called from watchdog executable
@@ -48,17 +48,15 @@ namespace
  * @param argv
  * @return
  */
-int watchdog_main::main(int argc, char **argv)
+int watchdog_main::main(int argc, char** argv)
 {
     static_cast<void>(argv); // unused
 
     std::string installDir = work_out_install_directory();
     Common::ApplicationConfiguration::applicationConfiguration().setData(
-            Common::ApplicationConfiguration::SOPHOS_INSTALL,
-            installDir
-    );
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, installDir);
     Common::Logging::FileLoggingSetup logSetup("watchdog");
-    if(argc > 1)
+    if (argc > 1)
     {
         LOGERROR("Error, invalid command line arguments. Usage: watchdog");
         return 2;

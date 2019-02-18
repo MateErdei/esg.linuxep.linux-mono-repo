@@ -4,30 +4,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/PluginApi/ApiException.h>
 #include <Common/PluginProtocol/DataMessage.h>
 #include <Common/PluginProtocol/Protocol.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
-#include <Common/PluginApi/ApiException.h>
+#include <gtest/gtest.h>
 
 using namespace Common::PluginProtocol;
 using DataMessage = Common::PluginProtocol::DataMessage;
 class TestProtocol : public ::testing::Test
 {
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
+
 public:
-
-
-    void SetUp() override
-    {
-
-    }
-    void TearDown() override
-    {
-
-    }
-
+    void SetUp() override {}
+    void TearDown() override {}
 
     Common::PluginProtocol::DataMessage createDefaultMessage()
     {
@@ -36,19 +28,18 @@ public:
         message.m_applicationId = "1";
         message.m_pluginName = "p2";
         message.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT;
-        message.m_payload = {"Hello"};
+        message.m_payload = { "Hello" };
 
         return message;
     }
 
-    std::string toString( Common::PluginProtocol::Commands command)
+    std::string toString(Common::PluginProtocol::Commands command)
     {
         return Common::PluginProtocol::ConvertCommandEnumToString(command);
     }
-
 };
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataString)  // NOLINT
+TEST_F(TestProtocol, Serialise_ReturnsValidDataString) // NOLINT
 {
     Protocol protocol;
 
@@ -59,7 +50,7 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataString)  // NOLINT
     EXPECT_EQ(serializedData.size(), 1);
 }
 
-TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
+TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError) // NOLINT
 {
     Protocol protocol;
 
@@ -72,38 +63,39 @@ TEST_F(TestProtocol, Serialise_ReturnsValidDataStringWhenPayloadIsAnError)  // N
     EXPECT_EQ(serializedData.size(), 1);
 }
 
-TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId)  // NOLINT
+TEST_F(TestProtocol, Serialise_DoesNotThrowIfMessageDoesNotContainApplicationId) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage message = {"", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {}};
+    DataMessage message = { "", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {} };
 
     ASSERT_NO_THROW(protocol.serialize(message));
 }
 
-TEST_F(TestProtocol, Serialise_ThrowsIfMessageDoesNotContainPluginName)  // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageDoesNotContainPluginName) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage message = {"v1", "", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {}};
+    DataMessage message = { "v1", "", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {} };
 
-    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException); // NOLINT
 }
 
-TEST_F(TestProtocol, Serialise_ThrowsIfMessageContainsUnsetCommand)  // NOLINT
+TEST_F(TestProtocol, Serialise_ThrowsIfMessageContainsUnsetCommand) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage message = {"v1", "1", Common::PluginProtocol::Commands::UNSET, "", false, {}};
+    DataMessage message = { "v1", "1", Common::PluginProtocol::Commands::UNSET, "", false, {} };
 
-    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException);
+    EXPECT_THROW(protocol.serialize(message), Common::PluginApi::ApiException); // NOLINT
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "", false, {"Hello"}};
+    DataMessage sendMessage = { "v1", "1",   Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
+                                "",   false, { "Hello" } };
 
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
@@ -116,11 +108,12 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataString)  // NOLINT
     EXPECT_EQ(receivedMessage.m_payload[0], sendMessage.m_payload[0]);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIsAnError)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIsAnError) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS, "Some error", true, {"Hello", "This", "Is", "The", "Payload"}};
+    DataMessage sendMessage = { "v1",         "1",  Common::PluginProtocol::Commands::PLUGIN_SEND_STATUS,
+                                "Some error", true, { "Hello", "This", "Is", "The", "Payload" } };
 
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
@@ -129,17 +122,17 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadIs
     EXPECT_EQ(receivedMessage.m_pluginName, sendMessage.m_pluginName);
     EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
-    //On sent error both the acknowledgement and payload are ignored
+    // On sent error both the acknowledgement and payload are ignored
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
     EXPECT_EQ(receivedMessage.m_payload.size(), 0);
 }
 
-
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsOneItems) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "", false, {"Hello"}};
+    DataMessage sendMessage = { "v1", "1",   Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY,
+                                "",   false, { "Hello" } };
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -149,15 +142,15 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadCo
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
     EXPECT_EQ(receivedMessage.m_payload.size(), 1);
-    EXPECT_EQ(receivedMessage.m_payload[0],"Hello");
+    EXPECT_EQ(receivedMessage.m_payload[0], "Hello");
 }
 
-
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadContainsMultipleItems) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "", false, {"Hello", "This", "Is", "The", "Payload"}};
+    DataMessage sendMessage = { "v1", "1",   Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER,
+                                "",   false, { "Hello", "This", "Is", "The", "Payload" } };
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -167,15 +160,14 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadCo
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
     EXPECT_EQ(receivedMessage.m_payload.size(), 5);
-    EXPECT_EQ(receivedMessage.m_payload[0],"Hello");
-    EXPECT_EQ(receivedMessage.m_payload[1],"This");
-    EXPECT_EQ(receivedMessage.m_payload[2],"Is");
-    EXPECT_EQ(receivedMessage.m_payload[3],"The");
-    EXPECT_EQ(receivedMessage.m_payload[4],"Payload");
-
+    EXPECT_EQ(receivedMessage.m_payload[0], "Hello");
+    EXPECT_EQ(receivedMessage.m_payload[1], "This");
+    EXPECT_EQ(receivedMessage.m_payload[2], "Is");
+    EXPECT_EQ(receivedMessage.m_payload[3], "The");
+    EXPECT_EQ(receivedMessage.m_payload[4], "Payload");
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenNoDataPassed)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenNoDataPassed) // NOLINT
 {
     Protocol protocol;
 
@@ -190,11 +182,11 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenNoDat
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenGarbageSerialisedDataPassed)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenGarbageSerialisedDataPassed) // NOLINT
 {
     Protocol protocol;
 
-    data_t serialisedMessage = {"ThisIsAGarbageString"};
+    data_t serialisedMessage = { "ThisIsAGarbageString" };
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
     EXPECT_EQ(receivedMessage.m_applicationId, "");
@@ -205,13 +197,14 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenGarba
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "PluginName", Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "", true, {"Hello", "This", "Is", "The", "Payload"}};
+    DataMessage sendMessage = { "v1", "PluginName", Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                                "",   true,         { "Hello", "This", "Is", "The", "Payload" } };
     data_t serialisedMessage = protocol.serialize(sendMessage);
-    //Remove the PluginName from the protobuf message
+    // Remove the PluginName from the protobuf message
     serialisedMessage[0].erase(serialisedMessage[0].find("\n\nPluginName"), 12);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -219,18 +212,19 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataI
     EXPECT_EQ(receivedMessage.m_pluginName, "");
     EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
     EXPECT_EQ(receivedMessage.m_error, "Bad formed message, missing required fields : PluginName ");
-    //On deserialise error payload and acknowledgement is ignored
+    // On deserialise error payload and acknowledgement is ignored
     EXPECT_EQ(receivedMessage.m_acknowledge, false);
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenCommandIsUnknown)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenCommandIsUnknown) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "100", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT, "", false, {"Hello", "This", "Is", "The", "Payload"}};
+    DataMessage sendMessage = { "v1", "100", Common::PluginProtocol::Commands::PLUGIN_SEND_EVENT,
+                                "",   false, { "Hello", "This", "Is", "The", "Payload" } };
     data_t serialisedMessage = protocol.serialize(sendMessage);
-    //Change the command to unknown in the protobuf message
+    // Change the command to unknown in the protobuf message
     serialisedMessage[0].replace(serialisedMessage[0].find(char(1)), 1, 1, '\t');
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -239,17 +233,16 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenComma
     EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNKNOWN);
     EXPECT_EQ(receivedMessage.m_error, "Invalid request");
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
-    //On error payload is ignored
+    // On error payload is ignored
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-
-
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeWhenSent) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "", true, {"Hello", "This", "Is", "The", "Payload"}};
+    DataMessage sendMessage = { "v1", "1",  Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS,
+                                "",   true, { "Hello", "This", "Is", "The", "Payload" } };
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -258,15 +251,15 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReceivedMessageContainsAcknowledgeW
     EXPECT_EQ(receivedMessage.m_command, sendMessage.m_command);
     EXPECT_EQ(receivedMessage.m_error, sendMessage.m_error);
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
-    //On acknowledgement the payload is ignored
+    // On acknowledgement the payload is ignored
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent) // NOLINT
 {
     Protocol protocol;
 
-    DataMessage sendMessage = {"v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "", false, {}};
+    DataMessage sendMessage = { "v1", "1", Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "", false, {} };
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -278,10 +271,10 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_NoPayloadReceivedWhenNoneSent)  // 
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownCommandSetsAnError)  // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownCommandSetsAnError) // NOLINT
 {
     Protocol protocol;
-    DataMessage sendMessage = {"v1", "1", static_cast<Common::PluginProtocol::Commands>(20), "", false, {}};
+    DataMessage sendMessage = { "v1", "1", static_cast<Common::PluginProtocol::Commands>(20), "", false, {} };
     data_t serialisedMessage = protocol.serialize(sendMessage);
     DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
 
@@ -292,6 +285,3 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_SerialisingAndDeserialisingUnknownC
     EXPECT_EQ(receivedMessage.m_acknowledge, sendMessage.m_acknowledge);
     EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
-
-
-

@@ -6,21 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "ISocketPublisherPtr.h"
-#include "ISocketRequesterPtr.h"
-#include "ISocketReplierPtr.h"
-#include "ISocketSubscriberPtr.h"
+#include "IContextSharedPtr.h"
 #include "IProxy.h"
+#include "ISocketPublisherPtr.h"
+#include "ISocketReplierPtr.h"
+#include "ISocketRequesterPtr.h"
+#include "ISocketSubscriberPtr.h"
 
 #include <string>
-#include "IContextSharedPtr.h"
 
 namespace Common
 {
     namespace ZeroMQWrapper
     {
-
         class IContext
         {
         public:
@@ -31,12 +29,8 @@ namespace Common
             virtual ISocketRequesterPtr getRequester() = 0;
             virtual ISocketReplierPtr getReplier() = 0;
             virtual IProxyPtr getProxy(const std::string& frontend, const std::string& backend) = 0;
-
         };
 
         extern IContextSharedPtr createContext();
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

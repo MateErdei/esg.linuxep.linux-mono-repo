@@ -8,16 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Tests
 {
-
     std::unique_ptr<TempDir> ExampleTempDirSuiteTest::tempDir;
 
-    void ExampleTempDirSuiteTest::SetUpTestCase()
-    {
-        tempDir = TempDir::makeTempDir();
-    }
+    void ExampleTempDirSuiteTest::SetUpTestCase() { tempDir = TempDir::makeTempDir(); }
 
-    void ExampleTempDirSuiteTest::TearDownTestCase()
-    {
-        tempDir.reset(nullptr);
-    }
-}
+    void ExampleTempDirSuiteTest::TearDownTestCase() { tempDir.reset(nullptr); }
+} // namespace Tests

@@ -6,10 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "WarehouseRepository.h"
 
-#include "SULUtils.h"
 #include "SULRaii.h"
+#include "SULUtils.h"
+
 #include "suldownloaderdata/Logger.h"
 
+#include <Common/FileSystem/IFileSystem.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
@@ -17,15 +19,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <sstream>
 
-#include <Common/FileSystem/IFileSystem.h>
-
 using namespace SulDownloader::suldownloaderdata;
 
 namespace
 {
     using TagVector = std::vector<Tag>;
 
-    TagVector getTags(SU_PHandle &product)
+    TagVector getTags(SU_PHandle& product)
     {
         TagVector tags;
         int index = 0;
@@ -33,12 +33,13 @@ namespace
         while (true)
         {
             std::string tag = SulDownloader::SulQueryProductMetadata(product, "R_ReleaseTagsTag", index);
-            if(tag.empty())
+            if (tag.empty())
             {
                 break;
             }
 
-            std::string baseversion = SulDownloader::SulQueryProductMetadata(product, "R_ReleaseTagsBaseVersion", index);
+            std::string baseversion =
+                SulDownloader::SulQueryProductMetadata(product, "R_ReleaseTagsBaseVersion", index);
             std::string label = SulDownloader::SulQueryProductMetadata(product, "R_ReleaseTagsLabel", index);
 
             tags.emplace_back(tag, baseversion, label);
@@ -47,10 +48,10 @@ namespace
         return tags;
     }
 
-    bool hasError( const std::vector<std::pair<SU_PHandle, SulDownloader::suldownloaderdata::DownloadedProduct>> & products)
+    bool hasError(
+        const std::vector<std::pair<SU_PHandle, SulDownloader::suldownloaderdata::DownloadedProduct>>& products)
     {
-
-        for ( const auto & product : products)
+        for (const auto& product : products)
         {
             if (product.second.hasError())
             {
@@ -61,50 +62,62 @@ namespace
     }
 
 #ifndef NDEBUG
-    void displayProductTags(SU_PHandle product, const std::vector<std::string> & attributes)
+    void displayProductTags(SU_PHandle product, const std::vector<std::string>& attributes)
     {
         LOGDEBUG("\nNew Product");
-        for( auto & attribute : attributes)
+        for (auto& attribute : attributes)
         {
-            LOGDEBUG("Tag: " << attribute << " value: " << SulDownloader::SulQueryProductMetadata(product, attribute, 0));
+            LOGDEBUG(
+                "Tag: " << attribute << " value: " << SulDownloader::SulQueryProductMetadata(product, attribute, 0));
         }
         LOGDEBUG("\n");
     }
 
-
-    void displayProductTags( SU_PHandle product)
+    void displayProductTags(SU_PHandle product)
     {
-        displayProductTags(product, {"Line", "VersionId", "Name",
-                                     "PublicationTime", "DefaultHomeFolder", "Features",
-                                     "Roles", "TargetTypes", "ReleaseTagsBaseVersion",
-                                     "ReleaseTags", "Platforms", "Lifestage",
-                                     "SAVLine", "ResubscriptionsLine", "Resubscriptions",
-                                     "ResubscriptionsVersion"});
+        displayProductTags(
+            product,
+            { "Line",
+              "VersionId",
+              "Name",
+              "PublicationTime",
+              "DefaultHomeFolder",
+              "Features",
+              "Roles",
+              "TargetTypes",
+              "ReleaseTagsBaseVersion",
+              "ReleaseTags",
+              "Platforms",
+              "Lifestage",
+              "SAVLine",
+              "ResubscriptionsLine",
+              "Resubscriptions",
+              "ResubscriptionsVersion" });
     }
 
 #endif
 
-}
+} // namespace
 
 namespace SulDownloader
 {
-
-    std::unique_ptr<WarehouseRepository> WarehouseRepository::FetchConnectedWarehouse(const ConfigurationData &configurationData)
+    std::unique_ptr<WarehouseRepository> WarehouseRepository::FetchConnectedWarehouse(
+        const ConfigurationData& configurationData)
     {
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
-        for ( auto & connectionSetup : candidates)
+        for (auto& connectionSetup : candidates)
         {
             auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
-            if ( warehouse->hasError())
+            if (warehouse->hasError())
             {
                 continue;
             }
-            LOGSUPPORT( "Try connection: " << connectionSetup.toString());
+            LOGSUPPORT("Try connection: " << connectionSetup.toString());
             warehouse->setConnectionSetup(connectionSetup, configurationData);
 
-            if ( warehouse->hasError())
+            if (warehouse->hasError())
             {
                 SULUtils::displayLogs(warehouse->session());
                 continue;
@@ -123,7 +136,6 @@ namespace SulDownloader
             // store values from configuration data for later use.
             warehouse->setRootDistributionPath(configurationData.getLocalDistributionRepository());
 
-
             return warehouse;
         }
         LOGERROR("Failed to connect to the warehouse");
@@ -132,20 +144,13 @@ namespace SulDownloader
         return warehouseEmpty;
     }
 
-    bool WarehouseRepository::hasError() const
-    {
-        return !m_error.Description.empty() || ::hasError(m_products);
-    }
+    bool WarehouseRepository::hasError() const { return !m_error.Description.empty() || ::hasError(m_products); }
 
-    WarehouseError WarehouseRepository::getError() const
-    {
-        return m_error;
-    }
+    WarehouseError WarehouseRepository::getError() const { return m_error; }
 
-
-    void WarehouseRepository::synchronize(ProductSelection & selection)
+    void WarehouseRepository::synchronize(ProductSelection& selection)
     {
-        assert( m_state == State::Connected);
+        assert(m_state == State::Connected);
         m_state = State::Synchronized;
 
         std::vector<std::pair<SU_PHandle, ProductMetadata>> productInformationList;
@@ -153,7 +158,6 @@ namespace SulDownloader
         // create the ProductMetadata for all the entries in the warehouse
         while (true)
         {
-
             SU_PHandle product = SU_getProductRelease(session());
 
             if (product == nullptr)
@@ -180,29 +184,29 @@ namespace SulDownloader
             productInformationList.emplace_back(product, productInformation);
         }
         std::vector<ProductMetadata> productMetadataList;
-        for( auto pInfoPair : productInformationList)
+        for (auto pInfoPair : productInformationList)
         {
             productMetadataList.push_back(pInfoPair.second);
         }
 
         SelectedResultsIndexes selectedIndexes = selection.selectProducts(productMetadataList);
 
-        for ( size_t index : selectedIndexes.selected)
+        for (size_t index : selectedIndexes.selected)
         {
             LOGSUPPORT("Product will be downloaded: " << productMetadataList[index].getLine());
         }
 
-        for (  size_t index : selectedIndexes.notselected)
+        for (size_t index : selectedIndexes.notselected)
         {
-            auto & productPair = productInformationList[index];
-            if(!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
+            auto& productPair = productInformationList[index];
+            if (!SULUtils::isSuccess(SU_removeProduct(productPair.first)))
             {
                 SULUtils::displayLogs(session());
                 LOGERROR("Failed to remove product: " << productPair.second.getLine());
             }
         }
 
-        if(!SULUtils::isSuccess(SU_synchronise(session())))
+        if (!SULUtils::isSuccess(SU_synchronise(session())))
         {
             LOGERROR("Failed to synchronise warehouse");
             setError("Failed to Sync warehouse");
@@ -213,13 +217,13 @@ namespace SulDownloader
         SULUtils::displayLogs(session());
 
         std::vector<std::string> missingProducts = selectedIndexes.missing;
-        if ( !missingProducts.empty())
+        if (!missingProducts.empty())
         {
             std::string listOfSourcesMissing;
-            for( const auto & missing: missingProducts)
+            for (const auto& missing : missingProducts)
             {
                 LOGSUPPORT("Product missing from warehouse: " << missing);
-                if ( !listOfSourcesMissing.empty())
+                if (!listOfSourcesMissing.empty())
                 {
                     listOfSourcesMissing += ";";
                 }
@@ -239,9 +243,9 @@ namespace SulDownloader
 
         for (int index : selectedIndexes.selected)
         {
-            auto & productPair = productInformationList[index];
+            auto& productPair = productInformationList[index];
 
-            if(!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
+            if (!SULUtils::isSuccess(SU_getSynchroniseStatus(productPair.first)))
             {
                 syncSucceeded = false;
                 failedProductErrorMessage << " '" << productPair.second.getLine() << "'";
@@ -258,13 +262,12 @@ namespace SulDownloader
         }
     }
 
-
     void WarehouseRepository::distribute()
     {
-        assert( m_state == State::Synchronized);
+        assert(m_state == State::Synchronized);
         m_state = State::Distributed;
 
-        for ( auto & productPair : m_products)
+        for (auto& productPair : m_products)
         {
             std::string distributePath = getRootDistributionPath();
             distributePath = Common::FileSystem::join(distributePath, productPair.second.getLine());
@@ -272,19 +275,18 @@ namespace SulDownloader
             distributeProduct(productPair, distributePath);
         }
 
-        if(!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
+        if (!SULUtils::isSuccess(SU_distribute(session(), SU_DistributionFlag_AlwaysDistribute)))
         {
             LOGERROR("Failed to distribute products");
             setError("Failed to distribute products");
             m_error.status = WarehouseStatus ::DOWNLOADFAILED;
         }
 
-
         bool distSucceeded = true;
         std::stringstream failedProductErrorMessage;
         failedProductErrorMessage << "Failed to synchronise product:";
 
-        for (auto & product : m_products)
+        for (auto& product : m_products)
         {
             verifyDistributeProduct(product);
 
@@ -305,54 +307,51 @@ namespace SulDownloader
         SULUtils::displayLogs(session());
     }
 
-    void WarehouseRepository::distributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair, const std::string &distributePath)
+    void WarehouseRepository::distributeProduct(
+        std::pair<SU_PHandle, DownloadedProduct>& productPair,
+        const std::string& distributePath)
     {
-        productPair.second.setDistributePath(distributePath) ;
-        const char *empty = "";
+        productPair.second.setDistributePath(distributePath);
+        const char* empty = "";
         // 0 is passed in as a flag to say we do not want to use the default home folder specified in a component's
         // SDDS-Import file.
-        if ( !SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(),
-                                                     0, empty,
-                                                     empty)))
+        if (!SULUtils::isSuccess(SU_addDistribution(productPair.first, distributePath.c_str(), 0, empty, empty)))
         {
             SULUtils::displayLogs(session());
-            productPair.second.setError( fetchSulError( "Failed to set distribution path"));
-
+            productPair.second.setError(fetchSulError("Failed to set distribution path"));
         }
-
     }
 
-    void WarehouseRepository::verifyDistributeProduct(std::pair<SU_PHandle, DownloadedProduct> &productPair)
+    void WarehouseRepository::verifyDistributeProduct(std::pair<SU_PHandle, DownloadedProduct>& productPair)
     {
         std::string distributePath = productPair.second.distributePath();
-        auto result = SU_getDistributionStatus(productPair.first,  distributePath.c_str());
+        auto result = SU_getDistributionStatus(productPair.first, distributePath.c_str());
         LOGDEBUG("DISTRIBUTE status" << result);
-        if (! SULUtils::isSuccess(result))
+        if (!SULUtils::isSuccess(result))
         {
             SULUtils::displayLogs(session());
-            productPair.second.setError( fetchSulError( std::string("Product distribution failed: ") + productPair.second.getLine()));
+            productPair.second.setError(
+                fetchSulError(std::string("Product distribution failed: ") + productPair.second.getLine()));
         }
         else
         {
-            productPair.second.setProductHasChanged( result == SU_Result_OK );
+            productPair.second.setProductHasChanged(result == SU_Result_OK);
         }
     }
-
 
     std::vector<DownloadedProduct> WarehouseRepository::getProducts() const
     {
         std::vector<DownloadedProduct> products;
-        for ( auto & productPair : m_products)
+        for (auto& productPair : m_products)
         {
             products.push_back(productPair.second);
         }
         return products;
     }
 
-
-    void WarehouseRepository::setError(const std::string & error)
+    void WarehouseRepository::setError(const std::string& error)
     {
-        if ( m_session)
+        if (m_session)
         {
             SULUtils::displayLogs(session());
         }
@@ -362,23 +361,23 @@ namespace SulDownloader
         m_state = State::Failure;
     }
 
-    WarehouseError WarehouseRepository::fetchSulError( const std::string &description) const
+    WarehouseError WarehouseRepository::fetchSulError(const std::string& description) const
     {
         WarehouseError error;
         error.Description = description;
         error.status = WarehouseStatus::UNSPECIFIED;
-        if ( m_session )
+        if (m_session)
         {
-            std::tie( error.status, error.SulError) = getSulCodeAndDescription(session());
+            std::tie(error.status, error.SulError) = getSulCodeAndDescription(session());
         }
         return error;
-
     }
 
-
-    void WarehouseRepository::setConnectionSetup(const ConnectionSetup & connectionSetup, const ConfigurationData & configurationData)
+    void WarehouseRepository::setConnectionSetup(
+        const ConnectionSetup& connectionSetup,
+        const ConfigurationData& configurationData)
     {
-        assert( m_state == State::Initialized);
+        assert(m_state == State::Initialized);
 
         m_connectionSetup = std::unique_ptr<ConnectionSetup>(new ConnectionSetup(connectionSetup));
 
@@ -386,17 +385,17 @@ namespace SulDownloader
         std::string certificatePath = configurationData.getCertificatePath();
         std::string localWarehouseRepository = configurationData.getLocalWarehouseRepository();
 
-        SU_setLoggingLevel(session(), logLevel( configurationData.getLogLevel()));
+        SU_setLoggingLevel(session(), logLevel(configurationData.getLogLevel()));
 
         LOGSUPPORT("Certificate path: " << certificatePath);
         SU_setCertificatePath(session(), certificatePath.c_str());
         SU_setRequireSHA384(session(), true);
-        
+
         LOGSUPPORT("WarehouseRepository local repository: " << localWarehouseRepository);
         SU_setLocalRepository(session(), localWarehouseRepository.c_str());
         SU_setUserAgent(session(), "SULDownloader");
 
-        if(!SULUtils::isSuccess(SU_setUseHttps(session(), true)))
+        if (!SULUtils::isSuccess(SU_setUseHttps(session(), true)))
         {
             setError("Failed to enable use HTTPS updating");
             return;
@@ -404,7 +403,7 @@ namespace SulDownloader
 
         std::string ssl_cert_path;
 
-        if(connectionSetup.isCacheUpdate())
+        if (connectionSetup.isCacheUpdate())
         {
             ssl_cert_path = configurationData.getUpdateCacheSslCertificatePath();
         }
@@ -419,16 +418,16 @@ namespace SulDownloader
             return;
         }
 
-        if(!SULUtils::isSuccess(SU_setUseSophosCertStore(session(), true)))
+        if (!SULUtils::isSuccess(SU_setUseSophosCertStore(session(), true)))
         {
             setError("Failed to set Use Sophos certificate store");
             return;
         }
 
-        auto & updateLocation =  connectionSetup.getUpdateLocationURL();
-        if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
+        auto& updateLocation = connectionSetup.getUpdateLocationURL();
+        if (!SULUtils::isSuccess(SU_addSophosLocation(session(), updateLocation.c_str())))
         {
-            LOGSUPPORT ("Adding Sophos update location failed: " << updateLocation);
+            LOGSUPPORT("Adding Sophos update location failed: " << updateLocation);
             setError("invalid location");
             return;
         }
@@ -439,15 +438,16 @@ namespace SulDownloader
             // Create copy of deobfuscated password, otherwise it will be deleted before SUL uses it
             // This code in separate block to reduce lifetime of deobfuscated password
             Common::ObfuscationImpl::SecureString deobfuscatedPassword =
-                    connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword();
+                connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword();
 
-            if (!SULUtils::isSuccess(SU_addUpdateSource(session(),
-                                                        updateSource.c_str(),
-                                                        connectionSetup.getCredentials().getUsername().c_str(),
-                                                        connectionSetup.getCredentials().getPassword().c_str(),
-                                                        connectionSetup.getProxy().getUrl().c_str(),
-                                                        connectionSetup.getProxy().getCredentials().getUsername().c_str(),
-                                                        deobfuscatedPassword.c_str())))
+            if (!SULUtils::isSuccess(SU_addUpdateSource(
+                    session(),
+                    updateSource.c_str(),
+                    connectionSetup.getCredentials().getUsername().c_str(),
+                    connectionSetup.getCredentials().getPassword().c_str(),
+                    connectionSetup.getProxy().getUrl().c_str(),
+                    connectionSetup.getProxy().getCredentials().getUsername().c_str(),
+                    deobfuscatedPassword.c_str())))
             {
                 LOGERROR("Failed to add Update source: " << updateSource);
                 setError("Failed to add Update source");
@@ -455,31 +455,32 @@ namespace SulDownloader
             }
         }
 
-        if ( connectionSetup.isCacheUpdate())
+        if (connectionSetup.isCacheUpdate())
         {
             const std::string& cacheURL = connectionSetup.getUpdateLocationURL();
 
             std::string updateCacheCustomerLocation = "http://" + cacheURL + "/sophos/customer";
 
-            if(!SULUtils::isSuccess(SU_addSophosLocation(session(), updateCacheCustomerLocation.c_str())))
+            if (!SULUtils::isSuccess(SU_addSophosLocation(session(), updateCacheCustomerLocation.c_str())))
             {
-                LOGSUPPORT ("Adding update cache location failed: " << updateCacheCustomerLocation);
+                LOGSUPPORT("Adding update cache location failed: " << updateCacheCustomerLocation);
                 setError("invalid location");
                 return;
             }
 
             std::string redirectAddress = cacheURL + "/sophos/warehouse";
 
-            for (std::string externalURL : {"d1.sophosupd.com/update",
-                                            "d1.sophosupd.net/update",
-                                            "d2.sophosupd.com/update",
-                                            "d2.sophosupd.net/update",
-                                            "d3.sophosupd.com/update",
-                                            "d3.sophosupd.net/update"})
+            for (std::string externalURL : { "d1.sophosupd.com/update",
+                                             "d1.sophosupd.net/update",
+                                             "d2.sophosupd.com/update",
+                                             "d2.sophosupd.net/update",
+                                             "d3.sophosupd.com/update",
+                                             "d3.sophosupd.net/update" })
             {
-                if(!SULUtils::isSuccess(SU_addRedirect(session(), externalURL.c_str(), redirectAddress.c_str())))
+                if (!SULUtils::isSuccess(SU_addRedirect(session(), externalURL.c_str(), redirectAddress.c_str())))
                 {
-                    LOGSUPPORT ("Adding update cache re direct failed: " << redirectAddress << ", for : " << externalURL);
+                    LOGSUPPORT(
+                        "Adding update cache re direct failed: " << redirectAddress << ", for : " << externalURL);
                     setError("invalid redirect");
                     return;
                 }
@@ -487,13 +488,17 @@ namespace SulDownloader
         }
     }
 
-    WarehouseRepository::WarehouseRepository(bool createSession ) : m_error(), m_products(), m_session(), m_connectionSetup()
+    WarehouseRepository::WarehouseRepository(bool createSession) :
+        m_error(),
+        m_products(),
+        m_session(),
+        m_connectionSetup()
     {
         m_state = State::Initialized;
-        if ( createSession )
+        if (createSession)
         {
             m_session.reset(new SULSession());
-            if ( m_session->m_session == nullptr)
+            if (m_session->m_session == nullptr)
             {
                 throw SulDownloaderException("Failed to Initialize Sul");
             }
@@ -502,7 +507,7 @@ namespace SulDownloader
 
     SU_Handle WarehouseRepository::session() const
     {
-        assert( m_session && m_session->m_session != nullptr );
+        assert(m_session && m_session->m_session != nullptr);
         return m_session->m_session;
     }
 
@@ -512,7 +517,8 @@ namespace SulDownloader
         m_session.reset();
     }
 
-    int WarehouseRepository::logLevel(ConfigurationData::LogLevel logLevel) {
+    int WarehouseRepository::logLevel(ConfigurationData::LogLevel logLevel)
+    {
         switch (logLevel)
         {
             case ConfigurationData::LogLevel::VERBOSE:
@@ -520,22 +526,18 @@ namespace SulDownloader
             default:
                 return SU_LoggingLevel_important;
         }
-
     }
 
-    std::string WarehouseRepository::getRootDistributionPath() const
-    {
-        return m_rootDistributionPath;
-    }
+    std::string WarehouseRepository::getRootDistributionPath() const { return m_rootDistributionPath; }
 
-    void WarehouseRepository::setRootDistributionPath(const std::string &rootDistributionPath)
+    void WarehouseRepository::setRootDistributionPath(const std::string& rootDistributionPath)
     {
         m_rootDistributionPath = rootDistributionPath;
     }
 
     std::string WarehouseRepository::getSourceURL() const
     {
-        if( m_connectionSetup)
+        if (m_connectionSetup)
         {
             return m_connectionSetup->getUpdateLocationURL();
         }
@@ -543,8 +545,6 @@ namespace SulDownloader
         {
             return "";
         }
-
     }
 
-
-}
+} // namespace SulDownloader

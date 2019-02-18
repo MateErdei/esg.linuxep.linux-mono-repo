@@ -4,22 +4,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "ActionTask.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::ActionTask(
-        ManagementAgent::PluginCommunication::IPluginManager& pluginManager, const std::string& filePath)
-        : m_pluginManager(pluginManager),
-          m_filePath(std::move(filePath))
+    ManagementAgent::PluginCommunication::IPluginManager& pluginManager,
+    const std::string& filePath) :
+    m_pluginManager(pluginManager),
+    m_filePath(std::move(filePath))
 {
 }
 
 void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 {
-
     LOGSUPPORT("Process new action from mcsrouter: " << m_filePath);
     std::string basename = Common::FileSystem::basename(m_filePath);
 
@@ -27,7 +27,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
 
     if (pos == std::string::npos)
     {
-        LOGWARN("Got an invalid file name for action detection: "<<m_filePath);
+        LOGWARN("Got an invalid file name for action detection: " << m_filePath);
         return;
     }
 
@@ -38,7 +38,7 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
     {
         payload = Common::FileSystem::fileSystem()->readFile(m_filePath);
     }
-    catch(Common::FileSystem::IFileSystemException &e)
+    catch (Common::FileSystem::IFileSystemException& e)
     {
         LOGERROR("Failed to read " << m_filePath << " with error: " << e.what());
         throw;
@@ -48,5 +48,4 @@ void ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::run()
     LOGINFO("Action " << m_filePath << " sent to " << pluginsNotified << " plugins");
 
     Common::FileSystem::fileSystem()->removeFile(m_filePath);
-
 }

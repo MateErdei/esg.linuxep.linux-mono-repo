@@ -5,19 +5,23 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UpdateSchedulerProcessor.h"
-#include "configModule/DownloadReportsAnalyser.h"
+
 #include "Logger.h"
-#include "configModule/UpdatePolicyTranslator.h"
+
+#include "configModule/DownloadReportsAnalyser.h"
 #include "configModule/UpdateActionParser.h"
-#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include "configModule/UpdatePolicyTranslator.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/OSUtilitiesImpl/SXLMachineID.h>
+#include <Common/Process/IProcess.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/Process/IProcess.h>
-#include <Common/OSUtilitiesImpl/SXLMachineID.h>
-#include <thread>
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+
 #include <csignal>
+#include <thread>
 
 namespace UpdateSchedulerImpl
 {
@@ -28,28 +32,27 @@ namespace UpdateSchedulerImpl
     std::string UpdateSchedulerProcessor::ALC_API("ALC");
     std::string UpdateSchedulerProcessor::VERSIONID("1");
 
-    UpdateSchedulerProcessor::UpdateSchedulerProcessor(std::shared_ptr<SchedulerTaskQueue> queueTask,
-                                                       std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-                                                       std::shared_ptr<SchedulerPluginCallback> callback,
-                                                       std::unique_ptr<ICronSchedulerThread> cronThread,
-                                                       std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner)
-            : m_queueTask(std::move(queueTask))
-              , m_baseService(std::move(baseService))
-              , m_callback(std::move(callback))
-              , m_cronThread(std::move(cronThread))
-              , m_sulDownloaderRunner(std::move(sulDownloaderRunner))
-              , m_policyTranslator()
-              , m_reportfilePath(
-                    Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath())
-              , m_configfilePath(
-                    Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath())
-              , m_formattedTime()
-              , m_policyReceived(false)
-              , m_pendingUpdate(false)
+    UpdateSchedulerProcessor::UpdateSchedulerProcessor(
+        std::shared_ptr<SchedulerTaskQueue> queueTask,
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+        std::shared_ptr<SchedulerPluginCallback> callback,
+        std::unique_ptr<ICronSchedulerThread> cronThread,
+        std::unique_ptr<IAsyncSulDownloaderRunner> sulDownloaderRunner) :
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback)),
+        m_cronThread(std::move(cronThread)),
+        m_sulDownloaderRunner(std::move(sulDownloaderRunner)),
+        m_policyTranslator(),
+        m_reportfilePath(
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath()),
+        m_configfilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
+        m_formattedTime(),
+        m_policyReceived(false),
+        m_pendingUpdate(false)
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
-
     }
 
     void UpdateSchedulerProcessor::mainLoop()
@@ -60,8 +63,7 @@ namespace UpdateSchedulerImpl
 
         m_cronThread->start();
 
-
-        while(true)
+        while (true)
         {
             try
             {
@@ -102,10 +104,8 @@ namespace UpdateSchedulerImpl
             {
                 LOGERROR("Unexpected error: " << ex.what());
             }
-
         }
     }
-
 
     void UpdateSchedulerProcessor::processPolicy(const std::string& policyXml)
     {
@@ -126,13 +126,12 @@ namespace UpdateSchedulerImpl
             {
                 char buffer[20];
                 std::tm scheduledTime = settingsHolder.scheduledUpdate.getScheduledTime();
-                if (strftime(buffer,sizeof(buffer),"%A %H:%M", &scheduledTime))
+                if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
                 {
                     LOGINFO("Scheduling updates for " << buffer);
                 }
 
                 m_cronThread->setPeriodTime(std::chrono::minutes(1));
-
             }
             else
             {
@@ -170,14 +169,11 @@ namespace UpdateSchedulerImpl
                 m_pendingUpdate = false;
                 processScheduleUpdate();
             }
-
         }
-        catch ( UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
+        catch (UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
         {
             LOGWARN("Invalid policy received: " << ex.what());
         }
-
-
     }
 
     void UpdateSchedulerProcessor::processUpdateNow(const std::string& actionXML)
@@ -185,7 +181,8 @@ namespace UpdateSchedulerImpl
         if (!configModule::isUpdateNowAction(actionXML))
         {
             LOGWARN("Unexpected action xml received: " << actionXML);
-            return;;
+            return;
+            ;
         }
 
         LOGSUPPORT("Received Update Now action. ");
@@ -200,9 +197,9 @@ namespace UpdateSchedulerImpl
             LOGWARN("An active instance of SulDownloader was found. Aborting it.");
             m_sulDownloaderRunner->triggerAbort();
             ensureSulDownloaderNotRunning();
-
         }
-        std::string configPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+        std::string configPath =
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
         if (!Common::FileSystem::fileSystem()->isFile(configPath))
         {
             LOGWARN("No config.json file available. Requesting policy again");
@@ -229,9 +226,8 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/)
     {
-
         auto iFileSystem = Common::FileSystem::fileSystem();
-        bool remainingReportToProcess{false};
+        bool remainingReportToProcess{ false };
         if (iFileSystem->isFile(m_reportfilePath))
         {
             LOGINFO("SulDownloader Finished.");
@@ -262,34 +258,25 @@ namespace UpdateSchedulerImpl
         if (reportAndFiles.reportCollectionResult.SchedulerEvent.IsRelevantToSend && remainingReportToProcess)
         {
             std::string eventXml = serializeUpdateEvent(
-                    reportAndFiles.reportCollectionResult.SchedulerEvent,
-                    m_policyTranslator,
-                    m_formattedTime
-            );
+                reportAndFiles.reportCollectionResult.SchedulerEvent, m_policyTranslator, m_formattedTime);
             LOGSUPPORT("Sending event to Central");
             m_baseService->sendEvent(ALC_API, eventXml);
         }
 
         std::string statusXML = SerializeUpdateStatus(
-                reportAndFiles.reportCollectionResult.SchedulerStatus,
-                m_policyTranslator.revID(),
-                VERSIONID,
-                m_machineID,
-                m_formattedTime
-        );
+            reportAndFiles.reportCollectionResult.SchedulerStatus,
+            m_policyTranslator.revID(),
+            VERSIONID,
+            m_machineID,
+            m_formattedTime);
 
         UpdateStatus copyStatus = reportAndFiles.reportCollectionResult.SchedulerStatus;
         // blank the timestamp that changes for every report.
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-                copyStatus,
-                m_policyTranslator.revID(),
-                VERSIONID,
-                m_machineID,
-                m_formattedTime
-        );
-        m_callback->setStatus(Common::PluginApi::StatusInfo{statusXML, statusWithoutTimeStamp, ALC_API});
+            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime);
+        m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGSUPPORT("Send status to Central");
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
@@ -313,7 +300,7 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::processSulDownloaderMonitorDetached()
     {
         LOGWARN("Monitoring SulDownloader aborted");
-        if ( !m_callback->shutdownReceived())
+        if (!m_callback->shutdownReceived())
         {
             ensureSulDownloaderNotRunning();
         }
@@ -321,13 +308,16 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
     {
-        std::string configFilePath = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
+        std::string configFilePath =
+            Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
         Common::FileSystem::fileSystem()->writeFile(configFilePath, cacheCertificateContent);
     }
 
-    void UpdateSchedulerProcessor::writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData& configurationData)
+    void UpdateSchedulerProcessor::writeConfigurationData(
+        const SulDownloader::suldownloaderdata::ConfigurationData& configurationData)
     {
-        std::string serializedConfigData = SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
+        std::string serializedConfigData =
+            SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
         Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
@@ -359,46 +349,38 @@ namespace UpdateSchedulerImpl
         iFileSystem->moveFile(originalJsonFilePath, targetPathName);
     }
 
-    void UpdateSchedulerProcessor::ensureSulDownloaderNotRunning()
-    {
-        enforceSulDownloaderFinished(1);
-    }
+    void UpdateSchedulerProcessor::ensureSulDownloaderNotRunning() { enforceSulDownloaderFinished(1); }
 
-    std::string UpdateSchedulerProcessor::getAppId()
-    {
-        return ALC_API;
-    }
+    std::string UpdateSchedulerProcessor::getAppId() { return ALC_API; }
 
     void UpdateSchedulerProcessor::enforceSulDownloaderFinished(int numberOfSeconds2Wait)
     {
         std::string pathOfSulDownloader = Common::FileSystem::join(
-                Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
-                "base/bin/SulDownloader");
+            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "base/bin/SulDownloader");
         auto iFileSystem = Common::FileSystem::fileSystem();
 
         std::string pidOfCommand;
-        for( std::string candidate: {"/bin/pidof", "/usr/sbin/pidof"})
+        for (std::string candidate : { "/bin/pidof", "/usr/sbin/pidof" })
         {
-            if( iFileSystem->isExecutable(candidate))
+            if (iFileSystem->isExecutable(candidate))
             {
                 pidOfCommand = candidate;
                 break;
             }
         }
 
-        if( pidOfCommand.empty())
+        if (pidOfCommand.empty())
         {
             LOGWARN("Can not verify if SulDownloader is running ");
             return;
         }
 
-
         int i = 0;
-        while( true )
+        while (true)
         {
             int pidOfSulDownloader;
             auto iProcess = Common::Process::createProcess();
-            iProcess->exec(pidOfCommand, {pathOfSulDownloader});
+            iProcess->exec(pidOfCommand, { pathOfSulDownloader });
 
             auto state = iProcess->wait(Common::Process::milli(5), 100);
             if (state != Common::Process::ProcessStatus::FINISHED)
@@ -408,44 +390,44 @@ namespace UpdateSchedulerImpl
             }
 
             int exitCode = iProcess->exitCode();
-            if ( exitCode == 1)
+            if (exitCode == 1)
             {
                 // pidof returns 1 if no process with the given name is found.
                 break;
             }
             else if (exitCode != 0)
             {
-                LOGWARN("pidof(SulDownloader) returned "<<exitCode);
+                LOGWARN("pidof(SulDownloader) returned " << exitCode);
                 break;
             }
 
             std::string outputPidOf = iProcess->output();
-            LOGDEBUG("Pid of SulDownloader: '" << outputPidOf<<"'");
+            LOGDEBUG("Pid of SulDownloader: '" << outputPidOf << "'");
             try
             {
                 pidOfSulDownloader = std::stoi(outputPidOf);
             }
-            catch (std::exception & )
+            catch (std::exception&)
             {
-                LOGWARN("Can not convert '"<<outputPidOf<<"' to int pid of SulDownloader");
+                LOGWARN("Can not convert '" << outputPidOf << "' to int pid of SulDownloader");
                 break; // Assume empty or non-convertable output means there is no SulDownloader running
             }
 
-            if( i == 0)
+            if (i == 0)
             {
-                LOGINFO("Waiting for SulDownloader (PID="<<pidOfSulDownloader<<") to finish.");
+                LOGINFO("Waiting for SulDownloader (PID=" << pidOfSulDownloader << ") to finish.");
             }
             i++;
             // add new log every minute
-            if( i%60 ==0 )
+            if (i % 60 == 0)
             {
-                LOGINFO("SulDownloader (PID="<<pidOfSulDownloader<<") still running.");
+                LOGINFO("SulDownloader (PID=" << pidOfSulDownloader << ") still running.");
             }
 
-            if( i >= numberOfSeconds2Wait)
+            if (i >= numberOfSeconds2Wait)
             {
                 assert(pidOfSulDownloader > 0);
-                LOGWARN("Forcing SulDownloader (PID="<<pidOfSulDownloader<<") to stop");
+                LOGWARN("Forcing SulDownloader (PID=" << pidOfSulDownloader << ") to stop");
                 ::kill(pidOfSulDownloader, SIGTERM);
                 return;
             }
@@ -453,14 +435,12 @@ namespace UpdateSchedulerImpl
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
             // handle receiving shutdown while waiting for sulDownloader to finish.
-            if ( m_callback->shutdownReceived())
+            if (m_callback->shutdownReceived())
             {
                 break;
             }
-
         }
 
         LOGINFO("No instance of SulDownloader running.");
-
     }
-}
+} // namespace UpdateSchedulerImpl

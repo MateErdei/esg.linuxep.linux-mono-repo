@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "IHasFD.h"
 #include "IDataType.h"
+#include "IHasFD.h"
 
 namespace Common
 {
@@ -23,6 +22,5 @@ namespace Common
              */
             virtual void write(const data_t& data) = 0;
         };
-    }
-}
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

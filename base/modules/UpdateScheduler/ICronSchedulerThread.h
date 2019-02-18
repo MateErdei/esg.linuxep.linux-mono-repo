@@ -5,13 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "SchedulerTaskQueue.h"
 #include "ScheduledUpdate.h"
+#include "SchedulerTaskQueue.h"
+
 #include <chrono>
 
 namespace UpdateScheduler
 {
-
     class ICronSchedulerThread
     {
     public:
@@ -31,4 +31,4 @@ namespace UpdateScheduler
 
         virtual void setUpdateOnStartUp(bool updateOnStartUp) = 0;
     };
-}
+} // namespace UpdateScheduler

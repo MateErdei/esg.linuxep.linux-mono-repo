@@ -7,12 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
-#include <cstdlib>
 #include <csignal>
+#include <cstdlib>
 
 namespace
 {
-
     Common::Threads::NotifyPipe GL_CHILD_DEATH_PIPE;
     Common::Threads::NotifyPipe GL_TERM_PIPE;
 
@@ -30,10 +29,10 @@ namespace
 
     void setSignalHandler()
     {
-        struct sigaction signalBuf; //NOLINT
+        struct sigaction signalBuf; // NOLINT
         signalBuf.sa_handler = signal_handler;
         sigemptyset(&signalBuf.sa_mask);
-        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; //NOLINT
+        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; // NOLINT
         ::sigaction(SIGCHLD, &signalBuf, nullptr);
         ::sigaction(SIGINT, &signalBuf, nullptr);
         ::sigaction(SIGTERM, &signalBuf, nullptr);
@@ -41,16 +40,16 @@ namespace
 
     void clearSignalHandler()
     {
-        struct sigaction signalBuf; //NOLINT
+        struct sigaction signalBuf; // NOLINT
         signalBuf.sa_handler = SIG_DFL;
         sigemptyset(&signalBuf.sa_mask);
-        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_NOCLDWAIT; //NOLINT
+        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_NOCLDWAIT; // NOLINT
         ::sigaction(SIGCHLD, &signalBuf, nullptr);
         ::sigaction(SIGINT, &signalBuf, nullptr);
         ::sigaction(SIGTERM, &signalBuf, nullptr);
     }
 
-}
+} // namespace
 
 SignalHandler::SignalHandler()
 {

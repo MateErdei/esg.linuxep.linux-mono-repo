@@ -11,19 +11,19 @@
 
 #include "NotifyPipe.h"
 
-#include <fcntl.h>
+#include <cassert>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
-#include <cerrno>
-#include <cassert>
+#include <fcntl.h>
 
 using Common::Threads::NotifyPipe;
 
 #define ASSERT assert
 #define DBGOUT(x)
 
-//LINKED-ATTRIBUTES
-//LINKED-ATTRIBUTES-END
+// LINKED-ATTRIBUTES
+// LINKED-ATTRIBUTES-END
 
 NotifyPipe::~NotifyPipe() noexcept
 {
@@ -49,20 +49,19 @@ NotifyPipe::NotifyPipe() noexcept
     m_writeFd = filedes[1];
     ASSERT(m_writeFd >= 0);
 
-    if (fcntl(m_readFd,F_SETFL,O_NONBLOCK) == -1)
+    if (fcntl(m_readFd, F_SETFL, O_NONBLOCK) == -1)
     {
-        perror("NotifyPipe: fcntl(m_readFd, ...)" );
+        perror("NotifyPipe: fcntl(m_readFd, ...)");
         exit(91);
     }
 
-    if (fcntl(m_writeFd,F_SETFL,O_NONBLOCK) == -1)
+    if (fcntl(m_writeFd, F_SETFL, O_NONBLOCK) == -1)
     {
-        perror("NotifyPipe: fcntl(m_writeFd, ...)" );
+        perror("NotifyPipe: fcntl(m_writeFd, ...)");
         exit(92);
     }
 
-
-    DBGOUT("NotifyPipe: read="<<m_readFd<<", write="<<m_writeFd);
+    DBGOUT("NotifyPipe: read=" << m_readFd << ", write=" << m_writeFd);
 }
 
 /**
@@ -71,7 +70,7 @@ NotifyPipe::NotifyPipe() noexcept
 bool NotifyPipe::notified()
 {
     char dummy;
-    ssize_t amount = ::read(m_readFd,&dummy,1);
+    ssize_t amount = ::read(m_readFd, &dummy, 1);
     DBGOUT("notified(" << m_readFd << ") = " << amount);
     return (amount == 1);
 }
@@ -81,8 +80,8 @@ bool NotifyPipe::notified()
  */
 ssize_t NotifyPipe::notify()
 {
-    ssize_t ret = ::write(m_writeFd,"\0",1);
-    DBGOUT("notify(" << m_writeFd << ") = " << ret << "errno="<<errno);
+    ssize_t ret = ::write(m_writeFd, "\0", 1);
+    DBGOUT("notify(" << m_writeFd << ") = " << ret << "errno=" << errno);
     return ret;
 }
 
@@ -102,4 +101,3 @@ int NotifyPipe::writeFd()
 {
     return m_writeFd;
 }
-

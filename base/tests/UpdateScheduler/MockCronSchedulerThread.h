@@ -5,15 +5,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
-#include <gmock/gmock.h>
 #include <UpdateScheduler/ICronSchedulerThread.h>
+#include <gmock/gmock.h>
+
+#include <string>
 
 using namespace ::testing;
 
-
-class MockCronSchedulerThread
-        : public UpdateScheduler::ICronSchedulerThread
+class MockCronSchedulerThread : public UpdateScheduler::ICronSchedulerThread
 {
 public:
     MOCK_METHOD0(start, void());

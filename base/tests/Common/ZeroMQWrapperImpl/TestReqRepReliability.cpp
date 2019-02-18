@@ -6,33 +6,33 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #ifndef ARTISANBUILD
 
-#include "ReqRepTestImplementations.h"
+#    include "ReqRepTestImplementations.h"
 
-#include <Common/ZeroMQWrapper/IReadable.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
-#include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
-#include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
-#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#    include <Common/ZeroMQWrapper/IContext.h>
+#    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#    include <Common/ZeroMQWrapper/IReadable.h>
+#    include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#    include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#    include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#    include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#    include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
+#    include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
+#    include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
+#    include <gmock/gmock.h>
+#    include <gtest/gtest.h>
+#    include <tests/Common/Helpers/TempDir.h>
+#    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
-#include <thread>
-#include <future>
-#include <zmq.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#    include <future>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <thread>
+#    include <unistd.h>
+#    include <zmq.h>
 
-extern char **environ;
+extern char** environ;
 
-#define PRINT(_X) std::cerr << _X << std::endl
+#    define PRINT(_X) std::cerr << _X << std::endl
 
 namespace
 {
@@ -43,20 +43,11 @@ namespace
     class TestContext
     {
         Tests::TempDir m_tempDir;
-    public:
-        TestContext()
-        : m_tempDir( "/tmp", "reliab")
-        {
 
-        }
-        std::string killChannel() const
-        {
-            return "ipc://" + m_tempDir.absPath("killchannel.ipc");
-        }
-        std::string serverAddress() const
-        {
-            return "ipc://" + m_tempDir.absPath("server.ipc");
-        }
+    public:
+        TestContext() : m_tempDir("/tmp", "reliab") {}
+        std::string killChannel() const { return "ipc://" + m_tempDir.absPath("killchannel.ipc"); }
+        std::string serverAddress() const { return "ipc://" + m_tempDir.absPath("server.ipc"); }
     };
 
     // in order to get a better simulation, run the requester in another process.
@@ -65,14 +56,15 @@ namespace
         std::string m_killchannel;
         Common::ZeroMQWrapper::IContextSharedPtr m_zmq_context;
 
-        void monitorChild( int pid)
+        void monitorChild(int pid)
         {
-            try{
+            try
+            {
                 auto replierKillChannel = m_zmq_context->getReplier();
                 replierKillChannel->setTimeout(1000);
                 replierKillChannel->listen(m_killchannel);
                 data_t request = replierKillChannel->read();
-                if( request.at(0) == "killme")
+                if (request.at(0) == "killme")
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     ::kill(pid, SIGTERM);
@@ -81,50 +73,49 @@ namespace
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
-            }catch (std::exception & ex)
+            }
+            catch (std::exception& ex)
             {
                 std::cout << "monitor child: " << ex.what() << std::endl;
             }
         }
 
-        void runChild(std::function<void()> && functor)
+        void runChild(std::function<void()>&& functor)
         {
             try
             {
                 functor();
-
-            }catch ( std::exception & ex)
+            }
+            catch (std::exception& ex)
             {
                 std::cerr << "Runchild: " << ex.what() << std::endl;
             }
             ::exit(0);
         }
 
-
     public:
-        explicit RunInExternalProcess( const TestContext & context):
-            m_killchannel( context.killChannel()),
+        explicit RunInExternalProcess(const TestContext& context) :
+            m_killchannel(context.killChannel()),
             m_zmq_context(createContext())
         {
         }
 
-        RunInExternalProcess( const TestContext & context, Common::ZeroMQWrapper::IContextSharedPtr zmq_context)
-            :
-            m_killchannel( context.killChannel()),
+        RunInExternalProcess(const TestContext& context, Common::ZeroMQWrapper::IContextSharedPtr zmq_context) :
+            m_killchannel(context.killChannel()),
             m_zmq_context(std::move(zmq_context))
         {
         }
 
-        void runFork(std::function<void()>  functor)
+        void runFork(std::function<void()> functor)
         {
-            std::cerr << "Fork from "<<::getpid() << std::endl;
+            std::cerr << "Fork from " << ::getpid() << std::endl;
             pid_t child = fork();
 
-            if ( child == -1)
+            if (child == -1)
             {
-                throw std::logic_error( "Failed to create process");
+                throw std::logic_error("Failed to create process");
             }
-            if ( child == 0)
+            if (child == 0)
             {
                 runChild(std::move(functor));
             }
@@ -140,37 +131,35 @@ namespace
             std::string exe = CMAKE_CURRENT_BINARY_DIR;
             exe += "/TestReqRepTool";
             // Create argument list
-            char** newargv = static_cast<char**>(malloc(sizeof(char*)*(args.size()+2)));
+            char** newargv = static_cast<char**>(malloc(sizeof(char*) * (args.size() + 2)));
             const char* exe_cstr = exe.c_str();
             newargv[0] = const_cast<char*>(exe_cstr); // Not actually modified
-            for (size_t i=0; i< args.size();i++)
+            for (size_t i = 0; i < args.size(); i++)
             {
-                newargv[i+1] = const_cast<char*>(args[i].c_str()); // Not actually modified
+                newargv[i + 1] = const_cast<char*>(args[i].c_str()); // Not actually modified
             }
             newargv[args.size() + 1] = nullptr;
 
-
-            char *newenviron[] = { nullptr };
-
+            char* newenviron[] = { nullptr };
 
             // Fork
 
-            std::cerr << "Fork from "<<::getpid() << std::endl;
-            std::cerr << "Will exec "<< exe << std::endl;
+            std::cerr << "Fork from " << ::getpid() << std::endl;
+            std::cerr << "Will exec " << exe << std::endl;
 
             pid_t child = fork();
 
-            if(child != 0)
+            if (child != 0)
             {
                 // Must not do memory operations in child process
                 free(newargv);
             }
 
-            if ( child == -1)
+            if (child == -1)
             {
-                throw std::logic_error( "Failed to create process");
+                throw std::logic_error("Failed to create process");
             }
-            else if ( child != 0)
+            else if (child != 0)
             {
                 monitorChild(child);
                 return;
@@ -178,117 +167,98 @@ namespace
 
             // Exec
             ::execve(exe_cstr, newargv, newenviron);
-            perror("execve");   /* execve() returns only on error */
+            perror("execve"); /* execve() returns only on error */
             _exit(70);
         }
-
-
     };
 
-
-    class ReqRepReliabilityTests
-            : public ::testing::Test
+    class ReqRepReliabilityTests : public ::testing::Test
     {
     public:
         TestContext m_testContext;
         ReqRepReliabilityTests() = default;
     };
 
-    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWork ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
         auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester( serveraddress );
+            Requester requester(serveraddress);
             return requester.sendReceive("hello");
         });
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableReplier","serveRequest" }
-                );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
     }
 
-
-    TEST_F( ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
         auto futureReplier = std::async(std::launch::async, [serveraddress]() {
-            Replier replier( serveraddress );
+            Replier replier(serveraddress);
             replier.serveRequest();
         });
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableRequester","sendReceive","hello"}
-                );
-        EXPECT_NO_THROW(futureReplier.get()); //NOLINT
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
+        EXPECT_NO_THROW(futureReplier.get()); // NOLINT
     }
 
-
-    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
         auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester( serveraddress );
-            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); //NOLINT
+            Requester requester(serveraddress);
+            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             return requester.sendReceive("hello2");
         });
 
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableReplier","breakAfterReceiveMessage" }
-                );
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
-//        );
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableReplier","serveRequest" }
-        );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "breakAfterReceiveMessage" });
+        //        runInExternalProcess.runFork(
+        //                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+        //        );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
     }
 
-
-    TEST_F( ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
     {
         RunInExternalProcess runInExternalProcess(m_testContext);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
         auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester( serveraddress );
-            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); //NOLINT
+            Requester requester(serveraddress);
+            EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             return requester.sendReceive("hello2");
         });
 
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.servePartialReply(); }
-//
-//        );
+        //        runInExternalProcess.runFork(
+        //                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.servePartialReply();
+        //                }
+        //
+        //        );
 
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableReplier","servePartialReply" }
-        );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "servePartialReply" });
 
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
-//        );
+        //        runInExternalProcess.runFork(
+        //                [serveraddress, killch](){UnreliableReplier ur(serveraddress, killch); ur.serveRequest(); }
+        //        );
 
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableReplier","serveRequest" }
-        );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
         EXPECT_EQ(std::string("granted"), futureRequester.get());
-}
+    }
 
-
-    TEST_F( ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails) // NOLINT
     {
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
@@ -296,91 +266,92 @@ namespace
         std::string killch = m_testContext.killChannel();
 
         auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
-            Replier replier( serveraddress, zmq_context, 10000 );
+            Replier replier(serveraddress, zmq_context, 10000);
             try
             {
                 replier.serveRequest();
             }
-            catch ( std::exception & ex)
+            catch (std::exception& ex)
             {
-                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what() << std::endl;
+                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what()
+                          << std::endl;
                 // the first one may or may not throw, but the second must not throw.
             }
-            PRINT("Served first request by "<<getpid());
+            PRINT("Served first request by " << getpid());
 
             try
             {
                 replier.serveRequest();
             }
-            catch ( std::exception & ex)
+            catch (std::exception& ex)
             {
-                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 2: " << ex.what() << std::endl;
+                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 2: " << ex.what()
+                          << std::endl;
                 // the first one may or may not throw, but the second must not throw.
                 throw;
             }
-            PRINT("Served second request by "<<getpid());
+            PRINT("Served second request by " << getpid());
         });
 
         // the fact that the first request break after the send message has no implication on the replier
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.breakAfterSendRequest("hello"); }
-//        );
+        //        runInExternalProcess.runFork(
+        //                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch);
+        //                ur.breakAfterSendRequest("hello"); }
+        //        );
         runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableRequester","breakAfterSendRequest","hello" }
-        );
+            { serveraddress, killch, "UnreliableRequester", "breakAfterSendRequest", "hello" });
 
-//        runInExternalProcess.runFork(
-//                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch); ur.sendReceive("hello"); }
-//        );
+        //        runInExternalProcess.runFork(
+        //                [serveraddress, killch](){UnreliableRequester ur(serveraddress, killch);
+        //                ur.sendReceive("hello"); }
+        //        );
 
-        runInExternalProcess.runExec(
-                {serveraddress, killch,"UnreliableRequester","sendReceive","hello" }
-        );
+        runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
 
         try
         {
             futureReplier.get();
         }
-        catch ( std::exception & ex)
+        catch (std::exception& ex)
         {
-            ADD_FAILURE() << "We do not expect futureReplier.get to throw, but it threw: "<< ex.what();
+            ADD_FAILURE() << "We do not expect futureReplier.get to throw, but it threw: " << ex.what();
         }
-
-
     }
 
-
-    TEST_F( ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored) // NOLINT
     {
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
         Tests::ReentrantExecutionSynchronizer synchronizer;
 
         auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            Requester requester( serveraddress );
+            Requester requester(serveraddress);
             EXPECT_EQ(requester.sendReceive("a"), "a");
             synchronizer.notify(1);
 
-            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); //NOLINT
+            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
 
             synchronizer.notify(2);
             synchronizer.waitfor(3, 1000);
             try
             {
                 EXPECT_EQ(requester.sendReceive("c"), "c");
-            }catch (std::exception & ex)
+            }
+            catch (std::exception& ex)
             {
-                ADD_FAILURE() << "Throw in the second send: "<< ex.what();
+                ADD_FAILURE() << "Throw in the second send: " << ex.what();
                 throw;
             }
             synchronizer.notify(4);
         });
 
-        // simulate a replier that 'crashes' after first established req-reply, but them comes back and can serve the requester.
+        // simulate a replier that 'crashes' after first established req-reply, but them comes back and can serve the
+        // requester.
         auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            std::unique_ptr<Replier> replier( new Replier(serveraddress) );
+            std::unique_ptr<Replier> replier(new Replier(serveraddress));
             replier->serveRequest();
-            synchronizer.waitfor(1, 3000); // necessary to ensure that the socket is not closed before sending the message.
+            synchronizer.waitfor(
+                1, 3000); // necessary to ensure that the socket is not closed before sending the message.
             replier.reset();
             synchronizer.waitfor(2, 3000); // necessary to ensure that the requester timed out.
             replier.reset(new Replier(serveraddress));
@@ -392,32 +363,30 @@ namespace
         try
         {
             futureRequester.get();
-        }catch ( std::exception & ex)
+        }
+        catch (std::exception& ex)
         {
-            ADD_FAILURE() << "Does not expect futureRequester.get to throw, but it throw: "<< ex.what();
+            ADD_FAILURE() << "Does not expect futureRequester.get to throw, but it throw: " << ex.what();
         }
         try
         {
             futureReplier.get();
-        }catch ( std::exception & ex)
-        {
-            ADD_FAILURE() << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
         }
-
-
+        catch (std::exception& ex)
+        {
+            ADD_FAILURE() << "Does not expect futureReplier.get to throw, but it throw: " << ex.what();
+        }
     }
 
-
-    TEST_F( ReqRepReliabilityTests, requesterReceivingOutOfDateReplyShouldNotDisturbCurrentRequest ) // NOLINT
+    TEST_F(ReqRepReliabilityTests, requesterReceivingOutOfDateReplyShouldNotDisturbCurrentRequest) // NOLINT
     {
-
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
         Tests::ReentrantExecutionSynchronizer synchronizer;
         auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            Requester requester( serveraddress );
+            Requester requester(serveraddress);
             EXPECT_EQ(requester.sendReceive("a"), "a");
-            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); //NOLINT
+            EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             synchronizer.notify();
             EXPECT_EQ(requester.sendReceive("c"), "c");
             synchronizer.waitfor(2, 1000);
@@ -442,26 +411,25 @@ namespace
             req = m_replier->read();
             m_replier->write(req);
             synchronizer.notify();
-
         });
 
         try
         {
             futureRequester.get();
-        }catch ( std::exception & ex)
+        }
+        catch (std::exception& ex)
         {
-            ADD_FAILURE() << "Does not expect futureRequester.get to throw, but it throw: "<< ex.what();
+            ADD_FAILURE() << "Does not expect futureRequester.get to throw, but it throw: " << ex.what();
         }
 
         try
         {
             futureReplier.get();
-        }catch ( std::exception & ex)
-        {
-            ADD_FAILURE() << "Does not expect futureReplier.get to throw, but it throw: "<< ex.what();
         }
-
-
+        catch (std::exception& ex)
+        {
+            ADD_FAILURE() << "Does not expect futureReplier.get to throw, but it throw: " << ex.what();
+        }
     }
-}
+} // namespace
 #endif

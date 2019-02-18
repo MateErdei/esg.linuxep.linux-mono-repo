@@ -11,7 +11,6 @@ namespace Common
 {
     namespace UtilityImpl
     {
-
         class UniformIntDistribution
         {
         public:
@@ -24,8 +23,5 @@ namespace Common
             std::uniform_int_distribution<> m_uid;
             std::default_random_engine m_engine;
         };
-    }
-}
-
-
-
+    } // namespace UtilityImpl
+} // namespace Common

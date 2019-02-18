@@ -6,16 +6,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/OSUtilities/IDnsLookup.h>
+
 #include <memory>
 namespace Common
 {
     namespace OSUtilitiesImpl
     {
-
         class DnsLookupImpl : public Common::OSUtilities::IDnsLookup
         {
         public:
-            Common::OSUtilities::IPs lookup(const std::string &) const override;
+            Common::OSUtilities::IPs lookup(const std::string&) const override;
         };
 
         /** To be used in tests only */
@@ -23,5 +23,5 @@ namespace Common
         void replaceDnsLookup(IDnsLookupPtr);
         void restoreDnsLookup();
 
-    }
-}
+    } // namespace OSUtilitiesImpl
+} // namespace Common

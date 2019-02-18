@@ -5,12 +5,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "WarehouseError.h"
 
-
-#include <vector>
 #include <ctime>
 #include <string>
-#include "WarehouseError.h"
+#include <vector>
 
 namespace SulDownloader
 {
@@ -28,7 +27,13 @@ namespace SulDownloader
             std::string errorDescription;
             enum class ProductStatus
             {
-                SyncFailed, InstallFailed, UninstallFailed, VerifyFailed, UpToDate, Upgraded, Uninstalled
+                SyncFailed,
+                InstallFailed,
+                UninstallFailed,
+                VerifyFailed,
+                UpToDate,
+                Upgraded,
+                Uninstalled
             };
             ProductStatus productStatus = ProductStatus::SyncFailed;
 
@@ -57,14 +62,17 @@ namespace SulDownloader
 
             enum class VerifyState
             {
-                VerifyFailed, VerifyCorrect
+                VerifyFailed,
+                VerifyCorrect
             };
 
             static DownloadReport Report(const IWarehouseRepository&, const TimeTracker& timeTracker);
 
-            static DownloadReport
-            Report(const std::string& sourceURL, const std::vector<suldownloaderdata::DownloadedProduct>& products,
-                   TimeTracker* timeTracker, VerifyState verify);
+            static DownloadReport Report(
+                const std::string& sourceURL,
+                const std::vector<suldownloaderdata::DownloadedProduct>& products,
+                TimeTracker* timeTracker,
+                VerifyState verify);
 
             static DownloadReport Report(const std::string& errorDescription);
 
@@ -103,15 +111,13 @@ namespace SulDownloader
 
             std::vector<ProductReport> m_productReport;
 
-            void setProductsInfo(const std::vector<suldownloaderdata::DownloadedProduct>& products,
-                                 const WarehouseStatus& warehouseStatus);
+            void setProductsInfo(
+                const std::vector<suldownloaderdata::DownloadedProduct>& products,
+                const WarehouseStatus& warehouseStatus);
 
             void setError(const WarehouseError& error);
 
             void setTimings(const TimeTracker&);
         };
-    }
-}
-
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

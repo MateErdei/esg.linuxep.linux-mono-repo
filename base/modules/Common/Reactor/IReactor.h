@@ -6,10 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include "ICallbackListener.h"
-#include "Common/ZeroMQWrapper/IReadable.h"
 #include "IShutdownListener.h"
+
+#include "Common/ZeroMQWrapper/IReadable.h"
 namespace Common
 {
     namespace Reactor
@@ -19,8 +19,8 @@ namespace Common
          * by executing the callbacks.
          * The intention is to use for "Servers" that must reply on requests when they arrive.
          *
-         * It uses threads to monitor the activity of the input data channels and run the callback from this background thread.
-         * Hence, all the callbacks must be safe to be executed from a different thread.
+         * It uses threads to monitor the activity of the input data channels and run the callback from this background
+         * thread. Hence, all the callbacks must be safe to be executed from a different thread.
          *
          */
         class IReactor
@@ -41,7 +41,7 @@ namespace Common
              *
              * @test Reactor thread start has not been called.
              */
-            virtual void addListener(Common::ZeroMQWrapper::IReadable * readable, ICallbackListener * callback) = 0;
+            virtual void addListener(Common::ZeroMQWrapper::IReadable* readable, ICallbackListener* callback) = 0;
 
             /**
              * Adds a pointer to implemented shutdown listener to the reactor.
@@ -50,11 +50,12 @@ namespace Common
              * After this, the IReactor will stop its own thread.
              *
              * @note: If armShutdownListener is never called, no signal handler will be defined, and the process will
-             *        just terminate 'abruptly' when those signals are received. (or will be handled by a different signal handler)
+             *        just terminate 'abruptly' when those signals are received. (or will be handled by a different
+             * signal handler)
              *
              * @param BORROWED shutdownListener
              */
-            virtual void armShutdownListener(IShutdownListener * shutdownListener) = 0;
+            virtual void armShutdownListener(IShutdownListener* shutdownListener) = 0;
 
             /**
              * Wrapper for the Reactor thread start method, once thread is running no more listeners can be added
@@ -75,7 +76,5 @@ namespace Common
         };
         using IReactorPtr = std::unique_ptr<IReactor>;
         extern IReactorPtr createReactor();
-    }
-}
-
-
+    } // namespace Reactor
+} // namespace Common

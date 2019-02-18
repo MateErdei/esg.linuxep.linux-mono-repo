@@ -4,14 +4,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "gtest/gtest.h"
+
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <include/gmock/gmock-matchers.h>
 
-#include "gtest/gtest.h"
-
 using namespace Common::XmlUtilities;
 
-static std::string updatePolicy{R"sophos(<?xml version="1.0"?>
+static std::string updatePolicy{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
   <AUConfig platform="Linux">
@@ -131,7 +131,7 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
   </update_cache>
   <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>
-)sophos"};
+)sophos" };
 
 TEST(TestXmlUtilities, ParsePrimaryLocationUsername) // NOLINT
 {
@@ -140,17 +140,20 @@ TEST(TestXmlUtilities, ParsePrimaryLocationUsername) // NOLINT
     ASSERT_EQ(simpleXml.lookup("AUConfigurations/AUConfig/primary_location/server").value("UserName"), "W2YJXI6FED");
 }
 
-
 TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText) // NOLINT
 {
     auto simpleXml = parseXml(updatePolicy);
-    auto attributes_fullname = simpleXml.entitiesThatContainPath("AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
+    auto attributes_fullname = simpleXml.entitiesThatContainPath(
+        "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
     ASSERT_EQ(attributes_fullname.size(), 3);
-    std::string one_full_path = "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate#33d6a435957397fc9336c8633445aa33e1774500.crt";
+    std::string one_full_path = "AUConfigurations/update_cache/intermediate_certificates/"
+                                "intermediate_certificate#33d6a435957397fc9336c8633445aa33e1774500.crt";
 
-    ASSERT_TRUE( std::find(std::begin(attributes_fullname), std::end(attributes_fullname), one_full_path ) != std::end(attributes_fullname) );
+    ASSERT_TRUE(
+        std::find(std::begin(attributes_fullname), std::end(attributes_fullname), one_full_path) !=
+        std::end(attributes_fullname));
     auto attributes = simpleXml.lookup(one_full_path);
 
-    ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----BEGIN CERTIFICATE-----") );
-    ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----END CERTIFICATE-----") );
+    ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----BEGIN CERTIFICATE-----"));
+    ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----END CERTIFICATE-----"));
 }

@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/OSUtilities/ILocalIP.h>
+
 #include <memory>
 namespace Common
 {
@@ -21,5 +22,5 @@ namespace Common
         using ILocalIPPtr = std::unique_ptr<Common::OSUtilities::ILocalIP>;
         void replaceLocalIP(ILocalIPPtr);
         void restoreLocalIP();
-    }
-}
+    } // namespace OSUtilitiesImpl
+} // namespace Common

@@ -6,22 +6,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
 #include "PluginServerCallbackHandler.h"
 
+#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
+#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/PluginCommunication/IPluginProxy.h>
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 
-#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
-
-#include <string>
 #include <map>
 #include <mutex>
-
+#include <string>
 
 namespace ManagementAgent
 {
@@ -29,28 +25,30 @@ namespace ManagementAgent
     {
         class PluginManager : virtual public PluginCommunication::IPluginManager
         {
-
         public:
-
             PluginManager();
             ~PluginManager() override;
 
-
-            int applyNewPolicy(const std::string &appId, const std::string &policyXml) override;
-            int queueAction(const std::string &appId, const std::string &actionXml) override;
+            int applyNewPolicy(const std::string& appId, const std::string& policyXml) override;
+            int queueAction(const std::string& appId, const std::string& actionXml) override;
             void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
-            std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string & pluginName) override;
-            std::string getTelemetry(const std::string & pluginName) override;
+            std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string& pluginName) override;
+            std::string getTelemetry(const std::string& pluginName) override;
 
-            void registerPlugin(const std::string &pluginName) override;
-            void registerAndSetAppIds(const std::string &pluginName, const std::vector<std::string> &policyAppIds, const std::vector<std::string> & statusAppIds) override;
+            void registerPlugin(const std::string& pluginName) override;
+            void registerAndSetAppIds(
+                const std::string& pluginName,
+                const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& statusAppIds) override;
 
-            void removePlugin(const std::string &pluginName) override;
+            void removePlugin(const std::string& pluginName) override;
 
             std::vector<std::string> getRegisteredPluginNames() override;
 
             Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
-            void setServerCallback(std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback, Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
+            void setServerCallback(
+                std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback,
+                Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
@@ -65,7 +63,6 @@ namespace ManagementAgent
             void setDefaultConnectTimeout(int timeoutMs);
 
         private:
-
             PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
@@ -87,8 +84,8 @@ namespace ManagementAgent
              * @return BORROWED pointer to the proxy
              */
             PluginCommunication::IPluginProxy* locked_createPlugin(
-                    const std::string& pluginName,
-                    std::lock_guard<std::mutex>& lock);
+                const std::string& pluginName,
+                std::lock_guard<std::mutex>& lock);
 
             /**
              *
@@ -100,15 +97,11 @@ namespace ManagementAgent
              * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              */
             void locked_setAppIds(
-                    PluginCommunication::IPluginProxy* plugin,
-                    const std::vector<std::string> &policyAppIds,
-                    const std::vector<std::string> & statusAppIds,
-                    std::lock_guard<std::mutex>& lock);
+                PluginCommunication::IPluginProxy* plugin,
+                const std::vector<std::string>& policyAppIds,
+                const std::vector<std::string>& statusAppIds,
+                std::lock_guard<std::mutex>& lock);
         };
 
-    }
-}
-
-
-
-
+    } // namespace PluginCommunicationImpl
+} // namespace ManagementAgent

@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FilePermissionsReplaceAndRestore.h"
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 
 void Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions> pointerToReplace)
 {
@@ -15,8 +15,5 @@ void Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePerm
 
 void Tests::restoreFilePermissions()
 {
-    Common::FileSystem::filePermissionsStaticPointer().reset( new Common::FileSystem::FilePermissionsImpl());
+    Common::FileSystem::filePermissionsStaticPointer().reset(new Common::FileSystem::FilePermissionsImpl());
 }
-
-
-

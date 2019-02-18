@@ -37,10 +37,10 @@ UGM1fArWPUkca/ihCL2aE2UW+lziDj3lMuoMEp8wtcUHKa6LhZ0f8hwFwS8T2JOu
 vhskeQr+pn7unHNSbWzv8iNAXbqSFWp+7cCysaLn6ey7V5fcu+ymPgREMf5XwzuA
 VIrEH+AhEUc8vQIQ/27HK0fgpbxKjpE5on233GUWe/IrazGHuQxuYbxwteC9whds
 YKeb0xkxnpobTKInUKtzFbN3TjwkJ9XifsBHpFYq
------END CERTIFICATE-----)"
-    );
+-----END CERTIFICATE-----)");
 
-    const std::string one_entry_changed(R"(".\files\base\bin\SulDownloader" 24440 f892789366e2b529c4fb5df597db166aba6fce88
+    const std::string one_entry_changed(
+        R"(".\files\base\bin\SulDownloader" 24440 f892789366e2b529c4fb5df597db166aba6fce88
 #sha256 34ae939f422a460fa58581035b497e869837217fffd1e97f0e8fa36feb0715ff
 #sha384 96dedb1a4a633d63301e8f7aee1f878d6a5222723316a4cb244d37577f4ccbd2f7a801adbb2292749dfc02f7270287ff
 -----BEGIN SIGNATURE-----
@@ -68,10 +68,10 @@ UGM1fArWPUkca/ihCL2aE2UW+lziDj3lMuoMEp8wtcUHKa6LhZ0f8hwFwS8T2JOu
 vhskeQr+pn7unHNSbWzv8iNAXbqSFWp+7cCysaLn6ey7V5fcu+ymPgREMf5XwzuA
 VIrEH+AhEUc8vQIQ/27HK0fgpbxKjpE5on233GUWe/IrazGHuQxuYbxwteC9whds
 YKeb0xkxnpobTKInUKtzFbN3TjwkJ9XifsBHpFYq
------END CERTIFICATE-----)"
-    );
+-----END CERTIFICATE-----)");
 
-    const std::string one_entry_changed_sha256(R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
+    const std::string one_entry_changed_sha256(
+        R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
 #sha256 34ae939f422a460fa58581035b497e869837217fffd1e97f0e8fa36feb0715bf
 #sha384 96dedb1a4a633d63301e8f7aee1f878d6a5222723316a4cb244d37577f4ccbd2f7a801adbb2292749dfc02f7270287ec
 -----BEGIN SIGNATURE-----
@@ -99,8 +99,7 @@ UGM1fArWPUkca/ihCL2aE2UW+lziDj3lMuoMEp8wtcUHKa6LhZ0f8hwFwS8T2JOu
 vhskeQr+pn7unHNSbWzv8iNAXbqSFWp+7cCysaLn6ey7V5fcu+ymPgREMf5XwzuA
 VIrEH+AhEUc8vQIQ/27HK0fgpbxKjpE5on233GUWe/IrazGHuQxuYbxwteC9whds
 YKeb0xkxnpobTKInUKtzFbN3TjwkJ9XifsBHpFYq
------END CERTIFICATE-----)"
-    );
+-----END CERTIFICATE-----)");
 
     const std::string two_entries(R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
 #sha256 34ae939f422a460fa58581035b497e869837217fffd1e97f0e8fa36feb0715bb
@@ -133,9 +132,7 @@ UGM1fArWPUkca/ihCL2aE2UW+lziDj3lMuoMEp8wtcUHKa6LhZ0f8hwFwS8T2JOu
 vhskeQr+pn7unHNSbWzv8iNAXbqSFWp+7cCysaLn6ey7V5fcu+ymPgREMf5XwzuA
 VIrEH+AhEUc8vQIQ/27HK0fgpbxKjpE5on233GUWe/IrazGHuQxuYbxwteC9whds
 YKeb0xkxnpobTKInUKtzFbN3TjwkJ9XifsBHpFYq
------END CERTIFICATE-----)"
-    );
-
+-----END CERTIFICATE-----)");
 
     const std::string sixteen_entries(R"(".\files\base\bin\SulDownloader" 24440 2892789366e2b528b4fb5df597db166aba6fce88
 #sha256 34ae939f422a460fa58581035b497e869837217fffd1e97f0e8fa36feb0715bb
@@ -234,4 +231,4 @@ wcFHdBmgXDsTn+DjOa1AHcLXOo9pb1LBJa1/+ozQrRFCEZHeNmUDBCg6fx2EUfg/
 sP1Z9XZZl5f7fOerDon/kkEfmaWjmHDGuRotVKq2STU=
 -----END CERTIFICATE-----
 )");
-}
+} // namespace

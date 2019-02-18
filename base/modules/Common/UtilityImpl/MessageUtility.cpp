@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MessageUtility.h"
-#include "MessageException.h"
 
+#include "MessageException.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,7 @@ namespace Common
 {
     namespace UtilityImpl
     {
-        std::string MessageUtility::protoBuf2Json(const google::protobuf::Message &message)
+        std::string MessageUtility::protoBuf2Json(const google::protobuf::Message& message)
         {
             using namespace google::protobuf::util;
             std::string json_output;
@@ -32,5 +32,5 @@ namespace Common
             }
             return json_output;
         }
-    }
-}
+    } // namespace UtilityImpl
+} // namespace Common

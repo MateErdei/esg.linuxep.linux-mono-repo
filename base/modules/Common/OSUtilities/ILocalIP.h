@@ -21,16 +21,14 @@ namespace Common
             virtual IPs getLocalIPs() const = 0;
         };
 
-
         /**
-        * Return a BORROWED pointer to a static ILocalIP instance.
-        *
-        * Do not delete this yourself.
-        *
-        * @return BORROWED ILocalIP pointer
-        */
-        ILocalIP *localIP();
+         * Return a BORROWED pointer to a static ILocalIP instance.
+         *
+         * Do not delete this yourself.
+         *
+         * @return BORROWED ILocalIP pointer
+         */
+        ILocalIP* localIP();
 
-
-    }
-}
+    } // namespace OSUtilities
+} // namespace Common

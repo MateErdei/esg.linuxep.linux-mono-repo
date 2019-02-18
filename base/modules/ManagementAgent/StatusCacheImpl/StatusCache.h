@@ -22,6 +22,7 @@ namespace ManagementAgent
             ~StatusCache() override = default;
             bool statusChanged(const std::string& appid, const std::string& statusForComparison) override;
             void loadCacheFromDisk() override;
+
         private:
             /**
              * Possibly need to convert to on-disk, or use on-disk as well
@@ -34,7 +35,6 @@ namespace ManagementAgent
              * @param statusForComparison
              */
             void updateStatus(const std::string& appid, const std::string& statusForComparison);
-
         };
-    }
-}
+    } // namespace StatusCacheImpl
+} // namespace ManagementAgent

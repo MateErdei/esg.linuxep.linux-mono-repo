@@ -9,10 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace  sslimpl
+    namespace sslimpl
     {
-        std::string md5(const std::string & input);
+        std::string md5(const std::string& input);
     }
-}
-
-
+} // namespace Common

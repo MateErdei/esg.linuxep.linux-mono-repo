@@ -5,36 +5,31 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Watchdog.h"
-#include "SignalHandler.h"
-#include "PluginProxy.h"
+
 #include "Logger.h"
+#include "PluginProxy.h"
+#include "SignalHandler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-
-#include <cstdlib>
-#include <cassert>
-#include <unistd.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 
+#include <cassert>
+#include <cstdlib>
+#include <unistd.h>
+
 using namespace watchdog::watchdogimpl;
 
-Watchdog::Watchdog()
-        : Watchdog(Common::ZeroMQWrapper::createContext())
-{
-}
+Watchdog::Watchdog() : Watchdog(Common::ZeroMQWrapper::createContext()) {}
 
-Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context)
-        : m_context(std::move(context))
-{
-}
+Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context) : m_context(std::move(context)) {}
 
 Watchdog::~Watchdog()
 {
@@ -69,27 +64,19 @@ int Watchdog::run()
     Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
     Common::ZeroMQWrapper::IHasFDPtr subprocessFD = poller->addEntry(
-            signalHandler.subprocessExitFileDescriptor(),
-            Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
-            );
+        signalHandler.subprocessExitFileDescriptor(), Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
     Common::ZeroMQWrapper::IHasFDPtr terminationFD = poller->addEntry(
-            signalHandler.terminationFileDescriptor(),
-            Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
-            );
+        signalHandler.terminationFileDescriptor(), Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
 
-    poller->addEntry(
-            *m_socket,
-             Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN
-            );
+    poller->addEntry(*m_socket, Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
 
     std::chrono::seconds timeout(10);
 
     while (keepRunning)
     {
-        LOGDEBUG("Calling poller at "<<::time(nullptr));
-        Common::ZeroMQWrapper::IPoller::poll_result_t active =
-                poller->poll(std::chrono::milliseconds(timeout));
-        LOGDEBUG("Returned from poller: "<<active.size()<<" at "<<::time(nullptr));
+        LOGDEBUG("Calling poller at " << ::time(nullptr));
+        Common::ZeroMQWrapper::IPoller::poll_result_t active = poller->poll(std::chrono::milliseconds(timeout));
+        LOGDEBUG("Returned from poller: " << active.size() << " at " << ::time(nullptr));
 
         for (auto& fd : active)
         {
@@ -116,12 +103,12 @@ int Watchdog::run()
         for (auto& proxy : m_pluginProxies)
         {
             auto waitPeriod = proxy.checkForExit();
-            waitPeriod = std::min(proxy.ensureStateMatchesOptions(),waitPeriod);
+            waitPeriod = std::min(proxy.ensureStateMatchesOptions(), waitPeriod);
             timeout = std::min(waitPeriod, timeout);
         }
 
         timeout = std::max(timeout, std::chrono::seconds(1)); // Ensure we wait at least 1 second
-        LOGDEBUG("timeout = "<<timeout.count());
+        LOGDEBUG("timeout = " << timeout.count());
     }
 
     LOGINFO("Stopping processes");
@@ -163,7 +150,7 @@ void Watchdog::setupSocket()
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
-        LOGERROR( error.what());
+        LOGERROR(error.what());
         throw;
     }
 }
@@ -173,13 +160,13 @@ void Watchdog::handleSocketRequest()
     Common::ZeroMQWrapper::IReadable::data_t request = m_socket->read();
     std::string responseStr = handleCommand(request);
 
-    Common::ZeroMQWrapper::IWritable::data_t response{responseStr};
+    Common::ZeroMQWrapper::IWritable::data_t response{ responseStr };
     m_socket->write(response);
 }
 
-std::string Watchdog::disablePlugin(const std::string &pluginName)
+std::string Watchdog::disablePlugin(const std::string& pluginName)
 {
-    LOGINFO("Requesting stop of "<<pluginName);
+    LOGINFO("Requesting stop of " << pluginName);
     PluginProxy* proxy = findPlugin(pluginName);
     if (proxy != nullptr)
     {
@@ -189,13 +176,14 @@ std::string Watchdog::disablePlugin(const std::string &pluginName)
     return "Error: Plugin not found";
 }
 
-std::string Watchdog::enablePlugin(const std::string &pluginName)
+std::string Watchdog::enablePlugin(const std::string& pluginName)
 {
-    LOGINFO("Starting "<<pluginName);
+    LOGINFO("Starting " << pluginName);
 
     PluginProxy* proxy = findPlugin(pluginName); // BORROWED pointer
 
-    std::pair<Common::PluginRegistryImpl::PluginInfo, bool> loadResult = Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
+    std::pair<Common::PluginRegistryImpl::PluginInfo, bool> loadResult =
+        Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
 
     if (proxy == nullptr && !loadResult.second)
     {
@@ -218,12 +206,12 @@ std::string Watchdog::enablePlugin(const std::string &pluginName)
     return "OK";
 }
 
-std::string Watchdog::removePlugin(const std::string &pluginName)
+std::string Watchdog::removePlugin(const std::string& pluginName)
 {
-    LOGINFO("Removing "<<pluginName);
+    LOGINFO("Removing " << pluginName);
 
     bool found = false;
-    for (auto it = m_pluginProxies.begin() ; it != m_pluginProxies.end() ; )
+    for (auto it = m_pluginProxies.begin(); it != m_pluginProxies.end();)
     {
         if (pluginName == it->name())
         {
@@ -254,7 +242,7 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     }
     std::string command = request.at(0);
     std::string argument = request.at(1);
-    LOGINFO("Command from IPC: "<<command);
+    LOGINFO("Command from IPC: " << command);
 
     if (command == "STOP")
     {
@@ -272,7 +260,7 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     return "Error: Unknown command";
 }
 
-PluginProxy *Watchdog::findPlugin(const std::string& pluginName)
+PluginProxy* Watchdog::findPlugin(const std::string& pluginName)
 {
     for (auto& proxy : m_pluginProxies)
     {

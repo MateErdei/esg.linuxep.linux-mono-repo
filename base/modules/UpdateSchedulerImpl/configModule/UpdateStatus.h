@@ -5,9 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <Common/UtilityImpl/TimeUtils.h>
+
 #include <string>
 #include <vector>
-#include <Common/UtilityImpl/TimeUtils.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -15,12 +16,12 @@ namespace UpdateSchedulerImpl
     {
         struct ProductStatus
         {
-            ProductStatus(std::string rigid, std::string name, std::string downversion)
-                    :
-                    RigidName(std::move(rigid))
-                    , ProductName(std::move(name))
-                    , DownloadedVersion(std::move(downversion))
-            {}
+            ProductStatus(std::string rigid, std::string name, std::string downversion) :
+                RigidName(std::move(rigid)),
+                ProductName(std::move(name)),
+                DownloadedVersion(std::move(downversion))
+            {
+            }
 
             std::string RigidName;
             std::string ProductName;
@@ -29,9 +30,7 @@ namespace UpdateSchedulerImpl
 
         struct UpdateStatus
         {
-            UpdateStatus()
-                : LastResult(0)
-            {}
+            UpdateStatus() : LastResult(0) {}
 
             std::string LastBootTime;
             std::string LastStartTime;
@@ -44,11 +43,12 @@ namespace UpdateSchedulerImpl
             std::vector<ProductStatus> Products;
         };
 
+        std::string SerializeUpdateStatus(
+            const UpdateStatus& status,
+            const std::string& revID,
+            const std::string& versionId,
+            const std::string& machineID,
+            const Common::UtilityImpl::IFormattedTime& iFormattedTime);
 
-        std::string
-        SerializeUpdateStatus(const UpdateStatus& status, const std::string& revID, const std::string& versionId,
-                              const std::string & machineID, 
-                              const Common::UtilityImpl::IFormattedTime& iFormattedTime);
-
-    }
-}
+    } // namespace configModule
+} // namespace UpdateSchedulerImpl

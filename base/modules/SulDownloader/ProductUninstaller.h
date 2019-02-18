@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 
 #include <map>
@@ -26,13 +25,13 @@ namespace SulDownloader
          * @param downloadedProducts
          * @return List of products that have been uninstalled
          */
-        std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(const std::vector<suldownloaderdata::DownloadedProduct> &downloadedProducts);
+        std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(
+            const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();
-        std::vector<suldownloaderdata::DownloadedProduct> removeProducts(std::map<std::string, suldownloaderdata::DownloadedProduct> uninstallProductInfo);
-
+        std::vector<suldownloaderdata::DownloadedProduct> removeProducts(
+            std::map<std::string, suldownloaderdata::DownloadedProduct> uninstallProductInfo);
     };
 
-
-}
+} // namespace SulDownloader

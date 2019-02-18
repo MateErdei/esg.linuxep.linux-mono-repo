@@ -14,4 +14,4 @@ namespace Common
     {
         using StringVector = std::vector<std::string>;
     }
-}
+} // namespace Common

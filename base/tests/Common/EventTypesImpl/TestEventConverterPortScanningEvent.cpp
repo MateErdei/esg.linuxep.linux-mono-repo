@@ -4,30 +4,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock.h>
+#include "TestEventTypeHelper.h"
 
 #include <Common/EventTypes/PortScanningEvent.h>
 #include <Common/EventTypesImpl/EventConverter.h>
-#include "TestEventTypeHelper.h"
+#include <gmock/gmock.h>
 
 using namespace Common::EventTypes;
 
 class TestEventConverterPortScanningEvent : public Tests::TestEventTypeHelper
 {
-
 public:
-
     TestEventConverterPortScanningEvent() = default;
-
 };
 
-TEST_F(TestEventConverterPortScanningEvent, testConstructorDoesNotThrow) //NOLINT
+TEST_F(TestEventConverterPortScanningEvent, testConstructorDoesNotThrow) // NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> p;
-    EXPECT_NO_THROW(p = Common::EventTypes::constructEventConverter();); //NOLINT
+    EXPECT_NO_THROW(p = Common::EventTypes::constructEventConverter();); // NOLINT
 }
 
-TEST_F(TestEventConverterPortScanningEvent, testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
+TEST_F( // NOLINT
+    TestEventConverterPortScanningEvent,
+    testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues)
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
@@ -36,21 +35,25 @@ TEST_F(TestEventConverterPortScanningEvent, testCreateCredentialEventFromStringC
 
     auto eventActual = converter->stringToPortScanningEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( portScanningEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2(portScanningEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterPortScanningEvent, testCreatePortScanningEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+TEST_F( // NOLINT
+    TestEventConverterPortScanningEvent,
+    testCreatePortScanningEventFromStringThrowsIfDataInvalidCapnString)
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter->stringToPortScanningEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
+    EXPECT_THROW( // NOLINT
+        converter->stringToPortScanningEvent("Not Valid Capn String"),
+        Common::EventTypes::IEventException);
 }
 
-TEST_F(TestEventConverterPortScanningEvent, testCreatePortScanningFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
+TEST_F(TestEventConverterPortScanningEvent, testCreatePortScanningFromStringThrowsIfDataTypeStringIsEmpty) // NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     PortScanningEvent eventExpected = createDefaultPortScanningEvent();
 
-    EXPECT_THROW(converter->stringToPortScanningEvent(""), Common::EventTypes::IEventException); //NOLINT
+    EXPECT_THROW(converter->stringToPortScanningEvent(""), Common::EventTypes::IEventException); // NOLINT
 }

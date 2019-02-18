@@ -9,10 +9,9 @@ namespace Common
 {
     namespace UtilityImpl
     {
-
         std::string returnFirstMatch(const std::string& stringpattern, const std::string& content)
         {
-            std::regex regexPattern{stringpattern};
+            std::regex regexPattern{ stringpattern };
             return returnFirstMatch(regexPattern, content);
         }
 
@@ -30,7 +29,6 @@ namespace Common
             return std::string();
         }
 
+    } // namespace UtilityImpl
 
-    }
-
-}
+} // namespace Common

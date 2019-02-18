@@ -4,63 +4,48 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <watchdog/watchdogimpl/watchdog_main.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginRegistryImpl/PluginRegistryException.h>
-
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <watchdog/watchdogimpl/Watchdog.h>
+#include <watchdog/watchdogimpl/watchdog_main.h>
 
 namespace
 {
-    class TestWatchdog
-        : public watchdog::watchdogimpl::Watchdog
+    class TestWatchdog : public watchdog::watchdogimpl::Watchdog
     {
         TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+
     public:
+        TestWatchdog() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
 
-        TestWatchdog()
-                : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
-        {}
-
-        watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs()
-        {
-            return read_plugin_configs();
-        }
+        watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return read_plugin_configs(); }
     };
 
     using ::testing::NiceMock;
 
     class WatchdogTests : public ::testing::Test
     {
-
     public:
-
         void SetUp() override
         {
-            MockedApplicationPathManager *mockAppManager = new NiceMock<MockedApplicationPathManager>();
-            MockedApplicationPathManager &mock(*mockAppManager);
+            MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+            MockedApplicationPathManager& mock(*mockAppManager);
             ON_CALL(mock, sophosInstall()).WillByDefault(Return("/tmp/sophos"));
             ON_CALL(mock, getPluginRegistryPath()).WillByDefault(Return("/tmp/plugins"));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
-                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
         }
 
-        void TearDown() override
-        {
-            Common::ApplicationConfiguration::restoreApplicationPathManager();
-        }
-
+        void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
     };
 
-    std::string createJsonString(const std::string & oldPartString, const std::string & newPartString)
+    std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
     {
         std::string jsonString = R"({
                                     "policyAppIds": [
@@ -83,21 +68,19 @@ namespace
                                      ]
                                     })";
 
-        if(!oldPartString.empty())
+        if (!oldPartString.empty())
         {
             size_t pos = jsonString.find(oldPartString);
 
-            EXPECT_NE(pos,std::string::npos);
+            EXPECT_NE(pos, std::string::npos);
 
             jsonString.replace(pos, oldPartString.size(), newPartString);
-
         }
 
         return jsonString;
     }
 
-
-    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) //NOLINT
+    TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) // NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -114,14 +97,14 @@ namespace
         TestWatchdog watchdog;
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
 
-        EXPECT_EQ(plugins.size(),1);
+        EXPECT_EQ(plugins.size(), 1);
 
         Tests::restoreFileSystem();
     }
 
-    TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) //NOLINT
+    TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) // NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -134,13 +117,13 @@ namespace
         EXPECT_CALL(*mockFileSystem, readFile(filename)).WillOnce(Return("invalid json"));
 
         TestWatchdog watchdog;
-        
-        EXPECT_NO_THROW(watchdog.call_read_plugin_configs());
+
+        EXPECT_NO_THROW(watchdog.call_read_plugin_configs()); // NOLINT
 
         Tests::restoreFileSystem();
     }
 
-    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) //NOLINT
+    TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) // NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
@@ -161,13 +144,12 @@ namespace
 
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
 
-        EXPECT_EQ(plugins.size(),1);
+        EXPECT_EQ(plugins.size(), 1);
 
         Tests::restoreFileSystem();
     }
-
 
     TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs) // NOLINT
     {
@@ -191,10 +173,10 @@ namespace
 
         watchdog::watchdogimpl::PluginInfoVector plugins;
 
-        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs());
+        EXPECT_NO_THROW(plugins = watchdog.call_read_plugin_configs()); // NOLINT
 
-        EXPECT_EQ(plugins.size(),2);
+        EXPECT_EQ(plugins.size(), 2);
 
         Tests::restoreFileSystem();
     }
-}
+} // namespace

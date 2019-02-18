@@ -4,110 +4,83 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "PluginInfo.h"
+
+#include "Logger.h"
 #include "PluginInfo.pb.h"
 #include "PluginRegistryException.h"
-#include "Logger.h"
+
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
-#include <pwd.h>
-#include <grp.h>
-#include <unistd.h>
-
 #include <google/protobuf/util/json_util.h>
+
+#include <grp.h>
+#include <pwd.h>
+#include <unistd.h>
 
 namespace Common
 {
     namespace PluginRegistryImpl
     {
-        PluginInfo::PluginInfo()
-        : m_executableUser(-1)
-        , m_executableGroup(-1)
-        {
+        PluginInfo::PluginInfo() : m_executableUser(-1), m_executableGroup(-1) {}
 
-        }
+        std::vector<std::string> PluginInfo::getPolicyAppIds() const { return m_policyAppIds; }
 
-        std::vector<std::string> PluginInfo::getPolicyAppIds() const
-        {
-            return m_policyAppIds;
-        }
-
-        std::string PluginInfo::getPluginName() const
-        {
-            return m_pluginName;
-        }
+        std::string PluginInfo::getPluginName() const { return m_pluginName; }
 
         std::string PluginInfo::getPluginIpcAddress() const
         {
             return Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(m_pluginName);
         }
 
-        std::string PluginInfo::getXmlTranslatorPath() const
-        {
-            return m_xmlTranslatorPath;
-        }
+        std::string PluginInfo::getXmlTranslatorPath() const { return m_xmlTranslatorPath; }
 
-        std::vector<std::string> PluginInfo::getExecutableArguments() const
-        {
-            return m_executableArguments;
-        }
+        std::vector<std::string> PluginInfo::getExecutableArguments() const { return m_executableArguments; }
 
         PluginInfo::EnvPairs PluginInfo::getExecutableEnvironmentVariables() const
         {
             return m_executableEnvironmentVariables;
         }
 
-        std::string PluginInfo::getExecutableFullPath() const
-        {
-            return m_executableFullPath;
-        }
+        std::string PluginInfo::getExecutableFullPath() const { return m_executableFullPath; }
 
-        void PluginInfo::setPolicyAppIds(const std::vector<std::string> &appIDs)
-        {
-            m_policyAppIds = appIDs;
-        }
+        void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
-        void PluginInfo::addPolicyAppIds(const std::string &appID)
-        {
-            m_policyAppIds.push_back(appID);
-        }
+        void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
 
-        void PluginInfo::setPluginName(const std::string &pluginName)
-        {
-            m_pluginName = pluginName;
-        }
+        void PluginInfo::setPluginName(const std::string& pluginName) { m_pluginName = pluginName; }
 
-        void PluginInfo::setXmlTranslatorPath(const std::string &xmlTranslationPath)
+        void PluginInfo::setXmlTranslatorPath(const std::string& xmlTranslationPath)
         {
             m_xmlTranslatorPath = xmlTranslationPath;
         }
 
-        void PluginInfo::setExecutableFullPath(const std::string &executableFullPath)
+        void PluginInfo::setExecutableFullPath(const std::string& executableFullPath)
         {
             m_executableFullPath = executableFullPath;
         }
 
-        void PluginInfo::setExecutableArguments(const std::vector<std::string> &executableArguments)
+        void PluginInfo::setExecutableArguments(const std::vector<std::string>& executableArguments)
         {
             m_executableArguments = executableArguments;
         }
 
-        void PluginInfo::addExecutableArguments(const std::string &executableArgument)
+        void PluginInfo::addExecutableArguments(const std::string& executableArgument)
         {
             m_executableArguments.push_back(executableArgument);
         }
 
-        void PluginInfo::setExecutableEnvironmentVariables(const PluginInfo::EnvPairs  &executableEnvironmentVariables)
+        void PluginInfo::setExecutableEnvironmentVariables(const PluginInfo::EnvPairs& executableEnvironmentVariables)
         {
             m_executableEnvironmentVariables = executableEnvironmentVariables;
         }
 
-        void PluginInfo::addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue)
+        void PluginInfo::addExecutableEnvironmentVariables(
+            const std::string& environmentName,
+            const std::string& environmentValue)
         {
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
         }
@@ -129,7 +102,7 @@ namespace Common
                 groupName = executableUserAndGroup.substr(pos + 1);
             }
 
-            struct passwd *passwdStruct;
+            struct passwd* passwdStruct;
             passwdStruct = ::getpwnam(userName.c_str());
 
             if (passwdStruct != nullptr)
@@ -148,7 +121,7 @@ namespace Common
                         int groupId = filefunctions.getGroupId(groupName);
                         m_executableGroup = groupId;
                     }
-                    catch (const Common::FileSystem::IFileSystemException & exception)
+                    catch (const Common::FileSystem::IFileSystemException& exception)
                     {
                         LOGERROR(exception.what());
                     }
@@ -156,17 +129,13 @@ namespace Common
             }
         }
 
-        std::string PluginInfo::getExecutableUserAndGroupAsString() const
-        {
-            return m_executableUserAndGroupAsString;
-        }
+        std::string PluginInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
 
-        std::pair<bool, uid_t>  PluginInfo::getExecutableUser() const
+        std::pair<bool, uid_t> PluginInfo::getExecutableUser() const
         {
             uid_t userId = static_cast<uid_t>(m_executableUser);
 
             return std::make_pair(m_executableUser != -1, userId);
-
         }
 
         std::pair<bool, gid_t> PluginInfo::getExecutableGroup() const
@@ -174,20 +143,19 @@ namespace Common
             gid_t groupId = static_cast<gid_t>(m_executableGroup);
 
             return std::make_pair(m_executableGroup != -1, groupId);
-
         }
 
-        std::string PluginInfo::serializeToString(const PluginInfo & pluginInfo)
+        std::string PluginInfo::serializeToString(const PluginInfo& pluginInfo)
         {
-            using ProtoPluginInfo =  PluginInfoProto::PluginInfo;
+            using ProtoPluginInfo = PluginInfoProto::PluginInfo;
             ProtoPluginInfo pluginInfoProto;
 
-            for(auto & policyAppId : pluginInfo.getPolicyAppIds())
+            for (auto& policyAppId : pluginInfo.getPolicyAppIds())
             {
                 pluginInfoProto.add_policyappids(policyAppId);
             }
 
-            for(auto & statusAppId : pluginInfo.getStatusAppIds())
+            for (auto& statusAppId : pluginInfo.getStatusAppIds())
             {
                 pluginInfoProto.add_statusappids(statusAppId);
             }
@@ -197,44 +165,45 @@ namespace Common
             pluginInfoProto.set_executableuserandgroup(pluginInfo.getExecutableUserAndGroupAsString());
             pluginInfoProto.set_executablefullpath(pluginInfo.getExecutableFullPath());
 
-            for(auto & arg : pluginInfo.getExecutableArguments())
+            for (auto& arg : pluginInfo.getExecutableArguments())
             {
                 pluginInfoProto.add_executablearguments(arg);
             }
 
-
-            for(auto & envVar: pluginInfo.getExecutableEnvironmentVariables())
+            for (auto& envVar : pluginInfo.getExecutableEnvironmentVariables())
             {
-                PluginInfoProto::PluginInfo_EnvironmentVariablesT * environmentVariables = pluginInfoProto.add_environmentvariables();
+                PluginInfoProto::PluginInfo_EnvironmentVariablesT* environmentVariables =
+                    pluginInfoProto.add_environmentvariables();
                 environmentVariables->set_name(envVar.first);
                 environmentVariables->set_value(envVar.second);
             }
 
-            return  Common::UtilityImpl::MessageUtility::protoBuf2Json(pluginInfoProto);
+            return Common::UtilityImpl::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
 
-        PluginInfo PluginInfo::deserializeFromString(const std::string& settingsString, const std::string& pluginNameFromFilename)
+        PluginInfo PluginInfo::deserializeFromString(
+            const std::string& settingsString,
+            const std::string& pluginNameFromFilename)
         {
-
-            using ProtoPluginInfo =  PluginInfoProto::PluginInfo;
+            using ProtoPluginInfo = PluginInfoProto::PluginInfo;
             using namespace google::protobuf::util;
             ProtoPluginInfo protoPluginInfo;
 
-            auto status = JsonStringToMessage(settingsString, &protoPluginInfo );
+            auto status = JsonStringToMessage(settingsString, &protoPluginInfo);
 
-            if ( !status.ok())
+            if (!status.ok())
             {
-                  throw PluginRegistryException(std::string("Failed to load json string: ") + status.ToString());
+                throw PluginRegistryException(std::string("Failed to load json string: ") + status.ToString());
             }
 
             PluginInfo pluginInfo;
 
-            for ( const auto & statusAppid : protoPluginInfo.statusappids())
+            for (const auto& statusAppid : protoPluginInfo.statusappids())
             {
                 pluginInfo.addStatusAppIds(statusAppid);
             }
 
-            for ( const auto & policyAppid : protoPluginInfo.policyappids())
+            for (const auto& policyAppid : protoPluginInfo.policyappids())
             {
                 pluginInfo.addPolicyAppIds(policyAppid);
             }
@@ -247,20 +216,20 @@ namespace Common
             else if (pluginname != pluginNameFromFilename)
             {
                 throw PluginRegistryException(
-                        std::string("Inconsistent plugin name plugin_name_from_file=") + pluginNameFromFilename + " plugin_name_from_json=" + pluginname
-                        );
+                    std::string("Inconsistent plugin name plugin_name_from_file=") + pluginNameFromFilename +
+                    " plugin_name_from_json=" + pluginname);
             }
             pluginInfo.setPluginName(pluginname);
             pluginInfo.setXmlTranslatorPath(protoPluginInfo.xmltranslatorpath());
             pluginInfo.setExecutableUserAndGroup(protoPluginInfo.executableuserandgroup());
             pluginInfo.setExecutableFullPath(protoPluginInfo.executablefullpath());
 
-            for( const auto & argv : protoPluginInfo.executablearguments())
+            for (const auto& argv : protoPluginInfo.executablearguments())
             {
                 pluginInfo.addExecutableArguments(argv);
             }
 
-            for( auto & argEnv: protoPluginInfo.environmentvariables())
+            for (auto& argEnv : protoPluginInfo.environmentvariables())
             {
                 pluginInfo.addExecutableEnvironmentVariables(argEnv.name(), argEnv.value());
             }
@@ -268,16 +237,16 @@ namespace Common
             return pluginInfo;
         }
 
-        std::vector<PluginInfo> PluginInfo::loadFromDirectoryPath(const std::string & directoryPath)
+        std::vector<PluginInfo> PluginInfo::loadFromDirectoryPath(const std::string& directoryPath)
         {
             std::vector<std::string> files = FileSystem::fileSystem()->listFiles(directoryPath);
 
             std::vector<PluginInfo> pluginInfoList;
             pluginInfoList.reserve(files.size());
 
-            for(auto &pluginInfoFile : files)
+            for (auto& pluginInfoFile : files)
             {
-                if (Common::UtilityImpl::StringUtils::endswith(pluginInfoFile,".json"))
+                if (Common::UtilityImpl::StringUtils::endswith(pluginInfoFile, ".json"))
                 {
                     std::string pluginName(extractPluginNameFromFilename(pluginInfoFile));
                     try
@@ -292,7 +261,7 @@ namespace Common
                         LOGSUPPORT(reason);
                         continue;
                     }
-                    catch(Common::FileSystem::IFileSystemException &)
+                    catch (Common::FileSystem::IFileSystemException&)
                     {
                         LOGWARN("IO error, failed to obtain plugin information from file: " << pluginInfoFile);
                         continue;
@@ -300,7 +269,7 @@ namespace Common
                 }
             }
 
-            if(pluginInfoList.empty())
+            if (pluginInfoList.empty())
             {
                 // There may be instances when there are no plugins available. Such as initial install.
                 LOGWARN("Failed to load any plugin registry information from: " + directoryPath);
@@ -311,28 +280,21 @@ namespace Common
 
         std::vector<PluginInfo> PluginInfo::loadFromPluginRegistry()
         {
-            return loadFromDirectoryPath(Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath());
+            return loadFromDirectoryPath(
+                Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath());
         }
 
-        std::vector<std::string> PluginInfo::getStatusAppIds() const
-        {
-            return m_statusAppIds;
-        }
+        std::vector<std::string> PluginInfo::getStatusAppIds() const { return m_statusAppIds; }
 
-        void PluginInfo::setStatusAppIds(const std::vector<std::string> &appIDs)
-        {
-            m_statusAppIds = appIDs;
-        }
+        void PluginInfo::setStatusAppIds(const std::vector<std::string>& appIDs) { m_statusAppIds = appIDs; }
 
-        void PluginInfo::addStatusAppIds(const std::string &appID)
-        {
-            m_statusAppIds.push_back(appID);
-        }
+        void PluginInfo::addStatusAppIds(const std::string& appID) { m_statusAppIds.push_back(appID); }
 
         std::pair<PluginInfo, bool> PluginInfo::loadPluginInfoFromRegistry(const std::string& pluginName)
         {
-            Path pluginFilePath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(),
-                    pluginName+".json");
+            Path pluginFilePath = Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(),
+                pluginName + ".json");
 
             if (!Common::FileSystem::fileSystem()->isFile(pluginFilePath))
             {
@@ -342,7 +304,6 @@ namespace Common
             {
                 std::string fileContent = FileSystem::fileSystem()->readFile(pluginFilePath);
                 return std::pair<PluginInfo, bool>(deserializeFromString(fileContent, pluginName), true);
-
             }
             catch (std::exception& ex)
             {
@@ -358,7 +319,5 @@ namespace Common
             return prefix;
         }
 
-
-
-    }
-}
+    } // namespace PluginRegistryImpl
+} // namespace Common

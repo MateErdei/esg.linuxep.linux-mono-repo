@@ -43,8 +43,5 @@ namespace Common
          * @return 0 for success, otherwise error code
          */
         int mainEntry(int argc, char* argv[]);
-    }
-}
-
-
-
+    } // namespace OSUtilitiesImpl
+} // namespace Common

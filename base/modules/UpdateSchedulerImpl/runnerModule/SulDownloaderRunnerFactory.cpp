@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "SulDownloaderRunnerFactory.h"
+
 #include "AsyncSulDownloaderRunner.h"
 
 namespace UpdateSchedulerImpl
@@ -12,12 +13,9 @@ namespace UpdateSchedulerImpl
     {
         using namespace UpdateScheduler;
 
-/**Factory */
+        /**Factory */
 
-        SulDownloaderRunnerFactory::SulDownloaderRunnerFactory()
-        {
-            restoreCreator();
-        }
+        SulDownloaderRunnerFactory::SulDownloaderRunnerFactory() { restoreCreator(); }
 
         SulDownloaderRunnerFactory& SulDownloaderRunnerFactory::instance()
         {
@@ -26,32 +24,30 @@ namespace UpdateSchedulerImpl
         }
 
         std::unique_ptr<IAsyncSulDownloaderRunner> SulDownloaderRunnerFactory::createSulDownloaderRunner(
-                std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath)
+            std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+            const std::string& dirPath)
         {
             return m_creator(schedulerTaskQueue, dirPath);
         }
 
-        void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator)
-        {
-            m_creator = creator;
-        }
+        void SulDownloaderRunnerFactory::replaceCreator(FunctionType creator) { m_creator = creator; }
 
         void SulDownloaderRunnerFactory::restoreCreator()
         {
             m_creator = [](std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue, const std::string& dirPath) {
                 return std::unique_ptr<IAsyncSulDownloaderRunner>(
-                        new AsyncSulDownloaderRunner(schedulerTaskQueue, dirPath));
+                    new AsyncSulDownloaderRunner(schedulerTaskQueue, dirPath));
             };
         }
-    }
-}
+    } // namespace runnerModule
+} // namespace UpdateSchedulerImpl
 namespace UpdateScheduler
 {
-
-    std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(std::shared_ptr<SchedulerTaskQueue>
-                                                                         schedulerTaskQueue, std::string dirPath)
+    std::unique_ptr<IAsyncSulDownloaderRunner> createSulDownloaderRunner(
+        std::shared_ptr<SchedulerTaskQueue> schedulerTaskQueue,
+        std::string dirPath)
     {
         using SulDownloaderRunnerFactory = UpdateSchedulerImpl::runnerModule::SulDownloaderRunnerFactory;
         return SulDownloaderRunnerFactory::instance().createSulDownloaderRunner(schedulerTaskQueue, dirPath);
     }
-}
+} // namespace UpdateScheduler

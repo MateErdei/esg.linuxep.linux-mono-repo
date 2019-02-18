@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace Common
 {
@@ -47,7 +47,7 @@ namespace Common
              * @param count
              * @return
              */
-            virtual ssize_t write(int fd, const void *buf, size_t count) const = 0;
+            virtual ssize_t write(int fd, const void* buf, size_t count) const = 0;
             /**
              * Wrapper for close
              * @param fd
@@ -66,7 +66,6 @@ namespace Common
         };
 
         // Used to access global instance of PidLockUtils.
-        IPidLockFileUtils *pidLockUtils();
-    }
-}
-
+        IPidLockFileUtils* pidLockUtils();
+    } // namespace OSUtilities
+} // namespace Common

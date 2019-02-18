@@ -7,8 +7,4 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace wdctl::wdctlactions;
 
-Action::Action(const wdctl::wdctlarguments::Arguments& args)
-    : m_args(args)
-{
-
-}
+Action::Action(const wdctl::wdctlarguments::Arguments& args) : m_args(args) {}

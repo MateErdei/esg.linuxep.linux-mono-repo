@@ -10,16 +10,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 class PipeForTests
 {
-public :
+public:
     PipeForTests();
     ~PipeForTests();
 
-    void write( const std::string  & );
+    void write(const std::string&);
 
     int readFd();
+
 private:
     int m_readFd;
     int m_writeFd;
 };
-
-

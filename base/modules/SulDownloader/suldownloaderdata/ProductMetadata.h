@@ -6,14 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "Tag.h"
+
 #include <string>
 #include <vector>
 
-#include "Tag.h"
-
 namespace SulDownloader
 {
-
     namespace suldownloaderdata
     {
         /**
@@ -51,6 +50,5 @@ namespace SulDownloader
             std::string m_version;
             std::string m_defaultHomeFolder;
         };
-    }
-}
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

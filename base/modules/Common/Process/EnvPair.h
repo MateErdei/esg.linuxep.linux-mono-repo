@@ -12,8 +12,7 @@ namespace Common
 {
     namespace Process
     {
-
-        using EnvironmentPair = std::pair<std::string,std::string>;
+        using EnvironmentPair = std::pair<std::string, std::string>;
         using EnvPairVector = std::vector<EnvironmentPair>;
-    }
-}
+    } // namespace Process
+} // namespace Common

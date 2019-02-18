@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ManifestDiff.h"
+
 #include "CommandLineOptions.h"
 #include "Manifest.h"
 
@@ -20,8 +21,8 @@ int ManifestDiff::manifestDiffMain(int argc, char** argv)
 {
     Common::Datatypes::StringVector argvv;
 
-    assert(argc>=1);
-    for(int i=0; i<argc; i++)
+    assert(argc >= 1);
+    for (int i = 0; i < argc; i++)
     {
         argvv.emplace_back(argv[i]);
     }
@@ -66,19 +67,17 @@ PathSet ManifestDiff::entriesToPaths(const ManifestEntrySet& entries)
 void ManifestDiff::writeFile(const std::string& destination, const PathSet& paths)
 {
     assert(!destination.empty());
-    Common::FileSystem::fileSystem()->writeFile(destination,toString(paths));
+    Common::FileSystem::fileSystem()->writeFile(destination, toString(paths));
 }
 
-void ManifestDiff::writeAdded(const std::string& destination,
-                              const Manifest& oldManifest,
-                              const Manifest& newManifest)
+void ManifestDiff::writeAdded(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)
 {
     if (destination.empty())
     {
         return;
     }
     PathSet added = calculateAdded(oldManifest, newManifest);
-    writeFile(destination,added);
+    writeFile(destination, added);
 }
 
 PathSet ManifestDiff::calculateAdded(const Manifest& oldManifest, const Manifest& newManifest)
@@ -86,22 +85,28 @@ PathSet ManifestDiff::calculateAdded(const Manifest& oldManifest, const Manifest
     return entriesToPaths(newManifest.calculateAdded(oldManifest));
 }
 
-void ManifestDiff::writeRemoved(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)
+void ManifestDiff::writeRemoved(
+    const std::string& destination,
+    const Manifest& oldManifest,
+    const Manifest& newManifest)
 {
     if (destination.empty())
     {
         return;
     }
     PathSet removed = entriesToPaths(newManifest.calculateRemoved(oldManifest));
-    writeFile(destination,removed);
+    writeFile(destination, removed);
 }
 
-void ManifestDiff::writeChanged(const std::string& destination, const Manifest& oldManifest, const Manifest& newManifest)
+void ManifestDiff::writeChanged(
+    const std::string& destination,
+    const Manifest& oldManifest,
+    const Manifest& newManifest)
 {
     if (destination.empty())
     {
         return;
     }
     PathSet changed = entriesToPaths(newManifest.calculateChanged(oldManifest));
-    writeFile(destination,changed);
+    writeFile(destination, changed);
 }

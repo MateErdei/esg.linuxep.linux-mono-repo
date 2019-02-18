@@ -19,7 +19,6 @@ void LoggingSetup::applyDefaultPattern(AppenderPtr& appender)
 
 void LoggingSetup::applyPattern(AppenderPtr& appender, const char* pattern)
 {
-
     std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(pattern)); // NOLINT
     appender->setLayout(std::move(layout));
 }

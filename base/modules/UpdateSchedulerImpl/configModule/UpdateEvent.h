@@ -5,10 +5,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <UpdateScheduler/IMapHostCacheId.h>
+
 #include <string>
 #include <vector>
-#include <UpdateScheduler/IMapHostCacheId.h>
-#include  <Common/UtilityImpl/TimeUtils.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -16,10 +17,7 @@ namespace UpdateSchedulerImpl
     {
         struct MessageInsert
         {
-            MessageInsert(std::string pN, std::string err)
-                    : PackageName(std::move(pN))
-                      , ErrorDetails(std::move(err))
-            {}
+            MessageInsert(std::string pN, std::string err) : PackageName(std::move(pN)), ErrorDetails(std::move(err)) {}
 
             std::string PackageName;
             std::string ErrorDetails;
@@ -27,12 +25,7 @@ namespace UpdateSchedulerImpl
 
         struct UpdateEvent
         {
-            UpdateEvent()
-                    : IsRelevantToSend(false)
-                      , MessageNumber(0)
-                      , Messages()
-                      , UpdateSource()
-            {}
+            UpdateEvent() : IsRelevantToSend(false), MessageNumber(0), Messages(), UpdateSource() {}
 
             bool IsRelevantToSend;
             int MessageNumber;
@@ -40,14 +33,10 @@ namespace UpdateSchedulerImpl
             std::string UpdateSource;
         };
 
-        std::string
-        serializeUpdateEvent(const UpdateEvent& updateEvent, const UpdateScheduler::IMapHostCacheId& iMapHostCacheId,
-                             const Common::UtilityImpl::IFormattedTime& iFormattedTime);
-    }
+        std::string serializeUpdateEvent(
+            const UpdateEvent& updateEvent,
+            const UpdateScheduler::IMapHostCacheId& iMapHostCacheId,
+            const Common::UtilityImpl::IFormattedTime& iFormattedTime);
+    } // namespace configModule
 
-
-}
-
-
-
-
+} // namespace UpdateSchedulerImpl

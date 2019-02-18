@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-
 #include "ExampleTempDirSuiteTest.h"
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 using namespace Tests;
 
@@ -15,15 +15,15 @@ using namespace Tests;
 static int testRunned = 0;
 
 // show that tests are not completely independent when using the static entry
-TEST_F( ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_1)
+TEST_F(ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_1) // NOLINT
 {
     testRunned |= 0x01;
     auto fileSystem = Common::FileSystem::FileSystemImpl();
-    ASSERT_TRUE( fileSystem.isDirectory(tempDir->dirPath()));
+    ASSERT_TRUE(fileSystem.isDirectory(tempDir->dirPath()));
     tempDir->createFile("test1.txt", "content");
     ASSERT_TRUE(fileSystem.exists(tempDir->absPath("test1.txt")));
 
-    if( testRunned & 0x02)
+    if (testRunned & 0x02)
     {
         ASSERT_TRUE(fileSystem.exists(tempDir->absPath("test2.txt")));
     }
@@ -33,14 +33,14 @@ TEST_F( ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_1)
     }
 }
 
-TEST_F( ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_2)
+TEST_F(ExampleTempDirSuiteTest, DirectoryIsSharedAmongTests_2) // NOLINT
 {
     testRunned |= 0x02;
     auto fileSystem = Common::FileSystem::FileSystemImpl();
-    ASSERT_TRUE( fileSystem.isDirectory(tempDir->dirPath()));
+    ASSERT_TRUE(fileSystem.isDirectory(tempDir->dirPath()));
     tempDir->createFile("test2.txt", "content");
     ASSERT_TRUE(fileSystem.exists(tempDir->absPath("test2.txt")));
-    if( testRunned & 0x01)
+    if (testRunned & 0x01)
     {
         ASSERT_TRUE(fileSystem.exists(tempDir->absPath("test1.txt")));
     }

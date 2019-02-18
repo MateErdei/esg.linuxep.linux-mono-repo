@@ -16,5 +16,5 @@ namespace Common
         static const std::string CredentialEventName = "Detector.Credentials";
         static const std::string ProcessEventName = "Detector.Process";
         static const std::string AnyDetectorName = "Detector";
-    }
-}
+    } // namespace EventTypes
+} // namespace Common

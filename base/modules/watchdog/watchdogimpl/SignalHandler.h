@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
 #include <Common/Threads/NotifyPipe.h>
 
 namespace watchdog
@@ -24,5 +23,5 @@ namespace watchdog
             int subprocessExitFileDescriptor();
             int terminationFileDescriptor();
         };
-    }
-}
+    } // namespace watchdogimpl
+} // namespace watchdog

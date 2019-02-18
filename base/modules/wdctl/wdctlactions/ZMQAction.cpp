@@ -7,13 +7,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ZMQAction.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
 
-wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args)
-        : Action(args),m_context(Common::ZeroMQWrapper::createContext())
+wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args) :
+    Action(args),
+    m_context(Common::ZeroMQWrapper::createContext())
 {
 }
 
@@ -21,23 +22,22 @@ Common::ZeroMQWrapper::ISocketRequesterPtr wdctl::wdctlactions::ZMQAction::conne
 {
     Common::ZeroMQWrapper::ISocketRequesterPtr socket = m_context->getRequester();
     socket->setConnectionTimeout(1000); // 1 second timeout on connection to a unix socket
-    socket->setTimeout(20000); // 20 second timeout on receiving data
+    socket->setTimeout(20000);          // 20 second timeout on receiving data
     socket->connect(Common::ApplicationConfiguration::applicationPathManager().getWatchdogSocketAddress());
     return socket;
 }
 
-
-Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(const Common::ZeroMQWrapper::IWritable::data_t& arguments)
+Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(
+    const Common::ZeroMQWrapper::IWritable::data_t& arguments)
 {
-
-    for( std::string systemctlPath : {"/bin/systemctl", "/usr/sbin/systemctl"})
+    for (std::string systemctlPath : { "/bin/systemctl", "/usr/sbin/systemctl" })
     {
-        if( Common::FileSystem::fileSystem()->isFile(systemctlPath))
+        if (Common::FileSystem::fileSystem()->isFile(systemctlPath))
         {
-            std::string systemCommand = systemctlPath +  " status sophos-spl > /dev/null";
-            if( system(systemCommand.c_str()) != 0)
+            std::string systemCommand = systemctlPath + " status sophos-spl > /dev/null";
+            if (system(systemCommand.c_str()) != 0)
             {
-                return {std::string("Watchdog is not running")};
+                return { std::string("Watchdog is not running") };
             }
             break;
         }
@@ -55,11 +55,11 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
     }
     catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
     {
-        return {std::string("Timeout out connecting to watchdog: ") + ex.what()};
+        return { std::string("Timeout out connecting to watchdog: ") + ex.what() };
     }
     catch (const Common::ZeroMQWrapper::IIPCException& ex)
     {
-        return {std::string("IPC error: ") + ex.what()};
+        return { std::string("IPC error: ") + ex.what() };
     }
 }
 
@@ -67,4 +67,3 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessful(const Common::ZeroMQWrapper::I
 {
     return (response.size() == 1 && response.at(0) == "OK");
 }
-

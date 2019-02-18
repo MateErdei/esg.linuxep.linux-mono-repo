@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "ISocketSetup.h"
 #include "IReadWrite.h"
+#include "ISocketSetup.h"
 
 namespace Common
 {
@@ -18,7 +17,5 @@ namespace Common
         {
         public:
         };
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

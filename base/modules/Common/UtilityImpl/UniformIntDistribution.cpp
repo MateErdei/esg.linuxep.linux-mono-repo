@@ -9,18 +9,12 @@ namespace Common
 {
     namespace UtilityImpl
     {
-
-
-        UniformIntDistribution::UniformIntDistribution(int minValue, int maxValue)
-                : m_uid(minValue, maxValue)
-                  , m_engine(m_randomDevice())
+        UniformIntDistribution::UniformIntDistribution(int minValue, int maxValue) :
+            m_uid(minValue, maxValue),
+            m_engine(m_randomDevice())
         {
-
         }
 
-        int UniformIntDistribution::next()
-        {
-            return m_uid(m_engine);
-        }
-    }
-}
+        int UniformIntDistribution::next() { return m_uid(m_engine); }
+    } // namespace UtilityImpl
+} // namespace Common

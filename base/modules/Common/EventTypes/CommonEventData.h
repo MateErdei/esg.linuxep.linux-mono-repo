@@ -74,7 +74,6 @@ namespace Common
             std::uint8_t driveLetter = 0;
         };
 
-
         using windows_timestamp_t = std::uint64_t;
         using sophos_pid_t = std::uint64_t;
         using sophos_tid_t = std::uint64_t;
@@ -82,7 +81,6 @@ namespace Common
         struct SophosPid
         {
         public:
-
             // Process ID
             sophos_pid_t pid;
 
@@ -93,7 +91,6 @@ namespace Common
         struct SophosTid
         {
         public:
-
             // Thread ID
             sophos_tid_t tid;
 
@@ -101,5 +98,5 @@ namespace Common
             windows_timestamp_t timestamp;
         };
 
-    };
-}
+    }; // namespace EventTypes
+} // namespace Common

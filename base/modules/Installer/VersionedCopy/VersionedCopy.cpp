@@ -8,25 +8,23 @@
 
 #include <Common/Exceptions/Print.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <sys/stat.h>
 
 #include <cassert>
-#include <string>
-#include <vector>
-#include <fstream>
-
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sstream>
 #include <cstring>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <unistd.h>
+#include <vector>
 
 using Installer::VersionedCopy::VersionedCopy;
 
 namespace
 {
-
-    std::string getEnv(const std::string &variable, const std::string &defaultValue)
+    std::string getEnv(const std::string& variable, const std::string& defaultValue)
     {
-        const char *value = ::secure_getenv(variable.c_str());
+        const char* value = ::secure_getenv(variable.c_str());
         if (value == nullptr)
         {
             return defaultValue;
@@ -34,7 +32,7 @@ namespace
         return value;
     }
 
-    std::string getInstallationRelativeFilename(const std::string &filename, const std::string &DIST)
+    std::string getInstallationRelativeFilename(const std::string& filename, const std::string& DIST)
     {
         std::string ret = filename;
         if (filename.find(DIST) == 0)
@@ -49,17 +47,11 @@ namespace
         return ret;
     }
 
-    Path getDirname(const Path &path)
-    {
-        return Common::FileSystem::dirName(path);
-    }
+    Path getDirname(const Path& path) { return Common::FileSystem::dirName(path); }
 
-    void makedirs(const Path &origpath)
-    {
-        Common::FileSystem::fileSystem()->makedirs(origpath);
-    }
+    void makedirs(const Path& origpath) { Common::FileSystem::fileSystem()->makedirs(origpath); }
 
-    Path getLinkDestination(const Path &link)
+    Path getLinkDestination(const Path& link)
     {
         const int BUFSIZE = 1024;
         char dest[BUFSIZE];
@@ -72,14 +64,15 @@ namespace
         {
             // Overflow
             dest[BUFSIZE - 1] = 0;
-        } else
+        }
+        else
         {
             dest[size] = 0;
         }
         return Path(dest);
     }
 
-    Path findAppropriateExtensionName(const Path &base)
+    Path findAppropriateExtensionName(const Path& base)
     {
         // if fullInstallFilename exists, read symlink+1
         // otherwise fullInstallFilename.0
@@ -97,11 +90,11 @@ namespace
         return target;
     }
 
-    void deleteOldFiles(const Path &filename, const Path &newFile)
+    void deleteOldFiles(const Path& filename, const Path& newFile)
     {
         if (newFile.find(filename) != 0)
         {
-            PRINT("deleteOldFiles with invalid input: "<<filename<<", "<< newFile);
+            PRINT("deleteOldFiles with invalid input: " << filename << ", " << newFile);
             return;
         }
 
@@ -123,12 +116,9 @@ namespace
         }
     }
 
-    void copyFile(const Path &src, const Path &dest)
-    {
-        Common::FileSystem::fileSystem()->copyFile(src,dest);
-    }
+    void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFile(src, dest); }
 
-    void createSymbolicLink(const Path &target, const Path &destination)
+    void createSymbolicLink(const Path& target, const Path& destination)
     {
         Path tempDest = destination + ".tmp";
         int ret = symlink(target.c_str(), tempDest.c_str());
@@ -139,7 +129,7 @@ namespace
         }
     }
 
-    void createLibrarySymlinks(const Path &fullInstallFilename)
+    void createLibrarySymlinks(const Path& fullInstallFilename)
     {
         Path basename = Common::FileSystem::basename(fullInstallFilename);
         Path installDirname = Common::FileSystem::dirName(fullInstallFilename);
@@ -161,16 +151,15 @@ namespace
                 break;
             }
             // digits is just numbers so continue
-//        PRINT(fullDest << " -> " << target << "(digits="<<digits<<")");
+            //        PRINT(fullDest << " -> " << target << "(digits="<<digits<<")");
 
             createSymbolicLink(target, fullDest);
-
 
             temp = dest;
         }
     }
 
-    int versionedCopyVector(const std::vector<std::string> &argv)
+    int versionedCopyVector(const std::vector<std::string>& argv)
     {
         const std::string DIST = getEnv("DIST", ".");
         const std::string INST = getEnv("SOPHOS_INSTALL", "/opt/sophos-spl");
@@ -178,7 +167,7 @@ namespace
         std::string filename = argv.at(1);
         return Installer::VersionedCopy::VersionedCopy::versionedCopy(filename, DIST, INST);
     }
-}
+} // namespace
 
 /**
  * Get a digit block from the end of s.
@@ -187,7 +176,7 @@ namespace
  * @param s
  * @return int
  */
-int VersionedCopy::getDigitFromEnd(const std::string &s)
+int VersionedCopy::getDigitFromEnd(const std::string& s)
 {
     if (s.empty())
     {
@@ -199,7 +188,7 @@ int VersionedCopy::getDigitFromEnd(const std::string &s)
         // All numbers
         return std::stoi(s);
     }
-    else if (last_index == s.size()-1)
+    else if (last_index == s.size() - 1)
     {
         // No number at end
         return -1;
@@ -222,8 +211,8 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
         return true;
     }
 
-    std::ifstream f1(file1, std::ifstream::binary|std::ifstream::ate);
-    std::ifstream f2(file2, std::ifstream::binary|std::ifstream::ate);
+    std::ifstream f1(file1, std::ifstream::binary | std::ifstream::ate);
+    std::ifstream f2(file2, std::ifstream::binary | std::ifstream::ate);
 
     if (f1.fail() || f2.fail())
     {
@@ -238,14 +227,14 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
     f1.seekg(0, std::ifstream::beg);
     f2.seekg(0, std::ifstream::beg);
 
-    const int BLOCK_SIZE=1024;
+    const int BLOCK_SIZE = 1024;
     while (f1.good() && f2.good())
     {
         char data1[BLOCK_SIZE];
         char data2[BLOCK_SIZE];
 
-        f1.read(data1,BLOCK_SIZE);
-        f2.read(data2,BLOCK_SIZE);
+        f1.read(data1, BLOCK_SIZE);
+        f2.read(data2, BLOCK_SIZE);
 
         // Files are different lengths
         if (f1.gcount() != f2.gcount())
@@ -258,7 +247,7 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
             return false;
         }
 
-        if (::memcmp(data1,data2,static_cast<size_t>(f1.gcount())) != 0)
+        if (::memcmp(data1, data2, static_cast<size_t>(f1.gcount())) != 0)
         {
             return false;
         }
@@ -266,7 +255,7 @@ bool VersionedCopy::same(const Path& file1, const Path& file2)
     return true;
 }
 
-int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const Path &INST)
+int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const Path& INST)
 {
     if (!Common::FileSystem::fileSystem()->exists(filename))
     {
@@ -276,7 +265,6 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
     std::string installationFilename = getInstallationRelativeFilename(filename, DIST);
 
     std::string fullInstallFilename = INST + "/" + installationFilename;
-
 
     // Don't continue if the files are the same
     if (same(filename, fullInstallFilename))
@@ -306,12 +294,12 @@ int VersionedCopy::versionedCopy(const Path &filename, const Path &DIST, const P
     return 0;
 }
 
-int Installer::VersionedCopy::VersionedCopy::versionedCopyMain(int argc, char **argv)
+int Installer::VersionedCopy::VersionedCopy::versionedCopyMain(int argc, char** argv)
 {
     std::vector<std::string> argvv;
 
-    assert(argc>=1);
-    for(int i=0; i<argc; i++)
+    assert(argc >= 1);
+    for (int i = 0; i < argc; i++)
     {
         argvv.emplace_back(argv[i]);
     }

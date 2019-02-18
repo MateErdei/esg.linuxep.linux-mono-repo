@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <Common/Exceptions/IException.h>
 
 namespace Common
@@ -16,11 +15,7 @@ namespace Common
         class IDirectoryWatcherException : public Common::Exceptions::IException
         {
         public:
-            explicit IDirectoryWatcherException(const std::string& what) :
-                   Common::Exceptions::IException(what)
-            {}
+            explicit IDirectoryWatcherException(const std::string& what) : Common::Exceptions::IException(what) {}
         };
-    }
-}
-
-
+    } // namespace DirectoryWatcher
+} // namespace Common

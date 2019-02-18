@@ -5,17 +5,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SocketImpl.h"
-#include "ZeroMQWrapperException.h"
+
 #include "SocketUtil.h"
+#include "ZeroMQWrapperException.h"
+
+#include <cassert>
 #include <string>
 #include <zmq.h>
-#include <cassert>
-
 
 using namespace Common::ZeroMQWrapperImpl;
 
-Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context, int type)
-        : m_context(context), m_socket(context,type)
+Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context, int type) :
+    m_context(context),
+    m_socket(context, type)
 {
     m_appliedSettings.socketType = type;
 }
@@ -23,27 +25,27 @@ Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::Con
 void Common::ZeroMQWrapperImpl::SocketImpl::setTimeout(int timeoutMs)
 {
     m_appliedSettings.timeout = timeoutMs;
-    SocketUtil::setTimeout(m_socket,timeoutMs);
+    SocketUtil::setTimeout(m_socket, timeoutMs);
 }
 
 void Common::ZeroMQWrapperImpl::SocketImpl::setConnectionTimeout(int timeoutMs)
 {
     m_appliedSettings.connectionTimeout = timeoutMs;
-    SocketUtil::setConnectionTimeout(m_socket,timeoutMs);
+    SocketUtil::setConnectionTimeout(m_socket, timeoutMs);
 }
 
-void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string &address)
+void Common::ZeroMQWrapperImpl::SocketImpl::connect(const std::string& address)
 {
     m_appliedSettings.address = address;
     m_appliedSettings.connectionSetup = AppliedSettings::ConnectionSetup::Connect;
     SocketUtil::connect(m_socket, address);
 }
 
-void Common::ZeroMQWrapperImpl::SocketImpl::listen(const std::string &address)
+void Common::ZeroMQWrapperImpl::SocketImpl::listen(const std::string& address)
 {
     m_appliedSettings.address = address;
     m_appliedSettings.connectionSetup = AppliedSettings::ConnectionSetup::Listen;
-    SocketUtil::listen(m_socket,address);
+    SocketUtil::listen(m_socket, address);
 }
 
 int SocketImpl::fd()

@@ -6,7 +6,6 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-
 #include <Common/FileSystem/IFileSystem.h>
 
 namespace Installer
@@ -76,7 +75,5 @@ namespace Installer
              */
             static bool same(const Path& file1, const Path& file2);
         };
-    }
-}
-
-
+    } // namespace VersionedCopy
+} // namespace Installer

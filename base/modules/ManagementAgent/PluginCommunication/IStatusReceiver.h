@@ -25,9 +25,9 @@ namespace ManagementAgent
              * @param appId
              * @param statusInfo
              */
-            virtual void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo) = 0;
+            virtual void receivedChangeStatus(
+                const std::string& appId,
+                const Common::PluginApi::StatusInfo& statusInfo) = 0;
         };
-    }
-}
-
-
+    } // namespace PluginCommunication
+} // namespace ManagementAgent

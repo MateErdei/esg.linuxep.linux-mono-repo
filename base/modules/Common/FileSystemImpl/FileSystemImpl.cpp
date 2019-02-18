@@ -6,23 +6,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "FileSystemImpl.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
-#include <Common/FileSystem/IFilePermissions.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <cassert>
 #include <cstring>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 #include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <pwd.h>
+#include <fstream>
 #include <grp.h>
+#include <iostream>
+#include <pwd.h>
+#include <sstream>
+#include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -34,17 +33,15 @@ namespace
     {
         auto nameMax = pathconf(directoryPath.c_str(), _PC_NAME_MAX);
         struct dirent structdirent;
-        return nameMax <= 255 && sizeof( structdirent) > 256;
+        return nameMax <= 255 && sizeof(structdirent) > 256;
     }
 #pragma GCC diagnostic pop
-}
-
+} // namespace
 
 namespace Common
 {
     namespace FileSystem
     {
-
         Path join(const Path& path1, const Path& path2)
         {
             if (path2.find('/') == 0)
@@ -92,10 +89,7 @@ namespace Common
             return "";
         }
 
-        Path join(const Path& path1, const Path& path2, const Path& path3)
-        {
-            return join(join(path1, path2), path3);
-        }
+        Path join(const Path& path1, const Path& path2, const Path& path3) { return join(join(path1, path2), path3); }
 
         std::string basename(const Path& path)
         {
@@ -132,31 +126,30 @@ namespace Common
             return Path(path.begin(), (path.end() - endPos));
         }
 
-        bool FileSystemImpl::exists(const Path &path) const
+        bool FileSystemImpl::exists(const Path& path) const
         {
             struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             return ret == 0;
         }
 
-        bool FileSystemImpl::isFile(const Path & path) const
+        bool FileSystemImpl::isFile(const Path& path) const
         {
             struct stat statbuf;
             int ret = stat(path.c_str(), &statbuf);
-            if ( ret != 0)
-            {   // if it does not exists, it is not a file
+            if (ret != 0)
+            { // if it does not exists, it is not a file
                 return false;
             }
             return S_ISREG(statbuf.st_mode);
         }
 
-
-        bool FileSystemImpl::isDirectory(const Path & path) const
+        bool FileSystemImpl::isDirectory(const Path& path) const
         {
             struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
-            if ( ret != 0)
-            {   // if it does not exists, it is not a directory
+            if (ret != 0)
+            { // if it does not exists, it is not a directory
                 return false;
             }
             return S_ISDIR(statbuf.st_mode); // NOLINT
@@ -177,27 +170,23 @@ namespace Common
             return Path(currentWorkingDirectory);
         }
 
-        void FileSystemImpl::moveFile(const Path &sourcePath, const Path &destPath) const
+        void FileSystemImpl::moveFile(const Path& sourcePath, const Path& destPath) const
         {
-            if(::rename(sourcePath.c_str(), destPath.c_str()) != 0)
+            if (::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
                 int err = errno;
                 std::stringstream errorStream;
-                errorStream << "Could not move " << sourcePath << " to " << destPath << ": "<<::strerror(err);
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << ::strerror(err);
 
                 throw IFileSystemException(errorStream.str());
             }
         }
 
-        std::string FileSystemImpl::readFile(const Path &path) const
-        {
-            return readFile(path,1024*1024*10);
-
-        }
+        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, 1024 * 1024 * 10); }
 
         std::string FileSystemImpl::readFile(const Path& path, unsigned long maxSize) const
         {
-            if(isDirectory(path))
+            if (isDirectory(path))
             {
                 throw IFileSystemException("Error, Failed to read file: '" + path + "', is a directory");
             }
@@ -229,19 +218,18 @@ namespace Common
                 inFileStream.read(&content[0], size);
                 return content;
             }
-            catch( std::system_error & ex)
+            catch (std::system_error& ex)
             {
                 LOGSUPPORT(ex.what());
                 throw IFileSystemException(std::string("Error, Failed to read from file '") + path + "'");
             }
         }
 
-
-        void FileSystemImpl::writeFile(const Path &path, const std::string &content) const
+        void FileSystemImpl::writeFile(const Path& path, const std::string& content) const
         {
             std::ofstream outFileStream(path.c_str(), std::ios::out);
 
-            if(!outFileStream.good())
+            if (!outFileStream.good())
             {
                 int err = errno;
                 std::string errdesc = ::strerror(err);
@@ -252,18 +240,18 @@ namespace Common
             outFileStream << content;
 
             outFileStream.close();
-
         }
 
-        void FileSystemImpl::writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir) const
+        void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
+            const
         {
-            if(!isDirectory(tempDir))
+            if (!isDirectory(tempDir))
             {
                 throw IFileSystemException("Temp directory provided is not a directory: " + tempDir);
             }
 
             // create temp file name.
-            std::string tempFilePath =join( tempDir, basename(path) + "_tmp");
+            std::string tempFilePath = join(tempDir, basename(path) + "_tmp");
 
             try
             {
@@ -271,40 +259,41 @@ namespace Common
 
                 moveFile(tempFilePath, path);
             }
-            catch(IFileSystemException &)
+            catch (IFileSystemException&)
             {
                 int ret = ::remove(tempFilePath.c_str());
-                // Prefer to throw the original exception rather than anything related to failing to delete the temp file
+                // Prefer to throw the original exception rather than anything related to failing to delete the temp
+                // file
                 static_cast<void>(ret);
                 throw;
             }
         }
 
-        bool FileSystemImpl::isExecutable(const Path &path) const
+        bool FileSystemImpl::isExecutable(const Path& path) const
         {
             struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
-            if ( ret != 0)
-            {   // if it does not exists, it is not executable
+            if (ret != 0)
+            { // if it does not exists, it is not executable
                 return false;
             }
             return (S_IXUSR & statbuf.st_mode) != 0; // NOLINT
         }
 
-        void FileSystemImpl::makeExecutable(const Path &path) const
+        void FileSystemImpl::makeExecutable(const Path& path) const
         {
-            struct stat statbuf; //NOLINT
+            struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
-            if ( ret != 0)
-            {   // if it does not exist
+            if (ret != 0)
+            { // if it does not exist
                 throw IFileSystemException("Cannot stat: " + path);
             }
 
-            Common::FileSystem::filePermissions()->chmod(path.c_str(), statbuf.st_mode | S_IXUSR | S_IXGRP | S_IXOTH);  //NOLINT
-
+            Common::FileSystem::filePermissions()->chmod(
+                path.c_str(), statbuf.st_mode | S_IXUSR | S_IXGRP | S_IXOTH); // NOLINT
         }
 
-        void FileSystemImpl::makedirs(const Path &path) const
+        void FileSystemImpl::makedirs(const Path& path) const
         {
             if (path == "/")
             {
@@ -318,7 +307,7 @@ namespace Common
             if (path != p2)
             {
                 makedirs(p2);
-                int ret = ::mkdir(path.c_str(),0700);
+                int ret = ::mkdir(path.c_str(), 0700);
                 if (ret == -1)
                 {
                     if (errno == EEXIST)
@@ -327,10 +316,8 @@ namespace Common
                     }
 
                     std::ostringstream ost;
-                    ost << "Failed to create directory "
-                        << path
-                        << " error "
-                        << strerror(errno) << " (" << errno << ")";
+                    ost << "Failed to create directory " << path << " error " << strerror(errno) << " (" << errno
+                        << ")";
 
                     throw IFileSystemException(ost.str());
                 }
@@ -339,18 +326,17 @@ namespace Common
 
         void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
         {
-
             if (!FileSystem::fileSystem()->exists(src))
             {
-                throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
+                throw IFileSystemException(
+                    "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
             }
             {
                 std::ifstream ifs(src);
                 if (!ifs.good())
                 {
                     throw IFileSystemException(
-                            "Failed to copy file: '" + src + "' to '" + dest + "', ifstream had errors."
-                    );
+                        "Failed to copy file: '" + src + "' to '" + dest + "', ifstream had errors.");
                 }
 
                 std::ofstream ofs(dest);
@@ -358,20 +344,21 @@ namespace Common
             }
             if (!FileSystem::fileSystem()->exists(dest))
             {
-                throw IFileSystemException("Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
+                throw IFileSystemException(
+                    "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
             }
         }
 
-        std::vector<Path> FileSystemImpl::listFiles(const Path &directoryPath) const
+        std::vector<Path> FileSystemImpl::listFiles(const Path& directoryPath) const
         {
             std::vector<Path> files;
-            DIR * directoryPtr;
+            DIR* directoryPtr;
 
-            struct dirent *outDirEntity;
+            struct dirent* outDirEntity;
 
             directoryPtr = opendir(directoryPath.c_str());
 
-            if(!directoryPtr)
+            if (!directoryPtr)
             {
                 int error = errno;
                 std::string reason = strerror(error);
@@ -385,18 +372,16 @@ namespace Common
                 errno = 0;
                 outDirEntity = readdir(directoryPtr);
 
-
-                if(errno !=0 || outDirEntity == nullptr)
+                if (errno != 0 || outDirEntity == nullptr)
                 {
                     break;
                 }
 
-                if ( DT_REG & outDirEntity->d_type )
+                if (DT_REG & outDirEntity->d_type)
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
                     files.push_back(fullPath);
                 }
-
             }
 
             (void)closedir(directoryPtr);
@@ -406,16 +391,16 @@ namespace Common
 
         std::vector<Path> FileSystemImpl::listFilesAndDirectories(const Path& directoryPath) const
         {
-            static std::string dot{"."};
-            static std::string dotdot{".."};
+            static std::string dot{ "." };
+            static std::string dotdot{ ".." };
             std::vector<Path> files;
-            DIR * directoryPtr;
+            DIR* directoryPtr;
 
-            struct dirent *outDirEntity;
+            struct dirent* outDirEntity;
 
             directoryPtr = opendir(directoryPath.c_str());
 
-            if(!directoryPtr)
+            if (!directoryPtr)
             {
                 int error = errno;
                 std::string reason = strerror(error);
@@ -426,22 +411,21 @@ namespace Common
 
             while (true)
             {
-
-                errno =0;
+                errno = 0;
                 outDirEntity = readdir(directoryPtr);
 
-                if(errno !=0 || outDirEntity == nullptr)
+                if (errno != 0 || outDirEntity == nullptr)
                 {
                     break;
                 }
 
-                if ( (DT_REG|DT_DIR) & outDirEntity->d_type &&
-                     outDirEntity->d_name != dot &&
-                     outDirEntity->d_name != dotdot )
+                if ((DT_REG | DT_DIR) & outDirEntity->d_type && outDirEntity->d_name != dot &&
+                    outDirEntity->d_name != dotdot)
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
 
-                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this method again on the returned directories
+                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this
+                    // method again on the returned directories
                     struct stat buf;
                     int ret = ::lstat(fullPath.c_str(), &buf);
 
@@ -463,7 +447,8 @@ namespace Common
             {
                 int errn = errno;
                 std::string error_cause = ::strerror(errn);
-                throw Common::FileSystem::IFileSystemException("Failed to delete file: "+ path + ". Cause: " + error_cause);
+                throw Common::FileSystem::IFileSystemException(
+                    "Failed to delete file: " + path + ". Cause: " + error_cause);
             }
         }
 
@@ -474,20 +459,19 @@ namespace Common
                 return path;
             }
 
-            return Common::FileSystem::join(currentWorkingDirectory(),path);
+            return Common::FileSystem::join(currentWorkingDirectory(), path);
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
         {
-            static std::unique_ptr<Common::FileSystem::IFileSystem> instance = std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
+            static std::unique_ptr<Common::FileSystem::IFileSystem> instance =
+                std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
             return instance;
         }
-    }
-}
+    } // namespace FileSystem
+} // namespace Common
 
-Common::FileSystem::IFileSystem * Common::FileSystem::fileSystem()
+Common::FileSystem::IFileSystem* Common::FileSystem::fileSystem()
 {
     return Common::FileSystem::fileSystemStaticPointer().get();
 }
-
-

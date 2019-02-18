@@ -6,15 +6,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <tuple>
 #include <string>
+#include <tuple>
 namespace SulDownloader
 {
     namespace suldownloaderdata
     {
         class ConfigurationData;
         class DownloadReport;
-    }
+    } // namespace suldownloaderdata
 
     /**
      * Executes the core functionality of SULDownloader.
@@ -25,7 +25,8 @@ namespace SulDownloader
      *  - Verify the products are correctly signed.
      *  - Install the products
      *
-     *  Produces the ::DownloadReport which contains the necessary information to keep track of the WarehouseRepository and Managed products.
+     *  Produces the ::DownloadReport which contains the necessary information to keep track of the WarehouseRepository
+     * and Managed products.
      *
      *
      * @param configurationData which contains the full settings to SULDownloader to execute its jobs.
@@ -36,23 +37,23 @@ namespace SulDownloader
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
     suldownloaderdata::DownloadReport runSULDownloader(
-            const suldownloaderdata::ConfigurationData& configurationData,
-            const suldownloaderdata::DownloadReport& previousDownloadReport);
-
+        const suldownloaderdata::ConfigurationData& configurationData,
+        const suldownloaderdata::DownloadReport& previousDownloadReport);
 
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
      *
      * @param settingsString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
      * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
-     * @return Pair containing the exit code and the serialized (json) version of  SulDownloaderProto::DownloadStatusReport
-     *         The exit code follows the convention of 0 for success, otherwise failure
+     * @return Pair containing the exit code and the serialized (json) version of
+     * SulDownloaderProto::DownloadStatusReport The exit code follows the convention of 0 for success, otherwise failure
      * @pre settingsString is a valid serialized version of SulDownloaderProto::ConfigurationSettings.
-     * @note If either the json parser fails to de-serialize settingsString or the ConfigurationData produced does not pass the ::verifySettingsAreValid
-     *       it will not runSULDownloader and return the failure directly.s
+     * @note If either the json parser fails to de-serialize settingsString or the ConfigurationData produced does not
+     * pass the ::verifySettingsAreValid it will not runSULDownloader and return the failure directly.s
      */
-    std::tuple<int, std::string> configAndRunDownloader(const std::string& settingsString, const std::string& previousReportData);
-
+    std::tuple<int, std::string> configAndRunDownloader(
+        const std::string& settingsString,
+        const std::string& previousReportData);
 
     /**
      * Run configAndRunDownloader whilst handling files for input and output.
@@ -65,12 +66,9 @@ namespace SulDownloader
      * @return The exit code.
      * @throws If it cannot read or write the files safely it will throw exception.
      */
-    int fileEntriesAndRunDownloader( const std::string & inputFilePath, const std::string & outputFilePath );
-
+    int fileEntriesAndRunDownloader(const std::string& inputFilePath, const std::string& outputFilePath);
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath);
-
-
 
     /**
      * To be used when parsing arguments from argv as received in int main( int argc, char * argv[]).
@@ -85,6 +83,5 @@ namespace SulDownloader
      * @param argv As convention the strings of arguments.
      * @return
      */
-    int main_entry(int argc, char *argv[]);
-}
-
+    int main_entry(int argc, char* argv[]);
+} // namespace SulDownloader

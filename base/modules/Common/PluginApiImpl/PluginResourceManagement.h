@@ -20,27 +20,29 @@ namespace Common
             PluginResourceManagement();
             explicit PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr);
 
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI( const std::string & pluginName, std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback)  override ;
-            std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher() override ;
-            std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(const std::string & sensorDataCategorySubscription,
-                                                                                                 std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override ;
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI(
+                const std::string& pluginName,
+                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback) override;
+            std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher() override;
+            std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(
+                const std::string& sensorDataCategorySubscription,
+                std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override;
 
-            std::unique_ptr<PluginApi::ISubscriber> createRawSubscriber(const std::string& dataCategorySubscription,
-                                                                     std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback) override;
+            std::unique_ptr<PluginApi::ISubscriber> createRawSubscriber(
+                const std::string& dataCategorySubscription,
+                std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback) override;
 
             /* mainly for tests */
-            void setDefaultTimeout(int timeoutMs) ;
-            void setDefaultConnectTimeout(int timeoutMs) ;
+            void setDefaultTimeout(int timeoutMs);
+            void setDefaultConnectTimeout(int timeoutMs);
             Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
+
         private:
-            void setTimeouts( Common::ZeroMQWrapper::ISocketSetup & socket);
+            void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
             Common::ZeroMQWrapper::IContextSharedPtr m_contextPtr;
             int m_defaultTimeout;
             int m_defaultConnectTimeout;
         };
 
-    }
-}
-
-
-
+    } // namespace PluginApiImpl
+} // namespace Common

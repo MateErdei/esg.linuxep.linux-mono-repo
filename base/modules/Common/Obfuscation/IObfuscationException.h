@@ -12,13 +12,10 @@ namespace Common
 {
     namespace Obfuscation
     {
-
-        class IObfuscationException: public Common::Exceptions::IException
+        class IObfuscationException : public Common::Exceptions::IException
         {
         public:
-            explicit IObfuscationException(const std::string& what)
-                    : Common::Exceptions::IException(what)
-            {}
+            explicit IObfuscationException(const std::string& what) : Common::Exceptions::IException(what) {}
         };
-    }
-}
+    } // namespace Obfuscation
+} // namespace Common

@@ -5,12 +5,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <array>
 #include <cstdint>
+#include <netdb.h>
 #include <string>
 #include <vector>
-#include <array>
-
-#include <netdb.h>
 
 namespace Common
 {
@@ -23,27 +22,29 @@ namespace Common
         class IP4
         {
             std::string m_address;
-            Ip4addr   m_ip4addr;
-            int bitLength(const Ip4addr & ip4addr ) const;
+            Ip4addr m_ip4addr;
+            int bitLength(const Ip4addr& ip4addr) const;
+
         public:
-            explicit IP4( struct sockaddr_in * );
-            explicit IP4( const std::string & stringAddress);
-            int distance( const IP4 & other) const;
-            std::string stringAddress() const {return m_address;};
-            Ip4addr ipAddress() const{ return m_ip4addr; };
+            explicit IP4(struct sockaddr_in*);
+            explicit IP4(const std::string& stringAddress);
+            int distance(const IP4& other) const;
+            std::string stringAddress() const { return m_address; };
+            Ip4addr ipAddress() const { return m_ip4addr; };
         };
 
         /// Auxiliary struct to handle IP6 entries.
         struct IP6
         {
             std::string m_address;
-            Ip6addr   m_ip6addr;
-            int bitLength(const Ip6addr & ip6addr  ) const;
+            Ip6addr m_ip6addr;
+            int bitLength(const Ip6addr& ip6addr) const;
+
         public:
-            explicit IP6( struct sockaddr_in6 * );
-            int distance( const IP6 & other) const;
-            std::string stringAddress() const {return m_address;};
-            //Ip6addr ipAddress() const{ return m_ip6addr; };
+            explicit IP6(struct sockaddr_in6*);
+            int distance(const IP6& other) const;
+            std::string stringAddress() const { return m_address; };
+            // Ip6addr ipAddress() const{ return m_ip6addr; };
         };
 
         struct IPs
@@ -60,10 +61,11 @@ namespace Common
          * If it can not extract the server path it returns the input as the 'best guess' for the server address.
          * @return
          */
-        std::string tryExtractServerFromHttpURL(const std::string & );
+        std::string tryExtractServerFromHttpURL(const std::string&);
 
         /**
-         * Struct to hold information about remote server with its associated ips and the distance associated to that server.
+         * Struct to hold information about remote server with its associated ips and the distance associated to that
+         * server.
          */
         struct ServerURI
         {
@@ -81,20 +83,21 @@ namespace Common
             std::vector<ServerURI> servers;
         };
         /**
-         * Sort the servers by ip distance, where ip distance is defined as the minimun bit length of the xor of local ip and remote ip.
+         * Sort the servers by ip distance, where ip distance is defined as the minimun bit length of the xor of local
+         * ip and remote ip.
          *
-         * The answer return the servers in the correct order of distance, but also give the originalIndex. This can be used to sort structs that
-         * originated the servers input.
+         * The answer return the servers in the correct order of distance, but also give the originalIndex. This can be
+         * used to sort structs that originated the servers input.
          *
          * It also provide the full information of the Report to allow for logging how the distance was calculated.
          *
-         * If it can not get a dns resolution of a server, that server is given distance associated as ServerURI::MaxDistance and the sort
-         * algorithm will keep its relative order (stable sort)
+         * If it can not get a dns resolution of a server, that server is given distance associated as
+         * ServerURI::MaxDistance and the sort algorithm will keep its relative order (stable sort)
          *
          * @param servers
          * @return SortServersReport
          */
-        SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string> & servers);
-        std::vector<int> sortedIndexes( const SortServersReport & report);
-    }
-}
+        SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string>& servers);
+        std::vector<int> sortedIndexes(const SortServersReport& report);
+    } // namespace OSUtilities
+} // namespace Common

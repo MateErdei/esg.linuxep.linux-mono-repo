@@ -6,9 +6,8 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-
-#include <string>
 #include <memory>
+#include <string>
 
 namespace Common
 {
@@ -23,8 +22,5 @@ namespace Common
         };
 
         using IProxyPtr = std::unique_ptr<IProxy>;
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

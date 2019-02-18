@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 
 namespace Common
@@ -27,8 +26,5 @@ namespace Common
             /// Application Id that the status is related to
             std::string appId;
         };
-    }
-}
-
-
-
+    } // namespace PluginApi
+} // namespace Common

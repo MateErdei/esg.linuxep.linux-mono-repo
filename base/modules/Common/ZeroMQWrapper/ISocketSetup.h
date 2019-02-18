@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 
 namespace Common
@@ -60,7 +59,5 @@ namespace Common
              */
             virtual void listen(const std::string& address) = 0;
         };
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

@@ -5,22 +5,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PortScanningEvent.h"
+
 #include "EventStrings.h"
 
-#include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
-
-#include <PortScanning.capnp.h>
-
+#include <Common/EventTypes/IEventException.h>
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
+
+#include <PortScanning.capnp.h>
 #include <sstream>
 
 namespace
 {
-    Sophos::Journal::PortEvent::EventType convertToCapnEventType(Common::EventTypes::PortScanningEvent::EventType eventType)
+    Sophos::Journal::PortEvent::EventType convertToCapnEventType(
+        Common::EventTypes::PortScanningEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Common::EventTypes::PortScanningEvent::EventType::closed:
                 return Sophos::Journal::PortEvent::EventType::CLOSED;
@@ -31,13 +32,15 @@ namespace
             case Common::EventTypes::PortScanningEvent::EventType::scanned:
                 return Sophos::Journal::PortEvent::EventType::SCANNED;
             default:
-                throw Common::EventTypes::IEventException("Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException(
+                    "Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
         }
     }
 
-    Common::EventTypes::PortScanningEvent::EventType convertFromCapnEventType(Sophos::Journal::PortEvent::EventType eventType)
+    Common::EventTypes::PortScanningEvent::EventType convertFromCapnEventType(
+        Sophos::Journal::PortEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Sophos::Journal::PortEvent::EventType::CLOSED:
                 return Common::EventTypes::PortScanningEvent::EventType::closed;
@@ -48,13 +51,16 @@ namespace
             case Sophos::Journal::PortEvent::EventType::SCANNED:
                 return Common::EventTypes::PortScanningEvent::EventType::scanned;
             default:
-                throw Common::EventTypes::IEventException("Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException(
+                    "Common::EventTypes::PortScanningEvent::EventType, contained unknown type");
         }
     }
 
-}
+} // namespace
 
-Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(const Common::EventTypes::IpFlow& ipFlow,Common::EventTypes::PortScanningEvent::EventType eventType)
+Common::EventTypes::PortScanningEvent Common::EventTypes::createPortScanningEvent(
+    const Common::EventTypes::IpFlow& ipFlow,
+    Common::EventTypes::PortScanningEvent::EventType eventType)
 {
     Common::EventTypes::PortScanningEvent event = PortScanningEvent();
     event.setConnection(ipFlow);
@@ -67,28 +73,13 @@ namespace Common
 {
     namespace EventTypes
     {
+        PortScanningEvent::PortScanningEvent() : m_eventType(opened) {}
 
-        PortScanningEvent::PortScanningEvent()
-            :
-            m_eventType(opened)
-        {
+        std::string PortScanningEvent::getEventTypeId() const { return Common::EventTypes::PortScanningEventName; }
 
-        }
+        EventTypes::PortScanningEvent::EventType PortScanningEvent::getEventType() const { return m_eventType; }
 
-        std::string PortScanningEvent::getEventTypeId() const
-        {
-            return Common::EventTypes::PortScanningEventName;
-        }
-
-        EventTypes::PortScanningEvent::EventType PortScanningEvent::getEventType() const
-        {
-            return m_eventType;
-        }
-
-        const EventTypes::IpFlow& PortScanningEvent::getConnection() const
-        {
-            return m_connection;
-        }
+        const EventTypes::IpFlow& PortScanningEvent::getConnection() const { return m_connection; }
 
         void PortScanningEvent::setEventType(EventTypes::PortScanningEvent::EventType m_eventType)
         {
@@ -108,17 +99,15 @@ namespace Common
             portEvent.setEventType(convertToCapnEventType(m_eventType));
 
             ::capnp::Data::Reader sourceAddress = ::capnp::Data::Reader(
-                    reinterpret_cast<const ::capnp::byte*>(
-                            m_connection.sourceAddress.address.data()),
-                            m_connection.sourceAddress.address.size());
+                reinterpret_cast<const ::capnp::byte*>(m_connection.sourceAddress.address.data()),
+                m_connection.sourceAddress.address.size());
 
             portEvent.getConnection().getSourceAddress().setAddress(sourceAddress);
             portEvent.getConnection().getSourceAddress().setPort(m_connection.sourceAddress.port);
 
             ::capnp::Data::Reader destinationAddress = ::capnp::Data::Reader(
-                    reinterpret_cast<const ::capnp::byte*>(
-                            m_connection.destinationAddress.address.data()),
-                            m_connection.destinationAddress.address.size());
+                reinterpret_cast<const ::capnp::byte*>(m_connection.destinationAddress.address.data()),
+                m_connection.destinationAddress.address.size());
 
             portEvent.getConnection().getDestinationAddress().setAddress(destinationAddress);
             portEvent.getConnection().getDestinationAddress().setPort(m_connection.destinationAddress.port);
@@ -135,7 +124,7 @@ namespace Common
 
         void PortScanningEvent::fromString(const std::string& objectAsString)
         {
-            if(objectAsString.empty())
+            if (objectAsString.empty())
             {
                 throw Common::EventTypes::IEventException("Invalid capn byte string, string is empty");
             }
@@ -143,13 +132,11 @@ namespace Common
             try
             {
                 const kj::ArrayPtr<const capnp::word> view(
-                        reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
-                        reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
-
+                    reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
+                    reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
 
                 capnp::FlatArrayMessageReader message(view);
                 Sophos::Journal::PortEvent::Reader portEvent = message.getRoot<Sophos::Journal::PortEvent>();
-
 
                 setEventType(convertFromCapnEventType(portEvent.getEventType()));
 
@@ -161,7 +148,8 @@ namespace Common
 
                 connection.sourceAddress.port = portEvent.getConnection().getSourceAddress().getPort();
 
-                ::capnp::Data::Reader destinationAddressData = portEvent.getConnection().getDestinationAddress().getAddress();
+                ::capnp::Data::Reader destinationAddressData =
+                    portEvent.getConnection().getDestinationAddress().getAddress();
                 std::string destinationAddress(destinationAddressData.begin(), destinationAddressData.end());
                 connection.destinationAddress.address = destinationAddress;
 
@@ -169,9 +157,8 @@ namespace Common
 
                 connection.protocol = portEvent.getConnection().getProtocol();
                 setConnection(connection);
-
             }
-            catch(std::exception& ex)
+            catch (std::exception& ex)
             {
                 std::stringstream errorMessage;
                 errorMessage << "Error: failed to process capn PortScanningEvent string, " << ex.what();
@@ -179,6 +166,5 @@ namespace Common
             }
         }
 
-    }
-}
-
+    } // namespace EventTypes
+} // namespace Common

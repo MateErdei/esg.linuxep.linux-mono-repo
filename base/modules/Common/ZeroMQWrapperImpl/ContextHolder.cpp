@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ContextHolder.h"
+
 #include "ZeroMQWrapperException.h"
 
 #include <zmq.h>
@@ -23,7 +24,7 @@ Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()
     reset();
 }
 
-void *Common::ZeroMQWrapperImpl::ContextHolder::ctx()
+void* Common::ZeroMQWrapperImpl::ContextHolder::ctx()
 {
     return m_context;
 }

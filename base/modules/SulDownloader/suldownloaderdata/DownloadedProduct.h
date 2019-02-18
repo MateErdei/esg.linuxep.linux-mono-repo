@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ConfigurationData.h"
 #include "ProductMetadata.h"
 #include "WarehouseError.h"
-#include "ConfigurationData.h"
 
 namespace SulDownloader
 {
@@ -57,8 +57,8 @@ namespace SulDownloader
 
             /**
              * Set description of a failure related to the DownloadedProduct. This is used either internaly when
-             * ::verify and ::install is called. But can also be called by the WarehoureRepository to signal error in distributing
-             * the product.
+             * ::verify and ::install is called. But can also be called by the WarehoureRepository to signal error in
+             * distributing the product.
              *
              * @param error Description of the Failure related to the product.
              */
@@ -101,8 +101,8 @@ namespace SulDownloader
             bool productHasChanged() const;
 
             /**
-             * Set by the WarehouseRepository to signal that at the distribution the WarehouseRepository found that there are
-             * updates for the downloaded product.
+             * Set by the WarehouseRepository to signal that at the distribution the WarehouseRepository found that
+             * there are updates for the downloaded product.
              *
              * Internally nothing is processed. The flag is just kept and returned on productHasChanged.
              *
@@ -114,7 +114,8 @@ namespace SulDownloader
 
             /**
              *
-             * @param isBeingUninstalled True if the product is being uninstalled false if the product has been installed.
+             * @param isBeingUninstalled True if the product is being uninstalled false if the product has been
+             * installed.
              */
             void setProductIsBeingUninstalled(bool IsBeingUninstalled);
 
@@ -135,11 +136,14 @@ namespace SulDownloader
              */
             bool forceProductReinstall() const;
 
-
-        private :
+        private:
             enum class State
             {
-                Initialized, Distributed, Verified, Installed, HasError
+                Initialized,
+                Distributed,
+                Verified,
+                Installed,
+                HasError
             } m_state;
             WarehouseError m_error;
             ProductMetadata m_productMetadata;
@@ -148,7 +152,5 @@ namespace SulDownloader
             bool m_productUninstall;
             bool m_forceProductReinstall;
         };
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

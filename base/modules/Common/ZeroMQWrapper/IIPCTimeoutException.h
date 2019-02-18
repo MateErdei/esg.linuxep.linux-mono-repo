@@ -6,8 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
 #include "IIPCException.h"
 
 namespace Common
@@ -17,11 +15,7 @@ namespace Common
         class IIPCTimeoutException : public IIPCException
         {
         public:
-            explicit IIPCTimeoutException(const std::string& what)
-                    : IIPCException(what)
-            {}
+            explicit IIPCTimeoutException(const std::string& what) : IIPCException(what) {}
         };
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

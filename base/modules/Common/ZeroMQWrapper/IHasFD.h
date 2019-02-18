@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <memory>
 
 namespace Common
@@ -21,7 +20,5 @@ namespace Common
         };
 
         using IHasFDPtr = std::unique_ptr<IHasFD>;
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

@@ -4,20 +4,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "PolicyTask.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
-#include <ManagementAgent/UtilityImpl/PolicyFileUtilities.h>
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/RegexUtilities.h>
-
+#include <ManagementAgent/LoggerImpl/Logger.h>
+#include <ManagementAgent/UtilityImpl/PolicyFileUtilities.h>
 
 namespace ManagementAgent
 {
     namespace McsRouterPluginCommunicationImpl
     {
-
         void PolicyTask::run()
         {
             LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
@@ -26,7 +24,7 @@ namespace ManagementAgent
 
             if (appId.empty())
             {
-                LOGWARN("Got an invalid file name for policy detection: "<<m_filePath);
+                LOGWARN("Got an invalid file name for policy detection: " << m_filePath);
                 return;
             }
 
@@ -44,17 +42,16 @@ namespace ManagementAgent
 
             int newPolicyResult = m_pluginManager.applyNewPolicy(appId, payload);
             LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
-
         }
 
         PolicyTask::PolicyTask(
-                ManagementAgent::PluginCommunication::IPluginManager& pluginManager, std::string filePath)
-                : m_pluginManager(pluginManager)
-                  , m_filePath(std::move(filePath))
+            ManagementAgent::PluginCommunication::IPluginManager& pluginManager,
+            std::string filePath) :
+            m_pluginManager(pluginManager),
+            m_filePath(std::move(filePath))
         {
         }
 
+    } // namespace McsRouterPluginCommunicationImpl
 
-    }
-
-}
+} // namespace ManagementAgent

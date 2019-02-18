@@ -14,7 +14,4 @@ namespace UpdateSchedulerImpl
         bool isUpdateNowAction(const std::string& actionXml);
 
     }
-}
-
-
-
+} // namespace UpdateSchedulerImpl

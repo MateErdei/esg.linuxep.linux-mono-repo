@@ -11,16 +11,14 @@ namespace Common
 {
     namespace ObfuscationImpl
     {
-
-/**
- * This class implements the <i>IObscurity</i> interface.
- * Specifically, it uses an asymetric key to obscure the data, and
- * uses various techniques to obscure this key.
- */
+        /**
+         * This class implements the <i>IObscurity</i> interface.
+         * Specifically, it uses an asymetric key to obscure the data, and
+         * uses various techniques to obscure this key.
+         */
         class CObscurity
         {
         protected:
-
             typedef struct
             {
                 unsigned char* value;
@@ -34,9 +32,7 @@ namespace Common
             Common::ObfuscationImpl::SecureDynamicBuffer GetPassword() const;
 
         protected:
-
             // -- Simple obscurity algorithms -----
-
 
             /**
              * Joins data up from sections
@@ -46,7 +42,6 @@ namespace Common
              * @return original data. Caller owns the returned buffer.
              */
             static unsigned char* Join(const LenVal_t* sections, size_t count, size_t* obscuredDataLen);
-
 
             /**
              * This method reveals the given obscured data
@@ -71,6 +66,5 @@ namespace Common
              */
             SecureString Reveal(const std::string& data) const;
         };
-    }
-}
-
+    } // namespace ObfuscationImpl
+} // namespace Common

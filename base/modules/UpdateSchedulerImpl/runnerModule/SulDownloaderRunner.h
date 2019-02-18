@@ -7,11 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "SulDownloaderResultDirectoryListener.h"
-#include <UpdateScheduler/SchedulerTaskQueue.h>
+
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/Process/IProcess.h>
-
+#include <UpdateScheduler/SchedulerTaskQueue.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -21,12 +21,13 @@ namespace UpdateSchedulerImpl
         {
         public:
             SulDownloaderRunner(
-                    std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue,
-                    const std::string& directoryToWatch,
-                    const std::string& nameOfFileToWaitFor,
-                    std::chrono::seconds timeout);
+                std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue,
+                const std::string& directoryToWatch,
+                const std::string& nameOfFileToWaitFor,
+                std::chrono::seconds timeout);
 
-            /// Run the systemd update service and block until suldownloader outputs a report file or the timeout is reached.
+            /// Run the systemd update service and block until suldownloader outputs a report file or the timeout is
+            /// reached.
             void run();
 
             /// Stop waiting for the update service to finish.
@@ -42,5 +43,5 @@ namespace UpdateSchedulerImpl
             std::tuple<int, std::string> startUpdateService();
         };
 
-    }
-}
+    } // namespace runnerModule
+} // namespace UpdateSchedulerImpl

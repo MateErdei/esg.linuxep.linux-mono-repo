@@ -5,19 +5,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginServerCallback.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
+
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        PluginServerCallback::PluginServerCallback(PluginManager & pluginManagerPtr)
-                : m_pluginManager(pluginManagerPtr)
-        {}
+        PluginServerCallback::PluginServerCallback(PluginManager& pluginManagerPtr) : m_pluginManager(pluginManagerPtr)
+        {
+        }
 
-        void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string &eventXml)
+        void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string& eventXml)
         {
             LOGSUPPORT("Management: Event received for  " << appId);
             if (m_eventReceiver != nullptr)
@@ -26,7 +27,9 @@ namespace ManagementAgent
             }
         }
 
-        void PluginServerCallback::receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo &statusInfo)
+        void PluginServerCallback::receivedChangeStatus(
+            const std::string& appId,
+            const Common::PluginApi::StatusInfo& statusInfo)
         {
             LOGSUPPORT("Management: Status changed notification for " << appId);
             if (m_statusReceiver != nullptr)
@@ -38,7 +41,7 @@ namespace ManagementAgent
         bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId)
         {
             LOGSUPPORT("Management: Policy request received for  " << appId);
-            if(m_policyReceiver != nullptr)
+            if (m_policyReceiver != nullptr)
             {
                 return m_policyReceiver->receivedGetPolicyRequest(appId);
             }
@@ -46,26 +49,27 @@ namespace ManagementAgent
             return false;
         }
 
-        void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string &pluginName)
+        void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string& pluginName)
         {
             LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
             Common::PluginRegistryImpl::PluginInfo pluginInfo;
             bool validPlugin;
             std::tie(pluginInfo, validPlugin) =
-                    Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
+                Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
 
             if (!validPlugin)
             {
                 LOGERROR("No information found about this plugin: " << pluginName);
                 throw Common::PluginApi::ApiException(
-                        "Information for the plugin not found in the registry: " + pluginName
-                );
+                    "Information for the plugin not found in the registry: " + pluginName);
             }
             // Creates the pluginProxy
-            m_pluginManager.registerAndSetAppIds(pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
+            m_pluginManager.registerAndSetAppIds(
+                pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getStatusAppIds());
         }
 
-        void PluginServerCallback::setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
+        void PluginServerCallback::setStatusReceiver(
+            std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
         {
             LOGDEBUG("Status Receiver armed");
             m_statusReceiver = statusReceiver;
@@ -82,5 +86,5 @@ namespace ManagementAgent
             LOGDEBUG("Policy Receiver armed");
             m_policyReceiver = receiver;
         }
-    }
-}
+    } // namespace PluginCommunicationImpl
+} // namespace ManagementAgent

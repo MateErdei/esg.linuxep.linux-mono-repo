@@ -17,5 +17,4 @@ namespace TestLogging
         static void consoleSetupLogging();
     };
     using TestConsoleLoggingSetupPtr = std::unique_ptr<TestConsoleLoggingSetup>;
-}
-
+} // namespace TestLogging

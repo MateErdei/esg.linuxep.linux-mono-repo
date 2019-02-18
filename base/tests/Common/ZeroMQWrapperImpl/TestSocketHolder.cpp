@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-#include <gtest/gtest.h>
 #include <Common/ZeroMQWrapperImpl/SocketHolder.h>
+#include <gtest/gtest.h>
+
 #include <zmq.h>
 
 namespace
@@ -19,7 +19,7 @@ namespace
     TEST(TestSocketHolder, DefaultCreation) // NOLINT
     {
         Common::ZeroMQWrapperImpl::SocketHolder socket;
-        ASSERT_EQ(socket.skt(),nullptr);
+        ASSERT_EQ(socket.skt(), nullptr);
     }
 
     TEST(TestSocketHolder, PointerCreation) // NOLINT
@@ -28,7 +28,7 @@ namespace
 
         void* callbackSocket = zmq_socket(holder.ctx(), ZMQ_REP);
         Common::ZeroMQWrapperImpl::SocketHolder socket(callbackSocket);
-        ASSERT_EQ(socket.skt(),callbackSocket);
+        ASSERT_EQ(socket.skt(), callbackSocket);
     }
 
     TEST(TestSocketHolder, TestResetReplacesPointer) // NOLINT
@@ -37,11 +37,11 @@ namespace
 
         void* callbackSocket = zmq_socket(holder.ctx(), ZMQ_REP);
         Common::ZeroMQWrapperImpl::SocketHolder socket(callbackSocket);
-        ASSERT_EQ(socket.skt(),callbackSocket);
+        ASSERT_EQ(socket.skt(), callbackSocket);
 
         void* socket2 = zmq_socket(holder.ctx(), ZMQ_REP);
         socket.reset(socket2);
-        ASSERT_EQ(socket.skt(),socket2);
+        ASSERT_EQ(socket.skt(), socket2);
     }
 
     TEST(TestSocketHolder, TestInternalCreation) // NOLINT
@@ -52,6 +52,6 @@ namespace
 
         void* socket2 = zmq_socket(holder->ctx(), ZMQ_REP);
         socket.reset(socket2);
-        ASSERT_EQ(socket.skt(),socket2);
+        ASSERT_EQ(socket.skt(), socket2);
     }
-}
+} // namespace

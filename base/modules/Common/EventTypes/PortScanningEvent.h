@@ -9,16 +9,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "CommonEventData.h"
 #include "IEventType.h"
 
-
 namespace Common
 {
     namespace EventTypes
     {
-
         class PortScanningEvent : public virtual Common::EventTypes::IEventType
         {
         public:
-
             enum EventType
             {
                 opened = 0,
@@ -43,10 +40,10 @@ namespace Common
 
             std::string toString() const override;
             /**
-            * Takes in a event object as a capn byte string.
-            * @param a objectAsString
-            * @returns PortScanningEvent object created from the capn byte string..
-            */
+             * Takes in a event object as a capn byte string.
+             * @param a objectAsString
+             * @returns PortScanningEvent object created from the capn byte string..
+             */
             void fromString(const std::string& objectAsString);
 
         private:
@@ -54,7 +51,9 @@ namespace Common
             Common::EventTypes::IpFlow m_connection;
         };
 
-        Common::EventTypes::PortScanningEvent createPortScanningEvent(const EventTypes::IpFlow& ipFlow, Common::EventTypes::PortScanningEvent::EventType eventType);
-    }
+        Common::EventTypes::PortScanningEvent createPortScanningEvent(
+            const EventTypes::IpFlow& ipFlow,
+            Common::EventTypes::PortScanningEvent::EventType eventType);
+    } // namespace EventTypes
 
-}
+} // namespace Common

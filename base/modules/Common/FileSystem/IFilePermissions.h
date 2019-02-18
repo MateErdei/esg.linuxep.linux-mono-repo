@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <memory>
-#include <map>
 #include <grp.h>
+#include <map>
+#include <memory>
 
 using Path = std::string;
 
@@ -47,7 +47,6 @@ namespace Common
              */
             virtual gid_t getGroupId(const std::string& groupString) const = 0;
 
-
             /**
              * get the group name from the group id
              *
@@ -55,7 +54,7 @@ namespace Common
              * @return returns either a group name or an empty string if the group
              * doesn't exist.
              */
-            virtual std::string getGroupName(const gid_t & groupId) const = 0;
+            virtual std::string getGroupName(const gid_t& groupId) const = 0;
 
             /**
              * get the user id from user name
@@ -66,7 +65,6 @@ namespace Common
              */
             virtual uid_t getUserId(const std::string& userString) const = 0;
 
-
             /**
              * get the user name from the user id
              *
@@ -74,19 +72,16 @@ namespace Common
              * @return returns either a user name or an empty string if the user
              * doesn't exist.
              */
-            virtual std::string getUserName(const uid_t & userId) const = 0;
-
-
+            virtual std::string getUserName(const uid_t& userId) const = 0;
         };
 
-         /**
+        /**
          * Return a BORROWED pointer to a static IFilePermissions instance.
          *
          * Do not delete this yourself.
          *
          * @return BORROWED IFilePermissions pointer
          */
-        IFilePermissions *filePermissions();
-    }
-}
-
+        IFilePermissions* filePermissions();
+    } // namespace FileSystem
+} // namespace Common

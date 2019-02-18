@@ -10,20 +10,19 @@
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 namespace SulDownloader
 {
-
     namespace suldownloaderdata
     {
         class ConfigurationData;
     }
 
-    using WarehouseRespositoryCreaterFunc = std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)>;
+    using WarehouseRespositoryCreaterFunc =
+        std::function<suldownloaderdata::IWarehouseRepositoryPtr(const suldownloaderdata::ConfigurationData&)>;
 
     /**
      * This class exists to enable an indirection on creating the WarehouseRepository to allow Mocking it out on tests.
@@ -45,7 +44,7 @@ namespace SulDownloader
          * There is only one instance of the factory. Globally accessible.
          * @return Factory instance.
          */
-        static WarehouseRepositoryFactory &instance();
+        static WarehouseRepositoryFactory& instance();
         /**
          * In production code, this is just an indirection to WarehouseRepository::FetchConnectedWarehouse
          *
@@ -53,7 +52,8 @@ namespace SulDownloader
          *
          * @return
          */
-        suldownloaderdata::IWarehouseRepositoryPtr fetchConnectedWarehouseRepository(const suldownloaderdata::ConfigurationData& );
+        suldownloaderdata::IWarehouseRepositoryPtr fetchConnectedWarehouseRepository(
+            const suldownloaderdata::ConfigurationData&);
 
     private:
         /**
@@ -77,5 +77,4 @@ namespace SulDownloader
          */
         WarehouseRespositoryCreaterFunc m_creatorMethod;
     };
-}
-
+} // namespace SulDownloader

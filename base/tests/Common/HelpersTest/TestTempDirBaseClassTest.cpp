@@ -4,9 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-
 #include "TempDirBaseClassTest.h"
+
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 /**
  * This class is to show how TempDirBaseClassTest can be used in order to
@@ -44,20 +44,20 @@ public:
 
 // show that directories are created for each test and the tests are completely independent from each other.
 
-TEST_F( UsageExample, FreshDirectoryIsCreated)
+TEST_F(UsageExample, FreshDirectoryIsCreated) // NOLINT
 {
     auto fileSystem = Common::FileSystem::FileSystemImpl();
-    ASSERT_TRUE( fileSystem.isDirectory(m_tempDir->dirPath()));
+    ASSERT_TRUE(fileSystem.isDirectory(m_tempDir->dirPath()));
     m_tempDir->createFile("test1.txt", "content");
     ASSERT_FALSE(fileSystem.exists(m_tempDir->absPath("test2.txt")));
     ASSERT_TRUE(fileSystem.exists(m_tempDir->absPath("test1.txt")));
     ASSERT_EQ(myTest, "UsageExample");
 }
 
-TEST_F( UsageExample, TestDirectoryIsIndependent)
+TEST_F(UsageExample, TestDirectoryIsIndependent) // NOLINT
 {
     auto fileSystem = Common::FileSystem::FileSystemImpl();
-    ASSERT_TRUE( fileSystem.isDirectory(m_tempDir->dirPath()));
+    ASSERT_TRUE(fileSystem.isDirectory(m_tempDir->dirPath()));
     m_tempDir->createFile("test2.txt", "content");
     ASSERT_FALSE(fileSystem.exists(m_tempDir->absPath("test1.txt")));
     ASSERT_TRUE(fileSystem.exists(m_tempDir->absPath("test2.txt")));

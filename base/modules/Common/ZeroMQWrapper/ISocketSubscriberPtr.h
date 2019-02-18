@@ -6,8 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
 #include <memory>
 
 namespace Common
@@ -16,7 +14,5 @@ namespace Common
     {
         class ISocketSubscriber;
         using ISocketSubscriberPtr = std::unique_ptr<ISocketSubscriber>;
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

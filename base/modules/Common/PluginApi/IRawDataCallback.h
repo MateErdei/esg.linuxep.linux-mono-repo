@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 
 namespace Common
@@ -28,9 +27,10 @@ namespace Common
             /**
              * It is via this method that the ISubscriber will pass data new subscription data.
              * @param key This is the rawDataCategory as emitted by the publisher ( @see IRawDataPublisher::sendData)
-             * @param data The data content. It is meant to be a json (binary or string) containing relevant information.
+             * @param data The data content. It is meant to be a json (binary or string) containing relevant
+             * information.
              */
             virtual void receiveData(const std::string& key, const std::string& data) = 0;
         };
-    }
-}
+    } // namespace PluginApi
+} // namespace Common

@@ -13,4 +13,4 @@ namespace wdctl
     {
         using StringVector = Common::Datatypes::StringVector;
     }
-}
+} // namespace wdctl

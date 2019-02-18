@@ -4,11 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef EVEREST_BASE_IFILESYSTEM_H
-#define EVEREST_BASE_IFILESYSTEM_H
+#pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
 using Path = std::string;
@@ -23,7 +22,7 @@ namespace Common
          * @param path2, second part of the path
          * @return string containing the joined path
          */
-        Path join(const Path& path1, const Path& path2) ;
+        Path join(const Path& path1, const Path& path2);
 
         Path join(const Path& path1, const Path& path2, const Path& path3);
 
@@ -40,7 +39,6 @@ namespace Common
          * @return the parent path based on the given path.
          */
         std::string dirName(const Path& path);
-
 
         class IFileSystem
         {
@@ -96,7 +94,7 @@ namespace Common
              * @param path, location of the file to read.
              * @return the content of the read file.
              */
-            virtual std::string readFile(const Path& path) const =0;
+            virtual std::string readFile(const Path& path) const = 0;
 
             /**
              * Reads a given file content into string.
@@ -104,14 +102,14 @@ namespace Common
              * @param maxSize The maximum file size to read, throws exception if the file is larger than that
              * @return the content of the read file.
              */
-            virtual std::string readFile(const Path& path, unsigned long maxSize) const =0;
+            virtual std::string readFile(const Path& path, unsigned long maxSize) const = 0;
 
             /**
              * Writes the given string content into a new file.
              * @param path, location of the file to create
              * @param content, the string value to write into the given file.
              */
-            virtual void writeFile(const Path& path, const std::string& content) const =0;
+            virtual void writeFile(const Path& path, const std::string& content) const = 0;
 
             /**
              * Writes the given string content into a new file atomically.
@@ -119,9 +117,8 @@ namespace Common
              * @param content, the string value to write into the given file.
              * @param tempDir, staging area where the file will be created before being moved to the correct place.
              */
-            virtual void
-            writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const =0;
-
+            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
+                const = 0;
 
             /**
              * Provide the fullPath of the files under the directoryPath given.
@@ -144,7 +141,7 @@ namespace Common
              */
             virtual std::vector<Path> listFilesAndDirectories(const Path& directoryPath) const = 0;
 
-            virtual void makeExecutable(const Path& path) const =0;
+            virtual void makeExecutable(const Path& path) const = 0;
 
             /**
              * Create a directory tree
@@ -154,21 +151,20 @@ namespace Common
              *
              * @param path, the directory path that will be created
              */
-            virtual void makedirs(const Path& path) const =0;
+            virtual void makedirs(const Path& path) const = 0;
 
             /**
              * Copy one file to another
              * @param src, source file that is to be copied
              * @param dest, location where the file will be copied to
              */
-            virtual void copyFile(const Path& src, const Path& dest) const =0;
+            virtual void copyFile(const Path& src, const Path& dest) const = 0;
 
             /**
-            * Remove file from filesystem
-            * @param path, full path to the file which is to be deleted
-            */
+             * Remove file from filesystem
+             * @param path, full path to the file which is to be deleted
+             */
             virtual void removeFile(const Path& path) const = 0;
-
 
             /**
              * Convert a relative path to an absolute path in the current working directory.
@@ -182,16 +178,13 @@ namespace Common
             virtual Path make_absolute(const Path& path) const = 0;
         };
 
-         /**
+        /**
          * Return a BORROWED pointer to a static IFileSystem instance.
          *
          * Do not delete this yourself.
          *
          * @return BORROWED IFileSystem pointer
          */
-        IFileSystem *fileSystem();
-    }
-}
-
-
-#endif //EVEREST_BASE_IFILESYSTEM_H
+        IFileSystem* fileSystem();
+    } // namespace FileSystem
+} // namespace Common

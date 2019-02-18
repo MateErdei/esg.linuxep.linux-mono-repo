@@ -11,29 +11,28 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include <thread>
 
 namespace
 {
-
     void handleRegistration(const Common::ZeroMQWrapper::IContextSharedPtr& context)
     {
         auto replier = context->getReplier();
-        std::string address = Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
+        std::string address =
+            Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
         replier->listen(address);
 
         // handle registration
@@ -52,13 +51,9 @@ namespace
     using ::testing::NiceMock;
     using ::testing::StrictMock;
 
-
-    class PluginApiCallbackTests
-            : public TestCompare
+    class PluginApiCallbackTests : public TestCompare
     {
-
     public:
-
         void SetUp() override
         {
             defaultPluginName = "plugin";
@@ -68,7 +63,7 @@ namespace
             ON_CALL(mock, getManagementAgentSocketAddress()).WillByDefault(Return("inproc://management.ipc"));
             ON_CALL(mock, getPluginSocketAddress(_)).WillByDefault(Return("inproc://plugin.ipc"));
             Common::ApplicationConfiguration::replaceApplicationPathManager(
-                    std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
             mockPluginCallback = std::make_shared<NiceMock<MockedPluginApiCallback>>();
 
             std::thread registration(handleRegistration, pluginResourceManagement.getSocketContext());
@@ -78,9 +73,8 @@ namespace
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(
-                    mockFilePermissions
-            );
+            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
             Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
@@ -88,18 +82,17 @@ namespace
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback);
             registration.join();
-
         }
 
         void TearDown() override
         {
             Common::ApplicationConfiguration::restoreApplicationPathManager();
             plugin.reset();
-
         }
 
-        Common::PluginProtocol::DataMessage
-        createDefaultMessage(Common::PluginProtocol::Commands command, const std::string& firstPayloadItem)
+        Common::PluginProtocol::DataMessage createDefaultMessage(
+            Common::PluginProtocol::Commands command,
+            const std::string& firstPayloadItem)
         {
             Common::PluginProtocol::DataMessage dataMessage;
             dataMessage.m_command = command;
@@ -113,10 +106,7 @@ namespace
             return dataMessage;
         }
 
-        Common::ZeroMQWrapper::IContextSharedPtr context()
-        {
-            return pluginResourceManagement.getSocketContext();
-        }
+        Common::ZeroMQWrapper::IContextSharedPtr context() { return pluginResourceManagement.getSocketContext(); }
 
         MockedPluginApiCallback& mock()
         {
@@ -132,17 +122,14 @@ namespace
 
         std::shared_ptr<MockedPluginApiCallback> mockPluginCallback;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> plugin;
-
     };
-
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus) // NOLINT
     {
-        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(
-                Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, ""
-        );
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
-        Common::PluginApi::StatusInfo statusInfo{"statusContent", "statusNoTimestamp",""};
+        Common::PluginApi::StatusInfo statusInfo{ "statusContent", "statusNoTimestamp", "" };
         expectedAnswer.m_payload.clear();
         expectedAnswer.m_payload.push_back(statusInfo.statusXml);
         expectedAnswer.m_payload.push_back(statusInfo.statusWithoutTimestampsXml);
@@ -156,7 +143,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToMessageFail) // NOLINT
     {
-        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(static_cast<Common::PluginProtocol::Commands>(20), "");
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(static_cast<Common::PluginProtocol::Commands>(20), "");
         dataMessage.m_payload.clear();
         auto reply = managementRequest.triggerRequest(context(), dataMessage);
         EXPECT_EQ(reply.m_error, "Invalid request");
@@ -164,9 +152,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToTelemetry) // NOLINT
     {
-        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(
-                Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, ""
-        );
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY, "");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         std::string telemetryData = "TelemetryData";
@@ -182,9 +169,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction) // NOLINT
     {
-        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(
-                Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction"
-        );
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION, "contentOfAction");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.m_payload.clear();
@@ -199,9 +185,8 @@ namespace
 
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToApplyNewPolicy) // NOLINT
     {
-        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage(
-                Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy"
-        );
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY, "contentOfPolicy");
         Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
 
         expectedAnswer.m_payload.clear();
@@ -213,6 +198,4 @@ namespace
 
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
     }
-}
-
-
+} // namespace

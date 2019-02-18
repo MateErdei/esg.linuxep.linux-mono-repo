@@ -4,10 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <cassert>
 #include "ProductSelection.h"
-#include "SulDownloaderException.h"
+
 #include "Logger.h"
+#include "SulDownloaderException.h"
+
+#include <cassert>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -22,64 +24,60 @@ namespace
     {
         std::vector<bool> m_trackIndexes;
         std::vector<size_t> m_indexes;
+
     public:
-        explicit StableSetIndex( size_t capacity ): m_trackIndexes(capacity,false), m_indexes()
-        {
+        explicit StableSetIndex(size_t capacity) : m_trackIndexes(capacity, false), m_indexes() {}
 
-        }
-
-        bool hasIndex( size_t index ) const
+        bool hasIndex(size_t index) const
         {
-            assert( index < m_trackIndexes.size());
+            assert(index < m_trackIndexes.size());
             return m_trackIndexes[index];
         }
 
         void addIndex(size_t index)
         {
-            if ( ! hasIndex(index))
+            if (!hasIndex(index))
             {
-                m_trackIndexes[index ] = true;
+                m_trackIndexes[index] = true;
                 m_indexes.push_back(index);
             }
         }
-        void addIndexes( const std::vector<size_t> & values)
+        void addIndexes(const std::vector<size_t>& values)
         {
-            for (size_t value: values)
+            for (size_t value : values)
             {
                 addIndex(value);
             }
         }
 
-        const std::vector<size_t>& values() const
-        {
-            return m_indexes;
-        }
+        const std::vector<size_t>& values() const { return m_indexes; }
     };
 
-
-
-}
+} // namespace
 
 namespace SulDownloader
 {
-
-    ProductSelector::ProductSelector(const std::string &productName, NamePrefix productNamePrefix, const std::string &releaseTag, const std::string &baseVersion)
-    : m_productName( productName)
-    , m_NamePrefix (productNamePrefix)
-    , m_releaseTag(releaseTag)
-    , m_baseVersion(baseVersion)
+    ProductSelector::ProductSelector(
+        const std::string& productName,
+        NamePrefix productNamePrefix,
+        const std::string& releaseTag,
+        const std::string& baseVersion) :
+        m_productName(productName),
+        m_NamePrefix(productNamePrefix),
+        m_releaseTag(releaseTag),
+        m_baseVersion(baseVersion)
 
     {
-        if ( m_productName.empty())
+        if (m_productName.empty())
         {
-            throw SulDownloaderException( "Cannot accept empty product name or prefix.");
+            throw SulDownloaderException("Cannot accept empty product name or prefix.");
         }
     }
 
-    bool ProductSelector::keepProduct(const ProductMetadata & productInformation) const
+    bool ProductSelector::keepProduct(const ProductMetadata& productInformation) const
     {
         size_t pos = productInformation.getLine().find(m_productName);
-        if ( pos != 0)
+        if (pos != 0)
         {
             // m_productname is not a prefix of productInformation.getLine()
             return false;
@@ -89,11 +87,10 @@ namespace SulDownloader
             return false;
         }
 
-        if ( !productInformation.hasTag( m_releaseTag))
+        if (!productInformation.hasTag(m_releaseTag))
         {
             return false;
         }
-
 
         if (productInformation.getBaseVersion() == m_baseVersion)
         {
@@ -103,32 +100,24 @@ namespace SulDownloader
         return false;
     }
 
-    std::string ProductSelector::targetProductName() const
-    {
-        return m_productName;
-    }
+    std::string ProductSelector::targetProductName() const { return m_productName; }
 
-    bool ProductSelector::isProductRequired() const
-    {
-        return (m_NamePrefix != NamePrefix::UseNameAsPrefix);
-    }
-
+    bool ProductSelector::isProductRequired() const { return (m_NamePrefix != NamePrefix::UseNameAsPrefix); }
 
     void ProductSelection::appendSelector(std::unique_ptr<ISingleProductSelector> productSelector)
     {
         m_selection.emplace_back(std::move(productSelector));
     }
 
-
-    ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData & configurationData)
+    ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData& configurationData)
     {
         ProductSelection productSelection;
 
-        for(auto product : configurationData.getProductSelection())
+        for (auto product : configurationData.getProductSelection())
         {
             ProductSelector::NamePrefix namePrefix;
 
-            if(product.Prefix)
+            if (product.Prefix)
             {
                 namePrefix = ProductSelector::UseNameAsPrefix;
             }
@@ -137,23 +126,24 @@ namespace SulDownloader
                 namePrefix = ProductSelector::UseFullName;
             }
 
-            productSelection.appendSelector( std::unique_ptr<ISingleProductSelector>( new ProductSelector(product.Name, namePrefix, product.releaseTag, product.baseVersion)));
+            productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(
+                new ProductSelector(product.Name, namePrefix, product.releaseTag, product.baseVersion)));
         }
 
         return productSelection;
     }
 
-    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata> &warehouseProducts) const
+    SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata>& warehouseProducts) const
     {
         SelectedResultsIndexes selection;
         StableSetIndex selectedProductsIndex(warehouseProducts.size());
 
-        for ( auto & selector : m_selection)
+        for (auto& selector : m_selection)
         {
             auto selectedIndexes = selectedProducts(*selector, warehouseProducts);
 
             // if product is not required do not force download failure.
-            if ( selectedIndexes.empty() && selector->isProductRequired())
+            if (selectedIndexes.empty() && selector->isProductRequired())
             {
                 selection.missing.push_back(selector->targetProductName());
             }
@@ -165,9 +155,9 @@ namespace SulDownloader
 
         selection.selected = selectedProductsIndex.values();
 
-        for ( size_t i =0 ; i < warehouseProducts.size(); ++i)
+        for (size_t i = 0; i < warehouseProducts.size(); ++i)
         {
-            if ( !selectedProductsIndex.hasIndex(i))
+            if (!selectedProductsIndex.hasIndex(i))
             {
                 selection.notselected.push_back(i);
             }
@@ -176,17 +166,18 @@ namespace SulDownloader
         return selection;
     }
 
-    std::vector<size_t> ProductSelection::selectedProducts(const ISingleProductSelector & selector,
-                                                        const std::vector<ProductMetadata> &warehouseProducts) const
+    std::vector<size_t> ProductSelection::selectedProducts(
+        const ISingleProductSelector& selector,
+        const std::vector<ProductMetadata>& warehouseProducts) const
     {
         StableSetIndex set(warehouseProducts.size());
-        for ( size_t i = 0 ; i< warehouseProducts.size(); ++i)
+        for (size_t i = 0; i < warehouseProducts.size(); ++i)
         {
-            if( selector.keepProduct(warehouseProducts[i]))
+            if (selector.keepProduct(warehouseProducts[i]))
             {
                 set.addIndex(i);
             }
         }
         return set.values();
     }
-}
+} // namespace SulDownloader

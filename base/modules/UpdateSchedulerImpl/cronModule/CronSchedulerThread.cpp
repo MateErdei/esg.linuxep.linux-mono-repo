@@ -4,33 +4,34 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "CronSchedulerThread.h"
+
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
-#include <Common/UtilityImpl/UniformIntDistribution.h>
+
 #include <cassert>
 
 namespace UpdateSchedulerImpl
 {
     namespace cronModule
     {
-
         using namespace UpdateScheduler;
 
-        CronSchedulerThread::CronSchedulerThread(std::shared_ptr<SchedulerTaskQueue> schedulerQueue,
-                                                 CronSchedulerThread::DurationTime firstTick,
-                                                 CronSchedulerThread::DurationTime repeatPeriod,
-                                                 int scheduledUpdateOffsetInMinutes)
-                 : m_sharedState()
-                 , m_schedulerQueue(schedulerQueue)
-                 , m_firstTick(firstTick)
-                 , m_periodTick(repeatPeriod)
-                 , m_actionOnInterrupt(ActionOnInterrupt::NOTHING)
-                 , m_scheduledUpdate()
-                 , m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes))
-                 , m_updateOnStartUp(true)
+        CronSchedulerThread::CronSchedulerThread(
+            std::shared_ptr<SchedulerTaskQueue> schedulerQueue,
+            CronSchedulerThread::DurationTime firstTick,
+            CronSchedulerThread::DurationTime repeatPeriod,
+            int scheduledUpdateOffsetInMinutes) :
+            m_sharedState(),
+            m_schedulerQueue(schedulerQueue),
+            m_firstTick(firstTick),
+            m_periodTick(repeatPeriod),
+            m_actionOnInterrupt(ActionOnInterrupt::NOTHING),
+            m_scheduledUpdate(),
+            m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes)),
+            m_updateOnStartUp(true)
         {
-
         }
 
         CronSchedulerThread::~CronSchedulerThread()
@@ -40,7 +41,6 @@ namespace UpdateSchedulerImpl
             requestStop();
             join();
         }
-
 
         void CronSchedulerThread::requestStop()
         {
@@ -79,7 +79,8 @@ namespace UpdateSchedulerImpl
             std::chrono::milliseconds timeToWait = m_firstTick;
             bool firstUpdate = true;
 
-            Common::UtilityImpl::UniformIntDistribution distribution(-m_scheduledUpdateOffsetInMinutes, m_scheduledUpdateOffsetInMinutes);
+            Common::UtilityImpl::UniformIntDistribution distribution(
+                -m_scheduledUpdateOffsetInMinutes, m_scheduledUpdateOffsetInMinutes);
             int scheduledUpdateOffsetInMinutes = distribution.next();
 
             announceThreadStarted();
@@ -95,7 +96,7 @@ namespace UpdateSchedulerImpl
                 {
                     poll_result = poller->poll(timeToWait);
                 }
-                catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException & ex)
+                catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException& ex)
                 {
                     // the poller will not work anymore and the CronSchedulerThread must stop.
                     // This may happen on shutdown.
@@ -109,7 +110,7 @@ namespace UpdateSchedulerImpl
                     // First update after m_firstTick seconds
                     if (firstUpdate && m_updateOnStartUp)
                     {
-                        m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                        m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                         firstUpdate = false;
 
                         if (m_scheduledUpdate.getEnabled())
@@ -123,7 +124,7 @@ namespace UpdateSchedulerImpl
                     // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
                     else if (!m_scheduledUpdate.getEnabled())
                     {
-                        m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                        m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                     }
 
                     // scheduled updating is enabled. Check if it is time to update
@@ -131,7 +132,7 @@ namespace UpdateSchedulerImpl
                     {
                         if (m_scheduledUpdate.timeToUpdate(scheduledUpdateOffsetInMinutes))
                         {
-                            m_schedulerQueue->push(SchedulerTask{SchedulerTask::TaskType::ScheduledUpdate, ""});
+                            m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                             m_scheduledUpdate.resetScheduledUpdateTimes();
 
                             scheduledUpdateOffsetInMinutes = distribution.next();
@@ -180,10 +181,7 @@ namespace UpdateSchedulerImpl
             return copyAction;
         }
 
-        void CronSchedulerThread::start()
-        {
-            AbstractThread::start();
-        }
+        void CronSchedulerThread::start() { AbstractThread::start(); }
 
-    }
-}
+    } // namespace cronModule
+} // namespace UpdateSchedulerImpl

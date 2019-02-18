@@ -5,10 +5,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <Common/Exceptions/IException.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateScheduler/IMapHostCacheId.h>
 #include <UpdateScheduler/ScheduledUpdate.h>
-#include <Common/Exceptions/IException.h>
+
 #include <chrono>
 
 namespace UpdateSchedulerImpl
@@ -26,12 +27,11 @@ namespace UpdateSchedulerImpl
         class PolicyValidationException : public Common::Exceptions::IException
         {
         public:
-            static void validateOrThrow( SettingsHolder & settingsHolder);
+            static void validateOrThrow(SettingsHolder& settingsHolder);
             using Common::Exceptions::IException::IException;
         };
 
-        class UpdatePolicyTranslator
-                : public virtual UpdateScheduler::IMapHostCacheId
+        class UpdatePolicyTranslator : public virtual UpdateScheduler::IMapHostCacheId
         {
         public:
             // may throw PolicyValidationException if the policy does not pass the validation criteria.
@@ -48,9 +48,9 @@ namespace UpdateSchedulerImpl
                 std::string priority;
                 std::string id;
             };
-            std::vector<Cache> sortUpdateCaches(const std::vector<Cache> & caches);
+            std::vector<Cache> sortUpdateCaches(const std::vector<Cache>& caches);
             std::vector<Cache> m_Caches;
             std::string m_revID;
         };
-    }
-}
+    } // namespace configModule
+} // namespace UpdateSchedulerImpl

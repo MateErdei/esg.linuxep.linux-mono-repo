@@ -10,23 +10,18 @@ namespace Common
 {
     namespace ReactorImpl
     {
-
-        void GenericShutdownListener::notifyShutdownRequested()
-        {
-            m_callback();
-        }
+        void GenericShutdownListener::notifyShutdownRequested() { m_callback(); }
 
         GenericShutdownListener::GenericShutdownListener(std::function<void()> callback)
         {
-            if( callback)
+            if (callback)
             {
                 m_callback = callback;
             }
             else
             {
-                m_callback = [](){};
+                m_callback = []() {};
             }
-
         }
-    }
-}
+    } // namespace ReactorImpl
+} // namespace Common

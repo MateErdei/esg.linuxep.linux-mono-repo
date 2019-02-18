@@ -6,13 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 #include <SulDownloader/suldownloaderdata/Tag.h>
 #include <SulDownloader/suldownloaderdata/WarehouseError.h>
-#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 
-extern "C" {
+extern "C"
+{
 #include <SUL.h>
 }
 #include <memory>
@@ -23,7 +24,7 @@ namespace SulDownloader
     {
         class DownloadedProduct;
         class ProductSelection;
-    }
+    } // namespace suldownloaderdata
     class SULSession;
 
     /**
@@ -40,42 +41,46 @@ namespace SulDownloader
      *     - distribute and check status.
      *
      * Design Decision: set internal error state (not throw). This is to allow the creation of DownloadReport
-     * from all the information kept in the WarehouseRepository object. This imply that after the main methods: FetchConnectedWarehouse,
-     * synchronize and distribute is called, the ::hasError must be checked and no further operation is allowed.
+     * from all the information kept in the WarehouseRepository object. This imply that after the main methods:
+     * FetchConnectedWarehouse, synchronize and distribute is called, the ::hasError must be checked and no further
+     * operation is allowed.
      *
      * The order for the methods to be called: Fetch, Synchronize and Distribute is enforced internally with asserts.
      * It also enforces that no main method is called after internal error is set.
      *
      *
      */
-class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
+    class WarehouseRepository : public virtual suldownloaderdata::IWarehouseRepository
     {
     public:
         /**
-         * Using the information in the configuration data object, connections to remote warehouse repositories will be attempted
-         * Upon a successful connection, the metadata will be fetched from the remote Warehouse and
-         * a configured WarehouseRepository will be returned.
+         * Using the information in the configuration data object, connections to remote warehouse repositories will be
+         * attempted Upon a successful connection, the metadata will be fetched from the remote Warehouse and a
+         * configured WarehouseRepository will be returned.
          *
-         * If no connection can be stablished ( for all the possible options of connection) a pointer to the WarehouseRepository
-         * will be returned with ::hasError returning true. (This is to allow DownloadReport to be created).
+         * If no connection can be stablished ( for all the possible options of connection) a pointer to the
+         * WarehouseRepository will be returned with ::hasError returning true. (This is to allow DownloadReport to be
+         * created).
          *
-         * @param configurationData containing required parameters for SUL to perform a download from a warehouse repository
+         * @param configurationData containing required parameters for SUL to perform a download from a warehouse
+         * repository
          * @return pointer to successfully connected WarehouseRepository
          */
-        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse( const suldownloaderdata::ConfigurationData & configurationData );
+        static std::unique_ptr<WarehouseRepository> FetchConnectedWarehouse(
+            const suldownloaderdata::ConfigurationData& configurationData);
 
         WarehouseRepository() = delete;
-        WarehouseRepository( const WarehouseRepository & ) = delete;
-        WarehouseRepository &operator = (const WarehouseRepository & ) = delete;
-        WarehouseRepository& operator = (WarehouseRepository && ) = default;
-        WarehouseRepository( WarehouseRepository&& ) = default;
+        WarehouseRepository(const WarehouseRepository&) = delete;
+        WarehouseRepository& operator=(const WarehouseRepository&) = delete;
+        WarehouseRepository& operator=(WarehouseRepository&&) = default;
+        WarehouseRepository(WarehouseRepository&&) = default;
         ~WarehouseRepository() override;
 
         /**
          * Used to check if the WarehouseRepository reported an error
          * @return true, if WarehouseRepository has error, false otherwise
          */
-        bool hasError() const override ;
+        bool hasError() const override;
 
         /**
          * Gets the WarehouseRepository error information.
@@ -84,18 +89,18 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
          *
          * @return struct containing the error description, sul error and status
          */
-        suldownloaderdata::WarehouseError getError() const override ;
+        suldownloaderdata::WarehouseError getError() const override;
 
         /**
          * Configure sul to download/synchronize the selection of products
          *
-         * Based on the list of products available in the warehouse repositories, this method will configure SUL to download only
-         * the prooducts selected by ::productSelection. It will eventually execute SU_synchronise which will ensure
-         * that all the packages that need to be downloaded are fetched and placed in the local repository.
+         * Based on the list of products available in the warehouse repositories, this method will configure SUL to
+         * download only the prooducts selected by ::productSelection. It will eventually execute SU_synchronise which
+         * will ensure that all the packages that need to be downloaded are fetched and placed in the local repository.
          *
          * @param productSelection: is responsible to define which are the products to be downloaded.
          */
-        void synchronize( suldownloaderdata::ProductSelection & productSelection) override ;
+        void synchronize(suldownloaderdata::ProductSelection& productSelection) override;
 
         /**
          * Extract the file content from the local warehouse repository and create real product file structure required.
@@ -103,10 +108,10 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
          * remote repositories. The second one, which SUL calls the distribution path, is used to synchronize inside the
          * machine and allows SUL to check if there are local changes since the previous update.
          *
-         * Distribute eventually executes SU_distribute to allow SUL to verify which products have changed since the last
-         * update.
+         * Distribute eventually executes SU_distribute to allow SUL to verify which products have changed since the
+         * last update.
          */
-        void distribute() override ;
+        void distribute() override;
 
         /**
          * Gets the list of products synchronized and downloaded.
@@ -116,39 +121,43 @@ class WarehouseRepository : public virtual suldownloaderdata::IWarehouseReposito
          *
          * @return list of products
          */
-        std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override ;
+        std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override;
 
-        std::string getSourceURL() const override ;
-
+        std::string getSourceURL() const override;
 
     private:
-        enum class State{ Initialized, Failure, Synchronized, Connected, Distributed} m_state;
+        enum class State
+        {
+            Initialized,
+            Failure,
+            Synchronized,
+            Connected,
+            Distributed
+        } m_state;
 
-        void setError( const std::string & );
-        void setConnectionSetup( const suldownloaderdata::ConnectionSetup & connectionSetup, const suldownloaderdata::ConfigurationData& configurationData);
-        int  logLevel( suldownloaderdata::ConfigurationData::LogLevel );
-        explicit  WarehouseRepository( bool createSession  );
+        void setError(const std::string&);
+        void setConnectionSetup(
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
+            const suldownloaderdata::ConfigurationData& configurationData);
+        int logLevel(suldownloaderdata::ConfigurationData::LogLevel);
+        explicit WarehouseRepository(bool createSession);
 
-        void distributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair, const  std::string & distributePath );
-        void verifyDistributeProduct( std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct> & productPair);
+        void distributeProduct(
+            std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>& productPair,
+            const std::string& distributePath);
+        void verifyDistributeProduct(std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>& productPair);
 
-        suldownloaderdata::WarehouseError fetchSulError(const std::string & description ) const;
+        suldownloaderdata::WarehouseError fetchSulError(const std::string& description) const;
 
         std::string getRootDistributionPath() const;
-        void setRootDistributionPath(const std::string &rootDistributionPath);
+        void setRootDistributionPath(const std::string& rootDistributionPath);
 
         SU_Handle session() const;
         suldownloaderdata::WarehouseError m_error;
         std::vector<std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>> m_products;
-        std::unique_ptr<SULSession> m_session ;
+        std::unique_ptr<SULSession> m_session;
         std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;
         std::string m_rootDistributionPath;
-
     };
 
-
-}
-
-
-
-
+} // namespace SulDownloader

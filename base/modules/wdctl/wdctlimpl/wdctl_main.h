@@ -9,6 +9,6 @@ namespace wdctl
 {
     namespace wdctlimpl
     {
-        int wdctl_main(int argc, char *argv[]);
+        int wdctl_main(int argc, char* argv[]);
     }
-}
+} // namespace wdctl

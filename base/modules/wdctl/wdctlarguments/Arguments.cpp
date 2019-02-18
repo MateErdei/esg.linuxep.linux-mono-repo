@@ -13,7 +13,6 @@ void Arguments::parseArguments(const StringVector& args)
     StringVector positionalArgs;
     StringVector options;
 
-
     for (auto& arg : args)
     {
         if (arg.find("--") == 0)

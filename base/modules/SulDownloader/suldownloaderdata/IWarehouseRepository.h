@@ -6,10 +6,10 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-
-#include <vector>
-#include <string>
 #include <bits/unique_ptr.h>
+
+#include <string>
+#include <vector>
 
 namespace SulDownloader
 {
@@ -39,13 +39,9 @@ namespace SulDownloader
             virtual std::vector<suldownloaderdata::DownloadedProduct> getProducts() const = 0;
 
             virtual std::string getSourceURL() const = 0;
-
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;
 
-
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

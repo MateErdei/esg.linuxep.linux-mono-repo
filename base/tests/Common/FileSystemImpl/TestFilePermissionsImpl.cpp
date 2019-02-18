@@ -3,14 +3,13 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
-
 #include <tests/Common/Helpers/TempDir.h>
-
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 #include <grp.h>
 #include <pwd.h>
@@ -18,118 +17,122 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace Common::FileSystem;
 namespace
 {
-
 #ifndef ARTISANBUILD
-    TEST(FilePermissionsImpl,checkFileCreatedIsNotExecutable)
+    TEST(FilePermissionsImpl, checkFileCreatedIsNotExecutable) // NOLINT
     {
         Tests::TempDir tempdir;
         tempdir.makeTempDir();
-        std::string a ="blah.txt";
-        std::string dirpath = tempdir.dirPath()+a;
-        tempdir.createFile(dirpath,"");
+        std::string a = "blah.txt";
+        std::string dirpath = tempdir.dirPath() + a;
+        tempdir.createFile(dirpath, "");
         auto fileSystem = Common::FileSystem::fileSystem();
 
-        ASSERT_FALSE( fileSystem->isExecutable(dirpath));
+        ASSERT_FALSE(fileSystem->isExecutable(dirpath));
     }
 
-    TEST(FilePermissionsImpl,checkSophosChmodWorks)
+    TEST(FilePermissionsImpl, checkSophosChmodWorks) // NOLINT
     {
         Tests::TempDir tempdir;
         tempdir.makeTempDir();
-        std::string a ="blah.txt";
-        std::string dirpath = tempdir.dirPath()+a;
-        tempdir.createFile(dirpath,"");
+        std::string a = "blah.txt";
+        std::string dirpath = tempdir.dirPath() + a;
+        tempdir.createFile(dirpath, "");
         auto fileSystem = Common::FileSystem::fileSystem();
 
         fileSystem->makeExecutable(dirpath);
-        ASSERT_TRUE( fileSystem->isExecutable(dirpath));
+        ASSERT_TRUE(fileSystem->isExecutable(dirpath));
     }
 #endif
 
-    //group id tests
-    TEST(FilePermissionsImpl,checkGetGroupIdReturnsMinusOneWhenBadGroup)
+    // group id tests
+    TEST(FilePermissionsImpl, checkGetGroupIdReturnsMinusOneWhenBadGroup) // NOLINT
     {
-        EXPECT_THROW(Common::FileSystem::filePermissions()->getGroupId("badgroup"), Common::FileSystem::IFileSystemException);
+        EXPECT_THROW( // NOLINT
+            Common::FileSystem::filePermissions()->getGroupId("badgroup"),
+            Common::FileSystem::IFileSystemException);
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupIdReturnsAGroupWhenGoodGroup)
+    TEST(FilePermissionsImpl, checkGetGroupIdReturnsAGroupWhenGoodGroup) // NOLINT
     {
-        EXPECT_NE(Common::FileSystem::filePermissions()->getGroupId("root"),-1);
+        EXPECT_NE(Common::FileSystem::filePermissions()->getGroupId("root"), -1);
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupIdReturnstheSameAsGetgrnam)
+    TEST(FilePermissionsImpl, checkGetGroupIdReturnstheSameAsGetgrnam) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"),getgrnam("root")->gr_gid);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"), getgrnam("root")->gr_gid);
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupIdOfRootReturnsZero)
+    TEST(FilePermissionsImpl, checkGetGroupIdOfRootReturnsZero) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"),0);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupId("root"), 0);
     }
 
-    //group name tests
-    TEST(FilePermissionsImpl,checkGetGroupNameThrowsWhenBadGroup)
+    // group name tests
+    TEST(FilePermissionsImpl, checkGetGroupNameThrowsWhenBadGroup) // NOLINT
     {
-        EXPECT_THROW(Common::FileSystem::filePermissions()->getGroupName(-1), Common::FileSystem::IFileSystemException);
+        EXPECT_THROW( // NOLINT
+            Common::FileSystem::filePermissions()->getGroupName(-1),
+            Common::FileSystem::IFileSystemException);
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupNameReturnsAGroupWhenGoodGroup)
+    TEST(FilePermissionsImpl, checkGetGroupNameReturnsAGroupWhenGoodGroup) // NOLINT
     {
-        EXPECT_NE(Common::FileSystem::filePermissions()->getGroupName(0),"");
+        EXPECT_NE(Common::FileSystem::filePermissions()->getGroupName(0), "");
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupNameReturnstheSameAsGetgrgid)
+    TEST(FilePermissionsImpl, checkGetGroupNameReturnstheSameAsGetgrgid) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupName(0),getgrgid(0)->gr_name);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupName(0), getgrgid(0)->gr_name);
     }
 
-    TEST(FilePermissionsImpl,checkGetGroupNameCalledWith0ReturnsRoot)
+    TEST(FilePermissionsImpl, checkGetGroupNameCalledWith0ReturnsRoot) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupName(0),"root");
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getGroupName(0), "root");
     }
 
-    //user id tests
-    TEST(FilePermissionsImpl,checkGetUserIdReturnsMinusOneWhenBadUser)
+    // user id tests
+    TEST(FilePermissionsImpl, checkGetUserIdReturnsMinusOneWhenBadUser) // NOLINT
     {
-        EXPECT_THROW(Common::FileSystem::filePermissions()->getUserId("baduser"), Common::FileSystem::IFileSystemException);
+        EXPECT_THROW( // NOLINT
+            Common::FileSystem::filePermissions()->getUserId("baduser"),
+            Common::FileSystem::IFileSystemException);
     }
 
-    TEST(FilePermissionsImpl,checkGetUserIdReturnsAUserWhenGoodUser)
+    TEST(FilePermissionsImpl, checkGetUserIdReturnsAUserWhenGoodUser) // NOLINT
     {
-        EXPECT_NE(Common::FileSystem::filePermissions()->getUserId("root"),-1);
+        EXPECT_NE(Common::FileSystem::filePermissions()->getUserId("root"), -1);
     }
 
-    TEST(FilePermissionsImpl,checkGetUserIdReturnstheSameAsGetpwnam)
+    TEST(FilePermissionsImpl, checkGetUserIdReturnstheSameAsGetpwnam) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("root"),getpwnam("root")->pw_uid);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("root"), getpwnam("root")->pw_uid);
     }
 
-    TEST(FilePermissionsImpl,checkGetUserIdOfRootReturnsZero)
+    TEST(FilePermissionsImpl, checkGetUserIdOfRootReturnsZero) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("root"),0);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("root"), 0);
     }
 
-
-    //user name tests
-    TEST(FilePermissionsImpl,checkGetUserNameReturnsEmptyStringWhenBadUser)
+    // user name tests
+    TEST(FilePermissionsImpl, checkGetUserNameReturnsEmptyStringWhenBadUser) // NOLINT
     {
-        EXPECT_THROW(Common::FileSystem::filePermissions()->getUserName(-1), Common::FileSystem::IFileSystemException);
+        EXPECT_THROW( // NOLINT
+            Common::FileSystem::filePermissions()->getUserName(-1), Common::FileSystem::IFileSystemException);
     }
 
-    TEST(FilePermissionsImpl,checkGetUserNameReturnsAUserWhenGoodUser)
+    TEST(FilePermissionsImpl, checkGetUserNameReturnsAUserWhenGoodUser) // NOLINT
     {
-        EXPECT_NE(Common::FileSystem::filePermissions()->getUserName(0),"");
+        EXPECT_NE(Common::FileSystem::filePermissions()->getUserName(0), "");
     }
 
-    TEST(FilePermissionsImpl,checkGetUserNameReturnstheSameAsGetpwid)
+    TEST(FilePermissionsImpl, checkGetUserNameReturnstheSameAsGetpwid) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(0),getpwuid(0)->pw_name);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(0), getpwuid(0)->pw_name);
     }
 
-    TEST(FilePermissionsImpl,checkGetUserNameCalledWith0ReturnsRoot)
+    TEST(FilePermissionsImpl, checkGetUserNameCalledWith0ReturnsRoot) // NOLINT
     {
-        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(0),"root");
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserName(0), "root");
     }
 
-
-}
+} // namespace

@@ -6,10 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include <string>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <string>
 namespace Common
 {
     namespace ApplicationConfiguration
@@ -18,7 +17,7 @@ namespace Common
         {
         public:
             virtual ~IApplicationPathManager() = default;
-            virtual std::string getPluginSocketAddress(const std::string & pluginName) const = 0;
+            virtual std::string getPluginSocketAddress(const std::string& pluginName) const = 0;
             virtual std::string getManagementAgentSocketAddress() const = 0;
             virtual std::string getWatchdogSocketAddress() const = 0;
             virtual std::string sophosInstall() const = 0;
@@ -45,7 +44,8 @@ namespace Common
             virtual std::string getLocalDistributionRepository() const = 0;
 
             /**
-             * @brief gets the directory containing the symlinks to the plugin/product uninstallers <ProductLine>.sh for each product <ProductLine> installed.
+             * @brief gets the directory containing the symlinks to the plugin/product uninstallers <ProductLine>.sh for
+             * each product <ProductLine> installed.
              * @return the full path of the directory
              */
             virtual std::string getLocalUninstallSymLinkPath() const = 0;
@@ -60,16 +60,12 @@ namespace Common
             virtual std::string getSulDownloaderLockFilePath() const = 0;
 
             virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
-
         };
-
 
         IApplicationPathManager& applicationPathManager();
         /** Use only for test */
-        void replaceApplicationPathManager( std::unique_ptr<IApplicationPathManager> );
+        void replaceApplicationPathManager(std::unique_ptr<IApplicationPathManager>);
         void restoreApplicationPathManager();
 
-    }
-}
-
-
+    } // namespace ApplicationConfiguration
+} // namespace Common

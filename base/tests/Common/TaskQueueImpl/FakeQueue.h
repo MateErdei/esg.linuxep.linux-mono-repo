@@ -13,12 +13,6 @@ namespace
     class FakeQueue : public Common::TaskQueueImpl::TaskQueueImpl
     {
     public:
-        bool empty()
-        {
-            return m_tasks.empty();
-        }
+        bool empty() { return m_tasks.empty(); }
     };
-}
-
-
-
+} // namespace

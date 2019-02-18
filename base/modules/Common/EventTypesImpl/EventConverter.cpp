@@ -10,7 +10,8 @@ namespace Common
 {
     namespace EventTypesImpl
     {
-        const std::pair<std::string, std::string> EventConverter::eventToString(const Common::EventTypes::IEventType* eventType)
+        const std::pair<std::string, std::string> EventConverter::eventToString(
+            const Common::EventTypes::IEventType* eventType)
         {
             std::pair<std::string, std::string> eventData;
             eventData.first = eventType->getEventTypeId();
@@ -32,7 +33,7 @@ namespace Common
         {
             return createEventFromString<EventTypes::ProcessEvent>(event);
         }
-    }
+    } // namespace EventTypesImpl
 
     namespace EventTypes
     {
@@ -40,5 +41,5 @@ namespace Common
         {
             return std::unique_ptr<IEventConverter>(new EventTypesImpl::EventConverter());
         }
-    }
-}
+    } // namespace EventTypes
+} // namespace Common

@@ -4,19 +4,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/FileSystem/IFilePermissions.h>
 #include "FilePermissionsImpl.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
-
-#include <unistd.h>
 #include <sys/stat.h>
-#include <sstream>
-#include <pwd.h>
+
 #include <grp.h>
+#include <pwd.h>
+#include <sstream>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -60,7 +60,6 @@ namespace Common
 
         gid_t FilePermissionsImpl::getGroupId(const std::string& groupString) const
         {
-
             struct group groupbuf;
             struct group* replygroup;
             std::array<char, 256> buffer; // placeholder, event if it is not sufficient
@@ -166,18 +165,15 @@ namespace Common
 
         std::unique_ptr<Common::FileSystem::IFilePermissions>& filePermissionsStaticPointer()
         {
-            static std::unique_ptr<Common::FileSystem::IFilePermissions> instance = std::unique_ptr<Common::FileSystem::IFilePermissions>(new Common::FileSystem::FilePermissionsImpl());
+            static std::unique_ptr<Common::FileSystem::IFilePermissions> instance =
+                std::unique_ptr<Common::FileSystem::IFilePermissions>(new Common::FileSystem::FilePermissionsImpl());
             return instance;
         }
 
-    }
-}
+    } // namespace FileSystem
+} // namespace Common
 
-
-
-Common::FileSystem::IFilePermissions * Common::FileSystem::filePermissions()
+Common::FileSystem::IFilePermissions* Common::FileSystem::filePermissions()
 {
     return Common::FileSystem::filePermissionsStaticPointer().get();
 }
-
-

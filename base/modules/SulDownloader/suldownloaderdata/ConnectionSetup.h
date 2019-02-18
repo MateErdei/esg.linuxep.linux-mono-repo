@@ -6,13 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "Proxy.h"
+
 #include <string>
 #include <vector>
-#include "Proxy.h"
 
 namespace SulDownloader
 {
-
     namespace suldownloaderdata
     {
         /**
@@ -20,11 +20,12 @@ namespace SulDownloader
          */
         class ConnectionSetup
         {
-
         public:
-            explicit ConnectionSetup(const std::string& updateLocationURL,
-                                     const Credentials& credentials = Credentials(), bool isCacheUpdate = false,
-                                     const Proxy& proxy = Proxy());
+            explicit ConnectionSetup(
+                const std::string& updateLocationURL,
+                const Credentials& credentials = Credentials(),
+                bool isCacheUpdate = false,
+                const Proxy& proxy = Proxy());
 
             const Credentials& getCredentials() const;
 
@@ -47,11 +48,7 @@ namespace SulDownloader
             Credentials m_credentials;
             bool m_isUpdateCache;
             Proxy m_proxy;
-
-
         };
 
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

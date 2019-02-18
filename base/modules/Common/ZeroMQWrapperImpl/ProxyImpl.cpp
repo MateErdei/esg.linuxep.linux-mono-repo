@@ -8,21 +8,24 @@
 #include "ProxyImpl.h"
 
 #include "SocketUtil.h"
-#include "ZeroMQWrapperException.h"
 #include "ZeroMQTimeoutException.h"
+#include "ZeroMQWrapperException.h"
 
-#include <zmq.h>
 #include <cassert>
+#include <zmq.h>
 
 using Common::ZeroMQWrapperImpl::ProxyImpl;
 
-Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(const std::string &frontend, const std::string &backend, ContextHolderSharedPtr context)
-    :   m_frontendAddress(frontend),
-        m_backendAddress(backend),
-        m_controlAddress("inproc://PubSubControl"),
-        m_context(std::move(context)),
-        m_threadStartedFlag(false),
-        m_controlPub(m_context, ZMQ_PUSH)
+Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(
+    const std::string& frontend,
+    const std::string& backend,
+    ContextHolderSharedPtr context) :
+    m_frontendAddress(frontend),
+    m_backendAddress(backend),
+    m_controlAddress("inproc://PubSubControl"),
+    m_context(std::move(context)),
+    m_threadStartedFlag(false),
+    m_controlPub(m_context, ZMQ_PUSH)
 {
     SocketUtil::listen(m_controlPub, m_controlAddress);
 }
@@ -39,8 +42,8 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
     assert(m_context.get() != nullptr);
     assert(m_context->ctx() != nullptr);
     std::unique_lock<std::mutex> lock(m_threadStarted);
-    m_thread = std::move(std::thread(&ProxyImpl::run,this));
-    m_ensureThreadStarted.wait(lock,[this](){return m_threadStartedFlag;});
+    m_thread = std::move(std::thread(&ProxyImpl::run, this));
+    m_ensureThreadStarted.wait(lock, [this]() { return m_threadStartedFlag; });
 }
 
 void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
@@ -48,16 +51,16 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::stop()
     // ensure that we have not already stopped
     if (m_thread.joinable())
     {
-        std::vector<std::string> terminate = {"TERMINATE"};
+        std::vector<std::string> terminate = { "TERMINATE" };
         try
         {
             SocketUtil::write(m_controlPub, terminate);
         }
-        catch(const Common::ZeroMQWrapperImpl::ZeroMQTimeoutException&)
+        catch (const Common::ZeroMQWrapperImpl::ZeroMQTimeoutException&)
         {
             std::terminate();
         }
-        catch(const Common::ZeroMQWrapperImpl::ZeroMQWrapperException&)
+        catch (const Common::ZeroMQWrapperImpl::ZeroMQWrapperException&)
         {
             std::terminate();
         }
@@ -86,9 +89,9 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::run()
     SocketHolder controlSub(m_context, ZMQ_PULL);
 
     const int timeoutMs = 1000;
-    SocketUtil::setTimeout(xsub,timeoutMs);
-    SocketUtil::setTimeout(xpub,timeoutMs);
-    SocketUtil::setTimeout(controlSub,timeoutMs);
+    SocketUtil::setTimeout(xsub, timeoutMs);
+    SocketUtil::setTimeout(xpub, timeoutMs);
+    SocketUtil::setTimeout(controlSub, timeoutMs);
 
     SocketUtil::listen(xsub, m_frontendAddress);
     SocketUtil::listen(xpub, m_backendAddress);

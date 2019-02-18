@@ -5,24 +5,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "CredentialEvent.h"
+
 #include "EventStrings.h"
 
-#include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
-
+#include <Common/EventTypes/IEventException.h>
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
-#include <Credentials.capnp.h>
 
+#include <Credentials.capnp.h>
 #include <iostream>
 #include <sstream>
 
 namespace
 {
-
-    Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(Common::EventTypes::CredentialEvent::SessionType sessionType)
+    Sophos::Journal::CredentialsEvent::SessionType convertToCapnSessionType(
+        Common::EventTypes::CredentialEvent::SessionType sessionType)
     {
-        switch(sessionType)
+        switch (sessionType)
         {
             case Common::EventTypes::CredentialEvent::SessionType::interactive:
                 return Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE;
@@ -35,9 +35,10 @@ namespace
         }
     }
 
-    Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(Common::EventTypes::CredentialEvent::EventType eventType)
+    Sophos::Journal::CredentialsEvent::EventType convertToCapnEventType(
+        Common::EventTypes::CredentialEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Common::EventTypes::CredentialEvent::EventType::authFailure:
                 return Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE;
@@ -56,9 +57,10 @@ namespace
         }
     }
 
-    Common::EventTypes::CredentialEvent::SessionType convertFromCapnSessionType(Sophos::Journal::CredentialsEvent::SessionType sessionType)
+    Common::EventTypes::CredentialEvent::SessionType convertFromCapnSessionType(
+        Sophos::Journal::CredentialsEvent::SessionType sessionType)
     {
-        switch(sessionType)
+        switch (sessionType)
         {
             case Sophos::Journal::CredentialsEvent::SessionType::INTERACTIVE:
                 return Common::EventTypes::CredentialEvent::SessionType::interactive;
@@ -67,14 +69,15 @@ namespace
             case Sophos::Journal::CredentialsEvent::SessionType::NETWORK_INTERACTIVE:
                 return Common::EventTypes::CredentialEvent::SessionType::networkInteractive;
             default:
-                throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::SessionType, contained unknown type");
-
+                throw Common::EventTypes::IEventException(
+                    "Sophos::Journal::CredentialsEvent::SessionType, contained unknown type");
         }
     }
 
-    Common::EventTypes::CredentialEvent::EventType convertFromCapnEventType(Sophos::Journal::CredentialsEvent::EventType eventType)
+    Common::EventTypes::CredentialEvent::EventType convertFromCapnEventType(
+        Sophos::Journal::CredentialsEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Sophos::Journal::CredentialsEvent::EventType::AUTH_FAILURE:
                 return Common::EventTypes::CredentialEvent::EventType::authFailure;
@@ -89,12 +92,15 @@ namespace
             case Sophos::Journal::CredentialsEvent::EventType::MEMBERSHIP_CHANGE:
                 return Common::EventTypes::CredentialEvent::EventType::membershipChange;
             default:
-                throw Common::EventTypes::IEventException("Sophos::Journal::CredentialsEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException(
+                    "Sophos::Journal::CredentialsEvent::EventType, contained unknown type");
         }
     }
-}
+} // namespace
 
-Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(const Common::EventTypes::UserSid& sid,Common::EventTypes::CredentialEvent::EventType eventType)
+Common::EventTypes::CredentialEvent Common::EventTypes::createCredentialEvent(
+    const Common::EventTypes::UserSid& sid,
+    Common::EventTypes::CredentialEvent::EventType eventType)
 {
     Common::EventTypes::CredentialEvent event = CredentialEvent();
     event.setSubjectUserSid(sid);
@@ -107,65 +113,41 @@ namespace Common
 {
     namespace EventTypes
     {
-        CredentialEvent::CredentialEvent()
-        : m_groupId(G_UNSET_ID)
-        , m_groupName("")
-        , m_timestamp(0)
-        , m_logonId(G_UNSET_ID)
-        , m_sessionType(network)
-        , m_eventType(authSuccess)
+        CredentialEvent::CredentialEvent() :
+            m_groupId(G_UNSET_ID),
+            m_groupName(""),
+            m_timestamp(0),
+            m_logonId(G_UNSET_ID),
+            m_sessionType(network),
+            m_eventType(authSuccess)
         {
         }
 
-        std::string CredentialEvent::getEventTypeId() const
-        {
-            return Common::EventTypes::CredentialEventName;
-        }
+        std::string CredentialEvent::getEventTypeId() const { return Common::EventTypes::CredentialEventName; }
 
         Common::EventTypes::CredentialEvent::SessionType CredentialEvent::getSessionType() const
         {
             return m_sessionType;
         }
 
-        Common::EventTypes::CredentialEvent::EventType CredentialEvent::getEventType() const
-        {
-            return m_eventType;
-        }
+        Common::EventTypes::CredentialEvent::EventType CredentialEvent::getEventType() const { return m_eventType; }
 
-        Common::EventTypes::UserSid CredentialEvent::getSubjectUserSid() const
-        {
-            return m_subjectUserSid;
-        }
+        Common::EventTypes::UserSid CredentialEvent::getSubjectUserSid() const { return m_subjectUserSid; }
 
-        Common::EventTypes::UserSid CredentialEvent::getTargetUserSid() const
-        {
-            return m_targetUserSid;
-        }
+        Common::EventTypes::UserSid CredentialEvent::getTargetUserSid() const { return m_targetUserSid; }
 
-        windows_timestamp_t CredentialEvent::getTimestamp() const
-        {
-            return m_timestamp;
-        }
+        windows_timestamp_t CredentialEvent::getTimestamp() const { return m_timestamp; }
 
-        unsigned long CredentialEvent::getLogonId() const
-        {
-            return m_logonId;
-        }
+        unsigned long CredentialEvent::getLogonId() const { return m_logonId; }
 
         Common::EventTypes::NetworkAddress CredentialEvent::getRemoteNetworkAccess() const
         {
             return m_remoteNetworkAccess;
         }
 
-        unsigned long CredentialEvent::getGroupId() const
-        {
-            return m_groupId;
-        }
+        unsigned long CredentialEvent::getGroupId() const { return m_groupId; }
 
-        std::string CredentialEvent::getGroupName() const
-        {
-            return m_groupName;
-        }
+        std::string CredentialEvent::getGroupName() const { return m_groupName; }
 
         void CredentialEvent::setSessionType(const Common::EventTypes::CredentialEvent::SessionType sessionType)
         {
@@ -186,37 +168,24 @@ namespace Common
             m_targetUserSid = targetUserSid;
         }
 
-        void CredentialEvent::setTimestamp(windows_timestamp_t timestamp)
-        {
-            m_timestamp = timestamp;
-        }
+        void CredentialEvent::setTimestamp(windows_timestamp_t timestamp) { m_timestamp = timestamp; }
 
-        void CredentialEvent::setLogonId(const unsigned long logonId)
-        {
-            m_logonId = logonId;
-        }
+        void CredentialEvent::setLogonId(const unsigned long logonId) { m_logonId = logonId; }
 
         void CredentialEvent::setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress& remoteNetworkAccess)
         {
             m_remoteNetworkAccess = remoteNetworkAccess;
         }
 
-        void CredentialEvent::setGroupId(const unsigned long groupId)
-        {
-            m_groupId = groupId;
-        }
+        void CredentialEvent::setGroupId(const unsigned long groupId) { m_groupId = groupId; }
 
-        void CredentialEvent::setGroupName(const std::string& groupName)
-        {
-            m_groupName = groupName;
-        }
-
+        void CredentialEvent::setGroupName(const std::string& groupName) { m_groupName = groupName; }
 
         std::string CredentialEvent::toString() const
         {
-
             ::capnp::MallocMessageBuilder message;
-            Sophos::Journal::CredentialsEvent::Builder credentialsEvent = message.initRoot<Sophos::Journal::CredentialsEvent>();
+            Sophos::Journal::CredentialsEvent::Builder credentialsEvent =
+                message.initRoot<Sophos::Journal::CredentialsEvent>();
 
             credentialsEvent.setSessionType(convertToCapnSessionType(m_sessionType));
             credentialsEvent.setEventType(convertToCapnEventType(m_eventType));
@@ -245,8 +214,7 @@ namespace Common
 
         void CredentialEvent::fromString(const std::string& objectAsString)
         {
-
-            if(objectAsString.empty())
+            if (objectAsString.empty())
             {
                 throw Common::EventTypes::IEventException("Invalid capn byte string, string is empty");
             }
@@ -254,12 +222,12 @@ namespace Common
             try
             {
                 const kj::ArrayPtr<const capnp::word> view(
-                        reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
-                        reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
-
+                    reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
+                    reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
 
                 capnp::FlatArrayMessageReader message(view);
-                Sophos::Journal::CredentialsEvent::Reader credentialsEvent = message.getRoot<Sophos::Journal::CredentialsEvent>();
+                Sophos::Journal::CredentialsEvent::Reader credentialsEvent =
+                    message.getRoot<Sophos::Journal::CredentialsEvent>();
 
                 setSessionType(convertFromCapnSessionType(credentialsEvent.getSessionType()));
                 setEventType(convertFromCapnEventType(credentialsEvent.getEventType()));
@@ -272,7 +240,8 @@ namespace Common
                 setLogonId(credentialsEvent.getLogonID());
 
                 Common::EventTypes::UserSid subjectUserId;
-                subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();;
+                subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();
+                ;
                 subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
                 setSubjectUserSid(subjectUserId);
 
@@ -285,12 +254,12 @@ namespace Common
                 networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
                 setRemoteNetworkAccess(networkAddress);
             }
-            catch(std::exception& ex)
+            catch (std::exception& ex)
             {
                 std::stringstream errorMessage;
                 errorMessage << "Error: failed to process capn CredentialEvent string, " << ex.what();
                 throw Common::EventTypes::IEventException(errorMessage.str());
             }
         }
-    }
-}
+    } // namespace EventTypes
+} // namespace Common

@@ -7,26 +7,26 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #ifndef ARTISANBUILD
 
-#include <Common/ZeroMQWrapper/IReadable.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
-#include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
-#include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
-#include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
-#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
-#include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
+#    include <Common/ZeroMQWrapper/IContext.h>
+#    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
+#    include <Common/ZeroMQWrapper/IReadable.h>
+#    include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#    include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#    include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#    include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#    include <Common/ZeroMQWrapperImpl/SocketReplierImpl.h>
+#    include <Common/ZeroMQWrapperImpl/SocketRequesterImpl.h>
+#    include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
+#    include <sys/types.h>
+#    include <tests/Common/Helpers/TempDir.h>
+#    include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
-#include <iostream>
-#include <cassert>
-#include <thread>
-#include <future>
-#include <zmq.h>
-#include <sys/types.h>
-#include <unistd.h>
+#    include <cassert>
+#    include <future>
+#    include <iostream>
+#    include <thread>
+#    include <unistd.h>
+#    include <zmq.h>
 
 namespace ReqRepTest
 {
@@ -34,15 +34,15 @@ namespace ReqRepTest
 
     using data_t = Common::ZeroMQWrapper::IReadable::data_t;
 
-    /** uses the requester as implemented in PluginProxy::getReply and  Common::PluginApiImpl::BaseServiceAPI::getReply**/
+    /** uses the requester as implemented in PluginProxy::getReply and
+     * Common::PluginApiImpl::BaseServiceAPI::getReply**/
     class Requester
     {
         Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
+
     public:
-        explicit Requester(const std::string& serverAddress)
-                :
-                m_context(createContext())
+        explicit Requester(const std::string& serverAddress) : m_context(createContext())
         {
             m_requester = m_context->getRequester();
             m_requester->setTimeout(1000);
@@ -50,9 +50,8 @@ namespace ReqRepTest
             m_requester->connect(serverAddress);
         }
 
-        explicit Requester(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context)
-            :
-                m_context(std::move(context))
+        explicit Requester(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context) :
+            m_context(std::move(context))
         {
             m_requester = m_context->getRequester();
             m_requester->setTimeout(1000);
@@ -62,22 +61,20 @@ namespace ReqRepTest
 
         std::string sendReceive(const std::string& value)
         {
-            m_requester->write(data_t{value});
+            m_requester->write(data_t{ value });
             data_t answer = m_requester->read();
             return answer.at(0);
         }
         ~Requester() = default;
     };
 
-
     class Replier
     {
         Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
+
     public:
-        explicit Replier(const std::string& serverAddress, int timeout = 1000)
-                :
-                m_context(createContext())
+        explicit Replier(const std::string& serverAddress, int timeout = 1000) : m_context(createContext())
         {
             m_replier = m_context->getReplier();
             m_replier->setTimeout(timeout);
@@ -85,9 +82,11 @@ namespace ReqRepTest
             m_replier->listen(serverAddress);
         }
 
-        Replier(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context, int timeout = 1000)
-                :
-                m_context(std::move(context))
+        Replier(
+            const std::string& serverAddress,
+            Common::ZeroMQWrapper::IContextSharedPtr context,
+            int timeout = 1000) :
+            m_context(std::move(context))
         {
             m_replier = m_context->getReplier();
             m_replier->setTimeout(timeout);
@@ -109,16 +108,11 @@ namespace ReqRepTest
         Common::ZeroMQWrapper::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requestKillChannel;
 
-        void requestKill()
-        {
-            m_requestKillChannel->write(data_t{"killme"});
-        }
-        void notifyShutdown()
-        {
-            m_requestKillChannel->write(data_t{"close"});
-        }
+        void requestKill() { m_requestKillChannel->write(data_t{ "killme" }); }
+        void notifyShutdown() { m_requestKillChannel->write(data_t{ "close" }); }
+
     public:
-        explicit Unreliable( const std::string & killChannelAddress )
+        explicit Unreliable(const std::string& killChannelAddress)
         {
             m_context = createContext();
             m_requestKillChannel = m_context->getRequester();
@@ -129,9 +123,10 @@ namespace ReqRepTest
     class UnreliableReplier : public Unreliable
     {
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
+
     public:
-        UnreliableReplier(const std::string& serverAddress, const std::string& killChannelAddress)
-                : Unreliable(killChannelAddress)
+        UnreliableReplier(const std::string& serverAddress, const std::string& killChannelAddress) :
+            Unreliable(killChannelAddress)
         {
             m_replier = m_context->getReplier();
             m_replier->setTimeout(1000);
@@ -142,7 +137,7 @@ namespace ReqRepTest
         void serveRequest()
         {
             data_t request = m_replier->read();
-            m_replier->write(data_t{"granted"});
+            m_replier->write(data_t{ "granted" });
             notifyShutdown();
         }
         void breakAfterReceiveMessage()
@@ -154,7 +149,7 @@ namespace ReqRepTest
 
         void servePartialReply()
         {
-            auto * socketHolder = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*> (m_replier.get());
+            auto* socketHolder = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(m_replier.get());
             assert(socketHolder);
             data_t request = m_replier->read();
 
@@ -173,9 +168,10 @@ namespace ReqRepTest
     class UnreliableRequester : public Unreliable
     {
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
+
     public:
-        UnreliableRequester( const std::string & serverAddress, const std::string & killChannelAddress )
-                : Unreliable( killChannelAddress)
+        UnreliableRequester(const std::string& serverAddress, const std::string& killChannelAddress) :
+            Unreliable(killChannelAddress)
         {
             m_requester = m_context->getRequester();
             m_requester->setTimeout(1000);
@@ -185,7 +181,7 @@ namespace ReqRepTest
 
         std::string sendReceive(const std::string& value)
         {
-            m_requester->write(data_t{value});
+            m_requester->write(data_t{ value });
             data_t answer = m_requester->read();
             notifyShutdown();
             return answer.at(0);
@@ -193,17 +189,13 @@ namespace ReqRepTest
 
         std::string breakAfterSendRequest(const std::string& value)
         {
-            m_requester->write(data_t{value});
+            m_requester->write(data_t{ value });
             requestKill();
             std::this_thread::sleep_for(std::chrono::seconds(2));
             return "";
         }
-
-
     };
 
-}
+} // namespace ReqRepTest
 
 #endif /* !ARTISANBUILD */
-
-

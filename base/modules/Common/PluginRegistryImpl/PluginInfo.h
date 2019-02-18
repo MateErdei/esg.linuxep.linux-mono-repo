@@ -4,16 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H
-#define COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H
+#pragma once
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Process/EnvPair.h>
 
 #include <string>
 #include <vector>
-
-
 
 namespace Common
 {
@@ -30,16 +27,12 @@ namespace Common
             PluginInfo& operator=(const PluginInfo&) = default;
 
         public:
-
             PluginInfo();
             ~PluginInfo() = default;
             PluginInfo(PluginInfo&&) = default;
             PluginInfo& operator=(PluginInfo&&) = default;
 
-            void copyFrom(const PluginInfo& other)
-            {
-                *this = other;
-            }
+            void copyFrom(const PluginInfo& other) { *this = other; }
 
             using EnvPairs = Common::Process::EnvPairVector;
 
@@ -90,76 +83,79 @@ namespace Common
              */
             EnvPairs getExecutableEnvironmentVariables() const;
 
-
             /**
              * Used to store the given Policy AppIds the plugin is interested in.
              * @param list of appIDs
              */
-            void setPolicyAppIds(const std::vector<std::string> &appIDs);
+            void setPolicyAppIds(const std::vector<std::string>& appIDs);
 
             /**
              * Used to add a single Policy appId to the stored PolicyAppId list.
              * @param appID
              */
-            void addPolicyAppIds(const std::string &appID);
+            void addPolicyAppIds(const std::string& appID);
 
             /**
              * Used to store the given Status AppIds the plugin is interested in.
              * @param list of appIDs
              */
-            void setStatusAppIds(const std::vector<std::string> &appIDs);
+            void setStatusAppIds(const std::vector<std::string>& appIDs);
 
             /**
              * Used to add a single status appId to the stored StatusAppId list.
              * @param appID
              */
-            void addStatusAppIds(const std::string &appID);
+            void addStatusAppIds(const std::string& appID);
 
             /**
              * Used to store the given plugin name
              * @param pluginName
              */
-            void setPluginName(const std::string &pluginName);
+            void setPluginName(const std::string& pluginName);
 
             /**
              * Used to store the given path for the location of the XML translator used by the plugin
              * @param xmlTranslationPath
              */
-            void setXmlTranslatorPath(const std::string &xmlTranslationPath);
+            void setXmlTranslatorPath(const std::string& xmlTranslationPath);
 
             /**
              * Used to store the full part to the plugin executable
              * @param executableFullPath
              */
-            void setExecutableFullPath(const std::string &executableFullPath);
+            void setExecutableFullPath(const std::string& executableFullPath);
 
             /**
-            * Used to store the given arguments the plugin requires to run.
-            * @param list of executableArguments
-            */
-            void setExecutableArguments(const std::vector<std::string> &executableArguments);
+             * Used to store the given arguments the plugin requires to run.
+             * @param list of executableArguments
+             */
+            void setExecutableArguments(const std::vector<std::string>& executableArguments);
 
             /**
-            * Used to add the given argument to the stored list of arguments.
-            * @param executableArgument
-            */
-            void addExecutableArguments(const std::string &executableArgument);
+             * Used to add the given argument to the stored list of arguments.
+             * @param executableArgument
+             */
+            void addExecutableArguments(const std::string& executableArgument);
 
             /**
              * Used to store a list of environment variables required by the plugin.
              * @param executableEnvironmentVariables
              */
-            void setExecutableEnvironmentVariables(const EnvPairs  &executableEnvironmentVariables);
+            void setExecutableEnvironmentVariables(const EnvPairs& executableEnvironmentVariables);
 
             /**
-             * Used to add a single environment variable to the list of stored environment variables required by the plugin.
+             * Used to add a single environment variable to the list of stored environment variables required by the
+             * plugin.
              * @param environmentName
              * @param environmentValue
              */
-            void addExecutableEnvironmentVariables(const std::string& environmentName, const std::string &environmentValue);
+            void addExecutableEnvironmentVariables(
+                const std::string& environmentName,
+                const std::string& environmentValue);
 
             /**
-             * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will be set.
+             * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will
+             * be set.
              * @param executableUserAndGroup string in the form "user:group" or "user"
              */
             void setExecutableUserAndGroup(const std::string& executableUserAndGroup);
@@ -174,32 +170,35 @@ namespace Common
              * gets user id relating to the Executable user
              * @return pair <true, valid user id> if the user id is valid, pair <false, invalid user id> otherwise
              */
-            std::pair<bool, uid_t>  getExecutableUser() const;
+            std::pair<bool, uid_t> getExecutableUser() const;
 
             /**
-              * gets group id relating to the Executable group
-              * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
-              */
-            std::pair<bool, gid_t>  getExecutableGroup() const;
+             * gets group id relating to the Executable group
+             * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
+             */
+            std::pair<bool, gid_t> getExecutableGroup() const;
 
             /**
              * Serialize pluginInfo object into protobuf message.
              * @param pluginInfo object to be serialized
              * @return pluginInfo represented as protobuf object.
              */
-            static std::string serializeToString(const PluginInfo &pluginInfo);
+            static std::string serializeToString(const PluginInfo& pluginInfo);
 
             /**
              * Deserialize a Json containing the PluginInfo into the PluginInfo object.
              *
              * @throws PluginRegistryException if the json content can not be safely deserialized into the PluginInfo.
-             *         It does not provide guarantee that the values for AppIds, ExecutablePaths, etc are correct to use,
-             *         The exception is thrown only to signal that the content of the json was malformed and could not be parsed.
-             *         It is the responsibility of the whoever used PluginInfo to verify that the content is 'Adequate' to be used.
+             *         It does not provide guarantee that the values for AppIds, ExecutablePaths, etc are correct to
+             * use, The exception is thrown only to signal that the content of the json was malformed and could not be
+             * parsed. It is the responsibility of the whoever used PluginInfo to verify that the content is 'Adequate'
+             * to be used.
              *
              * @return PluginInfo parsed from the serializedPluginInfo.
              */
-            static PluginInfo deserializeFromString(const std::string & serializedPluginInfo, const std::string& pluginName);
+            static PluginInfo deserializeFromString(
+                const std::string& serializedPluginInfo,
+                const std::string& pluginName);
 
             /**
              * List the json entries from the directoryPath and load them into a vector of PluginInfo.
@@ -209,7 +208,7 @@ namespace Common
              * Uses deserializeFromString to convert json files into PluginInfo objects
              * @return A list of pluginInfo objects containing the loaded from the files read from disk.
              */
-            static PluginInfoVector loadFromDirectoryPath(const std::string & directoryPath);
+            static PluginInfoVector loadFromDirectoryPath(const std::string& directoryPath);
 
             /**
              * Uses the expected location of the plugin registry folder to load the plugins information.
@@ -252,7 +251,5 @@ namespace Common
             EnvPairs m_executableEnvironmentVariables;
             std::string m_executableUserAndGroupAsString;
         };
-    }
-}
-
-#endif //COMMON_PLUGINREGISTRYIMPL_PLUGININFO_H
+    } // namespace PluginRegistryImpl
+} // namespace Common

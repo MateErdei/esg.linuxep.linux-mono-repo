@@ -6,12 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include "IHasFD.h"
 
+#include <chrono>
 #include <memory>
 #include <vector>
-#include <chrono>
 
 namespace Common
 {
@@ -45,7 +44,7 @@ namespace Common
              * Add a socket to the poller.
              * @param entry
              */
-            virtual void addEntry(IHasFD &entry, PollDirection directionMask) = 0;
+            virtual void addEntry(IHasFD& entry, PollDirection directionMask) = 0;
 
             /**
              * Return a new IHasFD* for a provided file descriptor.
@@ -62,6 +61,5 @@ namespace Common
          * @return DONATED new Poller
          */
         extern IPollerPtr createPoller();
-    }
-}
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

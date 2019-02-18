@@ -4,17 +4,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "VersigImpl.h"
-#include "Common/Process/IProcess.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/Process/IProcessException.h"
+
 #include "Logger.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
 
 using namespace SulDownloader::suldownloaderdata;
 
-IVersig::VerifySignature
-VersigImpl::verify(const ConfigurationData& configurationData, const std::string& productDirectoryPath) const
+IVersig::VerifySignature VersigImpl::verify(
+    const ConfigurationData& configurationData,
+    const std::string& productDirectoryPath) const
 {
     std::string certificate_path = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
     auto fileSystem = Common::FileSystem::fileSystem();
@@ -22,7 +24,7 @@ VersigImpl::verify(const ConfigurationData& configurationData, const std::string
     if (!fileSystem->isFile(certificate_path))
     {
         LOGERROR(
-                "No certificate path to validate signature. Certificate provided does not exist: " << certificate_path);
+            "No certificate path to validate signature. Certificate provided does not exist: " << certificate_path);
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
@@ -112,7 +114,6 @@ void VersigFactory::restoreCreator()
 {
     m_creator = []() { return IVersigPtr(new VersigImpl()); };
 }
-
 
 /**
  * Implement factory function

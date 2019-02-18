@@ -10,9 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
+#include <Common/EventTypes/ProcessEvent.h>
 
 #include <string>
-#include <Common/EventTypes/ProcessEvent.h>
 
 namespace Common
 {
@@ -27,12 +27,12 @@ namespace Common
          */
         class IEventVisitorCallback : public virtual IRawDataCallback
         {
-        public :
+        public:
             virtual ~IEventVisitorCallback() = default;
 
-            virtual void processEvent(const Common::EventTypes::CredentialEvent & event) = 0;
-            virtual void processEvent(const Common::EventTypes::PortScanningEvent & event) = 0;
-            virtual void processEvent(const Common::EventTypes::ProcessEvent & event) = 0;
+            virtual void processEvent(const Common::EventTypes::CredentialEvent& event) = 0;
+            virtual void processEvent(const Common::EventTypes::PortScanningEvent& event) = 0;
+            virtual void processEvent(const Common::EventTypes::ProcessEvent& event) = 0;
         };
-    }
-}
+    } // namespace PluginApi
+} // namespace Common

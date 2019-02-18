@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include "ContextHolder.h"
 
 namespace Common
@@ -22,11 +21,9 @@ namespace Common
             void* skt();
             void reset(void* zmq_socket = nullptr);
             void reset(ContextHolderSharedPtr& context, int type);
+
         private:
             void* m_socket;
         };
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapperImpl
+} // namespace Common

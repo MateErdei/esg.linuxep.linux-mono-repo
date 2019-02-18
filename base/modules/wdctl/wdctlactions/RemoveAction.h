@@ -11,17 +11,12 @@ namespace wdctl
 {
     namespace wdctlactions
     {
-
-        class RemoveAction
-                : public ZMQAction
+        class RemoveAction : public ZMQAction
         {
         public:
             explicit RemoveAction(const Action::Arguments& args);
 
             int run() override;
         };
-    }
-}
-
-
-
+    } // namespace wdctlactions
+} // namespace wdctl

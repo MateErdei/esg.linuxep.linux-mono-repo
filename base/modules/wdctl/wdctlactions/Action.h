@@ -14,7 +14,6 @@ namespace wdctl
         class Action
         {
         public:
-
             using Arguments = wdctl::wdctlarguments::Arguments;
             /**
              *
@@ -30,7 +29,5 @@ namespace wdctl
         protected:
             const Arguments& m_args;
         };
-    }
-}
-
-
+    } // namespace wdctlactions
+} // namespace wdctl

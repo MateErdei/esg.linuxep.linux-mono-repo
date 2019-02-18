@@ -4,9 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "gtest/gtest.h"
+
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 
-#include "gtest/gtest.h"
 #include <chrono>
 #include <thread>
 
@@ -27,13 +28,12 @@ TEST(UniformIntDistribution, next) // NOLINT
     int expected_value_of_uniform_distribution = (0 + 5) * 1000 / 2;
     EXPECT_LE(accumulated, expected_value_of_uniform_distribution + 200);
     EXPECT_GE(accumulated, expected_value_of_uniform_distribution - 200);
-
 }
 
 TEST(UniformIntDistribution, testConstructorGeneratesARandomSeed) // NOLINT
 {
-    //This for loop can be used for stress testing the UniformIntDistribution
-    for( int j=0; j< 1; j++) // already tested with a loop of 10000 iterations
+    // This for loop can be used for stress testing the UniformIntDistribution
+    for (int j = 0; j < 1; j++) // already tested with a loop of 10000 iterations
     {
         UniformIntDistribution distribution(0, 1000);
         const int NumDist = 10;

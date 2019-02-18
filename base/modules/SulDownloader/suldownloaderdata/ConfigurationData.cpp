@@ -4,49 +4,48 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Logger.h"
 #include "ConfigurationData.h"
+
+#include "Logger.h"
 #include "SulDownloaderException.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <ConfigurationSettings.pb.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/MessageUtility.h>
-
 #include <google/protobuf/util/json_util.h>
 
-
+#include <ConfigurationSettings.pb.h>
 #include <iostream>
 
 namespace
 {
     bool hasEnvironmentProxy()
     {
-        return (secure_getenv("https_proxy") != nullptr ||
-                secure_getenv("HTTPS_PROXY") != nullptr ||
-                secure_getenv("http_proxy") != nullptr ||
-                secure_getenv("HTTP_PROXY") != nullptr);
+        return (
+            secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr ||
+            secure_getenv("http_proxy") != nullptr || secure_getenv("HTTP_PROXY") != nullptr);
     }
-}
+} // namespace
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
 const std::string ConfigurationData::DoNotSetSslSystemPath(":system:");
-const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{"http://dci.sophosupd.com/update"
-                                                                            , "http://dci.sophosupd.net/update"};
+const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{ "http://dci.sophosupd.com/update",
+                                                                             "http://dci.sophosupd.net/update" };
 
-ConfigurationData::ConfigurationData(const std::vector<std::string>& sophosLocationURL,
-                                     Credentials credentials,
-                                     const std::vector<std::string>& updateCache,
-                                     Proxy policyProxy)
-        : m_credentials(std::move(credentials))
-          , m_localUpdateCacheUrls(updateCache)
-          , m_policyProxy(std::move(policyProxy))
-          , m_state(State::Initialized)
-          , m_logLevel(LogLevel::NORMAL)
-          , m_forceReinstallAllProducts(false)
+ConfigurationData::ConfigurationData(
+    const std::vector<std::string>& sophosLocationURL,
+    Credentials credentials,
+    const std::vector<std::string>& updateCache,
+    Proxy policyProxy) :
+    m_credentials(std::move(credentials)),
+    m_localUpdateCacheUrls(updateCache),
+    m_policyProxy(std::move(policyProxy)),
+    m_state(State::Initialized),
+    m_logLevel(LogLevel::NORMAL),
+    m_forceReinstallAllProducts(false)
 {
     setSophosUpdateUrls(sophosLocationURL);
 }
@@ -152,17 +151,14 @@ void ConfigurationData::setInstallationRootPath(const std::string& installationR
         return;
     }
     Common::ApplicationConfiguration::applicationConfiguration().setData(
-            Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath
-    );
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath);
 }
 
 std::string ConfigurationData::getInstallationRootPath() const
 {
     return Common::ApplicationConfiguration::applicationConfiguration().getData(
-            Common::ApplicationConfiguration::SOPHOS_INSTALL
-    );
+        Common::ApplicationConfiguration::SOPHOS_INSTALL);
 }
-
 
 std::string ConfigurationData::getLocalWarehouseRepository() const
 {
@@ -172,7 +168,6 @@ std::string ConfigurationData::getLocalWarehouseRepository() const
 std::string ConfigurationData::getLocalDistributionRepository() const
 {
     return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
-
 }
 
 bool ConfigurationData::verifySettingsAreValid()
@@ -205,7 +200,6 @@ bool ConfigurationData::verifySettingsAreValid()
         LOGERROR("Invalid Settings: Credential 'username' cannot be empty string.");
         return false;
     }
-
 
     if (m_credentials.getPassword().empty())
     {
@@ -248,7 +242,6 @@ bool ConfigurationData::verifySettingsAreValid()
         }
     }
 
-
     // productselection should already be ordered with primary being the first one.
     if (m_productSelection[0].Name.empty() || m_productSelection[0].Prefix || !m_productSelection[0].Primary)
     {
@@ -261,35 +254,34 @@ bool ConfigurationData::verifySettingsAreValid()
     std::string installationRootPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
     if (!fileSystem->isDirectory(installationRootPath))
     {
-        LOGERROR("Invalid Settings: installation root path does not exist or is not a directory: "
-                         << installationRootPath);
+        LOGERROR(
+            "Invalid Settings: installation root path does not exist or is not a directory: " << installationRootPath);
         return false;
     }
-
 
     std::string localWarehouseRepository = getLocalWarehouseRepository();
     if (!fileSystem->isDirectory(localWarehouseRepository))
     {
-        LOGERROR("Invalid Settings: Local warehouse repository does not exist or is not a directory: "
-                         << localWarehouseRepository);
+        LOGERROR(
+            "Invalid Settings: Local warehouse repository does not exist or is not a directory: "
+            << localWarehouseRepository);
         return false;
     }
 
     std::string localDistributionRepository = getLocalDistributionRepository();
     if (!fileSystem->isDirectory(localDistributionRepository))
     {
-        LOGERROR("Invalid Settings: Local distribution repository does not exist or is not a directory: "
-                         << localDistributionRepository);
+        LOGERROR(
+            "Invalid Settings: Local distribution repository does not exist or is not a directory: "
+            << localDistributionRepository);
         return false;
     }
-
 
     // certificate path should exist and contain the root.crt and ps_rootca.crt
     std::string certificatePath = getCertificatePath();
     if (!fileSystem->exists(certificatePath) ||
         !fileSystem->exists(Common::FileSystem::join(certificatePath, "rootca.crt")) ||
-        !fileSystem->exists(Common::FileSystem::join(certificatePath, "ps_rootca.crt"))
-            )
+        !fileSystem->exists(Common::FileSystem::join(certificatePath, "ps_rootca.crt")))
     {
         LOGSUPPORT("Certificate Path: " << certificatePath);
         LOGERROR("Invalid Settings: Certificate path does not contain required files.");
@@ -315,11 +307,10 @@ bool ConfigurationData::verifySettingsAreValid()
     {
         if (!fileSystem->exists(updateCacheSslCertificatePath))
         {
-            LOGERROR("Invalid Settings: Local distribution repository does not exist : "
-                             << updateCacheSslCertificatePath);
+            LOGERROR(
+                "Invalid Settings: Local distribution repository does not exist : " << updateCacheSslCertificatePath);
             return false;
         }
-
     }
 
     if (!m_localUpdateCacheUrls.empty())
@@ -345,7 +336,6 @@ bool ConfigurationData::verifySettingsAreValid()
             }
         }
     }
-
 
     m_state = State::Verified;
     return true;
@@ -386,7 +376,6 @@ bool ConfigurationData::getForceReinstallAllProducts() const
     return m_forceReinstallAllProducts;
 }
 
-
 ConfigurationData ConfigurationData::fromJsonSettings(const std::string& settingsString)
 {
     using namespace google::protobuf::util;
@@ -411,16 +400,17 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls));
 
     Credentials credential(settings.credential().username(), settings.credential().password());
-    Proxy proxy(settings.proxy().url(),
-                ProxyCredentials(settings.proxy().credential().username(),
-                                 settings.proxy().credential().password(),
-                                 settings.proxy().credential().proxytype()));
+    Proxy proxy(
+        settings.proxy().url(),
+        ProxyCredentials(
+            settings.proxy().credential().username(),
+            settings.proxy().credential().password(),
+            settings.proxy().credential().proxytype()));
 
     ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
 
     configurationData.setCertificatePath(settings.certificatepath());
     configurationData.setInstallationRootPath(settings.installationrootpath());
-
 
     ProductGUID primaryProductGUID;
     primaryProductGUID.Name = settings.primary();
@@ -452,23 +442,22 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
         configurationData.addProductSelection(productGUID);
     }
 
-    std::vector<std::string> installArgs(std::begin(settings.installarguments()),
-                                         std::end(settings.installarguments()));
+    std::vector<std::string> installArgs(
+        std::begin(settings.installarguments()), std::end(settings.installarguments()));
 
     configurationData.setInstallArguments(installArgs);
 
     configurationData.setCertificatePath(settings.certificatepath());
     configurationData.setSystemSslCertificatePath(settings.systemsslpath());
     configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
-    LogLevel level = (settings.loglevel() ==
-                      ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL) ? LogLevel::NORMAL
-                                                                                         : LogLevel::VERBOSE;
+    LogLevel level = (settings.loglevel() == ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL)
+                         ? LogLevel::NORMAL
+                         : LogLevel::VERBOSE;
     configurationData.setLogLevel(level);
 
     configurationData.setForceReinstallAllProducts(settings.forcereinstallallproducts());
 
-    std::vector<std::string> manifestnames(std::begin(settings.manifestnames()),
-                                         std::end(settings.manifestnames()));
+    std::vector<std::string> manifestnames(std::begin(settings.manifestnames()), std::end(settings.manifestnames()));
 
     configurationData.setManifestNames(manifestnames);
 
@@ -497,7 +486,7 @@ void ConfigurationData::setManifestNames(const std::vector<std::string>& manifes
 
 std::vector<Proxy> ConfigurationData::proxiesList() const
 {
-    //This generates the list of proxies in order that they should be tried by SUL
+    // This generates the list of proxies in order that they should be tried by SUL
     // 1. Policy Proxy
     // 2. Current environment proxy
     // 3. Saved environment proxy (saved on install)
@@ -511,7 +500,8 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     {
         options.emplace_back("environment:");
     }
-    std::string savedProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
+    std::string savedProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
     if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
     {
         std::string savedProxyURL = Common::FileSystem::fileSystem()->readFile(savedProxyFilePath);
@@ -542,11 +532,11 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.mutable_credential()->set_password(configurationData.getCredentials().getPassword());
 
     settings.mutable_proxy()->mutable_credential()->set_username(
-            configurationData.getPolicyProxy().getCredentials().getUsername());
+        configurationData.getPolicyProxy().getCredentials().getUsername());
     settings.mutable_proxy()->mutable_credential()->set_password(
-            configurationData.getPolicyProxy().getCredentials().getPassword());
+        configurationData.getPolicyProxy().getCredentials().getPassword());
     settings.mutable_proxy()->mutable_credential()->set_proxytype(
-            configurationData.getPolicyProxy().getCredentials().getProxyType());
+        configurationData.getPolicyProxy().getCredentials().getProxyType());
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
     settings.set_certificatepath(configurationData.getCertificatePath());
@@ -577,7 +567,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         }
     }
 
-    for (auto& installarg: configurationData.getInstallArguments())
+    for (auto& installarg : configurationData.getInstallArguments())
     {
         settings.add_installarguments()->assign(installarg);
     }
@@ -596,11 +586,10 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_VERBOSE);
     }
 
-    for (auto& manifestName: configurationData.getManifestNames())
+    for (auto& manifestName : configurationData.getManifestNames())
     {
         settings.add_manifestnames(manifestName);
     }
 
     return Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
-
 }

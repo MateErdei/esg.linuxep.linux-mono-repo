@@ -6,11 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include <string>
 namespace SulDownloader
 {
-
     namespace suldownloaderdata
     {
         /**
@@ -49,13 +47,9 @@ namespace SulDownloader
         struct WarehouseError
         {
             std::string Description; /// Description of failure provided by SULDownloader
-            std::string SulError; /// Description of failure provided by SUL library.
+            std::string SulError;    /// Description of failure provided by SUL library.
             WarehouseStatus status;
         };
-    }
+    } // namespace suldownloaderdata
 
-}
-
-
-
-
+} // namespace SulDownloader

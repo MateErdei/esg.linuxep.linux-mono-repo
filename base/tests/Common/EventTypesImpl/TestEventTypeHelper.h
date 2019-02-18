@@ -8,14 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "gtest/gtest.h"
 
-#include <tests/Common/Helpers/TempDir.h>
 #include <Common/EventTypes/CredentialEvent.h>
-#include <Common/EventTypes/ProcessEvent.h>
 #include <Common/EventTypes/PortScanningEvent.h>
+#include <Common/EventTypes/ProcessEvent.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 namespace Tests
 {
-
     using namespace Common::EventTypes;
 
     class TestEventTypeHelper : public ::testing::Test
@@ -48,21 +47,21 @@ namespace Tests
             return event;
         }
 
-
-        ::testing::AssertionResult credentialEventIsEquivalent( const char* m_expr,
-                                                                const char* n_expr,
-                                                                const Common::EventTypes::CredentialEvent& expected,
-                                                                const Common::EventTypes::CredentialEvent& resulted)
+        ::testing::AssertionResult credentialEventIsEquivalent(
+            const char* m_expr,
+            const char* n_expr,
+            const Common::EventTypes::CredentialEvent& expected,
+            const Common::EventTypes::CredentialEvent& resulted)
         {
             std::stringstream s;
-            s<< m_expr << " and " << n_expr << " failed: ";
+            s << m_expr << " and " << n_expr << " failed: ";
 
-            if ( expected.getSessionType() != resulted.getSessionType())
+            if (expected.getSessionType() != resulted.getSessionType())
             {
                 return ::testing::AssertionFailure() << s.str() << "SessionType differs";
             }
 
-            if ( expected.getEventType() != resulted.getEventType())
+            if (expected.getEventType() != resulted.getEventType())
             {
                 return ::testing::AssertionFailure() << s.str() << "EventType differs";
             }
@@ -198,16 +197,16 @@ namespace Tests
             return event;
         }
 
-
-        ::testing::AssertionResult processEventIsEquivalent( const char* m_expr,
-                                                                const char* n_expr,
-                                                                const Common::EventTypes::ProcessEvent expected,
-                                                                const Common::EventTypes::ProcessEvent actual)
+        ::testing::AssertionResult processEventIsEquivalent(
+            const char* m_expr,
+            const char* n_expr,
+            const Common::EventTypes::ProcessEvent expected,
+            const Common::EventTypes::ProcessEvent actual)
         {
             std::stringstream s;
-            s<< m_expr << " and " << n_expr << " failed: ";
+            s << m_expr << " and " << n_expr << " failed: ";
 
-            if ( expected.getEventType() != actual.getEventType())
+            if (expected.getEventType() != actual.getEventType())
             {
                 return ::testing::AssertionFailure() << s.str() << "EventType differs";
             }
@@ -422,49 +421,50 @@ namespace Tests
         Common::EventTypes::IpFlow createDefaultIpFlow()
         {
             Common::EventTypes::IpFlow ipFlow;
-            ipFlow.destinationAddress.address="182.158";
-            ipFlow.destinationAddress.port=90;
-            ipFlow.sourceAddress.address="182.136";
-            ipFlow.sourceAddress.port=800;
-            ipFlow.protocol=2;
+            ipFlow.destinationAddress.address = "182.158";
+            ipFlow.destinationAddress.port = 90;
+            ipFlow.sourceAddress.address = "182.136";
+            ipFlow.sourceAddress.port = 800;
+            ipFlow.protocol = 2;
             return ipFlow;
         }
 
-        ::testing::AssertionResult portScanningEventIsEquivalent( const char* m_expr,
-                                                                  const char* n_expr,
-                                                                  const Common::EventTypes::PortScanningEvent expected,
-                                                                  const Common::EventTypes::PortScanningEvent resulted)
+        ::testing::AssertionResult portScanningEventIsEquivalent(
+            const char* m_expr,
+            const char* n_expr,
+            const Common::EventTypes::PortScanningEvent expected,
+            const Common::EventTypes::PortScanningEvent resulted)
         {
             std::stringstream s;
-            s<< m_expr << " and " << n_expr << " failed: ";
+            s << m_expr << " and " << n_expr << " failed: ";
 
-
-            if ( expected.getConnection().sourceAddress.address != resulted.getConnection().sourceAddress.address )
+            if (expected.getConnection().sourceAddress.address != resulted.getConnection().sourceAddress.address)
             {
                 return ::testing::AssertionFailure() << s.str() << "Connection source address differs";
             }
 
-            if ( expected.getConnection().sourceAddress.port != resulted.getConnection().sourceAddress.port )
+            if (expected.getConnection().sourceAddress.port != resulted.getConnection().sourceAddress.port)
             {
                 return ::testing::AssertionFailure() << s.str() << "Connection source port differs";
             }
 
-            if ( expected.getConnection().destinationAddress.address != resulted.getConnection().destinationAddress.address )
+            if (expected.getConnection().destinationAddress.address !=
+                resulted.getConnection().destinationAddress.address)
             {
                 return ::testing::AssertionFailure() << s.str() << "Connection destination address differs";
             }
 
-            if ( expected.getConnection().destinationAddress.port != resulted.getConnection().destinationAddress.port )
+            if (expected.getConnection().destinationAddress.port != resulted.getConnection().destinationAddress.port)
             {
                 return ::testing::AssertionFailure() << s.str() << "Connection destination port differs";
             }
 
-            if ( expected.getConnection().protocol != resulted.getConnection().protocol )
+            if (expected.getConnection().protocol != resulted.getConnection().protocol)
             {
                 return ::testing::AssertionFailure() << s.str() << "Connection protocal differs";
             }
 
-            if ( expected.getEventType() != resulted.getEventType() )
+            if (expected.getEventType() != resulted.getEventType())
             {
                 return ::testing::AssertionFailure() << s.str() << "Event type differs";
             }
@@ -473,4 +473,4 @@ namespace Tests
         }
     };
 
-}
+} // namespace Tests

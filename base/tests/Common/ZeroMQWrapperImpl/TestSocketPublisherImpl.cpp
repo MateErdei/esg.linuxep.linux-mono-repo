@@ -4,12 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-
-#include <gtest/gtest.h>
-
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include <gtest/gtest.h>
 
 using Common::ZeroMQWrapper::ISocketPublisherPtr;
 
@@ -22,4 +19,4 @@ namespace
         ISocketPublisherPtr socket = context->getPublisher();
         EXPECT_NE(socket.get(), nullptr);
     }
-}
+} // namespace

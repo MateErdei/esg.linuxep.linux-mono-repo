@@ -23,10 +23,7 @@ namespace ManagementAgent
              * @param appId
              * @param eventXml
              */
-            virtual void receivedSendEvent(const std::string& appId, const std::string &eventXml) = 0;
-
+            virtual void receivedSendEvent(const std::string& appId, const std::string& eventXml) = 0;
         };
-    }
-}
-
-
+    } // namespace PluginCommunication
+} // namespace ManagementAgent

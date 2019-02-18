@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "IHasFD.h"
 #include "IDataType.h"
+#include "IHasFD.h"
 
 namespace Common
 {
@@ -21,7 +20,5 @@ namespace Common
 
             virtual data_t read() = 0;
         };
-    }
-}
-
-
+    } // namespace ZeroMQWrapper
+} // namespace Common

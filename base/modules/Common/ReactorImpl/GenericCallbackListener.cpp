@@ -17,14 +17,14 @@ namespace Common
 
         GenericCallbackListener::GenericCallbackListener(GenericCallbackListener::CallbackFunction callback)
         {
-            if ( callback )
+            if (callback)
             {
                 m_callback = callback;
             }
             else
             {
-                m_callback = [](Common::ZeroMQWrapper::IReadable::data_t ){};
+                m_callback = [](Common::ZeroMQWrapper::IReadable::data_t) {};
             }
         }
-    }
-}
+    } // namespace ReactorImpl
+} // namespace Common

@@ -4,13 +4,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
-#include <future>
-#include <condition_variable>
-#include <mutex>
 #include <atomic>
+#include <condition_variable>
+#include <future>
+#include <mutex>
 namespace Tests
 {
     class TestExecutionSynchronizer
@@ -18,6 +17,7 @@ namespace Tests
         std::promise<void> m_promise;
         int m_calledNTimes;
         int m_expectedCall;
+
     public:
         explicit TestExecutionSynchronizer(int toBeNotifiedNTimes = 1);
         // we must not allow copy of the synchronizer.
@@ -25,7 +25,7 @@ namespace Tests
         TestExecutionSynchronizer& operator=(const TestExecutionSynchronizer&) = delete;
         void notify();
         bool waitfor(int ms = 500);
-        bool waitfor( std::chrono::milliseconds ms);
+        bool waitfor(std::chrono::milliseconds ms);
     };
 
     class ReentrantExecutionSynchronizer
@@ -33,14 +33,13 @@ namespace Tests
         std::atomic<int> m_counter;
         std::mutex m_FirstMutex;
         std::condition_variable m_waitsync;
+
     public:
         explicit ReentrantExecutionSynchronizer();
         void notify();
         void notify(int expectedCounter);
         void waitfor(int expectedCounter, int ms = 500);
-        void waitfor( int expectedCounter, std::chrono::milliseconds ms);
+        void waitfor(int expectedCounter, std::chrono::milliseconds ms);
     };
 
-
-}
-
+} // namespace Tests

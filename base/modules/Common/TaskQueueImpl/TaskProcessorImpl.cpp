@@ -4,18 +4,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "TaskProcessorImpl.h"
+
 #include "Logger.h"
 
-Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue)
-        : m_thread(taskQueue)
+Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue) :
+    m_thread(taskQueue)
 {
 }
 
 Common::TaskQueueImpl::TaskProcessorImplThread::TaskProcessorImplThread(
-        Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue)
-        : m_taskQueue(taskQueue)
+    Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue) :
+    m_taskQueue(taskQueue)
 {
 }
 
@@ -29,18 +29,13 @@ namespace
     class StopTask : public virtual Common::TaskQueue::ITask
     {
     public:
-        explicit StopTask(Common::Threads::AbstractThread& thread)
-                : m_thread(thread)
-        {
-        }
-        void run()
-        {
-            m_thread.requestStop();
-        }
+        explicit StopTask(Common::Threads::AbstractThread& thread) : m_thread(thread) {}
+        void run() { m_thread.requestStop(); }
+
     private:
         Common::Threads::AbstractThread& m_thread;
     };
-}
+} // namespace
 
 void Common::TaskQueueImpl::TaskProcessorImpl::stop()
 {
@@ -52,7 +47,7 @@ void Common::TaskQueueImpl::TaskProcessorImpl::stop()
 void Common::TaskQueueImpl::TaskProcessorImplThread::run()
 {
     announceThreadStarted();
-    while ( !stopRequested())
+    while (!stopRequested())
     {
         Common::TaskQueue::ITaskPtr task = m_taskQueue->popTask();
         if (task)
@@ -61,7 +56,7 @@ void Common::TaskQueueImpl::TaskProcessorImplThread::run()
             {
                 task->run();
             }
-            catch( std::exception& e)
+            catch (std::exception& e)
             {
                 LOGERROR("Failed to run task with error: " << e.what());
             }

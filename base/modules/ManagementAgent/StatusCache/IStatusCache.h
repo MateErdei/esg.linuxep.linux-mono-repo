@@ -14,7 +14,6 @@ namespace ManagementAgent
     {
         class IStatusCache
         {
-
         public:
             virtual ~IStatusCache() = default;
             /**
@@ -30,9 +29,5 @@ namespace ManagementAgent
             virtual void loadCacheFromDisk() = 0;
         };
 
-
-    }
-}
-
-
-
+    } // namespace StatusCache
+} // namespace ManagementAgent

@@ -51,14 +51,11 @@ namespace Installer
             ManifestEntrySet calculateChanged(const Manifest& oldManifest) const;
 
         private:
-
-            using ManifestEntryMap = std::map<std::string,ManifestEntry>;
+            using ManifestEntryMap = std::map<std::string, ManifestEntry>;
 
             ManifestEntryMap getEntriesByPath() const;
 
             ManifestEntryVector m_entries;
         };
-    }
-}
-
-
+    } // namespace ManifestDiff
+} // namespace Installer

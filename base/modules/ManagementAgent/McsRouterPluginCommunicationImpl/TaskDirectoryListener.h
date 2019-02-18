@@ -4,13 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
-
-#include <ManagementAgent/PluginCommunication/IPluginManager.h>
 
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 #include <Common/TaskQueue/ITaskQueue.h>
+#include <ManagementAgent/PluginCommunication/IPluginManager.h>
 
 #include <vector>
 
@@ -20,18 +18,17 @@ namespace ManagementAgent
     {
         using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
 
-        class TaskDirectoryListener: public virtual Common::DirectoryWatcher::IDirectoryWatcherListener
+        class TaskDirectoryListener : public virtual Common::DirectoryWatcher::IDirectoryWatcherListener
         {
         public:
             TaskDirectoryListener(
-                    const std::string & path,
-                    ITaskQueueSharedPtr taskQueue,
-                    PluginCommunication::IPluginManager& pluginManager
-                );
+                const std::string& path,
+                ITaskQueueSharedPtr taskQueue,
+                PluginCommunication::IPluginManager& pluginManager);
             ~TaskDirectoryListener() = default;
-            
+
             std::string getPath() const override;
-            void fileMoved(const std::string & filename) override;
+            void fileMoved(const std::string& filename) override;
             void watcherActive(bool active) override;
 
         private:
@@ -41,7 +38,5 @@ namespace ManagementAgent
             bool m_active;
         };
 
-    }
-}
-
-
+    } // namespace McsRouterPluginCommunicationImpl
+} // namespace ManagementAgent

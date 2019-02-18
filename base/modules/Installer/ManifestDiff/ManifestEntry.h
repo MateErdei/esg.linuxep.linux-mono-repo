@@ -5,11 +5,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
-#include <string>
-#include <vector>
 #include <set>
+#include <string>
 #include <tuple>
+#include <vector>
 
 namespace Installer
 {
@@ -47,6 +46,7 @@ namespace Installer
              * @return
              */
             static Path toPosixPath(const Path& p);
+
         private:
             entry_size_t m_size;
             Path m_path;
@@ -54,7 +54,7 @@ namespace Installer
             hash_t m_sha256;
             hash_t m_sha384;
 
-            inline std::tuple<Path,entry_size_t, hash_t, hash_t, hash_t> tie_members() const noexcept
+            inline std::tuple<Path, entry_size_t, hash_t, hash_t, hash_t> tie_members() const noexcept
             {
                 return std::tie(m_path, m_size, m_sha1, m_sha256, m_sha384);
             }
@@ -63,7 +63,5 @@ namespace Installer
         using ManifestEntryVector = std::vector<ManifestEntry>;
         using ManifestEntrySet = std::set<ManifestEntry>;
         using PathSet = std::set<Path>;
-    }
-}
-
-
+    } // namespace ManifestDiff
+} // namespace Installer

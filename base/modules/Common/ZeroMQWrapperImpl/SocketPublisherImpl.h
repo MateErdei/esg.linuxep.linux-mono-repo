@@ -6,8 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
 #include "SocketImpl.h"
 
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -16,17 +14,12 @@ namespace Common
 {
     namespace ZeroMQWrapperImpl
     {
-        class SocketPublisherImpl :
-                public SocketImpl,
-                public virtual Common::ZeroMQWrapper::ISocketPublisher
+        class SocketPublisherImpl : public SocketImpl, public virtual Common::ZeroMQWrapper::ISocketPublisher
         {
         public:
             explicit SocketPublisherImpl(ContextHolderSharedPtr context);
 
-            void write(const std::vector<std::string> &data) override;
+            void write(const std::vector<std::string>& data) override;
         };
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapperImpl
+} // namespace Common

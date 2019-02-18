@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TimeTracker.h"
+
 #include <Common/UtilityImpl/TimeUtils.h>
 
 using namespace SulDownloader::suldownloaderdata;

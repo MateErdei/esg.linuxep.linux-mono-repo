@@ -12,4 +12,4 @@ namespace ReqRepTest
         std::cerr << "createContext from " << ::getpid() << std::endl;
         return Common::ZeroMQWrapper::createContext();
     }
-}
+} // namespace ReqRepTest

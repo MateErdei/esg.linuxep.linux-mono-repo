@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "CommandLineOptions.h"
 
 #include <Common/UtilityImpl/StringUtils.h>
+
 #include <iostream>
 
 using namespace Installer::ManifestDiff;
@@ -21,20 +22,20 @@ namespace
             value = "";
             return;
         }
-        key = arg.substr(0,pos);
-        value = arg.substr(pos+1);
+        key = arg.substr(0, pos);
+        value = arg.substr(pos + 1);
     }
-}
+} // namespace
 
 CommandLineOptions::CommandLineOptions(const Common::Datatypes::StringVector& args)
 {
-    for (size_t i=1; i<args.size(); ++i)
+    for (size_t i = 1; i < args.size(); ++i)
     {
         auto arg = args.at(i);
 
         std::string key;
         std::string value;
-        split(arg,key,value);
+        split(arg, key, value);
         if (key == "--old")
         {
             m_old = value;

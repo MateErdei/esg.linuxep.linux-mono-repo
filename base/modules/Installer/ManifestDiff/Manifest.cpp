@@ -5,12 +5,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "Manifest.h"
 
-#include <Common/UtilityImpl/iostr_utils.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/iostr_utils.h>
 
+#include <cassert>
 #include <fstream>
 #include <limits>
-#include <cassert>
 #include <map>
 
 using namespace Installer::ManifestDiff;
@@ -18,11 +18,11 @@ using namespace Installer::ManifestDiff;
 static void parseSHA256comment(const std::string& comment, ManifestEntry& info)
 {
     assert(comment[0] == '#');
-    if (comment.substr(1,7) != "sha256 ")
+    if (comment.substr(1, 7) != "sha256 ")
     {
         return;
     }
-    std::string sha256 = comment.substr(8,72);
+    std::string sha256 = comment.substr(8, 72);
     info.withSHA256(sha256);
 }
 
@@ -47,13 +47,12 @@ Manifest::Manifest(std::istream& file)
 
     while (in.good())
     {
-
         std::string path;
         unsigned long size;
         std::string checksum;
         char comment[100];
         switch (in.peek())
-        {    // With an MS iostream, calling peek() on a stream which is in an eof state
+        { // With an MS iostream, calling peek() on a stream which is in an eof state
             // sets the fail bit! So be careful to only call peek() once. GNU does it ok.
             case '#':
                 // Need to work out if we have a sha-256 comment
@@ -73,9 +72,8 @@ Manifest::Manifest(std::istream& file)
                 continue;
 
             case '"':
-                in >> std::expect('"') >> match(std::char_class_file, path) >> std::expect('"') >> std::expect(' ')
-                   >> size >> std::expect(' ')
-                   >> match(std::char_class_hex, checksum) >> std::expect('\n');
+                in >> std::expect('"') >> match(std::char_class_file, path) >> std::expect('"') >> std::expect(' ') >>
+                    size >> std::expect(' ') >> match(std::char_class_hex, checksum) >> std::expect('\n');
                 m_entries.emplace_back(path);
                 m_entries.back().withSHA1(checksum).withSize(size);
                 continue;
@@ -104,7 +102,7 @@ unsigned long Manifest::size() const
 
 ManifestEntrySet Manifest::entries() const
 {
-    return Installer::ManifestDiff::ManifestEntrySet(m_entries.begin(),m_entries.end());
+    return Installer::ManifestDiff::ManifestEntrySet(m_entries.begin(), m_entries.end());
 }
 
 PathSet Manifest::paths() const

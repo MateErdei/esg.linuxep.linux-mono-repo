@@ -4,17 +4,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "MACinfo.h"
-#include <algorithm>
-#include <sstream>
-#include <iomanip>
-#include <cstring>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <unistd.h>
 
+#include <net/if.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include <algorithm>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <unistd.h>
 
 namespace
 {
@@ -22,18 +23,15 @@ namespace
     {
         SocketRAII(int socketfd_) : socketfd(socketfd_)
         {
-            if ( socketfd_ == -1 )
+            if (socketfd_ == -1)
             {
-                throw std::system_error( errno, std::generic_category(), "Failed to create socket");
+                throw std::system_error(errno, std::generic_category(), "Failed to create socket");
             }
         }
         int socketfd;
-        ~SocketRAII()
-        {
-            ::close(socketfd);
-        }
+        ~SocketRAII() { ::close(socketfd); }
     };
-}
+} // namespace
 
 namespace Common
 {
@@ -41,16 +39,16 @@ namespace Common
     {
         using MACType = std::array<unsigned char, 6>;
 
-        std::string stringfyMAC( const MACType & macAddress)
+        std::string stringfyMAC(const MACType& macAddress)
         {
             std::stringstream s;
-            for( int i=0; i<6; i++)
+            for (int i = 0; i < 6; i++)
             {
-                if( i != 0)
+                if (i != 0)
                 {
                     s << ':';
                 }
-                s <<  std::hex <<  std::setw(2) << std::setfill('0') << (int) macAddress[i]  ;
+                s << std::hex << std::setw(2) << std::setfill('0') << (int)macAddress[i];
             }
             return s.str();
         }
@@ -62,24 +60,27 @@ namespace Common
             struct ifconf ifc;
             std::array<char, 1024> buf;
 
-            SocketRAII sock( socket(AF_INET, SOCK_DGRAM, IPPROTO_IP) );
+            SocketRAII sock(socket(AF_INET, SOCK_DGRAM, IPPROTO_IP));
 
             ifc.ifc_len = buf.size();
             ifc.ifc_buf = buf.data();
             // get ifaces list
             if (ioctl(sock.socketfd, SIOCGIFCONF, &ifc) == -1)
             {
-                throw std::system_error( errno, std::generic_category(), "Failed to get information for the interfaces configured.");
+                throw std::system_error(
+                    errno, std::generic_category(), "Failed to get information for the interfaces configured.");
             }
 
             struct ifreq* it = ifc.ifc_req;
             const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
 
-            for (; it != end; ++it) {
+            for (; it != end; ++it)
+            {
                 strcpy(ifr.ifr_name, it->ifr_name);
                 if (ioctl(sock.socketfd, SIOCGIFFLAGS, &ifr) == 0)
                 {
-                    if (! (ifr.ifr_flags & IFF_LOOPBACK)) { // don't count loopback
+                    if (!(ifr.ifr_flags & IFF_LOOPBACK))
+                    { // don't count loopback
                         if (ioctl(sock.socketfd, SIOCGIFHWADDR, &ifr) == 0)
                         {
                             MACType mac_address;
@@ -90,18 +91,18 @@ namespace Common
                 }
                 else
                 {
-                    throw std::system_error( errno, std::generic_category(), "Failed to get information mac address.");
+                    throw std::system_error(errno, std::generic_category(), "Failed to get information mac address.");
                 }
             }
 
             std::sort(std::begin(macs), std::end(macs));
 
             // remove duplicates
-            auto last = std::unique( std::begin(macs), std::end(macs));
+            auto last = std::unique(std::begin(macs), std::end(macs));
             macs.erase(last, macs.end());
 
             return macs;
         }
 
-    }
-}
+    } // namespace OSUtilitiesImpl
+} // namespace Common

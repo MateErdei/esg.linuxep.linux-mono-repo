@@ -4,11 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
-#include <memory>
 #include "ITask.h"
+
+#include <memory>
 
 namespace Common
 {
@@ -25,7 +25,5 @@ namespace Common
         };
 
         using ITaskQueueSharedPtr = std::shared_ptr<Common::TaskQueue::ITaskQueue>;
-    }
-}
-
-
+    } // namespace TaskQueue
+} // namespace Common

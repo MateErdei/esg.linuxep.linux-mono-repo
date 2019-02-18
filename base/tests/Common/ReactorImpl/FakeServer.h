@@ -6,18 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "TestListener.h"
 
 #include "Common/Reactor/IReactor.h"
-#include "TestListener.h"
 #include "Common/ZeroMQWrapper/IContext.h"
+
 #include <string>
 #include <vector>
 
 class FakeServer
 {
 public:
-    FakeServer(const std::string & socketAddress, bool captureSignals);
-    void run( Common::ZeroMQWrapper::IContext& iContext);
+    FakeServer(const std::string& socketAddress, bool captureSignals);
+    void run(Common::ZeroMQWrapper::IContext& iContext);
     void join();
 
 private:
@@ -26,8 +27,4 @@ private:
     std::unique_ptr<TestListener> m_testListener;
     std::unique_ptr<Common::Reactor::IShutdownListener> m_shutdownListener;
     bool m_captureSignals;
-
 };
-
-
-

@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
 namespace Common
@@ -28,6 +27,5 @@ namespace Common
              */
             virtual void stop() = 0;
         };
-    }
-}
-
+    } // namespace TaskQueue
+} // namespace Common

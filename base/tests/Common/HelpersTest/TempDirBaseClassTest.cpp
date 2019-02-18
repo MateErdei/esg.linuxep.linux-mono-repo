@@ -8,7 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Tests
 {
-
     void TempDirBaseClassTest::SetUp()
     {
         Test::SetUp();
@@ -20,4 +19,4 @@ namespace Tests
         m_tempDir.reset(nullptr);
         Test::TearDown();
     }
-}
+} // namespace Tests

@@ -12,5 +12,4 @@ namespace Tests
 {
     void replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>);
     void restoreFilePermissions();
-}
-
+} // namespace Tests

@@ -9,7 +9,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "CommonEventData.h"
 #include "IEventType.h"
 
-
 namespace Common
 {
     namespace EventTypes
@@ -33,7 +32,8 @@ namespace Common
             EventType getEventType() const;
 
             /**
-             * Gets the SophosPid of this process which is the PID concatenated with timestamp of when the process started.
+             * Gets the SophosPid of this process which is the PID concatenated with timestamp of when the process
+             * started.
              * @return
              */
             Common::EventTypes::SophosPid getSophosPid() const;
@@ -66,7 +66,7 @@ namespace Common
              * Return an optional filesize of the binary
              * @return
              */
-            Common::EventTypes::OptionalUInt64 getFileSize() const ;
+            Common::EventTypes::OptionalUInt64 getFileSize() const;
 
             /**
              * Process flags, we don't know what these will be on Linux, will likely just be 0.
@@ -84,13 +84,13 @@ namespace Common
              * On linux this is the UID, on windows SID (Security Identifier) has a specific meaning.
              * @return
              */
-            std::string getSid() const ;
+            std::string getSid() const;
 
             /**
              * Return a struct that holds information about the user that owns a process
              * @return
              */
-            Common::EventTypes::UserSid getOwnerUserSid() const ;
+            Common::EventTypes::UserSid getOwnerUserSid() const;
 
             /**
              * Return a struct that holds information about the path of the binary file.
@@ -192,10 +192,10 @@ namespace Common
             void setPathname(const Common::EventTypes::Pathname& pathname);
 
             /**
-            * Constructs the pathname property of this ProcessEvent object
-            * from the given string
-            * @param pathnameString
-            */
+             * Constructs the pathname property of this ProcessEvent object
+             * from the given string
+             * @param pathnameString
+             */
             void setPathname(const std::string& pathnameString);
 
             /**
@@ -232,10 +232,10 @@ namespace Common
             std::string toString() const override;
 
             /**
-            * Takes in a event object as a capn byte string.
-            * @param an objectAsString
-            * @returns ProcessEvent object created from the capn byte string.
-            */
+             * Takes in a event object as a capn byte string.
+             * @param an objectAsString
+             * @returns ProcessEvent object created from the capn byte string.
+             */
             void fromString(const std::string& objectAsString);
 
         private:
@@ -259,7 +259,7 @@ namespace Common
             // On linux this is the process namespace.
             std::uint32_t m_sessionId;
 
-            //a struct that holds information about the path of the binary file
+            // a struct that holds information about the path of the binary file
             Common::EventTypes::Pathname m_pathname;
 
             // On linux this is the UID, on windows SID (Security Identifier) has a specific meaning.
@@ -279,6 +279,6 @@ namespace Common
         };
 
         Common::EventTypes::ProcessEvent createProcessEvent(Common::EventTypes::ProcessEvent::EventType eventType);
-    }
+    } // namespace EventTypes
 
-}
+} // namespace Common

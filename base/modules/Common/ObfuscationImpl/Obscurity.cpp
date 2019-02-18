@@ -4,82 +4,76 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Cipher.h"
 #include "Obscurity.h"
-#include "Common/Obfuscation/IObscurityException.h"
-#include "KeyRa.h"
-#include "KeyFa.h"
+
+#include "Cipher.h"
 #include "KeyDo.h"
+#include "KeyFa.h"
 #include "KeyMi.h"
+#include "KeyRa.h"
 #include "Logger.h"
-#include <sstream>
-#include <iostream>
+
+#include "Common/Obfuscation/IObscurityException.h"
+
 #include <cstring>
+#include <iostream>
+#include <sstream>
 
 namespace
 {
-    void Scribble(unsigned char * data, size_t dataLen)
+    void Scribble(unsigned char* data, size_t dataLen)
     {
         // it is necessary to make the pointer volatile to prevent the compiler to
         // remove this code ( it would be better to use memset_s, but it is not available)
-        volatile unsigned char *p = data;
+        volatile unsigned char* p = data;
         int size_to_remove = dataLen;
-        while (size_to_remove--){
+        while (size_to_remove--)
+        {
             *p++ = 'x';
         }
     }
 
-}
+} // namespace
 
 namespace Common
 {
     namespace ObfuscationImpl
     {
+        /* Notes:
+         * First of all, this implementation is an attempt to obscure sensitive data.
+         *
+         *
+         *
+         *
+         * The goal of this implementation is to make 'raise the bar' of difficulty in
+         * discovering sensitive data. The techniques it uses to do this are:
+         * 1) uses an asymetric key to encrypt and decrypt the data
+         *    However, the asymetric key is stored in the program (i.e. hardcoded)
+         * 2) So, the asymetric key is split into parts, and
+         * 3) Each part is obscured in a different way.
+         * 4) The assembled asymetric key is kept in memory for the minimum period.
+         *
+         * However, the algorithms to obscure the key **very** simplistic;
+         *    DO NOT RELY ON THEM TO SECURE SENSITIVE DATA!!!!
+         *
+         * The simplest way to crack this is to catch the parameters as they are passed into OpenSSL
+         * to perform the encrypt/decrypt processing, so the obscuring of the key at this level is a
+         * compromise at deterring the stupid, knowing that the smart will look in the right place!
+         *
+         * In the event that we need a second obscurity algorithm, we mark (and check)
+         * that this data was obscured by this algorithm by prepending a byte containing
+         * this algorithm identifier.
+         */
+        // const unsigned char CObscurity::ALGORITHM_IDENT = 0x07;
 
+        CObscurity::CObscurity() {}
 
-/* Notes:
- * First of all, this implementation is an attempt to obscure sensitive data.
- *
- *
- *
- *
- * The goal of this implementation is to make 'raise the bar' of difficulty in
- * discovering sensitive data. The techniques it uses to do this are:
- * 1) uses an asymetric key to encrypt and decrypt the data
- *    However, the asymetric key is stored in the program (i.e. hardcoded)
- * 2) So, the asymetric key is split into parts, and 
- * 3) Each part is obscured in a different way.
- * 4) The assembled asymetric key is kept in memory for the minimum period.
- * 
- * However, the algorithms to obscure the key **very** simplistic; 
- *    DO NOT RELY ON THEM TO SECURE SENSITIVE DATA!!!!
- *
- * The simplest way to crack this is to catch the parameters as they are passed into OpenSSL
- * to perform the encrypt/decrypt processing, so the obscuring of the key at this level is a 
- * compromise at deterring the stupid, knowing that the smart will look in the right place!
- *
- * In the event that we need a second obscurity algorithm, we mark (and check)
- * that this data was obscured by this algorithm by prepending a byte containing
- * this algorithm identifier.
- */
-//const unsigned char CObscurity::ALGORITHM_IDENT = 0x07;
-
-        CObscurity::CObscurity()
-        {
-
-        }
-
-        CObscurity::~CObscurity()
-        {
-
-        }
-
+        CObscurity::~CObscurity() {}
 
         Common::ObfuscationImpl::SecureDynamicBuffer CObscurity::GetPassword() const
         {
             constexpr int SECTION_COUNT = 4;
             LenVal_t sections[SECTION_COUNT];
-
 
             unsigned char* data1;
             size_t dataLen1;
@@ -118,7 +112,7 @@ namespace Common
 
             // Free data
             Scribble(data1, dataLen1);
-            delete[]data1;
+            delete[] data1;
 
             for (int i = 0; i < SECTION_COUNT; i++)
             {
@@ -127,7 +121,6 @@ namespace Common
 
             return buffer;
         }
-
 
         unsigned char* CObscurity::Join(const CObscurity::LenVal_t* sections, size_t count, size_t* dataLen)
         {
@@ -144,15 +137,14 @@ namespace Common
             unsigned char* ptr = data;
             for (unsigned int j = 0; j < count; j++)
             {
-                //ACE_OS::memcpy(ptr, sections[j].value, sections[j].len); //lint !e534 :ignore ret val
-                memcpy(ptr, sections[j].value, sections[j].len); //lint !e534 :ignore ret val
+                // ACE_OS::memcpy(ptr, sections[j].value, sections[j].len); //lint !e534 :ignore ret val
+                memcpy(ptr, sections[j].value, sections[j].len); // lint !e534 :ignore ret val
                 ptr += sections[j].len;
             }
 
             *dataLen = bufSize;
             return data;
         }
-
 
         unsigned char* CObscurity::R1(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
         {
@@ -163,11 +155,11 @@ namespace Common
                 unsigned int mod2 = i % 2;
                 if (0 == mod2)
                 {
-                    retData[i] = obscuredData[i / 2]; //even
+                    retData[i] = obscuredData[i / 2]; // even
                 }
                 else
                 {
-                    retData[i] = obscuredData[(obscuredDataLen - (i / 2)) - 1]; //odd
+                    retData[i] = obscuredData[(obscuredDataLen - (i / 2)) - 1]; // odd
                 }
             }
             *dataLen = obscuredDataLen;
@@ -194,7 +186,6 @@ namespace Common
             return mask;
         }
 
-
         unsigned char* CObscurity::R2(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
         {
             // Reverse O2()
@@ -206,7 +197,6 @@ namespace Common
             *dataLen = obscuredDataLen;
             return retData;
         }
-
 
         unsigned char* CObscurity::R3(const unsigned char* obscuredData, size_t obscuredDataLen, size_t* dataLen)
         {
@@ -242,7 +232,6 @@ namespace Common
             constexpr int MarkAES256Algorithm = 8;
             SecureDynamicBuffer password = GetPassword();
 
-
             // Check algorithm identification
             if (MarkAES256Algorithm != obscuredData[0])
             {
@@ -254,5 +243,5 @@ namespace Common
 
             return Cipher::Decrypt(password, obscuredText);
         }
-    }
-}
+    } // namespace ObfuscationImpl
+} // namespace Common

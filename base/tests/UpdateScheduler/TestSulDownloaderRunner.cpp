@@ -4,43 +4,31 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
-#include <UpdateSchedulerImpl/Logger.h>
-
 #include <Common/ProcessImpl/ProcessImpl.h>
-
+#include <UpdateSchedulerImpl/Logger.h>
+#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
+#include <gmock/gmock-matchers.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <tests/Common/Helpers/TempDir.h>
-
-#include <gmock/gmock-matchers.h>
 
 #include <future>
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
-using SulDownloaderRunner = UpdateSchedulerImpl::runnerModule::SulDownloaderRunner; 
+using SulDownloaderRunner = UpdateSchedulerImpl::runnerModule::SulDownloaderRunner;
 class TestSulDownloaderRunner : public ::testing::Test
 {
-
 public:
+    void SetUp() override { m_loggingSetup.reset(new TestLogging::TestConsoleLoggingSetup()); }
 
-    void SetUp() override
-    {
-        m_loggingSetup.reset(new TestLogging::TestConsoleLoggingSetup());
-    }
-
-    void TearDown() override
-    {
-        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-    }
+    void TearDown() override { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
 
     MockProcess* setupMockProcess()
     {
         auto mockProcess = new MockProcess();
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([mockProcess]() {
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-        });
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            [mockProcess]() { return std::unique_ptr<Common::Process::IProcess>(mockProcess); });
         return mockProcess;
     }
 
@@ -53,8 +41,8 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
-    MockProcess * mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    MockProcess* mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
@@ -63,14 +51,11 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(5));
-    auto futureRunner = std::async(std::launch::async, [&runner]() {
-        runner.run();
-    });
+    auto futureRunner = std::async(std::launch::async, [&runner]() { runner.run(); });
 
     // Write a report json file.
-    auto futureTempDir = std::async(std::launch::async, [&tempDir]() {
-        tempDir->createFileAtomically("report.json", "some json");
-    });
+    auto futureTempDir =
+        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();
@@ -84,8 +69,8 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
-    MockProcess * mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    MockProcess* mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
@@ -94,12 +79,11 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(3));
-    std::thread runnerThread([&runner]() {
-        runner.run();
-    });
+    std::thread runnerThread([&runner]() { runner.run(); });
 
-    auto fut = std::async(std::launch::async,  [&tempDir]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500)); tempDir->createFileAtomically("report.json", "some json");
+    auto fut = std::async(std::launch::async, [&tempDir]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        tempDir->createFileAtomically("report.json", "some json");
     });
 
     runnerThread.join();
@@ -109,12 +93,11 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     EXPECT_EQ(task.content, "report.json");
 }
 
-
 TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 {
     // Mock systemctl call.
-    MockProcess * mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    MockProcess* mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
@@ -123,9 +106,7 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 
     // Create suldownloader runner which will timeout after 1 second of waiting and run it.
     SulDownloaderRunner runner(queue, "/tmp", "some-string", std::chrono::seconds(1));
-    std::thread runnerThread([&runner]() {
-        runner.run();
-    });
+    std::thread runnerThread([&runner]() { runner.run(); });
 
     runnerThread.join();
 
@@ -136,8 +117,8 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 {
     // Mock systemctl call
-    MockProcess * mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    MockProcess* mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
 
@@ -146,9 +127,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
-    std::thread runnerThread([&runner]() {
-        runner.run();
-    });
+    std::thread runnerThread([&runner]() { runner.run(); });
 
     runner.abortWaitingForReport();
     runnerThread.join();
@@ -161,8 +140,8 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
     std::string errorMessage = "bad thing happened";
 
     // Mock systemctl call
-    MockProcess * mockProcess = setupMockProcess();
-    EXPECT_CALL(*mockProcess, exec(_,_)).Times(1);
+    MockProcess* mockProcess = setupMockProcess();
+    EXPECT_CALL(*mockProcess, exec(_, _)).Times(1);
     EXPECT_CALL(*mockProcess, output()).WillOnce(Return(errorMessage));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
 
@@ -171,9 +150,7 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
 
     // Create suldownloader runner and run it.
     SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
-    std::thread runnerThread([&runner]() {
-        runner.run();
-    });
+    std::thread runnerThread([&runner]() { runner.run(); });
 
     runner.abortWaitingForReport();
     runnerThread.join();

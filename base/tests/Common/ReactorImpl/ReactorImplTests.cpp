@@ -3,34 +3,31 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include "FakeClient.h"
+#include "FakeServer.h"
 #include "MockCallBackListener.h"
 #include "PipeForTests.h"
 #include "ReactorImplTestsPath.h"
-#include "FakeServer.h"
-#include "FakeClient.h"
 
 #include "Common/Process/IProcess.h"
-#include <Common/ReactorImpl/ReadableFd.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/Reactor/IReactor.h"
+#include "Common/ReactorImpl/GenericCallbackListener.h"
+#include "Common/ReactorImpl/ReactorImpl.h"
 #include "Common/ZeroMQWrapper/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
-#include "Common/ReactorImpl/GenericCallbackListener.h"
-#include "Common/Reactor/IReactor.h"
-#include "Common/ReactorImpl/ReactorImpl.h"
+
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/ReactorImpl/ReadableFd.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapperImpl/SocketImpl.h>
-
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include <zmq.h>
-
 #include <future>
-
+#include <zmq.h>
 
 using namespace Common::Reactor;
 using data_t = Common::ZeroMQWrapper::IReadable::data_t;
@@ -39,23 +36,14 @@ using namespace Common::ReactorImpl;
 class ReactorImplTest : public ::testing::Test
 {
 public:
-
-    void SetUp() override
-    {
-        m_pipe = std::unique_ptr<PipeForTests>(new PipeForTests());
-    }
-    void TearDown() override
-    {
-        m_pipe.reset();
-    }
+    void SetUp() override { m_pipe = std::unique_ptr<PipeForTests>(new PipeForTests()); }
+    void TearDown() override { m_pipe.reset(); }
 
     std::unique_ptr<PipeForTests> m_pipe;
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 };
 
-
-
-TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) //NOLINT
+TEST_F(ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) // NOLINT
 {
     using ::testing::Invoke;
     MockCallBackListener mockCallBackListener;
@@ -63,14 +51,12 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) //NOLINT
     ReadableFd readableFd(m_pipe->readFd(), false);
     auto reactor = Common::Reactor::createReactor();
 
-
-    data_t processData = {{"hello"}};
+    data_t processData = { { "hello" } };
 
     Tests::TestExecutionSynchronizer testExecutionSynchronizer;
 
-    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
-            Invoke([&testExecutionSynchronizer](data_t){testExecutionSynchronizer.notify();})
-    );
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData))
+        .WillOnce(Invoke([&testExecutionSynchronizer](data_t) { testExecutionSynchronizer.notify(); }));
 
     reactor->addListener(&readableFd, &mockCallBackListener);
 
@@ -85,7 +71,7 @@ TEST_F( ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) //NOLINT
  * Reactor is tested indirectly via the use of the Fake server to give more real world results.
  */
 
-TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) //NOLINT
+TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
 {
     auto context = Common::ZeroMQWrapper::createContext();
 
@@ -96,21 +82,21 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) //NOLINT
 
     fakeServer.run(*context);
 
-    data_t requestData{"echo", "arg1", "arg2"};
-    EXPECT_EQ(fakeClient.requestReply(requestData), requestData );
+    data_t requestData{ "echo", "arg1", "arg2" };
+    EXPECT_EQ(fakeClient.requestReply(requestData), requestData);
 
-    data_t requestData2{"concat", "arg1", "arg2"};
-    data_t expectedRequestData2{"concat", "arg1arg2"};
+    data_t requestData2{ "concat", "arg1", "arg2" };
+    data_t expectedRequestData2{ "concat", "arg1arg2" };
     EXPECT_EQ(fakeClient.requestReply(requestData2), expectedRequestData2);
 
-    data_t requestData3{"quit"};
-    EXPECT_EQ(fakeClient.requestReply(requestData3), requestData3 );
+    data_t requestData3{ "quit" };
+    EXPECT_EQ(fakeClient.requestReply(requestData3), requestData3);
 
     // throws if fake server has stopped.
-    EXPECT_THROW(fakeClient.requestReply(requestData), Common::ZeroMQWrapperImpl::ZeroMQWrapperException); //NOLINT
+    EXPECT_THROW(fakeClient.requestReply(requestData), Common::ZeroMQWrapperImpl::ZeroMQWrapperException); // NOLINT
 }
 
-TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) //NOLINT
+TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // NOLINT
 {
     Tests::TempDir tempDir("/tmp");
 
@@ -119,18 +105,16 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) //N
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
-    ASSERT_TRUE( fileSystem->isExecutable(fakeServerPath));
-    data_t args{socketAddress};
+    ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
+    data_t args{ socketAddress };
     process->exec(fakeServerPath, args);
-
 
     auto context = Common::ZeroMQWrapper::createContext();
 
     FakeClient fakeClient(*context, socketAddress, 5000);
 
-    data_t requestData{"echo", "arg1", "arg2"};
-    EXPECT_EQ(fakeClient.requestReply(requestData), requestData );
-
+    data_t requestData{ "echo", "arg1", "arg2" };
+    EXPECT_EQ(fakeClient.requestReply(requestData), requestData);
 
     bool required_kill = process->kill();
 
@@ -141,63 +125,57 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) //N
     }
 }
 
-
-TEST_F( ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow) //NOLINT
+TEST_F(ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow) // NOLINT
 {
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor->stop()); //NOLINT
+    EXPECT_NO_THROW(reactor->stop()); // NOLINT
 }
 
-TEST_F( ReactorImplTest, CallingStartStopWithNoListenersDoesNotThrow) //NOLINT
+TEST_F(ReactorImplTest, CallingStartStopWithNoListenersDoesNotThrow) // NOLINT
 {
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_NO_THROW(reactor->start()); //NOLINT
-    EXPECT_NO_THROW(reactor->stop()); //NOLINT
+    EXPECT_NO_THROW(reactor->start()); // NOLINT
+    EXPECT_NO_THROW(reactor->stop());  // NOLINT
 }
 
-TEST_F( ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow) //NOLINT
+TEST_F(ReactorImplTest, CallingStopBeforeStartWithAListenersDoesNotThrow) // NOLINT
 {
     MockCallBackListener mockCallBackListener;
 
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-
     reactor->addListener(&readableFd, &mockCallBackListener);
 
-    EXPECT_NO_THROW(reactor->stop()); //NOLINT
+    EXPECT_NO_THROW(reactor->stop()); // NOLINT
 }
 
-
-TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersFromRunning) //NOLINT
+TEST_F(ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersFromRunning) // NOLINT
 {
     using ::testing::Invoke;
     bool callbackExecuted = false;
 
-
-    GenericCallbackListener callBackListenerThatThrows([&callbackExecuted](data_t){
+    GenericCallbackListener callBackListenerThatThrows([&callbackExecuted](data_t) {
         callbackExecuted = true;
         throw std::runtime_error("Test Error");
     });
     MockCallBackListener mockCallBackListener;
 
-
     std::unique_ptr<PipeForTests> m_pipeWhichThrows = std::unique_ptr<PipeForTests>(new PipeForTests());
     ReadableFd readableFdThatThrows(m_pipeWhichThrows->readFd(), false);
     ReadableFd readableFd(m_pipe->readFd(), false);
     auto reactor = Common::Reactor::createReactor();
-    data_t processData = {{"hello"}};
+    data_t processData = { { "hello" } };
 
     Tests::TestExecutionSynchronizer executionSynchronizer;
 
-
-    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(
-            Invoke([&executionSynchronizer](data_t){executionSynchronizer.notify();})
-    );
+    EXPECT_CALL(mockCallBackListener, messageHandler(processData)).WillOnce(Invoke([&executionSynchronizer](data_t) {
+        executionSynchronizer.notify();
+    }));
 
     reactor->addListener(&readableFdThatThrows, &callBackListenerThatThrows);
     reactor->addListener(&readableFd, &mockCallBackListener);
@@ -212,11 +190,9 @@ TEST_F( ReactorImplTest, callbackListenerThatThrowsDoesNotPreventOtherListenersF
     reactor->stop();
 }
 
-
-TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) //NOLINT
+TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) // NOLINT
 {
-    auto lambdaThatClosesPipeBeforeStopingReactor = []()
-    {
+    auto lambdaThatClosesPipeBeforeStopingReactor = []() {
         using ::testing::Invoke;
         MockCallBackListener mockCallBackListener;
         std::unique_ptr<PipeForTests> pipe(new PipeForTests());
@@ -232,15 +208,12 @@ TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaks) //NOLINT
         reactor->join();
     };
 
-    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associated with the poller"); //NOLINT
-
+    ASSERT_DEATH(lambdaThatClosesPipeBeforeStopingReactor(), "Error associated with the poller"); // NOLINT
 }
 
-
-TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) //NOLINT
+TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // NOLINT
 {
-    auto lambdaThatClosesSocketBeforeStopingReactor = []()
-    {
+    auto lambdaThatClosesSocketBeforeStopingReactor = []() {
         using ::testing::Invoke;
         auto context = Common::ZeroMQWrapper::createContext();
         auto replier = context->getReplier();
@@ -258,30 +231,29 @@ TEST_F( ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) //
 
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
-
         // closes the socket to generate the error in the poller.
         auto socket = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(replier.get());
         ASSERT_TRUE(socket != nullptr);
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
 
-        requester->write({"hello1"});
-        auto fut = std::async(std::launch::async, [&reactor](){std::this_thread::sleep_for(std::chrono::milliseconds(1000)); reactor->stop();});
+        requester->write({ "hello1" });
+        auto fut = std::async(std::launch::async, [&reactor]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            reactor->stop();
+        });
         reactor->join();
         fut.get();
     };
 
-    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associated with the poller"); //NOLINT
-
+    ASSERT_DEATH(lambdaThatClosesSocketBeforeStopingReactor(), "Error associated with the poller"); // NOLINT
 }
-
-
 
 #ifndef NDEBUG
 /**
  * Test fucntion can only be called in debug mode.
  */
-TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert ) //NOLINT
+TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert) // NOLINT
 {
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
@@ -290,7 +262,11 @@ TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAss
     auto reactor = Common::Reactor::createReactor();
     ReadableFd readableFd(m_pipe->readFd(), false);
 
-    EXPECT_DEATH({reactor->start();reactor->addListener(&readableFd, &mockCallBackListener);}, ""); //NOLINT
+    EXPECT_DEATH(
+        {
+            reactor->start();
+            reactor->addListener(&readableFd, &mockCallBackListener);
+        },
+        ""); // NOLINT
 }
 #endif
-

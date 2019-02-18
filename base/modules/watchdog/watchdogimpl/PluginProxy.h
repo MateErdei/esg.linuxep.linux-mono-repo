@@ -18,9 +18,7 @@ namespace watchdog
         class PluginProxy
         {
         public:
-            explicit PluginProxy(
-                    Common::PluginRegistryImpl::PluginInfo info
-                    );
+            explicit PluginProxy(Common::PluginRegistryImpl::PluginInfo info);
             ~PluginProxy() noexcept;
             PluginProxy(PluginProxy&&) noexcept;
 
@@ -109,5 +107,5 @@ namespace watchdog
 
             bool m_enabled;
         };
-    }
-}
+    } // namespace watchdogimpl
+} // namespace watchdog

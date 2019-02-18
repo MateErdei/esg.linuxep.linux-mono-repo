@@ -5,24 +5,24 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ProcessEvent.h"
+
 #include "EventStrings.h"
 
-#include <Common/EventTypes/IEventException.h>
 #include <Common/EventTypes/CommonEventData.h>
-
+#include <Common/EventTypes/IEventException.h>
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
-#include <Process.capnp.h>
 
+#include <Process.capnp.h>
 #include <iostream>
 #include <sstream>
 
 namespace
 {
-
-    Sophos::Journal::ProcessEvent::EventType convertToCapnEventType(Common::EventTypes::ProcessEvent::EventType eventType)
+    Sophos::Journal::ProcessEvent::EventType convertToCapnEventType(
+        Common::EventTypes::ProcessEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Common::EventTypes::ProcessEvent::EventType::start:
                 return Sophos::Journal::ProcessEvent::EventType::START;
@@ -33,21 +33,24 @@ namespace
         }
     }
 
-    Common::EventTypes::ProcessEvent::EventType convertFromCapnEventType(Sophos::Journal::ProcessEvent::EventType eventType)
+    Common::EventTypes::ProcessEvent::EventType convertFromCapnEventType(
+        Sophos::Journal::ProcessEvent::EventType eventType)
     {
-        switch(eventType)
+        switch (eventType)
         {
             case Sophos::Journal::ProcessEvent::EventType::START:
                 return Common::EventTypes::ProcessEvent::EventType::start;
             case Sophos::Journal::ProcessEvent::EventType::END:
                 return Common::EventTypes::ProcessEvent::EventType::end;
             default:
-                throw Common::EventTypes::IEventException("Sophos::Journal::ProcessEvent::EventType, contained unknown type");
+                throw Common::EventTypes::IEventException(
+                    "Sophos::Journal::ProcessEvent::EventType, contained unknown type");
         }
     }
-}
+} // namespace
 
-Common::EventTypes::ProcessEvent Common::EventTypes::createProcessEvent(Common::EventTypes::ProcessEvent::EventType eventType)
+Common::EventTypes::ProcessEvent Common::EventTypes::createProcessEvent(
+    Common::EventTypes::ProcessEvent::EventType eventType)
 {
     Common::EventTypes::ProcessEvent event = ProcessEvent();
     event.setEventType(eventType);
@@ -59,13 +62,7 @@ namespace Common
 {
     namespace EventTypes
     {
-
-        ProcessEvent::ProcessEvent()
-            :
-                m_eventType(start),
-                m_endTime(0),
-                m_flags(0),
-                m_sessionId(0)
+        ProcessEvent::ProcessEvent() : m_eventType(start), m_endTime(0), m_flags(0), m_sessionId(0)
         {
             m_sophosPid.pid = 0;
             m_sophosPid.timestamp = 0;
@@ -78,7 +75,6 @@ namespace Common
 
         std::string ProcessEvent::toString() const
         {
-
             ::capnp::MallocMessageBuilder message;
             Sophos::Journal::ProcessEvent::Builder processEvent = message.initRoot<Sophos::Journal::ProcessEvent>();
 
@@ -97,8 +93,8 @@ namespace Common
             processEvent.setFlags(m_flags);
             processEvent.setSessionId(m_sessionId);
 
-            ::capnp::Data::Reader sidReader = ::capnp::Data::Reader(
-                    reinterpret_cast<const ::capnp::byte*>(m_sid.data()), m_sid.size());
+            ::capnp::Data::Reader sidReader =
+                ::capnp::Data::Reader(reinterpret_cast<const ::capnp::byte*>(m_sid.data()), m_sid.size());
             processEvent.setSid(sidReader);
 
             processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username);
@@ -127,12 +123,12 @@ namespace Common
 
             processEvent.setCmdLine(m_cmdLine);
 
-            ::capnp::Data::Reader sha256Reader = ::capnp::Data::Reader(
-                    reinterpret_cast<const ::capnp::byte*>(m_sha256.data()), m_sha256.size());
+            ::capnp::Data::Reader sha256Reader =
+                ::capnp::Data::Reader(reinterpret_cast<const ::capnp::byte*>(m_sha256.data()), m_sha256.size());
             processEvent.setSha256(sha256Reader);
 
-            ::capnp::Data::Reader sha1Reader = ::capnp::Data::Reader(
-                    reinterpret_cast<const ::capnp::byte*>(m_sha1.data()), m_sha1.size());
+            ::capnp::Data::Reader sha1Reader =
+                ::capnp::Data::Reader(reinterpret_cast<const ::capnp::byte*>(m_sha1.data()), m_sha1.size());
             processEvent.setSha1(sha1Reader);
 
             processEvent.setProcTitle(m_procTitle);
@@ -147,8 +143,7 @@ namespace Common
 
         void ProcessEvent::fromString(const std::string& objectAsString)
         {
-
-            if(objectAsString.empty())
+            if (objectAsString.empty())
             {
                 throw Common::EventTypes::IEventException("Invalid capn byte string, string is empty");
             }
@@ -156,32 +151,32 @@ namespace Common
             try
             {
                 const kj::ArrayPtr<const capnp::word> view(
-                        reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
-                        reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
+                    reinterpret_cast<const capnp::word*>(&(*std::begin(objectAsString))),
+                    reinterpret_cast<const capnp::word*>(&(*std::end(objectAsString))));
 
                 capnp::FlatArrayMessageReader message(view);
                 Sophos::Journal::ProcessEvent::Reader processEvent = message.getRoot<Sophos::Journal::ProcessEvent>();
 
                 setEventType(convertFromCapnEventType(processEvent.getEventType()));
 
-                Common::EventTypes::SophosPid sophosPid{0, 0};
+                Common::EventTypes::SophosPid sophosPid{ 0, 0 };
                 sophosPid.pid = processEvent.getSophosPID().getOsPID();
                 sophosPid.timestamp = processEvent.getSophosPID().getCreateTime();
                 setSophosPid(sophosPid);
 
-                Common::EventTypes::SophosPid parentSophosPid{0, 0};
+                Common::EventTypes::SophosPid parentSophosPid{ 0, 0 };
                 parentSophosPid.pid = processEvent.getParentSophosPID().getOsPID();
                 parentSophosPid.timestamp = processEvent.getParentSophosPID().getCreateTime();
                 setParentSophosPid(parentSophosPid);
 
-                Common::EventTypes::SophosTid parentSophosTid{0, 0};
+                Common::EventTypes::SophosTid parentSophosTid{ 0, 0 };
                 parentSophosTid.tid = processEvent.getParentSophosTID().getOsTID();
                 parentSophosTid.timestamp = processEvent.getParentSophosTID().getCreateTime();
                 setParentSophosTid(parentSophosTid);
 
                 setEndTime(processEvent.getEndTime());
 
-                Common::EventTypes::OptionalUInt64 fileSize {processEvent.getFileSize().getValue()};
+                Common::EventTypes::OptionalUInt64 fileSize{ processEvent.getFileSize().getValue() };
                 setFileSize(fileSize);
 
                 setFlags(processEvent.getFlags());
@@ -230,7 +225,7 @@ namespace Common
 
                 setProcTitle(processEvent.getProcTitle());
             }
-            catch(std::exception& ex)
+            catch (std::exception& ex)
             {
                 std::stringstream errorMessage;
                 errorMessage << "Error: failed to process capn ProcessEvent string, " << ex.what();
@@ -244,91 +239,40 @@ namespace Common
             return m_eventType;
         }
 
-        Common::EventTypes::SophosPid ProcessEvent::getSophosPid() const
-        {
-            return m_sophosPid;
-        }
+        Common::EventTypes::SophosPid ProcessEvent::getSophosPid() const { return m_sophosPid; }
 
-        Common::EventTypes::SophosPid ProcessEvent::getParentSophosPid() const
-        {
-            return m_parentSophosPid;
-        }
+        Common::EventTypes::SophosPid ProcessEvent::getParentSophosPid() const { return m_parentSophosPid; }
 
-        Common::EventTypes::SophosTid ProcessEvent::getParentSophosTid() const
-        {
-            return m_parentSophosTid;
-        }
+        Common::EventTypes::SophosTid ProcessEvent::getParentSophosTid() const { return m_parentSophosTid; }
 
-        std::string ProcessEvent::getEventTypeId() const
-        {
-            return Common::EventTypes::ProcessEventName;
-        }
+        std::string ProcessEvent::getEventTypeId() const { return Common::EventTypes::ProcessEventName; }
 
-        windows_timestamp_t ProcessEvent::getEndTime() const
-        {
-            return m_endTime;
-        }
+        windows_timestamp_t ProcessEvent::getEndTime() const { return m_endTime; }
 
-        Common::EventTypes::OptionalUInt64 ProcessEvent::getFileSize() const
-        {
-            return m_fileSize;
-        }
+        Common::EventTypes::OptionalUInt64 ProcessEvent::getFileSize() const { return m_fileSize; }
 
-        std::uint32_t ProcessEvent::getFlags() const
-        {
-            return m_flags;
-        }
+        std::uint32_t ProcessEvent::getFlags() const { return m_flags; }
 
-        std::uint32_t ProcessEvent::getSessionId() const
-        {
-            return m_sessionId;
-        }
+        std::uint32_t ProcessEvent::getSessionId() const { return m_sessionId; }
 
-        std::string ProcessEvent::getSid() const
-        {
-            return m_sid;
-        }
+        std::string ProcessEvent::getSid() const { return m_sid; }
 
-        Common::EventTypes::UserSid ProcessEvent::getOwnerUserSid() const
-        {
-            return m_ownerUserSid;
-        }
+        Common::EventTypes::UserSid ProcessEvent::getOwnerUserSid() const { return m_ownerUserSid; }
 
-        Common::EventTypes::Pathname ProcessEvent::getPathname() const
-        {
-            return m_pathname;
-        }
+        Common::EventTypes::Pathname ProcessEvent::getPathname() const { return m_pathname; }
 
-        std::string ProcessEvent::getCmdLine() const
-        {
-            return m_cmdLine;
-        }
+        std::string ProcessEvent::getCmdLine() const { return m_cmdLine; }
 
-        std::string ProcessEvent::getSha256() const
-        {
-            return m_sha256;
-        }
+        std::string ProcessEvent::getSha256() const { return m_sha256; }
 
-        std::string ProcessEvent::getSha1() const
-        {
-            return m_sha1;
-        }
+        std::string ProcessEvent::getSha1() const { return m_sha1; }
 
-        std::string ProcessEvent::getProcTitle() const
-        {
-            return m_procTitle;
-        }
+        std::string ProcessEvent::getProcTitle() const { return m_procTitle; }
 
         // Setters
-        void ProcessEvent::setEventType(const ProcessEvent::EventType eventType)
-        {
-            m_eventType = eventType;
-        }
+        void ProcessEvent::setEventType(const ProcessEvent::EventType eventType) { m_eventType = eventType; }
 
-        void ProcessEvent::setSophosPid(const Common::EventTypes::SophosPid& sophosPid)
-        {
-            m_sophosPid = sophosPid;
-        }
+        void ProcessEvent::setSophosPid(const Common::EventTypes::SophosPid& sophosPid) { m_sophosPid = sophosPid; }
 
         void ProcessEvent::setParentSophosPid(const Common::EventTypes::SophosPid& parentSophosPid)
         {
@@ -340,40 +284,22 @@ namespace Common
             m_parentSophosTid = parentSophosTid;
         }
 
-        void ProcessEvent::setEndTime(windows_timestamp_t endTime)
-        {
-            m_endTime = endTime;
-        }
+        void ProcessEvent::setEndTime(windows_timestamp_t endTime) { m_endTime = endTime; }
 
-        void ProcessEvent::setFileSize(Common::EventTypes::OptionalUInt64 fileSize)
-        {
-            m_fileSize = fileSize;
-        }
+        void ProcessEvent::setFileSize(Common::EventTypes::OptionalUInt64 fileSize) { m_fileSize = fileSize; }
 
-        void ProcessEvent::setFlags(std::uint32_t flags)
-        {
-            m_flags = flags;
-        }
+        void ProcessEvent::setFlags(std::uint32_t flags) { m_flags = flags; }
 
-        void ProcessEvent::setSessionId(std::uint32_t sessionId)
-        {
-            m_sessionId = sessionId;
-        }
+        void ProcessEvent::setSessionId(std::uint32_t sessionId) { m_sessionId = sessionId; }
 
-        void ProcessEvent::setSid(const std::string& sid)
-        {
-            m_sid = sid;
-        }
+        void ProcessEvent::setSid(const std::string& sid) { m_sid = sid; }
 
         void ProcessEvent::setOwnerUserSid(const Common::EventTypes::UserSid& ownerUserSid)
         {
             m_ownerUserSid = ownerUserSid;
         }
 
-        void ProcessEvent::setPathname(const Common::EventTypes::Pathname& pathname)
-        {
-            m_pathname = pathname;
-        }
+        void ProcessEvent::setPathname(const Common::EventTypes::Pathname& pathname) { m_pathname = pathname; }
 
         void ProcessEvent::setPathname(const std::string& pathnameString)
         {
@@ -389,50 +315,38 @@ namespace Common
                 if (pathname.pathname.back() != '/')
                 {
                     pathname.finalComponentName.offset = static_cast<uint32_t>(lastSlashPosition) + 1;
-                    pathname.finalComponentName.length = static_cast<uint32_t>(pathname.pathname.size() -
-                                                                               pathname.finalComponentName.offset);
+                    pathname.finalComponentName.length =
+                        static_cast<uint32_t>(pathname.pathname.size() - pathname.finalComponentName.offset);
                 }
 
                 pathname.parentDirName.offset = 0;
                 pathname.parentDirName.length = static_cast<uint32_t>(lastSlashPosition + 1);
             }
-            pathname.openName = {static_cast<uint32_t>(pathname.pathname.size()), 0};
+            pathname.openName = { static_cast<uint32_t>(pathname.pathname.size()), 0 };
 
             // Find the final period in the finalComponent name and set the extension if there is a final component name
             if (pathname.finalComponentName.length != 0)
             {
-                std::string finalComponentName = pathname.pathname.substr( pathname.finalComponentName.offset,
-                                                                           pathname.finalComponentName.length);
+                std::string finalComponentName =
+                    pathname.pathname.substr(pathname.finalComponentName.offset, pathname.finalComponentName.length);
                 size_t periodPosition = finalComponentName.rfind('.');
                 if (periodPosition != std::string::npos && periodPosition < pathname.pathname.size() - 1)
                 {
-                    pathname.extensionName.offset = static_cast<uint32_t>(pathname.finalComponentName.offset +
-                                                                          periodPosition + 1);
-                    pathname.extensionName.length = static_cast<uint32_t>(pathname.pathname.size() -
-                                                                          pathname.extensionName.offset);
+                    pathname.extensionName.offset =
+                        static_cast<uint32_t>(pathname.finalComponentName.offset + periodPosition + 1);
+                    pathname.extensionName.length =
+                        static_cast<uint32_t>(pathname.pathname.size() - pathname.extensionName.offset);
                 }
             }
             m_pathname = pathname;
         }
 
-        void ProcessEvent::setCmdLine(const std::string& cmdLine)
-        {
-            m_cmdLine = cmdLine;
-        }
+        void ProcessEvent::setCmdLine(const std::string& cmdLine) { m_cmdLine = cmdLine; }
 
-        void ProcessEvent::setSha256(const std::string& sha256)
-        {
-            m_sha256 = sha256;
-        }
+        void ProcessEvent::setSha256(const std::string& sha256) { m_sha256 = sha256; }
 
-        void ProcessEvent::setSha1(const std::string& sha1)
-        {
-            m_sha1 = sha1;
-        }
+        void ProcessEvent::setSha1(const std::string& sha1) { m_sha1 = sha1; }
 
-        void ProcessEvent::setProcTitle(const std::string& procTitle)
-        {
-            m_procTitle = procTitle;
-        }
-    }
-}
+        void ProcessEvent::setProcTitle(const std::string& procTitle) { m_procTitle = procTitle; }
+    } // namespace EventTypes
+} // namespace Common

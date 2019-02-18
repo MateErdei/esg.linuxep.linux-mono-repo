@@ -14,14 +14,14 @@ namespace Common
         class ApplicationPathManager : public virtual Common::ApplicationConfiguration::IApplicationPathManager
         {
         public:
-            std::string getPluginSocketAddress(const std::string & pluginName) const override ;
-            std::string getManagementAgentSocketAddress() const override ;
-            std::string getWatchdogSocketAddress() const override ;
-            std::string sophosInstall() const override ;
-            std::string getPublisherDataChannelAddress() const override ;
-            std::string getSubscriberDataChannelAddress() const override ;
+            std::string getPluginSocketAddress(const std::string& pluginName) const override;
+            std::string getManagementAgentSocketAddress() const override;
+            std::string getWatchdogSocketAddress() const override;
+            std::string sophosInstall() const override;
+            std::string getPublisherDataChannelAddress() const override;
+            std::string getSubscriberDataChannelAddress() const override;
             std::string getPluginRegistryPath() const override;
-            std::string getVersigPath() const override ;
+            std::string getVersigPath() const override;
             std::string getMcsPolicyFilePath() const override;
             std::string getMcsActionFilePath() const override;
             std::string getMcsStatusFilePath() const override;
@@ -39,10 +39,9 @@ namespace Common
             std::string getBaseLogDirectory() const override;
             std::string getBaseSophossplLogDirectory() const override;
 
-
             std::string getTempPath() const override;
 
-            std::string getSulDownloaderReportPath() const override ;
+            std::string getSulDownloaderReportPath() const override;
             std::string getSulDownloaderConfigFilePath() const override;
             std::string getSulDownloaderReportGeneratedFilePath() const override;
             std::string getSulDownloaderLockFilePath() const override;
@@ -50,12 +49,8 @@ namespace Common
             std::string getSavedEnvironmentProxyFilePath() const override;
 
         private:
-            std::string socketPath( const std::string & relative) const;
+            std::string socketPath(const std::string& relative) const;
         };
 
-    }
-}
-
-
-
-
+    } // namespace ApplicationConfigurationImpl
+} // namespace Common

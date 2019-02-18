@@ -5,18 +5,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "Md5Calc.h"
 
+#include <openssl/evp.h>
+
+#include <iomanip>
+#include <ios>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
-#include <ios>
-#include <iomanip>
-#include <sstream>
-#include <openssl/evp.h>
 
 namespace Common
 {
     namespace sslimpl
     {
-        std::string md5(const std::string & input)
+        std::string md5(const std::string& input)
         {
             EVP_MD_CTX ctx;
             const EVP_MD* evp = EVP_md5();
@@ -38,14 +39,12 @@ namespace Common
             buffer.resize(len);
             stream << std::hex << std::setfill('0') << std::nouppercase;
 
-            for(std::vector<unsigned char>::const_iterator it = buffer.begin(); it != buffer.end(); ++it)
+            for (std::vector<unsigned char>::const_iterator it = buffer.begin(); it != buffer.end(); ++it)
             {
                 stream << std::setw(2) << int(*it);
             }
 
             return stream.str();
-
         }
-    }
-}
-
+    } // namespace sslimpl
+} // namespace Common

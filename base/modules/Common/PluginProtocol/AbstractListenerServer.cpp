@@ -12,42 +12,32 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        AbstractListenerServer::AbstractListenerServer(std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                                                       ARMSHUTDOWNPOLICY armshutdownpolicy)
-        : m_ireadWrite(move(ireadWrite))
+        AbstractListenerServer::AbstractListenerServer(
+            std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
+            ARMSHUTDOWNPOLICY armshutdownpolicy) :
+            m_ireadWrite(move(ireadWrite))
         {
             m_reactor = Common::Reactor::createReactor();
             m_reactor->addListener(m_ireadWrite.get(), this);
-            if ( armshutdownpolicy == ARMSHUTDOWNPOLICY::HANDLESHUTDOWN)
+            if (armshutdownpolicy == ARMSHUTDOWNPOLICY::HANDLESHUTDOWN)
             {
                 m_reactor->armShutdownListener(this);
             }
-
         }
 
-        void AbstractListenerServer::messageHandler( std::vector<std::string> data)
+        void AbstractListenerServer::messageHandler(std::vector<std::string> data)
         {
             Protocol protocol;
             DataMessage message = protocol.deserialize(data);
             DataMessage replyMessage = process(message);
-            auto replyData =  protocol.serialize(replyMessage);
+            auto replyData = protocol.serialize(replyMessage);
             m_ireadWrite->write(replyData);
         }
 
+        void AbstractListenerServer::start() { m_reactor->start(); }
 
-        void AbstractListenerServer::start()
-        {
-            m_reactor->start();
-        }
+        void AbstractListenerServer::stop() { m_reactor->stop(); }
 
-        void AbstractListenerServer::stop()
-        {
-            m_reactor->stop();
-        }
-
-        void AbstractListenerServer::notifyShutdownRequested()
-        {
-            onShutdownRequested();
-        }
-    }
-}
+        void AbstractListenerServer::notifyShutdownRequested() { onShutdownRequested(); }
+    } // namespace PluginProtocol
+} // namespace Common

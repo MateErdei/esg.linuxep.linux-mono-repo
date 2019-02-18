@@ -6,8 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-
 #include "SocketHolder.h"
 
 #include <string>
@@ -63,17 +61,15 @@ namespace Common
              * @param socket
              * @param timeoutMs
              */
-            static void setConnectionTimeout(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs);
+            static void setConnectionTimeout(Common::ZeroMQWrapperImpl::SocketHolder& socket, int timeoutMs);
 
             /**
-             * Monitor the socket for incoming data and return as soon as there is data available or throw IIPCTimeoutException
+             * Monitor the socket for incoming data and return as soon as there is data available or throw
+             * IIPCTimeoutException
              * @param socket
              * @param timeoutMs
              */
-            static void checkIncomingData(Common::ZeroMQWrapperImpl::SocketHolder &socket, int timeoutMs);
+            static void checkIncomingData(Common::ZeroMQWrapperImpl::SocketHolder& socket, int timeoutMs);
         };
-    }
-}
-
-
-
+    } // namespace ZeroMQWrapperImpl
+} // namespace Common

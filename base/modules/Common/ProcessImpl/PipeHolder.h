@@ -8,7 +8,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcessException.h>
 
 #include <cassert>
-
 #include <unistd.h>
 
 namespace Common
@@ -18,7 +17,7 @@ namespace Common
         class PipeHolder
         {
         public:
-            PipeHolder() : m_pipe{-1, -1}, m_pipeclosed{false, false}
+            PipeHolder() : m_pipe{ -1, -1 }, m_pipeclosed{ false, false }
             {
                 if (::pipe(m_pipe) < 0)
                 {
@@ -50,7 +49,6 @@ namespace Common
             {
                 assert(!m_pipeclosed[PIPE_WRITE]);
                 return m_pipe[PIPE_WRITE];
-
             }
 
             void closeRead()
@@ -67,16 +65,12 @@ namespace Common
                 m_pipeclosed[PIPE_WRITE] = true;
             }
 
-
         private:
             int m_pipe[2];
             bool m_pipeclosed[2];
             constexpr static int PIPE_READ = 0;
             constexpr static int PIPE_WRITE = 1;
-
-
         };
 
-
-    }
-}
+    } // namespace ProcessImpl
+} // namespace Common

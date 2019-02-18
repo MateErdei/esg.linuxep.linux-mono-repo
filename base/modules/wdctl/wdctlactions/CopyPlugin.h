@@ -17,5 +17,5 @@ namespace wdctl
             explicit CopyPlugin(const Action::Arguments& args);
             int run() override;
         };
-    }
-}
+    } // namespace wdctlactions
+} // namespace wdctl

@@ -6,7 +6,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/ZeroMQWrapper/IDataType.h"
 
@@ -17,11 +16,10 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        using data_t =  Common::ZeroMQWrapper::data_t;
+        using data_t = Common::ZeroMQWrapper::data_t;
 
         class IProtocolSerializer
         {
-
         public:
             virtual ~IProtocolSerializer() = default;
 
@@ -32,7 +30,7 @@ namespace Common
              * @return  PluginProtocolProto::PluginAPIMessage containing the data obtained from data message based on
              *          protocol specified in the data message.
              */
-            virtual const data_t serialize(const DataMessage &data)const = 0;
+            virtual const data_t serialize(const DataMessage& data) const = 0;
 
             /**
              *
@@ -40,9 +38,8 @@ namespace Common
              * @return Data Message containing the message obtained from data input value based on the protocol
              *          specified in the input data.
              */
-            virtual const DataMessage deserialize(const data_t &data) = 0;
+            virtual const DataMessage deserialize(const data_t& data) = 0;
         };
-    }
+    } // namespace PluginProtocol
 
-}
-
+} // namespace Common

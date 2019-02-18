@@ -15,7 +15,7 @@ using namespace Common::Threads;
 
 TEST(TestNotifyPipe, newPipeIsNotNotified) // NOLINT
 {
-    TESTPROGRESS("testNewPipeIsNotNotified()");
+    TESTPROGRESS("testNewPipeIsNotNotified()"); // NOLINT
     NotifyPipe pipe;
 
     ASSERT_FALSE(pipe.notified());
@@ -23,7 +23,7 @@ TEST(TestNotifyPipe, newPipeIsNotNotified) // NOLINT
 
 TEST(TestNotifyPipe, singleNotifiedPipeIsNotifiedOnlyOnce) // NOLINT
 {
-    TESTPROGRESS("testSingleNotifiedPipeIsNotifiedOnlyOnce()");
+    TESTPROGRESS("testSingleNotifiedPipeIsNotifiedOnlyOnce()"); // NOLINT
     NotifyPipe pipe;
 
     pipe.notify();
@@ -34,7 +34,7 @@ TEST(TestNotifyPipe, singleNotifiedPipeIsNotifiedOnlyOnce) // NOLINT
 
 TEST(TestNotifyPipe, doubleNotifiedPipeIsDoubleNotified) // NOLINT
 {
-    TESTPROGRESS("testDoubleNotifiedPipeIsDoubleNotified()");
+    TESTPROGRESS("testDoubleNotifiedPipeIsDoubleNotified()"); // NOLINT
     NotifyPipe pipe;
 
     pipe.notify();
@@ -47,9 +47,9 @@ TEST(TestNotifyPipe, doubleNotifiedPipeIsDoubleNotified) // NOLINT
 
 TEST(TestNotifyPipe, weCanGetDescriptors) // NOLINT
 {
-    TESTPROGRESS("testWeCanGetDescriptors()");
+    TESTPROGRESS("testWeCanGetDescriptors()"); // NOLINT
     NotifyPipe pipe;
 
-    ASSERT_NE(pipe.readFd(),-1);
-    ASSERT_NE(pipe.writeFd(),-1);
+    ASSERT_NE(pipe.readFd(), -1);
+    ASSERT_NE(pipe.writeFd(), -1);
 }

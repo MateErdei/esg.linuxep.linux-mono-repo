@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-#include "ProductMetadata.h"
 #include "ConfigurationData.h"
+#include "ProductMetadata.h"
+
 #include <memory>
 #include <vector>
 
@@ -28,17 +28,20 @@ namespace SulDownloader
             virtual ~ISingleProductSelector() = default;
         };
 
-        class ProductSelector
-                : public virtual ISingleProductSelector
+        class ProductSelector : public virtual ISingleProductSelector
         {
         public:
             enum NamePrefix
             {
-                UseFullName, UseNameAsPrefix
+                UseFullName,
+                UseNameAsPrefix
             };
 
-            ProductSelector(const std::string& productPrefix, NamePrefix namePrefix, const std::string& releaseTag,
-                            const std::string& baseVersion);
+            ProductSelector(
+                const std::string& productPrefix,
+                NamePrefix namePrefix,
+                const std::string& releaseTag,
+                const std::string& baseVersion);
 
             std::string targetProductName() const override;
 
@@ -60,13 +63,11 @@ namespace SulDownloader
             std::vector<size_t> selected;
             std::vector<size_t> notselected;
             std::vector<std::string> missing;
-
         };
 
-
         /**
-         * ProductSelection is responsible to define the products that must be downloaded from the WarehouseRepository as well as report
-         * if any required product can not be found in the remote warehouse repository.
+         * ProductSelection is responsible to define the products that must be downloaded from the WarehouseRepository
+         * as well as report if any required product can not be found in the remote warehouse repository.
          */
 
         class ProductSelection
@@ -86,11 +87,10 @@ namespace SulDownloader
         private:
             std::vector<ISingleProductSelectorPtr> m_selection;
 
-            std::vector<size_t>
-            selectedProducts(const ISingleProductSelector&, const ProductMetaDataVector& warehouseProducts) const;
+            std::vector<size_t> selectedProducts(
+                const ISingleProductSelector&,
+                const ProductMetaDataVector& warehouseProducts) const;
         };
 
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

@@ -5,8 +5,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace Common
@@ -46,7 +46,10 @@ namespace Common
              * @param replace Replacement string
              * @return pattern with all non-overlapping instances of key replaced with replace
              */
-            static std::string replaceAll(const std::string& pattern, const std::string& key, const std::string& replace)
+            static std::string replaceAll(
+                const std::string& pattern,
+                const std::string& key,
+                const std::string& replace)
             {
                 if (key.empty())
                 {
@@ -55,7 +58,7 @@ namespace Common
                 std::string result;
                 size_t beginPos = 0;
 
-                while(true)
+                while (true)
                 {
                     size_t pos = pattern.find(key, beginPos);
 
@@ -73,12 +76,12 @@ namespace Common
                 return result;
             }
 
-            static std::vector<std::string> splitString( const std::string & originalstring, const std::string & separator)
+            static std::vector<std::string> splitString(const std::string& originalstring, const std::string& separator)
             {
                 std::vector<std::string> result;
                 size_t beginPos = 0;
 
-                while(true)
+                while (true)
                 {
                     size_t pos = originalstring.find(separator, beginPos);
 
@@ -98,11 +101,14 @@ namespace Common
             using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
 
             /**
-             * Ordered String Replace allows a very efficient string pattern replace by enforcing that the keys come in the
-             * order that they must be replaced in the pattern.
-             * @param pattern: string containing the template with the keys to be replaced by the values. For example: Hello name. Good greeting!
-             * @param keyvalues: vector of pairs containing key|value. For example: {{"name", "sophos"},{"greeting","morning"}}
-             * @return The string where keys were replaced for their respective value: For example: Hello sophos. Good morning!
+             * Ordered String Replace allows a very efficient string pattern replace by enforcing that the keys come in
+             * the order that they must be replaced in the pattern.
+             * @param pattern: string containing the template with the keys to be replaced by the values. For example:
+             * Hello name. Good greeting!
+             * @param keyvalues: vector of pairs containing key|value. For example: {{"name",
+             * "sophos"},{"greeting","morning"}}
+             * @return The string where keys were replaced for their respective value: For example: Hello sophos. Good
+             * morning!
              *
              * @attention If the keyvalues are given in the incorrect value the keys will not be replaced!
              *
@@ -116,15 +122,15 @@ namespace Common
                 std::string result;
                 size_t beginPos = 0;
 
-                for (auto & keyvalue : keyvalues)
+                for (auto& keyvalue : keyvalues)
                 {
-                    auto & key = keyvalue.first;
+                    auto& key = keyvalue.first;
                     size_t pos = pattern.find(key, beginPos);
                     if (pos == std::string::npos)
                     {
                         break;
                     }
-                    result += pattern.substr(beginPos, pos-beginPos);
+                    result += pattern.substr(beginPos, pos - beginPos);
                     result += keyvalue.second;
                     beginPos = pos + key.length();
                 }
@@ -132,8 +138,7 @@ namespace Common
                 result += pattern.substr(beginPos);
                 return result;
             }
-
         };
 
-    }
-}
+    } // namespace UtilityImpl
+} // namespace Common

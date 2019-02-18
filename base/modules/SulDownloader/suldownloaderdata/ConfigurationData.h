@@ -14,10 +14,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace SulDownloader
 {
-
     namespace suldownloaderdata
     {
-
         struct ProductGUID
         {
             std::string Name;
@@ -28,17 +26,12 @@ namespace SulDownloader
 
             bool operator==(const ProductGUID& rhs) const
             {
-                return ((Name == rhs.Name) &&
-                        (Primary == rhs.Primary) &&
-                        (Prefix == rhs.Prefix) &&
-                        (releaseTag == rhs.releaseTag) &&
-                        (baseVersion == rhs.baseVersion));
+                return (
+                    (Name == rhs.Name) && (Primary == rhs.Primary) && (Prefix == rhs.Prefix) &&
+                    (releaseTag == rhs.releaseTag) && (baseVersion == rhs.baseVersion));
             }
 
-            bool operator!=(const ProductGUID& rhs) const
-            {
-                return !operator==(rhs);
-            }
+            bool operator!=(const ProductGUID& rhs) const { return !operator==(rhs); }
         };
 
         /**
@@ -53,7 +46,6 @@ namespace SulDownloader
         class ConfigurationData
         {
         public:
-
             /**
              * If the path is not set for the Ssl
              */
@@ -62,13 +54,15 @@ namespace SulDownloader
 
             enum class LogLevel
             {
-                NORMAL, VERBOSE
+                NORMAL,
+                VERBOSE
             };
 
-            explicit ConfigurationData(const std::vector<std::string>& sophosLocationURL = {},
-                                       Credentials credentials = Credentials(),
-                                       const std::vector<std::string>& updateCache = std::vector<std::string>(),
-                                       Proxy policyProxy = Proxy());
+            explicit ConfigurationData(
+                const std::vector<std::string>& sophosLocationURL = {},
+                Credentials credentials = Credentials(),
+                const std::vector<std::string>& updateCache = std::vector<std::string>(),
+                Proxy policyProxy = Proxy());
 
             /**
              * Gets the credentials used to connect to the remote warehouse repository.
@@ -81,7 +75,6 @@ namespace SulDownloader
              * @param credentials object providing access to stored username and password.
              */
             void setCredentials(const Credentials& credentials);
-
 
             /**
              * Gets the list of domain urls for the sophos warehouse repositories
@@ -130,21 +123,23 @@ namespace SulDownloader
 
             /**
              * Sets the path to the certificates used to validate the warehouse repository files and distributed files.
-             * The warehouse repository files will be signed with the same sophos certificate used to sign application files.
+             * The warehouse repository files will be signed with the same sophos certificate used to sign application
+             * files.
              * @param certificatePath, path containing the sophos certificates
              */
             void setCertificatePath(const std::string& certificatePath);
 
             /**
              * Set the update cache ssl certificate path used to validate the local update cache https url connection.
-             * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is configured.
+             * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is
+             * configured.
              * @param certificatePath, path to the local cache ssl certificates store.
              */
             void setUpdateCacheSslCertificatePath(const std::string& certificatePath);
 
             /**
-             * Set the system ssl certificate path used to validate https url connections.  The system certificate store should
-             * contain the required root certificates to validate the sophos website when connecting over https.
+             * Set the system ssl certificate path used to validate https url connections.  The system certificate store
+             * should contain the required root certificates to validate the sophos website when connecting over https.
              * @param certificatePath, path to the system ssl certificates store.
              */
             void setSystemSslCertificatePath(const std::string& certificatePath);
@@ -171,23 +166,23 @@ namespace SulDownloader
 
             /**
              * Gets the path to the certificates used to validate the warehouse repository files and distributed files.
-             * The warehouse repository files will be signed with the same sophos certificate used to sign application files.
-             * Usually it returns: ApplicationPathManager::getUpdateCertificatesPath()
+             * The warehouse repository files will be signed with the same sophos certificate used to sign application
+             * files. Usually it returns: ApplicationPathManager::getUpdateCertificatesPath()
              * @return certificatePath, path containing the sophos certificates
              */
             std::string getCertificatePath() const;
 
             /**
              * Get the update cache ssl certificate path used to validate the local update cache https url connection.
-             * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is configured.
+             * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is
+             * configured.
              * @return certificatePath, path to the local cache ssl certificates store.
              */
             const std::string& getUpdateCacheSslCertificatePath() const;
 
-
             /**
-             * Set the system ssl certificate path used to validate https url connections.  The system certificate store should
-             * contain the required root certificates to validate the sophos website when connecting over https.
+             * Set the system ssl certificate path used to validate https url connections.  The system certificate store
+             * should contain the required root certificates to validate the sophos website when connecting over https.
              * @return certificatePath, path to the system ssl certificates store.
              */
             const std::string& getSystemSslCertificatePath() const;
@@ -222,13 +217,11 @@ namespace SulDownloader
              */
             void setForceReinstallAllProducts(bool forceReinstallAllProducts);
 
-
             /**
              * Get flag used to indicate install.sh scripts for all products should be invoked during update.
              * @return true if set, false otherwise.
              */
             bool getForceReinstallAllProducts() const;
-
 
             /**
              * Gets the list of arguments that need to be passed to all product install.sh scripts.
@@ -278,7 +271,8 @@ namespace SulDownloader
 
             /**
              * Converts a specific json string into a configuration data object.
-             * @param settingsString, string contain a json formatted data the will be used to create the ConfigurationData object.
+             * @param settingsString, string contain a json formatted data the will be used to create the
+             * ConfigurationData object.
              * @return configurationData object containing the settings from the json data
              * @throws SulDownloaderException if settingsString cannot be converted.
              */
@@ -296,7 +290,9 @@ namespace SulDownloader
         private:
             enum class State
             {
-                Initialized, Verified, FailedVerified
+                Initialized,
+                Verified,
+                FailedVerified
             };
             Credentials m_credentials;
             std::vector<std::string> m_sophosUpdateUrls;
@@ -311,9 +307,6 @@ namespace SulDownloader
             LogLevel m_logLevel;
             bool m_forceReinstallAllProducts;
             std::vector<std::string> m_manifestNames;
-
         };
-    }
-}
-
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

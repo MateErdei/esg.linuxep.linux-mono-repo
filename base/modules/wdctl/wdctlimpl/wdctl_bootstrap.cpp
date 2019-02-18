@@ -4,30 +4,29 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "wdctl_bootstrap.h"
+
 #include "Logger.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/Logging/FileLoggingSetup.h>
+#include <sys/select.h>
 #include <wdctl/wdctlactions/CopyPlugin.h>
 #include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
 #include <wdctl/wdctlactions/StopAction.h>
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/Logging/FileLoggingSetup.h>
-
-#include <cstdlib>
 #include <csignal>
-
+#include <cstdlib>
 #include <unistd.h>
-#include <sys/select.h>
 
 #ifndef PATH_MAX
-# define PATH_MAX 2048
+#    define PATH_MAX 2048
 #endif
 
 using namespace wdctl::wdctlimpl;
 
-int wdctl_bootstrap::main(int argc, char **argv)
+int wdctl_bootstrap::main(int argc, char** argv)
 {
     Common::Logging::FileLoggingSetup logSetup("wdctl");
 
@@ -41,11 +40,11 @@ int wdctl_bootstrap::main(int argc, char **argv)
     return main(args);
 }
 
-StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char **argv)
+StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char** argv)
 {
     StringVector result;
     result.reserve(argc);
-    for (unsigned int i=0; i<argc; ++i)
+    for (unsigned int i = 0; i < argc; ++i)
     {
         result.emplace_back(argv[i]);
     }
@@ -53,14 +52,11 @@ StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char **argv)
 }
 namespace
 {
-    Path make_absolute(const Path& path)
-    {
-        return Common::FileSystem::fileSystem()->make_absolute(path);
-    }
+    Path make_absolute(const Path& path) { return Common::FileSystem::fileSystem()->make_absolute(path); }
 
     Path get_executable_path()
     {
-        char path[PATH_MAX+1];
+        char path[PATH_MAX + 1];
         ssize_t ret = ::readlink("/proc/self/exe", path, PATH_MAX); // $SOPHOS_INSTALL/bin/wdctl.x
         if (ret > 0)
         {
@@ -85,29 +81,25 @@ namespace
         if (!exe.empty())
         {
             Path bindir = Common::FileSystem::dirName(exe); // $SOPHOS_INSTALL/bin
-            return Common::FileSystem::dirName(bindir); // installdir $SOPHOS_INSTALL
+            return Common::FileSystem::dirName(bindir);     // installdir $SOPHOS_INSTALL
         }
 
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
 
-}
+} // namespace
 
 int wdctl_bootstrap::main(const StringVector& args)
 {
     const Path SOPHOS_INSTALL = work_out_install_directory();
 
     Common::ApplicationConfiguration::applicationConfiguration().setData(
-            Common::ApplicationConfiguration::SOPHOS_INSTALL,
-            SOPHOS_INSTALL
-    );
-
-
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, SOPHOS_INSTALL);
 
     m_args.parseArguments(args);
 
-    LOGINFO(m_args.m_command<<" "<<m_args.m_argument);
+    LOGINFO(m_args.m_command << " " << m_args.m_argument);
 
     std::unique_ptr<wdctl::wdctlactions::Action> action;
 

@@ -6,13 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 namespace Common
 {
     namespace ApplicationConfiguration
     {
-        static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL"; //NOLINT
+        static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL"; // NOLINT
 
         class IApplicationConfiguration
         {
@@ -23,8 +23,5 @@ namespace Common
         };
 
         IApplicationConfiguration& applicationConfiguration();
-    }
-}
-
-
-
+    } // namespace ApplicationConfiguration
+} // namespace Common

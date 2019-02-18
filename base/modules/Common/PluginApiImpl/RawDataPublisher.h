@@ -23,8 +23,5 @@ namespace Common
         private:
             Common::ZeroMQWrapper::ISocketPublisherPtr m_socketPublisher;
         };
-    }
-}
-
-
-
+    } // namespace PluginApiImpl
+} // namespace Common

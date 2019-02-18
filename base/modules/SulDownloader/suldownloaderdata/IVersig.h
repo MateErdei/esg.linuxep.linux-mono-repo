@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationData.h"
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace SulDownloader
 {
@@ -22,16 +22,18 @@ namespace SulDownloader
 
             enum class VerifySignature
             {
-                SIGNATURE_VERIFIED, SIGNATURE_FAILED, INVALID_ARGUMENTS
+                SIGNATURE_VERIFIED,
+                SIGNATURE_FAILED,
+                INVALID_ARGUMENTS
             };
 
-            virtual VerifySignature
-            verify(const ConfigurationData& configurationData, const std::string& productDirectoryPath) const = 0;
+            virtual VerifySignature verify(
+                const ConfigurationData& configurationData,
+                const std::string& productDirectoryPath) const = 0;
         };
 
         using IVersigPtr = std::unique_ptr<IVersig>;
 
         IVersigPtr createVersig();
-    }
-}
-
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

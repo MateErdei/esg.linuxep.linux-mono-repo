@@ -17,9 +17,9 @@ namespace Common
             virtual ~IEventType() = default;
 
             /**
-           * Gets the type of event as a string used to identify class to reconstruct.
-           * @return the name of the eventtype e.g. Credentials
-           */
+             * Gets the type of event as a string used to identify class to reconstruct.
+             * @return the name of the eventtype e.g. Credentials
+             */
             virtual std::string getEventTypeId() const = 0;
 
             /**
@@ -28,5 +28,5 @@ namespace Common
              */
             virtual std::string toString() const = 0;
         };
-    }
-}
+    } // namespace EventTypes
+} // namespace Common

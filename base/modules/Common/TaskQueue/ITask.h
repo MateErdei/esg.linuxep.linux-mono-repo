@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
 namespace Common
@@ -17,7 +16,5 @@ namespace Common
             virtual ~ITask() = default;
             virtual void run() = 0;
         };
-    }
-}
-
-
+    } // namespace TaskQueue
+} // namespace Common

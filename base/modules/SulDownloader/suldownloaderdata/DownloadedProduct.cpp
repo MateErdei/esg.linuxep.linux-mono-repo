@@ -5,38 +5,35 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "DownloadedProduct.h"
-#include "Logger.h"
-#include "IVersig.h"
 
+#include "IVersig.h"
+#include "Logger.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
-#include <Common/PluginRegistryImpl/PluginInfo.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <cassert>
 #include <cstring>
 
-
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-
-DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation)
-        : m_state(State::Initialized)
-          , m_error()
-          , m_productMetadata(productInformation)
-          , m_distributePath()
-          , m_productHasChanged(false)
-          , m_productUninstall(false)
-          , m_forceProductReinstall(false)
+DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation) :
+    m_state(State::Initialized),
+    m_error(),
+    m_productMetadata(productInformation),
+    m_distributePath(),
+    m_productHasChanged(false),
+    m_productUninstall(false),
+    m_forceProductReinstall(false)
 {
-
 }
 
 void DownloadedProduct::verify(const ConfigurationData& configurationData)
 {
-
     assert(m_state == State::Distributed);
     m_state = State::Verified;
     auto iVersig = createVersig();
@@ -54,7 +51,6 @@ void DownloadedProduct::verify(const ConfigurationData& configurationData)
     }
 }
 
-
 void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 {
     assert(m_state == State::Verified);
@@ -66,26 +62,26 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {
-
-        LOGINFO("Installing product: " << m_productMetadata.getLine() << " version: "
-                                       << m_productMetadata.getVersion());
+        LOGINFO(
+            "Installing product: " << m_productMetadata.getLine() << " version: " << m_productMetadata.getVersion());
         LOGSUPPORT("Run installer: " << installShFile);
 
         fileSystem->makeExecutable(installShFile);
 
-        //Add in the installation directory to the SOPHOS_INSTALL environment variable when running installers.
+        // Add in the installation directory to the SOPHOS_INSTALL environment variable when running installers.
         Common::PluginRegistryImpl::PluginInfo::EnvPairs envVariables;
-        envVariables.emplace_back("SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+        envVariables.emplace_back(
+            "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
 
         auto process = ::Common::Process::createProcess();
         int exitCode = 0;
         try
         {
             process->exec(installShFile, installArgs, envVariables);
-            auto status = process->wait(Common::Process::Milliseconds(1000),600);
+            auto status = process->wait(Common::Process::Milliseconds(1000), 600);
             if (status != Common::Process::ProcessStatus::FINISHED)
             {
-                LOGERROR("Timeout waiting for installer "<< installShFile << " to finish");
+                LOGERROR("Timeout waiting for installer " << installShFile << " to finish");
                 process->kill();
             }
             auto output = process->output();
@@ -124,7 +120,6 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         error.Description = "Invalid installer";
         error.status = WarehouseStatus::INSTALLFAILED;
         setError(error);
-
     }
 }
 
@@ -133,13 +128,11 @@ bool DownloadedProduct::hasError() const
     return !m_error.Description.empty();
 }
 
-
 void DownloadedProduct::setError(const WarehouseError& error)
 {
     m_state = State::HasError;
     m_error = error;
 }
-
 
 WarehouseError DownloadedProduct::getError() const
 {

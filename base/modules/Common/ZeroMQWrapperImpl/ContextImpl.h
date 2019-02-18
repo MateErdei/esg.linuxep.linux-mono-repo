@@ -6,11 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
 #include "ContextHolder.h"
 
 #include <Common/ZeroMQWrapper/IContext.h>
-
 
 namespace Common
 {
@@ -35,7 +33,5 @@ namespace Common
         private:
             ContextHolderSharedPtr m_context;
         };
-    }
-}
-
-
+    } // namespace ZeroMQWrapperImpl
+} // namespace Common

@@ -7,10 +7,11 @@
 
 #pragma once
 
+#include "NotifyPipe.h"
+
 #include <condition_variable>
 #include <mutex>
 #include <thread>
-#include "NotifyPipe.h"
 namespace Common
 {
     namespace Threads
@@ -44,6 +45,7 @@ namespace Common
              * Calls join on the thread
              */
             void join();
+
         protected:
             /**
              * Check if the thread was requested to stop. To be used in implementation of ::run.
@@ -52,11 +54,12 @@ namespace Common
              */
             bool stopRequested();
             /**
-             * Inform the AbstractThread that the ::run method has started and allow ::start to return from its 'blocking mode'.
-             * Implementations of ::run MUST call this function early after the start of ::run or the parent thread will be in deadlock in
-             * the ::start method.
+             * Inform the AbstractThread that the ::run method has started and allow ::start to return from its
+             * 'blocking mode'. Implementations of ::run MUST call this function early after the start of ::run or the
+             * parent thread will be in deadlock in the ::start method.
              */
             void announceThreadStarted();
+
         private:
             /**
              * The function that will be running in the separate thread.
@@ -80,14 +83,13 @@ namespace Common
 
             std::mutex m_threadStarted;
             std::condition_variable m_ensureThreadStarted;
+
         protected:
             NotifyPipe m_notifyPipe;
+
         private:
             std::thread m_thread;
             bool m_threadStartedFlag;
         };
-    }
-}
-
-
-
+    } // namespace Threads
+} // namespace Common

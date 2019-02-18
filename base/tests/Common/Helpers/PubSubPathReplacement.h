@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/ZeroMQWrapper/IProxy.h>
-#include <Common/ZeroMQWrapper/IContext.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZeroMQWrapper/IProxy.h>
 
 namespace Tests
 {
@@ -25,6 +25,4 @@ namespace Tests
         Common::ZeroMQWrapper::IProxyPtr m_proxy;
     };
 
-}
-
-
+} // namespace Tests

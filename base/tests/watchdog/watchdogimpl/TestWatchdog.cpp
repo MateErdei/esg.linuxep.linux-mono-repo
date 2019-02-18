@@ -4,73 +4,61 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <watchdog/watchdogimpl/Watchdog.h>
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <watchdog/watchdogimpl/Watchdog.h>
 
 namespace
 {
-    class TestWatchdog
-            : public ::testing::Test
+    class TestWatchdog : public ::testing::Test
     {
         TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+
     public:
-        TestWatchdog()
-                : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
+        TestWatchdog() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
         {
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
 
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
             Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
-            EXPECT_CALL(*mockFilePermissions, chmod(_,_)).WillRepeatedly(Return());
-            EXPECT_CALL(*mockFilePermissions, chown(_,_,_)).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
         }
     };
 
-    class TestableWatchdog
-            : public watchdog::watchdogimpl::Watchdog
+    class TestableWatchdog : public watchdog::watchdogimpl::Watchdog
     {
     public:
-        explicit TestableWatchdog(Common::ZeroMQWrapper::IContextSharedPtr context)
-            : watchdog::watchdogimpl::Watchdog(std::move(context))
-        {}
+        explicit TestableWatchdog(Common::ZeroMQWrapper::IContextSharedPtr context) :
+            watchdog::watchdogimpl::Watchdog(std::move(context))
+        {
+        }
 
         explicit TestableWatchdog() = default;
 
-        void callSetupIpc()
-        {
-            setupSocket();
-        }
+        void callSetupIpc() { setupSocket(); }
 
-        void callHandleSocketRequest()
-        {
-            handleSocketRequest();
-        };
+        void callHandleSocketRequest() { handleSocketRequest(); };
 
         /**
          * Give access to the context so that we can share connections
          * @return
          */
-        Common::ZeroMQWrapper::IContext& context()
-        {
-            return *m_context;
-        }
+        Common::ZeroMQWrapper::IContext& context() { return *m_context; }
 
         void addPlugin(const std::string& pluginName)
         {
@@ -79,42 +67,42 @@ namespace
             m_pluginProxies.emplace_back(std::move(info));
         }
     };
-}
+} // namespace
 
 TEST_F(TestWatchdog, Construction) // NOLINT
 {
     EXPECT_NO_THROW(watchdog::watchdogimpl::Watchdog watchdog); // NOLINT
-    EXPECT_NO_THROW(TestableWatchdog watchdog2); // NOLINT
+    EXPECT_NO_THROW(TestableWatchdog watchdog2);                // NOLINT
 }
 
 TEST_F(TestWatchdog, ipcStartup) // NOLINT
 {
-    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc","inproc://ipcStartup");
+    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", "inproc://ipcStartup");
     TestableWatchdog watchdog;
     EXPECT_NO_THROW(watchdog.callSetupIpc()); // NOLINT
 }
 
 TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
 {
-    const std::string IPC_ADDRESS="inproc://stopPluginViaIPC";
-    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc",IPC_ADDRESS);
+    const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC";
+    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
     Common::ZeroMQWrapper::IContextSharedPtr context(Common::ZeroMQWrapper::createContext());
     TestableWatchdog watchdog(context);
     watchdog.callSetupIpc();
     Common::ZeroMQWrapper::ISocketRequesterPtr requester = context->getRequester();
     requester->connect(IPC_ADDRESS);
-    requester->write({"STOP","mcsrouter"});
+    requester->write({ "STOP", "mcsrouter" });
 
     watchdog.callHandleSocketRequest();
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
-    EXPECT_EQ(result.at(0),"Error: Plugin not found");
+    EXPECT_EQ(result.at(0), "Error: Plugin not found");
 }
 
 TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
 {
-    const std::string IPC_ADDRESS="inproc://stopPluginViaIPC_test_plugin";
-    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc",IPC_ADDRESS);
+    const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC_test_plugin";
+    Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
     Common::ZeroMQWrapper::IContextSharedPtr context(Common::ZeroMQWrapper::createContext());
     TestableWatchdog watchdog(context);
     watchdog.callSetupIpc();
@@ -123,25 +111,20 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
 
     Common::ZeroMQWrapper::ISocketRequesterPtr requester = context->getRequester();
     requester->connect(IPC_ADDRESS);
-    requester->write({"STOP","mcsrouter"});
+    requester->write({ "STOP", "mcsrouter" });
 
     watchdog.callHandleSocketRequest();
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
-    EXPECT_EQ(result.at(0),"OK");
-
+    EXPECT_EQ(result.at(0), "OK");
 }
 
 class TestC
 {
 public:
-    explicit TestC(int pos)
-        : m_running(false),m_pos(pos)
-    {
-    }
+    explicit TestC(int pos) : m_running(false), m_pos(pos) {}
 
-    TestC(TestC&& other) noexcept
-        : m_running(false)
+    TestC(TestC&& other) noexcept : m_running(false)
     {
         std::swap(m_running, other.m_running);
         m_pos = 5;
@@ -149,7 +132,7 @@ public:
 
     ~TestC()
     {
-        std::cerr << "Deleting "<<m_pos << " running="<< m_running << std::endl;
+        std::cerr << "Deleting " << m_pos << " running=" << m_running << std::endl;
         EXPECT_FALSE(m_running);
     }
 

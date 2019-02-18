@@ -4,7 +4,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #pragma once
 
 #include <Common/Exceptions/IException.h>
@@ -18,6 +17,5 @@ namespace Common
         public:
             using Common::Exceptions::IException::IException;
         };
-    }
-}
-
+    } // namespace PluginRegistryImpl
+} // namespace Common

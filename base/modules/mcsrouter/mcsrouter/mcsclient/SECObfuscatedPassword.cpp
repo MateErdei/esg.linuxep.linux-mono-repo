@@ -1,70 +1,62 @@
 
 
-#include <vector>
-#include <string.h>
 #include <iostream>
+#include <string.h>
+#include <vector>
 
 namespace Obscurity
 {
-    static const std::vector<unsigned char> CKeyDo_data{ 0x10, 0xd4, 0xfa, 0x82, 0xa0, 0x3a, 0x67, 0x90, 0xbe, 0x7d, 0x26, 0x2f };
+    static const std::vector<unsigned char> CKeyDo_data{ 0x10, 0xd4, 0xfa, 0x82, 0xa0, 0x3a,
+                                                         0x67, 0x90, 0xbe, 0x7d, 0x26, 0x2f };
 
-class CKeyDo
-{
-public:
-    static std::vector<unsigned char> GetData()
+    class CKeyDo
     {
-        return CKeyDo_data;
-    }
-};
+    public:
+        static std::vector<unsigned char> GetData() { return CKeyDo_data; }
+    };
 
-} //namespace Obscurity
+} // namespace Obscurity
 
 namespace Obscurity
 {
-static const std::vector<unsigned char> CKeyFa_data{ 0xa6, 0xb2, 0x17, 0x93, 0xc0, 0xf8, 0x8e, 0x7a, 0x62, 0xef, 0xe8, 0x1e };
+    static const std::vector<unsigned char> CKeyFa_data{ 0xa6, 0xb2, 0x17, 0x93, 0xc0, 0xf8,
+                                                         0x8e, 0x7a, 0x62, 0xef, 0xe8, 0x1e };
 
-class CKeyFa
-{
-public:
-    static std::vector<unsigned char> GetData()
+    class CKeyFa
     {
-        return CKeyFa_data;
-    }
-};
+    public:
+        static std::vector<unsigned char> GetData() { return CKeyFa_data; }
+    };
 
-} //namespace Obscurity
+} // namespace Obscurity
 
 namespace Obscurity
 {
-    static const std::vector<unsigned char> CKeyMi_data{ 0x48, 0x48, 0x48, 0xc6, 0xc4, 0x78, 0x0, 0x14, 0xb3, 0xbf, 0x9f, 0xfc, 0xce,
-        0x34, 0x40, 0x2c, 0x8, 0x10, 0x90, 0x5f, 0xfd, 0x1f, 0x5b, 0xbf };
+    static const std::vector<unsigned char> CKeyMi_data{ 0x48, 0x48, 0x48, 0xc6, 0xc4, 0x78, 0x0,  0x14,
+                                                         0xb3, 0xbf, 0x9f, 0xfc, 0xce, 0x34, 0x40, 0x2c,
+                                                         0x8,  0x10, 0x90, 0x5f, 0xfd, 0x1f, 0x5b, 0xbf };
 
-class CKeyMi
-{
-public:
-    static std::vector<unsigned char> GetData()
+    class CKeyMi
     {
-        return CKeyMi_data;
-    }
-};
+    public:
+        static std::vector<unsigned char> GetData() { return CKeyMi_data; }
+    };
 
-} //namespace Obscurity
+} // namespace Obscurity
 
 namespace Obscurity
 {
-    static const std::vector<unsigned char> CKeyRa_data{ 0xae, 0xae, 0xae, 0x9b, 0x99, 0xf1, 0xd, 0x19, 0x50, 0x5c, 0x7c, 0x1c, 0x2e, 0x2
-        , 0x1a, 0x76, 0xc1, 0xd9, 0x59, 0x20, 0x82, 0x57, 0x10, 0xf4 };
+    static const std::vector<unsigned char> CKeyRa_data{ 0xae, 0xae, 0xae, 0x9b, 0x99, 0xf1, 0xd,  0x19,
+                                                         0x50, 0x5c, 0x7c, 0x1c, 0x2e, 0x2,  0x1a, 0x76,
+                                                         0xc1, 0xd9, 0x59, 0x20, 0x82, 0x57, 0x10, 0xf4 };
 
-class CKeyRa
-{
-public:
-    static std::vector<unsigned char> GetData()
+    class CKeyRa
     {
-        return CKeyRa_data;
-    }
-};
+    public:
+        static std::vector<unsigned char> GetData() { return CKeyRa_data; }
+    };
 
-} //namespace Obscurity
+} // namespace Obscurity
 
 #define SecureBuffer std::vector
 using namespace Obscurity;
@@ -78,16 +70,15 @@ static std::vector<unsigned char> R1(const std::vector<unsigned char>& data)
     {
         unsigned int mod2 = i % 2;
         if (0 == mod2)
-            ret[i] = data[i / 2]; //even
+            ret[i] = data[i / 2]; // even
         else
-            ret[i] = data[(data.size() - (i / 2)) - 1]; //odd
+            ret[i] = data[(data.size() - (i / 2)) - 1]; // odd
     }
     return ret;
 }
 
 static unsigned int getIndex(unsigned int salt)
 {
-
     static const unsigned char KEY[] = "FDGASSkwpodkfgfspwoegre;[addq[pad.col";
     unsigned int mod3 = salt % 3;
     if (0 == mod3)
@@ -133,7 +124,6 @@ static std::vector<unsigned char> GetMasks(const std::vector<unsigned char>& dat
     }
     return ret;
 }
-
 
 static std::vector<unsigned char> GetIndexes(const std::vector<unsigned char>& data)
 {
@@ -237,8 +227,7 @@ static void dump(const std::string& name, const SecureBuffer<unsigned char>& dat
 int main()
 {
     SecureBuffer<char> password = GetPassword();
-    dump("password",password);
-
+    dump("password", password);
 
     //~ SecureBuffer<unsigned char> sect1, sect2, sect3, sect4;
     //~ SecureBuffer<unsigned char> data1;

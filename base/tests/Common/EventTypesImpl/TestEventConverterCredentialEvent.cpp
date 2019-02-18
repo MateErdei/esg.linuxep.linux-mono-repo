@@ -4,24 +4,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock.h>
+#include "TestEventTypeHelper.h"
 
 #include <Common/EventTypes/CredentialEvent.h>
 #include <Common/EventTypesImpl/EventConverter.h>
-#include "TestEventTypeHelper.h"
+#include <gmock/gmock.h>
 
 using namespace Common::EventTypes;
 
 class TestEventConverterCredentialEvent : public Tests::TestEventTypeHelper
 {
-
 public:
-
     TestEventConverterCredentialEvent() = default;
-
 };
 
-TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues) //NOLINT
+TEST_F( // NOLINT
+    TestEventConverterCredentialEvent,
+    testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedValues)
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -30,10 +29,12 @@ TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCan
 
     auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2(credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues) //NOLINT
+TEST_F( // NOLINT
+    TestEventConverterCredentialEvent,
+    testCreateCredentialEventFromStringCanCreateCredentialEventObjectWithExpectedNonLatinCharacterValues)
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
     CredentialEvent eventExpected = createDefaultCredentialEvent();
@@ -49,22 +50,24 @@ TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringCan
 
     auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
+    EXPECT_PRED_FORMAT2(credentialEventIsEquivalent, eventExpected, eventActual);
 }
 
-TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataInvalidCapnString) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataInvalidCapnString) // NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
-    EXPECT_THROW(converter->stringToCredentialEvent("Not Valid Capn String"), Common::EventTypes::IEventException); //NOLINT
+    EXPECT_THROW( // NOLINT
+        converter->stringToCredentialEvent("Not Valid Capn String"),
+        Common::EventTypes::IEventException); // NOLINT
 }
 
-TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataTypeStringIsEmpty) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventFromStringThrowsIfDataTypeStringIsEmpty) // NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> converter = Common::EventTypes::constructEventConverter();
-    EXPECT_THROW(converter->stringToCredentialEvent(""), Common::EventTypes::IEventException); //NOLINT
+    EXPECT_THROW(converter->stringToCredentialEvent(""), Common::EventTypes::IEventException); // NOLINT
 }
 
-TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) //NOLINT
+TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) // NOLINT
 {
     // test to prove that incomplete data is still valid a event, i.e addUser event will not generate all
     // the data that could be stored.
@@ -91,6 +94,5 @@ TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) /
 
     auto eventActual = converter->stringToCredentialEvent(data.second);
 
-    EXPECT_PRED_FORMAT2( credentialEventIsEquivalent, eventExpected, eventActual);
-
+    EXPECT_PRED_FORMAT2(credentialEventIsEquivalent, eventExpected, eventActual);
 }

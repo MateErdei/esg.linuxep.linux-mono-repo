@@ -4,9 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "DataMessage.h"
-#include <unordered_map>
-#include <thread>
+
 #include <mutex>
+#include <thread>
+#include <unordered_map>
 
 namespace Common
 {
@@ -35,8 +36,7 @@ namespace Common
                 case Commands::UNKNOWN:
                 default:
                     return "InvalidCommand";
-
             }
         }
-    }
-}
+    } // namespace PluginProtocol
+} // namespace Common

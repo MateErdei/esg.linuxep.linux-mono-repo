@@ -5,23 +5,20 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "EventTask.h"
-#include <ManagementAgent/LoggerImpl/Logger.h>
-#include <Common/FileSystem/IFileSystem.h>
 
-#include <chrono>
-#include <cassert>
-#include <sstream>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
+#include <cassert>
+#include <chrono>
+#include <sstream>
 
-ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml)
-    :
-        m_appId(std::move(appId)),
-        m_eventXml(std::move(eventXml))
+ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml) :
+    m_appId(std::move(appId)),
+    m_eventXml(std::move(eventXml))
 {
-
 }
-
 
 namespace
 {
@@ -29,22 +26,18 @@ namespace
     {
         auto nowTime = std::chrono::high_resolution_clock::now();
 
-
         std::ostringstream ost;
-        ost << std::chrono::duration_cast<std::chrono::microseconds>
-                (nowTime.time_since_epoch()).count();
+        ost << std::chrono::duration_cast<std::chrono::microseconds>(nowTime.time_since_epoch()).count();
 
         return ost.str();
     }
 
-    Path createEventBasename(
-            const std::string& appId
-        )
+    Path createEventBasename(const std::string& appId)
     {
         std::string nonce = createTimestamp();
-        return appId+"_event-"+nonce+".xml";
+        return appId + "_event-" + nonce + ".xml";
     }
-}
+} // namespace
 
 void ManagementAgent::EventReceiverImpl::EventTask::run()
 {
@@ -57,10 +50,8 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
     Path basename = createEventBasename(m_appId);
     assert(!basename.empty());
 
-    Path dest = Common::FileSystem::join(eventDir,basename);
+    Path dest = Common::FileSystem::join(eventDir, basename);
     assert(!dest.empty());
 
     Common::FileSystem::fileSystem()->writeFileAtomically(dest, m_eventXml, tmpDir);
 }
-
-

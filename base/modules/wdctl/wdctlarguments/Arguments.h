@@ -21,5 +21,5 @@ namespace wdctl
             std::string m_command;
             std::string m_argument;
         };
-    }
-}
+    } // namespace wdctlarguments
+} // namespace wdctl

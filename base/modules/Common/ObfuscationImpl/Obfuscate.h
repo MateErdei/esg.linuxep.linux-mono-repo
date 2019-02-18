@@ -12,9 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-	namespace ObfuscationImpl
-	{
+    namespace ObfuscationImpl
+    {
         Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData);
-	}
-}
-
+    }
+} // namespace Common

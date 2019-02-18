@@ -4,91 +4,83 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "gtest/gtest.h"
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-
 #include <tests/Common/Helpers/TempDir.h>
-
-#include "gtest/gtest.h"
 
 namespace
 {
-using namespace Tests;
-using namespace Common::FileSystem;
-    TEST( TestTempDir, ConstructorCreatesTheTemporaryDirectory)
+    using namespace Tests;
+    using namespace Common::FileSystem;
+    TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
-        ASSERT_TRUE( fileSystem.isDirectory(td.dirPath()));
+        ASSERT_TRUE(fileSystem.isDirectory(td.dirPath()));
     }
 
-    TEST( TestTempDir, DestructorRemovesTheTemporaryDirectory)
+    TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory) // NOLINT
     {
-
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         auto td = TempDir::makeTempDir("destructor");
         std::string dirPath = td->dirPath();
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath));
         td.reset(nullptr);
         EXPECT_FALSE(fileSystem.isDirectory(dirPath));
     }
 
-    TEST( TestTempDir, AbsolutePaths)
+    TEST(TestTempDir, AbsolutePaths) // NOLINT
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
         std::string dirPath = td.dirPath();
-        EXPECT_TRUE( fileSystem.isDirectory(dirPath));
-        EXPECT_TRUE( dirPath.front() == '/');
+        EXPECT_TRUE(fileSystem.isDirectory(dirPath));
+        EXPECT_TRUE(dirPath.front() == '/');
         std::string relativePath = "level1/level2";
         std::string absPath = td.absPath(relativePath);
-        EXPECT_EQ( absPath.substr(0,dirPath.size()), dirPath);
-        EXPECT_EQ( absPath.substr(dirPath.size()+1,absPath.size()-dirPath.size()-1), relativePath);
+        EXPECT_EQ(absPath.substr(0, dirPath.size()), dirPath);
+        EXPECT_EQ(absPath.substr(dirPath.size() + 1, absPath.size() - dirPath.size() - 1), relativePath);
     }
 
-    TEST( TestTempDir, MakeDirs)
+    TEST(TestTempDir, MakeDirs) // NOLINT
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
         std::string dirPath = td.dirPath();
         std::string relativePath = "level1/level2/level3";
         td.makeDirs(relativePath);
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/level1"));
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/level1/level2"));
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/level1/level2/level3"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/level1"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/level1/level2"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/level1/level2/level3"));
     }
 
-
-    TEST( TestTempDir, MakeDirsFromVector)
+    TEST(TestTempDir, MakeDirsFromVector) // NOLINT
     {
-        std::vector<std::string> relatives = {{"a/b/c"}, {"a/b/d"}, {"a/c/d/"}};
+        std::vector<std::string> relatives = { { "a/b/c" }, { "a/b/d" }, { "a/c/d/" } };
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
         std::string dirPath = td.dirPath();
         td.makeDirs(relatives);
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/a"));
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/a/b/c"));
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/a/b/d"));
-        ASSERT_TRUE( fileSystem.isDirectory(dirPath+"/a/c/d"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/a"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/a/b/c"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/a/b/d"));
+        ASSERT_TRUE(fileSystem.isDirectory(dirPath + "/a/c/d"));
     }
 
-
-    TEST( TestTempDir, createFile)
+    TEST(TestTempDir, createFile) // NOLINT
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();
         TempDir td;
         std::string dirPath = td.dirPath();
-        std::string expected_content= "hello world";
+        std::string expected_content = "hello world";
         td.createFile("dirname/filename.txt", expected_content);
-        std::string content = fileSystem.readFile(dirPath+"/dirname/filename.txt");
+        std::string content = fileSystem.readFile(dirPath + "/dirname/filename.txt");
         EXPECT_EQ(content, "hello world");
 
         td.createFile("filename.txt", expected_content);
-        content = fileSystem.readFile(dirPath+"/filename.txt");
+        content = fileSystem.readFile(dirPath + "/filename.txt");
         EXPECT_EQ(content, "hello world");
-
-
-
     }
 
-}
+} // namespace

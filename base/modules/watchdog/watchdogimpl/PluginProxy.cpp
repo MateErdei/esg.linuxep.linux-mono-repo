@@ -5,30 +5,32 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginProxy.h"
+
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystem.h>
+
 #include <cassert>
 
 using namespace watchdog::watchdogimpl;
 
-PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info)
-    : m_info(std::move(info))
-    , m_process(Common::Process::createProcess())
-    , m_running(false)
-    , m_deathTime(0)
-    , m_enabled(true)
+PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
+    m_info(std::move(info)),
+    m_process(Common::Process::createProcess()),
+    m_running(false),
+    m_deathTime(0),
+    m_enabled(true)
 {
     m_exe = m_info.getExecutableFullPath();
     if ((!m_exe.empty()) && m_exe[0] != '/')
     {
         // Convert relative path to absolute path relative to installation directory
-        const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-        m_exe = Common::FileSystem::fileSystem()->join(INST,m_exe);
+        std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        m_exe = Common::FileSystem::join(INST, m_exe);
     }
     assert(m_process != nullptr);
-    m_process->setOutputLimit(1024*1024);
+    m_process->setOutputLimit(1024 * 1024);
 }
 
 void PluginProxy::start()
@@ -48,19 +50,15 @@ void PluginProxy::start()
         return;
     }
 
-    LOGINFO("Starting "<<m_exe);
+    LOGINFO("Starting " << m_exe);
     assert(m_process != nullptr);
 
-    //Add in the installation directory to the environment variables used when starting all plugins
+    // Add in the installation directory to the environment variables used when starting all plugins
     Common::PluginRegistryImpl::PluginInfo::EnvPairs envVariables = m_info.getExecutableEnvironmentVariables();
-    envVariables.emplace_back("SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+    envVariables.emplace_back(
+        "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
 
-    m_process->exec(m_exe,
-                    m_info.getExecutableArguments(),
-                    envVariables,
-                    userId.second,
-                    groupId.second
-    );
+    m_process->exec(m_exe, m_info.getExecutableArguments(), envVariables, userId.second, groupId.second);
     m_running = true;
 }
 
@@ -98,7 +96,7 @@ int PluginProxy::exitCode()
     int code = m_process->exitCode();
 
     std::string output = m_process->output();
-    LOGINFO("Output: "<<output);
+    LOGINFO("Output: " << output);
 
     return code;
 }
@@ -155,7 +153,7 @@ std::chrono::seconds PluginProxy::ensureStateMatchesOptions()
     }
     else
     {
-        LOGDEBUG("Not starting "<<m_exe);
+        LOGDEBUG("Not starting " << m_exe);
         return std::chrono::seconds(10 - (now - m_deathTime));
     }
 }
@@ -193,7 +191,7 @@ PluginProxy& PluginProxy::operator=(PluginProxy&& other) noexcept
     return *this;
 }
 
-void PluginProxy::swap(PluginProxy &other)
+void PluginProxy::swap(PluginProxy& other)
 {
     if (&other == this)
     {

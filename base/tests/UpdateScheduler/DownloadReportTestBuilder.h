@@ -5,28 +5,31 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
+
 #include <string>
 
 using SulDownloader::suldownloaderdata::WarehouseStatus;
 
-namespace  SulDownloader
+namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        static const std::string StartTimeTest{"20180812 10:00:00"};
-        static const std::string FinishTimeTest{"20180812 11:00:00"};
-        static const std::string PreviousStartTime{"20180811 10:00:00"};
-        static const std::string PreviousFinishTime{"20180811 11:00:00"};
-        static const std::string PreviousPreviousStartTime{"20180810 10:00:00"};
-        static const std::string PreviousPreviousFinishTime{"20180810 11:00:00"};
-        static const std::string SophosURL{"http://sophos.net/update"};
+        static const std::string StartTimeTest{ "20180812 10:00:00" };
+        static const std::string FinishTimeTest{ "20180812 11:00:00" };
+        static const std::string PreviousStartTime{ "20180811 10:00:00" };
+        static const std::string PreviousFinishTime{ "20180811 11:00:00" };
+        static const std::string PreviousPreviousStartTime{ "20180810 10:00:00" };
+        static const std::string PreviousPreviousFinishTime{ "20180810 11:00:00" };
+        static const std::string SophosURL{ "http://sophos.net/update" };
 
         class DownloadReportTestBuilder
         {
         public:
             enum class UseTime
             {
-                PreviousPrevious, Previous, Later
+                PreviousPrevious,
+                Previous,
+                Later
             };
 
             static SulDownloader::suldownloaderdata::ProductReport upgradedBaseProduct()
@@ -59,9 +62,10 @@ namespace  SulDownloader
                 return products;
             }
 
-
-            static SulDownloader::suldownloaderdata::DownloadReport
-            goodReport(UseTime useTime = UseTime::Later, bool upgraded = true, const std::string& sourceURL = "")
+            static SulDownloader::suldownloaderdata::DownloadReport goodReport(
+                UseTime useTime = UseTime::Later,
+                bool upgraded = true,
+                const std::string& sourceURL = "")
             {
                 SulDownloader::suldownloaderdata::DownloadReport report;
                 report.m_status = WarehouseStatus::SUCCESS;
@@ -90,7 +94,6 @@ namespace  SulDownloader
                         report.m_startTime = PreviousPreviousStartTime;
                         report.m_finishedTime = PreviousPreviousFinishTime;
                         break;
-
                 }
                 report.m_sync_time = report.m_finishedTime;
                 report.m_productReport = goodProducts();
@@ -110,8 +113,10 @@ namespace  SulDownloader
                 return SulDownloader::suldownloaderdata::DownloadReport::fromReport(report);
             }
 
-            static SulDownloader::suldownloaderdata::DownloadReport
-            badReport(UseTime useTime, WarehouseStatus status, std::string errorDescription)
+            static SulDownloader::suldownloaderdata::DownloadReport badReport(
+                UseTime useTime,
+                WarehouseStatus status,
+                std::string errorDescription)
             {
                 SulDownloader::suldownloaderdata::DownloadReport report;
                 report.m_status = status;
@@ -133,11 +138,11 @@ namespace  SulDownloader
                 if (status != WarehouseStatus::CONNECTIONERROR)
                 {
                     report.m_productReport = goodProducts();
-                    for (auto& product: report.m_productReport)
+                    for (auto& product : report.m_productReport)
                     {
-                        product.productStatus = SulDownloader::suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
+                        product.productStatus =
+                            SulDownloader::suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
                     }
-
                 }
                 return report;
             }
@@ -159,12 +164,11 @@ namespace  SulDownloader
 
             static void setReportNoUpgrade(SulDownloader::suldownloaderdata::DownloadReport* report)
             {
-                for (auto& product: report->m_productReport)
+                for (auto& product : report->m_productReport)
                 {
                     product.productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
                 }
             }
-
 
             static SulDownloader::suldownloaderdata::DownloadReport installFailedTwoProducts()
             {
@@ -193,7 +197,6 @@ namespace  SulDownloader
                 return report;
             }
 
-
             static SulDownloader::suldownloaderdata::DownloadReport baseProductMissing()
             {
                 auto report = badReport(UseTime::Later, WarehouseStatus::PACKAGESOURCEMISSING, "BaseName");
@@ -214,5 +217,5 @@ namespace  SulDownloader
                 return report;
             }
         };
-    }
-}
+    } // namespace suldownloaderdata
+} // namespace SulDownloader

@@ -4,85 +4,85 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <vector>
-#include <algorithm>
 #include "Base64.h"
-#include "Common/Obfuscation/IBase64Exception.h"
+
 #include "Logger.h"
+
+#include "Common/Obfuscation/IBase64Exception.h"
+
+#include <algorithm>
+#include <vector>
 
 namespace
 {
     using namespace Common::ObfuscationImpl;
-// The set of base64 characters.
+    // The set of base64 characters.
 
-	const std::string sBase64Chars
-			(
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-					"abcdefghijklmnopqrstuvwxyz"
-					"0123456789"
-					"+/"
-			);
+    const std::string sBase64Chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                   "abcdefghijklmnopqrstuvwxyz"
+                                   "0123456789"
+                                   "+/");
 
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------
 
-// Get the next character for decoding from a base64 string.
+    // Get the next character for decoding from a base64 string.
 
-	unsigned int GetEncodedCharacter(std::string::const_iterator& it, const std::string::const_iterator& itEnd)
-	{
-		// There should always be sufficient characters, so if we run out, the supplied encoded
-		// string is invalid.
+    unsigned int GetEncodedCharacter(std::string::const_iterator& it, const std::string::const_iterator& itEnd)
+    {
+        // There should always be sufficient characters, so if we run out, the supplied encoded
+        // string is invalid.
 
-		if (it == itEnd)
-		{
-		    LOGDEBUG("Too few characters in encoded string.");
-			throw Common::Obfuscation::IBase64Exception("SECDeobfuscation Failed.");
-		}
-
-		// Get the next encoded character, and look it up in the string of allowed characters. If it
-		// is not found, the supplied encoded string is not valid. An array of characters, indexed
-		// by the binary value of the base64 character, would be more efficient here, but we are
-		// generally concerned only with very short strings.
-
-		char ch = (*it++);
-		size_t pos = sBase64Chars.find(ch);
-
-		if (pos == std::string::npos)
-		{
-		    LOGDEBUG("Invalid character in encoded string.");
+        if (it == itEnd)
+        {
+            LOGDEBUG("Too few characters in encoded string.");
             throw Common::Obfuscation::IBase64Exception("SECDeobfuscation Failed.");
-		}
+        }
 
-		// Return the binary value of the character.
+        // Get the next encoded character, and look it up in the string of allowed characters. If it
+        // is not found, the supplied encoded string is not valid. An array of characters, indexed
+        // by the binary value of the base64 character, would be more efficient here, but we are
+        // generally concerned only with very short strings.
 
-		return static_cast<unsigned int>(pos);
-	}
+        char ch = (*it++);
+        size_t pos = sBase64Chars.find(ch);
 
-	void erase_all(std::string& s, const std::string& valueToErase)
-	{
-		for (char charToRemove : valueToErase)
-		{
-			s.erase(std::remove(s.begin(), s.end(), charToRemove), s.end());
-		}
-	}
+        if (pos == std::string::npos)
+        {
+            LOGDEBUG("Invalid character in encoded string.");
+            throw Common::Obfuscation::IBase64Exception("SECDeobfuscation Failed.");
+        }
 
-	void erase_last(std::string& s, char valueToErase)
-	{
-		if (s.back() == valueToErase)
-		{
-			s.erase(s.begin() + s.size() - 1, s.end());
-		}
-	}
-}
+        // Return the binary value of the character.
+
+        return static_cast<unsigned int>(pos);
+    }
+
+    void erase_all(std::string& s, const std::string& valueToErase)
+    {
+        for (char charToRemove : valueToErase)
+        {
+            s.erase(std::remove(s.begin(), s.end(), charToRemove), s.end());
+        }
+    }
+
+    void erase_last(std::string& s, char valueToErase)
+    {
+        if (s.back() == valueToErase)
+        {
+            s.erase(s.begin() + s.size() - 1, s.end());
+        }
+    }
+} // namespace
 
 namespace Common
 {
     namespace ObfuscationImpl
     {
-// ------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
 
-// Decode a base64 string.
+        // Decode a base64 string.
 
         std::string Base64::Decode(const std::string& sEncoded)
         {
@@ -142,6 +142,5 @@ namespace Common
 
             return sPlain;
         }
-    }
-}
-
+    } // namespace ObfuscationImpl
+} // namespace Common
