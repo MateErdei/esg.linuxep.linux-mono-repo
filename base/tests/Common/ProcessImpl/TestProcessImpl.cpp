@@ -5,10 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Process/IProcess.h>
+#include <Common/Process/IProcessException.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include <Common/Process/IProcessException.h>
 
 #include <fstream>
 

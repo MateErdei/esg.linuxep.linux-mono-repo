@@ -117,7 +117,8 @@ namespace
     TEST(FilePermissionsImpl, checkGetUserNameReturnsEmptyStringWhenBadUser) // NOLINT
     {
         EXPECT_THROW( // NOLINT
-            Common::FileSystem::filePermissions()->getUserName(-1), Common::FileSystem::IFileSystemException);
+            Common::FileSystem::filePermissions()->getUserName(-1),
+            Common::FileSystem::IFileSystemException);
     }
 
     TEST(FilePermissionsImpl, checkGetUserNameReturnsAUserWhenGoodUser) // NOLINT

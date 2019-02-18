@@ -84,7 +84,8 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
     ackMsg.m_error = "RandomError";
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
-        m_pluginProxy->getStatus(), ManagementAgent::PluginCommunication::IPluginCommunicationException); // NOLINT
+        m_pluginProxy->getStatus(),
+        ManagementAgent::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
@@ -105,7 +106,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyNewPolicy) // NOLINT
     auto serialisedMsg = m_Protocol.serialize(applyPolicyMsg);
     EXPECT_CALL(*m_mockSocketRequester, write(serialisedMsg)).WillOnce(Return());
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
-    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"));
+    ASSERT_NO_THROW(m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy")); // NOLINT
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT

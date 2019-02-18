@@ -11,11 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IPermissionDeniedException.h>
 #include <sys/stat.h>
 
+#include <cstdlib>
+#include <cstring>
 #include <grp.h>
 #include <pwd.h>
 #include <sstream>
-#include <cstdlib>
-#include <cstring>
 #include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
@@ -31,8 +31,7 @@ namespace Common
 
             if ((sophosSplGroupId != -1) && sophosSplUser)
             {
-                if (::chown(path.c_str(), sophosSplUser->pw_uid,
-                        static_cast<gid_t>(sophosSplGroupId)) != 0)
+                if (::chown(path.c_str(), sophosSplUser->pw_uid, static_cast<gid_t>(sophosSplGroupId)) != 0)
                 {
                     std::stringstream errorMessage;
                     errorMessage << "chown failed to set user or group owner on file " << path << " to " << user << ":"

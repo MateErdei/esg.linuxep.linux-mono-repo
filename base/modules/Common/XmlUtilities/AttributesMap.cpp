@@ -9,9 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <expat.h>
 #include <sstream>
-#include <climits>
 
 namespace
 {
@@ -235,7 +235,8 @@ namespace Common
             XML_SetCharacterDataHandler(parserHolder.parser, textHandler);
 
             assert(xmlContent.size() < INT_MAX);
-            if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) == XML_STATUS_ERROR)
+            if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) ==
+                XML_STATUS_ERROR)
             {
                 std::stringstream errorInfoStream;
                 errorInfoStream << "Error parsing xml: ";

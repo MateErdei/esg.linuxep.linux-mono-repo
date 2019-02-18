@@ -14,7 +14,7 @@ using DataMessage = Common::PluginProtocol::DataMessage;
 
 class DataMessageTests : public ::testing::Test
 {
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging; //NOLINT
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging; // NOLINT
 
 public:
     void SetUp() override {}
