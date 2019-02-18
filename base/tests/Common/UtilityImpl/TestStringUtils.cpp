@@ -4,9 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-
 #include <Common/UtilityImpl/StringUtils.h>
+#include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;
 

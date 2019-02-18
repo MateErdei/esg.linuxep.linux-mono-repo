@@ -1,9 +1,9 @@
 
 #include "ReactorImplTestsPath.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include <stdio.h>
+#include <cstdio>
 
 GTEST_API_ int main(int argc, char** argv)
 {

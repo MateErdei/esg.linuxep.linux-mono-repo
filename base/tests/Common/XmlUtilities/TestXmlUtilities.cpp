@@ -4,9 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <gtest/gtest.h>
 #include <include/gmock/gmock-matchers.h>
 
 using namespace Common::XmlUtilities;

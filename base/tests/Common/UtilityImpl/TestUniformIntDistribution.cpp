@@ -4,9 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-
 #include <Common/UtilityImpl/UniformIntDistribution.h>
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <thread>

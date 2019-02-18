@@ -13,9 +13,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockWarehouseRepository.h"
 #include "TestWarehouseHelper.h"
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -30,6 +27,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
 #include <SulDownloader/suldownloaderdata/VersigImpl.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/OSUtilitiesImpl/MockPidLockFileUtils.h>

@@ -4,9 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 
 namespace

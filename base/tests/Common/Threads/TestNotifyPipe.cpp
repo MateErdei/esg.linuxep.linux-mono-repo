@@ -5,9 +5,8 @@
 //
 ///////////////////////////////////////////////////////////
 
-#include "gtest/gtest.h"
-
 #include <Common/Threads/NotifyPipe.h>
+#include <gtest/gtest.h>
 
 #define TESTPROGRESS(x)
 

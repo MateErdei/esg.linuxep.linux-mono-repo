@@ -4,9 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "gtest/gtest.h"
-
 #include <Common/sslimpl/Md5Calc.h>
+#include <gtest/gtest.h>
 
 using namespace Common::sslimpl;
 using PairResult = std::pair<std::string, std::string>;

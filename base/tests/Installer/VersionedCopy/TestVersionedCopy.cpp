@@ -5,10 +5,9 @@
 //
 ///////////////////////////////////////////////////////////
 
-#include "gtest/gtest.h"
-
 #include <Installer/VersionedCopy/VersionedCopy.h>
 #include <boost/filesystem.hpp>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 
 namespace

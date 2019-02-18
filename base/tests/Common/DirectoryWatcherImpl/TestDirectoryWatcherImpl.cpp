@@ -12,8 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "gmock/gmock.h"
 
+#include <gmock/gmock.h>
 #include <sys/inotify.h>
 
 #include <cstring>

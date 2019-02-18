@@ -3,12 +3,11 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 
 #include <grp.h>

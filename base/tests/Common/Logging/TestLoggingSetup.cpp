@@ -3,12 +3,11 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/Logging/PluginLoggingSetup.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 TEST(TestLoggingSetup, TestConsoleSetup) // NOLINT
 {
