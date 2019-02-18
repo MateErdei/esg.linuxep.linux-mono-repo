@@ -32,7 +32,7 @@ namespace Common
         {
         public:
             std::string address;
-            socket_port_t port;
+            unsigned int port;
         };
 
         using sophos_ip_flow_protocol_t = std::uint8_t;

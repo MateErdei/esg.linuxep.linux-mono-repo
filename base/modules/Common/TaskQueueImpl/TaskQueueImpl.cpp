@@ -27,7 +27,7 @@ Common::TaskQueueImpl::ITaskPtr Common::TaskQueueImpl::TaskQueueImpl::popTask()
 
     m_condition.wait(lock, [this] { return !m_tasks.empty(); });
 
-    ITaskPtr task = std::move(m_tasks.front());
+    auto task = std::move(m_tasks.front());
     m_tasks.pop_front();
 
     return task;

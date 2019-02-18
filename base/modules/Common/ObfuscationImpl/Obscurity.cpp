@@ -26,7 +26,7 @@ namespace
         // it is necessary to make the pointer volatile to prevent the compiler to
         // remove this code ( it would be better to use memset_s, but it is not available)
         volatile unsigned char* p = data;
-        int size_to_remove = dataLen;
+        size_t size_to_remove = dataLen;
         while (size_to_remove--)
         {
             *p++ = 'x';
@@ -66,9 +66,9 @@ namespace Common
          */
         // const unsigned char CObscurity::ALGORITHM_IDENT = 0x07;
 
-        CObscurity::CObscurity() {}
+        CObscurity::CObscurity() = default;
 
-        CObscurity::~CObscurity() {}
+        CObscurity::~CObscurity() = default;
 
         Common::ObfuscationImpl::SecureDynamicBuffer CObscurity::GetPassword() const
         {

@@ -68,7 +68,7 @@ namespace Common
             const unsigned char* key,
             const unsigned char* iv)
         {
-            if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptInit_ex(m_ctxPtr, cipher, NULL, key, iv))
+            if (1 != Common::Obfuscation::evpCipherWrapper()->EVP_DecryptInit_ex(m_ctxPtr, cipher, nullptr, key, iv))
             {
                 handleErrors();
             }
@@ -92,7 +92,7 @@ namespace Common
 
         void EvpCipherContext::handleErrors()
         {
-            LOGDEBUG(ERR_error_string(ERR_get_error(), NULL));
+            LOGDEBUG(ERR_error_string(ERR_get_error(), nullptr));
             throw Common::Obfuscation::ICipherException("SECDeobfuscation Failed.");
         }
 
@@ -114,7 +114,7 @@ namespace Common
             const EVP_MD* digest = EVP_sha512();
             int slen = PKCS5_PBKDF2_HMAC(
                 reinterpret_cast<const char*>(cipherKey.data()),
-                cipherKey.size(),
+                static_cast<int>(cipherKey.size()),
                 salt.data(),
                 salt.size(),
                 50000,

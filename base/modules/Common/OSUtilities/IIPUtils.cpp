@@ -181,7 +181,7 @@ namespace Common
                 const uint8_t& byte = ip6addr[i];
                 for (int j = 7; j >= 0; j--)
                 {
-                    uint8_t mask = 1 << j;
+                    uint8_t mask = static_cast<uint8_t>(1 << j);
                     if (byte & mask)
                     {
                         return (16 - i) * 8 - (7 - j);

@@ -16,12 +16,12 @@ using CronSchedulerThread = cronModule::CronSchedulerThread;
 namespace
 {
     time_point now() { return std::chrono::steady_clock::now(); }
-    int elapsed_time_ms(time_point from, time_point to)
+    long elapsed_time_ms(time_point from, time_point to)
     {
         return std::chrono::duration_cast<milliseconds>(to - from).count();
     }
 
-    int elapsed_time_ms(time_point from) { return elapsed_time_ms(from, now()); }
+    long elapsed_time_ms(time_point from) { return elapsed_time_ms(from, now()); }
 } // namespace
 
 TEST(TestCronSchedulerThread, Constructor) // NOLINT

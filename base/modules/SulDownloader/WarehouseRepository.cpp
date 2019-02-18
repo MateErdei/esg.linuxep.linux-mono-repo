@@ -241,7 +241,7 @@ namespace SulDownloader
         std::stringstream failedProductErrorMessage;
         failedProductErrorMessage << "Failed to synchronise product:";
 
-        for (int index : selectedIndexes.selected)
+        for (auto index : selectedIndexes.selected)
         {
             auto& productPair = productInformationList[index];
 

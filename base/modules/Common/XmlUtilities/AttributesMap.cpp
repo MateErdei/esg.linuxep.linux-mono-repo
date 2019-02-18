@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <expat.h>
 #include <sstream>
+#include <climits>
 
 namespace
 {
@@ -67,7 +68,7 @@ namespace
     void startElement(void* data, const char* el, const char** attr)
     {
         using Common::XmlUtilities::AttributePairCollection;
-        SimpleXmlParser* parser = static_cast<SimpleXmlParser*>(data);
+        auto parser = static_cast<SimpleXmlParser*>(data);
         AttributePairCollection attributes;
         std::string idValue;
         std::tie(attributes, idValue) = extractAttributes(attr);
@@ -76,14 +77,14 @@ namespace
 
     void endElement(void* data, const char* el)
     {
-        SimpleXmlParser* parser = static_cast<SimpleXmlParser*>(data);
+        auto parser = static_cast<SimpleXmlParser*>(data);
         parser->onEndElement(el);
     }
 
     void textHandler(void* data, const char* text, int len)
     {
         std::string textstring(text, text + len);
-        SimpleXmlParser* parser = static_cast<SimpleXmlParser*>(data);
+        auto parser = static_cast<SimpleXmlParser*>(data);
         parser->onTextHandler(textstring);
     }
 
@@ -102,7 +103,7 @@ namespace
         {
             throw XmlUtilitiesException("Stack overflow. Max depth for the xml exceeded. ");
         }
-        m_stack.push(AttributesEntry{ elementPath, attributes, "" });
+        m_stack.push(AttributesEntry{ elementPath, std::move(attributes), "" });
     }
 
     void SimpleXmlParser::onEndElement(const std::string& element)
@@ -233,7 +234,8 @@ namespace Common
 
             XML_SetCharacterDataHandler(parserHolder.parser, textHandler);
 
-            if (XML_Parse(parserHolder.parser, xmlContent.data(), xmlContent.size(), true) == XML_STATUS_ERROR)
+            assert(xmlContent.size() < INT_MAX);
+            if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) == XML_STATUS_ERROR)
             {
                 std::stringstream errorInfoStream;
                 errorInfoStream << "Error parsing xml: ";

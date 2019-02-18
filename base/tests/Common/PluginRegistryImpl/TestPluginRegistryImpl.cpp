@@ -63,14 +63,14 @@ public:
         std::string search("\n");
 
         // remove new lines
-        for (int i = value.find(search); i >= 0; i = value.find(search))
+        for (auto i = value.find(search); i != std::string::npos; i = value.find(search))
         {
             value.replace(i, search.size(), "");
         }
 
         search = " ";
         // remove spaces
-        for (int i = value.find(search); i >= 0; i = value.find(search))
+        for (auto i = value.find(search); i != std::string::npos; i = value.find(search))
         {
             value.replace(i, search.size(), "");
         }
