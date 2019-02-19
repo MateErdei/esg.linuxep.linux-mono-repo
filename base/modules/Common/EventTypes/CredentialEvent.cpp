@@ -241,7 +241,6 @@ namespace Common
 
                 Common::EventTypes::UserSid subjectUserId;
                 subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();
-                ;
                 subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
                 setSubjectUserSid(subjectUserId);
 
