@@ -32,7 +32,7 @@ namespace Common
         {
         public:
             std::string address;
-            socket_port_t port;
+            socket_port_t port = 0;
         };
 
         using sophos_ip_flow_protocol_t = std::uint8_t;
@@ -42,13 +42,13 @@ namespace Common
         public:
             SocketAddress sourceAddress;
             SocketAddress destinationAddress;
-            sophos_ip_flow_protocol_t protocol;
+            sophos_ip_flow_protocol_t protocol = 0;
         };
 
         struct OptionalUInt64
         {
         public:
-            std::uint64_t value;
+            std::uint64_t value = 0;
         };
 
         struct TextOffsetLength
@@ -61,7 +61,6 @@ namespace Common
         struct Pathname
         {
         public:
-            std::uint32_t fileSystemType = 0;
             std::string pathname;
             TextOffsetLength openName;
             TextOffsetLength volumeName;
@@ -70,6 +69,7 @@ namespace Common
             TextOffsetLength streamName;
             TextOffsetLength finalComponentName;
             TextOffsetLength parentDirName;
+            std::uint32_t fileSystemType = 0;
             std::uint16_t flags = 0;
             std::uint8_t driveLetter = 0;
         };
@@ -82,20 +82,20 @@ namespace Common
         {
         public:
             // Process ID
-            sophos_pid_t pid;
+            sophos_pid_t pid = 0;
 
             // Timestamp the process was started
-            windows_timestamp_t timestamp;
+            windows_timestamp_t timestamp = 0;
         };
 
         struct SophosTid
         {
         public:
             // Thread ID
-            sophos_tid_t tid;
+            sophos_tid_t tid = 0;
 
             // Timestamp the thread was started
-            windows_timestamp_t timestamp;
+            windows_timestamp_t timestamp = 0;
         };
 
     }; // namespace EventTypes
