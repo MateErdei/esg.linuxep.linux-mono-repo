@@ -46,23 +46,3 @@ namespace Common
         };
     } // namespace PluginProtocol
 } // namespace Common
-
-//
-// PluginCallbackHandler : public AbstractListenerServer
-//
-//        PluginAdapterCallbacks
-//        ireadwriter...
-//
-//
-//{
-//
-//    message reply ( message )
-//    {
-//        if ( message.command == Status)
-//        {
-//            m_callbackHandler->setStatus(xx, xx);
-//            message.m_payload = OK;
-//            return message;
-//        }
-//    }
-//};
