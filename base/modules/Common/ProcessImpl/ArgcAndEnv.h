@@ -15,9 +15,6 @@
 #include <unistd.h>
 #include <vector>
 
-// required to obtain the current application environment variables so that they can be passed to the child process.
-// extern char **environ;
-
 namespace Common
 {
     namespace ProcessImpl
