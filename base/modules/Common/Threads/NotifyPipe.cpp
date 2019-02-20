@@ -22,9 +22,6 @@ using Common::Threads::NotifyPipe;
 #define ASSERT assert
 #define DBGOUT(x)
 
-// LINKED-ATTRIBUTES
-// LINKED-ATTRIBUTES-END
-
 NotifyPipe::~NotifyPipe() noexcept
 {
     ::close(m_readFd);
