@@ -1,6 +1,21 @@
 add_library(zeromqwrapperimplobject OBJECT
-        ContextImpl.cpp ContextImpl.h ContextHolder.cpp ContextHolder.h SocketHolder.cpp SocketHolder.h
+        ContextHolder.cpp ContextHolder.h
+        ContextImpl.cpp ContextImpl.h
+        PollerImpl.cpp PollerImpl.h
+        ProxyImpl.cpp ProxyImpl.h
+        SocketHolder.cpp SocketHolder.h
+        SocketImpl.cpp SocketImpl.h
+        SocketPublisherImpl.cpp SocketPublisherImpl.h
+        SocketReplierImpl.cpp SocketReplierImpl.h
+        SocketRequesterImpl.cpp SocketRequesterImpl.h
+        SocketSubscriberImpl.cpp SocketSubscriberImpl.h
+        SocketUtil.cpp SocketUtil.h
+        ZeroMQWrapperException.h
+        ZeroMQTimeoutException.h
+        ../Exceptions/IException.h
+        ../Exceptions/Print.h
         ../ZeroMQWrapper/IContext.h
+        ../ZeroMQWrapper/IContextPtr.h
         ../ZeroMQWrapper/IHasFD.h
         ../ZeroMQWrapper/IReadable.h
         ../ZeroMQWrapper/IReadWrite.h
@@ -9,14 +24,12 @@ add_library(zeromqwrapperimplobject OBJECT
         ../ZeroMQWrapper/ISocketRequester.h
         ../ZeroMQWrapper/ISocketSetup.h
         ../ZeroMQWrapper/ISocketSubscriber.h
-        ../ZeroMQWrapper/IWritable.h
+        ../ZeroMQWrapper/IIPCException.h
+        ../ZeroMQWrapper/IIPCTimeoutException.h
+        ../ZeroMQWrapper/IPoller.h
         ../ZeroMQWrapper/IProxy.h
-        SocketRequesterImpl.cpp SocketRequesterImpl.h
-        SocketImpl.cpp SocketImpl.h
-        SocketReplierImpl.cpp SocketReplierImpl.h
-        SocketUtil.cpp SocketUtil.h
-        SocketPublisherImpl.cpp SocketPublisherImpl.h
-        SocketSubscriberImpl.cpp SocketSubscriberImpl.h ../ZeroMQWrapper/IContextPtr.h ../ZeroMQWrapper/IIPCException.h ZeroMQWrapperException.h ../ZeroMQWrapper/IIPCTimeoutException.h ZeroMQTimeoutException.h ../Exceptions/IException.h ../Exceptions/Print.h ../ZeroMQWrapper/IPoller.h PollerImpl.cpp PollerImpl.h ProxyImpl.cpp ProxyImpl.h)
+        ../ZeroMQWrapper/IWritable.h
+        )
 target_include_directories(zeromqwrapperimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR})
 add_library(zeromqwrapperimpl SHARED $<TARGET_OBJECTS:zeromqwrapperimplobject> )
 target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} )
