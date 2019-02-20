@@ -16,18 +16,21 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
     using namespace Common::ObfuscationImpl;
-    // The set of base64 characters.
 
+    /**
+     * The set of base64 characters.
+     */
     const std::string sBase64Chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                    "abcdefghijklmnopqrstuvwxyz"
                                    "0123456789"
                                    "+/");
 
-    // ------------------------------------------------------------------------------------------------
-    // ------------------------------------------------------------------------------------------------
-
-    // Get the next character for decoding from a base64 string.
-
+    /**
+     *  Get the next character for decoding from a base64 string.
+     * @param it
+     * @param itEnd
+     * @return
+     */
     unsigned int GetEncodedCharacter(std::string::const_iterator& it, const std::string::const_iterator& itEnd)
     {
         // There should always be sufficient characters, so if we run out, the supplied encoded
@@ -79,11 +82,11 @@ namespace Common
 {
     namespace ObfuscationImpl
     {
-        // ------------------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------------------
-
-        // Decode a base64 string.
-
+        /**
+         * Decode a base64 string.
+         * @param sEncoded
+         * @return
+         */
         std::string Base64::Decode(const std::string& sEncoded)
         {
             // Take a copy of the encoded string, and remove any newline and padding characters. There
