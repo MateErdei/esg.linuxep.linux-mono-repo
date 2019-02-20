@@ -182,7 +182,6 @@ namespace UpdateSchedulerImpl
         {
             LOGWARN("Unexpected action xml received: " << actionXML);
             return;
-            ;
         }
 
         LOGSUPPORT("Received Update Now action. ");
