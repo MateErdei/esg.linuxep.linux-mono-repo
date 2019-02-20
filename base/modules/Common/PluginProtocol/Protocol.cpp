@@ -16,7 +16,6 @@ namespace Common
 {
     namespace PluginProtocol
     {
-        // using DataMessage = Common::PluginProtocol::DataMessage;
         Protocol::Protocol(std::unique_ptr<PluginProtocol::ProtocolSerializerFactory> protocolFactory) :
             m_protocolFactory(std::move(protocolFactory))
         {
