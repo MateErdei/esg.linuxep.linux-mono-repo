@@ -90,18 +90,35 @@ def getXmlText(node):
         text += n.data
     return text
 
+
 def readVersionIniFile():
     scriptPath = os.path.dirname(os.path.realpath(__file__))
+    BASE = os.environ.get("BASE", None)
+    version = None
+
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
+    if BASE is not None and not os.path.isfile(autoVersionFile):
+        autoVersionFile = os.path.join(BASE,"products","distribution","include", "AutoVersioningHeaders", "AutoVersion.ini")
+
     if os.path.isfile(autoVersionFile):
-        print ("Reading version file from {}".format(autoVersionFile))
+        print ("Reading version from {}".format(autoVersionFile))
         with open(autoVersionFile,"r") as f:
             for line in f.readlines():
                 if "ComponentAutoVersion=" in line:
-                    return line.strip().split("=")[1]
+                    version = line.strip().split("=")[1]
     else:
         print("Failed to get AutoVersion from {}".format(autoVersionFile))
 
+    if version == "1.0.999":
+        print("Ignoring template version {} from {}".format(version, autoVersionFile))
+        version = None
+
+    return version
+
+
+def readVersionFromJenkinsFile():
+    scriptPath = os.path.dirname(os.path.realpath(__file__))
+    BASE = os.environ.get("BASE", None)
     ## Try reading from Jenkinsfile
     productsDir = os.path.dirname(scriptPath)
     srcdir = os.path.dirname(productsDir)
@@ -110,6 +127,10 @@ def readVersionIniFile():
         ## if we are in a plugin then the script is in a sub-directory 1 deeper.
         srcdir = os.path.dirname(srcdir)
         jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+    if BASE is not None and not os.path.isfile(jenkinsfile):
+        ## Try base
+        jenkinsfile = os.path.join(BASE, "Jenkinsfile")
+
 
     if os.path.isfile(jenkinsfile):
         lines = open(jenkinsfile).readlines()
@@ -123,9 +144,38 @@ def readVersionIniFile():
     else:
         print("Failed to find Jenkinsfile {} from {}".format(jenkinsfile, scriptPath))
 
+    return None
+
+
+def defaultVersion():
     defaultValue = "0.5.1"
     print ("Using default {}".format(defaultValue))
     return defaultValue
+
+
+def readVersion():
+    """
+    10 possible use cases:
+    (Base or Plugin) *
+    (
+        manual build using cmake directly - e.g. CLion
+        local build.sh
+        Local Jenkins
+        ESG-CI (Artisan-CI)
+        Production Artisan
+    )
+
+    manual build has to find version without $BASE being set
+        Base finds it relative to the script dir
+        Plugins find it up a directory from the script dir
+    other builds should have BASE set correctly.
+
+    :return:
+    """
+    version = readVersionIniFile() or readVersionFromJenkinsFile() or defaultVersion()
+    print("Using version {}".format(version))
+    return version
+
 
 def getVariable(environmentVariable, fileName, variableName, defaultValue):
     temp = os.environ.get(environmentVariable, None)
@@ -157,7 +207,7 @@ def generate_sdds_import(dist, file_objects):
     tidyXml(doc)
 
     productName = getProductName()
-    fullVersion = readVersionIniFile()
+    fullVersion = readVersion()
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
 
