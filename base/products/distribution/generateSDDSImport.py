@@ -91,18 +91,33 @@ def getXmlText(node):
     return text
 
 
-def readVersionIniFile():
-    scriptPath = os.path.dirname(os.path.realpath(__file__))
-    BASE = os.environ.get("BASE", None)
+def readVersionIniFile(BASE=None):
+    """
+    __file__ is either <plugin>/redist/pluginapi/distribution/generateSDDSImport.py
+    or <base>/products/distribution/generateSDDSImport.py
+
+    So we need to handle either.
+
+    :param BASE: $BASE environment variable, or argv[3]
+    :return: version from ini file or None
+    """
+
+    scriptPath = os.path.dirname(os.path.realpath(__file__))  # <plugin>/redist/pluginapi/distribution
     version = None
 
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
-    if BASE is not None and not os.path.isfile(autoVersionFile):
-        autoVersionFile = os.path.join(BASE,"products","distribution","include", "AutoVersioningHeaders", "AutoVersion.ini")
+    if not os.path.isfile(autoVersionFile):
+        if BASE is None:
+            BASE = os.path.dirname(scriptPath)  # <plugin>/redist/pluginapi
+            BASE = os.path.dirname(BASE)  # <plugin>/redist
+            BASE = os.path.dirname(BASE)  # <plugin>
+            assert(os.path.isfile(os.path.join(BASE, "Jenkinsfile")))  # Check we have the correct directory
+
+        autoVersionFile = os.path.join(BASE, "products", "distribution", "include", "AutoVersioningHeaders", "AutoVersion.ini")
 
     if os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
-        with open(autoVersionFile,"r") as f:
+        with open(autoVersionFile, "r") as f:
             for line in f.readlines():
                 if "ComponentAutoVersion=" in line:
                     version = line.strip().split("=")[1]
@@ -116,9 +131,8 @@ def readVersionIniFile():
     return version
 
 
-def readVersionFromJenkinsFile():
+def readVersionFromJenkinsFile(BASE=None):
     scriptPath = os.path.dirname(os.path.realpath(__file__))
-    BASE = os.environ.get("BASE", None)
     ## Try reading from Jenkinsfile
     productsDir = os.path.dirname(scriptPath)
     srcdir = os.path.dirname(productsDir)
@@ -153,7 +167,7 @@ def defaultVersion():
     return defaultValue
 
 
-def readVersion():
+def readVersion(BASE=None):
     """
     10 possible use cases:
     (Base or Plugin) *
@@ -172,7 +186,9 @@ def readVersion():
 
     :return:
     """
-    version = readVersionIniFile() or readVersionFromJenkinsFile() or defaultVersion()
+    if BASE is None:
+        BASE = os.environ.get("BASE", None)
+    version = readVersionIniFile(BASE) or readVersionFromJenkinsFile(BASE) or defaultVersion()
     print("Using version {}".format(version))
     return version
 
@@ -201,13 +217,13 @@ def getProductName():
 def getRigidName():
     return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base")
 
-def generate_sdds_import(dist, file_objects):
+def generate_sdds_import(dist, file_objects, BASE=None):
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
     doc = xml.dom.minidom.parseString(TEMPLATE)
     tidyXml(doc)
 
     productName = getProductName()
-    fullVersion = readVersion()
+    fullVersion = readVersion(BASE)
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
 

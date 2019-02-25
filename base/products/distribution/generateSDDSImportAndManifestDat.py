@@ -16,6 +16,10 @@ def main(argv):
         distribution_list = argv[2]
     else:
         distribution_list = None
+    if len(argv) > 3:
+        BASE = argv[3]
+    else:
+        BASE = os.environ.get("BASE", None)
 
     file_objects = fileInfo.load_file_info(dist, distribution_list)
 
@@ -29,7 +33,7 @@ def main(argv):
     ## Add manifest.dat to file_list
     file_objects.append(fileInfo.FileInfo(dist, b"manifest.dat"))
 
-    generateSDDSImport.generate_sdds_import(dist, file_objects)
+    generateSDDSImport.generate_sdds_import(dist, file_objects, BASE)
 
     return 0
 
