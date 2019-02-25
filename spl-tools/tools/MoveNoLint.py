@@ -7,13 +7,14 @@ import sys
 
 
 TEST_RE = re.compile(r" *TEST.*")
-END_TEST_NOLINE_RE = re.compile(r"(.*\)) // *NOLINT")
+END_TEST_NOLINE_RE = re.compile(r"(.*) *// *NOLINT")
 
 
 def processFile(filepath):
     lines = open(filepath).readlines()
     outlines = []
     for line in lines:
+        nolint = False
         mo = TEST_RE.match(line)
         if mo:
             line = line.rstrip()
@@ -22,21 +23,26 @@ def processFile(filepath):
                 continue
             outlines.append(line+b" // NOLINT\n")
             continue
-        mo = END_TEST_NOLINE_RE.match(line)
-        if mo:
-            line = line.rstrip()
-            outlines.append(mo.group(1)+b"\n")
-            continue
 
-        if b"EXPECT_THROW" in line and b"NOLINT" not in line:
-            line = line.rstrip()
-            outlines.append(line+b" // NOLINT\n")
-            continue
+        nolint = (
+            b"EXPECT_THROW" in line or
+            b"ASSERT_THROW" in line or
+            b"EXPECT_NO_THROW" in line or
+            b"ASSERT_NO_THROW" in line or
+            b"INSTANTIATE_TEST_CASE_P" in line
+        )
 
-        if b"EXPECT_NO_THROW" in line and b"NOLINT" not in line:
-            line = line.rstrip()
-            outlines.append(line+b" // NOLINT\n")
-            continue
+        if nolint:
+            if "NOLINT" not in line:
+                line = line.rstrip()
+                outlines.append(line+b" // NOLINT\n")
+                continue
+        else:
+            # Remove NOLINT
+            mo = END_TEST_NOLINE_RE.match(line)
+            if mo:
+                outlines.append(mo.group(1)+b"\n")
+                continue
 
         if line == b'#include "gtest/gtest.h"\n':
             line = b'#include <gtest/gtest.h>\n'
