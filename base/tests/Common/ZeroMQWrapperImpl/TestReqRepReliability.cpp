@@ -181,12 +181,13 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
-        RunInExternalProcess runInExternalProcess(m_testContext);
+        auto zmq_context = createContext();
+        RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester(serveraddress);
+        auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
             return requester.sendReceive("hello");
         });
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
@@ -196,12 +197,13 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
     {
-        RunInExternalProcess runInExternalProcess(m_testContext);
+        auto zmq_context = createContext();
+        RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(std::launch::async, [serveraddress]() {
-            Replier replier(serveraddress);
+        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Replier replier(serveraddress, zmq_context);
             replier.serveRequest();
         });
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
@@ -210,12 +212,13 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierFailure) // NOLINT
     {
-        RunInExternalProcess runInExternalProcess(m_testContext);
+        auto zmq_context = createContext();
+        RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester(serveraddress);
+        auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
             EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             return requester.sendReceive("hello2");
         });
@@ -231,12 +234,13 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, requesterShouldRecoverAReplierSendingBrokenMessage) // NOLINT
     {
-        RunInExternalProcess runInExternalProcess(m_testContext);
+        auto zmq_context = createContext();
+        RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureRequester = std::async(std::launch::async, [serveraddress]() {
-            Requester requester(serveraddress);
+        auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
             EXPECT_THROW(requester.sendReceive("hello1"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             return requester.sendReceive("hello2");
         });
@@ -320,12 +324,13 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, requesterShouldBeAbleToSendMessageAgainIfTheReplierIsRestored) // NOLINT
     {
+        auto zmq_context = createContext();
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
         Tests::ReentrantExecutionSynchronizer synchronizer;
 
-        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            Requester requester(serveraddress);
+        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
             EXPECT_EQ(requester.sendReceive("a"), "a");
             synchronizer.notify(1);
 
@@ -347,14 +352,14 @@ namespace
 
         // simulate a replier that 'crashes' after first established req-reply, but them comes back and can serve the
         // requester.
-        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            std::unique_ptr<Replier> replier(new Replier(serveraddress));
+        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer, zmq_context]() {
+            std::unique_ptr<Replier> replier(new Replier(serveraddress, zmq_context));
             replier->serveRequest();
             synchronizer.waitfor(
                 1, 3000); // necessary to ensure that the socket is not closed before sending the message.
             replier.reset();
             synchronizer.waitfor(2, 3000); // necessary to ensure that the requester timed out.
-            replier.reset(new Replier(serveraddress));
+            replier.reset(new Replier(serveraddress, zmq_context));
             synchronizer.notify(3);
             replier->serveRequest();
             synchronizer.waitfor(4, 1000);
@@ -380,11 +385,12 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, requesterReceivingOutOfDateReplyShouldNotDisturbCurrentRequest) // NOLINT
     {
+        auto zmq_context = createContext();
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
         Tests::ReentrantExecutionSynchronizer synchronizer;
-        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            Requester requester(serveraddress);
+        auto futureRequester = std::async(std::launch::async, [serveraddress, &synchronizer, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
             EXPECT_EQ(requester.sendReceive("a"), "a");
             EXPECT_THROW(requester.sendReceive("b"), Common::ZeroMQWrapper::IIPCTimeoutException); // NOLINT
             synchronizer.notify();
@@ -393,9 +399,8 @@ namespace
         });
 
         // simulate a replier that answers after the requester timeout.
-        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer]() {
-            auto context = createContext();
-            Common::ZeroMQWrapper::ISocketReplierPtr m_replier = context->getReplier();
+        auto futureReplier = std::async(std::launch::async, [serveraddress, &synchronizer, zmq_context]() {
+            Common::ZeroMQWrapper::ISocketReplierPtr m_replier = zmq_context->getReplier();
             m_replier->setTimeout(5000);
             m_replier->setConnectionTimeout(5000);
             m_replier->listen(serveraddress);
