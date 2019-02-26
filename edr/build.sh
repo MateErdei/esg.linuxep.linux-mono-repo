@@ -16,7 +16,9 @@ STARTINGDIR=$(pwd)
 
 cd ${0%/*}
 BASE=$(pwd)
+export BASE
 OUTPUT=$BASE/output
+export OUTPUT
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
