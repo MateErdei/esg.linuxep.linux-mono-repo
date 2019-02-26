@@ -111,9 +111,10 @@ def readVersionIniFile(BASE=None):
             BASE = os.path.dirname(scriptPath)  # <plugin>/redist/pluginapi
             BASE = os.path.dirname(BASE)  # <plugin>/redist
             BASE = os.path.dirname(BASE)  # <plugin>
-            assert(os.path.isfile(os.path.join(BASE, "Jenkinsfile")))  # Check we have the correct directory
 
-        autoVersionFile = os.path.join(BASE, "products", "distribution", "include", "AutoVersioningHeaders", "AutoVersion.ini")
+        if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
+            autoVersionFile = os.path.join(BASE, "products", "distribution", "include",
+                                           "AutoVersioningHeaders", "AutoVersion.ini")
 
     if os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
