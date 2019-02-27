@@ -63,8 +63,10 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) // NOLINT
 
 TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
 {
+    testing::internal::CaptureStderr();
+
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    ;
+
     const std::string execPath = "./foobar";
     const std::string absolutePath = INST + "/foobar";
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([absolutePath]() {
@@ -91,4 +93,48 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_EQ(delay, std::chrono::seconds(10)); // Not starting for 10 seconds
 
     Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+
+    std::string errStd = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errStd, ::testing::HasSubstr("/opt/sophos-spl/foobar exited when not expected"));
+}
+
+TEST_F(TestPluginProxy, checkExpectedExitIsNotLogged) // NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+
+    const std::string execPath = "./foobar";
+    const std::string absolutePath = INST + "/foobar";
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([absolutePath]() {
+        std::vector<std::string> args;
+        auto mockProcess = new StrictMock<MockProcess>();
+        EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
+        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
+        EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(false));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    Common::PluginRegistryImpl::PluginInfo info;
+    info.setExecutableUserAndGroup("root:root");
+    info.setExecutableFullPath(execPath);
+
+    watchdog::watchdogimpl::PluginProxy proxy(std::move(info));
+    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
+    EXPECT_EQ(delay, std::chrono::hours(1));
+
+    proxy.setEnabled(false);
+    proxy.ensureStateMatchesOptions();
+
+    EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
+    delay = proxy.ensureStateMatchesOptions();
+    EXPECT_EQ(delay, std::chrono::hours(1)); // process has exited, so we
+
+    Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+
+    std::string errStd = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errStd, ::testing::Not(::testing::HasSubstr("/opt/sophos-spl/foobar exited when not expected")));
 }
