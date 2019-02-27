@@ -89,7 +89,7 @@ int Watchdog::run()
             }
             if (fd == subprocessFD.get())
             {
-                LOGERROR("Child process died");
+                // Don't log since we don't know if the exit was expected
                 signalHandler.clearSubProcessExitPipe();
             }
             if (fd == m_socket.get())

@@ -106,6 +106,7 @@ namespace watchdog
             time_t m_deathTime;
 
             bool m_enabled;
+
         };
     } // namespace watchdogimpl
 } // namespace watchdog

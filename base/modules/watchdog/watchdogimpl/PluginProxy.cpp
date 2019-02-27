@@ -114,8 +114,16 @@ std::chrono::seconds PluginProxy::checkForExit()
         int code = exitCode();
         if (code != 0)
         {
+            // Always log if the process exited with a non-zero code
             LOGERROR(m_exe << " died with " << code);
         }
+        else if (m_enabled)
+        {
+            // Log if we weren't expecting the process to exit, even with a zero code
+            LOGERROR(m_exe << " exited when not expected");
+            // Process will be respawned automatically after a delay
+        }
+
         m_running = false;
         m_deathTime = ::time(nullptr);
     }
