@@ -98,6 +98,9 @@ namespace Common
             processEvent.setSid(sidReader);
 
             processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username);
+            processEvent.getOwnerUserSID().setUserid(m_ownerUserSid.userid);
+            processEvent.getOwnerUserSID().setMachineid(m_ownerUserSid.machineid);
+
             processEvent.getOwnerUserSID().setSid(sidReader);
             processEvent.getOwnerUserSID().setDomain(m_ownerUserSid.domain);
 
@@ -188,6 +191,8 @@ namespace Common
 
                 Common::EventTypes::UserSid processOwner;
                 processOwner.username = processEvent.getOwnerUserSID().getUsername();
+                processOwner.machineid = processEvent.getOwnerUserSID().getMachineid();
+                processOwner.userid = processEvent.getOwnerUserSID().getUserid();
                 processOwner.sid = sidString;
                 processOwner.domain = processEvent.getOwnerUserSID().getDomain();
                 setOwnerUserSid(processOwner);

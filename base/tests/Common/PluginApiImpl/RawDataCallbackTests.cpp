@@ -339,6 +339,9 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     Common::EventTypes::NetworkAddress network;
     network.address = "sophos.com:400";
     eventExpected.setRemoteNetworkAccess(network);
+
+    eventExpected.setProcessId(123456789);
+
     rawDataPublisher->sendPluginEvent(eventExpected);
 
     int count = 0;

@@ -217,6 +217,8 @@ namespace Tests
             Common::EventTypes::UserSid userSid;
             userSid.username = "testUser";
             userSid.domain = "testDomain";
+            userSid.machineid = "1234567890";
+            userSid.userid = 1001;
             userSid.sid = "1001";
             event.setOwnerUserSid(userSid);
 

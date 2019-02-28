@@ -79,16 +79,22 @@ TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) /
     eventExpected.setSessionType(Common::EventTypes::CredentialEvent::SessionType::interactive);
     auto subjectUserID = eventExpected.getSubjectUserSid();
     subjectUserID.username = "TestUser";
+    subjectUserID.machineid = "1234567890";
+    subjectUserID.userid = 1000;
     eventExpected.setSubjectUserSid(subjectUserID);
 
     auto targetUserID = eventExpected.getTargetUserSid();
     targetUserID.username = "TestUser";
+    targetUserID.machineid = "1234567890";
+    targetUserID.userid = 1001;
     eventExpected.setTargetUserSid(targetUserID);
 
     eventExpected.setGroupName("TestGroup");
     eventExpected.setGroupId(1002);
     eventExpected.setTimestamp(123123);
     eventExpected.setLogonId(1234);
+
+    eventExpected.setProcessId(123456789);
 
     std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 
