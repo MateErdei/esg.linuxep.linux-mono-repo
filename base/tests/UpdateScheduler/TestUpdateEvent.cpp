@@ -9,6 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 #include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
@@ -56,9 +58,27 @@ public:
     std::unique_ptr<MockFormattedTime> m_formattedTime;
 };
 
+static boost::property_tree::ptree parseString(const std::string& input)
+{
+    namespace pt = boost::property_tree;
+    std::istringstream i(input);
+    pt::ptree tree;
+    pt::xml_parser::read_xml(i, tree, pt::xml_parser::trim_whitespace | pt::xml_parser::no_comments);
+    return tree;
+}
+
 void TestSerializeEvent::runTest(const UpdateEvent& event, const std::string& expectedXML)
 {
-    EXPECT_EQ(serializeUpdateEvent(event, *m_hostCacheId, *m_formattedTime), expectedXML);
+    auto expectedTree = parseString(expectedXML);
+    auto actualXml = serializeUpdateEvent(event, *m_hostCacheId, *m_formattedTime);
+    auto actualTree = parseString(actualXml);
+
+    if (expectedTree != actualTree)
+    {
+        std::cerr << "Incorrect actual XML: " << actualXml << std::endl;
+    }
+
+    EXPECT_EQ(actualTree, expectedTree);
 }
 
 TEST_F(TestSerializeEvent, SuccessEvent) // NOLINT
