@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/PluginProtocol/MessageBuilder.h"
 #include "Common/PluginProtocol/Protocol.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
 
@@ -35,7 +35,7 @@ public:
     void setReplyRaw(const Common::ZeroMQWrapper::IReadable::data_t& replyMessage) { m_replyMessage = replyMessage; }
     void doNotReply() { m_replyMessage.clear(); }
 
-    void operator()(const Common::ZeroMQWrapper::IContextSharedPtr& context)
+    void operator()(const Common::ZMQWrapperApi::IContextSharedPtr& context)
     {
         auto replier = context->getReplier();
         std::string address =

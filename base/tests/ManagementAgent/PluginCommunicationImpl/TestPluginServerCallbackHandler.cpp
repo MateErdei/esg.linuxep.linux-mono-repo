@@ -2,8 +2,8 @@
 #include "MockPluginServerCallback.h"
 
 #include <Common/PluginApi/ApiException.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <modules/Common/ZMQWrapperApi/IContext.h>
+#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <gmock/gmock.h>
@@ -27,7 +27,7 @@ public:
             .WillByDefault(Return("inproc:///tmp/pubchannel.ipc"));
         ON_CALL(*mockApplicationPathManager, getSubscriberDataChannelAddress())
             .WillByDefault(Return("inproc:///tmp/subchannel.ipc"));
-        m_context = Common::ZeroMQWrapper::createContext();
+        m_context = Common::ZMQWrapperApi::createContext();
         auto replier = m_context->getReplier();
         m_requester = m_context->getRequester();
         replier->listen("inproc:///tmp/management.ipc");
@@ -39,7 +39,7 @@ public:
 
     ~TestPluginServerCallbackHandler() override = default;
 
-    Common::ZeroMQWrapper::IContextSharedPtr m_context;
+    Common::ZMQWrapperApi::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     std::shared_ptr<MockPluginServerCallback> m_mockServerCallback;
     std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_PluginManagerPtr;

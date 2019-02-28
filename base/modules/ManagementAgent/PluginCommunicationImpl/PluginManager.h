@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "PluginServerCallbackHandler.h"
 
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
@@ -45,7 +45,7 @@ namespace ManagementAgent
 
             std::vector<std::string> getRegisteredPluginNames() override;
 
-            Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
+            Common::ZMQWrapperApi::IContextSharedPtr getSocketContext();
             void setServerCallback(
                 std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback,
                 Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
@@ -67,7 +67,7 @@ namespace ManagementAgent
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
 
-            Common::ZeroMQWrapper::IContextSharedPtr m_context;
+            Common::ZMQWrapperApi::IContextSharedPtr m_context;
             Common::ZeroMQWrapper::IProxyPtr m_proxy;
             std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;

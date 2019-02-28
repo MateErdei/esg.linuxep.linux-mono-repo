@@ -13,13 +13,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/PluginProtocol/Protocol.h>
 #include <Common/Threads/NotifyPipe.h>
-#include <Common/ZeroMQWrapper/IContext.h>
-#include <Common/ZeroMQWrapper/IContextPtr.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApi/IContextPtr.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -98,7 +98,7 @@ public:
     {
         std::string tempdirPubPath = "ipc://" + tempDir->absPath("datachannelpub.ipc");
         std::string tempdirSubPath = "ipc://" + tempDir->absPath("datachannelsub.ipc");
-        m_context = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+        m_context = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
         m_proxy = m_context->getProxy(tempdirSubPath, tempdirPubPath);
         m_proxy->start();
         MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
@@ -110,7 +110,7 @@ public:
     }
     void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
     Common::Logging::ConsoleLoggingSetup m_consoleLog;
-    Common::ZeroMQWrapper::IContextSharedPtr m_context;
+    Common::ZMQWrapperApi::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::IProxyPtr m_proxy;
 };
 std::unique_ptr<TempDir> PubSubTests::tempDir;

@@ -8,13 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 
 wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args) :
     Action(args),
-    m_context(Common::ZeroMQWrapper::createContext())
+    m_context(Common::ZMQWrapperApi::createContext())
 {
 }
 

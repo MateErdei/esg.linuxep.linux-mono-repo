@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 FakeClient::~FakeClient() = default;
 
-FakeClient::FakeClient(Common::ZeroMQWrapper::IContext& iContext, const std::string& address, int timeout)
+FakeClient::FakeClient(Common::ZMQWrapperApi::IContext& iContext, const std::string& address, int timeout)
 {
     m_socketRequester = iContext.getRequester();
     if (timeout != -1)

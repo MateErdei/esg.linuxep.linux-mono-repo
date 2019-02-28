@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #    include "ReqRepTestImplementations.h"
 
-#    include <Common/ZeroMQWrapper/IContext.h>
+#    include <Common/ZMQWrapperApi/IContext.h>
 #    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #    include <Common/ZeroMQWrapper/IReadable.h>
 #    include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -54,7 +54,7 @@ namespace
     class RunInExternalProcess
     {
         std::string m_killchannel;
-        Common::ZeroMQWrapper::IContextSharedPtr m_zmq_context;
+        Common::ZMQWrapperApi::IContextSharedPtr m_zmq_context;
 
         void monitorChild(int pid)
         {
@@ -100,7 +100,7 @@ namespace
         {
         }
 
-        RunInExternalProcess(const TestContext& context, Common::ZeroMQWrapper::IContextSharedPtr zmq_context) :
+        RunInExternalProcess(const TestContext& context, Common::ZMQWrapperApi::IContextSharedPtr zmq_context) :
             m_killchannel(context.killChannel()),
             m_zmq_context(std::move(zmq_context))
         {

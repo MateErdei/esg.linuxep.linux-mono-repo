@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypes/IEventConverter.h>
 #include <Common/PluginApi/IEventVisitorCallback.h>
 #include <Common/Reactor/IReactor.h>
-#include <Common/ZeroMQWrapper/IContextPtr.h>
+#include <Common/ZMQWrapperApi/IContextPtr.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriberPtr.h>
 
 namespace Common

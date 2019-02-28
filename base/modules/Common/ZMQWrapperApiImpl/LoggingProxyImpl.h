@@ -6,13 +6,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <memory>
+#include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 
 namespace Common
 {
-    namespace ZeroMQWrapper
+    namespace ZMQWrapperApiImpl
     {
-        class IContext;
-        using IContextSharedPtr = std::shared_ptr<IContext>;
-    } // namespace ZeroMQWrapper
+        class LoggingProxyImpl
+                : public Common::ZeroMQWrapperImpl::ProxyImpl
+        {
+
+        };
+    } // namespace ZMQWrapperApiImpl
 } // namespace Common

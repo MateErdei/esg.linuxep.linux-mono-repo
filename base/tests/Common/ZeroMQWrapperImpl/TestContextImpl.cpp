@@ -5,25 +5,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <gtest/gtest.h>
 
 namespace
 {
     TEST(TestContextImpl, Creation) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextSharedPtr context(new Common::ZeroMQWrapperImpl::ContextImpl());
+        Common::ZMQWrapperApi::IContextSharedPtr context(new Common::ZMQWrapperApiImpl::ContextImpl());
     }
 
     TEST(TestContextImpl, Factory) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextSharedPtr context = Common::ZeroMQWrapper::createContext();
+        Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context, nullptr);
     }
 
     TEST(TestContextImpl, getRequester) // NOLINT
     {
-        Common::ZeroMQWrapper::IContextSharedPtr context = Common::ZeroMQWrapper::createContext();
+        Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         auto socket = context->getRequester();
         EXPECT_NE(socket.get(), nullptr);

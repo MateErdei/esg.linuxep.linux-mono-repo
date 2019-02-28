@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TestListener.h"
 
 #include "Common/Reactor/IReactor.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
 #include <string>
 #include <vector>
@@ -18,7 +18,7 @@ class FakeServer
 {
 public:
     FakeServer(const std::string& socketAddress, bool captureSignals);
-    void run(Common::ZeroMQWrapper::IContext& iContext);
+    void run(Common::ZMQWrapperApi::IContext& iContext);
     void join();
 
 private:

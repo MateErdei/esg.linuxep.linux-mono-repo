@@ -28,7 +28,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    void handleRegistration(const Common::ZeroMQWrapper::IContextSharedPtr& context)
+    void handleRegistration(const Common::ZMQWrapperApi::IContextSharedPtr& context)
     {
         auto replier = context->getReplier();
         std::string address =
@@ -106,7 +106,7 @@ namespace
             return dataMessage;
         }
 
-        Common::ZeroMQWrapper::IContextSharedPtr context() { return pluginResourceManagement.getSocketContext(); }
+        Common::ZMQWrapperApi::IContextSharedPtr context() { return pluginResourceManagement.getSocketContext(); }
 
         MockedPluginApiCallback& mock()
         {

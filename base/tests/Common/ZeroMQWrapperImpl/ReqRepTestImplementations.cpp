@@ -7,9 +7,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace ReqRepTest
 {
-    Common::ZeroMQWrapper::IContextSharedPtr createContext()
+    Common::ZMQWrapperApi::IContextSharedPtr createContext()
     {
         std::cerr << "createContext from " << ::getpid() << std::endl;
-        return Common::ZeroMQWrapper::createContext();
+        return Common::ZMQWrapperApi::createContext();
     }
 } // namespace ReqRepTest

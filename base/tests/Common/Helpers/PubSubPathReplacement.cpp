@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 
 namespace
@@ -29,7 +29,7 @@ namespace Tests
         Common::ApplicationConfiguration::replaceApplicationPathManager(
             std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(new ForTestPathManager()));
 
-        m_context = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+        m_context = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
         m_proxy = m_context->getProxy(
             Common::ApplicationConfiguration::applicationPathManager().getPublisherDataChannelAddress(),
             Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());

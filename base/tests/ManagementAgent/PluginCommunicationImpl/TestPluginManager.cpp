@@ -4,7 +4,7 @@
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <modules/Common/ZMQWrapperApi/IContext.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>

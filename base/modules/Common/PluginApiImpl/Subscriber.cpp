@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/EventTypesImpl/EventConverter.h>
 #include <Common/PluginApi/AbstractEventVisitor.h>
 #include <Common/PluginApi/ISubscriber.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 
 namespace Common

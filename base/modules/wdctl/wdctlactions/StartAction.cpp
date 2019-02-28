@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
 

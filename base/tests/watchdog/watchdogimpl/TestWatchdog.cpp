@@ -43,7 +43,7 @@ namespace
     class TestableWatchdog : public watchdog::watchdogimpl::Watchdog
     {
     public:
-        explicit TestableWatchdog(Common::ZeroMQWrapper::IContextSharedPtr context) :
+        explicit TestableWatchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
             watchdog::watchdogimpl::Watchdog(std::move(context))
         {
         }
@@ -58,7 +58,7 @@ namespace
          * Give access to the context so that we can share connections
          * @return
          */
-        Common::ZeroMQWrapper::IContext& context() { return *m_context; }
+        Common::ZMQWrapperApi::IContext& context() { return *m_context; }
 
         void addPlugin(const std::string& pluginName)
         {
@@ -86,7 +86,7 @@ TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
 {
     const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC";
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
-    Common::ZeroMQWrapper::IContextSharedPtr context(Common::ZeroMQWrapper::createContext());
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
     watchdog.callSetupIpc();
     Common::ZeroMQWrapper::ISocketRequesterPtr requester = context->getRequester();
@@ -103,7 +103,7 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
 {
     const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC_test_plugin";
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
-    Common::ZeroMQWrapper::IContextSharedPtr context(Common::ZeroMQWrapper::createContext());
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
     watchdog.callSetupIpc();
 

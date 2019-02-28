@@ -7,7 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #ifndef ARTISANBUILD
 
-#    include <Common/ZeroMQWrapper/IContext.h>
+#    include <Common/ZMQWrapperApi/IContext.h>
 #    include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #    include <Common/ZeroMQWrapper/IReadable.h>
 #    include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -30,7 +30,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace ReqRepTest
 {
-    Common::ZeroMQWrapper::IContextSharedPtr createContext();
+    Common::ZMQWrapperApi::IContextSharedPtr createContext();
 
     using data_t = Common::ZeroMQWrapper::IReadable::data_t;
 
@@ -38,7 +38,7 @@ namespace ReqRepTest
      * Common::PluginApiImpl::BaseServiceAPI::getReply**/
     class Requester
     {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 
     public:
@@ -50,7 +50,7 @@ namespace ReqRepTest
             m_requester->connect(serverAddress);
         }
 
-        explicit Requester(const std::string& serverAddress, Common::ZeroMQWrapper::IContextSharedPtr context) :
+        explicit Requester(const std::string& serverAddress, Common::ZMQWrapperApi::IContextSharedPtr context) :
             m_context(std::move(context))
         {
             m_requester = m_context->getRequester();
@@ -70,7 +70,7 @@ namespace ReqRepTest
 
     class Replier
     {
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketReplierPtr m_replier;
 
     public:
@@ -84,7 +84,7 @@ namespace ReqRepTest
 
         Replier(
             const std::string& serverAddress,
-            Common::ZeroMQWrapper::IContextSharedPtr context,
+            Common::ZMQWrapperApi::IContextSharedPtr context,
             int timeout = 1000) :
             m_context(std::move(context))
         {
@@ -105,7 +105,7 @@ namespace ReqRepTest
     class Unreliable
     {
     protected:
-        Common::ZeroMQWrapper::IContextSharedPtr m_context;
+        Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketRequesterPtr m_requestKillChannel;
 
         void requestKill() { m_requestKillChannel->write(data_t{ "killme" }); }

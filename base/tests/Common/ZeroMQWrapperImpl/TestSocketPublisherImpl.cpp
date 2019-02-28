@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <gtest/gtest.h>
 
@@ -14,7 +14,7 @@ namespace
 {
     TEST(TestSocketPublisherImpl, creation) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketPublisherPtr socket = context->getPublisher();
         EXPECT_NE(socket.get(), nullptr);

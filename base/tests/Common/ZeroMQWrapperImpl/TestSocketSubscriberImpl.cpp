@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Exceptions/Print.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
@@ -19,7 +19,7 @@ namespace
 {
     TEST(TestSocketSubscriberImpl, creation) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         EXPECT_NE(socket.get(), nullptr);
@@ -27,7 +27,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, listen) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);
@@ -38,7 +38,7 @@ namespace
     class SenderThread
     {
     public:
-        explicit SenderThread(Common::ZeroMQWrapper::IContext& context);
+        explicit SenderThread(Common::ZMQWrapperApi::IContext& context);
         ~SenderThread()
         {
             m_stopThread = true;
@@ -50,13 +50,13 @@ namespace
         void start();
 
     private:
-        Common::ZeroMQWrapper::IContext& m_context;
+        Common::ZMQWrapperApi::IContext& m_context;
         std::thread m_thread;
         bool m_stopThread;
         void run();
     };
 
-    SenderThread::SenderThread(Common::ZeroMQWrapper::IContext& context) :
+    SenderThread::SenderThread(Common::ZMQWrapperApi::IContext& context) :
         m_context(context),
         m_thread(),
         m_stopThread(false)
@@ -89,7 +89,7 @@ namespace
 
     TEST(TestSocketSubscriberImpl, comms) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketSubscriberPtr socket = context->getSubscriber();
         ASSERT_NE(socket.get(), nullptr);

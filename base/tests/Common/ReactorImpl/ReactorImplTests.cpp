@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "modules/Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -73,7 +73,7 @@ TEST_F(ReactorImplTest, AddSingleCallbackListenerAndTestWritingData) // NOLINT
 
 TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
 {
-    auto context = Common::ZeroMQWrapper::createContext();
+    auto context = Common::ZMQWrapperApi::createContext();
 
     std::string socketAddress = "inproc://ReactorImplTest_TestFakeServer1";
 
@@ -109,7 +109,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     data_t args{ socketAddress };
     process->exec(fakeServerPath, args);
 
-    auto context = Common::ZeroMQWrapper::createContext();
+    auto context = Common::ZMQWrapperApi::createContext();
 
     FakeClient fakeClient(*context, socketAddress, 5000);
 
@@ -215,7 +215,7 @@ TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // 
 {
     auto lambdaThatClosesSocketBeforeStopingReactor = []() {
         using ::testing::Invoke;
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();
         auto requester = context->getRequester();
         requester->setTimeout(200);

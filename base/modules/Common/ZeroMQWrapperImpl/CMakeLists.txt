@@ -1,6 +1,6 @@
 add_library(zeromqwrapperimplobject OBJECT
         ContextHolder.cpp ContextHolder.h
-        ContextImpl.cpp ContextImpl.h
+        ../ZMQWrapperApiImpl/ContextImpl.cpp ../ZMQWrapperApiImpl/ContextImpl.h
         PollerImpl.cpp PollerImpl.h
         ProxyImpl.cpp ProxyImpl.h
         SocketHolder.cpp SocketHolder.h
@@ -14,8 +14,8 @@ add_library(zeromqwrapperimplobject OBJECT
         ZeroMQTimeoutException.h
         ../Exceptions/IException.h
         ../Exceptions/Print.h
-        ../ZeroMQWrapper/IContext.h
-        ../ZeroMQWrapper/IContextPtr.h
+        ../ZMQWrapperApi/IContext.h
+        ../ZMQWrapperApi/IContextPtr.h
         ../ZeroMQWrapper/IHasFD.h
         ../ZeroMQWrapper/IReadable.h
         ../ZeroMQWrapper/IReadWrite.h

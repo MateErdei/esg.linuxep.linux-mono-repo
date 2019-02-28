@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <gtest/gtest.h>
 #include <sys/socket.h>
 
@@ -21,7 +21,7 @@ namespace
 {
     TEST(SocketReplierImpl, creation) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketReplierPtr socket = context->getReplier();
         EXPECT_NE(socket.get(), nullptr);
@@ -29,7 +29,7 @@ namespace
 
     TEST(SocketReplierImpl, listen) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         auto socket = context->getReplier();
         EXPECT_NE(socket.get(), nullptr);
@@ -38,7 +38,7 @@ namespace
 
     TEST(SocketReplierImpl, transfer) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         auto replier = context->getReplier();
         auto requester = context->getRequester();
@@ -96,7 +96,7 @@ namespace
 
     TEST(SocketReplierImpl, context_remains_after_holder_deleted) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();
         ASSERT_NE(replier.get(), nullptr);
         auto requester = context->getRequester();

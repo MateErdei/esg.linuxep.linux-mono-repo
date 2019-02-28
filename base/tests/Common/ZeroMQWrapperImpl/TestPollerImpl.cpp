@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Threads/NotifyPipe.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/IReadWrite.h>
@@ -49,7 +49,7 @@ namespace
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
 
-        IContextSharedPtr context = Common::ZeroMQWrapper::createContext();
+        Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         ASSERT_NE(socket.get(), nullptr);
@@ -73,7 +73,7 @@ namespace
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
 
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         auto replier = context->getReplier();
         ASSERT_NE(replier.get(), nullptr);
@@ -147,7 +147,7 @@ namespace
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();
         auto requester = context->getRequester();
         replier->listen("inproc://REPSocketNotified");
@@ -199,7 +199,7 @@ namespace
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();
         auto requester = context->getRequester();
         replier->listen("inproc://REPSocketNotified");

@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
@@ -23,7 +23,7 @@ namespace ManagementAgent
     namespace PluginCommunicationImpl
     {
         PluginManager::PluginManager() :
-            m_context(Common::ZeroMQWrapper::createContext()),
+            m_context(Common::ZMQWrapperApi::createContext()),
             m_serverCallbackHandler(),
             m_defaultTimeout(5000),
             m_defaultConnectTimeout(5000)
@@ -227,7 +227,7 @@ namespace ManagementAgent
             m_RegisteredPlugins.erase(pluginName);
         }
 
-        Common::ZeroMQWrapper::IContextSharedPtr PluginManager::getSocketContext() { return m_context; }
+        Common::ZMQWrapperApi::IContextSharedPtr PluginManager::getSocketContext() { return m_context; }
 
         void PluginManager::setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket)
         {

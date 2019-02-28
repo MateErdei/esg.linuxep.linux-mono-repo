@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
 
         if (argc == 2)
         {

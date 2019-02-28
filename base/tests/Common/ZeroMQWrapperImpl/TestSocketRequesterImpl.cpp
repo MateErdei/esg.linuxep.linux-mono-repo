@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include <gtest/gtest.h>
 
@@ -15,7 +15,7 @@ namespace
 {
     TEST(TestSocketRequesterImpl, creation) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         EXPECT_NE(socket.get(), nullptr);
@@ -23,7 +23,7 @@ namespace
 
     TEST(TestSocketRequesterImpl, listen) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         EXPECT_NE(socket.get(), nullptr);
@@ -32,7 +32,7 @@ namespace
 
     TEST(TestSocketRequesterImpl, connectionTimeout) // NOLINT
     {
-        auto context = Common::ZeroMQWrapper::createContext();
+        auto context = Common::ZMQWrapperApi::createContext();
         ASSERT_NE(context.get(), nullptr);
         ISocketRequesterPtr socket = context->getRequester();
         socket->setConnectionTimeout(200);

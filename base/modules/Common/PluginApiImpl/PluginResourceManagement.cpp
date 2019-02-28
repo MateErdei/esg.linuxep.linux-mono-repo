@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/PluginApi/ApiException.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
@@ -33,12 +33,12 @@ namespace Common
     namespace PluginApiImpl
     {
         PluginResourceManagement::PluginResourceManagement() :
-            m_contextPtr(Common::ZeroMQWrapper::createContext()),
+            m_contextPtr(Common::ZMQWrapperApi::createContext()),
             m_defaultTimeout(10000),
             m_defaultConnectTimeout(10000)
         {
         }
-        PluginResourceManagement::PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr context) :
+        PluginResourceManagement::PluginResourceManagement(Common::ZMQWrapperApi::IContextSharedPtr context) :
             m_contextPtr(std::move(context)),
             m_defaultTimeout(10000),
             m_defaultConnectTimeout(10000)
@@ -169,7 +169,7 @@ namespace Common
             socket.setConnectionTimeout(m_defaultConnectTimeout);
         }
 
-        Common::ZeroMQWrapper::IContextSharedPtr PluginResourceManagement::getSocketContext() { return m_contextPtr; }
+        Common::ZMQWrapperApi::IContextSharedPtr PluginResourceManagement::getSocketContext() { return m_contextPtr; }
 
     } // namespace PluginApiImpl
 } // namespace Common

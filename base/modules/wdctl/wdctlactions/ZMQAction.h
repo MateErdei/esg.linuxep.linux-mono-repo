@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Action.h"
 
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/IReadable.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
 #include <Common/ZeroMQWrapper/IWritable.h>
@@ -22,7 +22,7 @@ namespace wdctl
             explicit ZMQAction(const wdctl::wdctlarguments::Arguments& args);
 
         protected:
-            Common::ZeroMQWrapper::IContextSharedPtr m_context;
+            Common::ZMQWrapperApi::IContextSharedPtr m_context;
             /**
              * Create a requester socket to the watchdog
              *

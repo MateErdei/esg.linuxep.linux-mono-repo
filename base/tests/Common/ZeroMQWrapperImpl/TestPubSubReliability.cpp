@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/ZeroMQWrapper/IReadable.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -49,7 +49,7 @@ namespace
         std::atomic<bool> stopPublisher(false);
         std::atomic<bool> stopSubscriber(false);
         auto fasterPublisher = std::async(std::launch::async, [serveraddress, &synchronizer, &stopPublisher]() {
-            auto m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZMQWrapperApi::createContext();
             auto publisher = m_context->getPublisher();
             auto publisherimpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketPublisherImpl*>(publisher.get());
             ASSERT_NE(publisherimpl, nullptr);
@@ -73,7 +73,7 @@ namespace
         // simulate a replier that answers after the requester timeout.
         auto slowSubscriber =
             std::async(std::launch::async, [serveraddress, &synchronizer, &stopSubscriber]() -> std::vector<int> {
-                auto m_context = Common::ZeroMQWrapper::createContext();
+                auto m_context = Common::ZMQWrapperApi::createContext();
                 auto subscriber = m_context->getSubscriber();
 
                 subscriber->connect(serveraddress);
@@ -133,7 +133,7 @@ namespace
         std::atomic<bool> stopPublisher(false);
         std::atomic<bool> stopSubscriber(false);
         auto fasterPublisher = std::async(std::launch::async, [serveraddress, &stopPublisher]() {
-            auto m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZMQWrapperApi::createContext();
             auto publisher = m_context->getPublisher();
             publisher->listen(serveraddress);
             int limit = std::numeric_limits<int>::max() - 5;
@@ -152,7 +152,7 @@ namespace
         });
 
         auto slowSubscriber = std::async(std::launch::async, [serveraddress, &synchronizer, &stopSubscriber]() {
-            auto m_context = Common::ZeroMQWrapper::createContext();
+            auto m_context = Common::ZMQWrapperApi::createContext();
             auto subscriber = m_context->getSubscriber();
 
             subscriber->connect(serveraddress);

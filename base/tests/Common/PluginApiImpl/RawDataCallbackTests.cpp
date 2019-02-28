@@ -10,10 +10,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/AbstractEventVisitor.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/Threads/NotifyPipe.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/PluginProtocol/DataMessage.h"
 #include "Common/PluginProtocol/Protocol.h"
-#include "Common/ZeroMQWrapper/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
 #include "Common/ZeroMQWrapper/ISocketRequester.h"
 
@@ -20,7 +20,7 @@ public:
     SingleManagementRequest() = default;
     ~SingleManagementRequest() = default;
     Common::PluginProtocol::DataMessage triggerRequest(
-        const Common::ZeroMQWrapper::IContextSharedPtr& context,
+        const Common::ZMQWrapperApi::IContextSharedPtr& context,
         const Common::PluginProtocol::DataMessage& requestMessage)
     {
         Common::PluginProtocol::Protocol protocol;
@@ -29,7 +29,7 @@ public:
         return protocol.deserialize(rawReply);
     }
     Common::ZeroMQWrapper::IReadable::data_t triggerRawRequest(
-        const Common::ZeroMQWrapper::IContextSharedPtr& context,
+        const Common::ZMQWrapperApi::IContextSharedPtr& context,
         const Common::ZeroMQWrapper::IReadable::data_t& message)
     {
         auto requester = context->getRequester();

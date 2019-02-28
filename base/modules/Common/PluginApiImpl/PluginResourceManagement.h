@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/ZeroMQWrapper/IContextSharedPtr.h>
+#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketSetup.h>
 
 namespace Common
@@ -18,7 +18,7 @@ namespace Common
         {
         public:
             PluginResourceManagement();
-            explicit PluginResourceManagement(Common::ZeroMQWrapper::IContextSharedPtr);
+            explicit PluginResourceManagement(Common::ZMQWrapperApi::IContextSharedPtr);
 
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI(
                 const std::string& pluginName,
@@ -35,11 +35,11 @@ namespace Common
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs);
             void setDefaultConnectTimeout(int timeoutMs);
-            Common::ZeroMQWrapper::IContextSharedPtr getSocketContext();
+            Common::ZMQWrapperApi::IContextSharedPtr getSocketContext();
 
         private:
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
-            Common::ZeroMQWrapper::IContextSharedPtr m_contextPtr;
+            Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
             int m_defaultTimeout;
             int m_defaultConnectTimeout;
         };

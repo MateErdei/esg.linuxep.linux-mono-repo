@@ -16,7 +16,7 @@ FakeServer::FakeServer(const std::string& socketAddress, bool captureSignals) :
 {
 }
 
-void FakeServer::run(Common::ZeroMQWrapper::IContext& iContext)
+void FakeServer::run(Common::ZMQWrapperApi::IContext& iContext)
 {
     auto replier = iContext.getReplier();
     replier->listen(m_socketAddress);

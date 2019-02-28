@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <sys/select.h>
@@ -27,9 +27,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
-Watchdog::Watchdog() : Watchdog(Common::ZeroMQWrapper::createContext()) {}
+Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
 
-Watchdog::Watchdog(Common::ZeroMQWrapper::IContextSharedPtr context) : m_context(std::move(context)) {}
+Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(std::move(context)) {}
 
 Watchdog::~Watchdog()
 {

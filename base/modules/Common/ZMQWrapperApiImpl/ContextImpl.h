@@ -6,15 +6,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ContextHolder.h"
+#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
 
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 
 namespace Common
 {
-    namespace ZeroMQWrapperImpl
+    namespace ZMQWrapperApiImpl
     {
-        class ContextImpl : public virtual Common::ZeroMQWrapper::IContext
+        class ContextImpl : public virtual Common::ZMQWrapperApi::IContext
         {
         public:
             ContextImpl();
@@ -31,7 +31,7 @@ namespace Common
             Common::ZeroMQWrapper::IProxyPtr getProxy(const std::string& frontend, const std::string& backend) override;
 
         private:
-            ContextHolderSharedPtr m_context;
+            Common::ZeroMQWrapperImpl::ContextHolderSharedPtr m_context;
         };
     } // namespace ZeroMQWrapperImpl
 } // namespace Common

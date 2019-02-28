@@ -6,12 +6,12 @@
 ///////////////////////////////////////////////////////////
 
 #include <Common/Exceptions/Print.h>
-#include <Common/ZeroMQWrapper/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapperImpl/ContextImpl.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
@@ -45,14 +45,14 @@ using namespace Common::ZeroMQWrapper;
 
 TEST(TestProxyImpl, Creation) // NOLINT
 {
-    IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     EXPECT_NE(proxy.get(), nullptr);
 }
 
 TEST(TestProxyImpl, StartStop) // NOLINT
 {
-    IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -137,7 +137,7 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
 
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -184,7 +184,7 @@ TEST(TestProxyImpl, 2subscribers) // NOLINT
 
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -243,7 +243,7 @@ TEST(TestProxyImpl, 2Senders) // NOLINT
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZeroMQWrapperImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 

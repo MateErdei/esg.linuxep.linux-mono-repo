@@ -10,9 +10,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace ZeroMQWrapper
+    namespace ZMQWrapperApi
     {
         class IContext;
-        using IContextPtr = std::unique_ptr<IContext>;
+        using IContextSharedPtr = std::shared_ptr<IContext>;
     } // namespace ZeroMQWrapper
 } // namespace Common
