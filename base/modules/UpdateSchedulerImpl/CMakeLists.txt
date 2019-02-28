@@ -34,7 +34,7 @@ add_library(updateschedulerimpl SHARED
         ../UpdateScheduler/ScheduledUpdate.cpp
         ../UpdateScheduler/ScheduledUpdate.h Logger.cpp)
 
-target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 target_link_libraries(updateschedulerimpl PUBLIC
         filesystemimpl

@@ -1,3 +1,5 @@
+#include <utility>
+
 /******************************************************************************************************
 
 Copyright 2018 Sophos Limited.  All rights reserved.
@@ -15,7 +17,7 @@ namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     SchedulerPluginCallback::SchedulerPluginCallback(std::shared_ptr<SchedulerTaskQueue> task) :
-        m_task(task),
+        m_task(std::move(task)),
         m_statusInfo(),
         m_shutdownReceived(false)
     {
@@ -65,7 +67,7 @@ namespace UpdateSchedulerImpl
     void SchedulerPluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
         LOGSUPPORT("Setting status");
-        m_statusInfo = statusInfo;
+        m_statusInfo = std::move(statusInfo);
     }
 
     std::string SchedulerPluginCallback::getTelemetry()

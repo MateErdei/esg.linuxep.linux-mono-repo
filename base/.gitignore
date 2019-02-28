@@ -9,6 +9,8 @@
 .idea/shelf/
 .idea/markdown-exported-files.xml
 .idea/codeStyles/Project.xml
+.idea/deployment.xml
+.idea/encodings.xml
 build64
 cmake-build-debug
 *.pyc
@@ -17,3 +19,4 @@ output
 log
 redist
 *.orig
+products/distribution/include/

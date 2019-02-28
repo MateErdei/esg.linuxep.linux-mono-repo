@@ -76,6 +76,8 @@ endif()
 set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
 set( SUL_LIBRARY_DIRS STRING ${CMAKE_BINARY_DIR}/libs:${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64 FORCE)
 
+set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
+
 set( PROTOBUF_INPUT ${INPUT}/protobuf )
 set(Protobuf_root ${PROTOBUF_INPUT}/install64)
 set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
