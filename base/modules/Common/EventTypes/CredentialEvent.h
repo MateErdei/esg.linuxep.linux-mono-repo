@@ -56,6 +56,7 @@ namespace Common
             windows_timestamp_t getTimestamp() const;
             login_id_t getLogonId() const;
             Common::EventTypes::NetworkAddress getRemoteNetworkAccess() const;
+            unsigned long getProcessId() const;
 
             /*
              * Setters
@@ -69,6 +70,7 @@ namespace Common
             void setTimestamp(windows_timestamp_t timestamp);
             void setLogonId(login_id_t logonId);
             void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress& remoteNetworkAccess);
+            void setProcessId(const unsigned long processId);
 
             std::string toString() const override;
 
@@ -89,6 +91,7 @@ namespace Common
             Common::EventTypes::CredentialEvent::EventType m_eventType;
             Common::EventTypes::UserSid m_subjectUserSid;
             Common::EventTypes::UserSid m_targetUserSid;
+            unsigned long m_pid;
         };
 
         Common::EventTypes::CredentialEvent createCredentialEvent(

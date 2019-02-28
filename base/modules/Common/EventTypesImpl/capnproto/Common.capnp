@@ -249,6 +249,8 @@ struct UserSID {
     username             @0 :Text;
     sid                  @1 :SID; # Windows only
     domain               @2 :Text;
+    machineid            @3 :Text; # id of the machine obtained from /etc/machine-id
+    userid               @4 :UInt32;
 }
 
 struct NetworkAddress {

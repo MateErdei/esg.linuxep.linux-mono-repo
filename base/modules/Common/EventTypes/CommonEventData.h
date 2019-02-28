@@ -18,6 +18,8 @@ namespace Common
             std::string username;
             std::string sid;
             std::string domain;
+            std::string machineid;
+            std::uint32_t userid;
         };
 
         struct NetworkAddress

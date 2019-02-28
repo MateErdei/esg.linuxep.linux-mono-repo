@@ -149,6 +149,11 @@ namespace Common
 
         std::string CredentialEvent::getGroupName() const { return m_groupName; }
 
+        unsigned long CredentialEvent::getProcessId() const
+        {
+            return m_pid;
+        }
+
         void CredentialEvent::setSessionType(const Common::EventTypes::CredentialEvent::SessionType sessionType)
         {
             m_sessionType = sessionType;
@@ -181,6 +186,11 @@ namespace Common
 
         void CredentialEvent::setGroupName(const std::string& groupName) { m_groupName = groupName; }
 
+        void CredentialEvent::setProcessId(const unsigned long processId)
+        {
+            m_pid = processId;
+        }
+
         std::string CredentialEvent::toString() const
         {
             ::capnp::MallocMessageBuilder message;
@@ -192,9 +202,13 @@ namespace Common
 
             credentialsEvent.getSubjectUserSID().setUsername(m_subjectUserSid.username);
             credentialsEvent.getSubjectUserSID().setDomain(m_subjectUserSid.domain);
+            credentialsEvent.getSubjectUserSID().setMachineid(m_subjectUserSid.machineid);
+            credentialsEvent.getSubjectUserSID().setUserid(m_subjectUserSid.userid);
 
             credentialsEvent.getTargetUserSID().setUsername(m_targetUserSid.username);
             credentialsEvent.getTargetUserSID().setDomain(m_targetUserSid.domain);
+            credentialsEvent.getTargetUserSID().setMachineid(m_targetUserSid.machineid);
+            credentialsEvent.getTargetUserSID().setUserid(m_targetUserSid.userid);
 
             credentialsEvent.getRemoteNetworkAddress().setAddress(m_remoteNetworkAccess.address);
 
@@ -203,6 +217,7 @@ namespace Common
 
             credentialsEvent.setUserGroupID(m_groupId);
             credentialsEvent.setUserGroupName(m_groupName);
+            credentialsEvent.setPid(m_pid);
 
             // Convert to byte string
             kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -242,16 +257,22 @@ namespace Common
                 Common::EventTypes::UserSid subjectUserId;
                 subjectUserId.username = credentialsEvent.getSubjectUserSID().getUsername();
                 subjectUserId.domain = credentialsEvent.getSubjectUserSID().getDomain();
+                subjectUserId.machineid = credentialsEvent.getSubjectUserSID().getMachineid();
+                subjectUserId.userid = credentialsEvent.getSubjectUserSID().getUserid();
                 setSubjectUserSid(subjectUserId);
 
                 Common::EventTypes::UserSid targetUserId;
                 targetUserId.username = credentialsEvent.getTargetUserSID().getUsername();
                 targetUserId.domain = credentialsEvent.getTargetUserSID().getDomain();
+                targetUserId.machineid = credentialsEvent.getTargetUserSID().getMachineid();
+                targetUserId.userid = credentialsEvent.getTargetUserSID().getUserid();
                 setTargetUserSid(targetUserId);
 
                 Common::EventTypes::NetworkAddress networkAddress;
                 networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
                 setRemoteNetworkAccess(networkAddress);
+
+                setProcessId(credentialsEvent.getPid());
             }
             catch (std::exception& ex)
             {
