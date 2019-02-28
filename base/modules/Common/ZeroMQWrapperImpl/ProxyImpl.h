@@ -52,6 +52,8 @@ namespace Common
             SocketHolder m_controlPub;
 
             void announceThreadStarted();
+        protected:
+            void* m_captureZMQSocket; 
         };
     } // namespace ZeroMQWrapperImpl
 } // namespace Common

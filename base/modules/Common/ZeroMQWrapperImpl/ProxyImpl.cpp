@@ -25,7 +25,8 @@ Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(
     m_controlAddress("inproc://PubSubControl"),
     m_context(std::move(context)),
     m_threadStartedFlag(false),
-    m_controlPub(m_context, ZMQ_PUSH)
+    m_controlPub(m_context, ZMQ_PUSH),
+    m_captureZMQSocket(nullptr)
 {
     SocketUtil::listen(m_controlPub, m_controlAddress);
 }
@@ -99,7 +100,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::run()
 
     announceThreadStarted();
 
-    zmq_proxy_steerable(xsub.skt(), xpub.skt(), nullptr, controlSub.skt());
+    zmq_proxy_steerable(xsub.skt(), xpub.skt(), m_captureZMQSocket, controlSub.skt());
 }
 
 Common::ZeroMQWrapperImpl::ContextHolderSharedPtr& Common::ZeroMQWrapperImpl::ProxyImpl::ctx()

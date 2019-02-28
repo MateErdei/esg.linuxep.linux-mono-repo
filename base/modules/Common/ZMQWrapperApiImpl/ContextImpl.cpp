@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ContextImpl.h"
+#include "LoggingProxyImpl.h"
 
 #include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
@@ -49,7 +50,12 @@ Common::ZeroMQWrapper::ISocketReplierPtr ContextImpl::getReplier()
 
 Common::ZeroMQWrapper::IProxyPtr ContextImpl::getProxy(const std::string& frontend, const std::string& backend)
 {
-    return Common::ZeroMQWrapper::IProxyPtr(new Common::ZeroMQWrapperImpl::ProxyImpl(frontend, backend, m_context));
+    auto envProxyLogging = ::secure_getenv("SOPHOS_PUB_SUB_ROUTER_LOGGING");
+    if (envProxyLogging == nullptr)
+    {
+        return Common::ZeroMQWrapper::IProxyPtr(new Common::ZeroMQWrapperImpl::ProxyImpl(frontend, backend, m_context));
+    }
+    return Common::ZeroMQWrapper::IProxyPtr(new Common::ZMQWrapperApiImpl::LoggingProxyImpl(frontend, backend, m_context));
 }
 
 Common::ZMQWrapperApi::IContextSharedPtr Common::ZMQWrapperApi::createContext()

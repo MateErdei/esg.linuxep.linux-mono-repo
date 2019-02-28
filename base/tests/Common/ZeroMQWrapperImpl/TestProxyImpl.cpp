@@ -6,15 +6,15 @@
 ///////////////////////////////////////////////////////////
 
 #include <Common/Exceptions/Print.h>
-#include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -178,7 +178,7 @@ TEST(TestProxyImpl, PassMessage) // NOLINT
     proxy.reset();
 }
 
-TEST(TestProxyImpl, 2subscribers) // NOLINT
+TEST(TestProxyImpl, TwoSubscribers) // NOLINT
 {
     // Need to share the context to use inproc addresses
 
@@ -238,7 +238,7 @@ TEST(TestProxyImpl, 2subscribers) // NOLINT
     proxy.reset();
 }
 
-TEST(TestProxyImpl, 2Senders) // NOLINT
+TEST(TestProxyImpl, TwoSenders) // NOLINT
 {
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
