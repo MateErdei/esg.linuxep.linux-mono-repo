@@ -1,9 +1,14 @@
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "MockPluginServerCallback.h"
 
 #include <Common/PluginApi/ApiException.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
-#include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <gmock/gmock.h>

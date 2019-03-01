@@ -1,10 +1,15 @@
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
-#include <modules/Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApi/IContext.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>

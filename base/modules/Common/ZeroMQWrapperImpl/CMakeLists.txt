@@ -13,8 +13,6 @@ add_library(zeromqwrapperimplobject OBJECT
         ZeroMQTimeoutException.h
         ../Exceptions/IException.h
         ../Exceptions/Print.h
-        ../ZMQWrapperApi/IContext.h
-        ../ZMQWrapperApi/IContextPtr.h
         ../ZeroMQWrapper/IHasFD.h
         ../ZeroMQWrapper/IReadable.h
         ../ZeroMQWrapper/IReadWrite.h

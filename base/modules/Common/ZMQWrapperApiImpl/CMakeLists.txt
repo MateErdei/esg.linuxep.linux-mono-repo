@@ -5,6 +5,9 @@ add_library(zmqwrapperapiimpl OBJECT
         LoggingProxyImpl.h
         Logger.cpp
         Logger.h
+        ../ZMQWrapperApi/IContext.h
+        ../ZMQWrapperApi/IContextPtr.h
+        ../ZMQWrapperApi/IContextSharedPtr.h
         )
 
 target_include_directories(zmqwrapperapiimpl PUBLIC ${ZeroMQ_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})

@@ -1,8 +1,9 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include "FakeClient.h"
 #include "FakeServer.h"
 #include "MockCallBackListener.h"
@@ -13,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Common/Reactor/IReactor.h"
 #include "Common/ReactorImpl/GenericCallbackListener.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
