@@ -5,19 +5,26 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "UpdateStatus.h"
 
+#include "PropertyTreeHelper.h"
+
 #include "../Logger.h"
 
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <boost/foreach.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 
 namespace
 {
     namespace pt = boost::property_tree;
     using ProductStatus = UpdateSchedulerImpl::configModule::ProductStatus;
 
+    /**
+     * Insert add subscription nodes:
+     * <subscriptions>
+     *  <subscription rigidname="" version="" displayVersion=""/>
+     * </subscriptions>
+     * @param products
+     * @param subscriptionsNode
+     */
     void addSubscriptionElements(const std::vector<ProductStatus>& products, pt::ptree& subscriptionsNode)
     {
         for (auto& product : products)
@@ -75,9 +82,7 @@ namespace UpdateSchedulerImpl
 </status>)sophos" };
 
             namespace pt = boost::property_tree;
-            pt::ptree tree;
-            std::istringstream reader(L_STATUS_TEMPLATE);
-            pt::xml_parser::read_xml(reader, tree, pt::xml_parser::trim_whitespace | pt::xml_parser::no_comments);
+            pt::ptree tree = parseString(L_STATUS_TEMPLATE);
 
             std::string bootTime = iFormattedTime.bootTime();
 
@@ -106,9 +111,7 @@ namespace UpdateSchedulerImpl
 
             addSubscriptionElements(status.Products, statusNode.get_child("subscriptions"));
 
-            std::ostringstream xmlOutput;
-            pt::xml_parser::write_xml(xmlOutput, tree);
-            return xmlOutput.str();
+            return toString(tree);
         }
 
     } // namespace configModule

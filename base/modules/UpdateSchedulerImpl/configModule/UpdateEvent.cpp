@@ -5,15 +5,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "UpdateEvent.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include "PropertyTreeHelper.h"
 
 namespace
 {
     using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
     namespace pt = boost::property_tree;
 
+    /**
+     * Insert message node for non-empty messages
+     * <message>
+     *  <message_inserts>
+     *   <insert>Value</insert>
+     *  </message_inserts>
+     * </message>
+     *
+     * TODO: LINUXEP-6473: Get the correct error code to send to Central.
+     * We'll need to work out precisely what to include based on the code.
+     *
+     * @param event
+     * @param addInfoNode
+     */
     void insertMessageContent(const UpdateEvent& event, pt::ptree& addInfoNode)
     {
         if (event.Messages.empty())
@@ -46,23 +58,6 @@ namespace
         }
     }
 
-    boost::property_tree::ptree parseString(const std::string& input)
-    {
-        namespace pt = boost::property_tree;
-        std::istringstream i(input);
-        pt::ptree tree;
-        pt::xml_parser::read_xml(i, tree, pt::xml_parser::trim_whitespace | pt::xml_parser::no_comments);
-        return tree;
-    }
-
-    std::string toString(const boost::property_tree::ptree& tree)
-    {
-        namespace pt = boost::property_tree;
-        std::ostringstream ost;
-        pt::xml_parser::write_xml(ost, tree);
-        return ost.str();
-    }
-
     std::string eventXML(
         const UpdateEvent& updateEvent,
         const std::string& timestamp,
@@ -79,7 +74,7 @@ namespace
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
 </event>)sophos" };
 
-        auto tree = parseString(L_EVENT_TEMPLATE);
+        auto tree = UpdateSchedulerImpl::configModule::parseString(L_EVENT_TEMPLATE);
         auto& appInfoNode = tree.get_child("event.appInfo");
         insertMessageContent(updateEvent, appInfoNode);
 
@@ -87,7 +82,7 @@ namespace
         tree.put("event.appInfo.number", messageNumber);
         tree.put("event.appInfo.updateSource", updateSource);
 
-        return toString(tree);
+        return UpdateSchedulerImpl::configModule::toString(tree);
     }
 } // namespace
 
