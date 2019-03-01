@@ -19,7 +19,7 @@ namespace Common
             std::string sid;
             std::string domain;
             std::string machineid;
-            std::uint32_t userid;
+            std::uint32_t userid = 0;
         };
 
         struct NetworkAddress
