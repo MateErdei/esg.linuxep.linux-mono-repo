@@ -48,9 +48,6 @@ VALGRIND=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
-        --debug)
-            CMAKE_BUILD_TYPE=Debug
-            ;;
         --build-type)
             shift
             CMAKE_BUILD_TYPE="$1"
@@ -58,6 +55,10 @@ do
         --debug)
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
+            ;;
+        --no-debug)
+            export ENABLE_STRIP=1
+            CMAKE_BUILD_TYPE=RelWithDebInfo
             ;;
         --strip)
             export ENABLE_STRIP=1

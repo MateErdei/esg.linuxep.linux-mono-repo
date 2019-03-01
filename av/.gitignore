@@ -7,6 +7,7 @@
 .idea/workspace.backup
 .idea/workspace.xml
 .idea/shelf/
+.idea/
 cmake-build-debug
 *.pyc
 input

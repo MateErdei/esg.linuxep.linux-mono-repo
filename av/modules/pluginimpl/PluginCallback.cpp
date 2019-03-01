@@ -30,7 +30,7 @@ namespace Plugin
         m_task->push(Task{ Task::TaskType::Policy, policyXml });
     }
 
-    void PluginCallback::queueAction(const std::string& actionXml) { LOGSUPPORT("Queueing action"); }
+    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }
 
     void PluginCallback::onShutdown()
     {
@@ -38,7 +38,7 @@ namespace Plugin
         m_task->pushStop();
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& appId)
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
     {
         LOGSUPPORT("Received get status request");
         return m_statusInfo;
