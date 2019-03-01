@@ -97,8 +97,8 @@ namespace UpdateSchedulerImpl
             {
                 pt::ptree::assoc_iterator it =
                     autoUpdate.find("lastResult"); // insert adds node before iterator element
-                assert(it != tree.not_found());
-                tree.insert(tree.to_iterator(it), { "firstFailedTime", pt::ptree(status.FirstFailedTime) });
+                assert(it != autoUpdate.not_found());
+                tree.insert(autoUpdate.to_iterator(it), { "firstFailedTime", pt::ptree(status.FirstFailedTime) });
                 //                dump(tree);
             }
             autoUpdate.put("lastResult", std::to_string(status.LastResult));
