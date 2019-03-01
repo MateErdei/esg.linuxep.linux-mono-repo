@@ -25,7 +25,7 @@ namespace Plugin
 
     void QueueTask::pushStop()
     {
-        Task stopTask{ Task::TaskType::Stop };
+        Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
         push(stopTask);
     }
 } // namespace Plugin
