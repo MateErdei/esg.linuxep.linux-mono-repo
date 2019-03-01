@@ -19,11 +19,11 @@ add_executable(ReactorImplTests
 target_include_directories(ReactorImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${ZeroMQ_INCLUDE_DIR})
 target_include_directories(ReactorImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
 target_link_libraries(ReactorImplTests gtest gmock)
-target_link_libraries(ReactorImplTests reactorimpl threads testhelpers processimpl)
+target_link_libraries(ReactorImplTests threads testhelpers processimpl zmqwrapperapiimpl)
 gtest_discover_tests(ReactorImplTests)
 
 add_executable(FakeServerRunner FakeServer.cpp FakeServer.h TestListener.h TestListener.cpp FakeServerRunner.cpp)
-target_link_libraries(FakeServerRunner PUBLIC reactorimpl zeromqwrapperimpl threads)
+target_link_libraries(FakeServerRunner PUBLIC zmqwrapperapiimpl threads)
 add_dependencies(ReactorImplTests FakeServerRunner)
 
 

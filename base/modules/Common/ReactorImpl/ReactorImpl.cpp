@@ -58,7 +58,6 @@ namespace Common
         {
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
             // LOGERROR("Running Thread Impl");
-            announceThreadStarted();
             bool monitorForSignalsForShutdown = false;
 
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
@@ -95,7 +94,7 @@ namespace Common
 
             // LOGDEBUG("add pipe call back");
             auto stopRequestedFD = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-
+            announceThreadStarted();
             bool callBackRequestedStop = false;
             while (!stopRequested() && !callBackRequestedStop)
             {

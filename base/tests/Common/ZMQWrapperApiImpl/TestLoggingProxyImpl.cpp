@@ -40,40 +40,71 @@ namespace
             return s.str();
         }
     }
+
+    int countOccurancesInString(const std::string& searched, const std::string& pattern)
+    {
+        size_t curPos = 0;
+        int count = 0;
+        while (true)
+        {
+            curPos = searched.find(pattern, curPos);
+            if (curPos == std::string::npos)
+            {
+                break;
+            }
+            count++;
+            curPos += pattern.length();
+        }
+        return count;
+    }
+
 } // namespace
 
 using namespace Common::ZeroMQWrapper;
 
-class TestProxyImpl : public ::testing::Test
+
+class TestLoggingProxyImpl : public ::testing::Test
 {
-    Common::Logging::ConsoleLoggingSetup m_consoleLogging; // NOLINT
+    std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_consoleLogging; // NOLINT
 
 public:
+
     void SetUp() override {
-        testing::internal::CaptureStderr();
+        m_consoleLogging.reset(new Common::Logging::ConsoleLoggingSetup);
+        ::setenv("SOPHOS_PUB_SUB_ROUTER_LOGGING", "1", 1);
     }
 
     void TearDown() override {
-        std::string logMessage = testing::internal::GetCapturedStderr();
-        ASSERT_EQ(logMessage, ""); //No Logging from ProxyImpl
+        m_consoleLogging.reset();
+        ::unsetenv("SOPHOS_PUB_SUB_ROUTER_LOGGING");
+//        std::cout << "Teardown Happening";
+
     }
 };
 
-TEST_F(TestProxyImpl, Creation) // NOLINT
+
+TEST_F(TestLoggingProxyImpl, Creation) // NOLINT
 {
+    testing::internal::CaptureStderr();
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     EXPECT_NE(proxy.get(), nullptr);
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_EQ(logMessage, "");
 }
 
-TEST_F(TestProxyImpl, StartStop) // NOLINT
+TEST_F(TestLoggingProxyImpl, StartStop) // NOLINT
 {
+    testing::internal::CaptureStderr();
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     ASSERT_NE(proxy.get(), nullptr);
 
     proxy->start();
     proxy->stop();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
 
 namespace
@@ -147,8 +178,9 @@ namespace
     }
 } // namespace
 
-TEST_F(TestProxyImpl, PassMessage) // NOLINT
+TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
 {
+    testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
@@ -191,11 +223,20 @@ TEST_F(TestProxyImpl, PassMessage) // NOLINT
 
     proxy->stop();
     proxy.reset();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
 
-TEST_F(TestProxyImpl, TwoSubscribers) // NOLINT
+TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
 {
+    testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses
+
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
     Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
@@ -250,10 +291,18 @@ TEST_F(TestProxyImpl, TwoSubscribers) // NOLINT
 
     proxy->stop();
     proxy.reset();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
 
-TEST_F(TestProxyImpl, TwoSenders) // NOLINT
+TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
 {
+    testing::internal::CaptureStderr();
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
@@ -328,4 +377,16 @@ TEST_F(TestProxyImpl, TwoSenders) // NOLINT
 
     EXPECT_TRUE(thread1Sent);
     EXPECT_TRUE(thread2Sent);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
+    int dataCount = countOccurancesInString(logMessage, "FOOBAR DATA");
+    ASSERT_NE(dataCount, 0);
+    int otherCount = countOccurancesInString(logMessage, "FOOBAR OTHER");
+    ASSERT_NE(otherCount, 0);
+    ASSERT_GE(dataCount+otherCount, count);
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
+

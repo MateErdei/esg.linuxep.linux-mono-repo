@@ -1,6 +1,5 @@
 add_library(zeromqwrapperimplobject OBJECT
         ContextHolder.cpp ContextHolder.h
-        ../ZMQWrapperApiImpl/ContextImpl.cpp ../ZMQWrapperApiImpl/ContextImpl.h
         PollerImpl.cpp PollerImpl.h
         ProxyImpl.cpp ProxyImpl.h
         SocketHolder.cpp SocketHolder.h

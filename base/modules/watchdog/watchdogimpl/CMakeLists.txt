@@ -16,7 +16,7 @@ target_link_libraries(watchdogimpl PUBLIC
         logging
         threads
         processimpl
-        zeromqwrapperimpl
+        zmqwrapperapiimpl
         ${LOG4CPLUS_LIBRARY}
         )
 
