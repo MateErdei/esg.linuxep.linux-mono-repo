@@ -94,7 +94,10 @@ TEST_F(TestEventConverterCredentialEvent, testCreateCredentialEventForAddUser) /
     eventExpected.setTimestamp(123123);
     eventExpected.setLogonId(1234);
 
-    eventExpected.setProcessId(123456789);
+    auto sophosPid = eventExpected.getSophosPid();
+    sophosPid.timestamp = 123123;
+    sophosPid.pid = 552233;
+    eventExpected.setSophosPid(sophosPid);
 
     std::pair<std::string, std::string> data = converter->eventToString(&eventExpected);
 

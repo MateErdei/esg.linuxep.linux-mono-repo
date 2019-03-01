@@ -149,9 +149,9 @@ namespace Common
 
         std::string CredentialEvent::getGroupName() const { return m_groupName; }
 
-        unsigned long CredentialEvent::getProcessId() const
+        Common::EventTypes::SophosPid CredentialEvent::getSophosPid() const
         {
-            return m_pid;
+            return m_sophosPid;
         }
 
         void CredentialEvent::setSessionType(const Common::EventTypes::CredentialEvent::SessionType sessionType)
@@ -186,9 +186,9 @@ namespace Common
 
         void CredentialEvent::setGroupName(const std::string& groupName) { m_groupName = groupName; }
 
-        void CredentialEvent::setProcessId(const unsigned long processId)
+        void CredentialEvent::setSophosPid(const Common::EventTypes::SophosPid& processId)
         {
-            m_pid = processId;
+            m_sophosPid = processId;
         }
 
         std::string CredentialEvent::toString() const
@@ -217,7 +217,8 @@ namespace Common
 
             credentialsEvent.setUserGroupID(m_groupId);
             credentialsEvent.setUserGroupName(m_groupName);
-            credentialsEvent.setPid(m_pid);
+            credentialsEvent.getSophosPid().setOsPID(m_sophosPid.pid);
+            credentialsEvent.getSophosPid().setCreateTime(m_sophosPid.timestamp);
 
             // Convert to byte string
             kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -272,7 +273,11 @@ namespace Common
                 networkAddress.address = credentialsEvent.getRemoteNetworkAddress().getAddress();
                 setRemoteNetworkAccess(networkAddress);
 
-                setProcessId(credentialsEvent.getPid());
+                Common::EventTypes::SophosPid sophosPid;
+                sophosPid.timestamp = credentialsEvent.getSophosPid().getCreateTime();
+                sophosPid.pid = credentialsEvent.getSophosPid().getOsPID();
+
+                setSophosPid(sophosPid);
             }
             catch (std::exception& ex)
             {

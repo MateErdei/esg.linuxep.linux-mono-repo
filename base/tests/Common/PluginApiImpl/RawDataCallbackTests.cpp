@@ -340,7 +340,11 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     network.address = "sophos.com:400";
     eventExpected.setRemoteNetworkAccess(network);
 
-    eventExpected.setProcessId(123456789);
+    auto sophosPid = eventExpected.getSophosPid();
+    sophosPid.timestamp = 123123123;
+    sophosPid.pid = 552233;
+    eventExpected.setSophosPid(sophosPid);
+
 
     rawDataPublisher->sendPluginEvent(eventExpected);
 

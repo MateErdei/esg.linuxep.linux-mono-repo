@@ -38,6 +38,6 @@ struct CredentialsEvent {
 
     userGroupID                 @7 :UInt32;
     userGroupName               @8 :Text;
-    pid                         @9 :UInt32;
+    sophosPid                   @9 :Common.SophosPID;
 
 }

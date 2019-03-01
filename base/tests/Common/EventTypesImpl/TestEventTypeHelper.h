@@ -48,7 +48,11 @@ namespace Tests
             network.address = "sophos.com:400";
             event.setRemoteNetworkAccess(network);
 
-            event.setProcessId(552211);
+            Common::EventTypes::SophosPid sophosPid;
+            sophosPid.timestamp = 123123123;
+            sophosPid.pid = 552211;
+
+            event.setSophosPid(sophosPid);
 
             return event;
         }
@@ -174,11 +178,18 @@ namespace Tests
                                                      << resulted.getRemoteNetworkAccess().address;
             }
 
-            if (expected.getProcessId() != resulted.getProcessId())
+            if (expected.getSophosPid().timestamp != resulted.getSophosPid().timestamp)
             {
-                return ::testing::AssertionFailure() << s.str() << "processId address differs: Expected = "
-                                                     << expected.getProcessId() << " , Actual = "
-                                                     << resulted.getProcessId();
+                return ::testing::AssertionFailure() << s.str() << "SophosPid timestamp differs: Expected = "
+                                                     << expected.getSophosPid().timestamp << " , Actual = "
+                                                     << resulted.getSophosPid().timestamp;
+            }
+
+            if (expected.getSophosPid().pid != resulted.getSophosPid().pid)
+            {
+                return ::testing::AssertionFailure() << s.str() << "SophosPid pid differs: Expected = "
+                                                     << expected.getSophosPid().pid << " , Actual = "
+                                                     << resulted.getSophosPid().pid;
             }
 
             return ::testing::AssertionSuccess();
