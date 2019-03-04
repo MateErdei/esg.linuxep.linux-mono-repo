@@ -1,4 +1,4 @@
-add_library(zmqwrapperapiimpl SHARED
+add_library(zmqwrapperapiimplobject OBJECT
         ContextImpl.cpp
         ContextImpl.h
         LoggingProxyImpl.cpp
@@ -10,7 +10,9 @@ add_library(zmqwrapperapiimpl SHARED
         ../ZMQWrapperApi/IContextSharedPtr.h
         )
 
-target_include_directories(zmqwrapperapiimpl PUBLIC ${ZeroMQ_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(zmqwrapperapiimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+
+add_library(zmqwrapperapiimpl SHARED $<TARGET_OBJECTS:zmqwrapperapiimplobject> )
 target_link_libraries(zmqwrapperapiimpl PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} reactorimpl zeromqwrapperimpl)
 
 SET_TARGET_PROPERTIES( zmqwrapperapiimpl

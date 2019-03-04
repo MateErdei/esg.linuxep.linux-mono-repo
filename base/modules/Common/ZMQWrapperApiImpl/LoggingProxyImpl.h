@@ -30,8 +30,8 @@ namespace Common
             std::string m_captureAddress;
             Common::ZeroMQWrapperImpl::SocketHolder m_capture;
             Common::ZeroMQWrapper::ISocketSubscriberPtr m_captureListener;
-            std::unique_ptr<Common::Reactor::IReactor> m_reactor;
             std::unique_ptr<Common::Reactor::ICallbackListener> m_debugLoggerCallbackPtr;
+            std::unique_ptr<Common::Reactor::IReactor> m_reactor;
         };
     } // namespace ZMQWrapperApiImpl
 } // namespace Common

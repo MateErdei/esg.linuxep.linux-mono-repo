@@ -4,6 +4,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:pluginapiobjects>
         $<TARGET_OBJECTS:pluginprotocolobject>
         $<TARGET_OBJECTS:zeromqwrapperimplobject>
+        $<TARGET_OBJECTS:zmqwrapperapiimplobject>
         $<TARGET_OBJECTS:reactorimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:filesystemimplobject>
@@ -47,6 +48,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Threads
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
+        COMMAND mkdir -p pluginapi/include/Common/ZMQWrapperApi
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
         COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/tests/lib64
@@ -94,6 +96,7 @@ add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/Threads)
 add_copy_directory(Common/ZeroMQWrapper)
+add_copy_directory(Common/ZMQWrapperApi)
 add_copy_directory(Common/EventTypes)
 add_copy_directory(Common/Exceptions)
 add_copy_test_directory(Common/Helpers)

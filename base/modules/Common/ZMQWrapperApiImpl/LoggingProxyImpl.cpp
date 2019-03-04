@@ -24,17 +24,17 @@ namespace
         {
             std::stringstream message;
             message << "Pub Sub Log : ";
-            for (const auto& data : request)
-            {
-                if (data[0] == 0 || data[0] == 1)
+            //Subscription and unsubscription is sent as a single message with the first char set to 1 or 0 respectively
+            if (request.size() == 1) {
+                std::string &data = request[0];
+                if (!data.empty() && (data[0] == char(0) || data[0] == char(1)))
                 {
                     message << (data[0] == 0 ? "Unsubscribe ": "Subscribe ") <<  data.substr(1,std::string::npos);
                 }
-                else
-                {
-                    message << data << " ";
-                }
-
+            }
+            for (const std::string& data : request)
+            {
+                message << data << " ";
             }
             LOGDEBUG(message.str());
         }
@@ -81,8 +81,8 @@ namespace Common
             m_captureAddress("inproc://Capture"),
             m_capture(context, ZMQ_PUSH),
             m_captureListener(new SocketPullImpl(context)),
-            m_reactor(Common::Reactor::createReactor()),
-            m_debugLoggerCallbackPtr(new DebugLogHandler)
+            m_debugLoggerCallbackPtr(new DebugLogHandler),
+            m_reactor(Common::Reactor::createReactor())
         {
             Common::ZeroMQWrapperImpl::SocketUtil::listen(m_capture, m_captureAddress);
             m_captureListener->connect(m_captureAddress);
