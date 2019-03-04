@@ -53,7 +53,9 @@ namespace Common
 
             void announceThreadStarted();
         protected:
-            void* m_captureZMQSocket; 
+
+            void* m_captureZMQSocket; //Used in derived class LoggerProxyImpl to
+                                      //add a capture socket to zmq_proxy_steerable
         };
     } // namespace ZeroMQWrapperImpl
 } // namespace Common

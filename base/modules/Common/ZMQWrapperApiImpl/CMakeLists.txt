@@ -1,4 +1,4 @@
-add_library(zmqwrapperapiimpl OBJECT
+add_library(zmqwrapperapiimpl SHARED
         ContextImpl.cpp
         ContextImpl.h
         LoggingProxyImpl.cpp
