@@ -31,10 +31,17 @@ namespace
                 {
                     message << (data[0] == 0 ? "Unsubscribe ": "Subscribe ") <<  data.substr(1,std::string::npos);
                 }
+                else // Not a subscription message
+                {
+                    message << data;
+                }
             }
-            for (const std::string& data : request)
+            else
             {
-                message << data << " ";
+                for (const std::string& data : request)
+                {
+                    message << data << " ";
+                }
             }
             LOGDEBUG(message.str());
         }
