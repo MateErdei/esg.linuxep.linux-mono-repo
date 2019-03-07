@@ -6,6 +6,7 @@ import subprocess as sp
 import shutil
 import sys
 
+
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
 #platforms = ['amazon_linux']
 ########################################################################################################################
@@ -221,6 +222,7 @@ clearLogs
 ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
 cleanUpAmazonSshKey
 """
+
 failed_ssh_command_single_attempt_with_key = """
 sleep 5
 clearLogs
@@ -409,6 +411,16 @@ clearLogs
 wget definitelynotaurlanywhereintheworldprobably
 """
 
+change_own_users_password = r"""
+runuser -l vagrant -c 'echo -e "vagrant\nnewpassword\nnewpassword" | passwd'
+"""
+
+change_own_users_password_fail = r"""
+runuser -l vagrant -c 'echo -e "wrongpassword" | passwd'
+"""
+# the above script is not possible to clean up.
+# the default vagrant password is "vagrant"
+
 amazon_specific_payloads = {
     'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
 }
@@ -458,7 +470,9 @@ payloads = {
             'call_wget_on_a_url': call_wget_on_a_url,
             'call_wget_via_symbolic_link_on_a_url': call_wget_via_symbolic_link_on_a_url,
             'call_wget_via_hard_link_on_a_url': call_wget_via_hard_link_on_a_url,
-            'call_failing_wget_on_a_url': call_failing_wget_on_a_url
+            'call_failing_wget_on_a_url': call_failing_wget_on_a_url,
+            'change_own_users_password': change_own_users_password,
+            'change_own_users_password_fail': change_own_users_password_fail
 }
 
 ########################################################################################################################
@@ -469,7 +483,7 @@ payloads = {
 #
 ########################################################################################################################
 
-payloadRunnerScript = """
+payloadRunnerScript = r"""
 #!/bin/bash
 
 export REMOTE_DIR="/vagrant/auditd-output/{platform}"
@@ -533,6 +547,7 @@ ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
 auditctl -D &> /dev/null
+echo -e "vagrant\nvagrant" | passwd vagrant 
 
 rm -f index.html &> /dev/null
 rm -f fakeget &> /dev/null
