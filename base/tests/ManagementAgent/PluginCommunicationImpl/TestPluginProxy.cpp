@@ -12,7 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 
@@ -61,7 +61,7 @@ public:
     }
 
 private:
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 // Reply error cases

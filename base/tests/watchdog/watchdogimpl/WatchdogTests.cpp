@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/watchdog_main.h>
 
@@ -19,10 +19,10 @@ namespace
 {
     class TestWatchdog : public watchdog::watchdogimpl::Watchdog
     {
-        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
     public:
-        TestWatchdog() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
+        TestWatchdog()  {}
 
         watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return read_plugin_configs(); }
     };

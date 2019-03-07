@@ -18,6 +18,7 @@ namespace Common
             std::string getManagementAgentSocketAddress() const override;
             std::string getWatchdogSocketAddress() const override;
             std::string sophosInstall() const override;
+            std::string getLogConfFilePath() const override;
             std::string getPublisherDataChannelAddress() const override;
             std::string getSubscriberDataChannelAddress() const override;
             std::string getPluginRegistryPath() const override;

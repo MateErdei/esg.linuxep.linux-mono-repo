@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <boost/property_tree/xml_parser.hpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 
 using namespace UpdateSchedulerImpl::configModule;
@@ -37,7 +37,7 @@ public:
     void runTest(const std::string& expectedXML, const UpdateStatus& status);
 
     std::unique_ptr<MockFormattedTime> m_formattedTime;
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 static UpdateStatus getGoodStatus()

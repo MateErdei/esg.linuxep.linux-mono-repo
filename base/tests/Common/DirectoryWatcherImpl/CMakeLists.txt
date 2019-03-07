@@ -3,8 +3,6 @@ add_executable(DirectoryWatcherImplTests
         TestDirectoryWatcherImpl.cpp TestRealiNotifyDirectoryWatcher.cpp
         MockiNotifyWrapper.h DummyDirectoryWatcherListener.h
         ../../ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h
-        ../Logging/TestConsoleLoggingSetup.cpp
-        ../Logging/TestConsoleLoggingSetup.h
         )
 target_include_directories(DirectoryWatcherImplTests SYSTEM BEFORE PUBLIC
         "${gtest_SOURCE_DIR}/include"

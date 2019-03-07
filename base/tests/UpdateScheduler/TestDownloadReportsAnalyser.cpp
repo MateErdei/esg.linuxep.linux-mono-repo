@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace UpdateSchedulerImpl::configModule;
 using namespace UpdateScheduler;
@@ -21,7 +21,7 @@ using namespace SulDownloader::suldownloaderdata;
 class TestDownloadReportAnalyser : public ::testing::Test
 {
 public:
-    TestDownloadReportAnalyser() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
+    TestDownloadReportAnalyser()  {}
 
     ::testing::AssertionResult insertMessagesAreEquivalent(
         const char* m_expr,
@@ -230,7 +230,7 @@ public:
         return marks;
     }
 
-    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestDownloadReportAnalyser, ReportCollectionResultFromSingleSuccesfullUpgrade) // NOLINT

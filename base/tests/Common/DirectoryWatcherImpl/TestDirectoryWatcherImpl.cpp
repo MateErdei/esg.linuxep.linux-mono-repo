@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "DummyDirectoryWatcherListener.h"
 #include "MockiNotifyWrapper.h"
 
-#include "../Logging/TestConsoleLoggingSetup.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
@@ -60,7 +60,7 @@ public:
     DirectoryWatcherListener m_Listener1, m_Listener2;
     int m_pipe_fd[2];
     MockInotifyEvent m_MockiNotifyEvent;
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT

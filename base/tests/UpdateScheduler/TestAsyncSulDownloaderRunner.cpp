@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/Logger.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <future>
@@ -19,12 +19,10 @@ using namespace UpdateScheduler;
 class TestAsyncSulDownloaderRunner : public ::testing::Test
 {
 public:
-    void SetUp() override { m_loggingSetup.reset(new TestLogging::TestConsoleLoggingSetup()); }
 
     void TearDown() override
     {
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-        m_loggingSetup.reset();
     }
 
     MockProcess* setupMockProcess()
@@ -35,7 +33,7 @@ public:
         return mockProcess;
     }
 
-    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT

@@ -16,7 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 class TaskDirectoryListenerTests : public ::testing::Test
 {
@@ -31,7 +31,7 @@ public:
     std::shared_ptr<StrictMock<MockTaskQueue>> m_mockTaskQueue;
 
 private:
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TaskDirectoryListenerTests, CheckListenerThrowsAwayUnknownFiles) // NOLINT

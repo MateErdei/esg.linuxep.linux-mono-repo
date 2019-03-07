@@ -22,6 +22,8 @@ namespace Common
             virtual std::string getWatchdogSocketAddress() const = 0;
             virtual std::string sophosInstall() const = 0;
 
+            virtual std::string getLogConfFilePath() const = 0;
+
             /**
              * Get the directory to store root logs for base processes.
              * @return

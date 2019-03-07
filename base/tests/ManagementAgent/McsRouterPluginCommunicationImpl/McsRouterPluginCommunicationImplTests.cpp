@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {
@@ -71,7 +71,7 @@ public:
     std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
 
 private:
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesFromMultipleDirectories) // NOLINT

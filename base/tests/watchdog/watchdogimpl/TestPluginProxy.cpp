@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/PluginProxy.h>
 
@@ -15,10 +15,10 @@ namespace
 {
     class TestPluginProxy : public ::testing::Test
     {
-        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
     public:
-        TestPluginProxy() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
+        TestPluginProxy()  {}
     };
 } // namespace
 

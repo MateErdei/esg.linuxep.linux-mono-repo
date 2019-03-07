@@ -18,7 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockApiBaseServices.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <future>
@@ -269,7 +269,7 @@ class TestUpdateScheduler : public ::testing::Test
 {
 public:
     TestUpdateScheduler() :
-        m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()),
+        m_loggingSetup(),
         m_queue(std::make_shared<SchedulerTaskQueue>()),
         m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
     {
@@ -311,7 +311,7 @@ public:
         return *pointer;
     }
 
-    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     std::shared_ptr<SchedulerTaskQueue> m_queue;
     std::shared_ptr<SchedulerPluginCallback> m_pluginCallback;
 };

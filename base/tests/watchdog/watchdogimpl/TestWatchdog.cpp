@@ -14,17 +14,17 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 
 namespace
 {
     class TestWatchdog : public ::testing::Test
     {
-        TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
     public:
-        TestWatchdog() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup())
+        TestWatchdog()
         {
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);

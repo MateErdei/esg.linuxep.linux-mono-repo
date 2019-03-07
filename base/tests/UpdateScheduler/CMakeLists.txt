@@ -14,8 +14,6 @@ add_executable(UpdateSchedulerTests
         TestUpdateScheduler.cpp
         MockAsyncDownloaderRunner.h
         MockCronSchedulerThread.h
-        ../Common/Logging/TestConsoleLoggingSetup.h
-        ../Common/Logging/TestConsoleLoggingSetup.cpp
         )
 
 target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${LOG4CPLUS_INCLUDE_DIR} "${PROJECT_SOURCE_DIR}")

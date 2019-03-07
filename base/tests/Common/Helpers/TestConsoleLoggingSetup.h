@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace TestLogging
+namespace Tests
 {
     class TestConsoleLoggingSetup
     {

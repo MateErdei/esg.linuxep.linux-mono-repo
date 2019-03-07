@@ -15,8 +15,6 @@ add_executable(SulDownloaderTests
         MockVersig.h
         VersigTests.cpp
         TestProductUninstaller.cpp
-        ../Common/Logging/TestConsoleLoggingSetup.h
-        ../Common/Logging/TestConsoleLoggingSetup.cpp
         )
 
 target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})

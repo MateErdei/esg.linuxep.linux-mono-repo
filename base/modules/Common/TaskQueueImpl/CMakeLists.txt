@@ -10,7 +10,7 @@ add_library(taskqueueimpl SHARED
 
 target_include_directories(taskqueueimpl PUBLIC  ${LOG4CPLUS_INCLUDE_DIR} )
 target_link_libraries(taskqueueimpl PUBLIC threads
-        ${LOG4CPLUS_LIBRARY})
+        ${LOG4CPLUS_LIBRARY} logging)
 
 SET_TARGET_PROPERTIES( taskqueueimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

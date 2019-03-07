@@ -163,6 +163,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/etc/savedproxy.config");
         }
 
+        std::string ApplicationPathManager::getLogConfFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/logger.conf");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

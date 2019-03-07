@@ -5,18 +5,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/EventReceiverImpl/EventTask.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
 
 class TestEventTask : public ::testing::Test
 {
 public:
-    TestEventTask() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
+    TestEventTask() : m_loggingSetup(new Common::Logging::ConsoleLoggingSetup()) {}
 
 private:
-    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+    std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_loggingSetup;
 };
 
 TEST_F(TestEventTask, Construction) // NOLINT

@@ -19,7 +19,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 
@@ -237,7 +237,7 @@ namespace
             return jsonString;
         }
         Tests::TempDir m_tempDir;
-        TestLogging::TestConsoleLoggingSetup m_loggerSetup;
+        Common::Logging::ConsoleLoggingSetup m_loggerSetup;
     };
 
     TEST_F(ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly) // NOLINT

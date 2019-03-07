@@ -10,16 +10,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 
 class TestStatusReceiverImpl : public ::testing::Test
 {
 public:
-    TestStatusReceiverImpl() : m_loggingSetup(new TestLogging::TestConsoleLoggingSetup()) {}
+    TestStatusReceiverImpl() {}
 
 private:
-    TestLogging::TestConsoleLoggingSetupPtr m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestStatusReceiverImpl, Construction) // NOLINT

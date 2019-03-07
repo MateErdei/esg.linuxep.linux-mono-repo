@@ -11,8 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Logging/TestConsoleLoggingSetup.h>
-
+#include <Common/Logging/ConsoleLoggingSetup.h>
 class TestStatusCache : public ::testing::Test
 {
 public:
@@ -40,7 +39,7 @@ public:
     std::string m_statusCachePath = "/tmp";
 
 private:
-    TestLogging::TestConsoleLoggingSetup m_loggingSetup;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestStatusCache, testConstruction) // NOLINT
