@@ -6,6 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+
+//#include "CredentialEvent.h"
 #include <string>
 
 namespace Common
@@ -19,7 +21,7 @@ namespace Common
             std::string sid;
             std::string domain;
             std::string machineid;
-            std::uint32_t userid = 0;
+            std::uint32_t userid = 0xFFFFFFFF; // Unset
         };
 
         struct NetworkAddress
