@@ -32,8 +32,36 @@ struct TestInput
     int productDoesNotContainLogs =0;
     int moduleContainLogs = 0;
     int moduleDoesNotContainLogs=0;
+    std::string rootPath{};
 };
 enum LogLevels : int{DEBUG=0x01, INFO=0x02, SUPPORT=0x04, WARN=0x08, ERROR=0x10};
+
+
+class TestLoggerConfig : public ::testing::Test
+{
+public:
+    TestLoggerConfig()
+    {
+        // ensure google run the test in a thread safe way
+        testing::FLAGS_gtest_death_test_style="threadsafe";
+    }
+
+    static void SetUpTestCase()
+    {
+        testRunPath.reset(new Tests::TempDir("/tmp","sspl-log"));
+    }
+
+    // Per-test-suite tear-down.
+    // Called after the last test in this test suite.
+    // Can be omitted if not needed.
+    static void TearDownTestCase()
+    {
+        testRunPath.reset();
+    }
+    static std::unique_ptr<Tests::TempDir> testRunPath;
+};
+std::unique_ptr<Tests::TempDir> TestLoggerConfig::testRunPath;
+
 
 /**
  * Log4cplus uses static loggers (singletons) that outlives the run of individual tests in google test. Hence,
@@ -43,7 +71,7 @@ enum LogLevels : int{DEBUG=0x01, INFO=0x02, SUPPORT=0x04, WARN=0x08, ERROR=0x10}
 class TestLoggerConfigForDeathTest
 {
 public:
-    TestLoggerConfigForDeathTest() :m_logConfigPath("base/etc/logger.conf"), tempDir("/tmp", "testlog")
+    TestLoggerConfigForDeathTest(std::string rootpath ) :m_logConfigPath("base/etc/logger.conf"), tempDir(rootpath, "testlog")
     {
 
         Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
@@ -202,12 +230,13 @@ private:
 
 void runTest( TestInput testInput, bool inNewProc = true)
 {
-    TestLoggerConfigForDeathTest testLoggerConfigForDeathTest;
+    TestLoggerConfigForDeathTest testLoggerConfigForDeathTest(testInput.rootPath);
     testLoggerConfigForDeathTest(testInput);
     if ( !inNewProc)
     {
         return;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     if (::testing::Test::HasFailure())
     {
         std::cerr << testLoggerConfigForDeathTest.m_logContent;
@@ -221,16 +250,6 @@ void runTest( TestInput testInput, bool inNewProc = true)
 }
 
 
-class TestLoggerConfig : public ::testing::Test
-{
-public:
-    TestLoggerConfig()
-    {
-        // ensure google run the test in a thread safe way
-        testing::FLAGS_gtest_death_test_style="threadsafe";
-    }
-};
-
 
 
 TEST_F(TestLoggerConfig, GlobalSupportLogWrittenToFile) // NOLINT
@@ -243,8 +262,10 @@ VERBOSITY=SUPPORT
             .productContainLogs = LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT,
             .productDoesNotContainLogs = LogLevels::DEBUG,
             .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT,
-            .moduleDoesNotContainLogs = LogLevels::DEBUG
+            .moduleDoesNotContainLogs = LogLevels::DEBUG,
+            .rootPath = TestLoggerConfig::testRunPath->dirPath()
     };
+
     // swap the comment lines below to run in this proc and not in another one.
     //runTest(testInput, false);
     EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
@@ -261,7 +282,8 @@ VERBOSITY=INFO
             .productContainLogs = LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
             .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
             .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
-            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
+            .rootPath = TestLoggerConfig::testRunPath->dirPath()
     };
     EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
@@ -279,7 +301,8 @@ VERBOSITY=DEBUG
             .productContainLogs = LogLevels::ERROR|LogLevels::WARN,
             .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
             .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::DEBUG|LogLevels::SUPPORT,
-            .moduleDoesNotContainLogs = 0
+            .moduleDoesNotContainLogs = 0,
+            .rootPath = TestLoggerConfig::testRunPath->dirPath()
     };
     EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
@@ -296,7 +319,8 @@ VERBOSITY=WARN
             .productContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::DEBUG|LogLevels::SUPPORT,
             .productDoesNotContainLogs = 0,
             .moduleContainLogs = LogLevels::ERROR|LogLevels::WARN,
-            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
+            .rootPath = TestLoggerConfig::testRunPath->dirPath()
     };
     EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
@@ -320,7 +344,8 @@ ANOTHERENTRY = anything
             .productContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
             .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
             .moduleContainLogs = LogLevels::ERROR|LogLevels::WARN,
-            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT|LogLevels::INFO
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT|LogLevels::INFO,
+            .rootPath = TestLoggerConfig::testRunPath->dirPath()
     };
     EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
