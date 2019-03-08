@@ -9,8 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/SophosLoggerMacros.h>
 
-#include <iostream>
-
 log4cplus::Logger& getSulDownloaderDataLogger();
 
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getSulDownloaderDataLogger(), x)  // NOLINT

@@ -9,8 +9,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/SophosLoggerMacros.h>
 
-#include <iostream>
-
 log4cplus::Logger& getObfuscationLogger();
 
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getObfuscationLogger(), x)  // NOLINT
