@@ -15,6 +15,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <thread>
+#include <unistd.h>
 
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(logger, x)  // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(logger, x)    // NOLINT
@@ -22,14 +23,30 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #define LOGWARN(x) LOG4CPLUS_WARN(logger, x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(logger, x)  // NOLINT
 
+#ifndef ARTISANBUILD
 
-class TestLoggerConfig : public ::testing::Test
+struct TestInput
+{
+    std::string logConfig{};
+    int productContainLogs = 0;
+    int productDoesNotContainLogs =0;
+    int moduleContainLogs = 0;
+    int moduleDoesNotContainLogs=0;
+};
+enum LogLevels : int{DEBUG=0x01, INFO=0x02, SUPPORT=0x04, WARN=0x08, ERROR=0x10};
+
+/**
+ * Log4cplus uses static loggers (singletons) that outlives the run of individual tests in google test. Hence,
+ * it is necessary to ensure that tests are executed in its own processes, using google DEATH_TEST
+ * see https://github.com/google/googletest/blob/master/googletest/docs/advanced.md
+ */
+class TestLoggerConfigForDeathTest
 {
 public:
-    TestLoggerConfig() : m_logConfigPath{"base/etc/logger.conf"}, tempDir("/tmp", "testlog")
+    TestLoggerConfigForDeathTest() :m_logConfigPath("base/etc/logger.conf"), tempDir("/tmp", "testlog")
     {
-        Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
+        Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     }
 
     void setLogConfig( const std::string & content)
@@ -39,6 +56,14 @@ public:
 
     void runTest( const std::string & productName, const std::string & componentName)
     {
+        std::string logspath = Common::FileSystem::join("logs/base", productName + ".log");
+        // the default operation of loggers is to append. Hence, for the test it has to be cleared.
+        if ( tempDir.exists(logspath))
+        {
+            Common::FileSystem::fileSystem()->removeFile(tempDir.absPath(logspath));
+        }
+
+
         Common::Logging::FileLoggingSetup setup(productName);
         auto logger = Common::Logging::getInstance(productName);
         LOGDEBUG("productname debug");
@@ -65,7 +90,7 @@ public:
             count++;
             try
             {
-                 content = tempDir.fileContent(logspath);
+                content = tempDir.fileContent(logspath);
                 if (content.find("TESTEND") != std::string::npos)
                 {
                     return content;
@@ -78,83 +103,90 @@ public:
         }while( count < 10 );
         return content;
     }
-    enum LogLevels : int{DEBUG=0x01, INFO=0x02, SUPPORT=0x04, WARN=0x08, ERROR=0x10};
+
 
 
     std::string m_logConfigPath;
     Tests::TempDir tempDir;
+    std::string m_logContent;
 
-    bool productShould( const std::string & content, int containLogs, int notContainLogs)
+    void productShould( const std::string & content, int containLogs, int notContainLogs)
     {
-        bool contain = logShouldContain(content, "productname", containLogs);
-        bool notContain = logShouldNotContain(content, "productname", notContainLogs);
-        return contain && notContain;
+        logShouldContain(content, "productname", containLogs);
+        logShouldNotContain(content, "productname", notContainLogs);
     }
 
-    bool moduleShould( const std::string & content, int containLogs, int notContainLogs)
+    void moduleShould( const std::string & content, int containLogs, int notContainLogs)
     {
-        bool contain = logShouldContain(content, "componentname", containLogs);
-        bool notContain = logShouldNotContain(content, "componentname", notContainLogs);
-        return contain && notContain;
+        logShouldContain(content, "componentname", containLogs);
+        logShouldNotContain(content, "componentname", notContainLogs);
     }
 
+    void operator()(TestInput testInput)
+    {
+        std::string productName{"testlogging"};
+        std::string module{"module"};
+        setLogConfig(testInput.logConfig);
+        runTest(productName, module);
+        m_logContent = getLogContent(productName);
+
+        productShould(m_logContent, testInput.productContainLogs, testInput.productDoesNotContainLogs);
+        moduleShould(m_logContent, testInput.moduleContainLogs, testInput.moduleDoesNotContainLogs);
+    }
 
 private:
 
-    bool logShouldContain(const std::string & content, const std::string & logname, int logLevels)
+    void logShouldContain(const std::string & content, const std::string & logname, int logLevels)
     {
-        bool passAll = true;
+
         if ( logLevels & LogLevels::DEBUG)
         {
-            passAll = passAll && contains(content, logname + " debug");
+            EXPECT_TRUE(contains(content, logname + " debug"));
         }
         if ( logLevels & LogLevels::INFO)
         {
-            passAll = passAll && contains(content, logname + " info");
+            EXPECT_TRUE(contains(content, logname + " info"));
         }
         if ( logLevels & LogLevels::SUPPORT)
         {
-            passAll = passAll && contains(content, logname + " support");
+            EXPECT_TRUE(contains(content, logname + " support"));
         }
         if ( logLevels & LogLevels::WARN)
         {
-            passAll = passAll && contains(content, logname + " warn");
+            EXPECT_TRUE(contains(content, logname + " warn"));
         }
         if ( logLevels & LogLevels::ERROR)
         {
-            passAll = passAll && contains(content, logname + " error");
+            EXPECT_TRUE(contains(content, logname + " error"));
         }
 
-        return passAll;
 
     }
 
 
-    bool logShouldNotContain(const std::string & content, const std::string & logname, int logLevels)
+    void logShouldNotContain(const std::string & content, const std::string & logname, int logLevels)
     {
-        bool passAll = true;
+
         if ( logLevels & LogLevels::DEBUG)
         {
-            passAll = passAll && !contains(content, logname + " debug");
+            EXPECT_FALSE(contains(content, logname + " debug"));
         }
         if ( logLevels & LogLevels::INFO)
         {
-            passAll = passAll && !contains(content, logname + " info");
+            EXPECT_FALSE(contains(content, logname + " info"));
         }
         if ( logLevels & LogLevels::SUPPORT)
         {
-            passAll = passAll && !contains(content, logname + " support");
+            EXPECT_FALSE(contains(content, logname + " support")) << content << "\nShould not contain support for " << logname;
         }
         if ( logLevels & LogLevels::WARN)
         {
-            passAll = passAll && !contains(content, logname + " warn");
+            EXPECT_FALSE(contains(content, logname + " warn"));
         }
         if ( logLevels & LogLevels::ERROR)
         {
-            passAll = passAll && !contains(content, logname + " error");
+            EXPECT_FALSE(contains(content, logname + " error"));
         }
-
-        return passAll;
 
     }
 
@@ -164,36 +196,135 @@ private:
         bool v =  content.find(needle) != std::string::npos;
         return v;
     }
+
+
 };
+
+void runTest( TestInput testInput, bool inNewProc = true)
+{
+    TestLoggerConfigForDeathTest testLoggerConfigForDeathTest;
+    testLoggerConfigForDeathTest(testInput);
+    if ( !inNewProc)
+    {
+        return;
+    }
+    if (::testing::Test::HasFailure())
+    {
+        std::cerr << testLoggerConfigForDeathTest.m_logContent;
+        exit(1);
+    }
+    else
+    {
+        std::cerr << "Success";
+        exit(0);
+    }
+}
+
+
+class TestLoggerConfig : public ::testing::Test
+{
+public:
+    TestLoggerConfig()
+    {
+        // ensure google run the test in a thread safe way
+        testing::FLAGS_gtest_death_test_style="threadsafe";
+    }
+};
+
 
 
 TEST_F(TestLoggerConfig, GlobalSupportLogWrittenToFile) // NOLINT
 {
-    std::string productName{"testlogging"};
-    std::string module{"module"};
-    setLogConfig(R"(
+    TestInput testInput{
+            .logConfig=R"(
 [global]
 VERBOSITY=SUPPORT
-)");
-    runTest(productName, module);
-    std::string content = getLogContent(productName);
-
-    EXPECT_TRUE(productShould(content, LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT, LogLevels::DEBUG)) << content;
-    EXPECT_TRUE(moduleShould(content, LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT, LogLevels::DEBUG)) << content;
+)" ,
+            .productContainLogs = LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT,
+            .productDoesNotContainLogs = LogLevels::DEBUG,
+            .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::SUPPORT,
+            .moduleDoesNotContainLogs = LogLevels::DEBUG
+    };
+    // swap the comment lines below to run in this proc and not in another one.
+    //runTest(testInput, false);
+    EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
+
 
 TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile) // NOLINT
 {
-    std::string productName{"testlogging"};
-    std::string module{"module"};
-    setLogConfig(R"(
+    TestInput testInput{
+            .logConfig=R"(
 [global]
 VERBOSITY=INFO
-)");
-    runTest(productName, module);
-    std::string content = getLogContent(productName);
-
-    EXPECT_TRUE(productShould(content, LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN, LogLevels::DEBUG|LogLevels::SUPPORT)) << content;
-    EXPECT_TRUE(moduleShould(content, LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN, LogLevels::DEBUG|LogLevels::SUPPORT)) << content;
+)" ,
+            .productContainLogs = LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
+            .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
+            .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT
+    };
+    EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
 }
 
+
+TEST_F(TestLoggerConfig, TargetProductAndModuleDifferently) // NOLINT
+{
+    TestInput testInput{
+            .logConfig=R"(
+[testlogging]
+VERBOSITY=WARN
+[module]
+VERBOSITY=DEBUG
+)" ,
+            .productContainLogs = LogLevels::ERROR|LogLevels::WARN,
+            .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
+            .moduleContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::DEBUG|LogLevels::SUPPORT,
+            .moduleDoesNotContainLogs = 0
+    };
+    EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
+}
+
+TEST_F(TestLoggerConfig, TargetProductAndModuleWithReducingLevelForModule) // NOLINT
+{
+    TestInput testInput{
+            .logConfig=R"(
+[testlogging]
+VERBOSITY=DEBUG
+[module]
+VERBOSITY=WARN
+)" ,
+            .productContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN|LogLevels::DEBUG|LogLevels::SUPPORT,
+            .productDoesNotContainLogs = 0,
+            .moduleContainLogs = LogLevels::ERROR|LogLevels::WARN,
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT
+    };
+    EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
+}
+
+
+TEST_F(TestLoggerConfig, ConfigMayContainCommentSpacesAndAnyOtherNonRelatedEntries) // NOLINT
+{
+    TestInput testInput{
+            .logConfig=R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY=INFO
+
+# you can choose to target any module
+[module]
+
+VERBOSITY = WARN
+ANOTHERENTRY = anything
+)" ,
+            .productContainLogs =  LogLevels::INFO|LogLevels::ERROR|LogLevels::WARN,
+            .productDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT,
+            .moduleContainLogs = LogLevels::ERROR|LogLevels::WARN,
+            .moduleDoesNotContainLogs = LogLevels::DEBUG|LogLevels::SUPPORT|LogLevels::INFO
+    };
+    EXPECT_EXIT( {runTest(testInput);}, ::testing::ExitedWithCode(0), "Success");
+}
+
+
+
+#endif
