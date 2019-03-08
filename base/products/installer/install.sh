@@ -318,6 +318,7 @@ chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 

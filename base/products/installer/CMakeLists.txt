@@ -8,6 +8,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/logger.conf
+        DESTINATION files/base/etc
+        PERMISSIONS OWNER_READ OWNER_WRITE)
+
 add_executable(versionedcopy
         VersionedCopyMain.cpp
         ../../modules/Installer/VersionedCopy/VersionedCopy.h
