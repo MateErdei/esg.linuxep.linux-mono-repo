@@ -14,15 +14,15 @@ add_library(testhelpersobject OBJECT
         FileSystemReplaceAndRestore.cpp
         MockApiBaseServices.h
         MockFilePermissions.h
-        MockFileSystem.h TestConsoleLoggingSetup.cpp TestConsoleLoggingSetup.h)
+        MockFileSystem.h)
 
-target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" ${LOG4CPLUS_INCLUDE_DIR} )
+target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" )
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )
 
 target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}")
 
-target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock gtest pluginapiimpl logging)
+target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock gtest pluginapiimpl)
 
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")
