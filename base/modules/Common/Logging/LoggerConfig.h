@@ -6,8 +6,19 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <log4cplus/logger.h>
+#include <log4cplus/loglevel.h>
+
+namespace log4cplus
+{
+    const log4cplus::tstring& supportToStringMethod(log4cplus::LogLevel );
+    log4cplus::LogLevel supportFromStringMethod( const log4cplus::tstring & );
+
+}
+
 namespace Common
 {
+
+
     namespace Logging
     {
         static const std::string LOGFORTEST;

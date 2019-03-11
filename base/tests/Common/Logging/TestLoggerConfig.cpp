@@ -178,6 +178,7 @@ private:
         if ( logLevels & LogLevels::SUPPORT)
         {
             EXPECT_TRUE(contains(content, logname + " support"));
+            EXPECT_TRUE(contains(content, "SPRT")) << content;
         }
         if ( logLevels & LogLevels::WARN)
         {

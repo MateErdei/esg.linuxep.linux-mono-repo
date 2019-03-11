@@ -34,6 +34,29 @@ namespace
     }
 }
 
+const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel ll)
+{
+    // using 4 letters acronym as most levels are 4 or 5 and they will look better instead of 7 letters.
+    static log4cplus::tstring SUPPORT{"SPRT"};
+    static log4cplus::tstring EMPTY{};
+    if (static_cast<Common::Logging::SophosLogLevel>(ll) == Common::Logging::SophosLogLevel::SUPPORT)
+    {
+        return SUPPORT;
+    }
+    return EMPTY;
+}
+
+log4cplus::LogLevel log4cplus::supportFromStringMethod( const log4cplus::tstring & logname)
+{
+    if ( logname == "SPRT")
+    {
+        return static_cast<log4cplus::LogLevel>( Common::Logging::SophosLogLevel::SUPPORT);
+    }
+    return NOT_SET_LOG_LEVEL;
+}
+
+
+
 const std::string LOGFORTEST{"LOGFORTEST"};
 
 void Common::Logging::applyGeneralConfig(const std::string& logbase)
@@ -59,6 +82,8 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
     std::stringstream initMessage;
     initMessage << "Logger " << logbase << " configured for level: " << logLevel << std::endl;
     log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
+    log4cplus::getLogLevelManager().pushToStringMethod(log4cplus::supportToStringMethod);
+    log4cplus::getLogLevelManager().pushFromStringMethod(log4cplus::supportFromStringMethod);
 }
 
 log4cplus::Logger Common::Logging::getInstance(const std::string& loggername)
