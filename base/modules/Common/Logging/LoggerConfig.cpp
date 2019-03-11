@@ -157,7 +157,6 @@ namespace Common
             std::fstream i(confFilePath);
             if (i)
             {
-                // Parse the XML into the property tree.
                 pt::read_ini(i, m_ptree);
             }
             else
