@@ -412,14 +412,22 @@ wget definitelynotaurlanywhereintheworldprobably
 """
 
 change_own_users_password = r"""
-runuser -l vagrant -c 'echo -e "vagrant\nnewpassword\nnewpassword" | passwd'
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+runuser -l testuser -c 'echo -e "linuxpassword\nnewpassword123\nnewpassword123" | passwd'
 """
 
 change_own_users_password_fail = r"""
-runuser -l vagrant -c 'echo -e "wrongpassword" | passwd'
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+useradd testuser
+echo -e "linuxpassword\nlinuxpassword" | passwd testuser
+sleep 5
+clearLogs
+runuser -l testuser -c 'echo -e "wrongpassword" | passwd'
 """
-# the above script is not possible to clean up.
-# the default vagrant password is "vagrant"
 
 amazon_specific_payloads = {
     'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon
@@ -547,13 +555,18 @@ ausearch -i > ${{REMOTE_DIR}}/{filePrefix}AuditEventsReport.log
 userdel -r testuser &> /dev/null
 groupdel testgrp &> /dev/null
 auditctl -D &> /dev/null
-echo -e "vagrant\nvagrant" | passwd vagrant 
+
+{sshd_file_clean_up}
 
 rm -f index.html &> /dev/null
 rm -f fakeget &> /dev/null
 rm -f $(dirname $(which wget))/fakeget &> /dev/null
 
 popd
+"""
+
+clean_up_sshd_file = r"""
+sed -i "s/PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config
 """
 
 platformSetupScript = """
@@ -651,10 +664,15 @@ def vagrant_run(platform, bashString):
 
 
 def run_payload(platform, filePrefix, payload, remotedir):
+    if platform == "amazon_linux":
+        clean_up = clean_up_sshd_file
+    else:
+        clean_up = ""
     tempfileContent = payloadRunnerScript.format(filePrefix=filePrefix,
                                                  payload=payload,
                                                  platform=platform,
-                                                 remotedir=remotedir)
+                                                 remotedir=remotedir,
+                                                 sshd_file_clean_up=clean_up)
     vagrant_run(platform, tempfileContent)
 
 
