@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginLoggingSetup.h"
 
 #include "FileLoggingSetup.h"
-
+#include "LoggerConfig.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <log4cplus/logger.h>
@@ -14,6 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 Common::Logging::PluginLoggingSetup::PluginLoggingSetup(const std::string& pluginName)
 {
     setupFileLogging(pluginName);
+    applyGeneralConfig(pluginName);
 }
 
 Common::Logging::PluginLoggingSetup::~PluginLoggingSetup()

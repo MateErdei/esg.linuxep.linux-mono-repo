@@ -56,6 +56,9 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
     }
 
     log4cplus::Logger::getRoot().setLogLevel(logLevel);
+    std::stringstream initMessage;
+    initMessage << "Logger " << logbase << " configured for level: " << logLevel << std::endl;
+    log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
 }
 
 log4cplus::Logger Common::Logging::getInstance(const std::string& loggername)
