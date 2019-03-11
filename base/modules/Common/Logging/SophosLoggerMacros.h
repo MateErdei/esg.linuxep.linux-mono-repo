@@ -24,14 +24,3 @@ namespace log4cplus
 #define LOG4CPLUS_SUPPORT_FMT(logger, ...)                                \
     LOG4CPLUS_MACRO_FMT_BODY (logger, SUPPORT_LOG_LEVEL, __VA_ARGS__)
 
-
-
-// Copy the entry below to a Logger.h
-//log4cplus::Logger& getXXXXLogger();
-//
-//#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getXXXXLogger(), x)  // NOLINT
-//#define LOGINFO(x) LOG4CPLUS_INFO(getXXXXLogger(), x)    // NOLINT
-//#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getXXXXLogger(), x) // NOLINT
-//#define LOGWARN(x) LOG4CPLUS_WARN(getXXXXLogger(), x)    // NOLINT
-//#define LOGERROR(x) LOG4CPLUS_ERROR(getXXXXLogger(), x)  // NOLINT
-
