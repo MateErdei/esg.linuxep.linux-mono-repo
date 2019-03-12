@@ -15,6 +15,8 @@ add_library(eventtypesimplobject OBJECT
         ../EventTypes/PortScanningEvent.h
         ../EventTypes/ProcessEvent.h
         ../EventTypes/ProcessEvent.cpp
+        ../EventTypes/SophosString.h
+        ../EventTypes/SophosString.cpp
         EventConverter.h
         EventConverter.cpp
         ${CapNGeneratedFilesHeaders}

@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-
-//#include "CredentialEvent.h"
 #include <string>
+#include "SophosString.h"
 
 namespace Common
 {
@@ -17,17 +16,17 @@ namespace Common
         struct UserSid
         {
         public:
-            std::string username;
-            std::string sid;
-            std::string domain;
-            std::string machineid;
+            SophosString username;
+            SophosString sid;
+            SophosString domain;
+            SophosString machineid;
             std::uint32_t userid = 0xFFFFFFFF; // Unset
         };
 
         struct NetworkAddress
         {
         public:
-            std::string address;
+            SophosString address;
         };
 
         using socket_port_t = uint16_t;
@@ -35,7 +34,7 @@ namespace Common
         struct SocketAddress
         {
         public:
-            std::string address;
+            SophosString address;
             socket_port_t port = 0;
         };
 
@@ -65,7 +64,7 @@ namespace Common
         struct Pathname
         {
         public:
-            std::string pathname;
+            SophosString pathname;
             TextOffsetLength openName;
             TextOffsetLength volumeName;
             TextOffsetLength shareName;

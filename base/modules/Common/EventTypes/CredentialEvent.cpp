@@ -184,7 +184,7 @@ namespace Common
 
         void CredentialEvent::setGroupId(const unsigned long groupId) { m_groupId = groupId; }
 
-        void CredentialEvent::setGroupName(const std::string& groupName) { m_groupName = groupName; }
+        void CredentialEvent::setGroupName(const SophosString& groupName) { m_groupName = groupName; }
 
         void CredentialEvent::setSophosPid(const Common::EventTypes::SophosPid& processId)
         {
@@ -200,17 +200,17 @@ namespace Common
             credentialsEvent.setSessionType(convertToCapnSessionType(m_sessionType));
             credentialsEvent.setEventType(convertToCapnEventType(m_eventType));
 
-            credentialsEvent.getSubjectUserSID().setUsername(m_subjectUserSid.username);
-            credentialsEvent.getSubjectUserSID().setDomain(m_subjectUserSid.domain);
-            credentialsEvent.getSubjectUserSID().setMachineid(m_subjectUserSid.machineid);
+            credentialsEvent.getSubjectUserSID().setUsername(m_subjectUserSid.username.str());
+            credentialsEvent.getSubjectUserSID().setDomain(m_subjectUserSid.domain.str());
+            credentialsEvent.getSubjectUserSID().setMachineid(m_subjectUserSid.machineid.str());
             credentialsEvent.getSubjectUserSID().setUserid(m_subjectUserSid.userid);
 
-            credentialsEvent.getTargetUserSID().setUsername(m_targetUserSid.username);
-            credentialsEvent.getTargetUserSID().setDomain(m_targetUserSid.domain);
-            credentialsEvent.getTargetUserSID().setMachineid(m_targetUserSid.machineid);
+            credentialsEvent.getTargetUserSID().setUsername(m_targetUserSid.username.str());
+            credentialsEvent.getTargetUserSID().setDomain(m_targetUserSid.domain.str());
+            credentialsEvent.getTargetUserSID().setMachineid(m_targetUserSid.machineid.str());
             credentialsEvent.getTargetUserSID().setUserid(m_targetUserSid.userid);
 
-            credentialsEvent.getRemoteNetworkAddress().setAddress(m_remoteNetworkAccess.address);
+            credentialsEvent.getRemoteNetworkAddress().setAddress(m_remoteNetworkAccess.address.str());
 
             credentialsEvent.setTimestamp(m_timestamp);
             credentialsEvent.setLogonID(m_logonId);

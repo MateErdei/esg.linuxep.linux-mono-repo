@@ -97,18 +97,18 @@ namespace Common
                 ::capnp::Data::Reader(reinterpret_cast<const ::capnp::byte*>(m_sid.data()), m_sid.size());
             processEvent.setSid(sidReader);
 
-            processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username);
+            processEvent.getOwnerUserSID().setUsername(m_ownerUserSid.username.str());
             processEvent.getOwnerUserSID().setUserid(m_ownerUserSid.userid);
-            processEvent.getOwnerUserSID().setMachineid(m_ownerUserSid.machineid);
+            processEvent.getOwnerUserSID().setMachineid(m_ownerUserSid.machineid.str());
 
             processEvent.getOwnerUserSID().setSid(sidReader);
-            processEvent.getOwnerUserSID().setDomain(m_ownerUserSid.domain);
+            processEvent.getOwnerUserSID().setDomain(m_ownerUserSid.domain.str());
 
             processEvent.getFileSize().setValue(m_fileSize.value);
             processEvent.getPathname().setFlags(m_pathname.flags);
             processEvent.getPathname().setFileSystemType(m_pathname.fileSystemType);
             processEvent.getPathname().setDriveLetter(m_pathname.driveLetter);
-            processEvent.getPathname().setPathname(m_pathname.pathname);
+            processEvent.getPathname().setPathname(m_pathname.pathname.str());
             processEvent.getPathname().getOpenName().setLength(m_pathname.openName.length);
             processEvent.getPathname().getOpenName().setOffset(m_pathname.openName.offset);
             processEvent.getPathname().getVolumeName().setLength(m_pathname.volumeName.length);
@@ -218,7 +218,7 @@ namespace Common
                 pathname.parentDirName.offset = processEvent.getPathname().getParentDirName().getOffset();
                 setPathname(pathname);
 
-                setCmdLine(processEvent.getCmdLine());
+                setCmdLine(processEvent.getCmdLine().cStr());
 
                 ::capnp::Data::Reader sha256Reader = processEvent.getSha256();
                 std::string sha256String(sha256Reader.begin(), sha256Reader.end());
@@ -228,7 +228,7 @@ namespace Common
                 std::string sha1String(sha1Reader.begin(), sha1Reader.end());
                 setSha1(sha1String);
 
-                setProcTitle(processEvent.getProcTitle());
+                setProcTitle(processEvent.getProcTitle().cStr());
             }
             catch (std::exception& ex)
             {
@@ -297,7 +297,7 @@ namespace Common
 
         void ProcessEvent::setSessionId(std::uint32_t sessionId) { m_sessionId = sessionId; }
 
-        void ProcessEvent::setSid(const std::string& sid) { m_sid = sid; }
+        void ProcessEvent::setSid(const SophosString& sid) { m_sid = sid; }
 
         void ProcessEvent::setOwnerUserSid(const Common::EventTypes::UserSid& ownerUserSid)
         {
@@ -306,52 +306,52 @@ namespace Common
 
         void ProcessEvent::setPathname(const Common::EventTypes::Pathname& pathname) { m_pathname = pathname; }
 
-        void ProcessEvent::setPathname(const std::string& pathnameString)
+        void ProcessEvent::setPathname(const SophosString& pathnameString)
         {
             Common::EventTypes::Pathname pathname;
-            pathname.pathname = pathnameString;
+            pathname.pathname = pathnameString.str();
 
             // Find the last slash to identify the executable name and set the finalComponentName and parentDirName
-            size_t lastSlashPosition = pathname.pathname.rfind('/');
+            size_t lastSlashPosition = pathname.pathname.str().rfind('/');
 
             // If the path string contains a '/'
             if (lastSlashPosition != std::string::npos)
             {
-                if (pathname.pathname.back() != '/')
+                if (pathname.pathname.str().back() != '/')
                 {
                     pathname.finalComponentName.offset = static_cast<uint32_t>(lastSlashPosition) + 1;
                     pathname.finalComponentName.length =
-                        static_cast<uint32_t>(pathname.pathname.size() - pathname.finalComponentName.offset);
+                        static_cast<uint32_t>(pathname.pathname.str().size() - pathname.finalComponentName.offset);
                 }
 
                 pathname.parentDirName.offset = 0;
                 pathname.parentDirName.length = static_cast<uint32_t>(lastSlashPosition + 1);
             }
-            pathname.openName = { static_cast<uint32_t>(pathname.pathname.size()), 0 };
+            pathname.openName = { static_cast<uint32_t>(pathname.pathname.str().size()), 0 };
 
             // Find the final period in the finalComponent name and set the extension if there is a final component name
             if (pathname.finalComponentName.length != 0)
             {
                 std::string finalComponentName =
-                    pathname.pathname.substr(pathname.finalComponentName.offset, pathname.finalComponentName.length);
+                    pathname.pathname.str().substr(pathname.finalComponentName.offset, pathname.finalComponentName.length);
                 size_t periodPosition = finalComponentName.rfind('.');
-                if (periodPosition != std::string::npos && periodPosition < pathname.pathname.size() - 1)
+                if (periodPosition != std::string::npos && periodPosition < pathname.pathname.str().size() - 1)
                 {
                     pathname.extensionName.offset =
                         static_cast<uint32_t>(pathname.finalComponentName.offset + periodPosition + 1);
                     pathname.extensionName.length =
-                        static_cast<uint32_t>(pathname.pathname.size() - pathname.extensionName.offset);
+                        static_cast<uint32_t>(pathname.pathname.str().size() - pathname.extensionName.offset);
                 }
             }
             m_pathname = pathname;
         }
 
-        void ProcessEvent::setCmdLine(const std::string& cmdLine) { m_cmdLine = cmdLine; }
+        void ProcessEvent::setCmdLine(const SophosString& cmdLine) { m_cmdLine = cmdLine; }
 
-        void ProcessEvent::setSha256(const std::string& sha256) { m_sha256 = sha256; }
+        void ProcessEvent::setSha256(const SophosString& sha256) { m_sha256 = sha256; }
 
-        void ProcessEvent::setSha1(const std::string& sha1) { m_sha1 = sha1; }
+        void ProcessEvent::setSha1(const SophosString& sha1) { m_sha1 = sha1; }
 
-        void ProcessEvent::setProcTitle(const std::string& procTitle) { m_procTitle = procTitle; }
+        void ProcessEvent::setProcTitle(const SophosString& procTitle) { m_procTitle = procTitle; }
     } // namespace EventTypes
 } // namespace Common

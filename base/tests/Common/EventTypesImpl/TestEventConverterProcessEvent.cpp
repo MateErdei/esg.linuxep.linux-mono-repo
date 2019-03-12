@@ -163,7 +163,7 @@ void testPathName(const std::string& parentDir, const std::string& filename, con
     event.setPathname(pathString);
     Common::EventTypes::Pathname pathname = event.getPathname();
 
-    EXPECT_EQ(pathname.pathname, pathString);
+    EXPECT_EQ(pathname.pathname.str(), pathString);
 
     auto openName = TextOffsetLength{ static_cast<uint32_t>(pathString.size()), 0 };
     EXPECT_EQ(pathname.openName.length, openName.length);

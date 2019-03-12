@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "CommonEventData.h"
 #include "IEventType.h"
+#include "SophosString.h"
 
 namespace Common
 {
@@ -177,7 +178,7 @@ namespace Common
              * Sets the sid property of this ProcessEvent object
              * @param sid
              */
-            void setSid(const std::string& sid);
+            void setSid(const SophosString& sid);
 
             /**
              * Sets the ownerUserSid property of this ProcessEvent object
@@ -196,34 +197,34 @@ namespace Common
              * from the given string
              * @param pathnameString
              */
-            void setPathname(const std::string& pathnameString);
+            void setPathname(const SophosString& pathnameString);
 
             /**
              * Sets the command line property of this ProcessEvent object
              * @param cmdLine
              */
-            void setCmdLine(const std::string& cmdLine);
+            void setCmdLine(const SophosString& cmdLine);
 
             /**
              * Sets the SHA256 property of this ProcessEvent object
              * @param sha256
              */
-            void setSha256(const std::string& sha256);
+            void setSha256(const SophosString& sha256);
 
             /**
              * Sets the SHA1 property of this ProcessEvent object
              * @param sha1
              */
-            void setSha1(const std::string& sha1);
+            void setSha1(const SophosString& sha1);
 
-            /*
+            /**
              * Sets the procTitle property of this ProcessEvent object.
              * This is the cmd line string of the originating top level process.
              * When processes are nested this will be the same for all child processes that are spawned from the
              * top level process, which will have a matching cmdline as this value.
              * @param sha1
              */
-            void setProcTitle(const std::string& procTitle);
+            void setProcTitle(const SophosString& procTitle);
 
             /**
              * Turns this ProcessEvent object into a capn byte string.

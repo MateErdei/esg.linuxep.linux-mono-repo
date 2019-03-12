@@ -5,6 +5,7 @@ add_executable(
         TestEventConverterCredentialEvent.cpp
         TestEventConverterPortScanningEvent.cpp
         TestEventConverterProcessEvent.cpp
+        TestSophosString.cpp
         TestEventTypeHelper.h)
 
 target_include_directories(eventtypesimpltestsexe SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include"

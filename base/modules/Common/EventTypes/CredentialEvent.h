@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "CommonEventData.h"
 #include "IEventType.h"
 #include "PortScanningEvent.h"
+#include "SophosString.h"
 
 namespace Common
 {
@@ -66,7 +67,7 @@ namespace Common
             void setSubjectUserSid(const Common::EventTypes::UserSid& subjectUserSid);
             void setTargetUserSid(const Common::EventTypes::UserSid& targetUserSid);
             void setGroupId(unsigned long groupId);
-            void setGroupName(const std::string& groupName);
+            void setGroupName(const SophosString& groupName);
             void setTimestamp(windows_timestamp_t timestamp);
             void setLogonId(login_id_t logonId);
             void setRemoteNetworkAccess(const Common::EventTypes::NetworkAddress& remoteNetworkAccess);
