@@ -4,6 +4,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "FileLoggingSetup.h"
+
 #include "LoggerConfig.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -16,12 +17,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 
-
 Common::Logging::FileLoggingSetup::FileLoggingSetup(const std::string& logbase, bool lowpriv)
 {
     setupFileLogging(logbase, lowpriv);
     applyGeneralConfig(logbase);
-
 }
 
 Common::Logging::FileLoggingSetup::~FileLoggingSetup()

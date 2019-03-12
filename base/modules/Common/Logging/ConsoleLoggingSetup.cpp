@@ -4,10 +4,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ConsoleLoggingSetup.h"
+
 #include "LoggerConfig.h"
 #include "LoggingSetup.h"
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/logger.h>
@@ -19,24 +21,18 @@ namespace
     {
     public:
         using Common::ApplicationConfigurationImpl::ApplicationPathManager::ApplicationPathManager;
-        std::string getLogConfFilePath() const override
-        {
-            return std::string{};
-        }
+        std::string getLogConfFilePath() const override { return std::string{}; }
     };
 
-}
-
+} // namespace
 
 using namespace Common::ApplicationConfigurationImpl;
 using namespace Common::ApplicationConfiguration;
 
-
-
 Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup()
 {
     consoleSetupLogging();
-    applyGeneralConfig( Common::Logging::LOGFORTEST);
+    applyGeneralConfig(Common::Logging::LOGFORTEST);
 }
 
 Common::Logging::ConsoleLoggingSetup::~ConsoleLoggingSetup()

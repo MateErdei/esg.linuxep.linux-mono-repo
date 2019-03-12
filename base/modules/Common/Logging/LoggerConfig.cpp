@@ -4,9 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "LoggerConfig.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 #include <iostream>
 namespace
 {
@@ -16,28 +18,29 @@ namespace
      * @param logLevel (OUTPUT)
      * @return true: if the logLevelName was valid. otherwise it returns false and does not change logLevel
      */
-    bool fromNameToLog(const std::string & logLevelName, log4cplus::LogLevel & logLevel)
+    bool fromNameToLog(const std::string& logLevelName, log4cplus::LogLevel& logLevel)
     {
         using sp = Common::Logging::SophosLogLevel;
-        static std::vector<std::string> LogNames{{"OFF"}, {"DEBUG"}, {"INFO"}, {"SUPPORT"}, {"WARN"}, {"ERROR"}};
-        static std::vector<sp> LogLevels{sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR};
+        static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
+                                                  { "SUPPORT" }, { "WARN" },  { "ERROR" } };
+        static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
 
-        auto ind_it = std::find( LogNames.begin(), LogNames.end(), logLevelName);
-        if ( ind_it == LogNames.end())
+        auto ind_it = std::find(LogNames.begin(), LogNames.end(), logLevelName);
+        if (ind_it == LogNames.end())
         {
             return false;
         }
-        assert( std::distance(LogNames.begin(), ind_it) >= 0);
-        assert( std::distance(LogNames.begin(), ind_it) < static_cast<int>(LogLevels.size()));
-        logLevel = LogLevels.at( std::distance(LogNames.begin(), ind_it));
+        assert(std::distance(LogNames.begin(), ind_it) >= 0);
+        assert(std::distance(LogNames.begin(), ind_it) < static_cast<int>(LogLevels.size()));
+        logLevel = LogLevels.at(std::distance(LogNames.begin(), ind_it));
         return true;
     }
-}
+} // namespace
 
 const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel ll)
 {
     // using 4 letters acronym as most levels are 4 or 5 and they will look better instead of 7 letters.
-    static log4cplus::tstring SUPPORT{"SPRT"};
+    static log4cplus::tstring SUPPORT{ "SPRT" };
     static log4cplus::tstring EMPTY{};
     if (static_cast<Common::Logging::SophosLogLevel>(ll) == Common::Logging::SophosLogLevel::SUPPORT)
     {
@@ -46,36 +49,34 @@ const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel l
     return EMPTY;
 }
 
-log4cplus::LogLevel log4cplus::supportFromStringMethod( const log4cplus::tstring & logname)
+log4cplus::LogLevel log4cplus::supportFromStringMethod(const log4cplus::tstring& logname)
 {
-    if ( logname == "SPRT")
+    if (logname == "SPRT")
     {
-        return static_cast<log4cplus::LogLevel>( Common::Logging::SophosLogLevel::SUPPORT);
+        return static_cast<log4cplus::LogLevel>(Common::Logging::SophosLogLevel::SUPPORT);
     }
     return NOT_SET_LOG_LEVEL;
 }
 
-
-
-const std::string LOGFORTEST{"LOGFORTEST"};
+const std::string LOGFORTEST{ "LOGFORTEST" };
 
 void Common::Logging::applyGeneralConfig(const std::string& logbase)
 {
-    log4cplus::LogLevel logLevel{SophosLogLevel::DEBUG}; // default value
-    if ( logbase == LOGFORTEST)
+    log4cplus::LogLevel logLevel{ SophosLogLevel::DEBUG }; // default value
+    if (logbase == LOGFORTEST)
     {
         LoggerSophosSettings::InTestMode = true;
     }
 
-    if( LoggerSophosSettings::instance().hasSpecializationFor(logbase))
+    if (LoggerSophosSettings::instance().hasSpecializationFor(logbase))
     {
         // the fact that it may return false can be ignored here since, in this case the default is to be applied anyway
-        (void) LoggerSophosSettings::instance().logLevel(logbase, logLevel);
+        (void)LoggerSophosSettings::instance().logLevel(logbase, logLevel);
     }
     else
     {
         // get the global configuration. Again, it may not exist, but in this case the default is to be used.
-        (void) LoggerSophosSettings::instance().logLevel("", logLevel);
+        (void)LoggerSophosSettings::instance().logLevel("", logLevel);
     }
 
     log4cplus::Logger::getRoot().setLogLevel(logLevel);
@@ -88,67 +89,61 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
 
 log4cplus::Logger Common::Logging::getInstance(const std::string& loggername)
 {
-    log4cplus::Logger logger =  log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(loggername));
+    log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(loggername));
     // this implementation relies on log4cplus inheritance of settings and hence
     // change loglevel only if there is a specific specialization associated with the
     // log name.
 
-    if ( LoggerSophosSettings::instance().hasSpecializationFor(loggername))
+    if (LoggerSophosSettings::instance().hasSpecializationFor(loggername))
     {
         log4cplus::LogLevel logLevel;
         // logLevel may not be set if the value is not recognized.
-        if ( LoggerSophosSettings::instance().logLevel(loggername, logLevel))
+        if (LoggerSophosSettings::instance().logLevel(loggername, logLevel))
         {
             logger.setLogLevel(logLevel);
         }
     }
 
     return logger;
-
 }
-
 
 namespace Common
 {
     namespace Logging
     {
-        bool LoggerSophosSettings::InTestMode{false};
+        bool LoggerSophosSettings::InTestMode{ false };
 
         namespace pt = boost::property_tree;
         class LoggerSophosSettings::LoggerConfigTree
         {
         public:
-
             /* it may throw if the content of the file is invalid or if the file can not be accessed
              *  The reason to use the filePath and not the file content is to avoid a circular dependency.
              *
-             *  For tests purpose, I would like the capability of mocking out the file and probaly use the Common::FileSystem
-             *  to change content. The problem is that filessytem depends on the logging, hence, logging must not depend on filessytem
+             *  For tests purpose, I would like the capability of mocking out the file and probaly use the
+             * Common::FileSystem to change content. The problem is that filessytem depends on the logging, hence,
+             * logging must not depend on filessytem
              *
              */
-            LoggerConfigTree( const std::string & confFilePath);
-
+            LoggerConfigTree(const std::string& confFilePath);
 
             /** if session is empty, it will find the verbosity defined for global or no session associated.
              *
              * return empty string if VERBOSITY does not exist in the session
              * */
-            std::string getVerbosity( const std::string & session = "") const;
+            std::string getVerbosity(const std::string& session = "") const;
 
-            bool hasSession(const std::string & session) const;
-
+            bool hasSession(const std::string& session) const;
 
         private:
             static const std::string VERBOSITY;
             pt::ptree m_ptree;
         };
-        const std::string LoggerSophosSettings::LoggerConfigTree::VERBOSITY{"VERBOSITY"};
-
-
+        const std::string LoggerSophosSettings::LoggerConfigTree::VERBOSITY{ "VERBOSITY" };
 
         LoggerSophosSettings::LoggerConfigTree::LoggerConfigTree(const std::string& confFilePath)
         {
-            if ( confFilePath.empty())
+            if (confFilePath.empty())
             {
                 return;
             }
@@ -169,28 +164,26 @@ namespace Common
             }
         }
 
-
-        std::string LoggerSophosSettings::LoggerConfigTree::getVerbosity( const std::string & session) const
+        std::string LoggerSophosSettings::LoggerConfigTree::getVerbosity(const std::string& session) const
         {
-
             boost::optional<std::string> value;
-            if( session.empty())
+            if (session.empty())
             {
-                value = m_ptree.get_optional<std::string>("global."+VERBOSITY);
+                value = m_ptree.get_optional<std::string>("global." + VERBOSITY);
                 if (value)
                 {
                     return value.get();
                 }
                 value = m_ptree.get_optional<std::string>(VERBOSITY);
-                if ( value )
+                if (value)
                 {
                     return value.get();
                 }
             }
             else
             {
-                value = m_ptree.get_optional<std::string>(session + "." + VERBOSITY );
-                if ( value)
+                value = m_ptree.get_optional<std::string>(session + "." + VERBOSITY);
+                if (value)
                 {
                     return value.get();
                 }
@@ -198,38 +191,34 @@ namespace Common
             return std::string{};
         }
 
-        bool  LoggerSophosSettings::LoggerConfigTree::hasSession(const std::string& session) const
+        bool LoggerSophosSettings::LoggerConfigTree::hasSession(const std::string& session) const
         {
             auto session_tree = m_ptree.get_child_optional(session);
             return bool(session_tree);
         }
 
-
         LoggerSophosSettings::LoggerSophosSettings()
         {
-            if ( LoggerSophosSettings::InTestMode)
+            if (LoggerSophosSettings::InTestMode)
             {
                 // do not try to load the file property if TestMode = true
                 return;
             }
-            auto & pathMan=Common::ApplicationConfiguration::applicationPathManager();
+            auto& pathMan = Common::ApplicationConfiguration::applicationPathManager();
 
             try
             {
-                m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree( pathMan.getLogConfFilePath() ));
-            }catch ( std::exception & ex)
+                m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree(pathMan.getLogConfFilePath()));
+            }
+            catch (std::exception& ex)
             {
                 // it can not use the logger yet, hence, will use the std::err
-                std::cerr << "Failed to read the config file " << pathMan.getLogConfFilePath() << ". All settings will be set to their default value" << std::endl;
+                std::cerr << "Failed to read the config file " << pathMan.getLogConfFilePath()
+                          << ". All settings will be set to their default value" << std::endl;
             }
         }
 
-
-
-        LoggerSophosSettings::~LoggerSophosSettings()
-        {
-
-        }
+        LoggerSophosSettings::~LoggerSophosSettings() {}
 
         LoggerSophosSettings& LoggerSophosSettings::instance()
         {
@@ -239,7 +228,7 @@ namespace Common
 
         bool LoggerSophosSettings::hasSpecializationFor(const std::string& productName) const
         {
-            if ( m_configTree)
+            if (m_configTree)
             {
                 return m_configTree->hasSession(productName);
             }
@@ -250,21 +239,21 @@ namespace Common
         {
             std::string verbosity;
 
-            if ( hasSpecializationFor(productName))
+            if (hasSpecializationFor(productName))
             {
                 // it can assume config tree is valid as there is a specialization for the product
                 verbosity = m_configTree->getVerbosity(productName);
             }
             else
             {
-                if ( m_configTree)
+                if (m_configTree)
                 {
                     // get the option for global
                     verbosity = m_configTree->getVerbosity();
                 }
             }
 
-            if ( verbosity.empty())
+            if (verbosity.empty())
             {
                 return false;
             }
@@ -272,7 +261,5 @@ namespace Common
             return fromNameToLog(verbosity, logLevelOut);
         }
 
-
-    }
-}
-
+    } // namespace Logging
+} // namespace Common
