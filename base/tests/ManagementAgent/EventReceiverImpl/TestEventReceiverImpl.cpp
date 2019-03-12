@@ -7,9 +7,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
+#include <modules/Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
-#include <modules/Common/Logging/ConsoleLoggingSetup.h>
 
 class TestEventReceiverImpl : public ::testing::Test
 {

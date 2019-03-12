@@ -4,12 +4,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/Logger.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <future>
@@ -19,11 +19,7 @@ using namespace UpdateScheduler;
 class TestAsyncSulDownloaderRunner : public ::testing::Test
 {
 public:
-
-    void TearDown() override
-    {
-        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-    }
+    void TearDown() override { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
 
     MockProcess* setupMockProcess()
     {

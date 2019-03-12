@@ -4,10 +4,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/PluginProxy.h>
 
@@ -18,7 +18,7 @@ namespace
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
     public:
-        TestPluginProxy()  {}
+        TestPluginProxy() {}
     };
 } // namespace
 

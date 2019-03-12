@@ -5,6 +5,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Exceptions/Print.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -12,11 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketPublisherImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <atomic>
 #include <thread>
@@ -62,31 +62,30 @@ namespace
 
 using namespace Common::ZeroMQWrapper;
 
-
 class TestLoggingProxyImpl : public ::testing::Test
 {
     std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_consoleLogging; // NOLINT
 
 public:
-
-    void SetUp() override {
+    void SetUp() override
+    {
         m_consoleLogging.reset(new Common::Logging::ConsoleLoggingSetup);
         ::setenv("SOPHOS_PUB_SUB_ROUTER_LOGGING", "1", 1);
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         m_consoleLogging.reset();
         ::unsetenv("SOPHOS_PUB_SUB_ROUTER_LOGGING");
-//        std::cout << "Teardown Happening";
-
+        //        std::cout << "Teardown Happening";
     }
 };
-
 
 TEST_F(TestLoggingProxyImpl, Creation) // NOLINT
 {
     testing::internal::CaptureStderr();
-    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
+        std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     EXPECT_NE(proxy.get(), nullptr);
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -96,7 +95,8 @@ TEST_F(TestLoggingProxyImpl, Creation) // NOLINT
 TEST_F(TestLoggingProxyImpl, StartStop) // NOLINT
 {
     testing::internal::CaptureStderr();
-    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
+        std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy("inproc://frontend", "inproc://backend");
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -184,7 +184,8 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
+        std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -225,7 +226,7 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     proxy.reset();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_NE(logMessage.size(), 0);
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
     ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
@@ -239,7 +240,8 @@ TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
 
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
+        std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -293,7 +295,7 @@ TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
     proxy.reset();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_NE(logMessage.size(), 0);
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
     ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
@@ -306,7 +308,8 @@ TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
     // Need to share the context to use inproc addresses
     const std::string frontend = "inproc://frontend";
     const std::string backend = "inproc://backend";
-    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr = std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
+    Common::ZMQWrapperApi::IContextSharedPtr sharedContextPtr =
+        std::make_shared<Common::ZMQWrapperApiImpl::ContextImpl>();
     IProxyPtr proxy = sharedContextPtr->getProxy(frontend, backend);
     ASSERT_NE(proxy.get(), nullptr);
 
@@ -379,14 +382,13 @@ TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
     EXPECT_TRUE(thread2Sent);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     std::string logMessage = testing::internal::GetCapturedStderr();
-    ASSERT_NE(logMessage.size() , 0);
+    ASSERT_NE(logMessage.size(), 0);
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
     int dataCount = countOccurancesInString(logMessage, "FOOBAR DATA");
     ASSERT_NE(dataCount, 0);
     int otherCount = countOccurancesInString(logMessage, "FOOBAR OTHER");
     ASSERT_NE(otherCount, 0);
-    ASSERT_GE(dataCount+otherCount, count);
+    ASSERT_GE(dataCount + otherCount, count);
     ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
     ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
-

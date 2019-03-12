@@ -7,11 +7,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "DummyDirectoryWatcherListener.h"
 #include "MockiNotifyWrapper.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 #include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
 #include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gmock/gmock.h>
 #include <sys/inotify.h>

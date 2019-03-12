@@ -6,11 +6,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 
 class TestStatusReceiverImpl : public ::testing::Test

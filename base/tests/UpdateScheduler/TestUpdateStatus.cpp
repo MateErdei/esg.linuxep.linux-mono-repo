@@ -6,13 +6,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "DownloadReportTestBuilder.h"
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
 #include <UpdateSchedulerImpl/configModule/UpdateStatus.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/UtilityImpl/MockFormattedTime.h>
 
 using namespace UpdateSchedulerImpl::configModule;
