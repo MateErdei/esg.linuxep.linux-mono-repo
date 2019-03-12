@@ -6,13 +6,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "MockSocketRequester.h"
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using ManagementAgent::PluginCommunicationImpl::PluginProxy;
 

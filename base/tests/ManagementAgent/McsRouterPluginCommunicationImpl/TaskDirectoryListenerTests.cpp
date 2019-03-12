@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
@@ -16,7 +17,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 class TaskDirectoryListenerTests : public ::testing::Test
 {

@@ -15,11 +15,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZMQWrapperApi/IContextPtr.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>

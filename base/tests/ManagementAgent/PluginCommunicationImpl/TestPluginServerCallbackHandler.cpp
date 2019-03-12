@@ -6,6 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "MockPluginServerCallback.h"
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
@@ -14,7 +15,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <tests/Common/PluginApiImpl/TestCompare.h>
 
 class TestPluginServerCallbackHandler : public TestCompare

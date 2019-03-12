@@ -11,9 +11,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
-#include <Common/ZMQWrapperApiImpl/ContextImpl.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -344,7 +344,6 @@ TEST_F(RawDataCallbackTests, RawDataPublisher_SubscriberCanSendReceiveCredential
     sophosPid.timestamp = 123123123;
     sophosPid.pid = 552233;
     eventExpected.setSophosPid(sophosPid);
-
 
     rawDataPublisher->sendPluginEvent(eventExpected);
 

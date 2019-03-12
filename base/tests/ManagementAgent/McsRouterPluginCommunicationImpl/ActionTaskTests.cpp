@@ -7,12 +7,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "MockPluginManager.h"
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using ::testing::_;
 

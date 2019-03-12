@@ -8,6 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/TaskQueue/ITaskProcessor.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -17,7 +18,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 class McsRouterPluginCommunicationImplTests : public ::testing::Test
 {
