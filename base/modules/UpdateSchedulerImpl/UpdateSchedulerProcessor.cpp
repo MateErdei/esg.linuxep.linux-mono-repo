@@ -138,6 +138,11 @@ namespace UpdateSchedulerImpl
                 m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
             }
 
+            if (!Common::FileSystem::fileSystem()->isFile(m_configfilePath))
+            {
+                m_pendingUpdate = true;
+            }
+
             writeConfigurationData(settingsHolder.configurationData);
 
             if (!m_policyReceived)
