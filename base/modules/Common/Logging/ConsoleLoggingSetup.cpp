@@ -15,17 +15,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 
-namespace
-{
-    class NoLogConfigPathManager : public Common::ApplicationConfigurationImpl::ApplicationPathManager
-    {
-    public:
-        using Common::ApplicationConfigurationImpl::ApplicationPathManager::ApplicationPathManager;
-        std::string getLogConfFilePath() const override { return std::string{}; }
-    };
-
-} // namespace
-
 using namespace Common::ApplicationConfigurationImpl;
 using namespace Common::ApplicationConfiguration;
 

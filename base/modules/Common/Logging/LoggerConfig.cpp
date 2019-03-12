@@ -37,12 +37,12 @@ namespace
     }
 } // namespace
 
-const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel ll)
+const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel logLevel)
 {
     // using 4 letters acronym as most levels are 4 or 5 and they will look better instead of 7 letters.
     static log4cplus::tstring SUPPORT{ "SPRT" };
     static log4cplus::tstring EMPTY{};
-    if (static_cast<Common::Logging::SophosLogLevel>(ll) == Common::Logging::SophosLogLevel::SUPPORT)
+    if (static_cast<Common::Logging::SophosLogLevel>(logLevel) == Common::Logging::SophosLogLevel::SUPPORT)
     {
         return SUPPORT;
     }
@@ -120,9 +120,9 @@ namespace Common
             /* it may throw if the content of the file is invalid or if the file can not be accessed
              *  The reason to use the filePath and not the file content is to avoid a circular dependency.
              *
-             *  For tests purpose, I would like the capability of mocking out the file and probaly use the
-             * Common::FileSystem to change content. The problem is that filessytem depends on the logging, hence,
-             * logging must not depend on filessytem
+             *  For tests purpose, I would like the capability of mocking out the file and probably use the
+             * Common::FileSystem to change content. The problem is that fileSystem depends on the logging, hence,
+             * logging must not depend on fileSystem
              *
              */
             LoggerConfigTree(const std::string& confFilePath);
