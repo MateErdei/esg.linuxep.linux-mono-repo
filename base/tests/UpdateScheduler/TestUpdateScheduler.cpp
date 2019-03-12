@@ -269,7 +269,6 @@ class TestUpdateScheduler : public ::testing::Test
 {
 public:
     TestUpdateScheduler() :
-        m_loggingSetup(),
         m_queue(std::make_shared<SchedulerTaskQueue>()),
         m_pluginCallback(std::make_shared<SchedulerPluginCallback>(m_queue))
     {
