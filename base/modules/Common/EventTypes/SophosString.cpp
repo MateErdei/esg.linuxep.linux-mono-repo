@@ -22,13 +22,19 @@ namespace Common
         }
 
         SophosString::SophosString(const SophosString& str) :
-                m_string(str.str())
+        m_string(str.str())
         {
             limitStringSize();
         }
 
         SophosString::SophosString(std::string&& str) :
         m_string(str)
+        {
+            limitStringSize();
+        }
+
+        SophosString::SophosString(SophosString&& str) :
+        m_string(str.str())
         {
             limitStringSize();
         }
@@ -45,6 +51,12 @@ namespace Common
         }
 
         SophosString& SophosString::operator=(const SophosString& rhs)
+        {
+            m_string = rhs.m_string;
+            return *this;
+        }
+
+        SophosString& SophosString::operator=(const SophosString&& rhs)
         {
             m_string = rhs.m_string;
             return *this;

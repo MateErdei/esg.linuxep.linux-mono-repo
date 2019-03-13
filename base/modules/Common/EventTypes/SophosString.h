@@ -39,6 +39,12 @@ namespace Common
              */
             SophosString(std::string&& str);
 
+            /**
+             * @brief Move constructor for SophosString given a SophosString
+             * @param str, string variable that SophosString will move.
+             */
+            SophosString(SophosString&& str);
+
             SophosString() = default;
             ~SophosString() = default;
 
@@ -67,6 +73,13 @@ namespace Common
              * @returns A SophosString instance
              */
             SophosString& operator=(const SophosString& rhs);
+
+            /**
+             * @brief Moves a SophosString to an instance of SophosString
+             * @param rhs, SophosString instance from which to move.
+             * @returns A SophosString instance
+             */
+            SophosString& operator=(const SophosString&& rhs);
 
             /**
              * @brief Compares another SophosString to this instance of SophosString
