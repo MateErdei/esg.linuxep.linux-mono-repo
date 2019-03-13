@@ -99,15 +99,15 @@ namespace Common
             portEvent.setEventType(convertToCapnEventType(m_eventType));
 
             ::capnp::Data::Reader sourceAddress = ::capnp::Data::Reader(
-                reinterpret_cast<const ::capnp::byte*>(m_connection.sourceAddress.address.str().data()),
-                m_connection.sourceAddress.address.str().size());
+                reinterpret_cast<const ::capnp::byte*>(m_connection.sourceAddress.address.data()),
+                m_connection.sourceAddress.address.size());
 
             portEvent.getConnection().getSourceAddress().setAddress(sourceAddress);
             portEvent.getConnection().getSourceAddress().setPort(m_connection.sourceAddress.port);
 
             ::capnp::Data::Reader destinationAddress = ::capnp::Data::Reader(
-                reinterpret_cast<const ::capnp::byte*>(m_connection.destinationAddress.address.str().data()),
-                m_connection.destinationAddress.address.str().size());
+                reinterpret_cast<const ::capnp::byte*>(m_connection.destinationAddress.address.data()),
+                m_connection.destinationAddress.address.size());
 
             portEvent.getConnection().getDestinationAddress().setAddress(destinationAddress);
             portEvent.getConnection().getDestinationAddress().setPort(m_connection.destinationAddress.port);

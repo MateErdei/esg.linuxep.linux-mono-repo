@@ -66,10 +66,61 @@ namespace Common
             return !(m_string == rhs.str());
         }
 
-        std::string SophosString::str() const
+        const std::string& SophosString::str() const
         {
             return m_string;
         }
+
+        size_t SophosString::size() const
+        {
+            return m_string.size();
+        }
+
+        size_t SophosString::length() const
+        {
+            return m_string.length();
+        }
+
+        size_t SophosString::rfind(const std::string& str, size_t pos) const noexcept
+        {
+            return m_string.rfind(str, pos);
+        }
+
+        size_t SophosString::rfind(const char* s, size_t pos) const
+        {
+            return m_string.rfind(s, pos);
+        }
+
+        size_t SophosString::rfind(const char* s, size_t pos, size_t n) const
+        {
+            return m_string.rfind(s, pos, n);
+        }
+
+        size_t SophosString::rfind(char c, size_t pos) const noexcept
+        {
+            return m_string.rfind(c, pos);
+        }
+
+        std::string SophosString::substr(size_t pos, size_t len) const
+        {
+            return m_string.substr(pos, len);
+        }
+
+        const char * SophosString::data() const
+        {
+            return m_string.data();
+        }
+
+        const char& SophosString::back() const
+        {
+            return m_string.back();
+        }
+
+        char& SophosString::back()
+        {
+            return m_string.back();
+        }
+
 
         std::ostream& operator<<(std::ostream& os, const SophosString& rhs)
         {

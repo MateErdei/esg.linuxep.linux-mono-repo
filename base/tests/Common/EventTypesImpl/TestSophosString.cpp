@@ -34,7 +34,7 @@ TEST_F( // NOLINT
         testSophosStringCopyConstuctorUsingCharStoresValueCorrectly)
 {
     SophosString testString("asd");
-    ASSERT_EQ(testString.str(), "asd");
+    ASSERT_EQ(testString, "asd");
 }
 
 TEST_F( // NOLINT
@@ -43,7 +43,7 @@ TEST_F( // NOLINT
 {
     std::string basicString("basic");
     SophosString testString(basicString);
-    ASSERT_EQ(testString.str(), basicString);
+    ASSERT_EQ(testString, basicString);
 }
 
 TEST_F( // NOLINT
@@ -52,7 +52,7 @@ TEST_F( // NOLINT
 {
     SophosString originalSophosString("basic");
     SophosString testString(originalSophosString);
-    ASSERT_EQ(testString.str(), originalSophosString.str());
+    ASSERT_EQ(testString, originalSophosString);
 }
 
 TEST_F( // NOLINT
@@ -82,7 +82,7 @@ TEST_F( // NOLINT
 {
     std::string stdString("string");
     SophosString newString = stdString;
-    ASSERT_EQ(newString.str(), stdString);
+    ASSERT_EQ(newString, stdString);
 }
 
 TEST_F( // NOLINT
@@ -223,4 +223,74 @@ TEST_F( // NOLINT
     ASSERT_EQ("TestString2", testString2);
 }
 
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringSizeMethodReturnsSizeCorrectly)
+{
+    std::string stdString("string");
+    SophosString testString(stdString);
 
+    ASSERT_EQ(testString.size(), stdString.size());
+}
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringLengthMethodReturnsLengthCorrectly)
+{
+    std::string stdString("string");
+    SophosString testString(stdString);
+
+    ASSERT_EQ(testString.length(), stdString.length());
+}
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringRfindMethodReturnsRFindCorrectly)
+{
+    std::string stdString("stringHereString");
+    SophosString testString(stdString);
+
+    char charArray[] = "Here";
+
+    ASSERT_EQ(testString.rfind('H'), stdString.rfind('H'));
+    ASSERT_EQ(testString.rfind("Here"), stdString.rfind("Here"));
+    ASSERT_EQ(testString.rfind(charArray), stdString.rfind(charArray));
+    ASSERT_EQ(testString.rfind(charArray, std::string::npos, 4), stdString.rfind(charArray, std::string::npos, 4));
+}
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringSubstrMethodReturnsSubstrCorrectly)
+{
+    std::string stdString("stringHereString");
+    SophosString testString(stdString);
+
+    ASSERT_EQ(testString.substr(6, 4), stdString.substr(6, 4));
+}
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringDataMethodReturnsDataCorrectly)
+{
+    std::string stdString("string");
+    SophosString testString(stdString);
+
+    SophosString actualResult(testString.data());
+    std::string expectedResult(stdString.data());
+
+    ASSERT_EQ(actualResult, expectedResult);
+}
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testSophosStringBackMethodReturnsBackCorrectly)
+{
+    std::string stdString("string");
+    SophosString testString(stdString);
+
+    const std::string constStdString("string");
+    const SophosString constTestString(stdString);
+
+    ASSERT_EQ(testString.back(), stdString.back());
+    ASSERT_EQ(constTestString.back(), constStdString.back());
+}
