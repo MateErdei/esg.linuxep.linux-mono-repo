@@ -8,7 +8,7 @@ import sys
 
 
 platforms = ['centos', 'amazon_linux', 'rhel', 'ubuntu']
-#platforms = ['amazon_linux']
+# platforms = ['amazon_linux']
 ########################################################################################################################
 #
 #   Payloads (Including Auditd Rules)
@@ -223,6 +223,20 @@ ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 
 cleanUpAmazonSshKey
 """
 
+# Should run this by itself... if required.
+success_ssh_command_multiple_attempts_with_key_amazon = """
+setupAmazonSshKey
+sleep 5
+clearLogs
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+ssh -i "/vagrant/id_rsa_vagrant" -o StrictHostKeyChecking=no ec2-user@127.0.0.1 'ls /'
+cleanUpAmazonSshKey
+"""
+
+
 failed_ssh_command_single_attempt_with_key = """
 sleep 5
 clearLogs
@@ -429,30 +443,9 @@ clearLogs
 runuser -l testuser -c 'echo -e "wrongpassword" | passwd'
 """
 
-#This will not work on ext4 files system as it won't let you generate a directory deeper that 4096
-deep_path_fake_wget_process_run = r"""
-mkdir wgetDeep
-cd wgetDeep
-for i in {1..17}
-do
-   echo ${i}
-   mkdir -p abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
-   cd abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst
-done
-auditctl -a always,exit -F arch=b64 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b64 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b64 -S exit_group -k sophos_exec_exit_group
-auditctl -a always,exit -F arch=b32 -S execve -k sophos_exec
-auditctl -a always,exit -F arch=b32 -S exit -k sophos_exec_exit
-auditctl -a always,exit -F arch=b32 -S exit_group -k sophos_exec_exit_group
-cp $(which echo) wget
-clearLogs
-./wget test
-"""
-
 amazon_specific_payloads = {
     'success_ssh_command_single_attempt_with_key_amazon' : success_ssh_command_single_attempt_with_key_amazon,
-    'deep_path_fake_wget_process_run' : deep_path_fake_wget_process_run
+    'success_ssh_command_multiple_attempts_with_key_amazon' : success_ssh_command_multiple_attempts_with_key_amazon
 }
 
 non_amazon_specific_payloads = {
@@ -583,7 +576,6 @@ auditctl -D &> /dev/null
 rm -f index.html &> /dev/null
 rm -f fakeget &> /dev/null
 rm -f $(dirname $(which wget))/fakeget &> /dev/null
-rm -rf wgetDeep
 
 popd
 """

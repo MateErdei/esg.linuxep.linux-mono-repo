@@ -30,8 +30,8 @@ if [[ -z ${2} ]]
 then
     echo "Running non-amazon tests"
     ./SetupSSHKey.sh
+    RunTest success_ssh_command_single_attempt_with_key ${1}
     RunTest success_ssh_command_multiple_attempt_with_key ${1}
-    RunTest success_ssh_command_single_attempt_with_key ${1} 
     RunTest success_ssh_no_command_single_attempt_with_key ${1}
     CheckExitShell
     ./CleanUpSSHKey.sh
@@ -40,13 +40,14 @@ else
     ./SetupAmazonSSHKey.sh
     ./SetupAWSsshd_config.sh
     RunTest success_ssh_command_single_attempt_with_key_amazon ${1}
+    RunTest success_ssh_command_multiple_attempts_with_key_amazon ${1}
     RunTest success_ssh_no_command_single_attempt_with_key_amazon ${1}
     CheckExitShell
     ./CleanUpAmazonSSHKey.sh
 fi
 
-RunTest failed_ssh_multi_password_attempt ${1}
 RunTest failed_ssh_password_attempt ${1}
+RunTest failed_ssh_multi_password_attempt ${1}
 RunTest failed_ssh_password_command_attempt ${1}
 RunTest successful_ssh_multi_password_command_attempt ${1}
 RunTest successful_ssh_password_command_attempt ${1}
