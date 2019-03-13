@@ -34,7 +34,7 @@ void Common::Logging::ConsoleLoggingSetup::consoleSetupLogging()
     log4cplus::initialize();
 
     log4cplus::SharedAppenderPtr appender(new log4cplus::ConsoleAppender(true));
-    Common::Logging::LoggingSetup::applyPattern(appender, "%m%n");
+    Common::Logging::LoggingSetup::applyPattern(appender, "%5p %m%n");
 
     log4cplus::Logger::getRoot().addAppender(appender);
 }

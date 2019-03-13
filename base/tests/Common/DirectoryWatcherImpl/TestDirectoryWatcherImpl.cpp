@@ -201,6 +201,6 @@ TEST_F(DirectoryWatcherTests, readFailsInThread) // NOLINT
     EXPECT_EQ(m_Listener1.m_Active, false);
     EXPECT_EQ(m_Listener2.m_Active, false);
     std::stringstream errStream;
-    errStream << "iNotify read failed with error " << errCode << ": Stopping DirectoryWatcher" << std::endl;
+    errStream << "ERROR iNotify read failed with error " << errCode << ": Stopping DirectoryWatcher" << std::endl;
     EXPECT_EQ(stdErr, errStream.str());
 }
