@@ -109,8 +109,13 @@ for arg in sys.argv[1:]:
     else:
         remote_args.append(arg)
 
+
 # add common parameters used most of times
-remote_args = ['--exclude=manual', '--exclude=weekly'] + remote_args
+if "--include=manual" not in remote_args:
+    remote_args.insert(0, '--exclude=manual')
+if "--include=weekly" not in remote_args:
+    remote_args.insert(0, '--exclude=weekly')
+
 
 # add quotes to make it safer
 quoted_args = [add_quote(a) for a in remote_args]
