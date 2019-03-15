@@ -27,15 +27,9 @@ namespace Common
             limitStringSize();
         }
 
-        SophosString::SophosString(std::string&& str) :
-        m_string(str)
+        SophosString::SophosString(std::string&& str)
         {
-            limitStringSize();
-        }
-
-        SophosString::SophosString(SophosString&& str) :
-        m_string(str.str())
-        {
+            m_string = std::move(str);
             limitStringSize();
         }
 
@@ -47,6 +41,7 @@ namespace Common
         SophosString& SophosString::operator=(const std::string& rhs)
         {
             m_string = rhs;
+            limitStringSize();
             return *this;
         }
 

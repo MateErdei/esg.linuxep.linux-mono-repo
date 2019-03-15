@@ -41,9 +41,9 @@ namespace Common
 
             /**
              * @brief Move constructor for SophosString given a SophosString
-             * @param str, string variable that SophosString will move.
+             * @param, Sophosstring variable that SophosString will move.
              */
-            SophosString(SophosString&& str);
+            SophosString(SophosString&&) = default;
 
             SophosString() = default;
             ~SophosString() = default;

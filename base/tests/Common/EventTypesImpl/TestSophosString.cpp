@@ -294,3 +294,23 @@ TEST_F( // NOLINT
     ASSERT_EQ(testString.back(), stdString.back());
     ASSERT_EQ(constTestString.back(), constStdString.back());
 }
+
+TEST_F( // NOLINT
+        TestSophosString,
+        testMoveConstructorMovesStringsCorrectly)
+{
+    std::string sampleString("string");
+    std::string stdString(sampleString);
+    SophosString sophosString(sampleString);
+
+    ASSERT_EQ(stdString, sampleString);
+    ASSERT_EQ(sophosString.str(), sampleString);
+
+    SophosString movedStdString(std::move(stdString));
+    SophosString movedSophosString(std::move(sophosString));
+    ASSERT_EQ(sophosString, "");
+    ASSERT_EQ(stdString, "");
+
+    ASSERT_EQ(movedStdString, sampleString);
+    ASSERT_EQ(movedSophosString, sampleString);
+}
