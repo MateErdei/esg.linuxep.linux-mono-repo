@@ -12,6 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+#include <cassert>
 
 namespace Common
 {
@@ -33,13 +34,18 @@ namespace Common
                 throw std::runtime_error("EVP_MD_CTX_create() returned NULL");
             }
 
-            EVP_DigestInit(ctx, evp);
+            int ret = EVP_DigestInit(ctx, evp);
+            assert(ret == 1);
+            static_cast<void>(ret);
 
-            EVP_DigestUpdate(ctx, input.data(), input.size());
+            ret = EVP_DigestUpdate(ctx, input.data(), input.size());
+            assert(ret == 1);
+
 
             std::vector<unsigned char> buffer(EVP_MAX_MD_SIZE);
             unsigned int len = 0;
-            EVP_DigestFinal(ctx, &buffer[0], &len);
+            ret = EVP_DigestFinal(ctx, &buffer[0], &len);
+            assert(ret == 1);
             EVP_MD_CTX_destroy(ctx);
 
             std::ostringstream stream;
