@@ -49,6 +49,9 @@ VALGRIND=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --clean-log)
+            rm -f $LOG
+            ;;
         --clean)
             CLEAN=1
             ;;

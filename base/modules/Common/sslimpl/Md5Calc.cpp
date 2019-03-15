@@ -19,12 +19,18 @@ namespace Common
     {
         std::string md5(const std::string& input)
         {
-            EVP_MD_CTX* ctx = EVP_MD_CTX_create();
             const EVP_MD* evp = EVP_md5();
 
             if (evp == 0)
             {
                 throw std::runtime_error("EVP_md5() returned NULL");
+            }
+
+            EVP_MD_CTX* ctx = EVP_MD_CTX_create();
+
+            if (ctx == nullptr)
+            {
+                throw std::runtime_error("EVP_MD_CTX_create() returned NULL");
             }
 
             EVP_DigestInit(ctx, evp);

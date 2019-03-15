@@ -100,7 +100,13 @@ namespace Common
             const ObfuscationImpl::SecureDynamicBuffer& cipherKey,
             ObfuscationImpl::SecureDynamicBuffer& encrypted)
         {
+            if (cipherKey.empty())
+            {
+                throw Common::Obfuscation::ICipherException("Empty key not allowed");
+            }
+
             size_t saltLength = encrypted[0];
+            assert(saltLength <= 256);
 
             if (encrypted.size() < saltLength + 1)
             {
@@ -116,7 +122,7 @@ namespace Common
                 reinterpret_cast<const char*>(cipherKey.data()),
                 static_cast<int>(cipherKey.size()),
                 salt.data(),
-                salt.size(),
+                static_cast<int>(salt.size()),
                 50000,
                 digest,
                 keyivarray.size(),

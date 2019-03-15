@@ -12,6 +12,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
+
 class CipherTest : public ::testing::Test
 {
 public:
@@ -23,8 +25,9 @@ public:
     }
     void TearDown() override { Common::ObfuscationImpl::restoreEvpCipherWrapper(); }
 
-    MockEvpCipherWrapper* m_mockEvpCipherWrapperPtr;
+    MockEvpCipherWrapper* m_mockEvpCipherWrapperPtr = nullptr;
     Common::ObfuscationImpl::SecureDynamicBuffer m_password;
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 // ObfuscationImpl::SecureString Cipher::Decrypt(const ObfuscationImpl::SecureDynamicBuffer& cipherKey,
@@ -42,12 +45,12 @@ TEST_F(CipherTest, BadEncryptionLength) // NOLINT
 
 TEST_F(CipherTest, BadPKCS5Password) // NOLINT
 {
-    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
+    Common::ObfuscationImpl::SecureDynamicBuffer encrypted(33, '*');
     // First byte is treated as the salt length
-    dummyBuffer[0] = 32;
-    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer2;
+    encrypted[0] = 32;
+    Common::ObfuscationImpl::SecureDynamicBuffer cipherKey; // Empty cipher key
     EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer2, dummyBuffer),
+        Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted),
         Common::Obfuscation::ICipherException);
 }
 
@@ -57,6 +60,7 @@ TEST_F(CipherTest, FailContextConstruction) // NOLINT
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
     // First byte is treated as the salt length
     dummyBuffer[0] = 32;
+    // Reuse dummyBuffer as both cipherKey and EncryptedText
     EXPECT_THROW( // NOLINT
         Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
         Common::Obfuscation::ICipherException);
