@@ -1,5 +1,6 @@
 add_subdirectory(commandline)
 add_subdirectory(distribution)
+add_subdirectory(Diagnose)
 add_subdirectory(installer)
 add_subdirectory(ManagementAgent)
 add_subdirectory(mcsrouter)
