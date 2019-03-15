@@ -27,16 +27,14 @@ namespace
 } // namespace
 namespace diagnose
 {
-    int diagnose_main::main(int argc)
+    void diagnose_main::main()
     {
         std::string installDirectory = work_out_install_directory();
         GatherFiles gatherFiles;
-        gatherFiles.copyLogFiles(installDirectory);
-        gatherFiles.copyMcsConfigFiles(installDirectory);
+        std::string destination = gatherFiles.createDiagnoseFolder("/tmp/temp/");
+        gatherFiles.copyLogFiles(installDirectory,destination);
+        gatherFiles.copyMcsConfigFiles(installDirectory,destination);
 
-        if (argc>1){return 1;}
-
-        return 1;
     }
 
 }

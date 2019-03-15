@@ -15,10 +15,9 @@ namespace diagnose
     public:
         GatherFiles() = default;
 
-        void copyLogFiles(std::string InstallLocation);
-
-        void copyMcsConfigFiles(std::string InstallLocation);
-        std::string createDiagnoseFolder();
+        void copyLogFiles(std::string installLocation, std::string destination);
+        void copyMcsConfigFiles(std::string installLocation, std::string destination);
+        std::string createDiagnoseFolder(std::string path);
 
     private:
         std::vector<std::string> m_logFilePaths{"logs/base/sophosspl/mcs_envelope.log",
