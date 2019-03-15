@@ -51,7 +51,7 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedRegisterWithManagementAgent(const std::string& pluginName)
         {
-            LOGSUPPORT("Plugin registration received for plugin: " << pluginName);
+            LOGINFO("Plugin registration received for plugin: " << pluginName);
             Common::PluginRegistryImpl::PluginInfo pluginInfo;
             bool validPlugin;
             std::tie(pluginInfo, validPlugin) =
