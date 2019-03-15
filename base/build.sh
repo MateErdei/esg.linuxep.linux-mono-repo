@@ -320,6 +320,7 @@ function build()
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
+    make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
 
     if (( ${VALGRIND} == 1 ))
