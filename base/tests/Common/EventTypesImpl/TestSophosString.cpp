@@ -294,16 +294,3 @@ TEST_F( // NOLINT
     ASSERT_EQ(testString.back(), stdString.back());
     ASSERT_EQ(constTestString.back(), constStdString.back());
 }
-
-TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringMoveOperatorMethodReturnsCorrectly)
-{
-    std::string stdString("string");
-    std::string expectedString = stdString;
-    SophosString testString;
-
-    testString = std::move(stdString);
-    
-    ASSERT_EQ(testString, expectedString);
-}

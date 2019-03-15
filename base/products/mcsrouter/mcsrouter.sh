@@ -25,4 +25,4 @@ mcsrouterzip=$BASE_DIR/lib64/mcsrouter.zip
 
 export PYTHONPATH=$mcsrouterzip
 
-exec python -m mcsrouter.mcsrouter --no-daemon "$@"
+exec python3 -m mcsrouter.mcsrouter --no-daemon "$@"

@@ -56,12 +56,6 @@ namespace Common
             return *this;
         }
 
-        SophosString& SophosString::operator=(const SophosString&& rhs)
-        {
-            m_string = rhs.m_string;
-            return *this;
-        }
-
         SophosString& SophosString::operator=(const char * rhs)
         {
             m_string.assign(rhs);

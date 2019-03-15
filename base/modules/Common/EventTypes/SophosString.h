@@ -75,13 +75,6 @@ namespace Common
             SophosString& operator=(const SophosString& rhs);
 
             /**
-             * @brief Moves a SophosString to an instance of SophosString
-             * @param rhs, SophosString instance from which to move.
-             * @returns A SophosString instance
-             */
-            SophosString& operator=(const SophosString&& rhs);
-
-            /**
              * @brief Compares another SophosString to this instance of SophosString
              * @param rhs, SophosString instance from which to assign.
              * @returns True if equal, False if otherwise
