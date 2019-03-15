@@ -19,7 +19,7 @@ namespace Common
     {
         std::string md5(const std::string& input)
         {
-            EVP_MD_CTX ctx;
+            EVP_MD_CTX* ctx = EVP_MD_CTX_create();
             const EVP_MD* evp = EVP_md5();
 
             if (evp == 0)
@@ -27,13 +27,14 @@ namespace Common
                 throw std::runtime_error("EVP_md5() returned NULL");
             }
 
-            EVP_DigestInit(&ctx, evp);
+            EVP_DigestInit(ctx, evp);
 
-            EVP_DigestUpdate(&ctx, input.data(), input.size());
+            EVP_DigestUpdate(ctx, input.data(), input.size());
 
             std::vector<unsigned char> buffer(EVP_MAX_MD_SIZE);
             unsigned int len = 0;
-            EVP_DigestFinal(&ctx, &buffer[0], &len);
+            EVP_DigestFinal(ctx, &buffer[0], &len);
+            EVP_MD_CTX_destroy(ctx);
 
             std::ostringstream stream;
             buffer.resize(len);
