@@ -105,6 +105,13 @@ namespace Common
             virtual std::string readFile(const Path& path, unsigned long maxSize) const = 0;
 
             /**
+             * Reads the contents of a given file line by line and returns the strings in a vector.
+             * @param path, location of the file to read.
+             * @return the content of the read file split by new lines.
+             */
+            virtual std::vector<std::string> readLines(const Path& path) const = 0;
+
+            /**
              * Writes the given string content into a new file.
              * @param path, location of the file to create
              * @param content, the string value to write into the given file.

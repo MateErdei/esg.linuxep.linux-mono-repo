@@ -32,6 +32,10 @@ namespace
 
 namespace diagnose
 {
+    void GatherFiles::setInstallDirectory(std::string path)
+    {
+        m_installDirectory = path;
+    }
     std::string GatherFiles::createDiagnoseFolder(std::string path )
     {
 
@@ -48,12 +52,12 @@ namespace diagnose
         throw std::invalid_argument("Directory was not created");
     }
 
-    void GatherFiles::copyLogFiles(std::string InstallLocation, std::string destination)
+    void GatherFiles::copyLogFiles(std::string logLocationsFile, std::string destination)
     {
-
+        m_logFilePaths = getLogLocations(logLocationsFile);
         for(const auto path: m_logFilePaths)
         {
-            std::string filePath = InstallLocation+'/'+path;
+            std::string filePath = m_installDirectory+'/'+path;
             if(m_fileSystem.isFile(filePath))
             {
                 std::cout <<  filePath << std::endl;
@@ -68,12 +72,12 @@ namespace diagnose
         }
     }
 
-    void GatherFiles::copyMcsConfigFiles(std::string InstallLocation, std::string destination)
+    void GatherFiles::copyMcsConfigFiles(std::string mcsFolderLocationFile, std::string destination)
     {
-
+        m_mcsConfigDirectories = getLogLocations(mcsFolderLocationFile);
         for(const auto path: m_mcsConfigDirectories)
         {
-            std::string dirPath = InstallLocation+path;
+            std::string dirPath = m_installDirectory+path;
             if(m_fileSystem.isDirectory(dirPath))
             {
                 std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
@@ -100,5 +104,15 @@ namespace diagnose
             }
 
         }
+    }
+
+    std::vector<std::string> GatherFiles::getLogLocations(std::string inputFilePath)
+    {
+        std::vector<std::string> listOfLogPaths;
+
+        Common::FileSystem::FileSystemImpl fileSystem;
+        listOfLogPaths  = fileSystem.readLines(inputFilePath);
+        return listOfLogPaths;
+
     }
 }

@@ -12,7 +12,7 @@ namespace diagnose
     class diagnose_main
     {
     public:
-        static void main();
+        static int main();
     };
 }
 

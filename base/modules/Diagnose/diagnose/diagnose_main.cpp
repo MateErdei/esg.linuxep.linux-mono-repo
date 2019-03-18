@@ -12,7 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    std::string work_out_install_directory()
+    std::string workOutInstallDirectory()
     {
         // Check if we have an environment variable telling us the installation location
         char* SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
@@ -27,14 +27,14 @@ namespace
 } // namespace
 namespace diagnose
 {
-    void diagnose_main::main()
+    int diagnose_main::main()
     {
-        std::string installDirectory = work_out_install_directory();
         GatherFiles gatherFiles;
+        gatherFiles.setInstallDirectory(workOutInstallDirectory());
         std::string destination = gatherFiles.createDiagnoseFolder("/tmp/temp/");
-        gatherFiles.copyLogFiles(installDirectory,destination);
-        gatherFiles.copyMcsConfigFiles(installDirectory,destination);
-
+        gatherFiles.copyLogFiles(destination,"/tmp/log");
+        gatherFiles.copyMcsConfigFiles(destination, "/tmp/mcs");
+        return 0;
     }
 
 }

@@ -182,7 +182,7 @@ namespace Common
             }
         }
 
-        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, 1024 * 1024 * 10); }
+        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, m_maxSize); }
 
         std::string FileSystemImpl::readFile(const Path& path, unsigned long maxSize) const
         {
@@ -217,6 +217,49 @@ namespace Common
                 std::string content(static_cast<std::size_t>(size), 0);
                 inFileStream.read(&content[0], size);
                 return content;
+            }
+            catch (std::system_error& ex)
+            {
+                LOGSUPPORT(ex.what());
+                throw IFileSystemException(std::string("Error, Failed to read from file '") + path + "'");
+            }
+        }
+
+        std::vector<std::string> FileSystemImpl::readLines(const Path& path) const
+        {
+            std::vector<std::string> list;
+            if (isDirectory(path))
+            {
+                throw IFileSystemException("Error, Failed to read file: '" + path + "', is a directory");
+            }
+
+            std::ifstream inFileStream(path, std::ios::binary);
+
+            if (!inFileStream.good())
+            {
+                throw IFileSystemException("Error, Failed to read file: '" + path + "', file does not exist");
+            }
+
+            try
+            {
+                inFileStream.seekg(0, std::istream::end);
+                std::ifstream::pos_type size(inFileStream.tellg());
+
+                if (size < 0)
+                {
+                    throw IFileSystemException("Error, Failed to read file: '" + path + "', failed to get file size");
+                }
+                else if (static_cast<unsigned long>(size) > m_maxSize)
+                {
+                    throw IFileTooLargeException("Error, Failed to read file: '" + path + "', file too large");
+                }
+
+                inFileStream.seekg(0, std::istream::beg);
+                std::string str;
+                while (std::getline(inFileStream, str)) {
+                    list.push_back(str);
+                }
+                return list;
             }
             catch (std::system_error& ex)
             {
