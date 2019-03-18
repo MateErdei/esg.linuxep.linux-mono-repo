@@ -917,3 +917,45 @@ TEST_F(TestUpdateScheduler, policyAfterInstallConfiguresSulDownloaderAndTriggers
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
 }
+
+
+TEST_F(TestUpdateScheduler, policyChangeDoesNotTriggerSulDownloaderToUpdate) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setPeriodTime(time));
+    EXPECT_CALL(*cron, requestStop());
+
+    ScheduledUpdate scheduledUpdate;
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).WillOnce(SaveArg<0>(&scheduledUpdate));
+
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+            m_queue,
+            std::unique_ptr<IBaseServiceApi>(api),
+            m_pluginCallback,
+            std::unique_ptr<ICronSchedulerThread>(cron),
+            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
+
+    EXPECT_CALL(*runner, triggerSulDownloader()).Times(0);
+
+    std::future<void> schedulerRunHandle =
+            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
+
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
+    schedulerRunHandle.get(); // synchronize stop
+
+    EXPECT_EQ(scheduledUpdate.getEnabled(), false);
+}
