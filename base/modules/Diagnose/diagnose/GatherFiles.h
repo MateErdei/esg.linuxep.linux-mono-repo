@@ -15,14 +15,15 @@ namespace diagnose
     public:
         GatherFiles() = default;
 
-        void copyLogFiles(Path destination);
-        void copyMcsConfigFiles(Path destination);
-        std::string createDiagnoseFolder(Path path);
-        std::vector<std::string> getLogLocations(Path inputFilePath);
-        void setInstallDirectory(Path path);
-        Path getConfigLocation(std::string configFileName);
+        void copyLogFiles(const Path& destination);
+        void copyMcsConfigFiles(const Path& destination);
+        std::string createDiagnoseFolder(const Path& path);
+        void setInstallDirectory(const Path& path);
 
     private:
+
+        Path getConfigLocation(const std::string& configFileName);
+        std::vector<std::string> getLogLocations(const Path& inputFilePath);
 
         std::vector<std::string> m_logFilePaths;
         std::vector<std::string> m_mcsConfigDirectories;

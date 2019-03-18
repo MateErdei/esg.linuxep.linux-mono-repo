@@ -270,6 +270,49 @@ namespace
         ::rmdir(directroryPath.c_str());
     }
 
+    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromFile) // NOLINT
+    {
+        std::string filePath =
+                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
+
+        std::string testContent("HelloWorld\nHelloWorld2");
+
+        m_fileSystem->writeFile(filePath, testContent);
+        std::vector<std::string> content{"HelloWorld","HelloWorld2"};
+        EXPECT_EQ(m_fileSystem->readLines(filePath), content);
+        removeFile(filePath);
+    }
+
+    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromEmptyFile) // NOLINT
+    {
+        std::string filePath =
+                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
+
+        std::string testContent("");
+
+        m_fileSystem->writeFile(filePath, testContent);
+        std::vector<std::string> content;
+        EXPECT_EQ(m_fileSystem->readLines(filePath), content);
+        removeFile(filePath);
+    }
+
+    TEST_F(FileSystemImplTest, readLinesForFileThatDoesNotExistsShouldThrow) // NOLINT
+    {
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadFileTest.txt");
+        EXPECT_THROW(m_fileSystem->readLines(filePath), IFileSystemException); // NOLINT
+    }
+
+    TEST_F(FileSystemImplTest, readLinesOnDirectoryPathShouldThrow) // NOLINT
+    {
+        std::string directroryPath =
+                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
+
+        makedir(directroryPath, 0700);
+        EXPECT_THROW(m_fileSystem->readLines(directroryPath), IFileSystemException); // NOLINT
+
+        ::rmdir(directroryPath.c_str());
+    }
+
     TEST_F(FileSystemImplTest, atomicWriteStoresExpectedContentForFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "AtomicWrite.txt");

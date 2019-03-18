@@ -32,12 +32,12 @@ namespace
 
 namespace diagnose
 {
-    void GatherFiles::setInstallDirectory(Path path)
+    void GatherFiles::setInstallDirectory(const Path& path)
     {
         m_installDirectory = path;
     }
 
-    Path GatherFiles::createDiagnoseFolder(Path path)
+    Path GatherFiles::createDiagnoseFolder(const Path& path)
     {
 
         if (m_fileSystem.isDirectory(path))
@@ -53,13 +53,13 @@ namespace diagnose
         throw std::invalid_argument("Directory was not created");
     }
 
-    void GatherFiles::copyLogFiles(Path destination)
+    void GatherFiles::copyLogFiles(const Path& destination)
     {
         const std::string configFileName = "DiagnoseLogFilePaths.conf";
         const Path configFilePath = getConfigLocation(configFileName);
 
         m_logFilePaths = getLogLocations(configFilePath);
-        for (const auto path: m_logFilePaths)
+        for (const auto& path: m_logFilePaths)
         {
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
@@ -76,20 +76,20 @@ namespace diagnose
         }
     }
 
-    void GatherFiles::copyMcsConfigFiles(Path destination)
+    void GatherFiles::copyMcsConfigFiles(const Path& destination)
     {
         const std::string configFileName = "DiagnoseMCSDirectoryPaths.conf";
         const Path configFilePath = getConfigLocation(configFileName);
 
         m_mcsConfigDirectories = getLogLocations(configFilePath);
-        for (const auto path: m_mcsConfigDirectories)
+        for (const auto& path: m_mcsConfigDirectories)
         {
             std::string dirPath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isDirectory(dirPath))
             {
                 std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
 
-                for(const auto file : files)
+                for(const auto& file : files)
                 {
 
                     if (stringEndsWith(file,".XML") || stringEndsWith(file, ".xml"))
@@ -113,7 +113,7 @@ namespace diagnose
         }
     }
 
-    std::vector<std::string> GatherFiles::getLogLocations(Path inputFilePath)
+    std::vector<std::string> GatherFiles::getLogLocations(const Path& inputFilePath)
     {
         std::vector<std::string> listOfLogPaths;
 
@@ -124,7 +124,7 @@ namespace diagnose
         throw std::invalid_argument("Log locations config file does not exist: " + inputFilePath);
     }
 
-    Path GatherFiles::getConfigLocation(std::string configFileName)
+    Path GatherFiles::getConfigLocation(const std::string& configFileName)
     {
         Path configFilePath = Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), configFileName);
 
