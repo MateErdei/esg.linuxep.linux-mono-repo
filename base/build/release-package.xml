@@ -17,7 +17,7 @@
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
         <package name="versig"
-                 version="2-0-0-3/213093/output" dest="input">
+                 version="2-0-0-33/214528/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux10" version="7-59-0/212805/curllinux10" dest="input">

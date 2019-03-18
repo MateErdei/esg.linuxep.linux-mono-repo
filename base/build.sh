@@ -74,7 +74,7 @@ do
             DEBUG=1
             export ENABLE_STRIP=0
             ;;
-        --release)
+        --release|--no-debug)
             CMAKE_BUILD_TYPE=RelWithDebInfo
             DEBUG=0
             export ENABLE_STRIP=1
