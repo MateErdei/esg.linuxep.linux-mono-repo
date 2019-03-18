@@ -59,7 +59,10 @@ add_library(versig_lib
         src/verify_exceptions.h
         src/versig.cpp
         src/versig.h
-        src/SophosCppStandard.h src/print.h)
+        src/SophosCppStandard.h
+        src/print.h
+        src/libcrypto-compat.h
+        src/libcrypto-compat.cpp)
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 
