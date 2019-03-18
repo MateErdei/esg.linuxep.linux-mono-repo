@@ -39,17 +39,23 @@ namespace diagnose
 
     Path GatherFiles::createDiagnoseFolder(const Path& path)
     {
-
-        if (m_fileSystem.isDirectory(path))
+        if (!m_fileSystem.isDirectory(path))
         {
-            std::cout << "Directory path already exists: " << path << std::endl;
+            throw std::invalid_argument("Directory does not exist");
         }
-        m_fileSystem.makedirs(path);
 
-        if (m_fileSystem.isDirectory(path))
+        Path outputDir = Common::FileSystem::join(path,"DiagnoseOutput");
+        if (m_fileSystem.isDirectory(outputDir))
         {
-            return path;
+            throw std::invalid_argument("Output directory already exists: " + outputDir);
         }
+
+        m_fileSystem.makedirs(outputDir);
+        if (m_fileSystem.isDirectory(outputDir))
+        {
+            return outputDir;
+        }
+
         throw std::invalid_argument("Directory was not created");
     }
 
@@ -64,14 +70,13 @@ namespace diagnose
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
             {
-                std::cout <<  filePath << std::endl;
-                std::cout <<  destination << std::endl;
+                std::cout << "Copied " <<  filePath  << " to " << destination << std::endl;
                 std::string filename = getFileName(filePath);
                 m_fileSystem.copyFile(filePath,Common::FileSystem::join(destination, filename));
             }
             else
             {
-                std::cout << "file not found " << filePath << std::endl;
+                std::cout << "File not found: " << filePath << std::endl;
             }
         }
     }
@@ -89,25 +94,23 @@ namespace diagnose
             {
                 std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
 
-                for(const auto& file : files)
+                for (const auto& file : files)
                 {
-
                     if (stringEndsWith(file,".XML") || stringEndsWith(file, ".xml"))
                     {
                         std::string filename = getFileName(file);
-                        m_fileSystem.copyFile(file,Common::FileSystem::join(destination, filename));
+                        m_fileSystem.copyFile(file, Common::FileSystem::join(destination, filename));
                     }
                     else
                     {
-                        std::cout << "Not XML file " << file << std::endl;
+                        std::cout << "Not XML file: " << file << std::endl;
                     }
-
                 }
 
             }
             else
             {
-                std::cout << "Not a valid Directory " << dirPath << std::endl;
+                std::cout << "Not a valid Directory: " << dirPath << std::endl;
             }
 
         }
@@ -126,7 +129,7 @@ namespace diagnose
 
     Path GatherFiles::getConfigLocation(const std::string& configFileName)
     {
-        Path configFilePath = Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), configFileName);
+        Path configFilePath = Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), "../etc", configFileName);
 
         if (m_fileSystem.isFile(configFilePath))
         {

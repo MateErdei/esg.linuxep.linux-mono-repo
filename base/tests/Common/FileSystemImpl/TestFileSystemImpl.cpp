@@ -187,6 +187,11 @@ namespace
         EXPECT_FALSE(m_fileSystem->isDirectory("/etc/passwd"));
     }
 
+    TEST_F(FileSystemImplTest, isDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isDirectory("."));
+    }
+
     TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenDirectoryDoesNotExist) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isDirectory("/etc/ghdfoijsdfgjhszdgvzjsdjvcjsdhzc"));

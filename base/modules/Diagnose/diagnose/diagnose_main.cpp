@@ -9,6 +9,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <stdlib.h>
 #include <string>
+#include <iostream>
+#include <cstring>
 
 namespace
 {
@@ -27,11 +29,29 @@ namespace
 } // namespace
 namespace diagnose
 {
-    int diagnose_main::main()
+    int diagnose_main::main(int argc, char* argv[])
     {
+        if(argc > 2)
+        {
+            std::cout << "Expecting only one parameter got " << (argc-1) << std::endl;
+            return 1;
+        }
+
+        std::string outputDir = ".";
+        if (argc == 2)
+        {
+            std::string arg(argv[1]);
+            if (arg == "--help")
+            {
+                std::cout << "Expected Usage: ./sophos_diagnose <path_to_output_directory>" << std::endl;
+                return 0;
+            }
+            outputDir = arg;
+        }
+
         GatherFiles gatherFiles;
         gatherFiles.setInstallDirectory(workOutInstallDirectory());
-        std::string destination = gatherFiles.createDiagnoseFolder("/tmp/temp/");
+        std::string destination = gatherFiles.createDiagnoseFolder(outputDir);
         gatherFiles.copyLogFiles(destination);
         gatherFiles.copyMcsConfigFiles(destination);
         return 0;
