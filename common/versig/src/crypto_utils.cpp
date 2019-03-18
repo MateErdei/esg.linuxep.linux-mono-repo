@@ -80,7 +80,8 @@ namespace VerificationToolCrypto
         string Error;
         Error.append(X509_verify_cert_error_string(stor->error));
         CertName.clear();
-        if (stor->current_cert)
+        X509* currentCert = X509_STORE_CTX_get_current_cert(stor);
+        if (currentCert != NULLPTR)
         {
             CertName = stor->current_cert->name;
             string::size_type start = CertName.find("CN=");

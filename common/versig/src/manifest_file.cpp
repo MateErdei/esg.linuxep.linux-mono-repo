@@ -19,8 +19,6 @@ namespace VerificationTool
 {
     ManifestFile::ManifestFile() {}
 
-    ManifestFile::~ManifestFile() {}
-
     bool ManifestFile::ReadBody()
     // Read body of manifest file
     // Returns true if format OK.
