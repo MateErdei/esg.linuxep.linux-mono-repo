@@ -32,8 +32,8 @@ namespace diagnose
         GatherFiles gatherFiles;
         gatherFiles.setInstallDirectory(workOutInstallDirectory());
         std::string destination = gatherFiles.createDiagnoseFolder("/tmp/temp/");
-        gatherFiles.copyLogFiles(destination,"/tmp/log");
-        gatherFiles.copyMcsConfigFiles(destination, "/tmp/mcs");
+        gatherFiles.copyLogFiles(destination);
+        gatherFiles.copyMcsConfigFiles(destination);
         return 0;
     }
 
