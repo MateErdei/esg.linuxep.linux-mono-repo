@@ -17,9 +17,9 @@ using namespace verify_exceptions;
 
 namespace VerificationTool
 {
-    ManifestFile::ManifestFile() {}
-
-    ManifestFile::~ManifestFile() {}
+    ManifestFile::ManifestFile()
+    {
+    }
 
     bool ManifestFile::ReadBody()
     // Read body of manifest file

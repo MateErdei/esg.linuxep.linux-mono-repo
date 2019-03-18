@@ -8,6 +8,7 @@
 #include "crypto_utils.h"
 
 #include "SophosCppStandard.h"
+#include "libcrypto-compat.h"
 #include "print.h"
 #include "verify_exceptions.h"
 
@@ -38,8 +39,8 @@ namespace VerificationToolCrypto
         EVP_PKEY* pubkey         // In: Public key
     )
     {
-        EVP_MD_CTX ctx;
-        EVP_VerifyInit(&ctx, EVP_sha1());
+        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+        EVP_VerifyInit(ctx, EVP_sha1());
 
         while (!body.eof())
         {
@@ -47,13 +48,13 @@ namespace VerificationToolCrypto
             body.read(buf, 4096);
             if (body.gcount() > 0)
             {
-                EVP_VerifyUpdate(&ctx, buf, body.gcount());
+                EVP_VerifyUpdate(ctx, buf, body.gcount());
             }
         }
 
-        int result = EVP_VerifyFinal(&ctx, (unsigned char*)(signature.c_str()), signature.length(), pubkey);
+        int result = EVP_VerifyFinal(ctx, (unsigned char*)(signature.c_str()), signature.length(), pubkey);
 
-        (void)EVP_MD_CTX_cleanup(&ctx);
+        EVP_MD_CTX_free(ctx);
 
         switch (result)
         {
@@ -68,6 +69,25 @@ namespace VerificationToolCrypto
     }
 
 #ifndef NDEBUG
+    std::string convertASN1StringToStdString(ASN1_STRING* d)
+    {
+        std::string asn1_string;
+        size_t length;
+        if (ASN1_STRING_type(d) != V_ASN1_UTF8STRING)
+        {
+            unsigned char* utf8;
+            length = static_cast<size_t>(ASN1_STRING_to_UTF8(&utf8, d));
+            asn1_string = std::string((char*)utf8, static_cast<size_t>(length));
+            OPENSSL_free(utf8);
+        }
+        else
+        {
+            length = static_cast<size_t>(ASN1_STRING_length(d));
+            asn1_string = string((char*)ASN1_STRING_get0_data(d), length);
+        }
+        return asn1_string;
+    }
+
     // This function is a utility to extract a suitable error string from an
     // OpenSSL store once an error has occurred. We get a human-readable string
     // from the store (this is only available in English) and access the CN part
@@ -77,11 +97,25 @@ namespace VerificationToolCrypto
     static string MakeErrString(X509_STORE_CTX* stor, string& CertName)
     {
         string Error;
-        Error.append(X509_verify_cert_error_string(stor->error));
+        Error.append(X509_verify_cert_error_string(X509_STORE_CTX_get_error(stor)));
         CertName.clear();
-        if (stor->current_cert)
+        X509* currentCert = X509_STORE_CTX_get_current_cert(stor);
+        if (currentCert != NULLPTR)
         {
-            CertName = stor->current_cert->name;
+            X509_NAME* nm = X509_get_subject_name(currentCert);
+            int lastpos = -1;
+            X509_NAME_ENTRY* e;
+
+            for (;;)
+            {
+                lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
+                if (lastpos == -1)
+                    break;
+                e = X509_NAME_get_entry(nm, lastpos);
+                /* Do something with e */
+                ASN1_STRING* common_name_asn1 = X509_NAME_ENTRY_get_data(e);
+                CertName = convertASN1StringToStdString(common_name_asn1);
+            }
             string::size_type start = CertName.find("CN=");
             start += 3;
             string::size_type end = CertName.substr(start).find('/');
@@ -126,25 +160,47 @@ namespace VerificationToolCrypto
     struct X509StoreWrapper
     {
         X509_STORE* m_ref;
-        X509StoreWrapper() : m_ref(X509_STORE_new()) {}
-        ~X509StoreWrapper() { X509_STORE_free(m_ref); }
-        X509_STORE* GetPtr() { return m_ref; }
+        X509StoreWrapper() : m_ref(X509_STORE_new())
+        {
+        }
+        ~X509StoreWrapper()
+        {
+            X509_STORE_free(m_ref);
+        }
+        X509_STORE* GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     struct X509StoreCtxWrapper
     {
         X509_STORE_CTX* m_ref;
-        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new()) {}
-        ~X509StoreCtxWrapper() { X509_STORE_CTX_free(m_ref); }
-        X509_STORE_CTX* GetPtr() { return m_ref; }
+        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new())
+        {
+        }
+        ~X509StoreCtxWrapper()
+        {
+            X509_STORE_CTX_free(m_ref);
+        }
+        X509_STORE_CTX* GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     struct X509StackWrapper
     {
         STACK_OF(X509) * m_ref;
-        X509StackWrapper() : m_ref(sk_X509_new_null()){};
-        ~X509StackWrapper() { sk_X509_free(m_ref); };
-        STACK_OF(X509) * GetPtr() { return m_ref; }
+        X509StackWrapper() : m_ref(sk_X509_new_null()) {};
+        ~X509StackWrapper()
+        {
+            sk_X509_free(m_ref);
+        };
+        STACK_OF(X509) * GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     // Helper function to pull a string from a file.
@@ -348,31 +404,41 @@ namespace VerificationToolCrypto
 
     static bytestring sum_raw(istream& in, const EVP_MD* digest)
     {
-        EVP_MD_CTX ctx;
-        EVP_DigestInit(&ctx, digest);
+        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+        EVP_DigestInit(ctx, digest);
         char buf[128 * 1024];
 
         while (!in.eof())
         {
             in.read(buf, sizeof(buf));
             if (in.gcount() > 0)
-                EVP_DigestUpdate(&ctx, buf, in.gcount());
+                EVP_DigestUpdate(ctx, buf, in.gcount());
         }
 
         unsigned char hash_buf[EVP_MAX_MD_SIZE];
         unsigned int hash_len = 0;
-        EVP_DigestFinal(&ctx, hash_buf, &hash_len);
+        EVP_DigestFinal(ctx, hash_buf, &hash_len);
+        EVP_MD_CTX_free(ctx);
         // assert(hash_len != 0);
 
         bytestring result((char*)hash_buf, hash_len);
         return result;
     }
 
-    static bytestring sha1sum_raw(istream& in) { return sum_raw(in, EVP_sha1()); }
+    static bytestring sha1sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha1());
+    }
 
-    static bytestring sha512sum_raw(istream& in) { return sum_raw(in, EVP_sha512()); }
+    static bytestring sha512sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha512());
+    }
 
-    static bytestring sha256sum_raw(istream& in) { return sum_raw(in, EVP_sha256()); }
+    static bytestring sha256sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha256());
+    }
 
     static string hex(const bytestring& data)
     {
@@ -391,13 +457,28 @@ namespace VerificationToolCrypto
         return result;
     }
 
-    string sha1sum(istream& in) { return hex(sha1sum_raw(in)); }
+    string sha1sum(istream& in)
+    {
+        return hex(sha1sum_raw(in));
+    }
 
-    string sha512sum(istream& in) { return hex(sha512sum_raw(in)); }
+    string sha512sum(istream& in)
+    {
+        return hex(sha512sum_raw(in));
+    }
 
-    string sha256sum(istream& in) { return hex(sha256sum_raw(in)); }
+    string sha256sum(istream& in)
+    {
+        return hex(sha256sum_raw(in));
+    }
 
-    unsigned int sha1size() { return EVP_MD_size(EVP_sha1()) * 2; }
-    unsigned int sha512size() { return EVP_MD_size(EVP_sha512()) * 2; }
+    unsigned int sha1size()
+    {
+        return EVP_MD_size(EVP_sha1()) * 2;
+    }
+    unsigned int sha512size()
+    {
+        return EVP_MD_size(EVP_sha512()) * 2;
+    }
 
 } // namespace VerificationToolCrypto

@@ -19,9 +19,7 @@ namespace VerificationTool
 
         ManifestFile();
 
-        ~ManifestFile();
-
-        bool ReadBody();
+        bool ReadBody() OVERRIDE;
         // Read body of manifest file
 
         bool DataCheck(
@@ -43,8 +41,6 @@ namespace VerificationTool
         ManifestFile::files_iter FileRecordsEnd();
         // Return iterator identifying last file-record in ManifestFile
 
-        void RequireValid();
-        // Throw XXX exception if ManifestFile status IS NOT valid
     };
 
 } // namespace VerificationTool

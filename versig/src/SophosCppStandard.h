@@ -20,11 +20,15 @@
 #    define NOEXCEPT throw()
 #    define STRARG const std::string&
 #    define NULLPTR 0
+#    define DEFAULT_IMPL {}
+#    define OVERRIDE
 #else
 #    define STDMOVE(x) std::move(x)
 #    define NOEXCEPT noexcept
 #    define STRARG std::string
 #    define NULLPTR nullptr
+#    define DEFAULT_IMPL = default;
+#    define OVERRIDE override
 #endif
 
 #endif // VERSIG_SOPHOSCPPSTANDARD_H
