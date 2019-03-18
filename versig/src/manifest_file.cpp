@@ -5,31 +5,30 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "manifest_file.h"
+
+#include "verify_exceptions.h"
+
+#include <cassert>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <cassert>
-#include "verify_exceptions.h"
 
 using namespace verify_exceptions;
 
 namespace VerificationTool
 {
-
     ManifestFile::ManifestFile()
     {
     }
-
 
     ManifestFile::~ManifestFile()
     {
     }
 
-
     bool ManifestFile::ReadBody()
-//Read body of manifest file
-    //Returns true if format OK.
-    //Otherwise returns false.
+    // Read body of manifest file
+    // Returns true if format OK.
+    // Otherwise returns false.
     {
         istringstream FileBody(m_DigestBuffer.file_body());
         FileBody >> m_DigestBody;
@@ -38,22 +37,19 @@ namespace VerificationTool
         return true;
     }
 
-
-    bool ManifestFile::DataCheck
-            (
-                    string DataDirpath,    //[i] Path to directory containing data files.
-                    bool requireSHA256
-            )
-    //Confirm files in data-directory match contents of manifest.
-    //Returns true if checksums of all actual files match those recorded in
-    //the manifest. Otherwise, returns false.
-    //Only checks files recorded in the manifest. For SAV for Linux, the set
-    //of file in a CID may be a subset of the files recorded in the manifest,
-    //so missing files are treated as OK.
+    bool ManifestFile::DataCheck(
+        string DataDirpath, //[i] Path to directory containing data files.
+        bool requireSHA256)
+    // Confirm files in data-directory match contents of manifest.
+    // Returns true if checksums of all actual files match those recorded in
+    // the manifest. Otherwise, returns false.
+    // Only checks files recorded in the manifest. For SAV for Linux, the set
+    // of file in a CID may be a subset of the files recorded in the manifest,
+    // so missing files are treated as OK.
     {
-        if (DataDirpath.size() == 0)
+        if (DataDirpath.empty())
         {
-            //Missing files are not a problem
+            // Missing files are not a problem
             return true;
         }
 
@@ -82,9 +78,9 @@ namespace VerificationTool
         return bAllFilesOK;
     }
 
-/**
- * Verify that relFilePath is included in this manifest file
- */
+    /**
+     * Verify that relFilePath is included in this manifest file
+     */
     bool ManifestFile::CheckFilePresent(string relFilePath)
     {
         ManifestFile::files_iter p = FileRecordsBegin();
@@ -99,26 +95,26 @@ namespace VerificationTool
         return false;
     }
 
-//void ManifestFile::RequireValid()
-////Throw ve_logic exception if ManifestFile status IS NOT valid
-//{
-//	if(m_Status != valid)
-//	{
-//		throw ve_logic(m_Status);
-//	}
-//}
+    // void ManifestFile::RequireValid()
+    ////Throw ve_logic exception if ManifestFile status IS NOT valid
+    //{
+    //	if(m_Status != valid)
+    //	{
+    //		throw ve_logic(m_Status);
+    //	}
+    //}
 
     ManifestFile::files_iter ManifestFile::FileRecordsBegin()
-//Return iterator identifying first file-record in ManifestFile
+    // Return iterator identifying first file-record in ManifestFile
     {
-        //RequireValid();
+        // RequireValid();
         return m_DigestBody.files_begin();
     }
 
     ManifestFile::files_iter ManifestFile::FileRecordsEnd()
-//Return iterator identifying last file-record in ManifestFile
+    // Return iterator identifying last file-record in ManifestFile
     {
-        //RequireValid();
+        // RequireValid();
         return m_DigestBody.files_end();
     }
 

@@ -8,9 +8,9 @@
 #include "versig.h"
 
 int main(
-    int argc,		//[i] Count of arguments
-    char* argv[]	//[i] Array of argument values
-    )
+    int argc,    //[i] Count of arguments
+    char* argv[] //[i] Array of argument values
+)
 {
-    return versig_main(argc,argv);
+    return versig_main(argc, argv);
 }

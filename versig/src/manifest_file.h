@@ -5,16 +5,14 @@
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(_MANIFEST_FILE_H_INCLUDED_)
-#define _MANIFEST_FILE_H_INCLUDED_
+#    define _MANIFEST_FILE_H_INCLUDED_
 
-#include "signed_file.h"
-#include "digest_body.h"
+#    include "digest_body.h"
+#    include "signed_file.h"
 
 namespace VerificationTool
 {
-
-    class ManifestFile
-            : public SignedFile
+    class ManifestFile : public SignedFile
     {
     public:
         typedef digest_file_body::files_iter files_iter;
@@ -24,14 +22,12 @@ namespace VerificationTool
         ~ManifestFile();
 
         bool ReadBody();
-        //Read body of manifest file
+        // Read body of manifest file
 
-        bool DataCheck
-                (
-                        string DataDirpath,    //[i] Path to directory containing data files.
-                        bool requireSHA256
-                );
-        //Confirm files in data-directory match contents of manifest.
+        bool DataCheck(
+            string DataDirpath, //[i] Path to directory containing data files.
+            bool requireSHA256);
+        // Confirm files in data-directory match contents of manifest.
 
         /**
          * Verify that relFilePath is included in this manifest file
@@ -42,16 +38,15 @@ namespace VerificationTool
         digest_file_body m_DigestBody;
 
         ManifestFile::files_iter FileRecordsBegin();
-        //Return iterator identifying first file-record in ManifestFile
+        // Return iterator identifying first file-record in ManifestFile
 
         ManifestFile::files_iter FileRecordsEnd();
-        //Return iterator identifying last file-record in ManifestFile
+        // Return iterator identifying last file-record in ManifestFile
 
         void RequireValid();
-        //Throw XXX exception if ManifestFile status IS NOT valid
+        // Throw XXX exception if ManifestFile status IS NOT valid
     };
 
 } // namespace VerificationTool
-
 
 #endif // !defined(_MANIFEST_FILE_H_INCLUDED_)
