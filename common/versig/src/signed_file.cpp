@@ -5,126 +5,120 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "signed_file.h"
+
+#include "verify_exceptions.h"
+
+#include <cassert>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <cassert>
-#include "verify_exceptions.h"
 
 using namespace verify_exceptions;
 
-namespace VerificationTool {
-
-SignedFile::SignedFile()
-: m_Status(uninitialised) //, m_DigestBufferMaxSizeBytes(0)
-{}
-
-
-SignedFile::~SignedFile()
-{}
-
-
-//void SignedFile::SetDigestSizeLimit
-//(
-//	unsigned long MaxSizeBytes
-//)
-////Sets the maximum digest buffer size
-//	//Call this before open if you really need to
-//{
-//	m_DigestBufferMaxSizeBytes = MaxSizeBytes;
-//}
-
-
-//bool SignedFile::ReadBody()
-//Read body of signed file
-	//Returns true if the format of its body is OK.
-	//Otherwise returns false.
-//{
-	//SignedFile makes no assumptions about the format of the
-	//body of the signed file, so SignedFile::ReadBody() is a
-	//null function. Override in any child classes where
-	//this function is required.
-//	return true;
-//}
-
-
-void SignedFile::Open
-(
-	const string& SignedFilepath,	//[i] Path to signed file
-	const string& CertFilepath,		//[i] Path to CA certificate file
-	const string& CRLFilepath,		//[i] Path to Certificate Revocation List file
-	const bool fixDate				//[i] Fix the date of verification to work with old certs
-)
-//Open a signed file and verify its signature.
-	//If all well, SignedFile status will be 'valid'.
-	//Otherwise, status reflects failure.
+namespace VerificationTool
 {
+    SignedFile::SignedFile() : m_Status(uninitialised) //, m_DigestBufferMaxSizeBytes(0)
+    {
+    }
 
-	//Test files exist
-	ifstream CertFilestrm(CertFilepath.c_str(), ios::in );
-	if ( !CertFilestrm.is_open() )
-	{
-		throw ve_file(notopened, CertFilepath);
-	}
+    SignedFile::~SignedFile()
+    {
+    }
 
-	if ( CRLFilepath.length() > 0 )
-	{
-		ifstream CRLFilestrm(CRLFilepath.c_str(), ios::in );
-		if ( !CRLFilestrm.is_open() )
-		{
-			throw ve_file(notopened, CRLFilepath);
-		}
-	}
+    // void SignedFile::SetDigestSizeLimit
+    //(
+    //	unsigned long MaxSizeBytes
+    //)
+    ////Sets the maximum digest buffer size
+    //	//Call this before open if you really need to
+    //{
+    //	m_DigestBufferMaxSizeBytes = MaxSizeBytes;
+    //}
 
-	ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
-	if ( !SignedFilestrm.is_open() )
-   	{
-		m_Status = notopened;
-		throw ve_file(notopened, SignedFilepath);
-   	}
+    // bool SignedFile::ReadBody()
+    // Read body of signed file
+    // Returns true if the format of its body is OK.
+    // Otherwise returns false.
+    //{
+    // SignedFile makes no assumptions about the format of the
+    // body of the signed file, so SignedFile::ReadBody() is a
+    // null function. Override in any child classes where
+    // this function is required.
+    //	return true;
+    //}
 
-// Currently not possible to set m_DigestBufferMaxSizeBytes to anything
-// except 0 therefore the following condition is redundant.
-//	//Make digest from signed file
-//	if (m_DigestBufferMaxSizeBytes != 0)
-//	{
-//		m_DigestBuffer.set_file_body_limit(m_DigestBufferMaxSizeBytes);
-//	}
+    void SignedFile::Open(
+        const string& SignedFilepath, //[i] Path to signed file
+        const string& CertFilepath,   //[i] Path to CA certificate file
+        const string& CRLFilepath,    //[i] Path to Certificate Revocation List file
+        const bool fixDate            //[i] Fix the date of verification to work with old certs
+    )
+    // Open a signed file and verify its signature.
+    // If all well, SignedFile status will be 'valid'.
+    // Otherwise, status reflects failure.
+    {
+        // Test files exist
+        ifstream CertFilestrm(CertFilepath.c_str(), ios::in);
+        if (!CertFilestrm.is_open())
+        {
+            throw ve_file(notopened, CertFilepath);
+        }
 
-	SignedFilestrm >> m_DigestBuffer;
+        if (CRLFilepath.length() > 0)
+        {
+            ifstream CRLFilestrm(CRLFilepath.c_str(), ios::in);
+            if (!CRLFilestrm.is_open())
+            {
+                throw ve_file(notopened, CRLFilepath);
+            }
+        }
 
-	if (!SignedFilestrm)
-	{
-		m_Status = malformed;
-		throw ve_file(malformed, SignedFilepath);
-	}
+        ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
+        if (!SignedFilestrm.is_open())
+        {
+            m_Status = notopened;
+            throw ve_file(notopened, SignedFilepath);
+        }
 
-	//Verify digest against certificate(s)
-	m_DigestBuffer.verify_all(CertFilepath, CRLFilepath, fixDate);
+        // Currently not possible to set m_DigestBufferMaxSizeBytes to anything
+        // except 0 therefore the following condition is redundant.
+        //	//Make digest from signed file
+        //	if (m_DigestBufferMaxSizeBytes != 0)
+        //	{
+        //		m_DigestBuffer.set_file_body_limit(m_DigestBufferMaxSizeBytes);
+        //	}
 
-	//Read body and confirm format
-	if (!ReadBody())
-	{
-		m_Status = bad_syntax;
-		throw ve_file(bad_syntax, SignedFilepath);
-	}
+        SignedFilestrm >> m_DigestBuffer;
 
-   	//Everything worked ok!
-	m_Status = valid;
-}
+        if (!SignedFilestrm)
+        {
+            m_Status = malformed;
+            throw ve_file(malformed, SignedFilepath);
+        }
 
+        // Verify digest against certificate(s)
+        m_DigestBuffer.verify_all(CertFilepath, CRLFilepath, fixDate);
 
-bool SignedFile::IsValid()
-//Returns true if file properly signed
-{
-	return m_Status == valid;
-}
+        // Read body and confirm format
+        if (!ReadBody())
+        {
+            m_Status = bad_syntax;
+            throw ve_file(bad_syntax, SignedFilepath);
+        }
 
+        // Everything worked ok!
+        m_Status = valid;
+    }
 
-//SignedFile::status_enum SignedFile::Status()
-//{
-//	return m_Status;
-//}
+    bool SignedFile::IsValid()
+    // Returns true if file properly signed
+    {
+        return m_Status == valid;
+    }
 
+    // SignedFile::status_enum SignedFile::Status()
+    //{
+    //	return m_Status;
+    //}
 
 } // namespace VerificationTool

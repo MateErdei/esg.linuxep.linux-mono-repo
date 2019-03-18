@@ -8,9 +8,9 @@
 #include "crypto_utils.h"
 
 #include "SophosCppStandard.h"
+#include "libcrypto-compat.h"
 #include "print.h"
 #include "verify_exceptions.h"
-#include "libcrypto-compat.h"
 
 #include <cassert>
 #include <ctime>
@@ -73,14 +73,17 @@ namespace VerificationToolCrypto
     {
         std::string asn1_string;
         size_t length;
-        if (ASN1_STRING_type(d) != V_ASN1_UTF8STRING) {
-            unsigned char *utf8;
-            length = static_cast<size_t>(ASN1_STRING_to_UTF8( &utf8, d ));
-            asn1_string = std::string( (char*)utf8, static_cast<size_t>(length) );
-            OPENSSL_free( utf8 );
-        } else {
+        if (ASN1_STRING_type(d) != V_ASN1_UTF8STRING)
+        {
+            unsigned char* utf8;
+            length = static_cast<size_t>(ASN1_STRING_to_UTF8(&utf8, d));
+            asn1_string = std::string((char*)utf8, static_cast<size_t>(length));
+            OPENSSL_free(utf8);
+        }
+        else
+        {
             length = static_cast<size_t>(ASN1_STRING_length(d));
-            asn1_string= string( (char*)ASN1_STRING_get0_data(d), length);
+            asn1_string = string((char*)ASN1_STRING_get0_data(d), length);
         }
         return asn1_string;
     }
@@ -101,9 +104,10 @@ namespace VerificationToolCrypto
         {
             X509_NAME* nm = X509_get_subject_name(currentCert);
             int lastpos = -1;
-            X509_NAME_ENTRY *e;
+            X509_NAME_ENTRY* e;
 
-            for (;;) {
+            for (;;)
+            {
                 lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
                 if (lastpos == -1)
                     break;
@@ -156,25 +160,47 @@ namespace VerificationToolCrypto
     struct X509StoreWrapper
     {
         X509_STORE* m_ref;
-        X509StoreWrapper() : m_ref(X509_STORE_new()) {}
-        ~X509StoreWrapper() { X509_STORE_free(m_ref); }
-        X509_STORE* GetPtr() { return m_ref; }
+        X509StoreWrapper() : m_ref(X509_STORE_new())
+        {
+        }
+        ~X509StoreWrapper()
+        {
+            X509_STORE_free(m_ref);
+        }
+        X509_STORE* GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     struct X509StoreCtxWrapper
     {
         X509_STORE_CTX* m_ref;
-        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new()) {}
-        ~X509StoreCtxWrapper() { X509_STORE_CTX_free(m_ref); }
-        X509_STORE_CTX* GetPtr() { return m_ref; }
+        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new())
+        {
+        }
+        ~X509StoreCtxWrapper()
+        {
+            X509_STORE_CTX_free(m_ref);
+        }
+        X509_STORE_CTX* GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     struct X509StackWrapper
     {
         STACK_OF(X509) * m_ref;
-        X509StackWrapper() : m_ref(sk_X509_new_null()){};
-        ~X509StackWrapper() { sk_X509_free(m_ref); };
-        STACK_OF(X509) * GetPtr() { return m_ref; }
+        X509StackWrapper() : m_ref(sk_X509_new_null()) {};
+        ~X509StackWrapper()
+        {
+            sk_X509_free(m_ref);
+        };
+        STACK_OF(X509) * GetPtr()
+        {
+            return m_ref;
+        }
     };
 
     // Helper function to pull a string from a file.
@@ -399,11 +425,20 @@ namespace VerificationToolCrypto
         return result;
     }
 
-    static bytestring sha1sum_raw(istream& in) { return sum_raw(in, EVP_sha1()); }
+    static bytestring sha1sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha1());
+    }
 
-    static bytestring sha512sum_raw(istream& in) { return sum_raw(in, EVP_sha512()); }
+    static bytestring sha512sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha512());
+    }
 
-    static bytestring sha256sum_raw(istream& in) { return sum_raw(in, EVP_sha256()); }
+    static bytestring sha256sum_raw(istream& in)
+    {
+        return sum_raw(in, EVP_sha256());
+    }
 
     static string hex(const bytestring& data)
     {
@@ -422,13 +457,28 @@ namespace VerificationToolCrypto
         return result;
     }
 
-    string sha1sum(istream& in) { return hex(sha1sum_raw(in)); }
+    string sha1sum(istream& in)
+    {
+        return hex(sha1sum_raw(in));
+    }
 
-    string sha512sum(istream& in) { return hex(sha512sum_raw(in)); }
+    string sha512sum(istream& in)
+    {
+        return hex(sha512sum_raw(in));
+    }
 
-    string sha256sum(istream& in) { return hex(sha256sum_raw(in)); }
+    string sha256sum(istream& in)
+    {
+        return hex(sha256sum_raw(in));
+    }
 
-    unsigned int sha1size() { return EVP_MD_size(EVP_sha1()) * 2; }
-    unsigned int sha512size() { return EVP_MD_size(EVP_sha512()) * 2; }
+    unsigned int sha1size()
+    {
+        return EVP_MD_size(EVP_sha1()) * 2;
+    }
+    unsigned int sha512size()
+    {
+        return EVP_MD_size(EVP_sha512()) * 2;
+    }
 
 } // namespace VerificationToolCrypto

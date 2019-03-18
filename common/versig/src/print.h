@@ -10,4 +10,4 @@
 #include <sstream>
 #define PRINT(_X) std::cerr << _X << std::endl
 
-#endif //VERSIG_PRINT_H
+#endif // VERSIG_PRINT_H

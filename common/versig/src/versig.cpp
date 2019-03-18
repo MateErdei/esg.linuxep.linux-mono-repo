@@ -1,4 +1,4 @@
-//versig.cpp
+// versig.cpp
 //
 // Application to verify digitally-signed files and verify data files
 // against Sophos manifest file.
@@ -33,62 +33,56 @@
 //    argument --silent-off. Note: this output is in English only - it is not intended for
 //    customer use.
 
+#include "SophosCppStandard.h"
 #include "manifest_file.h"
 #include "verify_exceptions.h"
 
-#include "SophosCppStandard.h"
-
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 using namespace VerificationTool;
 using namespace verify_exceptions;
 
-const int g_EXIT_OK       = 0;
-const int g_EXIT_BAD      = 1;
-const int g_EXIT_BADARGS  = 2;
-const int g_EXIT_BADCERT  = 3;
+const int g_EXIT_OK = 0;
+const int g_EXIT_BAD = 1;
+const int g_EXIT_BADARGS = 2;
+const int g_EXIT_BADCERT = 3;
 const int g_EXIT_BADCRYPT = 4;
-const int g_EXIT_BADFILE  = 5;
-const int g_EXIT_BADSIG   = 6;
+const int g_EXIT_BADFILE = 5;
+const int g_EXIT_BADSIG = 6;
 const int g_EXIT_BADLOGIC = 7;
 
+static bool g_bSilent = true; // Silent by default
 
-static bool g_bSilent = true;	//Silent by default
-
-
-static void Output
-(
-	const string& Msg	//[i] Message
+static void Output(const string& Msg //[i] Message
 )
-//Output message if not in silent mode.
-	//NB: Output in English. Use for debug only.
+// Output message if not in silent mode.
+// NB: Output in English. Use for debug only.
 {
-	if(!g_bSilent)
-	{
-		cout << Msg << endl;
-	}
+    if (!g_bSilent)
+    {
+        cout << Msg << endl;
+    }
 }
 
 struct Arguments
 {
-    string SignedFilepath;	// Path to signed-file
-    string CertsFilepath;	// Path to certificates-file
-    string CRLFilepath;		// Path to CRL-file
-    string DataDirpath;		// Path to directory containing data files
+    string SignedFilepath; // Path to signed-file
+    string CertsFilepath;  // Path to certificates-file
+    string CRLFilepath;    // Path to CRL-file
+    string DataDirpath;    // Path to directory containing data files
     bool fixDate;
     bool checkInstall;
     bool requireAllManifestFilesPresentOnDisk;
     bool requireAllDiskFilesPresentInManifest;
     bool requireSHA256;
 
-    Arguments()
-            :
-            fixDate(true),
-            checkInstall(false),
-            requireAllManifestFilesPresentOnDisk(false),
-            requireAllDiskFilesPresentInManifest(false),
-            requireSHA256(false)
+    Arguments() :
+        fixDate(true),
+        checkInstall(false),
+        requireAllManifestFilesPresentOnDisk(false),
+        requireAllDiskFilesPresentInManifest(false),
+        requireSHA256(false)
     {
     }
 };
@@ -96,42 +90,42 @@ struct Arguments
 static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 {
     assert(!argv.empty());
-//Read and process the command-line arguments
-//Return true if a valid set of arguments found
-//Else return false
+    // Read and process the command-line arguments
+    // Return true if a valid set of arguments found
+    // Else return false
     g_bSilent = true;
     bool bGoodArgs = false;
 
-    //Initialise
-    //Assign argument values
-    for (std::vector<std::string>::const_iterator it=argv.begin(); it != argv.end(); ++it)
+    // Initialise
+    // Assign argument values
+    for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
     {
         std::string arg = *it;
-        if( (arg.compare(0,2,"-c") == 0) && args.CertsFilepath.empty() )
+        if ((arg.compare(0, 2, "-c") == 0) && args.CertsFilepath.empty())
         {
             args.CertsFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-d") == 0) && args.DataDirpath.empty() )
+        else if ((arg.compare(0, 2, "-d") == 0) && args.DataDirpath.empty())
         {
             args.DataDirpath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-f") == 0) && args.SignedFilepath.empty() )
+        else if ((arg.compare(0, 2, "-f") == 0) && args.SignedFilepath.empty())
         {
             args.SignedFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,2,"-r") == 0) && args.CRLFilepath.empty() )
+        else if ((arg.compare(0, 2, "-r") == 0) && args.CRLFilepath.empty())
         {
             args.CRLFilepath = arg.substr(2);
         }
-        else if( (arg.compare(0,12,"--silent-off") == 0) )
+        else if ((arg.compare(0, 12, "--silent-off") == 0))
         {
             g_bSilent = false;
         }
-        else if( (arg.compare(0,18,"--check-install-sh") == 0) )
+        else if ((arg.compare(0, 18, "--check-install-sh") == 0))
         {
             args.checkInstall = true;
         }
-        else if( (arg.compare(0,18,"--no-fix-date") == 0) )
+        else if ((arg.compare(0, 18, "--no-fix-date") == 0))
         {
             args.fixDate = false;
         }
@@ -145,57 +139,49 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
         }
     }
 
-    if( !args.SignedFilepath.empty() && !args.CertsFilepath.empty() )
+    if (!args.SignedFilepath.empty() && !args.CertsFilepath.empty())
     {
         bGoodArgs = true;
     }
 
-    //Take action if bad arguments
-    if(!bGoodArgs)
+    // Take action if bad arguments
+    if (!bGoodArgs)
     {
         g_bSilent = false;
-        Output
-                (
-                        string("Usage: ") + string(argv[0]) + string("\n") +
-                        string(" -c<certificate_file_path>\n") +
-                        string(" [-d<path to data files to be checked>]\n") +
-                        string(" -f<signed_file_path>\n") +
-                        string(" [-r<certificate_revocation_list_file_path>]\n") +
-                        string(" --silent-off\n") +
-                        string(" --check-install-sh\n")
-                );
+        Output(
+            string("Usage: ") + string(argv[0]) + string("\n") + string(" -c<certificate_file_path>\n") +
+            string(" [-d<path to data files to be checked>]\n") + string(" -f<signed_file_path>\n") +
+            string(" [-r<certificate_revocation_list_file_path>]\n") + string(" --silent-off\n") +
+            string(" --check-install-sh\n"));
         return false;
     }
 
-    //Arguments OK.
+    // Arguments OK.
     return true;
 }
 
 static int versig_operation(const Arguments& args)
 {
+    string SignedFilepath = args.SignedFilepath; // Path to signed-file
+    string CertsFilepath = args.CertsFilepath;   // Path to certificates-file
+    string CRLFilepath = args.CRLFilepath;       // Path to CRL-file
+    string DataDirpath = args.DataDirpath;       // Path to data-directory
 
-    string SignedFilepath = args.SignedFilepath;	//Path to signed-file
-    string CertsFilepath = args.CertsFilepath;	//Path to certificates-file
-    string CRLFilepath = args.CRLFilepath;		//Path to CRL-file
-    string DataDirpath = args.DataDirpath;		//Path to data-directory
+    Output(
+        string("Path to signed-file       = [") + SignedFilepath + string("]\n") +
+        string("Path to certificates-file = [") + CertsFilepath + string("]\n") +
+        string("Path to crl-file          = [") + CRLFilepath + string("]\n") +
+        string("Path to data directory    = [") + DataDirpath + string("]\n"));
 
-    Output
-            (
-                    string("Path to signed-file       = [") + SignedFilepath + string("]\n") +
-                    string("Path to certificates-file = [") + CertsFilepath + string("]\n") +
-                    string("Path to crl-file          = [") + CRLFilepath + string("]\n") +
-                    string("Path to data directory    = [") + DataDirpath + string("]\n")
-            );
-
-    //Process signed-file
+    // Process signed-file
     VerificationTool::ManifestFile MF;
 
     try
     {
-        //Open the signed file (assumed to be manifest file)
+        // Open the signed file (assumed to be manifest file)
         MF.Open(SignedFilepath, CertsFilepath, CRLFilepath, args.fixDate);
 
-        //Validate signature
+        // Validate signature
         bool bOK = MF.IsValid();
         if (!bOK)
         {
@@ -204,11 +190,11 @@ static int versig_operation(const Arguments& args)
             return g_EXIT_BAD;
         }
 
-        //Validate data files against contents of manifest
-        if(! DataDirpath.empty() )
+        // Validate data files against contents of manifest
+        if (!DataDirpath.empty())
         {
             bOK = MF.DataCheck(DataDirpath, args.requireSHA256);
-            if( !bOK )
+            if (!bOK)
             {
                 Output("unable to verify one or more data files\n");
                 return g_EXIT_BADFILE;
@@ -229,7 +215,7 @@ static int versig_operation(const Arguments& args)
         }
     }
 
-    catch ( ve_file& except )
+    catch (ve_file& except)
     {
         ostringstream Msgstrm;
         Msgstrm << "Failed file:" << except << endl;
@@ -237,7 +223,7 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADFILE;
     }
 
-    catch ( ve_crypt& except )
+    catch (ve_crypt& except)
     {
         ostringstream Msgstrm;
         Msgstrm << "Failed cryptography:" << except << endl;
@@ -245,7 +231,7 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADCRYPT;
     }
 
-    catch ( ve_missingsig& except )
+    catch (ve_missingsig& except)
     {
         ostringstream Msgstrm;
         Msgstrm << "Missing signature exception:" << except << endl;
@@ -253,7 +239,7 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADSIG;
     }
 
-    catch ( ve_badsig& except )
+    catch (ve_badsig& except)
     {
         ostringstream Msgstrm;
         Msgstrm << "Failed signature exception:" << except << endl;
@@ -261,7 +247,7 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADSIG;
     }
 
-    catch ( ve_badcert& except )
+    catch (ve_badcert& except)
     {
         ostringstream Msgstrm;
         Msgstrm << "Failed certificate exception:" << except << endl;
@@ -269,13 +255,13 @@ static int versig_operation(const Arguments& args)
         return g_EXIT_BADCERT;
     }
 
-        //catch ( ve_logic& except )
-        //{
-        //	ostringstream Msgstrm;
-        //	Msgstrm << "Failed logic:" << except << endl;
-        //	Output(Msgstrm.str());
-        //	return g_EXIT_BADLOGIC;
-        //}
+    // catch ( ve_logic& except )
+    //{
+    //	ostringstream Msgstrm;
+    //	Msgstrm << "Failed logic:" << except << endl;
+    //	Output(Msgstrm.str());
+    //	return g_EXIT_BADLOGIC;
+    //}
     catch (const std::bad_alloc& except)
     {
         ostringstream Msgstrm;
@@ -305,24 +291,23 @@ int versig_main(const std::vector<std::string>& argv)
 {
     Arguments args;
 
-    //Read arguments
-    if( !ReadArgs(argv,args) )
+    // Read arguments
+    if (!ReadArgs(argv, args))
     {
         return g_EXIT_BADARGS;
     }
     return versig_operation(args);
 }
 
-int versig_main
-(
-	int argc,		//[i] Count of arguments
-	char* argv[]	//[i] Array of argument values
+int versig_main(
+    int argc,    //[i] Count of arguments
+    char* argv[] //[i] Array of argument values
 )
 {
     std::vector<std::string> argvv;
 
-    assert(argc>=1);
-    for(int i=0; i<argc; i++)
+    assert(argc >= 1);
+    for (int i = 0; i < argc; i++)
     {
 #if 03 == CPPSTD
         argvv.push_back(std::string(argv[i]));
