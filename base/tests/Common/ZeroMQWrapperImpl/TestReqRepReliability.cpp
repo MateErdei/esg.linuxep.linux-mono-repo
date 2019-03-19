@@ -81,6 +81,7 @@ namespace
             int status = 1;
             pid_t exitedPID = ::waitpid(pid, &status, 0);
             assert(exitedPID == pid);
+            static_cast<void>(exitedPID);
             std::cerr << "Child PID="<< pid<< " exited with "<< status << std::endl;
         }
 
