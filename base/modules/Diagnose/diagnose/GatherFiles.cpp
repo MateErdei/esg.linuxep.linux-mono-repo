@@ -63,6 +63,11 @@ namespace diagnose
         m_logFilePaths = getLogLocations(configFilePath);
         for (const auto& path : m_logFilePaths)
         {
+            if (path.empty())
+            {
+                continue;
+            }
+
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
             {
@@ -84,6 +89,11 @@ namespace diagnose
         m_mcsConfigDirectories = getLogLocations(configFilePath);
         for (const auto& path : m_mcsConfigDirectories)
         {
+            if (path.empty())
+            {
+                continue;
+            }
+
             std::string dirPath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isDirectory(dirPath))
             {
