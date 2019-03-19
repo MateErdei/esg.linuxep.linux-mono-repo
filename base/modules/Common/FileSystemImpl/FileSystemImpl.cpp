@@ -265,7 +265,7 @@ namespace Common
             catch (std::system_error& ex)
             {
                 LOGSUPPORT(ex.what());
-                throw IFileSystemException(std::string("Error, Failed to read from file '") + path + "'");
+                throw IFileSystemException("Error, Failed to read from file '" + path + "'");
             }
         }
 
