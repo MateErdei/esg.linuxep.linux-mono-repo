@@ -69,10 +69,6 @@ namespace
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     ::kill(pid, SIGTERM);
                 }
-                else
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
             }
             catch (std::exception& ex)
             {

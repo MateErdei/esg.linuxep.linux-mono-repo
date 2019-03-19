@@ -117,6 +117,8 @@ namespace ReqRepTest
         {
             m_context = createContext();
             m_requestKillChannel = m_context->getRequester();
+            m_requestKillChannel->setTimeout(1000);
+            m_requestKillChannel->setConnectionTimeout(1000);
             m_requestKillChannel->connect(killChannelAddress);
         }
     };
