@@ -106,13 +106,11 @@ namespace diagnose
                         std::cout << "Not XML file: " << file << std::endl;
                     }
                 }
-
             }
             else
             {
                 std::cout << "Not a valid Directory: " << dirPath << std::endl;
             }
-
         }
     }
 
