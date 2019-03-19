@@ -71,8 +71,8 @@ function prepare_dependencies()
         then
             rm -rf $REDIST/openssl
             tar xf "$OPENSSL_TAR" -C "$REDIST"
-            ln -snf libssl.so.1 ${REDIST}/openssl/lib64/libssl.so.10
-            ln -snf libcrypto.so.1 ${REDIST}/openssl/lib64/libcrypto.so.10
+            ln -snf libssl.so.1 ${REDIST}/openssl/lib64/libssl.so.11
+            ln -snf libcrypto.so.1 ${REDIST}/openssl/lib64/libcrypto.so.11
         elif [[ -d $ALLEGRO_REDIST ]]
         then
             ln -snf $ALLEGRO_REDIST/openssl $REDIST/openssl
@@ -148,7 +148,8 @@ function build()
 
     pushd output
     chmod u+x ${output_install_script}
-    python ../generateManifestDat.py .
+    LD_LIBRARY_PATH= \
+        python ../generateManifestDat.py .
     tar cf installer.tar *
     gzip installer.tar
     sha256=$(python ../sha256OfFile.py installer.tar.gz)
