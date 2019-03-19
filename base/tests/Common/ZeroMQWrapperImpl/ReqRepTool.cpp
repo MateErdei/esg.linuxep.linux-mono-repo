@@ -8,6 +8,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 
+#include <sys/time.h>
+#include <sys/resource.h>
+
 using namespace ReqRepTest;
 
 int unreliableReplier(const std::string& serveraddress, const std::string& killch, const std::string& action)
@@ -89,6 +92,9 @@ static int main_inner(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+    struct rlimit cpu_limit { .rlim_cur=1, .rlim_max=1 };
+    setrlimit(RLIMIT_CPU, &cpu_limit);
+
     try
     {
         return main_inner(argc, argv);

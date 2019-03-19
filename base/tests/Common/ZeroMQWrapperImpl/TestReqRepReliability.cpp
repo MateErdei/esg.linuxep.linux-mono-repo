@@ -61,7 +61,7 @@ namespace
             try
             {
                 auto replierKillChannel = m_zmq_context->getReplier();
-                replierKillChannel->setTimeout(1000);
+                replierKillChannel->setTimeout(2000);
                 replierKillChannel->listen(m_killchannel);
                 data_t request = replierKillChannel->read();
                 if (request.at(0) == "killme")
