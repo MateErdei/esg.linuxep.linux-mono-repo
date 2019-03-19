@@ -78,51 +78,18 @@ namespace
             {
                 std::cout << "monitor child: " << ex.what() << std::endl;
             }
-        }
-
-        void runChild(std::function<void()>&& functor)
-        {
-            try
-            {
-                functor();
-            }
-            catch (std::exception& ex)
-            {
-                std::cerr << "Runchild: " << ex.what() << std::endl;
-            }
-            ::exit(0);
+            int status = 1;
+            pid_t exitedPID = ::waitpid(pid, &status, 0);
+            assert(exitedPID == pid);
+            std::cerr << "Child PID="<< pid<< " exited with "<< status << std::endl;
         }
 
     public:
-        explicit RunInExternalProcess(const TestContext& context) :
-            m_killchannel(context.killChannel()),
-            m_zmq_context(createContext())
-        {
-        }
 
         RunInExternalProcess(const TestContext& context, Common::ZMQWrapperApi::IContextSharedPtr zmq_context) :
             m_killchannel(context.killChannel()),
             m_zmq_context(std::move(zmq_context))
         {
-        }
-
-        void runFork(std::function<void()> functor)
-        {
-            std::cerr << "Fork from " << ::getpid() << std::endl;
-            pid_t child = fork();
-
-            if (child == -1)
-            {
-                throw std::logic_error("Failed to create process");
-            }
-            if (child == 0)
-            {
-                runChild(std::move(functor));
-            }
-            else
-            {
-                monitorChild(child);
-            }
         }
 
         void runExec(std::vector<std::string> args)
