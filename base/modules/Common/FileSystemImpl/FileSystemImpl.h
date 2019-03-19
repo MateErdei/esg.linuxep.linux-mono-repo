@@ -53,7 +53,7 @@ namespace Common
 
             void removeFile(const Path& path) const override;
         private:
-            unsigned long m_maxSize = 1024 * 1024 * 10;
+            const unsigned long m_maxSize = 1024 * 1024 * 10;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

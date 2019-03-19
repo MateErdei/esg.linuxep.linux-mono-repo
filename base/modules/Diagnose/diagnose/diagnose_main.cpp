@@ -49,11 +49,19 @@ namespace diagnose
             outputDir = arg;
         }
 
-        GatherFiles gatherFiles;
-        gatherFiles.setInstallDirectory(workOutInstallDirectory());
-        std::string destination = gatherFiles.createDiagnoseFolder(outputDir);
-        gatherFiles.copyLogFiles(destination);
-        gatherFiles.copyMcsConfigFiles(destination);
+        try
+        {
+            GatherFiles gatherFiles;
+            gatherFiles.setInstallDirectory(workOutInstallDirectory());
+            std::string destination = gatherFiles.createDiagnoseFolder(outputDir);
+            gatherFiles.copyLogFiles(destination);
+            gatherFiles.copyMcsConfigFiles(destination);
+        }
+        catch (std::invalid_argument& e)
+        {
+            std::cout << e.what() << std::endl;
+            return 2;
+        }
         return 0;
     }
 

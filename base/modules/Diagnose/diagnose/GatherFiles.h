@@ -11,7 +11,6 @@ namespace diagnose
     class GatherFiles
     {
 
-
     public:
         GatherFiles() = default;
 
@@ -21,7 +20,6 @@ namespace diagnose
         void setInstallDirectory(const Path& path);
 
     private:
-
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
 
@@ -30,5 +28,4 @@ namespace diagnose
         Common::FileSystem::FileSystemImpl m_fileSystem;
         std::string m_installDirectory;
     };
-
 }

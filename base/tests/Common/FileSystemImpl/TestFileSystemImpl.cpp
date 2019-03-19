@@ -246,16 +246,16 @@ namespace
 
     TEST_F(FileSystemImplTest, writeFileUsingDirectoryPathShouldThrow) // NOLINT
     {
-        std::string directroryPath =
+        std::string directoryPath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
-        makedir(directroryPath, 0700);
+        makedir(directoryPath, 0700);
 
         std::string testContent("HelloWorld");
 
-        EXPECT_THROW(m_fileSystem->writeFile(directroryPath, testContent), IFileSystemException); // NOLINT
+        EXPECT_THROW(m_fileSystem->writeFile(directoryPath, testContent), IFileSystemException); // NOLINT
 
-        ::rmdir(directroryPath.c_str());
+        ::rmdir(directoryPath.c_str());
     }
 
     TEST_F(FileSystemImplTest, readFileThatDoesNotExistsShouldThrow) // NOLINT
@@ -266,19 +266,18 @@ namespace
 
     TEST_F(FileSystemImplTest, readFileUsingDirectoryPathShouldThrow) // NOLINT
     {
-        std::string directroryPath =
-            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
+        std::string directoryPath =
+                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
-        makedir(directroryPath, 0700);
-        EXPECT_THROW(m_fileSystem->readFile(directroryPath), IFileSystemException); // NOLINT
+        makedir(directoryPath, 0700);
+        EXPECT_THROW(m_fileSystem->readFile(directoryPath), IFileSystemException); // NOLINT
 
-        ::rmdir(directroryPath.c_str());
+        ::rmdir(directoryPath.c_str());
     }
 
     TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromFile) // NOLINT
     {
-        std::string filePath =
-                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadLinesTest.txt");
 
         std::string testContent("HelloWorld\nHelloWorld2");
 
@@ -290,12 +289,9 @@ namespace
 
     TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromEmptyFile) // NOLINT
     {
-        std::string filePath =
-                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "EmptyFileTest.txt");
 
-        std::string testContent("");
-
-        m_fileSystem->writeFile(filePath, testContent);
+        m_fileSystem->writeFile(filePath, "");
         std::vector<std::string> content;
         EXPECT_EQ(m_fileSystem->readLines(filePath), content);
         removeFile(filePath);
@@ -309,13 +305,13 @@ namespace
 
     TEST_F(FileSystemImplTest, readLinesOnDirectoryPathShouldThrow) // NOLINT
     {
-        std::string directroryPath =
+        std::string directoryPath =
                 Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
-        makedir(directroryPath, 0700);
-        EXPECT_THROW(m_fileSystem->readLines(directroryPath), IFileSystemException); // NOLINT
+        makedir(directoryPath, 0700);
+        EXPECT_THROW(m_fileSystem->readLines(directoryPath), IFileSystemException); // NOLINT
 
-        ::rmdir(directroryPath.c_str());
+        ::rmdir(directoryPath.c_str());
     }
 
     TEST_F(FileSystemImplTest, atomicWriteStoresExpectedContentForFile) // NOLINT

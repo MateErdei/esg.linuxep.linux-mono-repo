@@ -8,7 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
-
     class diagnose_main
     {
     public:

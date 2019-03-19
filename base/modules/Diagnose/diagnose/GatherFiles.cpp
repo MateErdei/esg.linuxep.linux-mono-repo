@@ -44,7 +44,7 @@ namespace diagnose
             throw std::invalid_argument("Directory does not exist");
         }
 
-        Path outputDir = Common::FileSystem::join(path,"DiagnoseOutput");
+        Path outputDir = Common::FileSystem::join(path, "DiagnoseOutput");
         if (m_fileSystem.isDirectory(outputDir))
         {
             throw std::invalid_argument("Output directory already exists: " + outputDir);
@@ -61,8 +61,7 @@ namespace diagnose
 
     void GatherFiles::copyLogFiles(const Path& destination)
     {
-        const std::string configFileName = "DiagnoseLogFilePaths.conf";
-        const Path configFilePath = getConfigLocation(configFileName);
+        const Path configFilePath = getConfigLocation("DiagnoseLogFilePaths.conf");
 
         m_logFilePaths = getLogLocations(configFilePath);
         for (const auto& path: m_logFilePaths)
@@ -83,8 +82,7 @@ namespace diagnose
 
     void GatherFiles::copyMcsConfigFiles(const Path& destination)
     {
-        const std::string configFileName = "DiagnoseMCSDirectoryPaths.conf";
-        const Path configFilePath = getConfigLocation(configFileName);
+        const Path configFilePath = getConfigLocation("DiagnoseMCSDirectoryPaths.conf");
 
         m_mcsConfigDirectories = getLogLocations(configFilePath);
         for (const auto& path: m_mcsConfigDirectories)
@@ -94,9 +92,9 @@ namespace diagnose
             {
                 std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
 
-                for (const auto& file : files)
+                for (const auto& file: files)
                 {
-                    if (stringEndsWith(file,".XML") || stringEndsWith(file, ".xml"))
+                    if (stringEndsWith(file, ".XML") || stringEndsWith(file, ".xml"))
                     {
                         std::string filename = getFileName(file);
                         m_fileSystem.copyFile(file, Common::FileSystem::join(destination, filename));
@@ -116,8 +114,6 @@ namespace diagnose
 
     std::vector<std::string> GatherFiles::getLogLocations(const Path& inputFilePath)
     {
-        std::vector<std::string> listOfLogPaths;
-
         if (m_fileSystem.isFile(inputFilePath))
         {
             return m_fileSystem.readLines(inputFilePath);
