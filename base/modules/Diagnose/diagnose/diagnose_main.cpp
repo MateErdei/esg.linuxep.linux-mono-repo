@@ -5,12 +5,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "diagnose_main.h"
+
 #include "GatherFiles.h"
 
+#include <cstring>
+#include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <iostream>
-#include <cstring>
 
 namespace
 {
@@ -31,9 +32,9 @@ namespace diagnose
 {
     int diagnose_main::main(int argc, char* argv[])
     {
-        if(argc > 2)
+        if (argc > 2)
         {
-            std::cout << "Expecting only one parameter got " << (argc-1) << std::endl;
+            std::cout << "Expecting only one parameter got " << (argc - 1) << std::endl;
             return 1;
         }
 
@@ -65,4 +66,4 @@ namespace diagnose
         return 0;
     }
 
-}
+} // namespace diagnose

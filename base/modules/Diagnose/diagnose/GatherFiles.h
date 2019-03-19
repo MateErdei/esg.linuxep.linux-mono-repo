@@ -10,7 +10,6 @@ namespace diagnose
 {
     class GatherFiles
     {
-
     public:
         GatherFiles() = default;
 
@@ -28,4 +27,4 @@ namespace diagnose
         Common::FileSystem::FileSystemImpl m_fileSystem;
         std::string m_installDirectory;
     };
-}
+} // namespace diagnose

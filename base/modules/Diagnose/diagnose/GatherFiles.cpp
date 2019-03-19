@@ -12,7 +12,7 @@ namespace
 {
     bool stringEndsWith(const std::string& str, const std::string& suffix)
     {
-        return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+        return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
     }
 
     std::string getFileName(std::string string)
@@ -28,14 +28,11 @@ namespace
         }
         return string;
     }
-}
+} // namespace
 
 namespace diagnose
 {
-    void GatherFiles::setInstallDirectory(const Path& path)
-    {
-        m_installDirectory = path;
-    }
+    void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
 
     Path GatherFiles::createDiagnoseFolder(const Path& path)
     {
@@ -64,14 +61,14 @@ namespace diagnose
         const Path configFilePath = getConfigLocation("DiagnoseLogFilePaths.conf");
 
         m_logFilePaths = getLogLocations(configFilePath);
-        for (const auto& path: m_logFilePaths)
+        for (const auto& path : m_logFilePaths)
         {
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
             {
-                std::cout << "Copied " <<  filePath  << " to " << destination << std::endl;
+                std::cout << "Copied " << filePath << " to " << destination << std::endl;
                 std::string filename = getFileName(filePath);
-                m_fileSystem.copyFile(filePath,Common::FileSystem::join(destination, filename));
+                m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
             }
             else
             {
@@ -85,14 +82,14 @@ namespace diagnose
         const Path configFilePath = getConfigLocation("DiagnoseMCSDirectoryPaths.conf");
 
         m_mcsConfigDirectories = getLogLocations(configFilePath);
-        for (const auto& path: m_mcsConfigDirectories)
+        for (const auto& path : m_mcsConfigDirectories)
         {
             std::string dirPath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isDirectory(dirPath))
             {
                 std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
 
-                for (const auto& file: files)
+                for (const auto& file : files)
                 {
                     if (stringEndsWith(file, ".XML") || stringEndsWith(file, ".xml"))
                     {
@@ -123,7 +120,8 @@ namespace diagnose
 
     Path GatherFiles::getConfigLocation(const std::string& configFileName)
     {
-        Path configFilePath = Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), "../etc", configFileName);
+        Path configFilePath =
+            Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), "../etc", configFileName);
 
         if (m_fileSystem.isFile(configFilePath))
         {
@@ -143,4 +141,4 @@ namespace diagnose
         }
         return configFilePath;
     }
-}
+} // namespace diagnose
