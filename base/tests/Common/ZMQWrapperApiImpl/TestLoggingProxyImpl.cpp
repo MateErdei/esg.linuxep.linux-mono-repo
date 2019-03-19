@@ -389,6 +389,6 @@ TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
     int otherCount = countOccurancesInString(logMessage, "FOOBAR OTHER");
     ASSERT_NE(otherCount, 0);
     ASSERT_GE(dataCount + otherCount, count);
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
+    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR")) << "'Unsubscribe FOOBAR' not found in "<<logMessage;
     ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
 }
