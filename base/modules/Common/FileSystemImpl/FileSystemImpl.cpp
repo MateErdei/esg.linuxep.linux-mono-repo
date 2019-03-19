@@ -256,7 +256,8 @@ namespace Common
 
                 inFileStream.seekg(0, std::istream::beg);
                 std::string str;
-                while (std::getline(inFileStream, str)) {
+                while (std::getline(inFileStream, str))
+                {
                     list.push_back(str);
                 }
                 return list;
