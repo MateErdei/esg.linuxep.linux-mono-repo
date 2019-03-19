@@ -52,8 +52,7 @@ namespace Common
             std::vector<std::string> readLines(const Path& path) const override;
 
             void removeFile(const Path& path) const override;
-        private:
-            const unsigned long m_maxSize = 1024 * 1024 * 10;
+
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

@@ -42,6 +42,8 @@ namespace Common
 {
     namespace FileSystem
     {
+        static constexpr unsigned long GL_MAX_SIZE = 1024 * 1024 * 10;
+
         Path join(const Path& path1, const Path& path2)
         {
             if (path2.find('/') == 0)
@@ -182,7 +184,7 @@ namespace Common
             }
         }
 
-        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, m_maxSize); }
+        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, GL_MAX_SIZE); }
 
         std::string FileSystemImpl::readFile(const Path& path, unsigned long maxSize) const
         {
@@ -249,7 +251,7 @@ namespace Common
                 {
                     throw IFileSystemException("Error, Failed to read file: '" + path + "', failed to get file size");
                 }
-                else if (static_cast<unsigned long>(size) > m_maxSize)
+                else if (static_cast<unsigned long>(size) > GL_MAX_SIZE)
                 {
                     throw IFileTooLargeException("Error, Failed to read file: '" + path + "', file too large");
                 }
