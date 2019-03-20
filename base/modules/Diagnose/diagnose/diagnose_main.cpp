@@ -98,9 +98,7 @@ namespace diagnose
             systemCommands.runCommand("ls /etc/audisp/plugins.d/", "plugins.d");
             systemCommands.runCommand("journalctl -u sophos-spl", "journalctl-sophos-spl");
             systemCommands.runCommand("journalctl -u auditd", "journalctl-auditd");
-
-            // todo We need to check this one... is it correct?
-            systemCommands.runCommand("journalctl_TRANSPORT=audit", "journalctl_TRANSPORT=audit");
+            systemCommands.runCommand("journalctl _TRANSPORT=audit", "journalctl_TRANSPORT=audit");
             systemCommands.runCommand("journalctl --since yesterday | grep -v audit", "journalctl-auditd-yesterday");
             systemCommands.runCommand("ps -ef", "ps");
             systemCommands.runCommand("getenforce", "getenforce");
