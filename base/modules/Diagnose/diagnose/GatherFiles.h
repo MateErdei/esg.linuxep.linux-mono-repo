@@ -21,9 +21,9 @@ namespace diagnose
         void copyBaseFiles(const Path& destination);
 
         /*
-        * Copies all files of interest from the directories specified in "DiagnoseLogFilePaths.conf"
-        * or any explicitly listed files to destination.
-        */
+         * Copies all files of interest from the directories specified in "DiagnoseLogFilePaths.conf"
+         * or any explicitly listed files to destination.
+         */
         void copyPluginFiles(const Path& destination);
 
         /*
@@ -67,7 +67,6 @@ namespace diagnose
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
         void copyFile(const Path& filePath, const Path& destination);
-
 
         std::vector<std::string> m_logFilePaths;
         Common::FileSystem::FileSystemImpl m_fileSystem;

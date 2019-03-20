@@ -87,8 +87,7 @@ namespace diagnose
             systemCommands.runCommand("hostnamectl", "hostnamectl");
             systemCommands.runCommand("uname -a", "uname");
             systemCommands.runCommand("lscpu", "lscpu");
-            //Doesn't work on Amazon
-            systemCommands.runCommand("lshw", "lshw");
+            systemCommands.runCommand("lshw", "lshw");  // Doesn't work on Amazon
             systemCommands.runCommand("ls -l /lib/systemd/system", "systemd");
             systemCommands.runCommand("ls -l /usr/lib/systemd/system", "usr-systemd");
             systemCommands.runCommand("systemctl list-unit-files", "list-unit-files");
@@ -98,7 +97,7 @@ namespace diagnose
             systemCommands.runCommand("journalctl -u sophos-spl", "journalctl-sophos-spl");
             systemCommands.runCommand("journalctl -u auditd", "journalctl-auditd");
 
-            //todo We need to check this one... is it correct?
+            // todo We need to check this one... is it correct?
             systemCommands.runCommand("journalctl_TRANSPORT=audit", "journalctl_TRANSPORT=audit");
             systemCommands.runCommand("journalctl --since yesterday | grep -v audit", "journalctl-auditd-yesterday");
             systemCommands.runCommand("ps -ef", "ps");
@@ -137,9 +136,8 @@ namespace diagnose
             systemCommands.copyFile("/etc/rsylog.conf", Common::FileSystem::join(outputDir, "rsylog.conf"));
             systemCommands.copyFile("/etc/hosts", Common::FileSystem::join(outputDir, "hosts"));
             systemCommands.copyFile("/etc/resolve.conf", Common::FileSystem::join(outputDir, "resolve.conf"));
-            systemCommands.copyFile("/etc/systemd/system.conf",
-                                    Common::FileSystem::join(outputDir, "systemd-system.conf"));
-
+            systemCommands.copyFile(
+                "/etc/systemd/system.conf", Common::FileSystem::join(outputDir, "systemd-system.conf"));
         }
         catch (std::invalid_argument& e)
         {

@@ -6,10 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "GatherFiles.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <string>
-
 
 namespace
 {
@@ -23,18 +22,12 @@ namespace
         // Transform copy of string to lowercase
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
-        static const std::vector<std::string> interestingExtensions{".xml",
-                                                                   ".json",
-                                                                   ".txt",
-                                                                   ".conf",
-                                                                   ".config",
-                                                                   ".log",
-                                                                   ".log.1",
-                                                                   ".dat"};
+        static const std::vector<std::string> interestingExtensions{ ".xml",    ".json", ".txt",   ".conf",
+                                                                     ".config", ".log",  ".log.1", ".dat" };
 
-        for(const auto& type : interestingExtensions)
+        for (const auto& type : interestingExtensions)
         {
-            if (stringEndsWith(filename,type))
+            if (stringEndsWith(filename, type))
             {
                 return true;
             }
@@ -45,30 +38,15 @@ namespace
 
 namespace diagnose
 {
-    void GatherFiles::setInstallDirectory(const Path& path)
-    {
-        m_installDirectory = path;
-    }
+    void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
 
-    Path GatherFiles::createRootDir(const Path& path)
-    {
-        return createDiagnoseFolder(path, "DiagnoseOutput");
-    }
+    Path GatherFiles::createRootDir(const Path& path) { return createDiagnoseFolder(path, "DiagnoseOutput"); }
 
-    Path GatherFiles::createBaseFilesDir(const Path& path)
-    {
-        return createDiagnoseFolder(path, "BaseFiles");
-    }
+    Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, "BaseFiles"); }
 
-    Path GatherFiles::createPluginFilesDir(const Path& path)
-    {
-        return createDiagnoseFolder(path, "PluginFiles");
-    }
+    Path GatherFiles::createPluginFilesDir(const Path& path) { return createDiagnoseFolder(path, "PluginFiles"); }
 
-    Path GatherFiles::createSystemFilesDir(const Path& path)
-    {
-        return createDiagnoseFolder(path, "SystemFiles");
-    }
+    Path GatherFiles::createSystemFilesDir(const Path& path) { return createDiagnoseFolder(path, "SystemFiles"); }
 
     Path GatherFiles::createDiagnoseFolder(const Path& path, std::string dirName)
     {
@@ -176,7 +154,7 @@ namespace diagnose
     {
         // Find names of the plugins installed
         Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
-        if(!m_fileSystem.isDirectory(pluginsDir))
+        if (!m_fileSystem.isDirectory(pluginsDir))
         {
             return;
         }
