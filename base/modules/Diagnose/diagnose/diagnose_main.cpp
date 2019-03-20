@@ -59,23 +59,25 @@ namespace diagnose
             GatherFiles gatherFiles;
             gatherFiles.setInstallDirectory(installDir);
 
-            // The top level directory in the output directory structure
+            // Create the top level directory in the output directory structure
             Path destination = gatherFiles.createRootDir(outputDir);
 
-            // All the base log files etc
+            // Create the dir for all the base log files etc
             Path baseFilesDir = gatherFiles.createBaseFilesDir(destination);
 
-            // All the plugin log files etc
+            // Create the dir for all the plugin log files etc
             Path pluginFilesDir = gatherFiles.createPluginFilesDir(destination);
 
-            // All the system files and output from system commands
+            // Create the dir for all the system files and output from system commands
             Path systemFilesDir = gatherFiles.createSystemFilesDir(destination);
 
-            // Perform product file copying.
+            // Copy all files of interest from base.
             gatherFiles.copyBaseFiles(baseFilesDir);
+
+            // Copy all files of interest from all the plugins.
             gatherFiles.copyPluginFiles(pluginFilesDir);
 
-            // Grab audit log files
+            // Copy all audit log files.
             gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", systemFilesDir);
 
             // Run any system commands that we cant to capture the output from.
