@@ -86,9 +86,9 @@ namespace diagnose
         m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
     }
 
-    void GatherFiles::copyAllOfInterestFromDir(const Path& filePath, const Path& destination)
+    void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
-        std::vector<std::string> files = m_fileSystem.listFiles(filePath);
+        std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
         for (const auto& file : files)
         {
             if (isFileOfInterest(file))
@@ -163,16 +163,12 @@ namespace diagnose
     {
         // Find names of the plugins installed
         Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
-        std::vector<Path> pluginDirs;
-        try
+        if(!m_fileSystem.isDirectory(pluginsDir))
         {
-             pluginDirs = m_fileSystem.listDirectories(pluginsDir);
-        }
-        catch(std::invalid_argument& e)
-        {
-            std::cout << "No Plugins Installed" <<std::endl;
             return;
         }
+        std::vector<Path> pluginDirs = m_fileSystem.listDirectories(pluginsDir);
+
         for (const auto& absolutePluginPath : pluginDirs)
         {
             std::string pluginName = Common::FileSystem::basename(absolutePluginPath);
