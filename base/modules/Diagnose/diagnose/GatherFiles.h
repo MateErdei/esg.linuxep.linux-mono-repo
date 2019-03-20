@@ -13,17 +13,35 @@ namespace diagnose
     public:
         GatherFiles() = default;
 
-        void copyLogFiles(const Path& destination);
-        void copyMcsConfigFiles(const Path& destination);
+        /*
+         * Copies all files of interest from the directories specified in "DiagnoseLogFilePaths.conf"
+         * or any explicitly listed files to destination.
+         */
+        void copyBaseFiles(const Path& destination);
+
+        /*
+        * Copies all files of interest from the directories specified in "DiagnoseLogFilePaths.conf"
+        * or any explicitly listed files to destination.
+        */
+        void copyPluginFiles(const Path& destination);
+
+        /*
+         * Creates the directory that the logs etc are copied to.
+         */
         std::string createDiagnoseFolder(const Path& path);
+
+        /*
+         * Sets the install directory where diagnose will look for logs etc.
+         */
         void setInstallDirectory(const Path& path);
 
     private:
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
+        void copyFile(const Path& filePath, const Path& destination);
+        void copyAllOfInterestFromDir(const Path& filePath, const Path& destination);
 
         std::vector<std::string> m_logFilePaths;
-        std::vector<std::string> m_mcsConfigDirectories;
         Common::FileSystem::FileSystemImpl m_fileSystem;
         std::string m_installDirectory;
     };

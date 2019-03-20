@@ -7,6 +7,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "GatherFiles.h"
 
 #include <iostream>
+#include <algorithm>
+#include <string>
+
 
 namespace
 {
@@ -15,24 +18,44 @@ namespace
         return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
     }
 
-    std::string getFileName(std::string string)
+    bool isFileOfInterest(std::string filename)
     {
-        const size_t lastSlashPos = string.find_last_of('/');
-        if (std::string::npos != lastSlashPos)
+        // Transform copy of string to lowercase
+        std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+
+        static const std::vector<std::string> interestingExtensions{".xml",
+                                                                   ".json",
+                                                                   ".txt",
+                                                                   ".conf",
+                                                                   ".config",
+                                                                   ".log",
+                                                                   ".log.1",
+                                                                   ".log.2",
+                                                                   ".log.3",
+                                                                   ".log.4",
+                                                                   ".log.5",
+                                                                   ".log.6",
+                                                                   ".log.7",
+                                                                   ".log.8",
+                                                                   ".log.9"};
+
+        for(const auto& type : interestingExtensions)
         {
-            string.erase(0, lastSlashPos + 1);
+            if (stringEndsWith(filename,type))
+            {
+                return true;
+            }
         }
-        else
-        {
-            throw std::invalid_argument("Filepath not a path: " + string);
-        }
-        return string;
+        return false;
     }
 } // namespace
 
 namespace diagnose
 {
-    void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
+    void GatherFiles::setInstallDirectory(const Path& path)
+    {
+        m_installDirectory = path;
+    }
 
     Path GatherFiles::createDiagnoseFolder(const Path& path)
     {
@@ -56,7 +79,27 @@ namespace diagnose
         throw std::invalid_argument("Directory was not created");
     }
 
-    void GatherFiles::copyLogFiles(const Path& destination)
+    void GatherFiles::copyFile(const Path& filePath, const Path& destination)
+    {
+        std::cout << "Copied " << filePath << " to " << destination << std::endl;
+        std::string filename = Common::FileSystem::basename(filePath);
+        m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
+    }
+
+    void GatherFiles::copyAllOfInterestFromDir(const Path& filePath, const Path& destination)
+    {
+        std::vector<std::string> files = m_fileSystem.listFiles(filePath);
+        for (const auto& file : files)
+        {
+            if (isFileOfInterest(file))
+            {
+                copyFile(file, destination);
+            }
+        }
+    }
+
+
+    void GatherFiles::copyBaseFiles(const Path& destination)
     {
         const Path configFilePath = getConfigLocation("DiagnoseLogFilePaths.conf");
 
@@ -71,53 +114,19 @@ namespace diagnose
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
             {
-                std::cout << "Copied " << filePath << " to " << destination << std::endl;
-                std::string filename = getFileName(filePath);
-                m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
+                copyFile(filePath, destination);
+            }
+            else if (m_fileSystem.isDirectory(filePath))
+            {
+                copyAllOfInterestFromDir(filePath, destination);
             }
             else
             {
-                std::cout << "File not found: " << filePath << std::endl;
+                std::cout << "Error " << filePath << " is neither a file nor directory." << std::endl;
             }
         }
     }
 
-    void GatherFiles::copyMcsConfigFiles(const Path& destination)
-    {
-        const Path configFilePath = getConfigLocation("DiagnoseMCSDirectoryPaths.conf");
-
-        m_mcsConfigDirectories = getLogLocations(configFilePath);
-        for (const auto& path : m_mcsConfigDirectories)
-        {
-            if (path.empty())
-            {
-                continue;
-            }
-
-            std::string dirPath = Common::FileSystem::join(m_installDirectory, path);
-            if (m_fileSystem.isDirectory(dirPath))
-            {
-                std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
-
-                for (const auto& file : files)
-                {
-                    if (stringEndsWith(file, ".XML") || stringEndsWith(file, ".xml"))
-                    {
-                        std::string filename = getFileName(file);
-                        m_fileSystem.copyFile(file, Common::FileSystem::join(destination, filename));
-                    }
-                    else
-                    {
-                        std::cout << "Not XML file: " << file << std::endl;
-                    }
-                }
-            }
-            else
-            {
-                std::cout << "Not a valid Directory: " << dirPath << std::endl;
-            }
-        }
-    }
 
     std::vector<std::string> GatherFiles::getLogLocations(const Path& inputFilePath)
     {
@@ -150,5 +159,21 @@ namespace diagnose
             }
         }
         return configFilePath;
+    }
+
+    void GatherFiles::copyPluginFiles(const Path& destination)
+    {
+        Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
+        std::vector<Path> pluginDirs = m_fileSystem.listDirectories(pluginsDir);
+        for (const auto& absolutePluginPath : pluginDirs)
+        {
+            std::string pluginName = Common::FileSystem::basename(absolutePluginPath);
+
+            Path pluginLogDir = Common::FileSystem::join(pluginsDir, pluginName, "log");
+            if (m_fileSystem.isDirectory(pluginLogDir))
+            {
+                copyAllOfInterestFromDir(pluginLogDir, destination);
+            }
+        }
     }
 } // namespace diagnose

@@ -395,6 +395,28 @@ namespace
         EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir"));
     }
 
+    TEST_F( FileSystemImplTest, listDirectoriesReturnsAListOfDirectories) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir1");
+        tempDir.makeDirs("Root/subdir2");
+        tempDir.makeDirs("Root/blah/willNotBeSeen");
+        tempDir.createFile("Root/file123", "hello123");
+        tempDir.createFile("Root/file321", "hello321");
+        int ret = ::symlink("/etc/hosts", tempDir.absPath("Root/symlink").c_str());
+        ASSERT_EQ(ret, 0);
+
+        std::vector<std::string> fileList = m_fileSystem->listDirectories(tempDir.absPath("Root"));
+
+        EXPECT_EQ(fileList.size(), 3);
+
+        std::sort(fileList.begin(), fileList.end());
+
+        EXPECT_EQ(fileList[0], tempDir.absPath("Root/blah"));
+        EXPECT_EQ(fileList[1], tempDir.absPath("Root/subdir1"));
+        EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir2"));
+    }
+
     TEST_F(FileSystemImplTest, canCreateDirectories) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_canCreateDirectories");

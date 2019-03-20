@@ -508,6 +508,57 @@ namespace Common
             return Common::FileSystem::join(currentWorkingDirectory(), path);
         }
 
+        std::vector<Path> FileSystemImpl::listDirectories(const Path& directoryPath) const
+        {
+            static std::string dot{ "." };
+            static std::string dotdot{ ".." };
+            std::vector<Path> dirs;
+            DIR* directoryPtr;
+
+            struct dirent* outDirEntity;
+
+            directoryPtr = opendir(directoryPath.c_str());
+
+            if (!directoryPtr)
+            {
+                int error = errno;
+                std::string reason = strerror(error);
+                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
+            }
+
+            assert(isReaddirSafe(directoryPath));
+
+            while (true)
+            {
+                errno = 0;
+                outDirEntity = readdir(directoryPtr);
+
+                if (errno != 0 || outDirEntity == nullptr)
+                {
+                    break;
+                }
+
+                if (DT_DIR & outDirEntity->d_type && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                {
+                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
+
+                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this
+                    // method again on the returned directories
+                    struct stat buf;
+                    int ret = ::lstat(fullPath.c_str(), &buf);
+
+                    if (ret == 0 && !S_ISLNK(buf.st_mode))
+                    {
+                        dirs.push_back(fullPath);
+                    }
+                }
+            }
+
+            (void)closedir(directoryPtr);
+
+            return dirs;
+        }
+
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
         {
             static std::unique_ptr<Common::FileSystem::IFileSystem> instance =

@@ -52,11 +52,14 @@ namespace diagnose
 
         try
         {
+            // Setup the file gatherer.
             GatherFiles gatherFiles;
             gatherFiles.setInstallDirectory(workOutInstallDirectory());
-            std::string destination = gatherFiles.createDiagnoseFolder(outputDir);
-            gatherFiles.copyLogFiles(destination);
-            gatherFiles.copyMcsConfigFiles(destination);
+            Path destination = gatherFiles.createDiagnoseFolder(outputDir);
+
+            // Perform file copying.
+            gatherFiles.copyBaseFiles(destination);
+            gatherFiles.copyPluginFiles(destination);
         }
         catch (std::invalid_argument& e)
         {
