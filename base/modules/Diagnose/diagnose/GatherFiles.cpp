@@ -100,7 +100,7 @@ namespace diagnose
 
     void GatherFiles::copyBaseFiles(const Path& destination)
     {
-        const Path configFilePath = getConfigLocation("DiagnoseLogFilePaths.conf");
+        const Path configFilePath = getConfigLocation("DiagnosePaths.conf");
 
         m_logFilePaths = getLogLocations(configFilePath);
         for (const auto& path : m_logFilePaths)
