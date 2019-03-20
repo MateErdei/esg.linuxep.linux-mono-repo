@@ -22,11 +22,4 @@ namespace diagnose
         return system(fullCommand.c_str());
     }
 
-    void SystemCommands::copyFile(std::string filename, std::string destination)
-    {
-        if (m_fileSystem.isFile(filename))
-        {
-            m_fileSystem.copyFile(filename, destination);
-        }
-    }
 } // namespace diagnose

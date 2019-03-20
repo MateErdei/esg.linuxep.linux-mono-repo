@@ -72,9 +72,14 @@ namespace diagnose
 
     void GatherFiles::copyFile(const Path& filePath, const Path& destination)
     {
-        std::cout << "Copied " << filePath << " to " << destination << std::endl;
+        if (!m_fileSystem.isFile(filePath))
+        {
+            return;
+        }
+
         std::string filename = Common::FileSystem::basename(filePath);
         m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
+        std::cout << "Copied " << filePath << " to " << destination << std::endl;
     }
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)

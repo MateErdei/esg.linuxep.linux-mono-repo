@@ -126,18 +126,16 @@ namespace diagnose
             systemCommands.runCommand("ldconfig -p", "ldconfig");
 
             // Copy any files that contain useful info to the output dir.
-
-            systemCommands.copyFile("/etc/os-release", Common::FileSystem::join(outputDir, "os-release"));
-            systemCommands.copyFile("/proc/cpuinfo", Common::FileSystem::join(outputDir, "cpuinfo"));
-            systemCommands.copyFile("/proc/meminfo", Common::FileSystem::join(outputDir, "meminfo"));
-            systemCommands.copyFile("/etc/selinux/config", Common::FileSystem::join(outputDir, "selinux-config"));
-            systemCommands.copyFile("/etc/fstab", Common::FileSystem::join(outputDir, "fstab"));
-            systemCommands.copyFile("/var/log/boot.log", Common::FileSystem::join(outputDir, "boot.log"));
-            systemCommands.copyFile("/etc/rsylog.conf", Common::FileSystem::join(outputDir, "rsylog.conf"));
-            systemCommands.copyFile("/etc/hosts", Common::FileSystem::join(outputDir, "hosts"));
-            systemCommands.copyFile("/etc/resolve.conf", Common::FileSystem::join(outputDir, "resolve.conf"));
-            systemCommands.copyFile(
-                "/etc/systemd/system.conf", Common::FileSystem::join(outputDir, "systemd-system.conf"));
+            gatherFiles.copyFile("/etc/os-release", Common::FileSystem::join(outputDir, "os-release"));
+            gatherFiles.copyFile("/proc/cpuinfo", Common::FileSystem::join(outputDir, "cpuinfo"));
+            gatherFiles.copyFile("/proc/meminfo", Common::FileSystem::join(outputDir, "meminfo"));
+            gatherFiles.copyFile("/etc/selinux/config", Common::FileSystem::join(outputDir, "selinux-config"));
+            gatherFiles.copyFile("/etc/fstab", Common::FileSystem::join(outputDir, "fstab"));
+            gatherFiles.copyFile("/var/log/boot.log", Common::FileSystem::join(outputDir, "boot.log"));
+            gatherFiles.copyFile("/etc/rsylog.conf", Common::FileSystem::join(outputDir, "rsylog.conf"));
+            gatherFiles.copyFile("/etc/hosts", Common::FileSystem::join(outputDir, "hosts"));
+            gatherFiles.copyFile("/etc/resolve.conf", Common::FileSystem::join(outputDir, "resolve.conf"));
+            gatherFiles.copyFile("/etc/systemd/system.conf", Common::FileSystem::join(outputDir, "systemd-system.conf"));
         }
         catch (std::invalid_argument& e)
         {

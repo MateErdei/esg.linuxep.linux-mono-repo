@@ -22,11 +22,6 @@ namespace diagnose
          */
         int runCommand(std::string command, std::string filename);
 
-        /*
-         * copies an existing file to the destination file
-         */
-        void copyFile(std::string filename, std::string destination);
-
     private:
         std::string m_destination;
         Common::FileSystem::FileSystemImpl m_fileSystem;
