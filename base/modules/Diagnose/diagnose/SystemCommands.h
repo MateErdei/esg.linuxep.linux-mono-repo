@@ -11,21 +11,16 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
-
     class SystemCommands
     {
-
 
     public:
         explicit SystemCommands(std::string destination);
         
-        void runCommandOutputToFile(std::string command, std::string filename);
-        std::string exec(const std::string& cmd);
+        int runCommand(std::string command, std::string filename);
+
     private:
         std::string m_destination;
-        Common::FileSystem::FileSystemImpl m_fileSystem;
 
     };
-
 }
-
