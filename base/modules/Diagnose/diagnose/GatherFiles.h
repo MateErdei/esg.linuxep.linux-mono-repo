@@ -5,6 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#pragma once
 
 namespace diagnose
 {

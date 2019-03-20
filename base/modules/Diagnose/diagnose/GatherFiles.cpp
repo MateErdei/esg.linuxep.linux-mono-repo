@@ -98,7 +98,6 @@ namespace diagnose
         }
     }
 
-
     void GatherFiles::copyBaseFiles(const Path& destination)
     {
         const Path configFilePath = getConfigLocation("DiagnoseLogFilePaths.conf");
@@ -126,7 +125,6 @@ namespace diagnose
             }
         }
     }
-
 
     std::vector<std::string> GatherFiles::getLogLocations(const Path& inputFilePath)
     {
@@ -163,8 +161,18 @@ namespace diagnose
 
     void GatherFiles::copyPluginFiles(const Path& destination)
     {
+        // Find names of the plugins installed
         Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
-        std::vector<Path> pluginDirs = m_fileSystem.listDirectories(pluginsDir);
+        std::vector<Path> pluginDirs;
+        try
+        {
+             pluginDirs = m_fileSystem.listDirectories(pluginsDir);
+        }
+        catch(std::invalid_argument& e)
+        {
+            std::cout << "No Plugins Installed" <<std::endl;
+            return;
+        }
         for (const auto& absolutePluginPath : pluginDirs)
         {
             std::string pluginName = Common::FileSystem::basename(absolutePluginPath);

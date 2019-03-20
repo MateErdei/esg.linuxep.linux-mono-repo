@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "diagnose_main.h"
 
 #include "GatherFiles.h"
+#include "SystemCommands.h"
 
 #include <cstring>
 #include <iostream>
@@ -60,6 +61,9 @@ namespace diagnose
             // Perform file copying.
             gatherFiles.copyBaseFiles(destination);
             gatherFiles.copyPluginFiles(destination);
+            SystemCommands systemCommands;
+            systemCommands.runCommand("cat /tmp/stuff >> "+destination+"/stuff");
+            
         }
         catch (std::invalid_argument& e)
         {
