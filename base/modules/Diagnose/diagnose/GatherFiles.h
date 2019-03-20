@@ -27,9 +27,29 @@ namespace diagnose
         void copyPluginFiles(const Path& destination);
 
         /*
-         * Creates the directory that the logs etc are copied to.
+         * Creates directories
          */
-        std::string createDiagnoseFolder(const Path& path);
+        std::string createDiagnoseFolder(const Path& path, std::string dirName);
+
+        /*
+         * Creates and returns the main diagnose output folder.
+         */
+        Path createRootDir(const Path& path);
+
+        /*
+         * Creates and returns the output folder for base files.
+         */
+        Path createBaseFilesDir(const Path& path);
+
+        /*
+         * Creates and returns the output folder for plugin files.
+         */
+        Path createPluginFilesDir(const Path& path);
+
+        /*
+         * Creates and returns the output folder for system files and output of system commands.
+         */
+        Path createSystemFilesDir(const Path& path);
 
         /*
          * Sets the install directory where diagnose will look for logs etc.

@@ -58,17 +58,28 @@ namespace diagnose
             // Setup the file gatherer.
             GatherFiles gatherFiles;
             gatherFiles.setInstallDirectory(installDir);
-            Path destination = gatherFiles.createDiagnoseFolder(outputDir);
+
+            // The top level directory in the output directory structure
+            Path destination = gatherFiles.createRootDir(outputDir);
+
+            // All the base log files etc
+            Path baseFilesDir = gatherFiles.createBaseFilesDir(destination);
+
+            // All the plugin log files etc
+            Path pluginFilesDir = gatherFiles.createPluginFilesDir(destination);
+
+            // All the system files and output from system commands
+            Path systemFilesDir = gatherFiles.createSystemFilesDir(destination);
 
             // Perform product file copying.
-            gatherFiles.copyBaseFiles(destination);
-            gatherFiles.copyPluginFiles(destination);
+            gatherFiles.copyBaseFiles(baseFilesDir);
+            gatherFiles.copyPluginFiles(pluginFilesDir);
 
-            //grab systme log files
-            gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", destination);
+            // Grab audit log files
+            gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", systemFilesDir);
 
             // Run any system commands that we cant to capture the output from.
-            SystemCommands systemCommands(destination);
+            SystemCommands systemCommands(systemFilesDir);
             systemCommands.runCommand("df -h", "df");
             systemCommands.runCommand("top -bHn1", "top");
             systemCommands.runCommand("dstat -a -m 1 5", "dstat");
@@ -116,17 +127,18 @@ namespace diagnose
             systemCommands.runCommand("ldconfig -p", "ldconfig");
 
             // Copy any files that contain useful info to the output dir.
-            Common::FileSystem::FileSystemImpl fileSystem;
-            fileSystem.copyFile("/etc/os-release", Common::FileSystem::join(outputDir, "os-release"));
-            fileSystem.copyFile("/proc/cpuinfo", Common::FileSystem::join(outputDir, "cpuinfo"));
-            fileSystem.copyFile("/proc/meminfo", Common::FileSystem::join(outputDir, "meminfo"));
-            fileSystem.copyFile("/etc/selinux/config", Common::FileSystem::join(outputDir, "selinux-config"));
-            fileSystem.copyFile("/etc/fstab", Common::FileSystem::join(outputDir, "fstab"));
-            fileSystem.copyFile("/var/log/boot.log", Common::FileSystem::join(outputDir, "boot.log"));
-            fileSystem.copyFile("/etc/rsylog.conf", Common::FileSystem::join(outputDir, "rsylog.conf"));
-            fileSystem.copyFile("/etc/hosts", Common::FileSystem::join(outputDir, "hosts"));
-            fileSystem.copyFile("/etc/resolve.conf", Common::FileSystem::join(outputDir, "resolve.conf"));
-            fileSystem.copyFile("/etc/systemd/system.conf", Common::FileSystem::join(outputDir, "systemd-system.conf"));
+
+            systemCommands.copyFile("/etc/os-release", Common::FileSystem::join(outputDir, "os-release"));
+            systemCommands.copyFile("/proc/cpuinfo", Common::FileSystem::join(outputDir, "cpuinfo"));
+            systemCommands.copyFile("/proc/meminfo", Common::FileSystem::join(outputDir, "meminfo"));
+            systemCommands.copyFile("/etc/selinux/config", Common::FileSystem::join(outputDir, "selinux-config"));
+            systemCommands.copyFile("/etc/fstab", Common::FileSystem::join(outputDir, "fstab"));
+            systemCommands.copyFile("/var/log/boot.log", Common::FileSystem::join(outputDir, "boot.log"));
+            systemCommands.copyFile("/etc/rsylog.conf", Common::FileSystem::join(outputDir, "rsylog.conf"));
+            systemCommands.copyFile("/etc/hosts", Common::FileSystem::join(outputDir, "hosts"));
+            systemCommands.copyFile("/etc/resolve.conf", Common::FileSystem::join(outputDir, "resolve.conf"));
+            systemCommands.copyFile("/etc/systemd/system.conf",
+                                    Common::FileSystem::join(outputDir, "systemd-system.conf"));
 
         }
         catch (std::invalid_argument& e)

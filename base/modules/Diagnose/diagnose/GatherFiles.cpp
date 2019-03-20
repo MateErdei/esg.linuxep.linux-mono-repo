@@ -50,14 +50,34 @@ namespace diagnose
         m_installDirectory = path;
     }
 
-    Path GatherFiles::createDiagnoseFolder(const Path& path)
+    Path GatherFiles::createRootDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, "DiagnoseOutput");
+    }
+
+    Path GatherFiles::createBaseFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, "BaseFiles");
+    }
+
+    Path GatherFiles::createPluginFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, "PluginFiles");
+    }
+
+    Path GatherFiles::createSystemFilesDir(const Path& path)
+    {
+        return createDiagnoseFolder(path, "SystemFiles");
+    }
+
+    Path GatherFiles::createDiagnoseFolder(const Path& path, std::string dirName)
     {
         if (!m_fileSystem.isDirectory(path))
         {
             throw std::invalid_argument("Directory does not exist");
         }
 
-        Path outputDir = Common::FileSystem::join(path, "DiagnoseOutput");
+        Path outputDir = Common::FileSystem::join(path, dirName);
         if (m_fileSystem.isDirectory(outputDir))
         {
             throw std::invalid_argument("Output directory already exists: " + outputDir);
