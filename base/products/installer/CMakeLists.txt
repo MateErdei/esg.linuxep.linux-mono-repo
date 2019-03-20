@@ -12,7 +12,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/logger.conf
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/Diagnose/DiagnoseLogFilePaths.conf
+install(FILES ${CMAKE_SOURCE_DIR}/products/Diagnose/DiagnosePaths.conf
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
