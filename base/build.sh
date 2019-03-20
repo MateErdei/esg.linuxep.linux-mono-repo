@@ -45,6 +45,7 @@ CMAKE_BUILD_TYPE=RelWithDebInfo
 DEBUG=0
 export ENABLE_STRIP=1
 VALGRIND=0
+UNIT_TESTS=1
 
 while [[ $# -ge 1 ]]
 do
@@ -129,6 +130,12 @@ do
             ;;
         --valgrind)
             VALGRIND=1
+            ;;
+        --unittest)
+            UNIT_TESTS=1
+            ;;
+        --no-unittest|--no-unittests)
+            UNIT_TESTS=0
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -323,25 +330,35 @@ function build()
     make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
 
-    if (( ${VALGRIND} == 1 ))
+    if (( ${UNIT_TESTS} == 1 ))
     then
-        ## -VV --debug
-        ctest \
-        --test-action memcheck --parallel ${NPROC} \
-        --output-on-failure \
-         || {
-            local EXITCODE=$?
-            exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
-        }
-    elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
-    then
-        ## If we are doing bullseye system tests then don't run unit test first
-        make CTEST_OUTPUT_ON_FAILURE=1 test || {
-            local EXITCODE=$?
-            echo "Unit tests failed with $EXITCODE"
-            cat Testing/Temporary/LastTest.log || true
-            exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
-        }
+        if (( ${VALGRIND} == 1 ))
+        then
+            ## -VV --debug
+            ctest \
+                --test-action memcheck \
+                --parallel ${NPROC} \
+                --no-compress-output --output-on-failure \
+             || {
+                local EXITCODE=$?
+                exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+            }
+        elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+        then
+            ## If we are doing bullseye system tests then don't run unit test first
+            ## Otherwise run the unit-tests now
+            ctest \
+                --test-action test \
+                --parallel ${NPROC} \
+                --no-compress-output --output-on-failure \
+                --timeout 60 \
+                || {
+                local EXITCODE=$?
+                echo "Unit tests failed with $EXITCODE"
+                cat Testing/Temporary/LastTest.log || true
+                exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+            }
+        fi
     fi
     make install || exitFailure 17 "Failed to install $PRODUCT"
     make dist || exitFailure 18 "Failed to create distribution"
@@ -385,7 +402,7 @@ function build()
         bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
+    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 )) && (( ${UNIT_TESTS} == 1 ))
     then
         ## Now generate combined results
         cd ${BASE}

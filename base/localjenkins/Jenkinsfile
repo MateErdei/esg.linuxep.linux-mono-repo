@@ -4,7 +4,7 @@ def buildAndTest()
              'LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/cmake/lib64:$LD_LIBRARY_PATH']){
         checkout scm
         sh 'rm -rf /tmp/temp*'
-        sh 'rm -rf build64 && ./build.sh'
+        sh 'rm -rf build64 && ./build.sh --no-unittests'
 
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
         sh 'cd build64 && ctest -V -T test --no-compress-output --timeout 60'
