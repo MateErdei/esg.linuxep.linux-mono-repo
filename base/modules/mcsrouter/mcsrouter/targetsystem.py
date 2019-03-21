@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Module does stuff
+"""
+
 import glob
 import json
 import os
@@ -12,188 +16,233 @@ import urllib2
 import time
 
 DISTRIBUTION_NAME_MAP = {
-    'debian'                                : 'debian',
-    'gentoo'                                : 'gentoo',
-    'mandrake'                              : 'mandrake',
-    'redhat'                                : 'redhat',
-    'slackware'                             : 'slackware',
-    'suse'                                  : 'suse',
-    'opensuse'                              : 'suse',
-    'sunjavadesktop'                        : 'sjd',
-    'turbolinux'                            : 'turbo',
-    'unitedlinux'                           : 'suse',
-    'fedora'                                : 'fedora',
-    'ubuntu'                                : 'ubuntu',
-    'asianux'                               : 'asianux',
-    'oracle'                                : 'oracle',
-    'centos'                                : 'centos',
-    'amazonlinux'                           : 'amazon',
+    'debian': 'debian',
+    'gentoo': 'gentoo',
+    'mandrake': 'mandrake',
+    'redhat': 'redhat',
+    'slackware': 'slackware',
+    'suse': 'suse',
+    'opensuse': 'suse',
+    'sunjavadesktop': 'sjd',
+    'turbolinux': 'turbo',
+    'unitedlinux': 'suse',
+    'fedora': 'fedora',
+    'ubuntu': 'ubuntu',
+    'asianux': 'asianux',
+    'oracle': 'oracle',
+    'centos': 'centos',
+    'amazonlinux': 'amazon',
 
     # Sophos Anti-Virus for VMWare platforms.
-    # NB, there is also a vshield-1.0 which can be assigned by detectDistro
+    # NB, there is also a vshield-1.0 which can be assigned by detect_distro
     # and which corresponds to the "special" 1.0 release of SAV for vShield which
     # didn't have a dedicated update location.
-    'sophosanti-virusforvmwarevshield'      : 'vshield',
+    'sophosanti-virusforvmwarevshield': 'vshield',
 }
 
 #-----------------------------------------------------------------------------
 # class TargetSystem
 #-----------------------------------------------------------------------------
+
+
 class TargetSystem(object):
     '''
     Represents the system into which we are trying to install/load TALPA.
     '''
 
     class TargetDetectionException(Exception):
+        """
+        does something
+        """
         pass
 
-    def __init__(self, installDir="."):
-        self._saveUname()
-        self.platform = self.uname[0].lower().replace("-","")
-        self.isLinux = (self.platform == "linux")
-        self.isSolaris = (self.platform == "sunos")
-        self.isHPUX = (self.platform == "hpux")
-        self.isFreeBSD = (self.platform == "freebsd")
-        self.isAIX = (self.platform == "aix")
+    def __init__(self, install_dir="."):
+        self._save_uname()
+        self.platform = self.uname[0].lower().replace("-", "")
+        self.is_linux = (self.platform == "linux")
+        self.is_solaris = (self.platform == "sunos")
+        self.is_hpux = (self.platform == "hpux")
+        self.is_free_bsd = (self.platform == "freebsd")
+        self.is_aix = (self.platform == "aix")
         self.m_vendor = None
-        self.m_osVersion = None
-        self.m_upgradeResponse = []
-        self.m_installDir = installDir
+        self.m_os_version = None
+        self.m_upgrade_response = []
+        self.m_install_dir = install_dir
 
-        ## First check if lsb_release is available
-        ## Avoid checking for oracle since this generated a very long binary pack name, use oracle-release instead
-        self.__collectLsbRelease()
+        # First check if lsb_release is available
+        # Avoid checking for oracle since this generated a very long binary pack name
+        # Use oracle-release instead
+        self.__collect_lsb_release()
 
-        self.ambiguous          = None
-        self.product            = None
-        self.distro             = self.detectDistro()
-        self.kernel             = self.detectKernel()
-        self.smp                = self.detectSMP()
-        self.arch               = self.detectArchitecture()
-        self.version            = self.detectVersion()
-        self.awsInstanceInfo    = self.detectInstanceInfo(installDir=installDir)
-        self.syscallTable       = self.getSymbolAddress('sys_call_table')
+        self.ambiguous = None
+        self.product = None
+        self.distro = self.detect_distro()
+        self.kernel = self.detect_kernel()
+        self.smp = self.detect_smp()
+        self.arch = self.detect_architecture()
+        self.version = self.detect_version()
+        self.aws_instance_info = self.detect_instance_info(
+            install_dir=install_dir)
+        self.syscall_table = self.get_symbol_address('sys_call_table')
         if self.arch == 'x86_64':
-            self.syscall32Table = self.getSymbolAddress('ia32_sys_call_table')
+            self.syscall_32_table = self.get_symbol_address(
+                'ia32_sys_call_table')
         else:
-            self.syscall32Table = ''
+            self.syscall_32_table = ''
 
-        self.isUbuntu = (self.distro == "ubuntu")
-        self.isRedhat = (self.distro == "redhat")
+        self.is_ubuntu = (self.distro == "ubuntu")
+        self.is_redhat = (self.distro == "redhat")
 
         # we only use upstart on Ubuntu
-        self.configureUpstart = self.isUbuntu and self.versionIsAtLeast("10.04") and os.path.isdir("/etc/init")
-        self.configureSystemd = os.path.isdir("/usr/lib/systemd/system") or os.path.isdir("/lib/systemd/system")
+        self.configure_upstart = self.is_ubuntu and self.version_is_at_least(
+            "10.04") and os.path.isdir("/etc/init")
+        self.configure_systemd = os.path.isdir("/usr/lib/systemd/system")\
+            or os.path.isdir("/lib/systemd/system")
 
-        self.hasUpstart = self.configureUpstart and os.path.isfile("/sbin/initctl")
-        self.hasSystemd = self.configureSystemd and os.path.isfile("/bin/systemctl")
+        self.has_upstart = self.configure_upstart and os.path.isfile(
+            "/sbin/initctl")
+        self.has_systemd = self.configure_systemd and os.path.isfile(
+            "/bin/systemctl")
 
         # Ubuntu 15.04 (and 14.10) can have *both* upstart and systemd installed concurrently.
         # We need to detect the active mechanism.
-        if self.hasUpstart and self.hasSystemd:
-            initProcess = self.__detectInitProcess()
-            self.useSystemd = (initProcess == "systemd")
-            self.useUpstart = (initProcess == "init" or initProcess == "upstart")
+        if self.has_upstart and self.has_systemd:
+            init_process = self.__detect_init_process()
+            self.use_systemd = (init_process == "systemd")
+            self.use_upstart = (
+                init_process == "init" or init_process == "upstart")
         else:
-            self.useUpstart = self.hasUpstart
-            self.useSystemd = self.hasSystemd
+            self.use_upstart = self.has_upstart
+            self.use_systemd = self.has_systemd
 
-        self.useSMF = self.isSolaris and self.versionIsAtLeast("5.10")
+        self.use_smf = self.is_solaris and self.version_is_at_least("5.10")
 
-        ## True if daemons are started asynchronously, so longer waits are required for savd to activate
-        self.asyncStart = self.useUpstart or self.useSystemd
+        # True if daemons started asynchronously, so longer waits required for
+        # savd to activate
+        self.async_start = self.use_upstart or self.use_systemd
 
-        self.osName = self.product
-        OS_NAME_RELEASE_RE = re.compile(r" release ",re.I)
-        self.osName = OS_NAME_RELEASE_RE.sub(" ",self.osName)  ## Make the name shorter if possible
+        self.os_name = self.product
+        os_name_release_re = re.compile(r" release ", re.I)
+        # Make the name shorter if possible
+        self.os_name = os_name_release_re.sub(" ", self.os_name)
 
-        self.__detectOsVersion()
+        self.__detect_os_version()
 
-    def _readUname(self):
+    def _read_uname(self):
+        """
+        does something
+        :return:
+        """
         try:
             return os.uname()
-        except OSError: # os.uname() can fail on HP-UX with > 8 character hostnames
+        except OSError:  # os.uname() can fail on HP-UX with > 8 character hostnames
             return socket.gethostname()
 
-    def _saveUname(self):
-        self.uname = self._readUname()
-        self.lastUnameSave = time.time()
+    def _save_uname(self):
+        """
+        does something
+        :return:
+        """
+        self.uname = self._read_uname()
+        self.last_uname_save = time.time()
 
-    def __backtick(self,command):
-        if isinstance(command,basestring):
+    def __back_tick(self, command):
+        """
+        does something
+        :return:
+        """
+        if isinstance(command, basestring):
             command = [command]
-        ## Clean environment
+        # Clean environment
         env = os.environ.copy()
 
-        ## Need to reset the python variables in case command is a python script
+        # Need to reset the python variables in case command is a python script
 
-        def resetEnv(env,variable):
-            orig = "ORIGINAL_%s"%variable
-            if env.has_key(orig) and env[orig] != "":
+        def reset_env(env, variable):
+            """
+            does something
+            :return:
+            """
+            orig = "ORIGINAL_%s" % variable
+            if orig in env and env[orig] != "":
                 env[variable] = env[orig]
             else:
-                env.pop(variable,None) ## Ignore the variable if it's missing
+                env.pop(variable, None)  # Ignore the variable if it's missing
 
-        def removeEnvVariable(env,variable):
-            env.pop(variable,None)
+        def remove_env_variable(env, variable):
+            """
+            does something
+            :return:
+            """
+            env.pop(variable, None)
 
-        resetEnv(env,'PYTHONPATH')
-        resetEnv(env,'LD_LIBRARY_PATH')
-        resetEnv(env,'PYTHONHOME')
+        reset_env(env, 'PYTHONPATH')
+        reset_env(env, 'LD_LIBRARY_PATH')
+        reset_env(env, 'PYTHONHOME')
 
-
-        def attempt(command,env,shell=False):
+        def attempt(command, env, shell=False):
+            """
+            does something
+            :return:
+            """
             try:
-                proc = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    shell=shell)
-                (stdout,stderr) = proc.communicate()
-                retCode = proc.wait()
-                assert retCode is not None
+                proc = subprocess.Popen(command, env=env,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        shell=shell)
+                (stdout, stderr) = proc.communicate()
+                #stdout = proc.communicate()
+                ret_code = proc.wait()
+                assert ret_code is not None
             except OSError:
-                retCode = -1
+                ret_code = -1
                 stdout = ""
-            return (retCode,stdout)
+            return ret_code, stdout
 
-        (retCode,stdout) = attempt(command,env)
-        if retCode == 0:
-            return (retCode,stdout)
+        (ret_code, stdout) = attempt(command, env)
+        if ret_code == 0:
+            return ret_code, stdout
 
-        ## Maybe we tried to execute a Python program with incorrect environment
-        ## so lets try again without any.
-        clearEnv = env.copy()
-        removeEnvVariable(clearEnv,'PYTHONPATH')
-        removeEnvVariable(clearEnv,'LD_LIBRARY_PATH')
-        removeEnvVariable(clearEnv,'PYTHONHOME')
+        # Maybe we tried to execute a Python program with incorrect environment
+        # so lets try again without any.
+        clear_env = env.copy()
+        remove_env_variable(clear_env, 'PYTHONPATH')
+        remove_env_variable(clear_env, 'LD_LIBRARY_PATH')
+        remove_env_variable(clear_env, 'PYTHONHOME')
 
-        (retCode,stdout) = attempt(command,clearEnv)
-        if retCode == 0:
-            return (retCode,stdout)
+        (ret_code, stdout) = attempt(command, clear_env)
+        if ret_code == 0:
+            return (ret_code, stdout)
 
-        ## Try via the shell
+        # Try via the shell
 
-        (retCode,stdout) = attempt(command,env,shell=True)
-        if retCode == 0:
-            return (retCode,stdout)
-        (retCode,stdout) = attempt(command,clearEnv,shell=True)
-        if retCode == 0:
-            return (retCode,stdout)
+        (ret_code, stdout) = attempt(command, env, shell=True)
+        if ret_code == 0:
+            return (ret_code, stdout)
+        (ret_code, stdout) = attempt(command, clear_env, shell=True)
+        if ret_code == 0:
+            return (ret_code, stdout)
 
-        ## Try with restricted PATH
+        # Try with restricted PATH
         env['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin"
-        (retCode,stdout) = attempt(command,env)
-        if retCode == 0:
-            return (retCode,stdout)
-        clearEnv['PATH'] = env['PATH']
-        (retCode,stdout) = attempt(command,clearEnv)
-        if retCode == 0:
-            return (retCode,stdout)
+        (ret_code, stdout) = attempt(command, env)
+        if ret_code == 0:
+            return (ret_code, stdout)
+        clear_env['PATH'] = env['PATH']
+        (ret_code, stdout) = attempt(command, clear_env)
+        if ret_code == 0:
+            return (ret_code, stdout)
 
-        return (retCode,stdout)
+        return (ret_code, stdout)
 
     def using_lsb_release(self):
+        """
+        does something
+        :return:
+        """
         return len(self.m_lsb_release) > 0
 
-    def __collectLsbRelease(self):
+    def __collect_lsb_release(self):
         """
         Collect any lsb_release info
         """
@@ -201,224 +250,234 @@ class TargetSystem(object):
 
         if os.path.isfile('/etc/oracle-release'):
             return
-        PATH=os.environ.get("PATH","")
+        path = os.environ.get("PATH", "")
         lsb_release_exes = []
-        for p in PATH.split(":"):
-            lsb_release = os.path.join(p,"lsb_release")
+        for split_path_element in path.split(":"):
+            lsb_release = os.path.join(split_path_element, "lsb_release")
             if os.path.isfile(lsb_release):
                 lsb_release_exes.append(lsb_release)
 
-        if "/usr/bin/lsb_release" not in lsb_release_exes and os.path.isfile("/usr/bin/lsb_release"):
+        if "/usr/bin/lsb_release" not in lsb_release_exes \
+                and os.path.isfile("/usr/bin/lsb_release"):
             lsb_release_exes.append("/usr/bin/lsb_release")
 
-        retCode = -2
+        ret_code = -2
         for lsb_release_exe in lsb_release_exes:
-            (retCode,stdout) = self.__backtick([lsb_release_exe,'-a'])
-            if retCode == 0:
+            (ret_code, stdout) = self.__back_tick([lsb_release_exe, '-a'])
+            if ret_code == 0:
                 break
 
-        if retCode != 0:
-            ## failed to run lsb_release
+        if ret_code != 0:
+            # failed to run lsb_release
             return
 
         lines = stdout.split("\n")
-        ## Each line consists of "Key:<whitespace>*<value>"
-        import re
+        # Each line consists of "Key:<whitespace>*<value>"
         matcher = re.compile(r"([^:]+):\s*(.+)$")
-        for l in lines:
-            mo = matcher.match(l)
-            if mo:
-                self.m_lsb_release[mo.group(1)] = mo.group(2)
+        for line in lines:
+            line_matched = matcher.match(line)
+            if line_matched:
+                self.m_lsb_release[line_matched.group(
+                    1)] = line_matched.group(2)
 
-        ## Correct distribution
-        if self.m_lsb_release.has_key('Distributor ID'):
+        # Correct distribution
+        if 'Distributor ID' in self.m_lsb_release:
             vendor = self.m_lsb_release['Distributor ID']
-            ## Lower case and strip spaces
+            # Lower case and strip spaces
             vendor = string.lower(vendor)
-            vendor = string.replace(vendor," ","")
-            vendor = string.replace(vendor,"/","_") # DEF25168: Other special characters seem to be working
+            vendor = string.replace(vendor, " ", "")
+            # DEF25168: Other special characters seem to be working
+            vendor = string.replace(vendor, "/", "_")
             match = False
-            for key in DISTRIBUTION_NAME_MAP.keys():
+            for key in DISTRIBUTION_NAME_MAP:
                 if vendor.startswith(key):
                     vendor = DISTRIBUTION_NAME_MAP[key]
                     match = True
                     break
             if not match:
-                ## Attempt to extract vendor from Description if above failed (Asianux3)
+                # Attempt to extract vendor from Description if above failed
+                # (Asianux3)
                 if vendor == 'n_a' or vendor == '':
                     vendor = self.m_lsb_release['Description']
                     vendor = string.lower(vendor)
-                    vendor = string.replace(vendor," ","")
-                    vendor = string.replace(vendor,"/","_")
-                    for key in DISTRIBUTION_NAME_MAP.keys():
+                    vendor = string.replace(vendor, " ", "")
+                    vendor = string.replace(vendor, "/", "_")
+                    for key in DISTRIBUTION_NAME_MAP:
                         if vendor.startswith(key):
                             vendor = DISTRIBUTION_NAME_MAP[key]
                             match = True
                             break
                 if not match:
-                    ## Create a valid distribution name from whatever we're given
-                    ## Endswith
+                    # Create a valid distribution name from whatever we're given
+                    # Endswith
                     length = len(vendor) - len("linux")
-                    if length > 0 and string.rfind(vendor,"linux") == length:
+                    if length > 0 and string.rfind(vendor, "linux") == length:
                         vendor = vendor[:length]
             self.m_lsb_release['vendor'] = vendor
             self.m_vendor = vendor
 
-        release = self.m_lsb_release.get("Release",None)
-        doneOSVersion = False
-        ## Parse description for ubuntu version
+        release = self.m_lsb_release.get("Release", None)
+        done_os_version = False
+        # Parse description for ubuntu version
         if self.m_vendor == "ubuntu":
-            desc = self.m_lsb_release.get("Description",None)
+            desc = self.m_lsb_release.get("Description", None)
             if desc is not None:
-                mo = re.match(r"Ubuntu (\d+)\.(\d+)\.(\d+)",desc)
-                if mo:
-                    self.m_osVersion = (mo.group(1),mo.group(2),mo.group(3))
-                    doneOSVersion = True
+                matched = re.match(r"Ubuntu (\d+)\.(\d+)\.(\d+)", desc)
+                if matched:
+                    self.m_os_version = (
+                        matched.group(1), matched.group(2), matched.group(3))
+                    done_os_version = True
                 else:
-                    mo = re.match(r"Ubuntu (\d+)\.(\d+)",desc)
-                    if mo:
-                        self.m_osVersion = (mo.group(1),mo.group(2),"")
-                        doneOSVersion = True
+                    matched = re.match(r"Ubuntu (\d+)\.(\d+)", desc)
+                    if matched:
+                        self.m_os_version = (
+                            matched.group(1), matched.group(2), "")
+                        done_os_version = True
 
-        ## Attempt to parse the Release field into digit blocks
-        if not doneOSVersion and release is not None:
-            osVersion = []
+        # Attempt to parse the Release field into digit blocks
+        if not done_os_version and release is not None:
+            os_version = []
             while True:
-                mo = re.match(r"(\d+)\.(.*)",release)
-                if mo:
-                    osVersion.append(mo.group(1))
-                    release = mo.group(2)
+                matched = re.match(r"(\d+)\.(.*)", release)
+                if matched:
+                    os_version.append(matched.group(1))
+                    release = matched.group(2)
                     continue
                 break
-            while len(osVersion) < 3:
-                osVersion.append("")
-            self.m_osVersion = osVersion
+            while len(os_version) < 3:
+                os_version.append("")
+            self.m_os_version = os_version
 
-
-    def __detectInitProcess(self):
-        ## TODO: implement in native python?
-        (retCode,stdout) = self.__backtick(["/bin/ps","-p1","-ocomm="])
-        if retCode != 0:
+    def __detect_init_process(self):
+        """
+        does something
+        :return:
+        """
+        (ret_code, stdout) = self.__back_tick(["/bin/ps", "-p1", "-ocomm="])
+        if ret_code != 0:
             return None
         return stdout.strip()
 
-    def detectDistro(self):
+    def detect_distro(self):
         '''
         Detect the name of distro.
         '''
-        ## lsb_release returned "Distribution ID"
-        if self.m_lsb_release.has_key('vendor'):
-            if self.m_lsb_release.has_key('Description'):
+        # lsb_release returned "Distribution ID"
+        if 'vendor' in self.m_lsb_release:
+            if 'Description' in self.m_lsb_release:
                 self.product = self.m_lsb_release['Description']
             else:
-                ## Shouldn't really happen - LSB defines that both will be returned
+                # Shouldn't really happen - LSB defines that both will be
+                # returned
                 self.product = 'unknown'
 
             return self.m_lsb_release['vendor']
 
-        distroCheckFiles = [
-                            '/etc/asianux-release',
-                            '/etc/slackware-version',
-                            '/etc/gentoo-release',
-                            '/etc/fedora-release',
-                            '/etc/sun-release',
-                            '/etc/SuSE-release',
-                            '/etc/turbolinux-release',
-                            '/etc/SLOX-release',
-                            '/etc/lsb-release',
-                            '/etc/oracle-release',
-                            '/etc/issue',
-                            '/etc/centos-release'
-                          ]
+        distro_check_files = ['/etc/asianux-release',
+                              '/etc/slackware-version',
+                              '/etc/gentoo-release',
+                              '/etc/fedora-release',
+                              '/etc/SuSE-release',
+                              '/etc/sun-release',
+                              '/etc/turbolinux-release',
+                              '/etc/SLOX-release',
+                              '/etc/lsb-release',
+                              '/etc/oracle-release',
+                              '/etc/issue',
+                              '/etc/centos-release']
 
-        distroIdentified = None
-        for distroFile in distroCheckFiles:
-            distroIdentified = self.checkDistroFile(distroFile,distroIdentified)
+        distro_identified = None
+        for distro_file in distro_check_files:
+            distro_identified = self.check_distro_file(
+                distro_file, distro_identified)
 
         # check some extra files if we haven't found anything yet
-        if distroIdentified is None:
-            distroCheckFiles = [
-                                '/etc/redhat-release',
-                                '/etc/UnitedLinux-release',
-                                '/etc/system-release'
-                               ]
-            for distroFile in distroCheckFiles:
-                distroIdentified = self.checkDistroFile(distroFile,distroIdentified)
+        if distro_identified is None:
+            distro_check_files = ['/etc/redhat-release',
+                                  '/etc/UnitedLinux-release',
+                                  '/etc/system-release']
+            for distro_file in distro_check_files:
+                distro_identified = self.check_distro_file(
+                    distro_file, distro_identified)
 
-        if distroIdentified is None:
-            distroIdentified = 'unknown'
-            self.product='unknown'
+        if distro_identified is None:
+            distro_identified = 'unknown'
+            self.product = 'unknown'
 
-        elif distroIdentified == 'debian':
+        elif distro_identified == 'debian':
             # are we debian or knoppix?
-            knoppixRet = os.system("grep -q -s -i knoppix /etc/init")
-            if knoppixRet == 0:
-                distroIdentified = "knoppix"
+            knoppix_ret = os.system("grep -q -s -i knoppix /etc/init")
+            if knoppix_ret == 0:
+                distro_identified = "knoppix"
 
-        elif distroIdentified == 'vshield':
+        elif distro_identified == 'vshield':
             # are we version 1.0 or a later version?
-            if os.system("grep -q -s -F 'update-package=vshield' /etc/release") != 0:
-                distroIdentified = "vshield-1.0"
+            if os.system(
+                    "grep -q -s -F 'update-package =vshield' /etc/release") != 0:
+                distro_identified = "vshield-1.0"
 
-        return distroIdentified
+        return distro_identified
 
-    def checkDistroFile(self,distroFile,distroIdentified):
+    def check_distro_file(self, distro_file, distro_identified):
         """Check a file to see if it describes the distro"""
 
-        if not os.path.exists(distroFile):
-            return distroIdentified
-        checkFile = open(distroFile)
-        originalContents = string.strip(checkFile.readline())
-        checkFile.close()
+        if not os.path.exists(distro_file):
+            return distro_identified
+        check_file = open(distro_file)
+        original_contents = string.strip(check_file.readline())
+        check_file.close()
         # Lowercase and strip spaces to match map table content
-        checkContents = string.lower(originalContents)
-        checkContents = string.replace(checkContents," ","")
+        check_contents = string.lower(original_contents)
+        check_contents = string.replace(check_contents, " ", "")
 
         # conversion mapping between string at start of file and distro name
 
-        for distroString in DISTRIBUTION_NAME_MAP.keys():
-            if checkContents.startswith(distroString):
-                if distroIdentified is not None:
-                    if distroIdentified != DISTRIBUTION_NAME_MAP[distroString]:
+        for distro_string in DISTRIBUTION_NAME_MAP:
+            if check_contents.startswith(distro_string):
+                if distro_identified is not None:
+                    if distro_identified != DISTRIBUTION_NAME_MAP[distro_string]:
                         # Ambiguous distro!
                         if self.ambiguous is None:
-                            self.ambiguous = [ distroIdentified ]
-                        self.ambiguous = self.ambiguous + [ DISTRIBUTION_NAME_MAP[distroString] ]
-                        distroIdentified = 'unknown'
+                            self.ambiguous = [distro_identified]
+                        self.ambiguous = self.ambiguous + \
+                            [DISTRIBUTION_NAME_MAP[distro_string]]
+                        distro_identified = 'unknown'
                         self.product = 'unknown'
                 else:
-                    distroIdentified = DISTRIBUTION_NAME_MAP[distroString]
-                    self.product = originalContents
-        return distroIdentified
+                    distro_identified = DISTRIBUTION_NAME_MAP[distro_string]
+                    self.product = original_contents
+        return distro_identified
 
-
-    def detectKernel(self):
+    def detect_kernel(self):
         '''
         Detect the name of the kernel we are running on.
         '''
 
-        ## TODO - Solaris/Unix detection
         if os.path.isfile('/proc/version'):
-            versionFile = open('/proc/version', 'r')
-            version = versionFile.readline()
-            versionFile.close()
-            if version == None:
+            version_file = open('/proc/version', 'r')
+            version = version_file.readline()
+            version_file.close()
+            if version is None:
                 raise TargetDetectionException('exc-kernel-unknown')
-            detectedVersion = string.split(version)
-            if (len(detectedVersion) < 3) or (detectedVersion[2] == ''):
+            detected_version = string.split(version)
+            if (len(detected_version) < 3) or (detected_version[2] == ''):
                 raise TargetDetectionException('exc-kernel-unknown')
-            return detectedVersion[2]
+            return detected_version[2]
         else:
             return "Unknown"
 
-    def detectVersion(self):
+    def detect_version(self):
         '''
         Detect the version of the kernel we are running on.
         '''
 
         return self.uname[3]
 
-    def detectIsEC2Instance(self):
+    def detect_is_ec2_instance(self):
+        """
+        does something
+        :return:
+        """
         try:
             if "ec2" in open("/sys/hypervisor/uuid").read():
                 return True
@@ -449,118 +508,123 @@ class TargetSystem(object):
         except EnvironmentError:
             pass
 
-
         try:
-            ## Don't try two dmidecodes if the first gives an error
-            devnull = open("/dev/null","wb")
-            results = subprocess.check_output(args=["dmidecode", "--string", "system-uuid"],stderr=devnull)
-            if results.startswith("EC2"):
+            # Don't try two dmidecodes if the first gives an error
+            devnull = open("/dev/null", "wb")
+            results1 = subprocess.check_output(
+                args=[
+                    "dmidecode",
+                    "--string",
+                    "system-uuid"],
+                stderr=devnull)
+            results2 = subprocess.check_output(
+                args=["dmidecode", "-s", "bios-version"], stderr=devnull)
+            if results1.startswith("EC2") or "amazon" in results2:
                 return True
-            results = subprocess.check_output(args=["dmidecode", "-s", "bios-version"],stderr=devnull)
-            if "amazon" in results:
-                return True
-        except (subprocess.CalledProcessError,EnvironmentError):
+        except (subprocess.CalledProcessError, EnvironmentError):
             pass
 
         return False
 
-    def detectInstanceInfo(self, cached=True, installDir=None):
-        ## Assume anything non-Linux is not on AWS
-        if not self.isLinux:
+    def detect_instance_info(self, cached=True, install_dir=None):
+        """
+        does something
+        :return:
+        """
+        # Assume anything non-Linux is not on AWS
+        if not self.is_linux:
             return None
 
-        if installDir is None:
-            installDir = self.m_installDir
+        if install_dir is None:
+            install_dir = self.m_install_dir
 
-        amazon_info_path = os.path.join(installDir,"etc","amazon")
+        amazon_info_path = os.path.join(install_dir, "etc", "amazon")
 
         if cached and os.path.isfile(amazon_info_path):
             known_aws_instance = True
         else:
-            known_aws_instance = self.detectIsEC2Instance()
+            known_aws_instance = self.detect_is_ec2_instance()
 
         if known_aws_instance:
             try:
                 proxy_handler = urllib2.ProxyHandler({})
                 opener = urllib2.build_opener(proxy_handler)
-                aws_info_string = opener.open("http://169.254.169.254/latest/dynamic/instance-identity/document", timeout = 1).read()
+                aws_info_string = opener.open(
+                    "http://169.254.169.254/latest/dynamic/instance-identity/document",
+                    timeout=1).read()
                 aws_info = json.loads(aws_info_string)
-                return {"region" : aws_info["region"],
-                        "accountId" : aws_info["accountId"],
-                        "instanceId" : aws_info["instanceId"]
-                        }
+                return {"region": aws_info["region"],
+                        "accountId": aws_info["accountId"],
+                        "instanceId": aws_info["instanceId"]}
             except Exception:
                 return None
         else:
             return None
 
-    def detectSMP(self):
+    def detect_smp(self):
         '''
         Detect whether or not the current kernel is SMP enabled.
         '''
-        ## TODO - Solaris/Unix detection
         if os.path.isfile('/proc/version'):
-            versionFile = open('/proc/version', 'r')
-            version = versionFile.readline()
-            versionFile.close()
+            version_file = open('/proc/version', 'r')
+            version = version_file.readline()
+            version_file.close()
             if version is None:
                 raise TargetDetectionException('exc-kernel-unknown')
-            return string.find(version,'SMP') != -1
+            return string.find(version, 'SMP') != -1
         return False
 
-    def detectArchitecture(self):
+    def detect_architecture(self):
         '''
         Detect on which architecture we are running on.
         '''
         return self.uname[4]
 
-    def distroName(self):
+    def distro_name(self):
         '''
         Obtain the name distro that we are running on.
         '''
         return self.distro
 
-    def productName(self):
+    def product_name(self):
         '''
         Obtain the name product that we are running on.
         '''
         return self.product
 
-    def ambiguousDistroNames(self):
+    def ambiguous_distro_names(self):
         '''
         Provides the list of ambiguous distro identifications
         '''
         return self.ambiguous
 
-    def kernelName(self):
+    def kernel_name(self):
         '''
         Obtain the name kernel that we are running on.
         '''
         return self.kernel
 
-    def kernelVersion(self):
+    def kernel_version(self):
         '''
         Obtain version of the kernel that we are running on.
         '''
         return self.version
 
-    def kernelReleaseVersion(self):
+    def kernel_release_version(self):
         '''
         Obtain release version of the kernel that we are running on.
         '''
         return self.uname[2]
 
-
-    def kernelModuleSuffix(self):
+    def kernel_module_suffix(self):
         '''
         Returns a string containing the suffix to be used by kernel modules.
         '''
-        ## TODO: If we add kernel modules on other distributions
-        if not self.isLinux:
+        if not self.is_linux:
             return ""
         return '.ko'
 
-    def isSMP(self):
+    def is_smp(self):
         '''
         Is the kernel multi-processor?
         '''
@@ -572,187 +636,204 @@ class TargetSystem(object):
         '''
         return self.arch
 
-    def systemMap(self):
-        mapFile = '/boot/System.map-' + self.kernel
-        if os.path.isfile(mapFile):
-            return mapFile
+    def system_map(self):
+        """
+        does something
+        :return:
+        """
+        map_file = '/boot/System.map-' + self.kernel
+        if os.path.isfile(map_file):
+            return map_file
 
-        mapFile = '/boot/System.map'
-        if os.path.isfile(mapFile):
-            return mapFile
+        map_file = '/boot/System.map'
+        if os.path.isfile(map_file):
+            return map_file
 
-        g = '/boot/System.map-*-' + self.kernel
-        matches = glob.glob(g)
+        path = '/boot/System.map-*-' + self.kernel
+        matches = glob.glob(path)
         if len(matches) == 1 and os.path.isfile(matches[0]):
             return matches[0]
 
         return None
 
-
-    def getSymbolAddress(self,symbol):
+    def get_symbol_address(self, symbol):
         '''
         Returns the symbol address by looking in /boot/System.map for the running kernel.
         '''
-        mapFile = self.systemMap()
-        if mapFile is None:
+        map_file = self.system_map()
+        if map_file is None:
             return ''
         try:
-            mapHandle = open(mapFile, 'r')
+            map_handle = open(map_file, 'r')
         except EnvironmentError:
-            ## Ignore permissions errors - since when it matters we will have access
+            # Ignore permissions errors - since when it matters we will have
+            # access
             return ''
         address = ''
         while True:
-            line = mapHandle.readline().strip()
+            line = map_handle.readline().strip()
             if line == '':
-                    break
+                break
             tokens = string.split(line, ' ', 3)
             if tokens[2] == symbol:
                 address = '0x' + tokens[0]
                 break
-        mapHandle.close()
+        map_handle.close()
         return address
 
-    def syscallTableAddress(self):
+    def syscall_table_address(self):
         '''
         Returns the sys_call_table address for the running kernel.
         '''
-        return self.syscallTable
+        return self.syscall_table
 
-    def syscall32TableAddress(self):
+    def syscall_32_table_address(self):
         '''
         Returns the ia32_sys_call_table address for the running kernel. (if applicable)
         '''
-        return self.syscall32Table
+        return self.syscall_32_table
 
-    def getPlatform(self):
+    def get_platform(self):
         """
         Get the platform identifier
         """
         return self.platform
 
-    def getArchitecture(self):
+    def get_architecture(self):
         """
         Return the architecture, as needed by SAV.
         i.e.
-        x86 on Linux (TODO: AMD64)
+        x86 on Linux ( AMD64)
         x86 on Solaris Intel
         sparc on Solaris Sparc
         x86 on FreeBSD
         amd on FreeBSD
-        powerpc on AIX - fixed because python can't access the architecture - uname -m is broken vs. other Unix
+        powerpc on AIX - fixed because python can't access the architecture
+                       - uname -m is broken vs. other Unix
         """
-        platform = self.getPlatform()
+        platform = self.get_platform()
         if platform == "linux":
             return "x86"
         elif platform == "sunos":
-            arch = self.detectArchitecture()
-            if arch in ['i86pc','i386','i586']:
+            arch = self.detect_architecture()
+            if arch in ['i86pc', 'i386', 'i586']:
                 return "x86"
-            else:
-                return "sparc"
+            return "sparc"
         elif platform == "freebsd":
-            arch = self.detectArchitecture()
+            arch = self.detect_architecture()
             if arch in ['i386']:
                 return "x86"
-            else:
-                # TODO: amd_64? x86_64?
-                return "amd"
+            return "amd"
         elif platform == "aix":
             return "powerpc"
-        else:
-            return self.detectArchitecture()
+        return self.detect_architecture()
 
-    def getSubArchitecture(self):
+    def get_sub_architecture(self):
         """
         For Linux return 32 or 64 depending on architecture
         For others return ""
         """
-        if self.isLinux:
-            if self.arch in ["x86_64","amd64"]:
+        if self.is_linux:
+            if self.arch in ["x86_64", "amd64"]:
                 return "64"
             return "32"
         else:
             return ""
 
-    def getOSVersion(self):
+    def get_os_version(self):
         """
         Get the version of the operating system
         """
-        if self.isSolaris:
+        if self.is_solaris:
             return self.uname[2]
-        elif self.isUbuntu:
-            return self.m_lsb_release.get('Release',None)
+        elif self.is_ubuntu:
+            return self.m_lsb_release.get('Release', None)
 
         return None
 
-    def versionCompare(self, versionA, versionB):
+    def version_compare(self, version_a, version_b):
         """
         Compare two version numbers, splitting on dots.
         """
-        assert versionA is not None
-        assert versionB is not None
+        assert version_a is not None
+        assert version_b is not None
 
-        def ver(s):
-            r = []
-            for part in s.split("."):
+        def ver(version_string):
+            """
+            does something
+            :return:
+            """
+            result = []
+            for part in version_string.split("."):
                 try:
-                    r.append(int(part))
+                    result.append(int(part))
                 except ValueError:
-                    r.append(0)
-            return r
+                    result.append(0)
+            return result
 
-        a = ver(versionA)
-        b = ver(versionB)
-        return cmp(a,b)
+        vers_a = ver(version_a)
+        vers_b = ver(version_b)
+        return cmp(vers_a, vers_b)
 
-    def versionIsAtLeast(self, otherVersion):
+    def version_is_at_least(self, other_version):
         """
-        Check that the version of the OS that we are running on is at least otherVersion
+        Check that the version of the OS that we are running on is at least other_version
         """
-        osversion = self.getOSVersion()
-        if osversion is None:
-            print >>sys.stderr,"WARNING: No OS Version"
+        os_version = self.get_os_version()
+        if os_version is None:
+            print >>sys.stderr, "WARNING: No OS Version"
             return False
-        return self.versionCompare(osversion,otherVersion) >= 0
+        return self.version_compare(os_version, other_version) >= 0
 
-    def kernelVersionIsAtLeast(self, otherVersion):
+    def kernel_version_is_at_least(self, other_version):
         """
-        Check that the kernel version of the is at least otherVersion
+        Check that the kernel version of the is at least other_version
         """
-        kernelShortVersion = self.kernelReleaseVersion().split("-")[0]
-        if kernelShortVersion is None:
-            print >>sys.stderr,"WARNING: No kernel Version"
+        kernel_short_version = self.kernel_release_version().split("-")[0]
+        if kernel_short_version is None:
+            print >>sys.stderr, "WARNING: No kernel Version"
             return False
-        return self.versionCompare(kernelShortVersion,otherVersion) >= 0
+        return self.version_compare(kernel_short_version, other_version) >= 0
 
-    def glibcVersionIsAtLeast(self, otherVersion):
+    def glibc_version_is_at_least(self, other_version):
         """
-        Check that the kernel version of the is at least otherVersion
+        Check that the kernel version of the is at least other_version
         """
-        glibcVersion = self.getGlibcVersion()
-        if glibcVersion is None:
-            print >>sys.stderr,"WARNING: No glibc Version"
+        glibc_version = self.get_glibc_version()
+        if glibc_version is None:
+            print >>sys.stderr, "WARNING: No glibc Version"
             return False
-        return self.versionCompare(glibcVersion,otherVersion) >= 0
+        return self.version_compare(glibc_version, other_version) >= 0
 
-    def safeEnglishLocale(self, setlocale=False):
+    def safe_english_locale(self, set_locale=False):
         """
         Get a safe locale for English output
-        @param setlocale True = call setlocale to verify the locale is valid
+        @param set_locale True = call set_locale to verify the locale is valid
         """
-        if self.isSolaris and not self.versionIsAtLeast("5.10"):
-            l = ['en_US','en_US.UTF-8','en','en_GB','en_US.ISO8859-1','C']
+        if self.is_solaris and not self.version_is_at_least("5.10"):
+            locale_list = [
+                'en_US',
+                'en_US.UTF-8',
+                'en',
+                'en_GB',
+                'en_US.ISO8859-1',
+                'C']
         else:
-            l = ['en_US.UTF-8','en_US','en','en_GB','en_GB.UTF-8','en_US.ISO8859-1','C']
+            locale_list = ['en_US.UTF-8',
+                           'en_US',
+                           'en',
+                           'en_GB',
+                           'en_GB.UTF-8',
+                           'en_US.ISO8859-1',
+                           'C']
 
-        if setlocale:
+        if set_locale:
             import locale
 
-        for loc in l:
-            if setlocale:
+        for loc in locale_list:
+            if set_locale:
                 try:
-                    locale.setlocale(locale.LC_MONETARY,loc)
+                    locale.setlocale(locale.LC_MONETARY, loc)
                     return loc
                 except locale.Error:
                     continue
@@ -760,183 +841,263 @@ class TargetSystem(object):
                 return loc
         return "C"
 
-    def libraryExtension(self, name):
+    def library_extension(self, name):
         """
-        Return proper extension for shared library (or libraries if name is not given) on this platform
+        Return proper extension for shared library
+        (or libraries if name not given) on this platform
         """
-        if self.isHPUX:
-            if name == None:
+        if self.is_hpux:
+            if name is None:
                 return '.so'
             elif name.startswith('libsavi.'):
                 return '.sl'
-            else:
-                return '.so'
-        else:
             return '.so'
+        return '.so'
 
     def hostname(self):
+        """
+        does something
+        :return:
+        """
         hostname = self.uname[1].split(".")[0]
-        tenMins = 600
-        if (abs(time.time() - self.lastUnameSave) > tenMins or hostname == "localhost"):
-            self._saveUname()
+        ten_mins = 600
+        if (abs(time.time() - self.last_uname_save)
+                > ten_mins or hostname == "localhost"):
+            self._save_uname()
             hostname = self.uname[1].split(".")[0]
         return hostname
 
     def vendor(self):
+        """
+        does something
+        :return:
+        """
         if self.m_vendor is not None:
             return self.m_vendor
 
-        return self.distroName()
+        return self.distro_name()
 
-    def osVersion(self):
-        return self.m_osVersion
+    def os_version(self):
+        """
+        does something
+        :return:
+        """
+        return self.m_os_version
 
-    def __detectOsVersion(self):
-        if self.m_osVersion is not None:
-            ## Already detected
+    def __detect_os_version(self):
+        """
+        does something
+        :return:
+        """
+        if self.m_os_version is not None:
+            # Already detected
             return
 
-        NUMBER_BLOCK_RE = re.compile(r"\d+")
+        number_block_re = re.compile(r"\d+")
         if self.product is not None:
-            blocks = NUMBER_BLOCK_RE.findall(self.product)
-            if len(blocks) > 0:
-                self.m_osVersion = blocks
+            blocks = number_block_re.findall(self.product)
+            blocks_length = len(blocks)
+            if blocks_length > 0:
+                self.m_os_version = blocks
                 return
 
-        release = self.m_lsb_release.get("Release",None)
+        release = self.m_lsb_release.get("Release", None)
         if release is not None:
-            blocks = NUMBER_BLOCK_RE.findall(release)
-            if len(blocks) > 0:
-                self.m_osVersion = blocks
+            blocks = number_block_re.findall(release)
+            blocks_length = len(blocks)
+            if blocks_length > 0:
+                self.m_os_version = blocks
                 return
 
-        ## Final fall-back - use kernel version
-        (retCode,version) = self.__backtick(["uname", "-r"])
-        if retCode == 0:
-            self.m_osVersion = version.strip().split(".")
+        # Final fall-back - use kernel version
+        (ret_code, version) = self.__back_tick(["uname", "-r"])
+        if ret_code == 0:
+            self.m_os_version = version.strip().split(".")
             return
 
-        self.m_osVersion = ("","","")
+        self.m_os_version = ("", "", "")
 
-    def splitLddOutput(self, lddOutput):
-        return lddOutput.splitlines()[0].split()[-1]
+    def split_ldd_output(self, ldd_output):
+        """
+        does something
+        :return:
+        """
+        return ldd_output.splitlines()[0].split()[-1]
 
-    def getGlibcVersion(self):
+    def get_glibc_version(self):
+        """
+        does something
+        :return:
+        """
         try:
-            ldd = subprocess.Popen(("ldd", "--version"), stdout=subprocess.PIPE)
-            lddVersion = self.splitLddOutput(ldd.communicate()[0])
+            ldd = subprocess.Popen(
+                ("ldd", "--version"), stdout=subprocess.PIPE)
+            ldd_version = self.split_ldd_output(ldd.communicate()[0])
         except subprocess.CalledProcessError:
             pass
         except OSError:
             pass
-        return lddVersion
+        return ldd_version
 
-    def minimumSLSGlibcVersion(self):
+    def minimum_sls_glibc_version(self):
+        """
+        does something
+        :return:
+        """
         return "2.11"
 
-    def minimumSLSKernelVersion(self):
+    def minimum_sls_kernel_version(self):
+        """
+        does something
+        :return:
+        """
         return "2.6.32"
 
-    def checkGlibcVersionForSLS(self):
-        if self.glibcVersionIsAtLeast(self.minimumSLSGlibcVersion()):
+    def check_glibc_version_for_sls(self):
+        """
+        does something
+        :return:
+        """
+        if self.glibc_version_is_at_least(self.minimum_sls_glibc_version()):
             return True
         return False
 
-    def checkKernelVersionForSLS(self):
-        if self.kernelVersionIsAtLeast(self.minimumSLSKernelVersion()):
+    def check_kernel_version_for_sls(self):
+        """
+        does something
+        :return:
+        """
+        if self.kernel_version_is_at_least(self.minimum_sls_kernel_version()):
             return True
         return False
 
-    def checkArchitectureForSLS(self):
+    def check_architecture_for_sls(self):
+        """
+        does something
+        :return:
+        """
         if self.arch == "x86_64":
             return True
         return False
 
-    def checkIfUpdatableToSLS(self):
-        if self.isLinux:
-            self.m_upgradeResponse = []
+    def check_if_updatable_to_sls(self):
+        """
+        does something
+        :return:
+        """
+        if self.is_linux:
+            self.m_upgrade_response = []
             # Glibc - 2.11  #Kernel - 2.6.32  # AMD64 only
-            if not self.checkGlibcVersionForSLS():
-                self.m_upgradeResponse.append("Glibc version too low")
+            if not self.check_glibc_version_for_sls():
+                self.m_upgrade_response.append("Glibc version too low")
 
-            if not self.checkKernelVersionForSLS():
-                self.m_upgradeResponse.append("Kernel version too low")
+            if not self.check_kernel_version_for_sls():
+                self.m_upgrade_response.append("Kernel version too low")
 
-            if not self.checkArchitectureForSLS():
-                self.m_upgradeResponse.append("Not supported on 32 bit")
+            if not self.check_architecture_for_sls():
+                self.m_upgrade_response.append("Not supported on 32 bit")
 
-            if not self.m_upgradeResponse:
+            if not self.m_upgrade_response:
                 return True
 
         return False
 
-    def getUpgradeResponse(self):
-        return self.m_upgradeResponse
+    def get_upgrade_response(self):
+        """
+        does something
+        :return:
+        """
+        return self.m_upgrade_response
 
-    def getPlatformGUID(self):
+    def get_platform_guid(self):
         """
         Return the SAV (componentsuite) platform GUID
         """
-        if self.isLinux:
+        if self.is_linux:
             try:
-                overridePath = "/opt/sophos-svms/etc/sophos-update-product-guid"
-                statbuf = os.stat(overridePath)
-                if statbuf.st_uid == 0 and statbuf.st_gid == 0 and statbuf.st_mode & 0o002 == 0:
-                    data = open(overridePath).read().strip()
+                override_path = "/opt/sophos-svms/etc/sophos-update-product-guid"
+                stat_buf = os.stat(override_path)
+                if stat_buf.st_uid == 0 and stat_buf.st_gid == 0 and stat_buf.st_mode & 0o002 == 0:
+                    data = open(override_path).read().strip()
                     return data
             except EnvironmentError:
                 pass
 
             if self.distro == "vshield":
                 return "5B6B70A6-3C03-47EA-81D2-60C38376135F"
-            else:
-                return "5CF594B0-9FED-4212-BA91-A4077CB1D1F3"
-        elif self.isSolaris:
-            if self.getArchitecture() == "sparc":
+            return "5CF594B0-9FED-4212-BA91-A4077CB1D1F3"
+        elif self.is_solaris:
+            if self.get_architecture() == "sparc":
                 return "5CFA73B4-DBC2-4A70-8B18-C29AA9014C81"
-            else:
-                return "CF87F829-EA39-4D74-97F7-B849606F0044"
-        elif self.isHPUX:
+            return "CF87F829-EA39-4D74-97F7-B849606F0044"
+        elif self.is_hpux:
             return "905F6B56-DF17-4CF8-B413-7162F2D2DD3F"
-        elif self.isAIX:
+        elif self.is_aix:
             return "43F3AB41-6B33-40A7-8E99-22F237C97AB3"
 
         raise Exception("Not a supported platform")
 
+
 def printout(stream):
-    t = TargetSystem()
-    stream.write("Platform:            %s\n"%(t.platform))
-    stream.write("Distro Name:         "+str(t.distroName())+"\n")
-    productName = t.productName()
-    stream.write("Product Name:        "+str(productName)+"\n")
-    stream.write("Kernel Name:         "+str(t.kernelName())+"\n")
-    stream.write("Module suffix:       "+str(t.kernelModuleSuffix())+"\n")
-    stream.write("IsSMP:               "+str(t.isSMP())+"\n")
-    stream.write("Architecture:        "+str(t.architecture())+"\n")
-    stream.write("Version:             "+str(t.kernelVersion())+"\n")
-    stream.write("SystemMap:           "+str(t.systemMap())+"\n")
-    stream.write("SyscallTable:        "+str(t.syscallTableAddress())+"\n")
-    stream.write("PlatformGUID:        %s\n"%(t.getPlatformGUID()))
-    if t.architecture() == 'x86_64':
-        stream.write("IA32 SyscallTable:   "+str(t.syscall32TableAddress())+"\n")
-    if t.isLinux:
-        stream.write("Vendor:              %s\n"%(t.vendor()))
-        stream.write("isUbuntu:            %s\n"%(str(t.isUbuntu)))
-        stream.write("isRedhat:            %s\n"%(str(t.isRedhat)))
-        stream.write("use upstart:         %s\n"%(str(t.useUpstart)))
-        stream.write("use systemd:         %s\n"%(str(t.useSystemd)))
-        stream.write("has upstart:         %s\n"%(str(t.hasUpstart)))
-        stream.write("has systemd:         %s\n"%(str(t.hasSystemd)))
-        stream.write("using lsb_release:   %s\n"%(str(t.using_lsb_release())))
+    """
+    does something
+    :return:
+    """
+    target_system = TargetSystem()
+    stream.write("Platform:            %s\n" % (target_system.platform))
+    stream.write("Distro Name:         " +
+                 str(target_system.distro_name()) + "\n")
+    product_name = target_system.product_name()
+    stream.write("Product Name:        " + str(product_name) + "\n")
+    stream.write("Kernel Name:         " +
+                 str(target_system.kernel_name()) + "\n")
+    stream.write("Module suffix:       " +
+                 str(target_system.kernel_module_suffix()) + "\n")
+    stream.write("is_smp:               " + str(target_system.is_smp()) + "\n")
+    stream.write("Architecture:        " +
+                 str(target_system.architecture()) + "\n")
+    stream.write("Version:             " +
+                 str(target_system.kernel_version()) + "\n")
+    stream.write("system_map:           " +
+                 str(target_system.system_map()) + "\n")
+    stream.write("syscall_table:        " +
+                 str(target_system.syscall_table_address()) + "\n")
+    stream.write(
+        "PlatformGUID:        %s\n" %
+        (target_system.get_platform_guid()))
+    if target_system.architecture() == 'x86_64':
+        stream.write("IA32 syscall_table:   " +
+                     str(target_system.syscall_32_table_address()) + "\n")
+    if target_system.is_linux:
+        stream.write("Vendor:              %s\n" % (target_system.vendor()))
+        stream.write("is_ubuntu:            %s\n" %
+                     (str(target_system.is_ubuntu)))
+        stream.write("is_redhat:            %s\n" %
+                     (str(target_system.is_redhat)))
+        stream.write("use upstart:         %s\n" %
+                     (str(target_system.use_upstart)))
+        stream.write("use systemd:         %s\n" %
+                     (str(target_system.use_systemd)))
+        stream.write("has upstart:         %s\n" %
+                     (str(target_system.has_upstart)))
+        stream.write("has systemd:         %s\n" %
+                     (str(target_system.has_systemd)))
+        stream.write("using lsb_release:   %s\n" %
+                     (str(target_system.using_lsb_release())))
 
-    if t.ambiguousDistroNames() != None:
-        stream.write(str(t.ambiguousDistroNames())+"\n")
-    return (productName,t)
+    if target_system.ambiguous_distro_names() is not None:
+        stream.write(str(target_system.ambiguous_distro_names()) + "\n")
+    return (product_name, target_system)
 
 
-def main(argv):
+def main():
+    """
+    does something
+    :return:
+    """
     printout(sys.stdout)
     return 0
 
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())

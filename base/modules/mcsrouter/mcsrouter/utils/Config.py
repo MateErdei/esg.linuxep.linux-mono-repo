@@ -2,53 +2,55 @@
 
 import os
 
+
 class Config(object):
     """
     Simple key=value configuration file
     """
-    def __init__(self,filename=None,parentConfig=None):
+
+    def __init__(self, filename=None, parent_config=None):
         self.__m_options = {}
         self.load(filename)
         self.__m_filename = filename
-        self.__m_parentConfig = parentConfig
+        self.__m_parent_config = parent_config
 
     def set(self, key, value):
         self.__m_options[key] = value
 
-    def setDefault(self, key, value=None):
-        if not self.__m_options.has_key(key):
+    def set_default(self, key, value=None):
+        if key not in self.__m_options:
             self.__m_options[key] = value
 
     def remove(self, key):
-        return self.__m_options.pop(key,None) is not None
+        return self.__m_options.pop(key, None) is not None
 
     def get(self, key):
-        if self.__m_options.has_key(key):
+        if key in self.__m_options:
             return self.__m_options[key]
-        if self.__m_parentConfig is not None:
-            return self.__m_parentConfig.get(key)
-        return self.__m_options[key] ## KeyError
+        if self.__m_parent_config is not None:
+            return self.__m_parent_config.get(key)
+        return self.__m_options[key]  # KeyError
 
-    def getDefault(self, key, defaultValue=None):
-        if self.__m_options.has_key(key):
+    def get_default(self, key, default_value=None):
+        if key in self.__m_options:
             return self.__m_options[key]
-        if self.__m_parentConfig is not None:
-            return self.__m_parentConfig.getDefault(key,defaultValue)
-        return defaultValue
+        if self.__m_parent_config is not None:
+            return self.__m_parent_config.get_default(key, default_value)
+        return default_value
 
-    def getBool(self, key, defaultValue=True):
-        val = self.getDefault(key, defaultValue)
-        if val in (True,"1","true","True"):
+    def get_bool(self, key, default_value=True):
+        val = self.get_default(key, default_value)
+        if val in (True, "1", "true", "True"):
             return True
-        if val in (False,"0","false","False"):
+        if val in (False, "0", "false", "False"):
             return False
-        return defaultValue
+        return default_value
 
-    def getInt(self, key, defaultValue=0):
+    def get_int(self, key, default_value=0):
         try:
-            return int(self.getDefault(key,defaultValue))
+            return int(self.get_default(key, default_value))
         except ValueError:
-            return defaultValue
+            return default_value
 
     def save(self, filename=None, mode=0o600):
         if filename is None:
@@ -56,11 +58,11 @@ class Config(object):
         assert filename is not None
         old_umask = os.umask(0o777 ^ mode)
         try:
-            f = open(filename,"w")
-            os.chmod(filename,mode)
-            for (key,value) in self.__m_options.iteritems():
-                f.write("%s=%s\n"%(key,value))
-            f.close()
+            file_to_write = open(filename, "w")
+            os.chmod(filename, mode)
+            for (key, value) in self.__m_options.iteritems():
+                file_to_write.write("%s=%s\n" % (key, value))
+            file_to_write.close()
         finally:
             os.umask(old_umask)
         self.__m_filename = filename
@@ -72,13 +74,12 @@ class Config(object):
         if not os.path.isfile(filename):
             return
 
-        f = open(filename)
-        lines = f.readlines()
-        f.close()
+        file_to_read = open(filename)
+        lines = file_to_read.readlines()
+        file_to_read.close()
 
         for line in lines:
             line = line.strip()
             if "=" in line:
-                (key,value) = line.split("=",1)
-                self.set(key,value)
-
+                (key, value) = line.split("=", 1)
+                self.set(key, value)

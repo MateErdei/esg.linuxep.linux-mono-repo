@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function,division,unicode_literals
+from __future__ import print_function, division, unicode_literals
 
 import gc
 import sys
@@ -16,57 +16,59 @@ import __builtin__
 import utils.PathManager as PathManager
 
 
-
-logger = logging.getLogger(__name__ if __name__ != "__main___" else "mcsrouter")
-LOG_LEVEL_DEFAULT="INFO"
+logger = logging.getLogger(__name__ if __name__ !=
+                           "__main___" else "mcsrouter")
+LOG_LEVEL_DEFAULT = "INFO"
 
 __builtin__.__dict__['REGISTER_MCS'] = False
 
 import utils.Config
 import SophosHTTPS
 
+
 class PidFile(object):
-    def __safemakedirs(self, path):
+    def __safe_make_dirs(self, path):
         try:
             os.makedirs(path)
-        except EnvironmentError as e:
-            if e.errno == 17:
+        except EnvironmentError as exception:
+            if exception.errno == 17:
                 return
             else:
                 raise
 
-    def __init__(self, installDir):
-        PathManager.INST = installDir
-        self.__m_pidfilePath = PathManager.mcsrouterPidFile()
-        self.__safemakedirs(os.path.dirname(self.__m_pidfilePath))
-        if os.path.isfile(self.__m_pidfilePath):
+    def __init__(self, install_dir):
+        PathManager.INST = install_dir
+        self.__m_pid_file_path = PathManager.mcs_router_pid_file()
+        self.__safe_make_dirs(os.path.dirname(self.__m_pid_file_path))
+        if os.path.isfile(self.__m_pid_file_path):
             logger.warning("Previous mcsrouter not shutdown cleanly")
 
-        self.__m_pidfile = open(self.__m_pidfilePath,"w")
+        self.__m_pid_file = open(self.__m_pid_file_path, "w")
         try:
-            fcntl.lockf(self.__m_pidfile,fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.lockf(self.__m_pid_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError:
             logger.error("mcsrouter already running")
             raise
 
-        ## Set close on exec so that pid file is closed in child processes
-        flags = fcntl.fcntl(self.__m_pidfile, fcntl.F_GETFD)
-        fcntl.fcntl(self.__m_pidfile, fcntl.F_SETFD, flags | fcntl.FD_CLOEXEC)
+        # Set close on exec so that pid file is closed in child processes
+        flags = fcntl.fcntl(self.__m_pid_file, fcntl.F_GETFD)
+        fcntl.fcntl(self.__m_pid_file, fcntl.F_SETFD, flags | fcntl.FD_CLOEXEC)
 
-        self.__m_pidfile.write("%d\n"%(os.getpid()))
-        self.__m_pidfile.flush()
+        self.__m_pid_file.write("%d\n" % (os.getpid()))
+        self.__m_pid_file.flush()
 
         self.__m_pid = os.getpid()
 
     def exit(self):
-        fcntl.lockf(self.__m_pidfile,fcntl.LOCK_UN)
-        self.__m_pidfile.close()
+        fcntl.lockf(self.__m_pid_file, fcntl.LOCK_UN)
+        self.__m_pid_file.close()
         if self.__m_pid == os.getpid():
-            os.unlink(self.__m_pidfilePath)
+            os.unlink(self.__m_pid_file_path)
         else:
-            logger.warning("not removing mcsrouter pidfile")
+            logger.warning("not removing mcsrouter pid_file")
 
-def createDaemon():
+
+def create_daemon():
     """Detach a process from the controlling terminal and run it in the
     background as a daemon.
     """
@@ -79,8 +81,9 @@ def createDaemon():
         # the child gets a new PID, making it impossible for its PID to equal its
         # PGID.
         pid = os.fork()
-    except OSError as e:
-        return (e.errno, e.strerror)     # ERROR (return a tuple)
+    except OSError as exception:
+        # ERROR (return a tuple)
+        return (exception.errno, exception.strerror)
 
     if pid == 0:       # The first child.
 
@@ -104,93 +107,101 @@ def createDaemon():
             # fork guarantees that the child is no longer a session leader, thus
             # preventing the daemon from ever acquiring a controlling terminal.
             pid = os.fork()        # Fork a second child.
-        except OSError as e:
-            return (e.errno, e.strerror)  # ERROR (return a tuple)
+        except OSError as exception:
+            # ERROR (return a tuple)
+            return (exception.errno, exception.strerror)
 
         if pid == 0:      # The second child.
             # Set secure permissions
             os.umask(0o177)
             # Close file handles
             try:
-                fd = os.open("/dev/null", os.O_RDONLY)
-                if fd != 0:
-                    os.dup2(fd,0)
-                    os.close(fd)
+                file_descriptor = os.open("/dev/null", os.O_RDONLY)
+                if file_descriptor != 0:
+                    os.dup2(file_descriptor, 0)
+                    os.close(file_descriptor)
             except Exception:
-                pass ## ignore error closing stdin
-            ## Returns
+                pass  # ignore error closing stdin
+            # Returns
         else:
-            os._exit(0)      # Exit parent (the first child) of the second child.
+            # Exit parent (the first child) of the second child.
+            os._exit(0)
     else:
         return pid
 
     return 0
 
-def daemonise():
-    pid = createDaemon()
 
-    if isinstance(pid,tuple):
-        ## Error
+def daemonise():
+    pid = create_daemon()
+
+    if isinstance(pid, tuple):
+        # Error
         return pid
     elif pid != 0:
-        ## parent
+        # parent
         try:
-            fd = os.open("/dev/null", os.O_RDONLY)
-            if fd != 0:
-                os.dup2(fd,0)
-                os.close(fd)
+            file_descriptor = os.open("/dev/null", os.O_RDONLY)
+            if file_descriptor != 0:
+                os.dup2(file_descriptor, 0)
+                os.close(file_descriptor)
         except Exception:
-            pass ## ignore error closing stdin
+            pass  # ignore error closing stdin
 
         os._exit(0)
 
+
 class SophosLogging(object):
-    def __init__(self, config, installDir):
-        PathManager.INST = installDir
-        logconfig = config.getDefault("LOGCONFIG", PathManager.logConfFile())
-        if os.path.isfile(logconfig):
-            logging.config.fileConfig(logconfig)
+    def __init__(self, config, install_dir):
+        PathManager.INST = install_dir
+        log_config = config.get_default(
+            "LOGCONFIG", PathManager.log_conf_file())
+        if os.path.isfile(log_config):
+            logging.config.file_config(log_config)
             return
 
-        ## Configure directly
-        loglevelStr = config.getDefault("LOGLEVEL",LOG_LEVEL_DEFAULT).upper()
-        loglevel = getattr(logging, loglevelStr, logging.INFO)
-        logfile = config.getDefault("LOGFILE", PathManager.mcsrouterLog())
+        # Configure directly
+        log_level_string = config.get_default(
+            "LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
+        log_level = getattr(logging, log_level_string, logging.INFO)
+        log_file = config.get_default("LOGFILE", PathManager.mcs_router_log())
 
-        rootLogger = logging.getLogger()
-        rootLogger.setLevel(loglevel)
+        root_logger = logging.getLogger()
+        root_logger.setLevel(log_level)
 
-        formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
-        fileHandler = logging.handlers.RotatingFileHandler(logfile,maxBytes=1024*1024,backupCount=5)
-        fileHandler.setFormatter(formatter)
+        formatter = logging.Formatter(
+            "%(asctime)s %(levelname)s %(name)s: %(message)s")
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file, maxBytes=1024 * 1024, backupCount=5)
+        file_handler.setFormatter(formatter)
 
-        rootLogger.addHandler(fileHandler)
+        root_logger.addHandler(file_handler)
 
+        if config.get_default("CONSOLE", "0") == "1":
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(formatter)
+            root_logger.addHandler(stream_handler)
 
-        if config.getDefault("CONSOLE","0") == "1":
-            streamHandler = logging.StreamHandler()
-            streamHandler.setFormatter(formatter)
-            rootLogger.addHandler(streamHandler)
+        envelope_file = config.get_default(
+            "ENVELOPE_LOG", PathManager.mcs_envelope_log())
 
-        envelopeFile = config.getDefault("ENVELOPE_LOG", PathManager.mcsenvelopeLog())
+        envelope_logger = logging.getLogger("ENVELOPES")
+        envelope_logger.propagate = False
 
-        envelopeLogger = logging.getLogger("ENVELOPES")
-        envelopeLogger.propagate = False
-
-
-        if envelopeFile == "":
-            envelopeLogger.setLevel(logging.CRITICAL)
+        if envelope_file == "":
+            envelope_logger.setLevel(logging.CRITICAL)
         else:
-            envelopeLogger.setLevel(loglevel)
+            envelope_logger.setLevel(log_level)
 
-            envelopeFileHandler = logging.handlers.RotatingFileHandler(envelopeFile,maxBytes=1024*1024,backupCount=3)
+            envelope_file_handler = logging.handlers.RotatingFileHandler(
+                envelope_file, maxBytes=1024 * 1024, backupCount=3)
 
             envelopeFormatter = logging.Formatter("%(asctime)s: %(message)s")
-            envelopeFileHandler.setFormatter(envelopeFormatter)
+            envelope_file_handler.setFormatter(envelopeFormatter)
 
-            envelopeLogger.addHandler(envelopeFileHandler)
+            envelope_logger.addHandler(envelope_file_handler)
 
-        logger.debug("Logging to %s",logfile)
+        logger.debug("Logging to %s", log_file)
         SophosHTTPS.logger = logging.getLogger("SophosHTTPS")
 
     def shutdown(self):
@@ -198,104 +209,116 @@ class SophosLogging(object):
 
 
 class MCSRouter(object):
-    def __init__(self, config, installDir):
+    def __init__(self, config, install_dir):
         self.__m_config = config
-        self.__m_installDir = installDir
+        self.__m_install_dir = install_dir
 
-    def __safeRunForever(self, proc):
+    def __safe_run_forever(self, proc):
         while True:
-            ## Clean exits do exit
+            # Clean exits do exit
             try:
                 return proc.run()
             except Exception:
-                logger.critical("Caught exception at top-level; re-running.",exc_info=True)
+                logger.critical(
+                    "Caught exception at top-level; re-running.",
+                    exc_info=True)
                 count = gc.collect()
-                logger.error("GC collected %d objects",count)
+                logger.error("GC collected %d objects", count)
                 time.sleep(60)
 
+        # noinspection PyUnreachableCode
         return 100
 
     def run(self):
         config = self.__m_config
-        installDir = self.__m_installDir
+        install_dir = self.__m_install_dir
         proc = None
         logger.info("Starting mcsrouter")
 
-        ## Turn off core files
+        # Turn off core files
         try:
-            if config.getDefault("SaveCore","0") == "1":
+            if config.get_default("SaveCore", "0") == "1":
                 logger.info("Enabling saving core files")
-                resource.setrlimit(resource.RLIMIT_CORE,(resource.RLIM_INFINITY,resource.RLIM_INFINITY))
+                resource.setrlimit(
+                    resource.RLIMIT_CORE,
+                    (resource.RLIM_INFINITY,
+                     resource.RLIM_INFINITY))
             else:
                 logger.info("Disabling core files")
-                resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+                resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
         except ValueError:
             logger.warning("Unable to set core file resource limit")
 
         import MCS
-        proc = MCS.MCS(config,installDir)
+        proc = MCS.MCS(config, install_dir)
 
         assert proc is not None
-        ret = self.__safeRunForever(proc)
+        ret = self.__safe_run_forever(proc)
         logger.warning("Exiting mcsrouter")
         return ret
 
-def createConfiguration(installDir, argv):
-    config = utils.Config.Config(PathManager.mcsrouterConf())
-    config.setDefault("LOGLEVEL",LOG_LEVEL_DEFAULT)
+
+def create_configuration(install_dir, argv):
+    config = utils.Config.Config(PathManager.mcs_router_conf())
+    config.set_default("LOGLEVEL", LOG_LEVEL_DEFAULT)
 
     for arg in argv[1:]:
         if arg.startswith("--"):
             arg = arg[2:]
         if "=" in arg:
-            (key,value) = arg.split("=",1)
-            config.set(key,value)
+            (key, value) = arg.split("=", 1)
+            config.set(key, value)
         elif arg == "-v":
-            config.set("LOGLEVEL","DEBUG")
+            config.set("LOGLEVEL", "DEBUG")
         elif arg == "console":
-            config.set("CONSOLE","1")
+            config.set("CONSOLE", "1")
         elif arg == "daemon":
-            config.set("DAEMON","1")
+            config.set("DAEMON", "1")
         elif arg == "no-daemon":
-            config.set("DAEMON","0")
+            config.set("DAEMON", "0")
     return config
-    
-def clearTmpDirectory():
-    tempDir = PathManager.tempDir()
-    if os.path.exists(tempDir):
-        for files in os.listdir(tempDir):
+
+
+def clear_tmp_directory():
+    temp_dir = PathManager.temp_dir()
+    if os.path.exists(temp_dir):
+        for files in os.listdir(temp_dir):
             try:
                 os.unlink(files)
             except (OSError, IOError):
                 pass
 
+
 def main(argv):
-    installDir = os.environ.get("INST",None)
-    if installDir is None:
+    install_dir = os.environ.get("INST_DIR", None)
+    if install_dir is None:
         # Go one directory up from the script's location
         arg0 = sys.argv[0]
-        scriptDir = os.path.dirname(os.path.realpath(arg0))
-        installDir = os.path.abspath(os.path.join(scriptDir, ".."))
-    PathManager.INST = installDir
-    clearTmpDirectory()
+        script_dir = os.path.dirname(os.path.realpath(arg0))
+        install_dir = os.path.abspath(os.path.join(script_dir, ".."))
+    PathManager.INST = install_dir
+    clear_tmp_directory()
     os.umask(0o177)
-    config = createConfiguration(installDir, argv)
+    config = create_configuration(install_dir, argv)
 
-    if config.getDefault("DAEMON","1") == "1":
+    if config.get_default("DAEMON", "1") == "1":
         daemonise()
 
-    sophosLogging = SophosLogging(config,installDir)
-    logger.info("Started with install directory set to " + installDir)
-    pidfile = PidFile(installDir)
+    sophos_logging = SophosLogging(config, install_dir)
+    logger.info("Started with install directory set to " + install_dir)
+    pid_file = PidFile(install_dir)
     try:
-        mgmt = MCSRouter(config,installDir)
+        mgmt = MCSRouter(config, install_dir)
         return mgmt.run()
     except Exception:
-        logger.critical("Caught exception at top-level; exiting.",exc_info=True)
+        logger.critical(
+            "Caught exception at top-level; exiting.",
+            exc_info=True)
         raise
     finally:
-        pidfile.exit()
-        sophosLogging.shutdown()
+        pid_file.exit()
+        sophos_logging.shutdown()
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

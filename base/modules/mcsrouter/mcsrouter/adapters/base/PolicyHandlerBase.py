@@ -2,77 +2,79 @@
 import logging
 logger = logging.getLogger(__name__)
 
-#~ import adapters.ConfigManager
+generic_true = (True, "true", "1")
+generic_false = (False, "false", "0")
 
-#~ import EventFactory
-
-TRUTHY = (True, "true","1")
-FALSEY = (False,"false","0")
 
 class PolicyHandlerBase(object):
-    def __init__(self, installDir):
-        #~ self.m_configManager = mcsrouter.adapters.ConfigManager.getGlobalConfigManager(installDir)
-        #~ self.__m_eventFactory = EventFactory.EventFactory()
+    def __init__(self, install_dir):
         pass
 
-    def configDiffers(self, path, flatConfig, debugAsWarning=False):
+    def config_differs(self, path, flat_config, debug_as_warning=False):
         raise NotImplementedError()
 
-        logdebug = logger.debug
-        if debugAsWarning:
-            logdebug = logger.warning
+        log_debug = logger.debug
+        if debug_as_warning:
+            log_debug = logger.warning
 
         layer = self.m_layer
-        (consoleLeaf,consoleSettings) = self.m_configManager.retrieve(layer+"/"+path)
-        (flatLeaf,flatSettings) = flatConfig.retrieve(path)
+        (console_leaf, console_settings) = self.m_config_manager.retrieve(
+            layer + "/" + path)
+        (flat_leaf, flat_settings) = flat_config.retrieve(path)
 
-        ## Some special cases to handle differences that don't matter between the interfaces
-        if len(consoleSettings) == 0 and len(flatSettings) == 0:
-            ## Empty lists are the same regardless
+        # Some special cases to handle differences that don't matter between
+        # the interfaces
+        if len(console_settings) == 0 and len(flat_settings) == 0:
+            # Empty lists are the same regardless
             return False
 
-        if consoleSettings == [""] and flatSettings == []:
+        if console_settings == [""] and flat_settings == []:
             return False
-        if consoleSettings == [] and flatSettings == [""]:
+        if console_settings == [] and flat_settings == [""]:
             return False
 
-        if flatLeaf != consoleLeaf:
-            logdebug("CONFIG differs - leaf vs. non-leaf - %s - %s vs %s",path, str(consoleSettings),str(flatSettings))
+        if flat_leaf != console_leaf:
+            log_debug(
+                "CONFIG differs - leaf vs. non-leaf - %s - %s vs %s",
+                path,
+                str(console_settings),
+                str(flat_settings))
             return True
 
-        if len(consoleSettings) == 1 and len(flatSettings) == 1:
-            if consoleSettings[0] in FALSEY and flatSettings[0] in FALSEY:
+        if len(console_settings) == 1 and len(flat_settings) == 1:
+            if console_settings[0] in generic_false and flat_settings[0] in generic_false:
                 return False
 
-            if consoleSettings[0] in TRUTHY and flatSettings[0] in TRUTHY:
+            if console_settings[0] in generic_true and flat_settings[0] in generic_true:
                 return False
 
-        if consoleSettings != flatSettings:
-            logdebug("CONFIG differs for %s - %s vs %s",path, str(consoleSettings),str(flatSettings))
-            flatConfig.debug()
+        if console_settings != flat_settings:
+            log_debug("CONFIG differs for %s - %s vs %s", path,
+                      str(console_settings), str(flat_settings))
+            flat_config.debug()
             return True
 
         return False
 
-    def isCompliant(self):
+    def is_compliant(self):
         """
         @return True if the endpoint is compliant with the policy
         """
         raise NotImplementedError()
 
         try:
-            self.m_configManager.openConnection()
+            self.m_config_manager.openConnection()
             try:
                 return self._checkCompliantWithOpenConnection()
             finally:
-                self.m_configManager.closeConnection()
+                self.m_config_manager.closeConnection()
         except mcsrouter.adapters.ConfigManager.ConfigManagerConnectionException:
-            ## Not compliant since savd isn't available
+            # Not compliant since savd isn't available
             return False
 
-    def sendSimpleEvent(self, action):
+    def send_simple_event(self, action):
         raise NotImplementedError()
 
-        eventFactory = self.__m_eventFactory
-        event = eventFactory.newSimpleEvent(action)
-        self.m_configManager.sendEvent(event)
+        event_factory = self.__m_event_factory
+        event = event_factory.newSimpleEvent(action)
+        self.m_config_manager.sendEvent(event)

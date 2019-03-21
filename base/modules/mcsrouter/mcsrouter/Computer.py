@@ -2,7 +2,7 @@
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-from __future__ import print_function,division,unicode_literals
+from __future__ import print_function, division, unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,84 +15,87 @@ class Computer(object):
     """
     Class that represents a computer with adapters and a connection to a management service
     """
-    def __init__(self, statusCache=None):
+
+    def __init__(self, status_cache=None):
         self.__m_adapters = {}
         self.__m_commands = []
-        self.__m_statusCache = statusCache or StatusCache.StatusCache()
+        self.__m_status_cache = status_cache or StatusCache.StatusCache()
 
-    def addAdapter(self, adapter):
-        appId = adapter.getAppId()
-        logger.info("Adding %s adapter", appId)
-        self.__m_adapters[appId] = adapter
+    def add_adapter(self, adapter):
+        app_id = adapter.get_app_id()
+        logger.info("Adding %s adapter", app_id)
+        self.__m_adapters[app_id] = adapter
 
-    def removeAdapterByAppId(self, appId):
+    def remove_adapter_by_app_id(self, app_id):
         try:
-            del self.__m_adapters[appId]
-        except Exception as ex:
-            logger.warning('Failed to remove adapter: ' + str(ex))
+            del self.__m_adapters[app_id]
+        except Exception as exception:
+            logger.warning('Failed to remove adapter: ' + str(exception))
 
-    def getTimestamp(self):
+    def get_timestamp(self):
         return utils.Timestamp.timestamp()
 
-    def fillStatusEvent(self, statusEvent):
+    def fill_status_event(self, status_event):
         """
         Return True if any adapter's status has changed
         """
-        ## Enumerate adapters statuses - including self
+        # Enumerate adapters statuses - including self
         changed = False
         for adapter in self.__m_adapters.values():
-            statusXml = adapter.getStatusXml()
-            if statusXml is None:
-                ## No status for this adapter
+            status_xml = adapter.get_status_xml()
+            if status_xml is None:
+                # No status for this adapter
                 continue
 
-            if not self.__m_statusCache.hasStatusChangedAndRecord(adapter.getAppId(),statusXml):
-                ## Status for this adapter hasn't actually changed
+            if not self.__m_status_cache.has_status_changed_and_record(
+                    adapter.get_app_id(), status_xml):
+                # Status for this adapter hasn't actually changed
                 continue
 
-            logger.info("Sending status for %s adapter", adapter.getAppId())
+            logger.info("Sending status for %s adapter", adapter.get_app_id())
 
-            ## Status has changed so add it to the message
-            statusEvent.addAdapter(
-                    adapter.getAppId(),
-                    adapter.getStatusTTL(),
-                    self.getTimestamp(),
-                    statusXml)
+            # Status has changed so add it to the message
+            status_event.add_adapter(
+                adapter.get_app_id(),
+                adapter.get_status_ttl(),
+                self.get_timestamp(),
+                status_xml)
 
             changed = True
 
         return changed
 
-    def hasStatusChanged(self):
+    def has_status_changed(self):
         for adapter in self.__m_adapters.values():
-            if adapter.hasNewStatus():
+            if adapter.has_new_status():
                 return True
         return False
 
-    def directCommand(self, command):
-        appid = command.getAppId()
-        adapter = self.__m_adapters.get(appid, None)
+    def direct_command(self, command):
+        app_id = command.get_app_id()
+        adapter = self.__m_adapters.get(app_id, None)
         if adapter is not None:
-            return adapter.processCommand(command)
-        logger.error("No adapter for %s",appid)
+            return adapter.process_command(command)
+        logger.error("No adapter for %s", app_id)
         command.complete()
         return []
 
-    def processLogEvent(self, event):
-        logger.debug("received log event: %s",";".join([m.msgid for m in event.getMessages()]))
+    def process_log_event(self, event):
+        logger.debug("received log event: %s", ";".join(
+            [m.msgid for m in event.getMessages()]))
 
         for adapter in self.__m_adapters.values():
             if adapter == self:
                 continue
-            xml = adapter.processLogEvent(event)
+            xml = adapter.process_log_event(event)
             if xml is not None:
-                return (adapter.getAppId(),xml)
-        return (None,None)
+                return (adapter.get_app_id(), xml)
+        return (None, None)
 
-    def getAppIds(self):
+    def get_app_ids(self):
         return self.__m_adapters.keys()
 
-    def runCommands(self, commands):
+    def run_commands(self, commands):
         self.__m_commands += commands
 
         if len(self.__m_commands) == 0:
@@ -105,17 +108,18 @@ class Computer(object):
             logger.debug("  %s", str(command))
             n = None
             try:
-                n = self.directCommand(command)
+                n = self.direct_command(command)
             except Exception:
                 logger.warning("Failed to execute command: %s", str(command))
                 self.__m_commands.append(command)
                 raise
 
             if n is not None:
-                # Put new commands first, so that we process, e.g. UpdatePolicy before UpdateNow
+                # Put new commands first, so that we process, e.g. UpdatePolicy
+                # before UpdateNow
                 self.__m_commands = n + self.__m_commands
 
         return True
 
-    def clearCache(self):
-        self.__m_statusCache.clearCache()
+    def clear_cache(self):
+        self.__m_status_cache.clear_cache()

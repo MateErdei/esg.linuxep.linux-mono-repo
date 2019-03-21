@@ -1,6 +1,7 @@
 import time
 
-counter=0
+counter = 0
+
 
 def id():
     """
@@ -11,4 +12,4 @@ def id():
     global counter
     c = counter
     counter += 1
-    return time.strftime("%Y%m%d%H%M%S",time.gmtime(t))+"%04x"%c
+    return time.strftime("%Y%m%d%H%M%S", time.gmtime(t)) + "%04x" % c

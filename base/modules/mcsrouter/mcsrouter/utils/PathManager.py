@@ -2,127 +2,179 @@ import os
 
 INST = os.environ.get('INST_DIR', '/tmp/sophos-spl')
 
-def installDir():
+
+def install_dir():
     return INST
 
-#base
-def basePath():
-    return os.path.join(installDir(), 'base')
+# base
 
-#update
-def updatePath():
-    return os.path.join(basePath(), 'update')
 
-def updateVarPath():
-    return os.path.join(updatePath(), 'var')
+def base_path():
+    return os.path.join(install_dir(), 'base')
 
-#base/mcs
-def mcsPath():
-    return os.path.join(basePath(), 'mcs')
+# update
 
-def rootCaPath():
-    return os.path.join(mcsPath(), "certs/mcs_rootca.crt")
 
-#base/mcs/action
-def actionDir():
-    return os.path.join(mcsPath(), 'action')
+def update_path():
+    return os.path.join(base_path(), 'update')
 
-#base/mcs/event
-def eventDir():
-    return os.path.join(mcsPath(), 'event')
 
-#base/mcs/policy
-def policyDir():
-    return os.path.join(mcsPath(), 'policy')
+def update_var_path():
+    return os.path.join(update_path(), 'var')
 
-def mcsPolicyFile():
-    return os.path.join(policyDir(), "MCS-25_policy.xml")
+# base/mcs
 
-def sophosConfigFile():
-    return os.path.join(policyDir(), "sophos.config")
 
-#base/mcs/status
-def statusDir():
-    return os.path.join(mcsPath(), 'status')
+def mcs_path():
+    return os.path.join(base_path(), 'mcs')
 
-#base/pluginRegistry
-def pluginRegistryPath():
-    return os.path.join(basePath(), "pluginRegistry")
 
-#base/var/run/sophosspl
-def getVarRunDir():
-    return os.path.join(basePath(), "var", "run", "sophosspl")
+def root_ca_path():
+    return os.path.join(mcs_path(), "certs/mcs_rootca.crt")
 
-def getUpdateLastEventFile():
-    return os.path.join(getVarRunDir(), "update.last_event")
+# base/mcs/action
 
-#etc
-def etcDir():
-    return os.path.join(basePath(), "etc")
 
-def rootConfig():
-    return os.path.join(etcDir(),"mcs.config")
+def action_dir():
+    return os.path.join(mcs_path(), 'action')
 
-def logConfFile():
-    return os.path.join( etcDir(),"mcsrouter.log.conf")
+# base/mcs/event
 
-def mcsrouterConf():
-    return os.path.join( etcDir(),"mcsrouter.conf")
 
-#etc/sophosspl
+def event_dir():
+    return os.path.join(mcs_path(), 'event')
+
+# base/mcs/policy
+
+
+def policy_dir():
+    return os.path.join(mcs_path(), 'policy')
+
+
+def mcs_policy_file():
+    return os.path.join(policy_dir(), "MCS-25_policy.xml")
+
+
+def sophos_config_file():
+    return os.path.join(policy_dir(), "sophos.config")
+
+# base/mcs/status
+
+
+def status_dir():
+    return os.path.join(mcs_path(), 'status')
+
+# base/pluginRegistry
+
+
+def plugin_registry_path():
+    return os.path.join(base_path(), "pluginRegistry")
+
+# base/var/run/sophosspl
+
+
+def get_var_run_dir():
+    return os.path.join(base_path(), "var", "run", "sophosspl")
+
+
+def get_update_last_event_file():
+    return os.path.join(get_var_run_dir(), "update.last_event")
+
+# etc
+
+
+def etc_dir():
+    return os.path.join(base_path(), "etc")
+
+
+def root_config():
+    return os.path.join(etc_dir(), "mcs.config")
+
+
+def log_conf_file():
+    return os.path.join(etc_dir(), "mcsrouter.log.conf")
+
+
+def mcs_router_conf():
+    return os.path.join(etc_dir(), "mcsrouter.conf")
+
+# etc/sophosspl
+
+
 def sophos_etc_dir():
-    return os.path.join(etcDir(), 'sophosspl')
+    return os.path.join(etc_dir(), 'sophosspl')
 
-def mcsPolicyConfig():
+
+def mcs_policy_config():
     return os.path.join(sophos_etc_dir(), "mcs_policy.config")
 
-def sophossplConfig():
+
+def sophosspl_config():
     return os.path.join(sophos_etc_dir(), "mcs.config")
 
-#logs/base
-def baseLogDir():
-    return os.path.join(installDir(), "logs", "base")
-
-def registerLog():
-    return os.path.join(baseLogDir(), "registerCentral.log")
-
-#logs/base/sophosspl
-def sophossplLogDir():
-    return os.path.join(baseLogDir(), "sophosspl")
-
-def mcsrouterLog():
-    return os.path.join(sophossplLogDir(), "mcsrouter.log")
-
-def mcsenvelopeLog():
-    return os.path.join(sophossplLogDir(), "mcs_envelope.log")
-
-#var
-def varDir():
-    return os.path.join(installDir(), 'var')
-
-#var/cache
-def cacheDir():
-    return os.path.join(varDir(), 'cache')
+# logs/base
 
 
-def fragmentedPoliciesDir():
-    return os.path.join(cacheDir(), "mcs_fragmented_policies")
+def base_log_dir():
+    return os.path.join(install_dir(), "logs", "base")
 
-#var/lock-sophosspl
+
+def register_log():
+    return os.path.join(base_log_dir(), "registerCentral.log")
+
+# logs/base/sophosspl
+
+
+def sophosspl_log_dir():
+    return os.path.join(base_log_dir(), "sophosspl")
+
+
+def mcs_router_log():
+    return os.path.join(sophosspl_log_dir(), "mcsrouter.log")
+
+
+def mcs_envelope_log():
+    return os.path.join(sophosspl_log_dir(), "mcs_envelope.log")
+
+# var
+
+
+def var_dir():
+    return os.path.join(install_dir(), 'var')
+
+# var/cache
+
+
+def cache_dir():
+    return os.path.join(var_dir(), 'cache')
+
+
+def fragmented_policies_dir():
+    return os.path.join(cache_dir(), "mcs_fragmented_policies")
+
+# var/lock-sophosspl
+
+
 def lock_sophos():
-    return os.path.join(varDir(), "lock-sophosspl")
+    return os.path.join(var_dir(), "lock-sophosspl")
 
 
-def mcsrouterPidFile():
+def mcs_router_pid_file():
     return os.path.join(lock_sophos(), "mcsrouter.pid")
 
-#tmp
-def tempDir():
-    return os.path.join(installDir(), 'tmp')
+# tmp
 
-#base/lib:base/lib64
-def getInstallationLibPath():
-    return os.path.join(installDir(),"base","lib")+":"+os.path.join(installDir(),"base","lib64")
 
-def wdctlBinPath():
-    return os.path.join(installDir(), "bin", "wdctl")
+def temp_dir():
+    return os.path.join(install_dir(), 'tmp')
+
+# base/lib:base/lib64
+
+
+def get_installation_lib_path():
+    return os.path.join(install_dir(), "base", "lib") + \
+        ":" + os.path.join(install_dir(), "base", "lib64")
+
+
+def wdctl_bin_path():
+    return os.path.join(install_dir(), "bin", "wdctl")

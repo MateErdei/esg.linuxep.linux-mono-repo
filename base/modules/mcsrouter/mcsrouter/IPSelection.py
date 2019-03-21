@@ -4,6 +4,7 @@ import socket
 import threading
 import IPAddress
 
+
 class IpLookupThread(threading.Thread):
     def __init__(self, server):
         super(IpLookupThread, self).__init__()
@@ -11,80 +12,95 @@ class IpLookupThread(threading.Thread):
 
     def run(self):
         try:
-            self.server["ips"] = list(set([i[4][0] for i in socket.getaddrinfo(self.server["hostname"], None)]))
+            self.server["ips"] = list(
+                set([i[4][0] for i in socket.getaddrinfo(self.server["hostname"], None)]))
         except socket.gaierror:
             pass
 
-def orderServersByKey(serverLocationList, keyString):
-    serverLocationList = sorted(serverLocationList, key=lambda k: k[keyString], reverse=False)
-    return serverLocationList
 
-def ipStringToInt(ipAddr, ipType):
-    if ipType == "ipv4":
-        return int(socket.inet_pton(socket.AF_INET, ipAddr).encode('hex'), 16)
-    return int(socket.inet_pton(socket.AF_INET6, ipAddr).encode('hex'), 16)
+def order_servers_by_key(server_location_list, key_string):
+    server_location_list = sorted(
+        server_location_list,
+        key=lambda k: k[key_string],
+        reverse=False)
+    return server_location_list
 
-def getIPAddressDistance(localIp, remoteIp, ipType="ipv4"):
-    if isinstance(localIp, str):
-        localIpInt = ipStringToInt(localIp, ipType)
+
+def ip_string_to_int(ip_addr, ip_type):
+    if ip_type == "ipv4":
+        return int(socket.inet_pton(socket.AF_INET, ip_addr).encode('hex'), 16)
+    return int(socket.inet_pton(socket.AF_INET6, ip_addr).encode('hex'), 16)
+
+
+def get_ip_address_distance(local_ip, remote_ip, ip_type="ipv4"):
+    if isinstance(local_ip, str):
+        local_ip_int = ip_string_to_int(local_ip, ip_type)
     else:
-        localIpInt = localIp
-    remoteIpInt = ipStringToInt(remoteIp, ipType)
-    return (localIpInt ^ remoteIpInt).bit_length()
+        local_ip_int = local_ip
+    remote_ip_int = ip_string_to_int(remote_ip, ip_type)
+    return (local_ip_int ^ remote_ip_int).bit_length()
 
-def getServerIpsFromHostname(serverLocationList):
-    maxLookupTimeout = 20
+
+def get_server_ips_from_hostname(server_location_list):
+    max_lookup_timeout = 20
 
     # Start an address resolution thread for each hostname
-    lookupThreads = []
-    for server in serverLocationList:
-        lookupThreads.append(IpLookupThread(server))
+    lookup_threads = []
+    for server in server_location_list:
+        lookup_threads.append(IpLookupThread(server))
 
-    for thread in lookupThreads:
+    for thread in lookup_threads:
         thread.daemon = True
         thread.start()
 
-    for thread in lookupThreads:
-        thread.join(maxLookupTimeout)
+    for thread in lookup_threads:
+        thread.join(max_lookup_timeout)
 
-    return [d for d in serverLocationList if 'ips' in d]
+    return [domain for domain in server_location_list if 'ips' in domain]
 
-def orderServersByIpAddressDistance(localIpv4s, localIpv6s, serverLocationList):
-    for server in serverLocationList:
-        min_dist = 1000   #Initialise min_dist with a big number
 
-        for remoteIp in server["ips"]:
+def order_servers_by_ip_address_distance(
+        local_ipv4s,
+        local_ipv6s,
+        server_location_list):
+    for server in server_location_list:
+        min_dist = 1000  # Initialise min_dist with a big number
+
+        for remote_ip in server["ips"]:
             # If ip contains a dot, it's ipv4
-            if "." in remoteIp:
-                for localIp in localIpv4s:
-                    dist = getIPAddressDistance(localIp, remoteIp)
+            if "." in remote_ip:
+                for local_ip in local_ipv4s:
+                    dist = get_ip_address_distance(local_ip, remote_ip)
                     if dist < min_dist:
                         min_dist = dist
             else:
-                for localIp in localIpv6s:
-                    dist = getIPAddressDistance(localIp, remoteIp, "ipv6")
+                for local_ip in local_ipv6s:
+                    dist = get_ip_address_distance(local_ip, remote_ip, "ipv6")
                     if dist < min_dist:
                         min_dist = dist
 
         server['dist'] = min_dist
-    serverLocationList = orderServersByKey(serverLocationList, 'dist')
-    return serverLocationList
+    server_location_list = order_servers_by_key(server_location_list, 'dist')
+    return server_location_list
 
-def evaluateAddressPreference(serverLocationList):
+
+def evaluate_address_preference(server_location_list):
     """
     Function takes a list of dictionaries with contents {hostname: <hostname>, priority: <priority>}
     and sorts them in terms of bit-wise similarity of IP address, and then priority
     """
-    if len(serverLocationList) < 2:
-        return serverLocationList
+    if len(server_location_list) < 2:
+        return server_location_list
 
-    #Order by IP address
-    localIpv4s = list(IPAddress.getNonLocalIPv4())
-    localIpv6s = [int(i, 16) for i in IPAddress.getNonLocalIPv6()]
-    serverLocationList = getServerIpsFromHostname(serverLocationList)
-    serverLocationList = orderServersByIpAddressDistance(localIpv4s, localIpv6s, serverLocationList)
+    # Order by IP address
+    local_ipv4s = list(IPAddress.get_non_local_ipv4())
+    local_ipv6s = [int(ipv6, 16) for ipv6 in IPAddress.get_non_local_ipv6()]
+    server_location_list = get_server_ips_from_hostname(server_location_list)
+    server_location_list = order_servers_by_ip_address_distance(
+        local_ipv4s, local_ipv6s, server_location_list)
 
-    #Order by priority
-    serverLocationList = orderServersByKey(serverLocationList, "priority")
+    # Order by priority
+    server_location_list = order_servers_by_key(
+        server_location_list, "priority")
 
-    return serverLocationList
+    return server_location_list

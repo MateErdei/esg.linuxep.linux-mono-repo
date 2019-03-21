@@ -4,6 +4,7 @@
 import time
 import sys
 
+
 class EventsTimer(object):
     """
     MCS protocol Specification 15.2.4:
@@ -24,56 +25,61 @@ class EventsTimer(object):
  to the server, the client shall be configurable with the maximum number of
  events it can provide in a single response.
     """
-    def __init__(self, regulationDelay=3,maxRegulationDelay=60,maxEvents=20):
-        self.__m_regulationDelay    = regulationDelay
-        self.__m_maxRegulationDelay = maxRegulationDelay
-        self.__m_maxEvents = maxEvents
-        self.__m_countEvents = 0
-        self.__m_nextTime = -1
-        self.__m_firstEventTime = -1
 
-    def relativeTime(self):
-        if self.__m_nextTime < 0:
-            return sys.maxint
+    def __init__(
+            self,
+            regulation_delay=3,
+            max_regulation_delay=60,
+            max_events=20):
+        self.__m_regulation_delay = regulation_delay
+        self.__m_max_regulation_delay = max_regulation_delay
+        self.__m_max_events = max_events
+        self.__m_count_events = 0
+        self.__m_next_time = -1
+        self.__m_first_event_time = -1
 
-        if self.__m_countEvents >= self.__m_maxEvents:
+    def relative_time(self):
+        if self.__m_next_time < 0:
+            return sys.maxsize
+
+        if self.__m_count_events >= self.__m_max_events:
             return 0
 
-        return self.__m_nextTime - time.time()
+        return self.__m_next_time - time.time()
 
-    def eventAdded(self):
-        self.__m_countEvents += 1
+    def event_added(self):
+        self.__m_count_events += 1
 
-        if self.__m_firstEventTime < 0:
-            ## First event to send
-            self.__m_firstEventTime = time.time()
-            self.__m_nextTime = time.time() + self.__m_regulationDelay
+        if self.__m_first_event_time < 0:
+            # First event to send
+            self.__m_first_event_time = time.time()
+            self.__m_next_time = time.time() + self.__m_regulation_delay
         else:
-            ## Another event in the regulation delay from the first event
-            self.__m_nextTime = min(
-                time.time() + self.__m_regulationDelay,
-                self.__m_firstEventTime + self.__m_maxRegulationDelay
-                )
+            # Another event in the regulation delay from the first event
+            self.__m_next_time = min(
+                time.time() + self.__m_regulation_delay,
+                self.__m_first_event_time + self.__m_max_regulation_delay
+            )
 
-    def eventsSent(self):
-        self.__m_countEvents = 0
-        self.__m_nextTime = -1
-        self.__m_firstEventTime = -1
+    def events_sent(self):
+        self.__m_count_events = 0
+        self.__m_next_time = -1
+        self.__m_first_event_time = -1
 
-    def errorSendingEvents(self):
+    def error_sending_events(self):
         """
         Error sending the events, so retry in 30 seconds
         """
-        self.__m_nextTime = time.time() + 30
+        self.__m_next_time = time.time() + 30
 
-    def sendEvents(self):
+    def send_events(self):
         """
         Should the pending events be sent
         """
-        if self.__m_nextTime < 0:
+        if self.__m_next_time < 0:
             return False
 
-        if self.__m_countEvents >= self.__m_maxEvents:
+        if self.__m_count_events >= self.__m_max_events:
             return True
 
-        return self.__m_nextTime < time.time()
+        return self.__m_next_time < time.time()

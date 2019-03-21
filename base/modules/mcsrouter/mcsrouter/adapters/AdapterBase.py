@@ -4,7 +4,7 @@ import xml.dom.minidom
 import logging
 logger = logging.getLogger(__name__)
 
-TEMPLATE_STATUS_AND_CONFIGURATION_XML="""<?xml version='1.0' encoding='utf-8'?>
+TEMPLATE_STATUS_AND_CONFIGURATION_XML = """<?xml version='1.0' encoding='utf-8'?>
 <StatusAndConfig>
 <status>
 </status>
@@ -13,68 +13,68 @@ TEMPLATE_STATUS_AND_CONFIGURATION_XML="""<?xml version='1.0' encoding='utf-8'?>
 </StatusAndConfig>
 """
 
+
 def remove_blanks(node):
-    for x in node.childNodes:
-        if x.nodeType == xml.dom.Node.TEXT_NODE:
-            if x.nodeValue:
-                x.nodeValue = x.nodeValue.strip()
-        elif x.nodeType == xml.dom.Node.ELEMENT_NODE:
-            remove_blanks(x)
+    for child_node in node.childNodes:
+        if child_node.nodeType == xml.dom.Node.TEXT_NODE:
+            if child_node.nodeValue:
+                child_node.nodeValue = child_node.nodeValue.strip()
+        elif child_node.nodeType == xml.dom.Node.ELEMENT_NODE:
+            remove_blanks(child_node)
+
 
 class AdapterBase(object):
-    def getStatusTTL(self):
+    def get_status_ttl(self):
         return 10000
 
-    def _setText(self, node, doc, value):
+    def _set_text(self, node, doc, value):
         text = doc.createTextNode(value)
         for child in node.childNodes:
             node.removeChild(child)
         node.appendChild(text)
 
-    def _setBoolean(self, node, doc, value):
+    def _set_boolean(self, node, doc, value):
         if value:
-            self._setText(node,doc,"true")
+            self._set_text(node, doc, "true")
         else:
-            self._setText(node,doc,"false")
+            self._set_text(node, doc, "false")
 
-
-    def _textNode(self, doc, name, value):
+    def _text_node(self, doc, name, value):
         element = doc.createElement(name)
         text = doc.createTextNode(value)
         element.appendChild(text)
         return element
 
-    def _addTextNode(self, doc, parentNode, nodeName, nodeValue):
-        node = self._textNode(doc, nodeName, nodeValue)
-        parentNode.appendChild(node)
+    def _add_text_node(self, doc, parent_node, node_name, node_value):
+        node = self._text_node(doc, node_name, node_value)
+        parent_node.appendChild(node)
 
-    def hasNewStatus(self):
-        return self._hasNewStatus()
+    def has_new_status(self):
+        return self._has_new_status()
 
-    def getStatusXml(self):
-        return self._getStatusAndConfigXml()
+    def get_status_xml(self):
+        return self.get_status_and_config_xml()
 
-    def _getStatusAndConfigXml(self):
-        status = self._getStatusXml()
+    def get_status_and_config_xml(self):
+        status = self._get_status_xml()
 
         if status is None:
             return None
 
-        doc = xml.dom.minidom.parseString(TEMPLATE_STATUS_AND_CONFIGURATION_XML)
+        doc = xml.dom.minidom.parseString(
+            TEMPLATE_STATUS_AND_CONFIGURATION_XML)
         remove_blanks(doc)
-        statusNode = doc.getElementsByTagName("status")[0]
-        self._setText(statusNode, doc, status)
-        configNode = doc.getElementsByTagName("configuration")[0]
-        self._setText(configNode, doc, self._getConfigXml())
+        status_node = doc.getElementsByTagName("status")[0]
+        self._set_text(status_node, doc, status)
+        config_node = doc.getElementsByTagName("configuration")[0]
+        self._set_text(config_node, doc, self._get_config_xml())
 
         output = doc.toxml(encoding="utf-8")
         doc.unlink()
-        #~ logger.warning("_getStatusAndConfigXml:%s",output)
         return output
 
-    def _getConfigXml(self):
+    def _get_config_xml(self):
         return ""
 
-    def processLogEvent(self, logevent):
+    def process_log_event(self):
         return None
-

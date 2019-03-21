@@ -16,62 +16,65 @@ NB: This is Linux specific at the moment.
 See test/mcsrouter/getip.py for some alternatives
 """
 
-def all_interfaces():
+
+def get_all_interfaces():
     is_64bits = sys.maxsize > 2**32
     struct_size = 40 if is_64bits else 32
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    max_possible = 8 # initial value
+    max_possible = 8  # initial value
     while True:
         bytes = max_possible * struct_size
         names = array.array('B', '\0' * bytes)
-        outbytes = struct.unpack('iL', fcntl.ioctl(
+        out_bytes = struct.unpack('iL', fcntl.ioctl(
             s.fileno(),
             0x8912,  # SIOCGIFCONF
             struct.pack('iL', bytes, names.buffer_info()[0])
         ))[0]
-        if outbytes == bytes:
+        if out_bytes == bytes:
             max_possible *= 2
         else:
             break
-    namestr = names.tostring()
-    return [(namestr[i:i+16].split('\0', 1)[0],
-             socket.inet_ntoa(namestr[i+20:i+24]))
-            for i in range(0, outbytes, struct_size)]
+    name_string = names.tostring()
+    return [(name_string[i:i + 16].split('\0', 1)[0],
+             socket.inet_ntoa(name_string[i + 20:i + 24]))
+            for i in range(0, out_bytes, struct_size)]
 
-def getNonLocalIPv4():
+
+def get_non_local_ipv4():
     """
     Generates all IPv4 addresses, that aren't in the 127.* range
     Starts with the best (eth, em) and gets worse (vmware etc).
     """
-    allinterfaces = all_interfaces()
-    if len(allinterfaces) == 0:
+    all_interfaces = get_all_interfaces()
+    if len(all_interfaces) == 0:
         return
 
     ip_ordering = []
-    for (i,ip) in allinterfaces:
-        if ip.startswith("127."):
+    for (index, ip_address) in all_interfaces:
+        if ip_address.startswith("127."):
             pass
-        elif i.startswith("eth"):
-            ip_ordering.append((0,i,ip))
-        elif i.startswith("em"):
-            ip_ordering.append((1,i,ip))
-        elif i.startswith("docker"):
-            ip_ordering.append((200,i,ip))
-        elif ip.startswith("172."):
-            ip_ordering.append((150,i,ip))
+        elif index.startswith("eth"):
+            ip_ordering.append((0, index, ip_address))
+        elif index.startswith("em"):
+            ip_ordering.append((1, index, ip_address))
+        elif index.startswith("docker"):
+            ip_ordering.append((200, index, ip_address))
+        elif ip_address.startswith("172."):
+            ip_ordering.append((150, index, ip_address))
         else:
-            ip_ordering.append((100,i,ip))
+            ip_ordering.append((100, index, ip_address))
 
     seen = {}
 
     ip_ordering.sort()
-    for (_,interface,ip) in ip_ordering:
-        if seen.get(ip,0) == 1:
+    for (_, interface, ip_address) in ip_ordering:
+        if seen.get(ip_address, 0) == 1:
             continue
-        seen[ip] = 1
-        yield ip
+        seen[ip_address] = 1
+        yield ip_address
 
-def getNonLocalIPv6():
+
+def get_non_local_ipv6():
     """
     Generates all IPv6 addresses, that aren't in the 127.* range
     Starts with the best (eth0) and gets worse (vmware etc).
@@ -83,54 +86,54 @@ def getNonLocalIPv6():
         return
 
     lines = data.splitlines()
-    m = {}
+    field = {}
     for line in lines:
         line = line.strip()
         fields = line.split()
-        m[fields[-1]] = fields[0]
+        field[fields[-1]] = fields[0]
 
-    ethips = []
-    otherips = []
-    for (d,ip) in m.iteritems():
+    ethernet_ips = []
+    other_ips = []
+    for (d, ip) in field.iteritems():
         if ip == "00000000000000000000000000000001":
             continue
         elif d.startswith("eth"):
-            ethips.append((d,ip))
+            ethernet_ips.append((d, ip))
         else:
-            otherips.append((d,ip))
+            other_ips.append((d, ip))
 
     seen = {}
 
-    ethips.sort()
-    for (device,ip) in ethips:
-        if seen.get(ip,0) == 1:
+    ethernet_ips.sort()
+    for (device, ip_address) in ethernet_ips:
+        if seen.get(ip_address, 0) == 1:
             continue
-        seen[ip] = 1
-        yield ip
+        seen[ip_address] = 1
+        yield ip_address
 
-    otherips.sort()
-    for (device,ip) in otherips:
-        if seen.get(ip,0) == 1:
+    other_ips.sort()
+    for (device, ip_address) in other_ips:
+        if seen.get(ip_address, 0) == 1:
             continue
-        seen[ip] = 1
-        yield ip
+        seen[ip_address] = 1
+        yield ip_address
 
 
-def getFQDN():
-    s = socket.getfqdn()
-    if "." in s:
-        return s
+def get_fqdn():
+    fqdn_socket = socket.getfqdn()
+    if "." in fqdn_socket:
+        return fqdn_socket
 
-    devnull = open(os.devnull, "wb")
+    dev_null = open(os.devnull, "wb")
     try:
-        output = subprocess.check_output(['hostname', '-f'], stderr=devnull)
+        output = subprocess.check_output(['hostname', '-f'], stderr=dev_null)
     except OSError:
-        ## hostname doesn't exist - got nothing better than s
-        return s
+        # hostname doesn't exist - got nothing better than s
+        return fqdn_socket
     except subprocess.CalledProcessError:
-        ## hostname -f returned an error - got nothing better than s
-        return s
+        # hostname -f returned an error - got nothing better than s
+        return fqdn_socket
     finally:
-        devnull.close()
+        dev_null.close()
 
     return output.strip()

@@ -7,9 +7,10 @@ import urllib2
 
 import SophosHTTPS
 
+
 class InvalidCertificateException(SophosHTTPS.InvalidCertificateException):
     pass
 
+
 class CertValidatingHTTPSConnection(SophosHTTPS.CertValidatingHTTPSConnection):
     pass
-

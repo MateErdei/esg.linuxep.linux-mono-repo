@@ -5,8 +5,7 @@ import os
 import xml.dom.minidom
 import httplib
 
-
-## urllib.parse in python 3
+# urllib.parse in python 3
 try:
     import urlparse
 except ImportError:
@@ -14,7 +13,7 @@ except ImportError:
 
 import logging
 logger = logging.getLogger(__name__)
-envelopeLogger = logging.getLogger("ENVELOPES")
+envelope_logger = logging.getLogger("ENVELOPES")
 
 import MCSCommands
 import MCSException
@@ -25,18 +24,23 @@ from mcsrouter import ProxyAuthorization
 import mcsrouter.utils.PathManager as PathManager
 
 
-splitHostPort = SophosHTTPS.splitHostPort
+split_host_port = SophosHTTPS.split_host_port
+
 
 class MCSHttpException(MCSException.MCSNetworkException):
-    def __init__(self, errorCode, headers, body):
-        super(MCSHttpException, self).__init__("MCS HTTP Error: code=%d"%(errorCode))
-        self.m_httpErrorCode = errorCode
+    def __init__(self, error_code, headers, body):
+        super(
+            MCSHttpException,
+            self).__init__(
+            "MCS HTTP Error: code=%d" %
+            (error_code))
+        self.m_http_error_code = error_code
         self.__m_headers = headers
         self.__m_body = body
-        self.__m_currentPath = None
+        self.__m_current_path = None
 
-    def errorCode(self):
-        return self.m_httpErrorCode
+    def error_code(self):
+        return self.m_http_error_code
 
     def headers(self):
         return self.__m_headers
@@ -44,11 +48,13 @@ class MCSHttpException(MCSException.MCSNetworkException):
     def body(self):
         return self.__m_body
 
+
 class MCSHttpGatewayTimeoutException(MCSHttpException):
     """
     504
     """
     pass
+
 
 class MCSHttpServiceUnavailableException(MCSHttpException):
     """
@@ -56,176 +62,216 @@ class MCSHttpServiceUnavailableException(MCSHttpException):
     """
     pass
 
+
 class MCSHttpUnauthorizedException(MCSHttpException):
     pass
 
 
 MCS_DEFAULT_RESPONSE_SIZE_MIB = 10
 
-def createUserAgent(productVersion, registrationToken, product="Linux"):
-    regToken = "regToken"
-    if registrationToken in ["unknown", "", None]:
-        regToken = ""
 
-    return "Sophos MCS Client/%s %s sessions %s"%(productVersion, product, regToken)
+def create_user_agent(product_version, registration_token, product="Linux"):
+    reg_token = "regToken"
+    if registration_token in ["unknown", "", None]:
+        reg_token = ""
+
+    return "Sophos MCS Client/%s %s sessions %s" % (
+        product_version, product, reg_token)
+
 
 class MCSConnection(object):
-    def __init__(self, config, productVersion="unknown",installDir=".."):
+    def __init__(self, config, product_version="unknown", install_dir=".."):
 
         self.__m_config = config
         self.__m_debug = False
         self.__m_connection = None
-        self.__m_mcsurl = None
-        self.__m_currentPath = ""
-        PathManager.INST = installDir
+        self.__m_mcs_url = None
+        self.__m_current_path = ""
+        PathManager.INST = install_dir
 
-        cafile = self.__m_config.getDefault("CAFILE",PathManager.rootCaPath())
-        self.__m_cafile = None
+        cafile = PathManager.root_ca_path()
+        ca_file_env = os.environ.get("MCS_CA", None)
+        if ca_file_env not in ("", None) and os.path.isfile(ca_file_env):
+            logger.warning("Using %s as certificate CA", ca_file_env)
+            cafile = ca_file_env
+        cafile = self.__m_config.get_default("CAFILE", cafile)
+        self.__m_ca_file = None
         if cafile is not None and not os.path.isfile(cafile):
-            logger.error("Unable to load CA certificates from %s as it isn't a file", cafile)
+            logger.error(
+                "Unable to load CA certificates from %s as it isn't a file",
+                cafile)
             cafile = None
 
-        self.__m_cafile = cafile
+        self.__m_ca_file = cafile
         if cafile is None:
             logger.warning("Making unverified HTTPS connections")
 
-        registrationToken = self.__m_config.getDefault("MCSToken","unknown")
-        self.setUserAgent(createUserAgent(productVersion, registrationToken))
+        registration_token = self.__m_config.get_default("MCSToken", "unknown")
+        self.set_user_agent(
+            create_user_agent(
+                product_version,
+                registration_token))
         self.__m_cookies = {}
 
-        if config.getDefault("LOGLEVEL","") == "DEBUG":
-            self.setDebug()
+        if config.get_default("LOGLEVEL", "") == "DEBUG":
+            self.set_debug()
 
-        self.__m_currentProxy = None
-        self.__m_policyProxy = None
-        self.__m_policyProxyCredentialsObfuscated = None
-        self.__m_obfuscationCache = {}
-        self.__m_policyURLs = None
-        self.__m_useDirect = True
-        self.__m_messageRelays = []
+        self.__m_current_proxy = None
+        self.__m_policy_proxy = None
+        self.__m_policy_proxy_credentials_obfuscated = None
+        self.__m_obfuscation_cache = {}
+        self.__m_policy_urls = None
+        self.__m_use_direct = True
+        self.__m_message_relays = []
 
-        self.__m_proxyAuthenticators = {}
-        self.__m_lastSeenHTTPError = None
+        self.__m_proxy_authenticators = {}
+        self.__m_last_seen_http_error = None
 
-    def setUserAgent(self, agent):
+    def set_user_agent(self, agent):
         logger.debug("Setting User-Agent to %s", agent)
-        self.__m_userAgent = agent
+        self.__m_user_agent = agent
 
-    def __getMessageRelays(self):
-        messageRelayList = []
+    def __get_message_relays(self):
+        message_relay_list = []
         index = 1
         config = self.__m_config
-        relay = config.getDefault("message_relay_address%d"%index, False)
+        relay = config.get_default("message_relay_address%d" % index, False)
         while relay:
-            relayDict = {}
-            relayDict['hostname'] = relay
-            relayDict['port'] = config.getDefault("message_relay_port%d"%index)
-            relayDict['priority'] = config.getDefault("message_relay_priority%d"%index)
-            relayDict['id'] = config.getDefault("message_relay_id%d"%index)
-            messageRelayList.append(relayDict)
+            relay_dict = {}
+            relay_dict['hostname'] = relay
+            relay_dict['port'] = config.get_default(
+                "message_relay_port%d" % index)
+            relay_dict['priority'] = config.get_default(
+                "message_relay_priority%d" % index)
+            relay_dict['id'] = config.get_default("message_relay_id%d" % index)
+            message_relay_list.append(relay_dict)
             index += 1
-            relay = config.getDefault("message_relay_address%d"%index, False)
-        return messageRelayList
+            relay = config.get_default(
+                "message_relay_address%d" %
+                index, False)
+        return message_relay_list
 
-    def __messageRelaysChanged(self):
-        current = self.__getMessageRelays()
+    def __message_relays_changed(self):
+        current = self.__get_message_relays()
 
         if len(current) > 0:
-            oldRelays = []
-            for relay in self.__m_messageRelays:
-                relayString = relay["hostname"]+":"+relay["port"]+":"+relay["priority"]
-                oldRelays.append(relayString)
+            old_relays = []
+            for relay in self.__m_message_relays:
+                relay_string = relay["hostname"] + ":" + \
+                    relay["port"] + ":" + relay["priority"]
+                old_relays.append(relay_string)
 
-            newRelays = []
+            new_relays = []
             for relay in current:
-                relayString = relay["hostname"]+":"+relay["port"]+":"+relay["priority"]
-                newRelays.append(relayString)
+                relay_string = relay["hostname"] + ":" + \
+                    relay["port"] + ":" + relay["priority"]
+                new_relays.append(relay_string)
 
-            return set(newRelays) != set(oldRelays)
+            return set(new_relays) != set(old_relays)
 
-        return len(current) != len(self.__m_messageRelays)
+        return len(current) != len(self.__m_message_relays)
 
-    def __policyProxyChanged(self):
+    def __policy_proxy_changed(self):
         return (
-            self.__m_policyProxy != self.__m_config.getDefault("mcs_policy_proxy",None)
-            or
-            self.__m_policyProxyCredentialsObfuscated != self.__m_config.getDefault("mcs_policy_proxy_credentials",None)
-            )
+            self.__m_policy_proxy != self.__m_config.get_default(
+                "mcs_policy_proxy",
+                None) or self.__m_policy_proxy_credentials_obfuscated != self.__m_config.get_default(
+                "mcs_policy_proxy_credentials",
+                None))
 
     def __deobfuscate(self, obfuscated):
         if obfuscated is None:
             return None
 
-        if not self.__m_obfuscationCache.has_key(obfuscated):
+        if obfuscated not in self.__m_obfuscation_cache:
             from mcsrouter.utils import SECObfuscation
             try:
-                self.__m_obfuscationCache[obfuscated] = SECObfuscation.deobfuscate(obfuscated)
-            except SECObfuscation.SECObfuscationException as e:
-                logger.error("Invalid obfuscated credentials (%s): %s", str(e), obfuscated)
-                self.__m_obfuscationCache[obfuscated] = None
+                self.__m_obfuscation_cache[obfuscated] = SECObfuscation.deobfuscate(
+                    obfuscated)
+            except SECObfuscation.SECObfuscationException as exception:
+                logger.error(
+                    "Invalid obfuscated credentials (%s): %s",
+                    str(exception),
+                    obfuscated)
+                self.__m_obfuscation_cache[obfuscated] = None
 
-        return self.__m_obfuscationCache[obfuscated]
+        return self.__m_obfuscation_cache[obfuscated]
 
-    def __createListOfProxies(self):
+    def __create_list_of_proxies(self):
         proxies = []
         config = self.__m_config
-        self.__m_policyProxyCredentialsObfuscated = self.__m_config.getDefault("mcs_policy_proxy_credentials",None)
+        self.__m_policy_proxy_credentials_obfuscated = self.__m_config.get_default(
+            "mcs_policy_proxy_credentials", None)
         username = None
         password = None
-        creds = self.__deobfuscate(self.__m_policyProxyCredentialsObfuscated)
-        if creds is not None and  ":" in creds:
-            username,password = creds.split(":",1)
+        creds = self.__deobfuscate(
+            self.__m_policy_proxy_credentials_obfuscated)
+        if creds is not None and ":" in creds:
+            username, password = creds.split(":", 1)
 
-        def addProxy(proxyString, relayId=None, username=None, password=None):
-            if proxyString is None:
+        def add_proxy(
+                proxy_string,
+                relay_id=None,
+                username=None,
+                password=None):
+            if proxy_string is None:
                 return
 
-            proxy = SophosHTTPS.Proxy(proxyString, relayId=relayId, username=username,
+            proxy = SophosHTTPS.Proxy(
+                proxy_string,
+                relay_id=relay_id,
+                username=username,
                 password=password)
             if proxy in proxies:
                 return
             proxies.append(proxy)
 
+        self.__m_message_relays = self.__get_message_relays()
+        ordered_message_relay_list = IPSelection.evaluate_address_preference(
+            self.__m_message_relays)
+        for relay in ordered_message_relay_list:
+            add_proxy(
+                relay['hostname'] +
+                ":" +
+                relay['port'],
+                relay['id'],
+                username=username,
+                password=password)
 
-        self.__m_messageRelays = self.__getMessageRelays()
-        orderedMessageRelayList = IPSelection.evaluateAddressPreference(self.__m_messageRelays)
-        for relay in orderedMessageRelayList:
-            addProxy(relay['hostname'] + ":" + relay['port'], relay['id'],username=username,password=password)
+        self.__m_policy_proxy = config.get_default("mcs_policy_proxy", None)
+        add_proxy(self.__m_policy_proxy, username=username, password=password)
 
-        self.__m_policyProxy = config.getDefault("mcs_policy_proxy",None)
-        addProxy(self.__m_policyProxy,username=username,password=password)
+        if config.get_bool("useSystemProxy", True):
+            # Saved environment
+            saved_proxy = config.get_default("proxy", None)
+            add_proxy(saved_proxy)
 
-        if config.getBool("useSystemProxy",True):
-            ## Saved environment
-            saved_proxy = config.getDefault("proxy",None)
-            addProxy(saved_proxy)
-
-            ## Current environment
+            # Current environment
             env_proxy = os.environ.get("https_proxy", None)
-            addProxy(env_proxy)
+            add_proxy(env_proxy)
 
-        self.__m_useDirect = self.__getUseDirect()
-        if self.__m_useDirect:
-            ## Try direct unless useDirect is set to false
+        self.__m_use_direct = self.__get_use_direct()
+        if self.__m_use_direct:
+            # Try direct unless useDirect is set to false
             proxies.append(SophosHTTPS.Proxy())
 
         return proxies
 
-    def getId(self):
-        return self.__m_config.getDefault('MCSID',None)
+    def get_id(self):
+        return self.__m_config.get_default('MCSID', None)
 
-    def getPassword(self):
-        return self.__m_config.getDefault('MCSPassword',None)
+    def get_password(self):
+        return self.__m_config.get_default('MCSPassword', None)
 
-    def __getUseDirect(self):
-        return self.__m_config.getBool("useDirect",True)
+    def __get_use_direct(self):
+        return self.__m_config.get_bool("useDirect", True)
 
-    def __getPolicyURLs(self):
+    def __get_policy_urls(self):
         index = 1
         urls = []
         while True:
-            field = "mcs_policy_url%d"%index
-            val = self.__m_config.getDefault(field,None)
+            field = "mcs_policy_url%d" % index
+            val = self.__m_config.get_default(field, None)
             if val is None:
                 break
             else:
@@ -233,78 +279,79 @@ class MCSConnection(object):
             index += 1
         return urls
 
-    def __policyURLsChanged(self):
-        current = self.__getPolicyURLs()
-        return current != self.__m_policyURLs
+    def __policy_urls_changed(self):
+        current = self.__get_policy_urls()
+        return current != self.__m_policy_urls
 
-    def __getURLs(self):
-        self.__m_policyURLs = self.__getPolicyURLs()
-        urls = self.__m_policyURLs[:]
-        mcsurl = self.__m_config.getDefault('MCSURL',None)
-        if mcsurl is not None and mcsurl not in urls:
-            urls.append(mcsurl)
+    def __get_urls(self):
+        self.__m_policy_urls = self.__get_policy_urls()
+        urls = self.__m_policy_urls[:]
+        mcs_url = self.__m_config.get_default('MCSURL', None)
+        if mcs_url is not None and mcs_url not in urls:
+            urls.append(mcs_url)
         return urls
 
-    def __getURLParts(self, mcsurl):
+    def __get_url_parts(self, mcs_url):
         """
         @return (host,port,path)
         """
 
-        mcsurl_parsed = urlparse.urlparse(mcsurl)
-        (host, port) = splitHostPort(mcsurl_parsed.netloc, 443)
+        mcs_url_parsed = urlparse.urlparse(mcs_url)
+        (host, port) = split_host_port(mcs_url_parsed.netloc, 443)
 
-        if self.__m_mcsurl != mcsurl:
-            self.__m_mcsurl = mcsurl
-            logger.info("MCS URL %s:%d%s", host, port, mcsurl_parsed.path)
+        if self.__m_mcs_url != mcs_url:
+            self.__m_mcs_url = mcs_url
+            logger.info("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
 
-        return (host,port,mcsurl_parsed.path)
+        return (host, port, mcs_url_parsed.path)
 
-    def setDebug(self, debug=True):
+    def set_debug(self, debug=True):
         self.__m_debug = debug
 
-    def getAuthenticatorForProxy(self, proxy, host, port):
+    def get_authenticator_for_proxy(self, proxy, host, port):
         key = (proxy.host(),
                proxy.port(),
                proxy.username(),
                proxy.password(),
                host,
                port)
-        auth = self.__m_proxyAuthenticators.get(key,None)
+        auth = self.__m_proxy_authenticators.get(key, None)
         if auth is None:
             auth = ProxyAuthorization.ProxyAuthorization(proxy, host, port)
-            self.__m_proxyAuthenticators[key] = auth
+            self.__m_proxy_authenticators[key] = auth
         return auth
 
-    def __try_createConnection(self, proxy, host, port):
-        (proxyHost, proxyPort) = (proxy.host(),proxy.port())
+    def __try_create_connection(self, proxy, host, port):
+        (proxy_host, proxy_port) = (proxy.host(), proxy.port())
 
         connection = None
-        args = {"ca_certs": self.__m_cafile}
+        args = {"ca_certs": self.__m_ca_file}
         ConnectionClass = SophosHTTPS.CertValidatingHTTPSConnection
-        authCalculator = self.getAuthenticatorForProxy(proxy, host, port)
-        retryCount = 0
+        auth_calculator = self.get_authenticator_for_proxy(proxy, host, port)
+        retry_count = 0
         retry = True
 
-        while retry and retryCount < 5:
+        while retry and retry_count < 5:
             retry = False
-            retryCount += 1
+            retry_count += 1
 
-            if proxyHost:
-                if proxy.relayId():
+            if proxy_host:
+                if proxy.relay_id():
                     logger.info("Trying connection via message relay %s:%d",
-                                proxyHost, proxyPort)
+                                proxy_host, proxy_port)
                 else:
                     logger.info("Trying connection via proxy %s:%d",
-                                proxyHost, proxyPort)
-                connection = ConnectionClass(proxyHost, proxyPort, timeout=30, **args)
-                proxyUsernamePassword = authCalculator.authHeader()
-                if proxyUsernamePassword is None:
-                    proxyHeaders = None
+                                proxy_host, proxy_port)
+                connection = ConnectionClass(
+                    proxy_host, proxy_port, timeout=30, **args)
+                proxy_username_password = auth_calculator.auth_header()
+                if proxy_username_password is None:
+                    proxy_headers = None
                 else:
-                    proxyHeaders = {
-                        'Proxy-authorization' : proxyUsernamePassword
+                    proxy_headers = {
+                        'Proxy-authorization': proxy_username_password
                     }
-                connection.set_tunnel(host,port,headers=proxyHeaders)
+                connection.set_tunnel(host, port, headers=proxy_headers)
             else:
                 logger.info("Trying connection directly to %s:%d",
                             host, port)
@@ -316,87 +363,113 @@ class MCSConnection(object):
 
             try:
                 connection.connect()
-            except SophosHTTPS.ProxyTunnelError as e:
-                assert proxyHost is not None
-                retry = authCalculator.updateAuthHeader(e.response)
-                e.close()
+            except SophosHTTPS.ProxyTunnelError as exception:
+                assert proxy_host is not None
+                retry = auth_calculator.update_auth_header(exception.response)
+                exception.close()
                 if retry:
-                    logger.info("Retrying 407 response with updated auth header")
+                    logger.info(
+                        "Retrying 407 response with updated auth header")
                 else:
-                    logger.warning("Failed connection with proxy due to authentication via %s:%d to %s:%d: %s",
-                        proxyHost, proxyPort,
-                        host, port,
-                        str(e),
-                        )
+                    logger.warning(
+                        "Failed connection with proxy due to authentication via %s:%d to %s:%d: %s",
+                        proxy_host,
+                        proxy_port,
+                        host,
+                        port,
+                        str(exception),
+                    )
                     return None
-            except Exception as e:
-                if proxyHost:
-                    if proxy.relayId():
-                        logger.warning("Failed connection with message relay via %s:%d to %s:%d: %s %s",
-                                    proxyHost, proxyPort,
-                                    host, port,
-                                    str(e), repr(e))
+            except Exception as exception:
+                if proxy_host:
+                    if proxy.relay_id():
+                        logger.warning(
+                            "Failed connection with message relay via %s:%d to %s:%d: %s %s",
+                            proxy_host,
+                            proxy_port,
+                            host,
+                            port,
+                            str(exception),
+                            repr(exception))
                     else:
-                        logger.warning("Failed connection with proxy via %s:%d to %s:%d: %s %s",
-                                    proxyHost, proxyPort,
-                                    host, port,
-                                    str(e), repr(e))
+                        logger.warning(
+                            "Failed connection with proxy via %s:%d to %s:%d: %s %s",
+                            proxy_host,
+                            proxy_port,
+                            host,
+                            port,
+                            str(exception),
+                            repr(exception))
                 else:
                     logger.warning("Failed direct connection to %s:%d: %s %s",
-                                host, port,
-                                str(e), repr(e))
+                                   host, port,
+                                   str(exception), repr(exception))
                 return None
 
-        ## Success
-        if proxyHost:
+        # Success
+        if proxy_host:
             logger.info("Successfully connected to %s:%d via %s:%d",
                         host, port,
-                        proxyHost, proxyPort)
+                        proxy_host, proxy_port)
         else:
-            localport = str(connection.sock.getsockname()[1])
-            logger.info("Successfully directly connected to %s:%d from port %s",
-                        host, port, localport)
+            local_port = str(connection.sock.getsockname()[1])
+            logger.info(
+                "Successfully directly connected to %s:%d from port %s",
+                host,
+                port,
+                local_port)
 
-        if self.__m_currentProxy != proxy:
-            self.__m_currentProxy = proxy
-            self.__m_config.set("current_relay_id", proxy.relayId())
+        if self.__m_current_proxy != proxy:
+            self.__m_current_proxy = proxy
+            self.__m_config.set("current_relay_id", proxy.relay_id())
             self.__m_config.save()
 
         return connection
 
-    def __getResponse(self, requestData):
-        path, headers, body, method = requestData
+    def __get_response(self, request_data):
+        path, headers, body, method = request_data
 
         conn = self.__m_connection
 
-        ## currentPath is only defined once we have opened a connection
-        pathbase = self.__m_currentPath
-        fullpath = pathbase + path
-
-        conn.request(method, fullpath, body=body, headers=headers)
+        # currentPath is only defined once we have opened a connection
+        base_path = self.__m_current_path
+        full_path = base_path + path
+        conn.request(method, full_path, body=body, headers=headers)
         response = conn.getresponse()
-        response_headers = {k.lower(): v for k, v in response.getheaders()}
+        response_headers = {
+            key.lower(): value for key,
+            value in response.getheaders()}
 
         length = response_headers.get('content-length', None)
         if length is None:
             limit = MCS_DEFAULT_RESPONSE_SIZE_MIB * 1024 * 1024
         else:
             limit = int(length)
-            ## Allow up to 10* our default limit if the content-length is specified
+            # Allow up to 10* our default limit if the content-length is
+            # specified
             if limit > MCS_DEFAULT_RESPONSE_SIZE_MIB * 10 * 1024 * 1024:
                 logger.error("Content-Length too large")
-                raise MCSException.MCSNetworkException("Content-Length too large")
+                raise MCSException.MCSNetworkException(
+                    "Content-Length too large")
 
-        # read one extra byte, if that succeeds we know the response is too large
+        # read one extra byte, if that succeeds we know the response is too
+        # large
         body = response.read(limit + 1)
         if len(body) > limit:
             if length is None:
-                logger.error("Response too long, no content-length in headers, and more than %d MiB received (%d)",MCS_DEFAULT_RESPONSE_SIZE_MIB,len(body))
+                logger.error(
+                    "Response too long, no content-length in headers, and more than %d MiB received (%d)",
+                    MCS_DEFAULT_RESPONSE_SIZE_MIB,
+                    len(body))
             else:
-                logger.error("Response too long, got %d, expected %d",len(body),limit)
+                logger.error(
+                    "Response too long, got %d, expected %d",
+                    len(body),
+                    limit)
             raise MCSException.MCSNetworkException("Response too long")
 
-        # if we got an HTTP Content-Length, make sure the response isn't too short
+        # if we got an HTTP Content-Length, make sure the response isn't too
+        # short
         if length is not None and len(body) < limit:
             logger.error("Response too short")
             raise MCSException.MCSNetworkException("Response too short")
@@ -406,34 +479,38 @@ class MCSConnection(object):
                         response.status,
                         response_headers.get('www-authenticate', "<Absent>"))
             logger.debug("HEADERS=%s", str(response_headers))
-            raise MCSHttpUnauthorizedException(response.status, response_headers, body)
+            raise MCSHttpUnauthorizedException(
+                response.status, response_headers, body)
         elif response.status == httplib.SERVICE_UNAVAILABLE:
             logger.warning("HTTP Service Unavailable (503): %s (%s)",
-                        response.reason,
-                        body)
-            raise MCSHttpServiceUnavailableException(response.status, response_headers, body)
+                           response.reason,
+                           body)
+            raise MCSHttpServiceUnavailableException(
+                response.status, response_headers, body)
         elif response.status == httplib.GATEWAY_TIMEOUT:
             logger.warning("HTTP Gateway timeout (504): %s (%s)",
-                        response.reason,
-                        body)
-            raise MCSHttpGatewayTimeoutException(response.status, response_headers, body)
+                           response.reason,
+                           body)
+            raise MCSHttpGatewayTimeoutException(
+                response.status, response_headers, body)
         elif response.status != httplib.OK:
             logger.error("Bad response from server %d: %s (%s)",
                          response.status,
                          response.reason,
-                         httplib.responses.get(response.status, str(response.status)))
+                         httplib.responses.get(response.status,
+                                               str(response.status)))
             raise MCSHttpException(response.status, response_headers, body)
 
         cookie_headers = response.msg.getallmatchingheaders("set-cookie")
         for header in cookie_headers:
             header_val = header.split(":", 1)[1].strip()
-            cookie = header_val.split(";", 1)[0].strip() ## ignore cookie expiry, etc.
+            # ignore cookie expiry, etc.
+            cookie = header_val.split(";", 1)[0].strip()
             name, value = cookie.split("=", 1)
             self.__m_cookies[name] = value
             logger.debug("Storing cookie: %s=%s", name, value)
 
-        envelopeLogger.debug("response headers=%s", str(response_headers))
-
+        envelope_logger.debug("response headers=%s", str(response_headers))
 
         if body not in ("", None):
             # Fix issue where we receive latin1 encoded characters in
@@ -441,229 +518,250 @@ class MCSConnection(object):
             try:
                 body = body.decode("utf-8")
             except UnicodeDecodeError:
-                logger.warning("Cannot decode response as UTF-8, treating as Latin1")
+                logger.warning(
+                    "Cannot decode response as UTF-8, treating as Latin1")
                 body = body.decode("latin1")
-            envelopeLogger.info("RESPONSE: %s", body)
+            envelope_logger.info("RESPONSE: %s", body)
         return (response_headers, body)
 
-    def __tryGetResponse(self, requestData):
+    def __try_get_response(self, request_data):
         try:
-            return self.__getResponse(requestData)
+            return self.__get_response(request_data)
 
-        except httplib.NotConnected as e:
-            ## Only reported if it would otherwise have autoconnected
-            self.__m_lastSeenHTTPError = e
+        except httplib.NotConnected as exception:
+            # Only reported if it would otherwise have autoconnected
+            self.__m_last_seen_http_error = exception
             logger.info("Connection broken")
             self.close()
             return
 
-        except httplib.BadStatusLine as e:
-            self.__m_lastSeenHTTPError = e
+        except httplib.BadStatusLine as exception:
+            self.__m_last_seen_http_error = exception
             logger.debug("Received httplib.BadStatusLine, closing connection")
             self.__m_cookies.clear()
             self.close()
             return
 
-        # Failed to get a response from the server, or the connection failed. Close the connection.
-        except Exception as e:
-            self.__m_lastSeenHTTPError = e
-            # don't re-use old cookies after an error, as this may trigger de-duplication
+        # Failed to get a response from the server, or the connection failed.
+        # Close the connection.
+        except Exception as exception:
+            self.__m_last_seen_http_error = exception
+            # don't re-use old cookies after an error, as this may trigger
+            # de-duplication
             logger.debug("Forgetting cookies due to comms error")
             self.__m_cookies.clear()
-            self.__closeConnection()
+            self.__close_connection()
             return
 
-    def __tryURL(self, mcsurl, proxies, requestData):
-        previousProxy = self.__m_currentProxy
-        host,port,path = self.__getURLParts(mcsurl)
-        logger.debug("Connecting to %s:%d%s",host,port,path)
-        self.__m_currentPath = ""
+    def __try_url(self, mcs_url, proxies, request_data):
+        previous_proxy = self.__m_current_proxy
+        host, port, path = self.__get_url_parts(mcs_url)
+        logger.debug("Connecting to %s:%d%s", host, port, path)
+        self.__m_current_path = ""
 
-        def getResponseWithURL(proxy):
-            self.__m_connection = self.__try_createConnection(proxy, host, port)
+        def get_response_with_url(proxy):
+            self.__m_connection = self.__try_create_connection(
+                proxy, host, port)
             if self.__m_connection is not None:
-                self.__m_currentPath = path
-                response = self.__tryGetResponse(requestData)
+                self.__m_current_path = path
+                response = self.__try_get_response(request_data)
                 return response
             else:
                 return
 
-        if previousProxy in proxies:
-            ## Re-try with the proxy that worked last time first, before we try other proxies
-            response = getResponseWithURL(previousProxy)
+        if previous_proxy in proxies:
+            # Re-try with the proxy that worked last time first, before we try
+            # other proxies
+            response = get_response_with_url(previous_proxy)
             if response:
                 return response
 
-        ## Re-try different proxies - maybe the machine has moved
-        self.__m_currentProxy = None
+        # Re-try different proxies - maybe the machine has moved
+        self.__m_current_proxy = None
         for proxy in proxies:
-            if proxy == previousProxy:
-                ## Don't try the proxy we've already tried
+            if proxy == previous_proxy:
+                # Don't try the proxy we've already tried
                 continue
-            response = getResponseWithURL(proxy)
+            response = get_response_with_url(proxy)
             if response:
                 return response
 
         assert self.__m_connection is None
         return
 
-    def __tryURLs(self, requestData):
-        ## Need to re-connect to Central/MCS
-        proxies = self.__createListOfProxies()
-        urls = self.__getURLs()
-
+    def __try_urls(self, request_data):
+        # Need to re-connect to Central/MCS
+        proxies = self.__create_list_of_proxies()
+        urls = self.__get_urls()
         logger.debug("Trying URLs: %s",str(urls))
 
         ## First try the URL that worked previously
-        if self.__m_mcsurl in urls:
-            response = self.__tryURL(self.__m_mcsurl, proxies, requestData)
+        if self.__m_mcs_url in urls:
+            response = self.__try_url(self.__m_mcs_url, proxies, request_data)
             if response:
                 return response
 
         ## Now try all other URLs
         for url in urls:
-            if self.__m_mcsurl == url:
+            if self.__m_mcs_url == url:
                 ## Don't try the previous URL if it didn't work
                 continue
-            response = self.__tryURL(url, proxies, requestData)
+            response = self.__try_url(url, proxies, request_data)
             if response:
                 return response
 
-        ## Failed to get a response in any fashion
+        # Failed to get a response in any fashion
         assert self.__m_connection is None
 
-        ## If we were unable to connect
-        if not self.__m_lastSeenHTTPError:
+        # If we were unable to connect
+        if not self.__m_last_seen_http_error:
             logger.info("Failed to connect to Central")
             if len(proxies) == 0:
-                logger.info("No proxies/message relays set to communicate with Central - useDirect is False")
-            raise MCSException.MCSConnectionFailedException("Failed to connect to MCS")
+                logger.info(
+                    "No proxies/message relays set to communicate with Central - useDirect is False")
+            raise MCSException.MCSConnectionFailedException(
+                "Failed to connect to MCS")
 
-        ## If we were able to connect, but received a HTTP error
-        raise self.__m_lastSeenHTTPError
+        # If we were able to connect, but received a HTTP error
+        raise self.__m_last_seen_http_error
 
-    def __createConnectionAndGetResponse(self, requestData):
+    def __create_connection_and_get_response(self, request_data):
         response = None
-        self.__m_lastSeenHTTPError = None
+        self.__m_last_seen_http_error = None
         # If we have an existing connection
         if self.__m_connection is not None:
-            if self.__policyProxyChanged() or self.__messageRelaysChanged():
-                ## Need to close the current connection, because the policy has changed
-                logger.info("Re-evaluating proxies / message relays due to changed policy")
+            if self.__policy_proxy_changed() or self.__message_relays_changed():
+                # Need to close the current connection, because the policy has
+                # changed
+                logger.info(
+                    "Re-evaluating proxies / message relays due to changed policy")
                 self.close()
-                ## Reset previous proxy - so that we re-evaluate
-                self.__m_currentProxy = None
+                # Reset previous proxy - so that we re-evaluate
+                self.__m_current_proxy = None
 
-            if self.__policyURLsChanged():
-                ## Need to close the current connection, because the policy has changed
+            if self.__policy_urls_changed():
+                # Need to close the current connection, because the policy has
+                # changed
                 logger.info("Re-evaluating MCS URL due to changed policy")
                 self.close()
-                self.__m_mcsurl = None
+                self.__m_mcs_url = None
 
-            if self.__getUseDirect() != self.__m_useDirect:
-                logger.info("Re-evaluating connection due to useDirect option change")
-                self.__m_currentProxy = None
+            if self.__get_use_direct() != self.__m_use_direct:
+                logger.info(
+                    "Re-evaluating connection due to useDirect option change")
+                self.__m_current_proxy = None
                 self.close()
 
             # If we have an existing connection and the policy hasn't changed, do
             # the request with the existing connection.
             if self.__m_connection is not None:
-                response = self.__tryGetResponse(requestData)
+                response = self.__try_get_response(request_data)
 
         # If we don't have a connection, or existing connection is broken
         # reevaluate URLs and Proxies.
         if self.__m_connection is None:
-            response = self.__tryURLs(requestData)
+            response = self.__try_urls(request_data)
 
         assert self.__m_connection is not None
         assert response is not None
         return response
 
-    def __closeConnection(self):
+    def __close_connection(self):
         if self.__m_connection is not None:
             self.__m_connection.close()
             self.__m_connection = None
 
     def close(self):
-        self.__closeConnection()
+        self.__close_connection()
 
     def __request(self, path, headers, body="", method="GET"):
         #~ logger.debug("%sing %s with %d byte body"%(method, path, len(body)))
-        headers.setdefault("User-Agent", self.__m_userAgent)
+        headers.setdefault("User-Agent", self.__m_user_agent)
 
         if self.__m_cookies:
-            cookies = "; ".join([ "=".join(cookie) for cookie in self.__m_cookies.iteritems() ])
+            cookies = "; ".join(["=".join(cookie)
+                                 for cookie in self.__m_cookies.iteritems()])
             headers.setdefault("Cookie", cookies)
             logger.debug("Sending cookies: %s", cookies)
 
         if isinstance(body, unicode):
             body = body.encode("utf-8")
 
-        envelopeLogger.debug("request headers=%s", str(headers))
+        envelope_logger.debug("request headers=%s", str(headers))
         if body in (None, ""):
-            envelopeLogger.info("%s %s", method, path)
+            envelope_logger.info("%s %s", method, path)
         else:
-            envelopeLogger.info("%s %s : %s", method, path, body)
+            envelope_logger.info("%s %s : %s", method, path, body)
 
-        ## Need to use the path from above, so that we can have different URLs
-        requestData = (path, headers, body, method)
-        return self.__createConnectionAndGetResponse(requestData)
+        # Need to use the path from above, so that we can have different URLs
+        request_data = (path, headers, body, method)
+        return self.__create_connection_and_get_response(request_data)
 
     def capabilities(self):
         (headers, body) = self.__request("", {})
         return body
 
-    def register(self, token, statusxml):
-        self.__m_cookies.clear()  ## Reset cookies
-        eid = self.getId() or ""
-        if eid == "reregister":
-            eid = ""
-        password = self.getPassword() or ""
-        auth = "%s:%s:%s"%(eid, password, token)
+    def register(self, token, status_xml):
+        self.__m_cookies.clear()  # Reset cookies
+        mcs_id = self.get_id() or ""
+        if mcs_id == "reregister":
+            mcs_id = ""
+        password = self.get_password() or ""
+        auth = "%s:%s:%s" % (mcs_id, password, token)
         headers = {
-            "Authorization":"Basic %s"%(base64.b64encode(auth)),
-            "Content-Type":"application/xml; charset=utf-8",
-            }
+            "Authorization": "Basic %s" % (base64.b64encode(auth)),
+            "Content-Type": "application/xml; charset=utf-8",
+        }
         logger.debug("Registering with auth    '%s'", auth)
-        logger.debug("Registering with message '%s'", statusxml)
+        logger.debug("Registering with message '%s'", status_xml)
         logger.debug("Registering with headers '%s'", str(headers))
-        (headers, body) = self.__request("/register", headers, body=statusxml, method="POST")
+        (headers, body) = self.__request(
+            "/register", headers, body=status_xml, method="POST")
         body = base64.b64decode(body)
-        (endpointid, password) = body.split(":", 1)
-        logger.debug("Register returned endpointid '%s'", endpointid)
+        (endpoint_id, password) = body.split(":", 1)
+        logger.debug("Register returned endpoint_id '%s'", endpoint_id)
         logger.debug("Register returned password   '%s'", password)
-        return (endpointid, password)
+        return (endpoint_id, password)
 
-    def actionCompleted(self, action):
+    def action_completed(self, action):
         pass
 
-    def sendMessage(self, commandPath, body="", method="GET"):
+    def send_message(self, command_path, body="", method="GET"):
         headers = {
-            "Authorization":"Basic "+base64.b64encode("%s:%s"%(self.getId(),self.getPassword())),
-            "Content-Type":"application/xml; charset=utf-8",
-            }
+            "Authorization": "Basic " +
+            base64.b64encode(
+                "%s:%s" %
+                (self.get_id(),
+                 self.get_password())),
+            "Content-Type": "application/xml; charset=utf-8",
+        }
         if method != "GET":
-            logger.debug("MCS request url=%s body size=%d", commandPath, len(body))
-        (headers, body) = self.__request(commandPath, headers, body, method)
+            logger.debug(
+                "MCS request url=%s body size=%d",
+                command_path,
+                len(body))
+        (headers, body) = self.__request(command_path, headers, body, method)
         return body
 
-    def sendMessageWithId(self, commandPath, body="", method="GET"):
-        return self.sendMessage(commandPath+self.getId(), body, method)
+    def send_message_with_id(self, command_path, body="", method="GET"):
+        return self.send_message(command_path + self.get_id(), body, method)
 
-    def sendStatusEvent(self, status):
+    def send_status_event(self, status):
         status_xml = status.xml()
-        self.sendMessageWithId("/statuses/endpoint/", status_xml, "PUT")
+        self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
 
-    def sendEvents(self, events):
+    def send_events(self, events):
         events_xml = events.xml()
-        self.sendMessageWithId("/events/endpoint/", events_xml, "POST")
+        self.send_message_with_id("/events/endpoint/", events_xml, "POST")
 
-    def queryCommands(self, appids=None):
+    def query_commands(self, app_ids=None):
         """
         Query any commands the server has for us
         """
-        assert(appids is not None)
-        commands = self.sendMessageWithId("/commands/applications/%s/endpoint/"%(";".join(appids)))
+        assert(app_ids is not None)
+        commands = self.send_message_with_id(
+            "/commands/applications/%s/endpoint/" %
+            (";".join(app_ids)))
 
         if isinstance(commands, unicode):
             commands = commands.encode('utf-8', errors='replace')
@@ -675,32 +773,37 @@ class MCSConnection(object):
             return []
 
         try:
-            commandNodes = doc.getElementsByTagName("command")
-            commands = [MCSCommands.BasicCommand(self, node, commands) for node in commandNodes]
+            command_nodes = doc.getElementsByTagName("command")
+            commands = [
+                MCSCommands.BasicCommand(
+                    self,
+                    node,
+                    commands) for node in command_nodes]
         finally:
             doc.unlink()
-
         return commands
 
-    def deleteCommand(self, commandid):
+    def delete_command(self, command_id):
         """
         Delete a command that has been completed
         """
-        self.sendMessage("/commands/endpoint/%s/%s"%(self.getId(), commandid), "", "DELETE")
+        self.send_message(
+            "/commands/endpoint/%s/%s" %
+            (self.get_id(), command_id), "", "DELETE")
 
-    def getPolicy(self, appid, policyid):
+    def get_policy(self, app_id, policy_id):
         """
         Get a policy from MCS
         """
-        path = "/policy/application/%s/%s"%(appid, policyid)
+        path = "/policy/application/%s/%s" % (app_id, policy_id)
 
-        pathbase = self.__m_currentPath
-        logger.debug("Request policy from %s", pathbase + path)
-        return self.sendMessage(path)
+        base_path = self.__m_current_path
+        logger.debug("Request policy from %s", base_path + path)
+        return self.send_message(path)
 
-    def getPolicyFragment(self, appid, fragmentid):
-        path = "/policy/fragment/application/%s/%s"%(appid, fragmentid)
+    def get_policy_fragment(self, app_id, fragment_id):
+        path = "/policy/fragment/application/%s/%s" % (app_id, fragment_id)
 
-        pathbase = self.__m_currentPath
-        logger.debug("Request policy fragment from %s", pathbase + path)
-        return self.sendMessage(path)
+        base_path = self.__m_current_path
+        logger.debug("Request policy fragment from %s", base_path + path)
+        return self.send_message(path)

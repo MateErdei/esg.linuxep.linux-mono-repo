@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
 import os
 
 import xml.dom.minidom
-import xml.parsers.expat # for xml.parsers.expat.ExpatError
+import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,118 +15,131 @@ import mcsrouter.utils.AtomicWrite
 import mcsrouter.adapters.base.PolicyHandlerBase
 import mcsrouter.utils.PathManager as PathManager
 
+
 class MCSPolicyHandlerException(Exception):
     pass
 
-class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBase):
+
+class MCSPolicyHandler(
+        mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBase):
     """
     Process MCS adapter policy
     as defined at
     https://wiki.sophos.net/display/SophosCloud/EMP%3A+policy-mcs
     """
-    def __init__(self, installDir,
-            policy_config,
-            applied_config):
-        super(MCSPolicyHandler,self).__init__(installDir)
+
+    def __init__(self, install_dir,
+                 policy_config,
+                 applied_config):
+        super(MCSPolicyHandler, self).__init__(install_dir)
         self.__m_compliance = None
-        self.__m_policyXml = None
-        PathManager.INST = installDir
+        self.__m_policy_xml = None
+        PathManager.INST = install_dir
         self.__m_policy_config = policy_config
         self.__m_applied_config = applied_config
         if not REGISTER_MCS:
-            self.__loadPolicy()
+            self.__load_policy()
 
-    def policyName(self):
+    def policy_name(self):
         return "MCS"
 
-    def policyBaseName(self):
+    def policy_base_name(self):
         return "MCS-25_policy.xml"
 
-    def __policyPath(self):
-        return os.path.join(PathManager.policyDir(),self.policyBaseName())
+    def __policy_path(self):
+        return os.path.join(PathManager.policy_dir(), self.policy_base_name())
 
-    def __savePolicy(self, policyXml=None, path=None):
-        if policyXml is None:
-            policyXml = self.__m_policyXml
-        assert policyXml is not None
+    def __save_policy(self, policy_xml=None, path=None):
+        if policy_xml is None:
+            policy_xml = self.__m_policy_xml
+        assert policy_xml is not None
         if path is None:
-            path = self.__policyPath()
-        mcsrouter.utils.AtomicWrite.atomic_write(path, os.path.join(PathManager.tempDir(), self.policyBaseName()), policyXml)
+            path = self.__policy_path()
+        mcsrouter.utils.AtomicWrite.atomic_write(path, os.path.join(
+            PathManager.temp_dir(), self.policy_base_name()), policy_xml)
 
-    def __loadPolicy(self):
-        path = self.__policyPath()
+    def __load_policy(self):
+        path = self.__policy_path()
         if os.path.isfile(path):
-            self.__m_policyXml = open(path,"rb").read()
-            self.__tryApplyPolicy("existing",False)
+            self.__m_policy_xml = open(path, "rb").read()
+            self.__try_apply_policy("existing", False)
 
-    def __getElement(self, dom, elementName):
-        nodes = dom.getElementsByTagName(elementName)
+    def __get_element(self, dom, element_name):
+        nodes = dom.getElementsByTagName(element_name)
         if len(nodes) != 1:
             return None
         return nodes[0]
 
+    def __apply_policy_setting(
+            self,
+            dom,
+            policy_option,
+            config_option=None,
+            treat_missing_as_empty=False):
+        if config_option is None:
+            config_option = policy_option
 
-    def __applyPolicySetting(self, dom, policyOption, configOption=None, treatMissingAsEmpty=False):
-        if configOption is None:
-            configOption = policyOption
-
-        node = self.__getElement(dom, policyOption)
+        node = self.__get_element(dom, policy_option)
 
         if node is None:
-            if treatMissingAsEmpty:
+            if treat_missing_as_empty:
                 value = ""
             else:
                 return False
         else:
-            value = mcsrouter.utils.XmlHelper.getTextFromElement(node)
+            value = mcsrouter.utils.XmlHelper.get_text_from_element(node)
 
-        logger.debug("MCS policy %s = %s",policyOption,value)
+        logger.debug("MCS policy %s = %s", policy_option, value)
 
-        self.__m_policy_config.set(configOption,value)
+        self.__m_policy_config.set(config_option, value)
         return True
 
-    def __applyPollingDelay(self, dom):
-        node = self.__getElement(dom, "commandPollingDelay")
+    def __apply_polling_delay(self, dom):
+        node = self.__get_element(dom, "commandPollingDelay")
         if node is None:
             return False
 
         value = node.getAttribute("default")
         if value == "":
-            logger.error("MCS policy commandPollingDelay has no attribute default")
+            logger.error(
+                "MCS policy commandPollingDelay has no attribute default")
             return False
 
         try:
             value = int(value)
         except ValueError:
-            logger.error("MCS policy commandPollingDelay default is not a number")
+            logger.error(
+                "MCS policy commandPollingDelay default is not a number")
             return False
 
-        logger.debug("MCS policy commandPollingDelay = %d",value)
-        self.__m_policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM",str(value))
-        self.__m_policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM",str(value))
+        logger.debug("MCS policy commandPollingDelay = %d", value)
+        self.__m_policy_config.set(
+            "COMMAND_CHECK_INTERVAL_MINIMUM", str(value))
+        self.__m_policy_config.set(
+            "COMMAND_CHECK_INTERVAL_MAXIMUM", str(value))
 
         return True
 
-    def __getNonEmptySubElements(self, node, subNodeName):
+    def __get_non_empty_sub_elements(self, node, sub_node_name):
 
-        subNodes = node.getElementsByTagName(subNodeName)
+        sub_nodes = node.getElementsByTagName(sub_node_name)
 
-        texts = [ mcsrouter.utils.XmlHelper.getTextFromElement(x) for x in subNodes ]
-        texts = [ s for s in texts if s != "" ]
+        texts = [mcsrouter.utils.XmlHelper.get_text_from_element(
+            x) for x in sub_nodes]
+        texts = [s for s in texts if s != ""]
 
         return texts
 
-
-    def __applyMCSServer(self, dom):
+    def __apply_mcs_server(self, dom):
         """
         We ignore multiple server nodes, since all the examples we've seen and the specification
         only have one server specified.
         """
-        node = self.__getElement(dom, "servers")
+        node = self.__get_element(dom, "servers")
         if node is None:
             return False
 
-        servers = self.__getNonEmptySubElements(node,"server")
+        servers = self.__get_non_empty_sub_elements(node, "server")
 
         if len(servers) == 0:
             logger.error("MCS Policy has no server nodes in servers element")
@@ -134,78 +147,91 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
 
         index = 1
         for server in servers:
-            key = "mcs_policy_url%d"%index
-            logger.debug("MCS policy URL %s = %s",key,server)
-            self.__m_policy_config.set(key,server)
+            key = "mcs_policy_url%d" % index
+            logger.debug("MCS policy URL %s = %s", key, server)
+            self.__m_policy_config.set(key, server)
             index += 1
 
         while True:
-            key = "mcs_policy_url%d"%index
+            key = "mcs_policy_url%d" % index
             if not self.__m_policy_config.remove(key):
                 break
             index += 1
         return True
 
-    def __applyMessageRelays(self, dom):
+    def __apply_message_relays(self, dom):
         """
         Reading message relay priority, port, address and ID from policy into config
         """
-        node = self.__getElement(dom, "messageRelays")
+        node = self.__get_element(dom, "messageRelays")
         if node is None:
-            messageRelays=[]
+            message_relays = []
         else:
-            messageRelays = node.getElementsByTagName("messageRelay")
+            message_relays = node.getElementsByTagName("messageRelay")
 
         index = 1
-        for messageRelay in messageRelays:
-            priorityKey = "message_relay_priority%d"%index
-            portKey = "message_relay_port%d"%index
-            addressKey = "message_relay_address%d"%index
-            idKey = "message_relay_id%d"%index
+        for message_relay in message_relays:
+            priority_key = "message_relay_priority%d" % index
+            port_key = "message_relay_port%d" % index
+            address_key = "message_relay_address%d" % index
+            id_key = "message_relay_id%d" % index
 
-            priorityValue = messageRelay.getAttribute("priority")
-            portValue = messageRelay.getAttribute("port")
-            addressValue = messageRelay.getAttribute("address")
-            idValue = messageRelay.getAttribute("id")
+            priority_value = message_relay.getAttribute("priority")
+            port_value = message_relay.getAttribute("port")
+            address_value = message_relay.getAttribute("address")
+            id_value = message_relay.getAttribute("id")
 
-            logger.debug("MCS Policy Message Relay %s = %s",priorityKey,priorityValue)
-            logger.debug("MCS policy Message Relay %s = %s",portKey,portValue)
-            logger.debug("MCS policy Message Relay %s = %s",addressKey,addressValue)
-            logger.debug("MCS policy Message Relay %s = %s",idKey,idValue)
+            logger.debug(
+                "MCS Policy Message Relay %s = %s",
+                priority_key,
+                priority_value)
+            logger.debug(
+                "MCS policy Message Relay %s = %s",
+                port_key,
+                port_value)
+            logger.debug(
+                "MCS policy Message Relay %s = %s",
+                address_key,
+                address_value)
+            logger.debug("MCS policy Message Relay %s = %s", id_key, id_value)
 
-            mrInfoSet = [priorityValue, portValue, addressValue, idValue]
-            if None in mrInfoSet or "" in mrInfoSet:
-                logger.error("Message Relay Policy is incomplete: %s", str(mrInfoSet))
+            message_relay_info_set = [
+                priority_value, port_value, address_value, id_value]
+            if None in message_relay_info_set or "" in message_relay_info_set:
+                logger.error(
+                    "Message Relay Policy is incomplete: %s",
+                    str(message_relay_info_set))
                 continue
 
-            self.__m_policy_config.set(priorityKey,priorityValue)
-            self.__m_policy_config.set(portKey,portValue)
-            self.__m_policy_config.set(addressKey,addressValue)
-            self.__m_policy_config.set(idKey,idValue)
+            self.__m_policy_config.set(priority_key, priority_value)
+            self.__m_policy_config.set(port_key, port_value)
+            self.__m_policy_config.set(address_key, address_value)
+            self.__m_policy_config.set(id_key, id_value)
             index += 1
 
-        ## Remove old message relay config entries that may exist and haven't been overwritten
+        # Remove old message relay config entries that may exist and haven't
+        # been overwritten
         while True:
-            priorityKey = "message_relay_priority%d"%index
-            portKey = "message_relay_port%d"%index
-            addressKey = "message_relay_address%d"%index
-            idKey = "message_relay_id%d"%index
+            priority_key = "message_relay_priority%d" % index
+            port_key = "message_relay_port%d" % index
+            address_key = "message_relay_address%d" % index
+            id_key = "message_relay_id%d" % index
 
-            if not self.__m_policy_config.remove(addressKey):
+            if not self.__m_policy_config.remove(address_key):
                 break
-            self.__m_policy_config.remove(portKey)
-            self.__m_policy_config.remove(priorityKey)
-            self.__m_policy_config.remove(idKey)
+            self.__m_policy_config.remove(port_key)
+            self.__m_policy_config.remove(priority_key)
+            self.__m_policy_config.remove(id_key)
             index += 1
         return True
 
-    def __applyProxyOptions(self, dom):
-        proxiesNode = self.__getElement(dom, "proxies")
-        if proxiesNode is None:
-            ## Don't apply credentials unless we have a proxy
+    def __apply_proxy_options(self, dom):
+        proxies_node = self.__get_element(dom, "proxies")
+        if proxies_node is None:
+            # Don't apply credentials unless we have a proxy
             return False
 
-        proxies = self.__getNonEmptySubElements(proxiesNode,"proxy")
+        proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
 
         if len(proxies) == 0:
             logger.error("MCS Policy has no proxy nodes in proxies element")
@@ -214,14 +240,15 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         if len(proxies) > 1:
             logger.warning("Multiple MCS proxies in MCS policy")
 
-        logger.debug("MCS policy proxy = %s",proxies[0])
-        self.__m_policy_config.set("mcs_policy_proxy",proxies[0])
+        logger.debug("MCS policy proxy = %s", proxies[0])
+        self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
 
-        credentialsNode = self.__getElement(dom,"proxyCredentials")
-        if credentialsNode is None:
+        credentials_node = self.__get_element(dom, "proxyCredentials")
+        if credentials_node is None:
             return False
 
-        credentials = self.__getNonEmptySubElements(credentialsNode,"credentials")
+        credentials = self.__get_non_empty_sub_elements(
+            credentials_node, "credentials")
 
         if len(credentials) == 0:
             return False
@@ -229,87 +256,101 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
         if len(credentials) > 1:
             logger.warning("Multiple MCS proxy credentials in MCS policy")
 
-        logger.debug("MCS policy proxy credential = %s",credentials[0])
-        self.__m_policy_config.set("mcs_policy_proxy_credentials",credentials[0])
+        logger.debug("MCS policy proxy credential = %s", credentials[0])
+        self.__m_policy_config.set(
+            "mcs_policy_proxy_credentials",
+            credentials[0])
         return True
 
-    def __applyPolicy(self,policyAge,save):
+    def __apply_policy(self, policy_age, save):
         assert self.__m_policy_config is not None
 
-        policyXml = self.__m_policyXml
+        policy_xml = self.__m_policy_xml
         try:
-            dom = xml.dom.minidom.parseString(policyXml)
-        except xml.parsers.expat.ExpatError as e:
-            logger.error("Failed to parse MCS policy (%s): %s", str(e), policyXml)
+            dom = xml.dom.minidom.parseString(policy_xml)
+        except xml.parsers.expat.ExpatError as exception:
+            logger.error(
+                "Failed to parse MCS policy (%s): %s",
+                str(exception),
+                policy_xml)
             return False
         except Exception:
-            logger.exception("Failed to parse MCS policy: %s", policyXml)
+            logger.exception("Failed to parse MCS policy: %s", policy_xml)
             return False
 
         try:
-            policyNodes = dom.getElementsByTagName("policy")
-            if len(policyNodes) != 1:
+            policy_nodes = dom.getElementsByTagName("policy")
+            if len(policy_nodes) != 1:
                 logger.error("MCS Policy doesn't have one policy node")
                 return False
 
-            policyNode = policyNodes[0]
+            policy_node = policy_nodes[0]
 
-            nodes = policyNode.getElementsByTagName("csc:Comp")
+            nodes = policy_node.getElementsByTagName("csc:Comp")
             if len(nodes) == 1:
                 node = nodes[0]
-                policyType = node.getAttribute("policyType")
-                revID = node.getAttribute("RevID")
-                compliance = (policyType, revID)
+                policy_type = node.getAttribute("policy_type")
+                rev_id = node.getAttribute("RevID")
+                compliance = (policy_type, rev_id)
             else:
                 logger.error("MCS Policy didn't contain one compliance node")
                 compliance = None
 
-            logger.info("Applying %s %s policy %s",policyAge,self.policyName(),compliance)
+            logger.info(
+                "Applying %s %s policy %s",
+                policy_age,
+                self.policy_name(),
+                compliance)
 
-            ## Process policy options
-            self.__applyPolicySetting(policyNode, "useSystemProxy")
-            self.__applyPolicySetting(policyNode, "useAutomaticProxy")
-            self.__applyPolicySetting(policyNode, "useDirect")
-            self.__applyPollingDelay(policyNode)
-            ## MCSToken is the config option we are already using for the Token elsewhere
-            self.__applyPolicySetting(policyNode, "registrationToken", "MCSToken", treatMissingAsEmpty=True)
-            self.__applyMCSServer(policyNode)
-            self.__applyProxyOptions(policyNode)
-            self.__applyMessageRelays(policyNode)
+            # Process policy options
+            self.__apply_policy_setting(policy_node, "useSystemProxy")
+            self.__apply_policy_setting(policy_node, "useAutomaticProxy")
+            self.__apply_policy_setting(policy_node, "useDirect")
+            self.__apply_polling_delay(policy_node)
+            # MCSToken is the config option we are already using for the Token
+            # elsewhere
+            self.__apply_policy_setting(
+                policy_node,
+                "registrationToken",
+                "MCSToken",
+                treat_missing_as_empty=True)
+            self.__apply_mcs_server(policy_node)
+            self.__apply_proxy_options(policy_node)
+            self.__apply_message_relays(policy_node)
 
-            ## Save configuration
+            # Save configuration
             self.__m_policy_config.save()
             self.__m_compliance = compliance
 
             if save:
-                ## Save successfully applied policy
-                self.__savePolicy()
+                # Save successfully applied policy
+                self.__save_policy()
         finally:
             dom.unlink()
 
-    def __tryApplyPolicy(self,policyAge,save):
+    def __try_apply_policy(self, policy_age, save):
         try:
-            self.__applyPolicy(policyAge,save)
-        except Exception as e:
+            self.__apply_policy(policy_age, save)
+        except Exception:
             logger.exception("Failed to apply MCS policy")
 
-    def process(self, policyXml):
+    def process(self, policy_xml):
         """
         Process a new policy
         """
-        self.__m_policyXml = policyXml
-        self.__tryApplyPolicy("new",True)
+        self.__m_policy_xml = policy_xml
+        self.__try_apply_policy("new", True)
 
-    def getPolicyInfo(self):
+    def get_policy_info(self):
         """
-        @return (policyType,RevID) or None
+        @return (policy_type,RevID) or None
         """
         return self.__m_compliance
 
-    def getCurrentMessageRelay(self):
-        return self.__m_applied_config.getDefault("current_relay_id", None)
+    def get_current_message_relay(self):
+        return self.__m_applied_config.get_default("current_relay_id", None)
 
-    def isCompliant(self):
+    def is_compliant(self):
         """
         @return True if active configuration matches policy settings
         """
@@ -322,26 +363,32 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
 
         compliant = True
 
-        for field in ("useSystemProxy","useAutomaticProxy","useDirect",
+        for field in ("useSystemProxy", "useAutomaticProxy", "useDirect",
                       "MCSToken",
                       "mcs_policy_proxy",
                       "mcs_policy_proxy_credentials",
                       "COMMAND_CHECK_INTERVAL_MINIMUM",
                       "COMMAND_CHECK_INTERVAL_MAXIMUM"):
-            if self.__m_policy_config.getDefault(field,None) != self.__m_applied_config.getDefault(field,None):
-                logger.warning("MCS Policy not compliant: %s option differs",field)
+            if self.__m_policy_config.get_default(
+                    field,
+                    None) != self.__m_applied_config.get_default(
+                    field,
+                    None):
+                logger.warning(
+                    "MCS Policy not compliant: %s option differs", field)
                 compliant = False
 
-        ## Check URLS
+        # Check URLS
         index = 1
         while True:
-            field = "mcs_policy_url%d"%index
-            policyValue = self.__m_policy_config.getDefault(field,None)
-            appliedValue = self.__m_applied_config.getDefault(field,None)
-            if policyValue != appliedValue:
-                logger.warning("MCS Policy not compliant: %s option differs",field)
+            field = "mcs_policy_url%d" % index
+            policy_value = self.__m_policy_config.get_default(field, None)
+            applied_value = self.__m_applied_config.get_default(field, None)
+            if policy_value != applied_value:
+                logger.warning(
+                    "MCS Policy not compliant: %s option differs", field)
                 compliant = False
-            if policyValue is None and appliedValue is None:
+            if policy_value is None and applied_value is None:
                 break
             index += 1
 
@@ -383,4 +430,3 @@ class MCSPolicyHandler(mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBa
     #~ <policyChangeServers/>
   #~ </configuration>
 #~ </policy>
-

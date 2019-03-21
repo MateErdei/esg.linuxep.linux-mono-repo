@@ -3,21 +3,25 @@
 import logging
 logger = logging.getLogger(__name__)
 
-g_targetSystem = None
-g_installDir = None
+g_target_system = None
+g_install_dir = None
 
-def getTargetSystem(installDir=None):
-    global g_targetSystem
-    global g_installDir
-    if installDir is None:
-        installDir = g_installDir
-    g_installDir = installDir
-    if g_targetSystem is None:
+
+def get_target_system(install_dir=None):
+    global g_target_system
+    global g_install_dir
+    if install_dir is None:
+        install_dir = g_install_dir
+    g_install_dir = install_dir
+    if g_target_system is None:
         try:
-            import mcsrouter.targetsystem as targetsystem
-            g_targetSystem = targetsystem.TargetSystem(g_installDir)
+            from mcsrouter import targetsystem
+            g_target_system = targetsystem.TargetSystem(g_install_dir)
         except ImportError:
-            ## Not sure what we can do here
-            # g_targetSystem = FakeTargetSystem()
-            logger.exception("Failed to import targetsystem")
-    return g_targetSystem
+            try:
+                import targetsystem
+                g_target_system = targetsystem.TargetSystem(g_install_dir)
+            except ImportError:
+                # g_targetSystem = FakeTargetSystem()
+                logger.exception("Failed to import targetsystem")
+    return g_target_system

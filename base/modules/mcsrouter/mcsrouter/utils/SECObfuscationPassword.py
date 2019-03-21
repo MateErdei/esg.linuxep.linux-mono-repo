@@ -1,22 +1,93 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
-## From //wincomms/latest-dev/mcs-endpoint/product/src/McsClient/SECObfuscation/...
+# From
+# //wincomms/latest-dev/mcs-endpoint/product/src/McsClient/SECObfuscation/...
 
-## From key headers
-C_KEY_DO = [ 0x10, 0xd4, 0xfa, 0x82, 0xa0, 0x3a, 0x67, 0x90, 0xbe, 0x7d, 0x26, 0x2f ]
-C_KEY_RA = [ 0xae, 0xae, 0xae, 0x9b, 0x99, 0xf1, 0xd, 0x19, 0x50, 0x5c, 0x7c, 0x1c, 0x2e, 0x2
-    , 0x1a, 0x76, 0xc1, 0xd9, 0x59, 0x20, 0x82, 0x57, 0x10, 0xf4 ]
-C_KEY_MI = [ 0x48, 0x48, 0x48, 0xc6, 0xc4, 0x78, 0x0, 0x14, 0xb3, 0xbf, 0x9f, 0xfc, 0xce,
-             0x34, 0x40, 0x2c, 0x8, 0x10, 0x90, 0x5f, 0xfd, 0x1f, 0x5b, 0xbf ]
-C_KEY_FA = [ 0xa6, 0xb2, 0x17, 0x93, 0xc0, 0xf8, 0x8e, 0x7a, 0x62, 0xef, 0xe8, 0x1e ]
+# From key headers
+C_KEY_DO = [
+    0x10,
+    0xd4,
+    0xfa,
+    0x82,
+    0xa0,
+    0x3a,
+    0x67,
+    0x90,
+    0xbe,
+    0x7d,
+    0x26,
+    0x2f]
+C_KEY_RA = [
+    0xae,
+    0xae,
+    0xae,
+    0x9b,
+    0x99,
+    0xf1,
+    0xd,
+    0x19,
+    0x50,
+    0x5c,
+    0x7c,
+    0x1c,
+    0x2e,
+    0x2,
+    0x1a,
+    0x76,
+    0xc1,
+    0xd9,
+    0x59,
+    0x20,
+    0x82,
+    0x57,
+    0x10,
+    0xf4]
+C_KEY_MI = [
+    0x48,
+    0x48,
+    0x48,
+    0xc6,
+    0xc4,
+    0x78,
+    0x0,
+    0x14,
+    0xb3,
+    0xbf,
+    0x9f,
+    0xfc,
+    0xce,
+    0x34,
+    0x40,
+    0x2c,
+    0x8,
+    0x10,
+    0x90,
+    0x5f,
+    0xfd,
+    0x1f,
+    0x5b,
+    0xbf]
+C_KEY_FA = [
+    0xa6,
+    0xb2,
+    0x17,
+    0x93,
+    0xc0,
+    0xf8,
+    0x8e,
+    0x7a,
+    0x62,
+    0xef,
+    0xe8,
+    0x1e]
 
 
-## From ObfuscationImpl.cpp
+# From ObfuscationImpl.cpp
 
-#~ static std::vector<unsigned char> R1(const std::vector<unsigned char>& data)
+#~ static std::vector<unsigned char> reverse_1(const std::vector<unsigned char>& data)
 #~ {
 #~ std::vector<unsigned char> ret(data.size());
 
@@ -32,18 +103,17 @@ C_KEY_FA = [ 0xa6, 0xb2, 0x17, 0x93, 0xc0, 0xf8, 0x8e, 0x7a, 0x62, 0xef, 0xe8, 0
 #~ return ret;
 #~ }
 
-def R1(inputArray):
-    outputArray = inputArray[:]
-    dataSize = len(outputArray)
-    ## Reverse Transposition of data - ADCB becomes ABCD
-    for i in xrange(dataSize):
+def reverse_1(input_array):
+    output_array = input_array[:]
+    data_size = len(output_array)
+    # Reverse Transposition of data - ADCB becomes ABCD
+    for i in xrange(data_size):
         mod2 = i % 2
         if mod2 == 0:
-            outputArray[i] = inputArray[i // 2] ## even
+            output_array[i] = input_array[i // 2]  # even
         else:
-            outputArray[i] = inputArray[dataSize - i // 2 - 1]
-    return outputArray
-
+            output_array[i] = input_array[data_size - i // 2 - 1]
+    return output_array
 
 
 #~ static unsigned char GetMask(unsigned int salt)
@@ -66,31 +136,31 @@ def R1(inputArray):
 #~ return mask;
 #~ }
 
-def getIndex(salt):
+def get_index(salt):
     KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
-    lenKey = len(KEY)
+    key_length = len(KEY)
     mod3 = salt % 3
     if mod3 == 0:
-        return (salt * 13) % lenKey
+        return (salt * 13) % key_length
     elif mod3 == 1:
-        return (salt * 11) % lenKey
+        return (salt * 11) % key_length
     else:
-        return (salt * 7) % lenKey
+        return (salt * 7) % key_length
 
 
-def getMask(salt):
+def get_mask(salt):
     KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
-    lenKey = len(KEY)
+    key_length = len(KEY)
     mod3 = salt % 3
     if mod3 == 0:
-        return ord(KEY[(salt * 13) % lenKey])
+        return ord(KEY[(salt * 13) % key_length])
     elif mod3 == 1:
-        return ord(KEY[(salt * 11) % lenKey])
+        return ord(KEY[(salt * 11) % key_length])
     else:
-        return ord(KEY[(salt * 7) % lenKey])
+        return ord(KEY[(salt * 7) % key_length])
 
 
-#~ static std::vector<unsigned char> R2(const std::vector<unsigned char>& data)
+#~ static std::vector<unsigned char> reverse_2(const std::vector<unsigned char>& data)
 #~ {
 #~ // Reverse O2()
 #~ std::vector<unsigned char> ret(data.size());
@@ -101,31 +171,33 @@ def getMask(salt):
 #~ return ret;
 #~ }
 
-def R2(inputArray):
+def reverse_2(input_array):
     """
     Reverse O2()?
     """
-    outputArray = []
-    for (i,c) in enumerate(inputArray):
-        outputArray.append(c ^ getMask(i))
+    output_array = []
+    for (i, c) in enumerate(input_array):
+        output_array.append(c ^ get_mask(i))
 
-    return outputArray
+    return output_array
 
-def getMasks(inputArray):
-    outputArray = []
-    for (i,c) in enumerate(inputArray):
-        outputArray.append(getMask(i))
 
-    return outputArray
+def get_masks(input_array):
+    output_array = []
+    for (index, value) in enumerate(input_array):
+        output_array.append(get_mask(index))
 
-def getIndexes(inputArray):
-    outputArray = []
-    for (i,c) in enumerate(inputArray):
-        outputArray.append(getIndex(i))
+    return output_array
 
-    return outputArray
 
-#~ static std::vector<unsigned char> R3(const std::vector<unsigned char>& data)
+def get_indexes(input_array):
+    output_array = []
+    for (index, value) in enumerate(input_array):
+        output_array.append(get_index(index))
+
+    return output_array
+
+#~ static std::vector<unsigned char> reverse_3(const std::vector<unsigned char>& data)
 #~ {
 #~ // Reverse data transposition
 #~ std::vector<unsigned char> ret((data.size() / 2) + 4);
@@ -146,17 +218,18 @@ def getIndexes(inputArray):
 #~ return ret;
 #~ }
 
-def R3(inputArray):
+
+def reverse_3(input_array):
     """
     Reverse data transposition
     """
-    outputArray = []
-    for i,c in enumerate(inputArray):
-        mod8 = i % 8
-        if mod8 in (0,3,5,6):
-            outputArray.append(c)
+    output_array = []
+    for index, value in enumerate(input_array):
+        mod8 = index % 8
+        if mod8 in (0, 3, 5, 6):
+            output_array.append(value)
 
-    return outputArray
+    return output_array
 
 
 #~ static SecureBuffer<char> GetPassword()
@@ -165,17 +238,17 @@ def R3(inputArray):
 #~ SecureBuffer<unsigned char> data1;
 
 #~ // Unobscure the sections of the password
-#~ data1 = R1(CKeyDo::GetData());
-#~ sect1 = R2(data1);
+#~ data1 = reverse_1(CKeyDo::GetData());
+#~ sect1 = reverse_2(data1);
 
-#~ data1 = R3(CKeyRa::GetData());
-#~ sect2 = R2(data1);
+#~ data1 = reverse_3(CKeyRa::GetData());
+#~ sect2 = reverse_2(data1);
 
-#~ data1 = R3(CKeyMi::GetData());
-#~ sect3 = R1(data1);
+#~ data1 = reverse_3(CKeyMi::GetData());
+#~ sect3 = reverse_1(data1);
 
-#~ data1 = R2(CKeyFa::GetData());
-#~ sect4 = R1(data1);
+#~ data1 = reverse_2(CKeyFa::GetData());
+#~ sect4 = reverse_1(data1);
 
 #~ SecureBuffer<char> ret(sect1.size() + sect2.size() + sect3.size() + sect4.size());
 #~ size_t offset = 0;
@@ -191,57 +264,61 @@ def R3(inputArray):
 #~ return ret;
 #~ }
 
-def getPasswordUncached():
-    data = R1(C_KEY_DO)
-    sect1 = R2(data)
+def get_password_uncached():
+    data = reverse_1(C_KEY_DO)
+    sect1 = reverse_2(data)
 
-    data = R3(C_KEY_RA)
-    sect2 = R2(data)
+    data = reverse_3(C_KEY_RA)
+    sect2 = reverse_2(data)
 
-    data = R3(C_KEY_MI)
-    sect3 = R1(data)
+    data = reverse_3(C_KEY_MI)
+    sect3 = reverse_1(data)
 
-    data = R2(C_KEY_FA)
-    sect4 = R1(data)
+    data = reverse_2(C_KEY_FA)
+    sect4 = reverse_1(data)
 
     ret = []
-    for s in (sect1,sect2,sect3,sect4):
-        for c in s:
-            ret.append(chr(c))
+    for sect in (sect1, sect2, sect3, sect4):
+        for item in sect:
+            ret.append(chr(item))
 
     return b"".join(ret)
 
+
 GL_PASSWORD = None
 
-def getPassword():
+
+def get_password():
     global GL_PASSWORD
     if GL_PASSWORD is None:
-        GL_PASSWORD = getPasswordUncached()
+        GL_PASSWORD = get_password_uncached()
     return GL_PASSWORD
 
+
 def dump(name, array):
-    print("\n%s"%name)
-    for c in array:
-        if isinstance(c,str):
-            print(ord(c),c)
+    print("\n%s" % name)
+    for item in array:
+        if isinstance(item, str):
+            print(ord(item), item)
         else:
-            print(c,chr(c))
+            print(item, chr(item))
+
 
 if __name__ == '__main__':
-    password = getPassword()
-    dump("password",password)
+    password = get_password()
+    dump("password", password)
 
-    #~ data = R1(C_KEY_DO)
-    #~ dump("R1",data)
+    #~ data = reverse_1(C_KEY_DO)
+    #~ dump("reverse_1",data)
 
-    #~ data = R2(C_KEY_FA)
-    #~ dump("R2",data)
-    #~ data = getMasks(C_KEY_FA)
-    #~ dump("getMasks",data)
-    #~ data = getIndexes(C_KEY_FA)
-    #~ dump("getIndexes",data)
+    #~ data = reverse_2(C_KEY_FA)
+    #~ dump("reverse_2",data)
+    #~ data = get_masks(C_KEY_FA)
+    #~ dump("get_masks",data)
+    #~ data = get_indexes(C_KEY_FA)
+    #~ dump("get_indexes",data)
 
-    #~ data = R3(C_KEY_RA)
-    #~ dump("R3",data)
+    #~ data = reverse_3(C_KEY_RA)
+    #~ dump("reverse_3",data)
 
-    #~ print("getIndex",getIndex(4))
+    #~ print("get_index",get_index(4))

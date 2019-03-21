@@ -2,9 +2,8 @@
 
 
 class IConnection(object):
-    def actionCompleted(self, action):
+    def action_completed(self, action):
         pass
 
-    def statusUpdate(self, status):
+    def status_update(self, status):
         pass
-

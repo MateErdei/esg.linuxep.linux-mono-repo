@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function,division,unicode_literals
+from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
 
@@ -13,29 +13,33 @@ import mcsrouter.utils.Timestamp
 import mcsrouter.utils.XmlHelper
 import mcsrouter.mcsclient.MCSCommands
 
-class AppProxyAdapter(AdapterBase.AdapterBase):
-    def __init__(self, appids):
-        self.__m_appids = appids
 
-    def getAppId(self):
+class AppProxyAdapter(AdapterBase.AdapterBase):
+    def __init__(self, app_ids):
+        self.__m_app_ids = app_ids
+
+    def get_app_id(self):
         return "APPSPROXY"
 
-    def getStatusXml(self):
-        statusxml = []
+    def get_status_xml(self):
+        status_xml = []
 
-        statusxml.append('<?xml version="1.0" encoding="utf-8"?>')
-        statusxml.append('<ns:registeredApplicationsStatus xmlns:ns="http://www.sophos.com/xml/mcs/registeredApplicationsStatus">')
-        statusxml.append('<meta protocolVersion="1.0" timestamp="%s"/>'%(mcsrouter.utils.Timestamp.timestamp()))
-        for appid in self.__m_appids:
-            statusxml.append('<application name="%s"/>'%appid)
-        statusxml.append('</ns:registeredApplicationsStatus>')
+        status_xml.append('<?xml version="1.0" encoding="utf-8"?>')
+        status_xml.append(
+            '<ns:registeredApplicationsStatus xmlns:ns="http://www.sophos.com/xml/mcs/registeredApplicationsStatus">')
+        status_xml.append(
+            '<meta protocolVersion="1.0" timestamp="%s"/>' %
+            (mcsrouter.utils.Timestamp.timestamp()))
+        for app_id in self.__m_app_ids:
+            status_xml.append('<application name="%s"/>' % app_id)
+        status_xml.append('</ns:registeredApplicationsStatus>')
 
-        return "".join(statusxml)
+        return "".join(status_xml)
 
-    def _hasNewStatus(self):
+    def _has_new_status(self):
         return False
 
-    def processCommand(self, command):
+    def process_command(self, command):
         """
         Process a command object.
 
@@ -65,35 +69,46 @@ u'<?xml version="1.0"?>
 
         @return list of commands to process
         """
-        connection = command.getConnection()
+        connection = command.get_connection()
         body = command.get("body")
 
         try:
             doc = xml.dom.minidom.parseString(body)
         except Exception:
-            logger.exception("Unable to parse AppProxy Action: '%s' from '%s'", body, command.getXmlText())
+            logger.exception(
+                "Unable to parse AppProxy Action: '%s' from '%s'",
+                body,
+                command.get_xml_text())
             return []
 
         try:
-            policyAssignments = doc.getElementsByTagName("policyAssignment")
+            policy_assignments = doc.getElementsByTagName("policyAssignment")
             commands = []
-            logger.debug("Received %d policyAssignments", len(policyAssignments))
-            commandID = command.get('id')
+            logger.debug(
+                "Received %d policyAssignments",
+                len(policy_assignments))
+            command_id = command.get('id')
 
-            for policyAssignment in policyAssignments:
-                appId = mcsrouter.utils.XmlHelper.getTextNodeText(policyAssignment, "appId")
-                policyId = mcsrouter.utils.XmlHelper.getTextNodeText(policyAssignment, "policyId")
+            for policy_assignment in policy_assignments:
+                app_id = mcsrouter.utils.XmlHelper.get_text_node_text(
+                    policy_assignment, "appId")
+                policy_id = mcsrouter.utils.XmlHelper.get_text_node_text(
+                    policy_assignment, "policyId")
                 commands.append(mcsrouter.mcsclient.MCSCommands.PolicyCommand(
-                        commandID, appId, policyId, connection))
+                    command_id, app_id, policy_id, connection))
 
-            fragmentedAssignments = doc.getElementsByTagName("fragments")
-            logger.debug("Received %d fragmented policy assignments", len(fragmentedAssignments))
+            fragmented_assignments = doc.getElementsByTagName("fragments")
+            logger.debug(
+                "Received %d fragmented policy assignments",
+                len(fragmented_assignments))
 
-            for fragmented in fragmentedAssignments:
-                appId = mcsrouter.utils.XmlHelper.getTextNodeText(fragmented, "appId")
-                fragmentNodes = fragmented.getElementsByTagName("fragment")
-                commands.append(mcsrouter.mcsclient.MCSCommands.FragmentedPolicyCommand(
-                        commandID, appId, fragmentNodes, connection))
+            for fragmented in fragmented_assignments:
+                app_id = mcsrouter.utils.XmlHelper.get_text_node_text(
+                    fragmented, "appId")
+                fragment_nodes = fragmented.getElementsByTagName("fragment")
+                commands.append(
+                    mcsrouter.mcsclient.MCSCommands.FragmentedPolicyCommand(
+                        command_id, app_id, fragment_nodes, connection))
         finally:
             doc.unlink()
             command.complete()

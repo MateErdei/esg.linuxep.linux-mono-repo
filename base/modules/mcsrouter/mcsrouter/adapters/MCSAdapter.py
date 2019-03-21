@@ -22,91 +22,92 @@ TEMPLATE_STATUS_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?
         </ns:mcsStatus>
 """
 
+
 class MCSAdapter(AdapterBase.AdapterBase):
     def __init__(self,
-        installdir,
-        policy_config,
-        applied_config):
-        if installdir is not None:
-            PathManager.INST = installdir
+                 install_dir,
+                 policy_config,
+                 applied_config):
+        if install_dir is not None:
+            PathManager.INST = install_dir
 
-        self.__m_policyHandler = mcs.MCSPolicyHandler.MCSPolicyHandler(
-                    PathManager.installDir(),
-                    policy_config,
-                    applied_config)
-        self.__m_relayId = None
+        self.__m_policy_handler = mcs.MCSPolicyHandler.MCSPolicyHandler(
+            PathManager.install_dir(),
+            policy_config,
+            applied_config)
+        self.__m_relay_id = None
 
-    def getAppId(self):
+    def get_app_id(self):
         return "MCS"
 
-    def __setCompliance(self, compNode):
+    def __set_compliance(self, comp_node):
         """
 <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="" RevID="" policyType=""/>
         """
-        policyInfo = self.__m_policyHandler.getPolicyInfo()
-        if policyInfo is None:
-            Res="NoRef"
-            RevID=""
-            policyType="25"
+        policy_info = self.__m_policy_handler.get_policy_info()
+        if policy_info is None:
+            res = "NoRef"
+            rev_id = ""
+            policy_type = "25"
         else:
-            policyType=policyInfo[0]
-            RevID=policyInfo[1]
-            if self.__m_policyHandler.isCompliant():
-                Res="Same"
+            policy_type = policy_info[0]
+            rev_id = policy_info[1]
+            if self.__m_policy_handler.is_compliant():
+                res = "Same"
             else:
-                Res="Diff"
+                res = "Diff"
 
-        compNode.setAttribute("Res",Res)
-        compNode.setAttribute("RevID",RevID)
-        compNode.setAttribute("policyType",policyType)
+        comp_node.setAttribute("Res", res)
+        comp_node.setAttribute("RevID", rev_id)
+        comp_node.setAttribute("policyType", policy_type)
 
-    def _getStatusXml(self):
+    def _get_status_xml(self):
         doc = xml.dom.minidom.parseString(TEMPLATE_STATUS_XML)
         AdapterBase.remove_blanks(doc)
 
-        compNode = doc.getElementsByTagName("csc:CompRes")[0]
-        self.__setCompliance(compNode)
+        comp_node = doc.getElementsByTagName("csc:CompRes")[0]
+        self.__set_compliance(comp_node)
 
         # Add Message Relay to status XML.
-        self.__m_relayId = self.__m_policyHandler.getCurrentMessageRelay()
-        relayNode = doc.getElementsByTagName("messageRelay")[0]
-        if self.__m_relayId:
-            relayNode.setAttribute("endpointId",self.__m_relayId)
-            relayNode.setAttribute("lastUsed",datetime.datetime.now().isoformat())
+        self.__m_relay_id = self.__m_policy_handler.get_current_message_relay()
+        relay_node = doc.getElementsByTagName("messageRelay")[0]
+        if self.__m_relay_id:
+            relay_node.setAttribute("endpointId", self.__m_relay_id)
+            relay_node.setAttribute(
+                "lastUsed", datetime.datetime.now().isoformat())
         else:
-            relayNode.removeAttribute("endpointId")
-            relayNode.removeAttribute("lastUsed")
+            relay_node.removeAttribute("endpointId")
+            relay_node.removeAttribute("lastUsed")
         output = doc.toxml(encoding="utf-8")
         doc.unlink()
-        logger.debug("Status MCS XML: %s"%output)
+        logger.debug("Status MCS XML: %s" % output)
         return output
 
-    def _hasNewStatus(self):
-        relayId = self.__m_policyHandler.getCurrentMessageRelay()
+    def _has_new_status(self):
+        relay_id = self.__m_policy_handler.get_current_message_relay()
 
-        return relayId != self.__m_relayId
+        return relay_id != self.__m_relay_id
 
-    def __processPolicy(self, policy):
-        logger.debug("MCS Adapter processing policy %s",str(policy))
+    def __process_policy(self, policy):
+        logger.debug("MCS Adapter processing policy %s", str(policy))
         try:
-            self.__m_policyHandler.process(policy)
+            self.__m_policy_handler.process(policy)
         except Exception as e:
             logger.exception("Exception while processing MCS policy")
 
         return []
 
-    def __processAction(self, command):
+    def __process_action(self, command):
         logger.error("Got action for the MCS adapter")
         return None
 
-    def processCommand(self, command):
+    def process_command(self, command):
         try:
-            logger.debug("MCS Adapter processing %s",str(command))
+            logger.debug("MCS Adapter processing %s", str(command))
             try:
-                policy = command.getPolicy()
-                return self.__processPolicy(policy)
+                policy = command.get_policy()
+                return self.__process_policy(policy)
             except NotImplementedError:
-                return self.__processAction(command)
+                return self.__process_action(command)
         finally:
             command.complete()
-

@@ -3,7 +3,7 @@
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
@@ -12,8 +12,9 @@ import urllib2
 parse_http_list = urllib2.parse_http_list
 parse_keqv_list = urllib2.parse_keqv_list
 
+
 class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
-    def get_authorization(self, remoteHost, chal, remotePort=443):
+    def get_authorization(self, remote_host, chal, remote_port=443):
         try:
             realm = chal['realm']
             nonce = chal['nonce'].encode("UTF-8")
@@ -29,15 +30,15 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
         if H is None:
             return None
 
-        user, pw = self.passwd.find_user_password(realm, "")
+        user, password = self.passwd.find_user_password(realm, "")
         if user is None:
             return None
 
-        A1 = b"%s:%s:%s" % (user, realm, pw)
-        uri = b"%s:%d"%(
-                remoteHost,
-                remotePort)
-        A2 = b"CONNECT:%s"%uri
+        A1 = b"%s:%s:%s" % (user, realm, password)
+        uri = b"%s:%d" % (
+            remote_host,
+            remote_port)
+        A2 = b"CONNECT:%s" % uri
 
         if qop == 'auth':
             if nonce == self.last_nonce:
@@ -46,10 +47,11 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
                 self.nonce_count = 1
                 self.last_nonce = nonce
 
-            ncvalue = b'%08x' % self.nonce_count
+            nc_value = b'%08x' % self.nonce_count
             cnonce = self.get_cnonce(nonce)
-            noncebit = b"%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, H(A2))
-            respdig = KD(H(A1), noncebit)
+            nonce_bit = b"%s:%s:%s:%s:%s" % (
+                nonce, nc_value, cnonce, qop, H(A2))
+            respdig = KD(H(A1), nonce_bit)
         elif qop is None:
             respdig = KD(H(A1), b"%s:%s" % (nonce, H(A2)))
         else:
@@ -64,62 +66,62 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
             base += ', opaque="%s"' % opaque
         base += ', algorithm="%s"' % algorithm
         if qop:
-            base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+            base += ', qop=auth, nc=%s, cnonce="%s"' % (nc_value, cnonce)
         return base
 
 
 class ProxyAuthorization(object):
-    def __init__(self, proxy, remoteHost, remotePort=443):
+    def __init__(self, proxy, remote_host, remote_port=443):
         self.m_proxy = proxy
-        self.m_proxyHandler = SophosProxyDigestAuthHandler(self)
-        self.m_authHeader = self.m_proxy.authHeader()
-        self.m_remoteHost = remoteHost
-        self.m_remotePort = remotePort
+        self.m_proxy_handler = SophosProxyDigestAuthHandler(self)
+        self.m_auth_header = self.m_proxy.auth_header()
+        self.m_remote_host = remote_host
+        self.m_remote_port = remote_port
 
-    def authHeader(self):
-        return self.m_authHeader
+    def auth_header(self):
+        return self.m_auth_header
 
-    def getAuthicateHeader(self, response):
+    def get_authenticate_header(self, response):
         headers = response.msg.headers
         for header in headers:
             if header.lower().startswith(b"proxy-authenticate: "):
                 return header[len('Proxy-Authenticate: '):]
 
-        logger.error("No authentication header found: %s",str(headers))
+        logger.error("No authentication header found: %s", str(headers))
 
-    def updateAuthHeader(self, response):
+    def update_auth_header(self, response):
         """
         @return True if we should retry
         """
-        authenticationHeader = self.getAuthicateHeader(response)
-        if authenticationHeader is None:
+        authentication_header = self.get_authenticate_header(response)
+        if authentication_header is None:
             return False
 
-        scheme = authenticationHeader.split()[0]
+        scheme = authentication_header.split()[0]
         if scheme.lower() != b"digest":
-            logger.warning("Proxy authentication scheme is %s",scheme)
+            logger.warning("Proxy authentication scheme is %s", scheme)
             return False
 
-        return self.updateDigestAuthHeader(authenticationHeader)
+        return self.update_digest_auth_header(authentication_header)
 
     def add_password(self):
         pass
 
-    def find_user_password(self, realm, authuri):
-        return self.m_proxy.username(),self.m_proxy.password()
+    def find_user_password(self, realm, auth_uri):
+        return self.m_proxy.username(), self.m_proxy.password()
 
-    def updateDigestAuthHeader(self, auth):
+    def update_digest_auth_header(self, auth):
         """
         @return True if we should retry
         """
         token, challenge = auth.split(' ', 1)
         chal = parse_keqv_list(parse_http_list(challenge))
 
-        auth = self.m_proxyHandler.get_authorization(self.m_remoteHost, chal,
-            remotePort=self.m_remotePort)
+        auth = self.m_proxy_handler.get_authorization(
+            self.m_remote_host, chal, remote_port=self.m_remote_port)
 
         if auth:
-            self.m_authHeader = b'Digest %s' % auth
+            self.m_auth_header = b'Digest %s' % auth
             return True
 
         logger.error("Unable to get authorization!")

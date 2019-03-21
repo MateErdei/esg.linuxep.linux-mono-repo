@@ -11,79 +11,83 @@ import mcsrouter.utils.TargetSystemManager
 from mcsrouter import IPAddress
 import mcsrouter.utils.PathManager as PathManager
 
-def formatIPv6(i):
-    assert ":" not in i
-    assert len(i) == 32
-    o = []
-    countZero = 0
-    while len(i) > 0:
-        sub = i[:4]
-        i = i[4:]
+
+def format_ipv6(ipv6):
+    assert ":" not in ipv6
+    assert len(ipv6) == 32
+    result = []
+    count_zero = 0
+    while len(ipv6) > 0:
+        sub = ipv6[:4]
+        ipv6 = ipv6[4:]
 
         while len(sub) > 0 and sub[0] == "0":
-            sub=sub[1:]
+            sub = sub[1:]
         if sub == "":
-            countZero += 1
+            count_zero += 1
             continue
 
-        if countZero == 1:
-            o.append("0")
-        if countZero > 1:
-            o.append("")
+        if count_zero == 1:
+            result.append("0")
+        if count_zero > 1:
+            result.append("")
 
-        countZero = 0
-        o.append(sub)
+        count_zero = 0
+        result.append(sub)
 
-    if countZero == 1:
-        o.append("0")
-    if countZero > 1:
-        o.append(":")
+    if count_zero == 1:
+        result.append("0")
+    if count_zero > 1:
+        result.append(":")
 
-    return ":".join(o)
+    return ":".join(result)
+
 
 class ComputerCommonStatus(object):
     """
     Class to represent the details that constitute the common computer status XML
     """
-    def __init__(self, targetSystem):
-        self.computerName = targetSystem.hostname()
-        self.os = targetSystem.platform
-        self.fqdn = IPAddress.getFQDN()
-        self.user = "root@%s"% self.fqdn
-        self.sls = targetSystem.checkIfUpdatableToSLS()
-        self.arch = targetSystem.arch
-        self.ipv4s = list(IPAddress.getNonLocalIPv4())
-        self.ipv6s = list(IPAddress.getNonLocalIPv6())
-        self.ipv6s = [ formatIPv6(i) for i in self.ipv6s ]
+
+    def __init__(self, target_system):
+        self.computer_name = target_system.hostname()
+        self.os = target_system.platform
+        self.fqdn = IPAddress.get_fqdn()
+        self.user = "root@%s" % self.fqdn
+        self.sls = target_system.check_if_updatable_to_sls()
+        self.arch = target_system.arch
+        self.ipv4s = list(IPAddress.get_non_local_ipv4())
+        self.ipv6s = list(IPAddress.get_non_local_ipv6())
+        self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
 
     def __eq__(self, other):
-        return type(self) == type(other) and self.__dict__ == other.__dict__
+        return isinstance(
+            self, type(other)) and self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self == other
 
-    def toStatusXml(self):
+    def to_status_xml(self):
         ipv4 = self.ipv4s[0] if self.ipv4s else ""
         ipv6 = self.ipv6s[0] if self.ipv6s else ""
 
         result = [
             "<commonComputerStatus>",
             "<domainName>UNKNOWN</domainName>",
-            "<computerName>%s</computerName>"%(self.computerName),
+            "<computerName>%s</computerName>" % (self.computer_name),
             "<computerDescription></computerDescription>",
-            "<operatingSystem>%s</operatingSystem>"%self.os,
-            "<lastLoggedOnUser>%s</lastLoggedOnUser>"%(self.user),
-            "<ipv4>%s</ipv4>"%ipv4,
-            "<ipv6>%s</ipv6>"%ipv6,
-            "<fqdn>%s</fqdn>"%self.fqdn,
-            "<processorArchitecture>%s</processorArchitecture>"%(self.arch)
-            ]
+            "<operatingSystem>%s</operatingSystem>" % self.os,
+            "<lastLoggedOnUser>%s</lastLoggedOnUser>" % (self.user),
+            "<ipv4>%s</ipv4>" % ipv4,
+            "<ipv6>%s</ipv6>" % ipv6,
+            "<fqdn>%s</fqdn>" % self.fqdn,
+            "<processorArchitecture>%s</processorArchitecture>" % (self.arch)
+        ]
         if self.ipv4s or self.ipv6s:
             result.append("<ipAddresses>")
             for ip in self.ipv4s:
-                result.append("<ipv4>%s</ipv4>"%ip)
+                result.append("<ipv4>%s</ipv4>" % ip)
             for ip in self.ipv6s:
-                result.append("<ipv6>%s</ipv6>"%ip)
+                result.append("<ipv6>%s</ipv6>" % ip)
             result.append("</ipAddresses>")
 
         result.append("</commonComputerStatus>")
@@ -91,73 +95,73 @@ class ComputerCommonStatus(object):
 
 
 class AgentAdapter(AdapterBase.AdapterBase):
-    def __init__(self, installdir=None):
+    def __init__(self, install_dir=None):
         self.__m_last_status_time = None
-        if installdir is not None:
-            PathManager.INST = installdir
+        if install_dir is not None:
+            PathManager.INST = install_dir
+        self.__m_common_status = None
 
-        self.__m_commonStatus = None
-
-    def getAppId(self):
+    def get_app_id(self):
         return "AGENT"
 
-    def getStatusTTL(self):
+    def get_status_ttl(self):
         return "PT10000S"
 
-    def getTimestamp(self):
+    def get_timestamp(self):
         return mcsrouter.utils.Timestamp.timestamp()
 
-    def getStatusXml(self):
+    def get_status_xml(self):
         return "".join((
-            self.getStatusHeader(),
-            self.getCommonStatusXml(),
-            self.getPlatformStatus(),
-            self.getStatusFooter()
-            ))
+            self.get_status_header(),
+            self.get_common_status_xml(),
+            self.get_platform_status(),
+            self.get_status_footer()
+        ))
 
-    def getStatusHeader(self):
+    def get_status_header(self):
         return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
-<meta protocolVersion="1.0" timestamp="%s"/>"""%(self.getTimestamp())
+<meta protocolVersion="1.0" timestamp="%s"/>""" % (self.get_timestamp())
 
-    def getStatusFooter(self):
+    def get_status_footer(self):
         return """</ns:computerStatus>"""
 
-    def __targetSystem(self):
-        return mcsrouter.utils.TargetSystemManager.getTargetSystem(PathManager.installDir())
+    def __target_system(self):
+        return mcsrouter.utils.TargetSystemManager.get_target_system(
+            PathManager.install_dir())
 
-    def __createCommonStatus(self):
-        ts = self.__targetSystem()
-        assert ts is not None
-        return ComputerCommonStatus(ts)
+    def __create_common_status(self):
+        target_system = self.__target_system()
+        assert target_system is not None
+        return ComputerCommonStatus(target_system)
 
-    def hasNewStatus(self):
-        return self.__m_commonStatus != self.__createCommonStatus()
+    def has_new_status(self):
+        return self.__m_common_status != self.__create_common_status()
 
-    def getCommonStatusXml(self):
-        commonStatus = self.__createCommonStatus()
+    def get_common_status_xml(self):
+        common_status = self.__create_common_status()
 
-        if self.__m_commonStatus != commonStatus:
-            self.__m_commonStatus = commonStatus
+        if self.__m_common_status != common_status:
+            self.__m_common_status = common_status
 
             logger.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
-                self.__m_commonStatus.computerName,
-                self.__m_commonStatus.fqdn,
-                str(self.__m_commonStatus.ipv4s))
+                        self.__m_common_status.computer_name,
+                        self.__m_common_status.fqdn,
+                        str(self.__m_common_status.ipv4s))
 
-        return self.__m_commonStatus.toStatusXml()
+        return self.__m_common_status.to_status_xml()
 
-    def getPlatformStatus(self):
-        ts = self.__targetSystem()
-        platform = ts.platform
-        vendor = ts.vendor()
-        kernel = ts.kernel
-        osName = ts.osName
+    def get_platform_status(self):
+        target_system = self.__target_system()
+        platform = target_system.platform
+        vendor = target_system.vendor()
+        kernel = target_system.kernel
+        os_name = target_system.os_name
         return "".join((
             "<posixPlatformDetails>",
-            "<platform>%s</platform>"%platform,
-            "<vendor>%s</vendor>"%vendor,
+            "<platform>%s</platform>" % platform,
+            "<vendor>%s</vendor>" % vendor,
             "<isServer>1</isServer>",
-            "<osName>%s</osName>"%osName,
-            "<kernelVersion>%s</kernelVersion>"%kernel,
+            "<osName>%s</osName>" % os_name,
+            "<kernelVersion>%s</kernelVersion>" % kernel,
             "</posixPlatformDetails>"))

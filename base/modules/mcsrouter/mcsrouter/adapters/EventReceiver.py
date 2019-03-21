@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function,division,unicode_literals
+from __future__ import print_function, division, unicode_literals
 
 import os
 import re
@@ -13,26 +13,26 @@ logger = logging.getLogger(__name__)
 
 
 class EventReceiver(object):
-    def __init__(self, installdir):
-        if installdir is not None:
-            PathManager.INST = installdir
+    def __init__(self, install_dir):
+        if install_dir is not None:
+            PathManager.INST = install_dir
 
     def receive(self):
         """
         Async receive call
         """
 
-        eventdir = os.path.join(PathManager.eventDir())
-        for eventfile in os.listdir(eventdir):
-            mo = re.match(r"([A-Z]*)_event-(.*).xml", eventfile)
-            filepath = os.path.join(eventdir, eventfile)
-            if mo:
-                appid = mo.group(1)
-                time = os.path.getmtime(filepath)
-                body = XmlHelper.getXMLfileContentWithEscapedNonAsciiCode(filepath)
-                yield (appid, time, body )
+        event_dir = os.path.join(PathManager.event_dir())
+        for event_file in os.listdir(event_dir):
+            match_object = re.match(r"([A-Z]*)_event-(.*).xml", event_file)
+            file_path = os.path.join(event_dir, event_file)
+            if match_object:
+                app_id = match_object.group(1)
+                time = os.path.getmtime(file_path)
+                body = XmlHelper.get_xml_file_content_with_escaped_non_ascii_code(
+                    file_path)
+                yield (app_id, time, body)
             else:
-                logger.warning("Malformed event file: %s", eventfile)
+                logger.warning("Malformed event file: %s", event_file)
 
-            os.remove(filepath)
-
+            os.remove(file_path)

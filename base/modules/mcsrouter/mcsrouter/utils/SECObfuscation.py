@@ -1,51 +1,54 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
 from Crypto.Cipher import DES3
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512, HMAC
 
+
 class SECObfuscationException(Exception):
     pass
 
-class SECObfuscation(object):
-    def getPassword(self):
-        from . import SECObfuscationPassword
-        return SECObfuscationPassword.getPassword()
 
-    def removePadding(self, text):
+class SECObfuscation(object):
+    def get_password(self):
+        from . import SECObfuscationPassword
+        return SECObfuscationPassword.get_password()
+
+    def remove_padding(self, text):
         padding = ord(text[-1])
         if padding > self.BLOCK_LENGTH:
             raise SECObfuscationException("Padding incorrect")
 
         return text[:-padding]
 
-    def addPadding(self, text):
-        padding = self.BLOCK_LENGTH - len(text)%self.BLOCK_LENGTH
+    def add_padding(self, text):
+        padding = self.BLOCK_LENGTH - len(text) % self.BLOCK_LENGTH
         return text + chr(padding) * padding
 
-    def splitKeyIV(self, keyiv):
-        key = keyiv[0:self.KEY_LENGTH]
-        iv = keyiv[self.KEY_LENGTH:self.KEY_LENGTH+self.IV_LENGTH]
+    def split_key_iv(self, key_iv):
+        key = key_iv[0:self.KEY_LENGTH]
+        iv_value = key_iv[self.KEY_LENGTH:self.KEY_LENGTH + self.IV_LENGTH]
 
-        return (key,iv)
+        return (key, iv_value)
 
-    def deobfuscate(self, salt, cipherText):
-        key, iv = self.createSessionKey(salt)
-        cipher = self.createCipher(key, iv)
-        return self.removePadding(cipher.decrypt(cipherText))
+    def deobfuscate(self, salt, cipher_text):
+        key, iv_value = self.create_session_key(salt)
+        cipher = self.create_cipher(key, iv_value)
+        return self.remove_padding(cipher.decrypt(cipher_text))
 
-    def obfuscate(self, salt, plainText):
-        key, iv = self.createSessionKey(salt)
-        cipher = self.createCipher(key, iv)
-        return cipher.encrypt(self.addPadding(plainText))
+    def obfuscate(self, salt, plain_text):
+        key, iv_value = self.create_session_key(salt)
+        cipher = self.create_cipher(key, iv_value)
+        return cipher.encrypt(self.add_padding(plain_text))
 
 
-## Algorithm enumeration:
+# Algorithm enumeration:
 ALGO_3DES = 7
 ALGO_AES256 = 8
+
 
 class ThreeDES(SECObfuscation):
     ALGORITHM_MARKER_BYTE = ALGO_3DES
@@ -54,29 +57,29 @@ class ThreeDES(SECObfuscation):
     BLOCK_LENGTH = 8
     IV_LENGTH = BLOCK_LENGTH
 
-    def createCipher(self, key, iv):
-        return DES3.new(key, DES3.MODE_CBC, IV=iv)
+    def create_cipher(self, key, iv_value):
+        return DES3.new(key, DES3.MODE_CBC, IV=iv_value)
 
-    def createSessionKey(self, salt):
+    def create_session_key(self, salt):
         """
-        @return (key,iv) for salt
+        @return (key,iv_value) for salt
         """
         import hashlib
 
-        password = self.getPassword()
+        password = self.get_password()
 
-        keyiv = b""
-        previousHash = b""
+        key_iv = b""
+        previous_hash = b""
 
-        while len(keyiv) < self.KEY_LENGTH + self.IV_LENGTH:
+        while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
             m = hashlib.md5()
-            m.update(previousHash)
+            m.update(previous_hash)
             m.update(password)
             m.update(salt)
-            previousHash = m.digest()
-            keyiv += previousHash
+            previous_hash = m.digest()
+            key_iv += previous_hash
 
-        return self.splitKeyIV(keyiv)
+        return self.split_key_iv(key_iv)
 
 
 class AES256(SECObfuscation):
@@ -87,87 +90,92 @@ class AES256(SECObfuscation):
     IV_LENGTH = BLOCK_LENGTH
     KEY_ITERATIONS = 50000
 
-    def createCipher(self, key, iv):
+    def create_cipher(self, key, iv_value):
         from Crypto.Cipher import AES
-        return AES.new(key, AES.MODE_CBC, IV=iv)
+        return AES.new(key, AES.MODE_CBC, IV=iv_value)
 
-    def createSessionKey(self, salt):
+    def create_session_key(self, salt):
         """
-        @return (key,iv) for salt
+        @return (key,iv_value) for salt
         """
 
-        password = self.getPassword()
+        password = self.get_password()
 
-        prf = lambda p,s: HMAC.new(p, s, SHA512).digest()
-        keyiv = PBKDF2(password, salt,
-                       dkLen=self.KEY_LENGTH + self.IV_LENGTH,
-                       count=self.KEY_ITERATIONS,
-                       prf=prf
-                       )
+        def prf(p, s): return HMAC.new(p, s, SHA512).digest()
+        key_iv = PBKDF2(password, salt,
+                        dkLen=self.KEY_LENGTH + self.IV_LENGTH,
+                        count=self.KEY_ITERATIONS,
+                        prf=prf
+                        )
 
-        return self.splitKeyIV(keyiv)
+        return self.split_key_iv(key_iv)
 
-def getImplementationFromEmbeddedAlgorithmByte(embeddedAlgorithmByte):
-    if embeddedAlgorithmByte == ThreeDES.ALGORITHM_MARKER_BYTE:
+
+def get_implementation_from_embedded_algorithm_byte(embedded_algorithm_byte):
+    if embedded_algorithm_byte == ThreeDES.ALGORITHM_MARKER_BYTE:
         return ThreeDES()
-    elif embeddedAlgorithmByte == AES256.ALGORITHM_MARKER_BYTE:
+    elif embedded_algorithm_byte == AES256.ALGORITHM_MARKER_BYTE:
         return AES256()
 
     raise SECObfuscationException("Unknown obfuscation algorithm-id")
 
 
-def getImplementation(rawObfuscated):
-    embeddedAlgorithmByte = ord(rawObfuscated[0])
-    return getImplementationFromEmbeddedAlgorithmByte(embeddedAlgorithmByte)
+def get_implementation(raw_obfuscated):
+    embedded_algorithm_byte = ord(raw_obfuscated[0])
+    return get_implementation_from_embedded_algorithm_byte(
+        embedded_algorithm_byte)
 
-def deobfuscate(base64Obfuscated):
+
+def deobfuscate(base64_obfuscated):
     """
-    @param base64Obfuscated BASE64 encoded obfuscated text
+    @param base64_obfuscated BASE64 encoded obfuscated text
     @returns raw plain text
     """
     import base64
     try:
-        rawObfuscated = base64.b64decode(base64Obfuscated)
-    except TypeError as e:
+        raw_obfuscated = base64.b64decode(base64_obfuscated)
+    except TypeError:
         raise SECObfuscationException("Invalid Base64 in SECObfuscation")
 
-    impl = getImplementation(rawObfuscated)
+    impl = get_implementation(raw_obfuscated)
     assert impl is not None
 
-    saltLength = ord(rawObfuscated[1])
-    if saltLength != impl.SALT_LENGTH:
+    salt_length = ord(raw_obfuscated[1])
+    if salt_length != impl.SALT_LENGTH:
         raise SECObfuscationException("Incorrect number of salt bytes")
 
-    if len(rawObfuscated) < 2 + saltLength:
+    if len(raw_obfuscated) < 2 + salt_length:
         raise SECObfuscationException("Ciphertext corrupt: short salt")
 
-    salt = rawObfuscated[2:saltLength+2]
-    cipherText = rawObfuscated[2+saltLength:]
+    salt = raw_obfuscated[2:salt_length + 2]
+    cipher_text = raw_obfuscated[2 + salt_length:]
 
-    if len(cipherText) == 0:
+    if len(cipher_text) == 0:
         raise SECObfuscationException("Ciphertext corrupt: data short")
 
     try:
-        return impl.deobfuscate(salt, cipherText)
-    except ValueError as e:
-        raise SECObfuscationException("Ciphertext corrupt: " + str(e))
+        return impl.deobfuscate(salt, cipher_text)
+    except ValueError as exception:
+        raise SECObfuscationException("Ciphertext corrupt: " + str(exception))
 
-def obfuscate(embeddedAlgorithmByte, rawPlain, randomGenerator):
+
+def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     """
-    @param embeddedAlgorithmByte - one of ALGO_3DES or ALGO_AES256
-    @param rawPlain Original plain text
-    @param randomGenerator
+    @param embedded_algorithm_byte - one of ALGO_3DES or ALGO_AES256
+    @param raw_plain Original plain text
+    @param random_generator
     @returns Base64 obfuscated text
     """
-    impl = getImplementationFromEmbeddedAlgorithmByte(embeddedAlgorithmByte)
+    impl = get_implementation_from_embedded_algorithm_byte(
+        embedded_algorithm_byte)
     assert impl is not None
 
-    saltLength = impl.SALT_LENGTH
-    salt = randomGenerator.randomBytes(saltLength)
-    assert(len(salt) == saltLength)
+    salt_length = impl.SALT_LENGTH
+    salt = random_generator.random_bytes(salt_length)
+    assert(len(salt) == salt_length)
 
-    rawObfuscated = chr(embeddedAlgorithmByte) + chr(saltLength) + salt + impl.obfuscate(salt, rawPlain)
+    raw_obfuscated = chr(embedded_algorithm_byte) + \
+        chr(salt_length) + salt + impl.obfuscate(salt, raw_plain)
 
     import base64
-    return base64.b64encode(rawObfuscated)
-
+    return base64.b64encode(raw_obfuscated)
