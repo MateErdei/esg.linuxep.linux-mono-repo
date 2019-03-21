@@ -20,7 +20,7 @@ namespace diagnose
     {
         std::cout << "Running: " << command << ", output to: " << filename << std::endl;
         Path filePath = Common::FileSystem::join(m_destination, filename);
-        std::string fullCommand = command + " >" + filePath + " 2>&1";
+        std::string fullCommand = command + " >'" + filePath + "' 2>&1";
         return system(fullCommand.c_str());
     }
 
