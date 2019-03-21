@@ -22,7 +22,13 @@ namespace diagnose
          */
         int runCommand(const std::string& command, const std::string& filename);
 
+        /*
+         * Archive the diagnose output into a tar.gz ready for sending to Sophos.
+         */
+        int tarDiagnoseFolder(const std::string& dirPath);
+
     private:
         std::string m_destination;
+        bool isSafeToDelete(const std::string& path );
     };
 } // namespace diagnose

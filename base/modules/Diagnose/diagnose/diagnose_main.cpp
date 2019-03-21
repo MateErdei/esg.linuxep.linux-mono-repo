@@ -135,6 +135,8 @@ namespace diagnose
             gatherFiles.copyFile("/etc/resolve.conf", Common::FileSystem::join(systemFilesDir, "resolve.conf"));
             gatherFiles.copyFile(
                 "/etc/systemd/system.conf", Common::FileSystem::join(systemFilesDir, "systemd-system.conf"));
+
+            systemCommands.tarDiagnoseFolder(destination);
         }
         catch (std::invalid_argument& e)
         {
