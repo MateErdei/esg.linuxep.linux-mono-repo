@@ -11,8 +11,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <cstring>
 #include <iostream>
-#include <stdlib.h>
-#include <string>
 
 namespace
 {

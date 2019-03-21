@@ -8,7 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <iostream>
-#include <string>
 
 namespace
 {
