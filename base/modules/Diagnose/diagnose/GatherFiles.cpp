@@ -52,13 +52,13 @@ namespace diagnose
     {
         if (!m_fileSystem.isDirectory(path))
         {
-            throw std::invalid_argument("Directory does not exist");
+            throw std::invalid_argument("Error: Directory does not exist");
         }
 
         Path outputDir = Common::FileSystem::join(path, dirName);
         if (m_fileSystem.isDirectory(outputDir))
         {
-            throw std::invalid_argument("Output directory already exists: " + outputDir);
+            throw std::invalid_argument("Error: Directory already exists: " + outputDir);
         }
 
         m_fileSystem.makedirs(outputDir);
@@ -67,7 +67,19 @@ namespace diagnose
             return outputDir;
         }
 
-        throw std::invalid_argument("Directory was not created");
+        throw std::invalid_argument("Error: Directory was not created");
+    }
+
+    void GatherFiles::copyFileIntoDirectory(const Path& filePath, const Path& dirPath)
+    {
+        if (!m_fileSystem.isFile(filePath))
+        {
+            return;
+        }
+
+        std::string filename = Common::FileSystem::basename(filePath);
+        m_fileSystem.copyFile(filePath, Common::FileSystem::join(dirPath, filename));
+        std::cout << "Copied " << filePath << " to " << dirPath << std::endl;
     }
 
     void GatherFiles::copyFile(const Path& filePath, const Path& destination)
@@ -77,20 +89,26 @@ namespace diagnose
             return;
         }
 
-        std::string filename = Common::FileSystem::basename(filePath);
-        m_fileSystem.copyFile(filePath, Common::FileSystem::join(destination, filename));
+        m_fileSystem.copyFile(filePath, destination);
         std::cout << "Copied " << filePath << " to " << destination << std::endl;
     }
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
-        std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
-        for (const auto& file : files)
+        if(m_fileSystem.isDirectory(dirPath))
         {
-            if (isFileOfInterest(file))
+            std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
+            for (const auto& file : files)
             {
-                copyFile(file, destination);
+                if (isFileOfInterest(file))
+                {
+                    copyFileIntoDirectory(file, destination);
+                }
             }
+        }
+        else
+        {
+            std::cout << "Directory does not exist or cannot be accessed: " << dirPath << std::endl;
         }
     }
 
@@ -109,7 +127,7 @@ namespace diagnose
             std::string filePath = Common::FileSystem::join(m_installDirectory, path);
             if (m_fileSystem.isFile(filePath))
             {
-                copyFile(filePath, destination);
+                copyFileIntoDirectory(filePath, destination);
             }
             else if (m_fileSystem.isDirectory(filePath))
             {
@@ -128,7 +146,7 @@ namespace diagnose
         {
             return m_fileSystem.readLines(inputFilePath);
         }
-        throw std::invalid_argument("Log locations config file does not exist: " + inputFilePath);
+        throw std::invalid_argument("Error: Log locations config file does not exist: " + inputFilePath);
     }
 
     Path GatherFiles::getConfigLocation(const std::string& configFileName)
@@ -149,7 +167,7 @@ namespace diagnose
             }
             else
             {
-                throw std::invalid_argument("No config file - " + configFileName);
+                throw std::invalid_argument("Error: No config file - " + configFileName);
             }
         }
         return configFilePath;
