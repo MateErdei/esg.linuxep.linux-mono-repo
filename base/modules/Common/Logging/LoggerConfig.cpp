@@ -79,10 +79,13 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
         (void)LoggerSophosSettings::instance().logLevel("", logLevel);
     }
 
-    log4cplus::Logger::getRoot().setLogLevel(logLevel);
+    // before applying the required log level, it always add an INFO message which reports the
+    // loglevel of the root
+    log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);
     std::stringstream initMessage;
     initMessage << "Logger " << logbase << " configured for level: " << logLevel << std::endl;
     log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
+    log4cplus::Logger::getRoot().setLogLevel(logLevel);
     log4cplus::getLogLevelManager().pushToStringMethod(log4cplus::supportToStringMethod);
     log4cplus::getLogLevelManager().pushFromStringMethod(log4cplus::supportFromStringMethod);
 }
