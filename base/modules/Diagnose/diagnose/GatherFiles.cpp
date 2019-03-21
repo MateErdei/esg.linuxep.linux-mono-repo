@@ -151,26 +151,14 @@ namespace diagnose
 
     Path GatherFiles::getConfigLocation(const std::string& configFileName)
     {
-        Path configFilePath =
-            Common::FileSystem::join(m_fileSystem.currentWorkingDirectory(), "../etc", configFileName);
-
+        Path configFilePath = Common::FileSystem::join(m_installDirectory, "base/etc", configFileName);
         if (m_fileSystem.isFile(configFilePath))
         {
             std::cout << "Location of config file: " << configFilePath << std::endl;
+            return configFilePath;
         }
-        else
-        {
-            configFilePath = Common::FileSystem::join(m_installDirectory, "base/etc", configFileName);
-            if (m_fileSystem.isFile(configFilePath))
-            {
-                std::cout << "Location of config file: " << configFilePath << std::endl;
-            }
-            else
-            {
-                throw std::invalid_argument("Error: No config file - " + configFileName);
-            }
-        }
-        return configFilePath;
+
+        throw std::invalid_argument("Error: No config file - " + configFileName);
     }
 
     void GatherFiles::copyPluginFiles(const Path& destination)
