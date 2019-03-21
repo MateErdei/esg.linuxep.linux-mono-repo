@@ -8,8 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 
-#include <stdlib.h>
 #include <iostream>
+#include <stdlib.h>
 
 namespace diagnose
 {

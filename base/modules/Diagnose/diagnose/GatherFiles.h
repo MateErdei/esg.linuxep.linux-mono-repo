@@ -73,7 +73,6 @@ namespace diagnose
          */
         void copyFileIntoDirectory(const Path& filePath, const Path& dirPath);
 
-
     private:
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);

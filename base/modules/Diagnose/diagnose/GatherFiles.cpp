@@ -95,7 +95,7 @@ namespace diagnose
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
-        if(m_fileSystem.isDirectory(dirPath))
+        if (m_fileSystem.isDirectory(dirPath))
         {
             std::vector<std::string> files = m_fileSystem.listFiles(dirPath);
             for (const auto& file : files)

@@ -89,7 +89,7 @@ namespace diagnose
             systemCommands.runCommand("hostnamectl", "hostnamectl");
             systemCommands.runCommand("uname -a", "uname");
             systemCommands.runCommand("lscpu", "lscpu");
-            systemCommands.runCommand("lshw", "lshw");  // Doesn't work on Amazon
+            systemCommands.runCommand("lshw", "lshw"); // Doesn't work on Amazon
             systemCommands.runCommand("ls -l /lib/systemd/system", "systemd");
             systemCommands.runCommand("ls -l /usr/lib/systemd/system", "usr-systemd");
             systemCommands.runCommand("systemctl list-unit-files", "list-unit-files");
@@ -135,7 +135,8 @@ namespace diagnose
             gatherFiles.copyFile("/etc/rsylog.conf", Common::FileSystem::join(systemFilesDir, "rsylog.conf"));
             gatherFiles.copyFile("/etc/hosts", Common::FileSystem::join(systemFilesDir, "hosts"));
             gatherFiles.copyFile("/etc/resolve.conf", Common::FileSystem::join(systemFilesDir, "resolve.conf"));
-            gatherFiles.copyFile("/etc/systemd/system.conf", Common::FileSystem::join(systemFilesDir, "systemd-system.conf"));
+            gatherFiles.copyFile(
+                "/etc/systemd/system.conf", Common::FileSystem::join(systemFilesDir, "systemd-system.conf"));
         }
         catch (std::invalid_argument& e)
         {
