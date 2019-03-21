@@ -35,6 +35,24 @@ namespace
         logLevel = LogLevels.at(std::distance(LogNames.begin(), ind_it));
         return true;
     }
+
+    std::string fromLogLevelToString(log4cplus::LogLevel& logLevel)
+    {
+        using sp = Common::Logging::SophosLogLevel;
+        static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
+                { "SUPPORT" }, { "WARN" },  { "ERROR" } };
+        static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
+
+        auto ind_it = std::find(LogLevels.begin(), LogLevels.end(), logLevel);
+        if (ind_it == LogLevels.end())
+        {
+            return std::string("Unknown (") + std::to_string(logLevel) + ")";
+        }
+        assert(std::distance(LogLevels.begin(), ind_it) >= 0);
+        assert(std::distance(LogLevels.begin(), ind_it) < static_cast<int>(LogLevels.size()));
+        return LogNames.at(std::distance(LogLevels.begin(), ind_it));
+    }
+
 } // namespace
 
 const log4cplus::tstring& log4cplus::supportToStringMethod(log4cplus::LogLevel logLevel)
@@ -83,7 +101,7 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
     // loglevel of the root
     log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);
     std::stringstream initMessage;
-    initMessage << "Logger " << logbase << " configured for level: " << logLevel << std::endl;
+    initMessage << "Logger " << logbase << " configured for level: " << fromLogLevelToString(logLevel) << std::endl;
     log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
     log4cplus::Logger::getRoot().setLogLevel(logLevel);
     log4cplus::getLogLevelManager().pushToStringMethod(log4cplus::supportToStringMethod);
