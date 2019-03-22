@@ -5,6 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "GatherFiles.h"
+#include "Strings.h"
 
 #include <algorithm>
 #include <iostream>
@@ -39,13 +40,13 @@ namespace diagnose
 {
     void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
 
-    Path GatherFiles::createRootDir(const Path& path) { return createDiagnoseFolder(path, "DiagnoseOutput"); }
+    Path GatherFiles::createRootDir(const Path& path) { return createDiagnoseFolder(path, DIAGNOSE_FOLDER); }
 
-    Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, "BaseFiles"); }
+    Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, BASE_FOLDER); }
 
-    Path GatherFiles::createPluginFilesDir(const Path& path) { return createDiagnoseFolder(path, "PluginFiles"); }
+    Path GatherFiles::createPluginFilesDir(const Path& path) { return createDiagnoseFolder(path, PLUGIN_FOLDER); }
 
-    Path GatherFiles::createSystemFilesDir(const Path& path) { return createDiagnoseFolder(path, "SystemFiles"); }
+    Path GatherFiles::createSystemFilesDir(const Path& path) { return createDiagnoseFolder(path, SYSTEM_FOLDER); }
 
     Path GatherFiles::createDiagnoseFolder(const Path& path, std::string dirName)
     {

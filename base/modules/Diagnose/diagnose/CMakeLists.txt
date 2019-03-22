@@ -4,7 +4,8 @@ add_library(diagnoseimpl STATIC
             GatherFiles.cpp
             GatherFiles.h
             SystemCommands.cpp
-            SystemCommands.h)
+            SystemCommands.h
+            Strings.h)
 
 target_include_directories(diagnoseimpl PUBLIC filesystemimpl)
 

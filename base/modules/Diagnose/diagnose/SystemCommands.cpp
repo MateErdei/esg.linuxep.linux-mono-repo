@@ -5,6 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SystemCommands.h"
+#include "Strings.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 
@@ -23,30 +24,43 @@ namespace diagnose
         return system(fullCommand.c_str());
     }
 
-    int SystemCommands::tarDiagnoseFolder(const std::string& dirPath)
+    void SystemCommands::cleanupDir(const std::string& dirPath)
     {
+        std::string removeCommand = "rm -rf " + dirPath;
+        int ret = system(removeCommand.c_str());
+        if (ret != 0)
+        {
+            std::cout << "Error: " << removeCommand << " failed." << std::endl;
+        }
+    }
 
+    void SystemCommands::cleanupDirs(const std::string& dirPath)
+    {
+        cleanupDir(Common::FileSystem::join(dirPath, PLUGIN_FOLDER));
+        cleanupDir(Common::FileSystem::join(dirPath, BASE_FOLDER));
+        cleanupDir(Common::FileSystem::join(dirPath, SYSTEM_FOLDER));
+    }
+
+    void SystemCommands::tarDiagnoseFolder(const std::string& dirPath)
+    {
         std::string tarfile = Common::FileSystem::join(dirPath, "sspl-diagnose.tar.gz");
         std::cout << "Running tar on: " << dirPath <<std::endl;
 
-        std::string tarCommand = "tar -czf " + tarfile + " -C " + dirPath + " PluginFiles BaseFiles SystemFiles";
+        std::string tarCommand = "tar -czf " + tarfile + " -C " + dirPath + " " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
         Common::FileSystem::FileSystemImpl fileSystem;
 
         int ret =  system(tarCommand.c_str());
-        //check ret
+        if (ret != 0)
+        {
+            throw std::invalid_argument("tar file command failed");
+        }
 
         if(fileSystem.isFile(tarfile) )
         {
             if(isSafeToDelete(dirPath))
             {
-                std::string removeBaseFilesCommand = "rm -rf " + Common::FileSystem::join(dirPath,"BaseFiles");
-                std::string removeSystemFilesCommand = "rm -rf " + Common::FileSystem::join(dirPath,"SystemFiles");
-                std::string removePluginsFilesCommand = "rm -rf " + Common::FileSystem::join(dirPath,"PluginFiles");
-                int ret = system(removeBaseFilesCommand.c_str());
-                ret = system(removeSystemFilesCommand.c_str());
-                ret = system(removePluginsFilesCommand.c_str());
-                static_cast<void>(ret);
+                cleanupDirs(dirPath);
             }
             else
             {
@@ -57,7 +71,6 @@ namespace diagnose
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
-        return ret;
     }
 
     bool SystemCommands::isSafeToDelete(const std::string& path)
