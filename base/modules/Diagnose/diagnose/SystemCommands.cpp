@@ -10,11 +10,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 
 #include <iostream>
-#include <stdlib.h>
 
 namespace diagnose
 {
-    SystemCommands::SystemCommands(std::string destination) : m_destination(destination) {}
+    SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
     int SystemCommands::runCommand(const std::string& command, const std::string& filename)
     {

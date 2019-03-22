@@ -8,7 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "GatherFiles.h"
 #include "SystemCommands.h"
-#include "Strings.h"
 
 #include <cstring>
 #include <iostream>

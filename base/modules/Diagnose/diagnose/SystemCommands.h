@@ -15,7 +15,7 @@ namespace diagnose
     class SystemCommands
     {
     public:
-        explicit SystemCommands(std::string destination);
+        explicit SystemCommands(const std::string& destination);
 
         /*
          * runs a command and writes the output to a file
