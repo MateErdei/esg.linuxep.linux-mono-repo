@@ -25,7 +25,7 @@ namespace diagnose
 
     void SystemCommands::cleanupDir(const std::string& dirPath)
     {
-        std::string removeCommand = "rm -rf " + dirPath;
+        std::string removeCommand = "rm -rf '" + dirPath + "'";
         int ret = system(removeCommand.c_str());
         if (ret != 0)
         {
@@ -45,7 +45,7 @@ namespace diagnose
         std::string tarfile = Common::FileSystem::join(dirPath, "sspl-diagnose.tar.gz");
         std::cout << "Running tar on: " << dirPath <<std::endl;
 
-        std::string tarCommand = "tar -czf " + tarfile + " -C " + dirPath + " " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+        std::string tarCommand = "tar -czf " + tarfile + " -C '" + dirPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
         Common::FileSystem::FileSystemImpl fileSystem;
 
@@ -74,7 +74,7 @@ namespace diagnose
 
     bool SystemCommands::isSafeToDelete(const std::string& path)
     {
-        return !(Common::FileSystem::basename(path) != "DiagnoseOutput");
+        return (Common::FileSystem::basename(path) == DIAGNOSE_FOLDER);
 
     }
 
