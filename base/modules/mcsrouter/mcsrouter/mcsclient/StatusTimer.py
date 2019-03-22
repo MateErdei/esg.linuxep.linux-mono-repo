@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+StatusTimer Module
+"""
 
 import mcsrouter.mcsclient.Timer
 

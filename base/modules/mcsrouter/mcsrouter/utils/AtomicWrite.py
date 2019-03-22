@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+AtomicWrite Module
+"""
 
 import os
 import logging

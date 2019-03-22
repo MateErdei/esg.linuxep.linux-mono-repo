@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Config Module
+"""
 
 import os
 

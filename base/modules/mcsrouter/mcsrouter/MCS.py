@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
+"""
+MCS Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -37,6 +40,7 @@ import utils.PluginRegistry
 import utils.PathManager as PathManager
 
 LOGGER = logging.getLogger(__name__)
+
 
 class CommandCheckInterval(object):
     """
@@ -139,6 +143,7 @@ class MCS(object):
     """
     MCS
     """
+
     def __init__(self, config, install_dir):
         """
         __init__
@@ -298,6 +303,9 @@ class MCS(object):
             PathManager.install_dir())
 
         def add_event(*event_args):
+            """
+            add_event
+            """
             events.add_event(*event_args)
             events_timer.event_added()
             LOGGER.debug(
@@ -305,6 +313,9 @@ class MCS(object):
                 events_timer.relative_time())
 
         def status_updated(reason=None):
+            """
+            status_updated
+            """
             LOGGER.debug(
                 "Checking for status update due to %s",
                 reason or "unknown reason")
@@ -399,7 +410,7 @@ class MCS(object):
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
 
-                        if len(commands) > 0:
+                        if commands:
                             LOGGER.debug("Got commands; resetting interval")
                             self.__m_command_check_interval.set()
                         else:

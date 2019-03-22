@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+SophosHTTPS Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -70,6 +73,7 @@ class Proxy(object):
     """
     Proxy
     """
+
     def __init__(
             self,
             host=None,
@@ -178,6 +182,7 @@ class InvalidCertificateException(httplib.HTTPException, urllib2.URLError):
     """
     InvalidCertificateException
     """
+
     def __init__(self, host, cert, reason):
         """
         __init__
@@ -199,6 +204,7 @@ class ProxyTunnelError(httplib.HTTPException):
     """
     ProxyTunnelError
     """
+
     def __init__(self, response):
         """
         __init__
@@ -307,6 +313,7 @@ class ConnectHTTPSHandler(urllib2.HTTPSHandler):
     """
     ConnectHTTPSHandler
     """
+
     def do_open(self, http_class, req):
         return urllib2.HTTPSHandler.do_open(
             self, CertValidatingHTTPSConnection, req)

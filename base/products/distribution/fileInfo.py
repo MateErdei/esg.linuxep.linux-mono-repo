@@ -42,7 +42,7 @@ class FileInfo(object):
         f = open(self.__m_fullPath)
         while True:
             data = f.read(1024*100)
-            if len(data) == 0:
+            if not data:
                 break
             md5calc.update(data)
             sha1calc.update(data)

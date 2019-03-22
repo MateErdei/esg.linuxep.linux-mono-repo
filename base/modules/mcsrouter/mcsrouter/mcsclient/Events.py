@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Events Module
+"""
 
 import xml.dom.minidom
 
@@ -40,6 +43,7 @@ class Event(object):
     """
     Event
     """
+
     def __init__(self, app_id, creation_time, ttl, body, seq, id):
         """
         __init__
@@ -74,6 +78,7 @@ class Events(object):
     """
     Events
     """
+
     def __init__(self):
         """
         __init__
@@ -126,4 +131,6 @@ class Events(object):
         """
         has_events
         """
-        return len(self.__m_events) > 0
+        if self.__m_events:
+            return True
+        return False

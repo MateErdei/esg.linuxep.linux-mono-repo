@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+MCSConnection Module
+"""
 
 import base64
 import os
@@ -33,6 +36,7 @@ class MCSHttpException(mcsrouter.mcsclient.MCSException.MCSNetworkException):
     """
     MCSHttpException
     """
+
     def __init__(self, error_code, headers, body):
         """
         __init__
@@ -106,6 +110,7 @@ class MCSConnection(object):
     """
     MCSConnection
     """
+
     def __init__(self, config, product_version="unknown", install_dir=".."):
         """
         __init__
@@ -192,7 +197,7 @@ class MCSConnection(object):
         """
         current = self.__get_message_relays()
 
-        if len(current) > 0:
+        if current:
             old_relays = []
             for relay in self.__m_message_relays:
                 relay_string = relay["hostname"] + ":" + \
@@ -214,7 +219,7 @@ class MCSConnection(object):
         __policy_proxy_changed
         """
         return (
-            self.__m_policy_proxy != self.__m_config.get_default("mcs_policy_proxy",None)
+            self.__m_policy_proxy != self.__m_config.get_default("mcs_policy_proxy", None)
             or self.__m_policy_proxy_credentials_obfuscated != self.__m_config.get_default(
                 "mcs_policy_proxy_credentials",
                 None))
@@ -260,6 +265,9 @@ class MCSConnection(object):
                 relay_id=None,
                 username=None,
                 password=None):
+            """
+            add_proxy
+            """
             if proxy_string is None:
                 return
 
@@ -542,13 +550,15 @@ class MCSConnection(object):
                     "Response too long, got %d, expected %d",
                     len(body),
                     limit)
-            raise mcsrouter.mcsclient.MCSException.MCSNetworkException("Response too long")
+            raise mcsrouter.mcsclient.MCSException.MCSNetworkException(
+                "Response too long")
 
         # if we got an HTTP Content-Length, make sure the response isn't too
         # short
         if length is not None and len(body) < limit:
             LOGGER.error("Response too short")
-            raise mcsrouter.mcsclient.MCSException.MCSNetworkException("Response too short")
+            raise mcsrouter.mcsclient.MCSException.MCSNetworkException(
+                "Response too short")
 
         if response.status == httplib.UNAUTHORIZED:
             LOGGER.info("UNAUTHORIZED from server %d WWW-Authenticate=%s",
@@ -642,6 +652,9 @@ class MCSConnection(object):
         self.__m_current_path = ""
 
         def get_response_with_url(proxy):
+            """
+            get_response_with_url
+            """
             self.__m_connection = self.__try_create_connection(
                 proxy, host, port)
             if self.__m_connection is not None:
@@ -701,7 +714,7 @@ class MCSConnection(object):
         # If we were unable to connect
         if not self.__m_last_seen_http_error:
             LOGGER.info("Failed to connect to Central")
-            if len(proxies) == 0:
+            if not proxies:
                 LOGGER.info(
                     "No proxies/message relays set to communicate with Central - useDirect is False")
             raise mcsrouter.mcsclient.MCSException.MCSConnectionFailedException(

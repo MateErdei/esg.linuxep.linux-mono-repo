@@ -1,3 +1,7 @@
+"""
+PluginRegistry Module
+"""
+
 import json
 import logging
 import os
@@ -48,6 +52,7 @@ class PluginRegistry:
     """
     PluginRegistry
     """
+
     def __init__(self, install_dir):
         """
         __init__

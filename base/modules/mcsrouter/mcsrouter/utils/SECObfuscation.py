@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
+"""
+SECObfuscation Module
+"""
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
@@ -24,6 +27,7 @@ class SECObfuscation(object):
     """
     SECObfuscation
     """
+
     def get_password(self):
         """
         get_password
@@ -137,7 +141,11 @@ class AES256(SECObfuscation):
 
         password = self.get_password()
 
-        def prf(p, s): return HMAC.new(p, s, SHA512).digest()
+        def prf(p, s):
+            """
+            prf
+            """
+            return HMAC.new(p, s, SHA512).digest()
         key_iv = PBKDF2(password, salt,
                         dkLen=self.KEY_LENGTH + self.IV_LENGTH,
                         count=self.KEY_ITERATIONS,
@@ -192,7 +200,7 @@ def deobfuscate(base64_obfuscated):
     salt = raw_obfuscated[2:salt_length + 2]
     cipher_text = raw_obfuscated[2 + salt_length:]
 
-    if len(cipher_text) == 0:
+    if not cipher_text:
         raise SECObfuscationException("Ciphertext corrupt: data short")
 
     try:

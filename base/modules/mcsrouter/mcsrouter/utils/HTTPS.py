@@ -1,3 +1,7 @@
+"""
+HTTPS Module
+"""
+
 import SophosHTTPS
 
 

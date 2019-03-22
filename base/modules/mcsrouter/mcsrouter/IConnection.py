@@ -1,7 +1,14 @@
 #!/usr/bin/env python
+"""
+IConnection Module
+"""
 
 
 class IConnection(object):
+    """
+    IConnection Class
+    """
+
     def action_completed(self, action):
         """
         action_completed

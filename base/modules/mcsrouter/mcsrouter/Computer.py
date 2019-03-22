@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
+"""
+Computer Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -126,12 +129,12 @@ class Computer(object):
         """
         self.__m_commands += commands
 
-        if len(self.__m_commands) == 0:
+        if not self.__m_commands:
             return False
 
         LOGGER.debug("Running commands:")
 
-        while len(self.__m_commands) > 0:
+        while self.__m_commands:
             command = self.__m_commands.pop(0)
             LOGGER.debug("  %s", str(command))
             n = None

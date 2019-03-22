@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+MCSPolicyHandler Module
+"""
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
@@ -18,6 +21,9 @@ LOGGER = logging.getLogger(__name__)
 
 
 class MCSPolicyHandlerException(Exception):
+    """
+    MCSPolicyHandlerException
+    """
     pass
 
 
@@ -167,7 +173,7 @@ class MCSPolicyHandler(object):
 
         servers = self.__get_non_empty_sub_elements(node, "server")
 
-        if len(servers) == 0:
+        if not servers:
             LOGGER.error("MCS Policy has no server nodes in servers element")
             return False
 
@@ -262,7 +268,7 @@ class MCSPolicyHandler(object):
 
         proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
 
-        if len(proxies) == 0:
+        if not proxies:
             LOGGER.error("MCS Policy has no proxy nodes in proxies element")
             return False
 
@@ -279,7 +285,7 @@ class MCSPolicyHandler(object):
         credentials = self.__get_non_empty_sub_elements(
             credentials_node, "credentials")
 
-        if len(credentials) == 0:
+        if not credentials:
             return False
 
         if len(credentials) > 1:
@@ -383,6 +389,9 @@ class MCSPolicyHandler(object):
         return self.__m_compliance
 
     def get_current_message_relay(self):
+        """
+        get_current_message_relay
+        """
         return self.__m_applied_config.get_default("current_relay_id", None)
 
     def is_compliant(self):
@@ -404,13 +413,9 @@ class MCSPolicyHandler(object):
                       "mcs_policy_proxy_credentials",
                       "COMMAND_CHECK_INTERVAL_MINIMUM",
                       "COMMAND_CHECK_INTERVAL_MAXIMUM"):
-            if self.__m_policy_config.get_default(
-                    field,
-                    None) != self.__m_applied_config.get_default(
-                    field,
-                    None):
-                LOGGER.warning(
-                    "MCS Policy not compliant: %s option differs", field)
+            if self.__m_policy_config.get_default(field, None)\
+                    != self.__m_applied_config.get_default(field, None):
+                LOGGER.warning("MCS Policy not compliant: %s option differs", field)
                 compliant = False
 
         # Check URLS

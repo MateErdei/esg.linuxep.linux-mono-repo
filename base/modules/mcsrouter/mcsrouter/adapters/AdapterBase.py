@@ -1,3 +1,6 @@
+"""
+AdapterBase Module
+"""
 
 import xml.dom.minidom
 
@@ -30,6 +33,7 @@ class AdapterBase(object):
     """
     AdapterBase
     """
+
     def get_status_ttl(self):
         """
         get_status_ttl

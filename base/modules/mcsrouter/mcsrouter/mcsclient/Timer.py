@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Timer Module
+"""
 
 import time
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
-
+"""
+StatusEvent Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -25,6 +27,7 @@ class StatusEvent(object):
     """
     StatusEvent
     """
+
     def __init__(self):
         """
         __init__

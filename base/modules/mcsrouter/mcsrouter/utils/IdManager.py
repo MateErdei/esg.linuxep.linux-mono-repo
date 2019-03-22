@@ -1,3 +1,7 @@
+"""
+IdManager Module
+"""
+
 import time
 
 counter = 0

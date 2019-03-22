@@ -1,3 +1,7 @@
+"""
+Timestamp Module
+"""
+
 import time
 
 

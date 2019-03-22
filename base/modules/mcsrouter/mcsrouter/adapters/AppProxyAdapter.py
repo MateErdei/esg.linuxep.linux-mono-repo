@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+AppProxyAdapter Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -17,6 +20,7 @@ class AppProxyAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
     """
     AppProxyAdapter
     """
+
     def __init__(self, app_ids):
         """
         __init__

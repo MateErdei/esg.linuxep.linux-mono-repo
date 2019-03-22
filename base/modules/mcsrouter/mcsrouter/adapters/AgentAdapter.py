@@ -1,3 +1,6 @@
+"""
+AgentAdapter Module
+"""
 
 import logging
 
@@ -19,11 +22,11 @@ def format_ipv6(ipv6):
     assert len(ipv6) == 32
     result = []
     count_zero = 0
-    while len(ipv6) > 0:
+    while ipv6:
         sub = ipv6[:4]
         ipv6 = ipv6[4:]
 
-        while len(sub) > 0 and sub[0] == "0":
+        while sub and sub[0] == "0":
             sub = sub[1:]
         if sub == "":
             count_zero += 1
@@ -112,6 +115,7 @@ class AgentAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
     """
     AgentAdapter
     """
+
     def __init__(self, install_dir=None):
         """
         __init__

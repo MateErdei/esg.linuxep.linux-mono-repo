@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+SignalHandler Module
+"""
 
 import fcntl
 import os

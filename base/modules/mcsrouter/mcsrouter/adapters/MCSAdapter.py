@@ -1,3 +1,6 @@
+"""
+MCSAdapter Module
+"""
 
 import xml.dom.minidom
 import datetime
@@ -26,6 +29,7 @@ class MCSAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
     """
     MCSAdapter
     """
+
     def __init__(self,
                  install_dir,
                  policy_config,
@@ -37,9 +41,7 @@ class MCSAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
             PathManager.INST = install_dir
 
         self.__m_policy_handler = mcsrouter.adapters.mcs.MCSPolicyHandler.MCSPolicyHandler(
-            PathManager.install_dir(),
-            policy_config,
-            applied_config)
+            PathManager.install_dir(), policy_config, applied_config)
         self.__m_relay_id = None
 
     def get_app_id(self):

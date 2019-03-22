@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Module does stuff
+TargetSystem Module
 """
 
 import glob
@@ -243,7 +243,9 @@ class TargetSystem(object):
         using_lsb_release
         :return:
         """
-        return len(self.m_lsb_release) > 0
+        if self.m_lsb_release:
+            return True
+        return False
 
     def __collect_lsb_release(self):
         """

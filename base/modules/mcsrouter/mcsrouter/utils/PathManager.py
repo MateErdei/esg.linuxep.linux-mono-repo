@@ -1,3 +1,7 @@
+"""
+PathManager Module
+"""
+
 import os
 
 INST = os.environ.get('INST_DIR', '/tmp/sophos-spl')

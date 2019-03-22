@@ -1,3 +1,6 @@
+"""
+XMLHelper Module
+"""
 
 import xml.dom
 import codecs

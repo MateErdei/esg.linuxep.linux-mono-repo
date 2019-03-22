@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+MCSCommand Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -12,6 +15,7 @@ class Command(object):
     """
     Command
     """
+
     def get_connection(self):
         """
         get_connection
@@ -53,6 +57,7 @@ class BasicCommand(Command):
     """
     BasicCommand
     """
+
     def __get_text_from_element(self, element):
         """
         __get_text_from_element
@@ -104,6 +109,7 @@ class PolicyCommand(Command):
     """
     PolicyCommand
     """
+
     def __init__(self, command_id, app_id, policy_id, mcs_connection):
         """
         Represent a Policy apply command

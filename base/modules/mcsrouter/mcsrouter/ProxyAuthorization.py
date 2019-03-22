@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
+"""
+ProxyAuthorization Module
+"""
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
@@ -17,6 +20,7 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
     """
     SophosProxyDigestAuthHandler
     """
+
     def get_authorization(self, remote_host, chal, remote_port=443):
         """
         get_authorization
@@ -80,6 +84,7 @@ class ProxyAuthorization(object):
     """
     ProxyAuthorization
     """
+
     def __init__(self, proxy, remote_host, remote_port=443):
         """
         __init__

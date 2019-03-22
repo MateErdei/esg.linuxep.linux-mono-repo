@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
+"""
+SECObfuscationPassword Module
+"""
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 

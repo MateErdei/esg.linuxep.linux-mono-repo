@@ -1,3 +1,6 @@
+"""
+GenericAdapter Module
+"""
 
 import xml.dom.minidom
 import os
@@ -10,7 +13,6 @@ import mcsrouter.utils.PathManager as PathManager
 import mcsrouter.utils.XmlHelper as XmlHelper
 
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -18,6 +20,7 @@ class GenericAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
     """
     GenericAdapter
     """
+
     def __init__(self, app_id, install_dir=None):
         """
         __init__

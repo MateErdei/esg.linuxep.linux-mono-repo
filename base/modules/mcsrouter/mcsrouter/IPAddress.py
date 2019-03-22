@@ -15,6 +15,7 @@ import struct
 import array
 import subprocess
 
+
 def get_all_interfaces():
     """
     get_all_interfaces
@@ -47,7 +48,7 @@ def get_non_local_ipv4():
     Starts with the best (eth, em) and gets worse (vmware etc).
     """
     all_interfaces = get_all_interfaces()
-    if len(all_interfaces) == 0:
+    if not all_interfaces:
         return
 
     ip_ordering = []

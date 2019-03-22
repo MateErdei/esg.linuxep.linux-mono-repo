@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+registerCentral Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -240,6 +243,7 @@ class RandomGenerator(object):
     """
     RandomGenerator
     """
+
     def random_bytes(self, size):
         """
         random_bytes
@@ -428,7 +432,7 @@ def inner_main(argv):
         config.set("MCSURL", url)
 
         ca_file_env = os.environ.get("MCS_CA", "")
-        if len(ca_file_env) > 0 and os.path.isfile(ca_file_env):
+        if ca_file_env and os.path.isfile(ca_file_env):
             LOGGER.warning("Using %s as certificate CA", ca_file_env)
             config.set("CAFILE", ca_file_env)
 
@@ -508,6 +512,6 @@ def main(argv):
 
 if __name__ == '__main__':
     """
-    __name__ 
+    __name__
     """
     sys.exit(main(sys.argv))

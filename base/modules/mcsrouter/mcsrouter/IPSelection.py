@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+IPSelection Module
+"""
 
 import socket
 import threading
@@ -10,6 +13,7 @@ class IpLookupThread(threading.Thread):
     """
     IpLookupThread
     """
+
     def __init__(self, server):
         """
         __init__

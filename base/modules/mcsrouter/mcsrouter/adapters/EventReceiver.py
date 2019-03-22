@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+EventReceiver Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -16,6 +19,7 @@ class EventReceiver(object):
     """
     EventReceiver
     """
+
     def __init__(self, install_dir):
         """
         __init__

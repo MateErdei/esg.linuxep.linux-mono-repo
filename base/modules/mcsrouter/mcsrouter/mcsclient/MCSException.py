@@ -1,3 +1,7 @@
+"""
+MCSException Module
+"""
+
 
 class MCSException(Exception):
     """

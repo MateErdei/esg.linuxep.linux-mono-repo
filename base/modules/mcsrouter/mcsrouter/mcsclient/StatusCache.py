@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2017 Sophos Plc, Oxford, England.
 # All rights reserved.
+"""
+StatusCache Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -20,6 +23,7 @@ class StatusCache(object):
     """
     StatusCache
     """
+
     def __init__(self):
         """
         __init__

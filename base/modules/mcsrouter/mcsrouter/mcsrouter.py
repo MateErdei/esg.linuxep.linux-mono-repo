@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+mcsrouter Module
+"""
 
 from __future__ import print_function, division, unicode_literals
 
@@ -29,6 +32,7 @@ class PidFile(object):
     """
     PidFile
     """
+
     def __safe_make_dirs(self, path):
         """
         __safe_make_dirs
@@ -169,6 +173,7 @@ class SophosLogging(object):
     """
     SophosLogging
     """
+
     def __init__(self, config, install_dir):
         """
         __init__
@@ -235,6 +240,7 @@ class MCSRouter(object):
     """
     MCSRouter
     """
+
     def __init__(self, config, install_dir):
         """
         __init__

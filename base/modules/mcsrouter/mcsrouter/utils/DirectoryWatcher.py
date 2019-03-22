@@ -22,6 +22,7 @@ class PipeEventHandler(watchdog.events.PatternMatchingEventHandler):
     """
     Simple watchdog event handler to write to a pipe on any change
     """
+
     def __init__(
             self,
             pipe_file_descriptor,
@@ -56,6 +57,7 @@ class DirectoryWatcher(object):
     A simple directory watcher, which writes to a pipe whenever a change
     is observed
     """
+
     def __init__(self):
         """
         __init__
