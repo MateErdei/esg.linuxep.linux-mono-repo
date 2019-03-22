@@ -22,4 +22,4 @@ mcsrouterzip=$BASE_DIR/lib64/mcsrouter.zip
 
 export PYTHONPATH=$mcsrouterzip
 
-exec python -m mcsrouter.registerCentral "$@"
+exec python -m mcsrouter.register_central "$@"

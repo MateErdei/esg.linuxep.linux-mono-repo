@@ -16,9 +16,9 @@ import signal
 import time
 import __builtin__
 
-import utils.PathManager as PathManager
-import utils.Config
-import SophosHTTPS
+import utils.path_manager as path_manager
+import utils.config
+import sophos_https
 
 
 LOGGER = logging.getLogger(__name__ if __name__ !=
@@ -49,8 +49,8 @@ class PidFile(object):
         """
         __init__
         """
-        PathManager.INST = install_dir
-        self.__m_pid_file_path = PathManager.mcs_router_pid_file()
+        path_manager.INST = install_dir
+        self.__m_pid_file_path = path_manager.mcs_router_pid_file()
         self.__safe_make_dirs(os.path.dirname(self.__m_pid_file_path))
         if os.path.isfile(self.__m_pid_file_path):
             LOGGER.warning("Previous mcsrouter not shutdown cleanly")
@@ -178,9 +178,9 @@ class SophosLogging(object):
         """
         __init__
         """
-        PathManager.INST = install_dir
+        path_manager.INST = install_dir
         log_config = config.get_default(
-            "LOGCONFIG", PathManager.log_conf_file())
+            "LOGCONFIG", path_manager.log_conf_file())
         if os.path.isfile(log_config):
             logging.config.fileConfig(log_config)
             return
@@ -189,7 +189,7 @@ class SophosLogging(object):
         log_level_string = config.get_default(
             "LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
         log_level = getattr(logging, log_level_string, logging.INFO)
-        log_file = config.get_default("LOGFILE", PathManager.mcs_router_log())
+        log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
 
         root_LOGGER = logging.getLogger()
         root_LOGGER.setLevel(log_level)
@@ -208,7 +208,7 @@ class SophosLogging(object):
             root_LOGGER.addHandler(stream_handler)
 
         envelope_file = config.get_default(
-            "ENVELOPE_LOG", PathManager.mcs_envelope_log())
+            "ENVELOPE_LOG", path_manager.mcs_envelope_log())
 
         envelope_LOGGER = logging.getLogger("ENVELOPES")
         envelope_LOGGER.propagate = False
@@ -227,7 +227,7 @@ class SophosLogging(object):
             envelope_LOGGER.addHandler(envelope_file_handler)
 
         LOGGER.debug("Logging to %s", log_file)
-        SophosHTTPS.LOGGER = logging.getLogger("SophosHTTPS")
+        sophos_https.LOGGER = logging.getLogger("sophos_https")
 
     def shutdown(self):
         """
@@ -290,8 +290,8 @@ class MCSRouter(object):
         except ValueError:
             LOGGER.warning("Unable to set core file resource limit")
 
-        import MCS
-        proc = MCS.MCS(config, install_dir)
+        import mcs
+        proc = mcs.MCS(config, install_dir)
 
         assert proc is not None
         ret = self.__safe_run_forever(proc)
@@ -303,7 +303,7 @@ def create_configuration(argv):
     """
     create_configuration
     """
-    config = utils.Config.Config(PathManager.mcs_router_conf())
+    config = utils.config.Config(path_manager.mcs_router_conf())
     config.set_default("LOGLEVEL", LOG_LEVEL_DEFAULT)
 
     for arg in argv[1:]:
@@ -327,7 +327,7 @@ def clear_tmp_directory():
     """
     clear_tmp_directory
     """
-    temp_dir = PathManager.temp_dir()
+    temp_dir = path_manager.temp_dir()
     if os.path.exists(temp_dir):
         for files in os.listdir(temp_dir):
             try:
@@ -346,7 +346,7 @@ def main(argv):
         arg0 = sys.argv[0]
         script_dir = os.path.dirname(os.path.realpath(arg0))
         install_dir = os.path.abspath(os.path.join(script_dir, ".."))
-    PathManager.INST = install_dir
+    path_manager.INST = install_dir
     clear_tmp_directory()
     os.umask(0o177)
     config = create_configuration(argv)

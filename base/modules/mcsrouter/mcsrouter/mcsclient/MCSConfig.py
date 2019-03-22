@@ -3,10 +3,10 @@
 MCSConfig Module
 """
 
-import mcsrouter.utils.Config
+import mcsrouter.utils.config
 
 
-class MCSConfig(mcsrouter.utils.Config.Config):
+class MCSConfig(mcsrouter.utils.config.Config):
     """
     MCSConfig
     """

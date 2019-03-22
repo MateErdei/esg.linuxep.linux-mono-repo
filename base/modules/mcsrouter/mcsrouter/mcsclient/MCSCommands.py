@@ -8,7 +8,7 @@ from __future__ import print_function, division, unicode_literals
 import os
 import xml.dom
 
-import mcsrouter.utils.XmlHelper
+import mcsrouter.utils.xml_helper
 
 
 class Command(object):
@@ -62,7 +62,7 @@ class BasicCommand(Command):
         """
         __get_text_from_element
         """
-        return mcsrouter.utils.XmlHelper.get_text_from_element(element)
+        return mcsrouter.utils.xml_helper.get_text_from_element(element)
 
     def __decode_command(self, command_node):
         """

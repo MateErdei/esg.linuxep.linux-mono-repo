@@ -32,8 +32,8 @@ class SECObfuscation(object):
         """
         get_password
         """
-        from . import SECObfuscationPassword
-        return SECObfuscationPassword.get_password()
+        from . import sec_obfuscation_password
+        return sec_obfuscation_password.get_password()
 
     def remove_padding(self, text):
         """

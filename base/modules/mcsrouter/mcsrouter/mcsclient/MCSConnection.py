@@ -17,22 +17,22 @@ except ImportError:
 import logging
 
 import mcsrouter.mcsclient.MCSCommands
-import mcsrouter.mcsclient.MCSException
+import mcsrouter.mcsclient.mcs_exception
 
-from mcsrouter import SophosHTTPS
-from mcsrouter import IPSelection
-from mcsrouter import ProxyAuthorization
-import mcsrouter.utils.PathManager as PathManager
+from mcsrouter import sophos_https
+from mcsrouter import ip_selection
+from mcsrouter import proxy_authorization
+import mcsrouter.utils.path_manager as path_manager
 
 
 LOGGER = logging.getLogger(__name__)
 ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
 
 
-split_host_port = SophosHTTPS.split_host_port
+split_host_port = sophos_https.split_host_port
 
 
-class MCSHttpException(mcsrouter.mcsclient.MCSException.MCSNetworkException):
+class MCSHttpException(mcsrouter.mcsclient.mcs_exception.MCSNetworkException):
     """
     MCSHttpException
     """
@@ -121,9 +121,9 @@ class MCSConnection(object):
         self.__m_connection = None
         self.__m_mcs_url = None
         self.__m_current_path = ""
-        PathManager.INST = install_dir
+        path_manager.INST = install_dir
 
-        cafile = PathManager.root_ca_path()
+        cafile = path_manager.root_ca_path()
         ca_file_env = os.environ.get("MCS_CA", None)
         if ca_file_env not in ("", None) and os.path.isfile(ca_file_env):
             LOGGER.warning("Using %s as certificate CA", ca_file_env)
@@ -271,7 +271,7 @@ class MCSConnection(object):
             if proxy_string is None:
                 return
 
-            proxy = SophosHTTPS.Proxy(
+            proxy = sophos_https.Proxy(
                 proxy_string,
                 relay_id=relay_id,
                 username=username,
@@ -281,7 +281,7 @@ class MCSConnection(object):
             proxies.append(proxy)
 
         self.__m_message_relays = self.__get_message_relays()
-        ordered_message_relay_list = IPSelection.evaluate_address_preference(
+        ordered_message_relay_list = ip_selection.evaluate_address_preference(
             self.__m_message_relays)
         for relay in ordered_message_relay_list:
             add_proxy(
@@ -307,7 +307,7 @@ class MCSConnection(object):
         self.__m_use_direct = self.__get_use_direct()
         if self.__m_use_direct:
             # Try direct unless useDirect is set to false
-            proxies.append(SophosHTTPS.Proxy())
+            proxies.append(sophos_https.Proxy())
 
         return proxies
 
@@ -395,7 +395,7 @@ class MCSConnection(object):
                port)
         auth = self.__m_proxy_authenticators.get(key, None)
         if auth is None:
-            auth = ProxyAuthorization.ProxyAuthorization(proxy, host, port)
+            auth = proxy_authorization.ProxyAuthorization(proxy, host, port)
             self.__m_proxy_authenticators[key] = auth
         return auth
 
@@ -407,7 +407,7 @@ class MCSConnection(object):
 
         connection = None
         args = {"ca_certs": self.__m_ca_file}
-        ConnectionClass = SophosHTTPS.CertValidatingHTTPSConnection
+        ConnectionClass = sophos_https.CertValidatingHTTPSConnection
         auth_calculator = self.get_authenticator_for_proxy(proxy, host, port)
         retry_count = 0
         retry = True
@@ -444,7 +444,7 @@ class MCSConnection(object):
 
             try:
                 connection.connect()
-            except SophosHTTPS.ProxyTunnelError as exception:
+            except sophos_https.ProxyTunnelError as exception:
                 assert proxy_host is not None
                 retry = auth_calculator.update_auth_header(exception.response)
                 exception.close()
@@ -533,7 +533,7 @@ class MCSConnection(object):
             # specified
             if limit > MCS_DEFAULT_RESPONSE_SIZE_MIB * 10 * 1024 * 1024:
                 LOGGER.error("Content-Length too large")
-                raise mcsrouter.mcsclient.MCSException.MCSNetworkException(
+                raise mcsrouter.mcsclient.mcs_exception.MCSNetworkException(
                     "Content-Length too large")
 
         # read one extra byte, if that succeeds we know the response is too
@@ -550,14 +550,14 @@ class MCSConnection(object):
                     "Response too long, got %d, expected %d",
                     len(body),
                     limit)
-            raise mcsrouter.mcsclient.MCSException.MCSNetworkException(
+            raise mcsrouter.mcsclient.mcs_exception.MCSNetworkException(
                 "Response too long")
 
         # if we got an HTTP Content-Length, make sure the response isn't too
         # short
         if length is not None and len(body) < limit:
             LOGGER.error("Response too short")
-            raise mcsrouter.mcsclient.MCSException.MCSNetworkException(
+            raise mcsrouter.mcsclient.mcs_exception.MCSNetworkException(
                 "Response too short")
 
         if response.status == httplib.UNAUTHORIZED:
@@ -717,7 +717,7 @@ class MCSConnection(object):
             if not proxies:
                 LOGGER.info(
                     "No proxies/message relays set to communicate with Central - useDirect is False")
-            raise mcsrouter.mcsclient.MCSException.MCSConnectionFailedException(
+            raise mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException(
                 "Failed to connect to MCS")
 
         # If we were able to connect, but received a HTTP error
