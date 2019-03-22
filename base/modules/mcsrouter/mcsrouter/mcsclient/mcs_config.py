@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-MCSConfig Module
+mcs_onfig Module
 """
 
 import mcsrouter.utils.config
@@ -8,6 +8,6 @@ import mcsrouter.utils.config
 
 class MCSConfig(mcsrouter.utils.config.Config):
     """
-    MCSConfig
+    MCSConfig class
     """
     pass

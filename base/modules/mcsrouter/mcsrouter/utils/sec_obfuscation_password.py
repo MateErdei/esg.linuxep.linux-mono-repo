@@ -153,8 +153,7 @@ def get_index(salt):
         return (salt * 13) % key_length
     elif mod3 == 1:
         return (salt * 11) % key_length
-    else:
-        return (salt * 7) % key_length
+    return (salt * 7) % key_length
 
 
 def get_mask(salt):
@@ -168,8 +167,7 @@ def get_mask(salt):
         return ord(KEY[(salt * 13) % key_length])
     elif mod3 == 1:
         return ord(KEY[(salt * 11) % key_length])
-    else:
-        return ord(KEY[(salt * 7) % key_length])
+    return ord(KEY[(salt * 7) % key_length])
 
 
 #~ static std::vector<unsigned char> reverse_2(const std::vector<unsigned char>& data)

@@ -464,10 +464,10 @@ class TargetSystem(object):
             version = version_file.readline()
             version_file.close()
             if version is None:
-                raise TargetDetectionException('exc-kernel-unknown')
+                raise self.TargetDetectionException('exc-kernel-unknown')
             detected_version = string.split(version)
             if (len(detected_version) < 3) or (detected_version[2] == ''):
-                raise TargetDetectionException('exc-kernel-unknown')
+                raise self.TargetDetectionException('exc-kernel-unknown')
             return detected_version[2]
         else:
             return "Unknown"
@@ -576,7 +576,7 @@ class TargetSystem(object):
             version = version_file.readline()
             version_file.close()
             if version is None:
-                raise TargetDetectionException('exc-kernel-unknown')
+                raise self.TargetDetectionException('exc-kernel-unknown')
             return string.find(version, 'SMP') != -1
         return False
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
 """
-SECObfuscation Module
+sec_obfuscation Module
 """
 
 from __future__ import absolute_import, print_function, division, unicode_literals
@@ -25,7 +25,7 @@ class SECObfuscationException(Exception):
 
 class SECObfuscation(object):
     """
-    SECObfuscation
+    SECObfuscation class
     """
 
     def get_password(self):

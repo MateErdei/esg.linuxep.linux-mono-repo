@@ -22,8 +22,8 @@ import adapters.event_receiver
 import adapters.app_proxy_adapter
 import adapters.mcs_adapter
 import adapters.generic_adapter
-import mcsclient.MCSConnection
-import mcsclient.MCSCommands
+import mcsclient.mcs_connection
+import mcsclient.mcs_commands
 import mcsclient.mcs_exception
 import mcsclient.status_cache
 import mcsclient.status_event
@@ -173,7 +173,7 @@ class MCS(object):
         )
 
         # Configure fragmented policy cache directory
-        mcsclient.MCSCommands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = path_manager.fragmented_policies_dir()
+        mcsclient.mcs_commands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = path_manager.fragmented_policies_dir()
 
         # Create computer
         self.__m_computer = computer.Computer()
@@ -210,7 +210,7 @@ class MCS(object):
         """
         config = self.__m_config
 
-        comms = mcsclient.MCSConnection.MCSConnection(
+        comms = mcsclient.mcs_connection.MCSConnection(
             config,
             install_dir=path_manager.install_dir()
         )
@@ -249,7 +249,7 @@ class MCS(object):
         token = self.__get_mcs_token()
 
         comms.set_user_agent(
-            mcsclient.MCSConnection.create_user_agent(
+            mcsclient.mcs_connection.create_user_agent(
                 product_version, token))
 
     def register(self):
@@ -476,7 +476,7 @@ class MCS(object):
                     LOGGER.exception("Got socket error")
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(error_count)
-                except mcsclient.MCSConnection.MCSHttpUnauthorizedException as exception:
+                except mcsclient.mcs_connection.MCSHttpUnauthorizedException as exception:
                     LOGGER.warning("Lost authentication with server")
                     header = exception.headers().get(
                         "www-authenticate", None)  # HTTP headers are case-insensitive
@@ -491,7 +491,7 @@ class MCS(object):
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient=False)
-                except mcsclient.MCSConnection.MCSHttpException as exception:
+                except mcsclient.mcs_connection.MCSHttpException as exception:
                     LOGGER.exception("Got http error from MCS")
                     error_count += 1
                     transient = True

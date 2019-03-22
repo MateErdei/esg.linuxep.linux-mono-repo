@@ -11,7 +11,7 @@ import logging
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.xml_helper
-import mcsrouter.mcsclient.MCSCommands
+import mcsrouter.mcsclient.mcs_commands
 
 LOGGER = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ u'<?xml version="1.0"?>
                     policy_assignment, "appId")
                 policy_id = mcsrouter.utils.xml_helper.get_text_node_text(
                     policy_assignment, "policyId")
-                commands.append(mcsrouter.mcsclient.MCSCommands.PolicyCommand(
+                commands.append(mcsrouter.mcsclient.mcs_commands.PolicyCommand(
                     command_id, app_id, policy_id, connection))
 
             fragmented_assignments = doc.getElementsByTagName("fragments")
@@ -125,7 +125,7 @@ u'<?xml version="1.0"?>
                     fragmented, "appId")
                 fragment_nodes = fragmented.getElementsByTagName("fragment")
                 commands.append(
-                    mcsrouter.mcsclient.MCSCommands.FragmentedPolicyCommand(
+                    mcsrouter.mcsclient.mcs_commands.FragmentedPolicyCommand(
                         command_id, app_id, fragment_nodes, connection))
         finally:
             doc.unlink()

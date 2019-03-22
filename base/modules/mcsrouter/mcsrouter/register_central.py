@@ -20,11 +20,11 @@ import logging.handlers
 
 from .utils import config as utils_config
 from .mcsclient import mcs_exception
-from .mcsclient import MCSConnection
+from .mcsclient import mcs_connection
 from . import mcs as MCS
 from .utils import path_manager
 
-from .utils import SECObfuscation
+from .utils import sec_obfuscation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -159,7 +159,7 @@ def register(config, INST, logger):
                 exc_info=True)
             ret = 4
             break
-        except MCSConnection.MCSHttpException as exception:
+        except mcs_connection.MCSHttpException as exception:
             if exception.error_code() == 401:
                 print("ERROR: Authentication error from Sophos Central: Check Token",
                       file=sys.stderr)
@@ -277,8 +277,8 @@ def add_options_to_policy(relays, proxycredentials):
             policy_config.set(id_key, relay_id)
 
     if proxycredentials is not None:
-        obfuscated = SECObfuscation.obfuscate(
-            SECObfuscation.ALGO_AES256,
+        obfuscated = sec_obfuscation.obfuscate(
+            sec_obfuscation.ALGO_AES256,
             proxycredentials,
             RandomGenerator())
         policy_config.set("mcs_policy_proxy_credentials", obfuscated)

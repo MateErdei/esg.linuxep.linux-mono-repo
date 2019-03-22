@@ -158,8 +158,7 @@ class Proxy(object):
         """
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
-        else:
-            return False
+        return False
 
     def __ne__(self, other):
         """

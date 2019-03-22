@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-MCSConnection Module
+mcs_connection Module
 """
 
 import base64
@@ -16,7 +16,7 @@ except ImportError:
 
 import logging
 
-import mcsrouter.mcsclient.MCSCommands
+import mcsrouter.mcsclient.mcs_commands
 import mcsrouter.mcsclient.mcs_exception
 
 from mcsrouter import sophos_https
@@ -108,7 +108,7 @@ def create_user_agent(product_version, registration_token, product="Linux"):
 
 class MCSConnection(object):
     """
-    MCSConnection
+    MCSConnection class
     """
 
     def __init__(self, config, product_version="unknown", install_dir=".."):
@@ -232,11 +232,11 @@ class MCSConnection(object):
             return None
 
         if obfuscated not in self.__m_obfuscation_cache:
-            from mcsrouter.utils import SECObfuscation
+            from mcsrouter.utils import sec_obfuscation
             try:
-                self.__m_obfuscation_cache[obfuscated] = SECObfuscation.deobfuscate(
+                self.__m_obfuscation_cache[obfuscated] = sec_obfuscation.deobfuscate(
                     obfuscated)
-            except SECObfuscation.SECObfuscationException as exception:
+            except sec_obfuscation.SECObfuscationException as exception:
                 LOGGER.error(
                     "Invalid obfuscated credentials (%s): %s",
                     str(exception),
@@ -622,14 +622,14 @@ class MCSConnection(object):
             self.__m_last_seen_http_error = exception
             LOGGER.info("Connection broken")
             self.close()
-            return
+            return None
 
         except httplib.BadStatusLine as exception:
             self.__m_last_seen_http_error = exception
             LOGGER.debug("Received httplib.BadStatusLine, closing connection")
             self.__m_cookies.clear()
             self.close()
-            return
+            return None
 
         # Failed to get a response from the server, or the connection failed.
         # Close the connection.
@@ -640,7 +640,7 @@ class MCSConnection(object):
             LOGGER.debug("Forgetting cookies due to comms error")
             self.__m_cookies.clear()
             self.__close_connection()
-            return
+            return None
 
     def __try_url(self, mcs_url, proxies, request_data):
         """
@@ -661,8 +661,7 @@ class MCSConnection(object):
                 self.__m_current_path = path
                 response = self.__try_get_response(request_data)
                 return response
-            else:
-                return
+            return None
 
         if previous_proxy in proxies:
             # Re-try with the proxy that worked last time first, before we try
@@ -682,7 +681,7 @@ class MCSConnection(object):
                 return response
 
         assert self.__m_connection is None
-        return
+        return None
 
     def __try_urls(self, request_data):
         """
@@ -906,7 +905,7 @@ class MCSConnection(object):
         try:
             command_nodes = doc.getElementsByTagName("command")
             commands = [
-                mcsrouter.mcsclient.MCSCommands.BasicCommand(
+                mcsrouter.mcsclient.mcs_commands.BasicCommand(
                     self,
                     node,
                     commands) for node in command_nodes]
