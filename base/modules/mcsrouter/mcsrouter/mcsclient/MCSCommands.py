@@ -9,10 +9,19 @@ import mcsrouter.utils.XmlHelper
 
 
 class Command(object):
+    """
+    Command
+    """
     def get_connection(self):
+        """
+        get_connection
+        """
         return self._m_connection
 
     def get_app_id(self):
+        """
+        get_app_id
+        """
         return self._m_app_id
 
     def complete(self):
@@ -22,20 +31,38 @@ class Command(object):
         return self._m_connection.delete_command(self._m_command_id)
 
     def get(self, key):
+        """
+        get
+        """
         raise NotImplementedError()
 
     def get_policy(self):
+        """
+        get_policy
+        """
         raise NotImplementedError()
 
     def get_xml_text(self):
+        """
+        get_xml_text
+        """
         return ""
 
 
 class BasicCommand(Command):
+    """
+    BasicCommand
+    """
     def __get_text_from_element(self, element):
+        """
+        __get_text_from_element
+        """
         return mcsrouter.utils.XmlHelper.get_text_from_element(element)
 
     def __decode_command(self, command_node):
+        """
+        __decode_command
+        """
         values = {}
         for node in command_node.childNodes:
             if node.nodeType == xml.dom.Node.ELEMENT_NODE:
@@ -43,6 +70,9 @@ class BasicCommand(Command):
         return values
 
     def __init__(self, connection, command_node, xml_text):
+        """
+        __init__
+        """
         self._m_connection = connection
         self.__m_values = self.__decode_command(command_node)
         self._m_command_id = self.__m_values['id']
@@ -51,17 +81,29 @@ class BasicCommand(Command):
         self.__m_xml_text = xml_text
 
     def get(self, key):
+        """
+        get
+        """
         return self.__m_values[key]
 
     def get_xml_text(self):
+        """
+        get_xml_text
+        """
         return self.__m_xml_text
 
     def __repr__(self):
+        """
+        __repr__
+        """
         return "Command %s for %s: %s" % (
             self._m_command_id, self.get_app_id(), str(self.__m_values))
 
 
 class PolicyCommand(Command):
+    """
+    PolicyCommand
+    """
     def __init__(self, command_id, app_id, policy_id, mcs_connection):
         """
         Represent a Policy apply command
@@ -72,6 +114,9 @@ class PolicyCommand(Command):
         self._m_connection = mcs_connection
 
     def __str__(self):
+        """
+        __str__
+        """
         return "Policy command %s for %s" % (
             self._m_command_id, self.get_app_id())
 
@@ -90,6 +135,9 @@ class PolicyCommand(Command):
 
 
 class FragmentedPolicyCommand(PolicyCommand):
+    """
+    FragmentedPolicyCommand
+    """
     FRAGMENT_CACHE_DIR = None
     FRAGMENT_CACHE = {}
 
@@ -108,10 +156,16 @@ class FragmentedPolicyCommand(PolicyCommand):
         self._m_connection = mcs_connection
 
     def __str__(self):
+        """
+        __str__
+        """
         return "Policy command %s for %s" % (
             self._m_command_id, self.get_app_id())
 
     def __get_fragment(self, fragment_id):
+        """
+        __get_fragment
+        """
         # In memory cache
         data = FragmentedPolicyCommand.FRAGMENT_CACHE.get(fragment_id, None)
         if data is not None:

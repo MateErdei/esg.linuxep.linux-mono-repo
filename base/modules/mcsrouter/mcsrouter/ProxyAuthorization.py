@@ -6,15 +6,21 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
-
 import urllib2
+
 parse_http_list = urllib2.parse_http_list
 parse_keqv_list = urllib2.parse_keqv_list
+LOGGER = logging.getLogger(__name__)
 
 
 class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
+    """
+    SophosProxyDigestAuthHandler
+    """
     def get_authorization(self, remote_host, chal, remote_port=443):
+        """
+        get_authorization
+        """
         try:
             realm = chal['realm']
             nonce = chal['nonce'].encode("UTF-8")
@@ -30,7 +36,7 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
         if H is None:
             return None
 
-        user, password = self.passwd.find_user_password(realm, "")
+        user, password = self.passwd.find_user_password()
         if user is None:
             return None
 
@@ -56,7 +62,7 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
             respdig = KD(H(A1), b"%s:%s" % (nonce, H(A2)))
         else:
             # XXX handle auth-int.
-            raise URLError("qop '%s' is not supported." % qop)
+            raise urllib2.URLError("qop '%s' is not supported." % qop)
 
         # XXX should the partial digests be encoded too?
 
@@ -71,7 +77,13 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
 
 
 class ProxyAuthorization(object):
+    """
+    ProxyAuthorization
+    """
     def __init__(self, proxy, remote_host, remote_port=443):
+        """
+        __init__
+        """
         self.m_proxy = proxy
         self.m_proxy_handler = SophosProxyDigestAuthHandler(self)
         self.m_auth_header = self.m_proxy.auth_header()
@@ -79,15 +91,21 @@ class ProxyAuthorization(object):
         self.m_remote_port = remote_port
 
     def auth_header(self):
+        """
+        auth_header
+        """
         return self.m_auth_header
 
     def get_authenticate_header(self, response):
+        """
+        get_authenticate_header
+        """
         headers = response.msg.headers
         for header in headers:
             if header.lower().startswith(b"proxy-authenticate: "):
                 return header[len('Proxy-Authenticate: '):]
 
-        logger.error("No authentication header found: %s", str(headers))
+        LOGGER.error("No authentication header found: %s", str(headers))
 
     def update_auth_header(self, response):
         """
@@ -99,15 +117,21 @@ class ProxyAuthorization(object):
 
         scheme = authentication_header.split()[0]
         if scheme.lower() != b"digest":
-            logger.warning("Proxy authentication scheme is %s", scheme)
+            LOGGER.warning("Proxy authentication scheme is %s", scheme)
             return False
 
         return self.update_digest_auth_header(authentication_header)
 
     def add_password(self):
+        """
+        add_password
+        """
         pass
 
-    def find_user_password(self, realm, auth_uri):
+    def find_user_password(self):
+        """
+        find_user_password
+        """
         return self.m_proxy.username(), self.m_proxy.password()
 
     def update_digest_auth_header(self, auth):
@@ -124,5 +148,5 @@ class ProxyAuthorization(object):
             self.m_auth_header = b'Digest %s' % auth
             return True
 
-        logger.error("Unable to get authorization!")
+        LOGGER.error("Unable to get authorization!")
         return False

@@ -9,22 +9,37 @@ class Config(object):
     """
 
     def __init__(self, filename=None, parent_config=None):
+        """
+        __init__
+        """
         self.__m_options = {}
         self.load(filename)
         self.__m_filename = filename
         self.__m_parent_config = parent_config
 
     def set(self, key, value):
+        """
+        set
+        """
         self.__m_options[key] = value
 
     def set_default(self, key, value=None):
+        """
+        set_default
+        """
         if key not in self.__m_options:
             self.__m_options[key] = value
 
     def remove(self, key):
+        """
+        remove
+        """
         return self.__m_options.pop(key, None) is not None
 
     def get(self, key):
+        """
+        get
+        """
         if key in self.__m_options:
             return self.__m_options[key]
         if self.__m_parent_config is not None:
@@ -32,6 +47,9 @@ class Config(object):
         return self.__m_options[key]  # KeyError
 
     def get_default(self, key, default_value=None):
+        """
+        get_default
+        """
         if key in self.__m_options:
             return self.__m_options[key]
         if self.__m_parent_config is not None:
@@ -39,6 +57,9 @@ class Config(object):
         return default_value
 
     def get_bool(self, key, default_value=True):
+        """
+        get_bool
+        """
         val = self.get_default(key, default_value)
         if val in (True, "1", "true", "True"):
             return True
@@ -47,12 +68,18 @@ class Config(object):
         return default_value
 
     def get_int(self, key, default_value=0):
+        """
+        get_int
+        """
         try:
             return int(self.get_default(key, default_value))
         except ValueError:
             return default_value
 
     def save(self, filename=None, mode=0o600):
+        """
+        save
+        """
         if filename is None:
             filename = self.__m_filename
         assert filename is not None
@@ -68,6 +95,9 @@ class Config(object):
         self.__m_filename = filename
 
     def load(self, filename=None):
+        """
+        load
+        """
         if filename is None:
             return
 

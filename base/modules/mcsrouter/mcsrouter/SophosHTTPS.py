@@ -2,17 +2,11 @@
 
 from __future__ import print_function, division, unicode_literals
 
+import os
+import urllib2
 import socket
-socket.ssl
-import _ssl
 import ssl
 import httplib
-httplib.HTTPS
-
-import os
-import re
-import sys
-import urllib2
 import base64
 
 # urllib.parse in python 3
@@ -20,14 +14,16 @@ import urlparse
 
 import ProxyAuthorization
 
-import logging
-logger = None
+LOGGER = None
 
 
 def info(*message):
-    if logger is None:
+    """
+    info
+    """
+    if LOGGER is None:
         return
-    logger.info(*message)
+    LOGGER.info(*message)
 
 
 def split_host_port(host_port, default_port=80):
@@ -49,6 +45,9 @@ def split_host_port(host_port, default_port=80):
 
 
 def get_proxy(proxy=None):
+    """
+    get_proxy
+    """
     if not proxy:
         proxy = os.environ.get("https_proxy", None)
     if proxy == "noproxy:":
@@ -68,6 +67,9 @@ def get_proxy(proxy=None):
 
 
 class Proxy(object):
+    """
+    Proxy
+    """
     def __init__(
             self,
             host=None,
@@ -75,6 +77,9 @@ class Proxy(object):
             username=None,
             password=None,
             relay_id=None):
+        """
+        __init__
+        """
         if host in (None, "noproxy:", ""):
             # If we don't have a host then we don't have a proxy at all
             host = None
@@ -114,30 +119,54 @@ class Proxy(object):
         self.m_relay_id = relay_id
 
     def host(self):
+        """
+        host
+        """
         return self.m_host
 
     def port(self):
+        """
+        port
+        """
         return self.m_port
 
     def username(self):
+        """
+        username
+        """
         return self.m_username
 
     def password(self):
+        """
+        password
+        """
         return self.m_password
 
     def relay_id(self):
+        """
+        relay_id
+        """
         return self.m_relay_id
 
     def __eq__(self, other):
+        """
+        __eq__
+        """
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
             return False
 
     def __ne__(self, other):
+        """
+        __ne__
+        """
         return not self.__eq__(other)
 
     def auth_header(self):
+        """
+        auth_header
+        """
         if self.m_username is None or self.m_password is None:
             return None
 
@@ -146,34 +175,62 @@ class Proxy(object):
 
 
 class InvalidCertificateException(httplib.HTTPException, urllib2.URLError):
+    """
+    InvalidCertificateException
+    """
     def __init__(self, host, cert, reason):
-        httplib.HTTPException.__init__(self)
+        """
+        __init__
+        """
+        super(InvalidCertificateException, self).__init__()
         self.host = host
         self.cert = cert
         self.reason = reason
 
     def __str__(self):
+        """
+        __str__
+        """
         return ('Host %s returned an invalid certificate (%s) %s\n' %
                 (self.host, self.reason, self.cert))
 
 
 class ProxyTunnelError(httplib.HTTPException):
+    """
+    ProxyTunnelError
+    """
     def __init__(self, response):
+        """
+        __init__
+        """
+        super(ProxyTunnelError, self).__init__()
         self.response = response
 
     def close(self):
+        """
+        close
+        """
         self.response.close()
 
     def __str__(self):
+        """
+        __str__
+        """
         return "ProxyTunnelError(HTTPResponse(code=%d, reason=%s))" % (
             self.response.status, self.response.reason)
 
 
 class CertValidatingHTTPSConnection(httplib.HTTPConnection):
+    """
+    CertValidatingHTTPSConnection
+    """
     default_port = httplib.HTTPS_PORT
 
     def __init__(self, host, port=None, key_file=None, cert_file=None,
                  ca_certs=None, strict=None, timeout=None, **kwargs):
+        """
+        __init__
+        """
         httplib.HTTPConnection.__init__(
             self, host, port, strict, timeout, **kwargs)
         self.key_file = key_file
@@ -247,6 +304,9 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
 
 
 class ConnectHTTPSHandler(urllib2.HTTPSHandler):
+    """
+    ConnectHTTPSHandler
+    """
     def do_open(self, http_class, req):
         return urllib2.HTTPSHandler.do_open(
             self, CertValidatingHTTPSConnection, req)
@@ -259,6 +319,9 @@ def create_connection(
         debug=False,
         proxy_username=None,
         proxy_password=None):
+    """
+    create_connection
+    """
     args = {}
     if cafile is not None:
         args["ca_certs"] = cafile

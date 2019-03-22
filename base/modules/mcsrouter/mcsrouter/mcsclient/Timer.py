@@ -18,9 +18,15 @@ class Timer(object):
         self.__m_next_time = time.time()
 
     def absolute_time(self):
+        """
+        absolute_time
+        """
         return self.__m_next_time
 
     def relative_time(self):
+        """
+        relative_time
+        """
         return self.__m_next_time - time.time()
 
     def _latency_trigger(self):
@@ -37,6 +43,9 @@ class Timer(object):
         self.__m_next_time = time.time() + self.__m_interval
 
     def _triggered(self):
+        """
+        _triggered
+        """
         return self.relative_time() <= 0
 
     def _handle_error(self):

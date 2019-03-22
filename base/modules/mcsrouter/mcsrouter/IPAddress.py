@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+"""
+Get IP Addresses for the current system.
+
+NB: This is Linux specific at the moment.
+
+See test/mcsrouter/getip.py for some alternatives
+"""
 
 import os
 import sys
@@ -8,16 +15,10 @@ import struct
 import array
 import subprocess
 
-"""
-Get IP Addresses for the current system.
-
-NB: This is Linux specific at the moment.
-
-See test/mcsrouter/getip.py for some alternatives
-"""
-
-
 def get_all_interfaces():
+    """
+    get_all_interfaces
+    """
     is_64bits = sys.maxsize > 2**32
     struct_size = 40 if is_64bits else 32
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -120,6 +121,9 @@ def get_non_local_ipv6():
 
 
 def get_fqdn():
+    """
+    get_fqdn
+    """
     fqdn_socket = socket.getfqdn()
     if "." in fqdn_socket:
         return fqdn_socket

@@ -5,10 +5,11 @@
 from __future__ import print_function, division, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
 
 from mcsclient import StatusCache
 import utils.Timestamp
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Computer(object):
@@ -17,22 +18,34 @@ class Computer(object):
     """
 
     def __init__(self, status_cache=None):
+        """
+        __init__
+        """
         self.__m_adapters = {}
         self.__m_commands = []
         self.__m_status_cache = status_cache or StatusCache.StatusCache()
 
     def add_adapter(self, adapter):
+        """
+        add_adapter
+        """
         app_id = adapter.get_app_id()
-        logger.info("Adding %s adapter", app_id)
+        LOGGER.info("Adding %s adapter", app_id)
         self.__m_adapters[app_id] = adapter
 
     def remove_adapter_by_app_id(self, app_id):
+        """
+        remove_adapter_by_app_id
+        """
         try:
             del self.__m_adapters[app_id]
         except Exception as exception:
-            logger.warning('Failed to remove adapter: ' + str(exception))
+            LOGGER.warning('Failed to remove adapter: ' + str(exception))
 
     def get_timestamp(self):
+        """
+        get_timestamp
+        """
         return utils.Timestamp.timestamp()
 
     def fill_status_event(self, status_event):
@@ -52,7 +65,7 @@ class Computer(object):
                 # Status for this adapter hasn't actually changed
                 continue
 
-            logger.info("Sending status for %s adapter", adapter.get_app_id())
+            LOGGER.info("Sending status for %s adapter", adapter.get_app_id())
 
             # Status has changed so add it to the message
             status_event.add_adapter(
@@ -66,22 +79,31 @@ class Computer(object):
         return changed
 
     def has_status_changed(self):
+        """
+        has_status_changed
+        """
         for adapter in self.__m_adapters.values():
             if adapter.has_new_status():
                 return True
         return False
 
     def direct_command(self, command):
+        """
+        direct_command
+        """
         app_id = command.get_app_id()
         adapter = self.__m_adapters.get(app_id, None)
         if adapter is not None:
             return adapter.process_command(command)
-        logger.error("No adapter for %s", app_id)
+        LOGGER.error("No adapter for %s", app_id)
         command.complete()
         return []
 
     def process_log_event(self, event):
-        logger.debug("received log event: %s", ";".join(
+        """
+        process_log_event
+        """
+        LOGGER.debug("received log event: %s", ";".join(
             [m.msgid for m in event.getMessages()]))
 
         for adapter in self.__m_adapters.values():
@@ -93,24 +115,30 @@ class Computer(object):
         return (None, None)
 
     def get_app_ids(self):
+        """
+        get_app_ids
+        """
         return self.__m_adapters.keys()
 
     def run_commands(self, commands):
+        """
+        run_commands
+        """
         self.__m_commands += commands
 
         if len(self.__m_commands) == 0:
             return False
 
-        logger.debug("Running commands:")
+        LOGGER.debug("Running commands:")
 
         while len(self.__m_commands) > 0:
             command = self.__m_commands.pop(0)
-            logger.debug("  %s", str(command))
+            LOGGER.debug("  %s", str(command))
             n = None
             try:
                 n = self.direct_command(command)
             except Exception:
-                logger.warning("Failed to execute command: %s", str(command))
+                LOGGER.warning("Failed to execute command: %s", str(command))
                 self.__m_commands.append(command)
                 raise
 
@@ -122,4 +150,7 @@ class Computer(object):
         return True
 
     def clear_cache(self):
+        """
+        clear_cache
+        """
         self.__m_status_cache.clear_cache()

@@ -1,50 +1,61 @@
 
 import xml.dom.minidom
 import os
-import json
-import datetime
-import time
-
 import logging
-logger = logging.getLogger(__name__)
 
-import AdapterBase
+import mcsrouter.adapters.AdapterBase
 import mcsrouter.utils.AtomicWrite
 import mcsrouter.utils.Timestamp
 import mcsrouter.utils.PathManager as PathManager
 import mcsrouter.utils.XmlHelper as XmlHelper
 
 
-class GenericAdapter(AdapterBase.AdapterBase):
+
+LOGGER = logging.getLogger(__name__)
+
+
+class GenericAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
+    """
+    GenericAdapter
+    """
     def __init__(self, app_id, install_dir=None):
+        """
+        __init__
+        """
         self.__m_app_id = app_id
         self.__m_last_status_time = None
         if install_dir is not None:
             PathManager.INST = install_dir
 
     def get_app_id(self):
+        """
+        get_app_id
+        """
         return self.__m_app_id
 
     def __process_policy(self, policy):
+        """
+        __process_policy
+        """
         # handle non ascii characters ( LINUXEP-6757 )
         policy = policy.encode('utf-8')
-        logger.debug(
+        LOGGER.debug(
             "%s Adapter processing policy %s",
             self.__m_app_id,
             policy)
-        logger.debug("Received %s policy", self.__m_app_id)
+        LOGGER.debug("Received %s policy", self.__m_app_id)
 
         try:
             doc = xml.dom.minidom.parseString(policy)
         except xml.parsers.expat.ExpatError as e:
-            logger.error(
+            LOGGER.error(
                 "Failed to parse %s policy (%s): %s",
                 self.__m_app_id,
                 str(e),
                 policy)
             return []
         except Exception:
-            logger.exception(
+            LOGGER.exception(
                 "Failed to parse %s policy: %s",
                 self.__m_app_id,
                 policy)
@@ -56,7 +67,7 @@ class GenericAdapter(AdapterBase.AdapterBase):
             policy_type = node.getAttribute("policyType")
             policy_name = "%s-%s_policy.xml" % (self.__m_app_id, policy_type)
         else:
-            logger.info(
+            LOGGER.info(
                 "%s Policy didn't contain one compliance node" %
                 self.__m_app_id)
             policy_name = "%s_policy.xml" % (self.__m_app_id)
@@ -69,7 +80,10 @@ class GenericAdapter(AdapterBase.AdapterBase):
         return []
 
     def __process_action(self, command):
-        logger.debug("Received %s action", self.__m_app_id)
+        """
+        __process_action
+        """
+        LOGGER.debug("Received %s action", self.__m_app_id)
 
         body = command.get(u"body")
         try:
@@ -86,6 +100,9 @@ class GenericAdapter(AdapterBase.AdapterBase):
         return []
 
     def _get_status_xml(self):
+        """
+        _get_status_xml
+        """
         status_path = os.path.join(
             PathManager.status_dir(),
             "%s_status.xml" %
@@ -101,6 +118,9 @@ class GenericAdapter(AdapterBase.AdapterBase):
             return None
 
     def _has_new_status(self):
+        """
+        _has_new_status
+        """
         status_path = os.path.join(
             PathManager.status_dir(),
             "%s_status.xml" %
@@ -116,8 +136,11 @@ class GenericAdapter(AdapterBase.AdapterBase):
         return status_time > self.__m_last_status_time
 
     def process_command(self, command):
+        """
+        process_command
+        """
         try:
-            logger.debug(
+            LOGGER.debug(
                 "%s Adapter processing %s",
                 self.__m_app_id,
                 str(command))

@@ -1,13 +1,16 @@
 
 
 import logging
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 g_target_system = None
 g_install_dir = None
 
 
 def get_target_system(install_dir=None):
+    """
+    get_target_system
+    """
     global g_target_system
     global g_install_dir
     if install_dir is None:
@@ -23,5 +26,5 @@ def get_target_system(install_dir=None):
                 g_target_system = targetsystem.TargetSystem(g_install_dir)
             except ImportError:
                 # g_targetSystem = FakeTargetSystem()
-                logger.exception("Failed to import targetsystem")
+                LOGGER.exception("Failed to import targetsystem")
     return g_target_system

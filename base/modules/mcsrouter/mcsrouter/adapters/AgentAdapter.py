@@ -1,18 +1,20 @@
 
-import os
-
 import logging
-logger = logging.getLogger(__name__)
 
-import AdapterBase
-import mcsrouter.utils.Timestamp
-
-import mcsrouter.utils.TargetSystemManager
 from mcsrouter import IPAddress
+
+import mcsrouter.adapters.AdapterBase
+import mcsrouter.utils.Timestamp
+import mcsrouter.utils.TargetSystemManager
 import mcsrouter.utils.PathManager as PathManager
+
+LOGGER = logging.getLogger(__name__)
 
 
 def format_ipv6(ipv6):
+    """
+    format_ipv6
+    """
     assert ":" not in ipv6
     assert len(ipv6) == 32
     result = []
@@ -49,6 +51,9 @@ class ComputerCommonStatus(object):
     """
 
     def __init__(self, target_system):
+        """
+        __init__
+        """
         self.computer_name = target_system.hostname()
         self.os = target_system.platform
         self.fqdn = IPAddress.get_fqdn()
@@ -60,13 +65,22 @@ class ComputerCommonStatus(object):
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
 
     def __eq__(self, other):
+        """
+        __eq__
+        """
         return isinstance(
             self, type(other)) and self.__dict__ == other.__dict__
 
     def __ne__(self, other):
+        """
+        __ne__
+        """
         return not self == other
 
     def to_status_xml(self):
+        """
+        to_status_xml
+        """
         ipv4 = self.ipv4s[0] if self.ipv4s else ""
         ipv6 = self.ipv6s[0] if self.ipv6s else ""
 
@@ -94,23 +108,41 @@ class ComputerCommonStatus(object):
         return "".join(result)
 
 
-class AgentAdapter(AdapterBase.AdapterBase):
+class AgentAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
+    """
+    AgentAdapter
+    """
     def __init__(self, install_dir=None):
+        """
+        __init__
+        """
         self.__m_last_status_time = None
         if install_dir is not None:
             PathManager.INST = install_dir
         self.__m_common_status = None
 
     def get_app_id(self):
+        """
+        get_app_id
+        """
         return "AGENT"
 
     def get_status_ttl(self):
+        """
+        get_status_ttl
+        """
         return "PT10000S"
 
     def get_timestamp(self):
+        """
+        get_timestamp
+        """
         return mcsrouter.utils.Timestamp.timestamp()
 
     def get_status_xml(self):
+        """
+        get_status_xml
+        """
         return "".join((
             self.get_status_header(),
             self.get_common_status_xml(),
@@ -119,32 +151,50 @@ class AgentAdapter(AdapterBase.AdapterBase):
         ))
 
     def get_status_header(self):
+        """
+        get_status_header
+        """
         return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
 <meta protocolVersion="1.0" timestamp="%s"/>""" % (self.get_timestamp())
 
     def get_status_footer(self):
+        """
+        get_status_footer
+        """
         return """</ns:computerStatus>"""
 
     def __target_system(self):
+        """
+        __target_system
+        """
         return mcsrouter.utils.TargetSystemManager.get_target_system(
             PathManager.install_dir())
 
     def __create_common_status(self):
+        """
+        __create_common_status
+        """
         target_system = self.__target_system()
         assert target_system is not None
         return ComputerCommonStatus(target_system)
 
     def has_new_status(self):
+        """
+        has_new_status
+        """
         return self.__m_common_status != self.__create_common_status()
 
     def get_common_status_xml(self):
+        """
+        get_common_status_xml
+        """
         common_status = self.__create_common_status()
 
         if self.__m_common_status != common_status:
             self.__m_common_status = common_status
 
-            logger.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
+            LOGGER.info("Reporting computerName=%s,fqdn=%s,IPv4=%s",
                         self.__m_common_status.computer_name,
                         self.__m_common_status.fqdn,
                         str(self.__m_common_status.ipv4s))
@@ -152,6 +202,9 @@ class AgentAdapter(AdapterBase.AdapterBase):
         return self.__m_common_status.to_status_xml()
 
     def get_platform_status(self):
+        """
+        get_platform_status
+        """
         target_system = self.__target_system()
         platform = target_system.platform
         vendor = target_system.vendor()

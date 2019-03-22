@@ -14,12 +14,24 @@ import __builtin__
 
 import logging
 import logging.handlers
-logger = logging.getLogger(__name__)
+
+from .utils import Config as utils_config
+from .mcsclient import MCSException
+from .mcsclient import MCSConnection
+from . import MCS
+from .utils import PathManager
+
+from .utils import SECObfuscation
+
+LOGGER = logging.getLogger(__name__)
 
 __builtin__.__dict__['REGISTER_MCS'] = True
 
 
 def safe_mkdir(directory):
+    """
+    safe_mkdir
+    """
     if not os.path.exists(directory):
         # Use a try here to catch race condition where directory is created after checking
         # it doesn't exist
@@ -39,18 +51,12 @@ def safe_mkdir(directory):
 # sys.path.append(os.path.join(INST,"engine","mcsrouter_mcs.zip"))
 
 
-from .utils import Config as utils_config
-from .mcsclient import MCSException
-from .mcsclient import MCSConnection
-from . import MCS
-from .utils import PathManager
-
-from .utils import SECObfuscation
-
-
 def setup_logging():
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    """
+    setup_logging
+    """
+    root_LOGGER = logging.getLogger()
+    root_LOGGER.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -61,7 +67,7 @@ def setup_logging():
         log_file, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
-    root_logger.addHandler(file_handler)
+    root_LOGGER.addHandler(file_handler)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
@@ -70,10 +76,13 @@ def setup_logging():
         stream_handler.setLevel(logging.DEBUG)
     else:
         stream_handler.setLevel(logging.ERROR)
-    root_logger.addHandler(stream_handler)
+    root_LOGGER.addHandler(stream_handler)
 
 
 def create_dirs():
+    """
+    create_dirs
+    """
     path_manager = PathManager
     paths = [
         path_manager.fragmented_policies_dir(),
@@ -89,11 +98,17 @@ def create_dirs():
 
 
 def get_target_system():
+    """
+    get_target_system
+    """
     import mcsrouter.targetsystem
-    return mcsrouter.targetsystem.TargetSystem()
+    return mcsrouter.targetsystem.target_system()
 
 
 def cleanup():
+    """
+    cleanup
+    """
     root_config = PathManager.root_config()
     sophosav_config = PathManager.sophosspl_config()
     for configFile in [root_config, sophosav_config]:
@@ -104,6 +119,9 @@ def cleanup():
 
 
 def safe_delete(path):
+    """
+    safe_delete
+    """
     try:
         os.unlink(path)
     except IOError:
@@ -113,6 +131,9 @@ def safe_delete(path):
 
 
 def register(config, INST, logger):
+    """
+    register
+    """
     # Do a register operation so that we can be sure that we have connectivity
     print("Registering with Sophos Central")
     mcs = MCS.MCS(config, INST)
@@ -127,7 +148,8 @@ def register(config, INST, logger):
             break
         except MCSException.MCSConnectionFailedException:
             url = config.get("MCSURL")
-            print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url, file=sys.stderr)
+            print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url,
+                  file=sys.stderr)
             logger.fatal(
                 "Failed to connect to Sophos Central: Check URL: %s",
                 url,
@@ -136,7 +158,8 @@ def register(config, INST, logger):
             break
         except MCSConnection.MCSHttpException as exception:
             if exception.error_code() == 401:
-                print("ERROR: Authentication error from Sophos Central: Check Token", file=sys.stderr)
+                print("ERROR: Authentication error from Sophos Central: Check Token",
+                      file=sys.stderr)
                 logger.fatal(
                     "ERROR: Authentication error from Sophos Central: Check Token")
                 ret = 6
@@ -155,7 +178,8 @@ def register(config, INST, logger):
                     logger.info("Retrying registration")
                     continue
                 else:
-                    print("ERROR: Repeated HTTP Errors from Sophos Central (%d)" % (exception.error_code()), file=sys.stderr)
+                    print("ERROR: Repeated HTTP Errors from Sophos Central (%d)"
+                          % (exception.error_code()), file=sys.stderr)
                     ret = 5
                     break
 
@@ -163,12 +187,16 @@ def register(config, INST, logger):
 
 
 def remove_mcs_policy():
+    """
+    remove_mcs_policy
+    """
     safe_delete(PathManager.mcs_policy_config())
     safe_delete(PathManager.mcs_policy_file())
 
 
 def get_uid(uid_string):
     """
+    get_uid
     """
     # Try as a integer
     try:
@@ -189,6 +217,7 @@ def get_uid(uid_string):
 
 def get_gid(gid_string):
     """
+    get_gid
     """
     # Try as a integer
     try:
@@ -208,11 +237,20 @@ def get_gid(gid_string):
 
 
 class RandomGenerator(object):
+    """
+    RandomGenerator
+    """
     def random_bytes(self, size):
+        """
+        random_bytes
+        """
         return bytearray(random.getrandbits(8) for _ in xrange(size))
 
 
 def add_options_to_policy(relays, proxycredentials):
+    """
+    add_options_to_policy
+    """
     if relays is None and proxycredentials is None:
         return
 
@@ -250,6 +288,9 @@ def add_options_to_policy(relays, proxycredentials):
 
 
 def set_file_permissions():
+    """
+    set_file_permissions
+    """
     mcs_config = PathManager.root_config()
     sspl_config = PathManager.sophosspl_config()
 
@@ -261,6 +302,9 @@ def set_file_permissions():
 
 
 def remove_console_configuration():
+    """
+    remove_console_configuration
+    """
     policy_dir = PathManager.policy_dir()
     for policy_file in os.listdir(policy_dir):
         file_path = os.path.join(policy_dir, policy_file)
@@ -269,12 +313,18 @@ def remove_console_configuration():
 
 
 def remove_all_update_reports():
+    """
+    remove_all_update_reports
+    """
     for file in glob.glob(
             "{}/report*.json".format(PathManager.update_var_path())):
         os.remove(file)
 
 
 def stop_mcs_router():
+    """
+    stop_mcs_router
+    """
     output = subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"])
     if "SubState=dead" not in output:
@@ -282,6 +332,9 @@ def stop_mcs_router():
 
 
 def start_mcs_router():
+    """
+    start_mcs_router
+    """
     output = subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"])
     if "SubState=dead" not in output:
@@ -289,6 +342,9 @@ def start_mcs_router():
 
 
 def restart_update_scheduler():
+    """
+    restart_update_scheduler
+    """
     output = subprocess.check_output(
         ["systemctl", "show", "-p", "SubState", "sophos-spl"])
     if "SubState=dead" not in output:
@@ -300,6 +356,9 @@ def restart_update_scheduler():
 
 
 def inner_main(argv):
+    """
+    inner_main
+    """
     stop_mcs_router()
     ret = 1
     usage = "Usage: registerCentral <MCS-Token> <MCS-URL> | registerCentral [options]"
@@ -370,7 +429,7 @@ def inner_main(argv):
 
         ca_file_env = os.environ.get("MCS_CA", "")
         if len(ca_file_env) > 0 and os.path.isfile(ca_file_env):
-            logger.warning("Using %s as certificate CA", ca_file_env)
+            LOGGER.warning("Using %s as certificate CA", ca_file_env)
             config.set("CAFILE", ca_file_env)
 
         config.save()
@@ -401,10 +460,10 @@ def inner_main(argv):
 
     ## register or reregister
     if token is not None and url is not None:
-        ret = register(config, PathManager.install_dir(), logger)
+        ret = register(config, PathManager.install_dir(), LOGGER)
 
         if ret != 0:
-            logger.fatal("Failed to register with Sophos Central (%d)", ret)
+            LOGGER.fatal("Failed to register with Sophos Central (%d)", ret)
             cleanup()
         else:
             # Successfully registered to Sophos Central
@@ -433,6 +492,9 @@ def inner_main(argv):
 
 
 def main(argv):
+    """
+    main
+    """
     os.umask(0o177)
     # Create required directories
     create_dirs()
@@ -440,9 +502,12 @@ def main(argv):
     try:
         return inner_main(argv)
     except Exception:
-        logger.exception("Exception while registering with SophosCentral")
+        LOGGER.exception("Exception while registering with SophosCentral")
         raise
 
 
 if __name__ == '__main__':
+    """
+    __name__ 
+    """
     sys.exit(main(sys.argv))

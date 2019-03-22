@@ -2,15 +2,25 @@
 
 import socket
 import threading
+
 import IPAddress
 
 
 class IpLookupThread(threading.Thread):
+    """
+    IpLookupThread
+    """
     def __init__(self, server):
+        """
+        __init__
+        """
         super(IpLookupThread, self).__init__()
         self.server = server
 
     def run(self):
+        """
+        run
+        """
         try:
             self.server["ips"] = list(
                 set([i[4][0] for i in socket.getaddrinfo(self.server["hostname"], None)]))
@@ -19,6 +29,9 @@ class IpLookupThread(threading.Thread):
 
 
 def order_servers_by_key(server_location_list, key_string):
+    """
+    order_servers_by_key
+    """
     server_location_list = sorted(
         server_location_list,
         key=lambda k: k[key_string],
@@ -27,12 +40,18 @@ def order_servers_by_key(server_location_list, key_string):
 
 
 def ip_string_to_int(ip_addr, ip_type):
+    """
+    ip_string_to_int
+    """
     if ip_type == "ipv4":
         return int(socket.inet_pton(socket.AF_INET, ip_addr).encode('hex'), 16)
     return int(socket.inet_pton(socket.AF_INET6, ip_addr).encode('hex'), 16)
 
 
 def get_ip_address_distance(local_ip, remote_ip, ip_type="ipv4"):
+    """
+    get_ip_address_distance
+    """
     if isinstance(local_ip, str):
         local_ip_int = ip_string_to_int(local_ip, ip_type)
     else:
@@ -42,6 +61,9 @@ def get_ip_address_distance(local_ip, remote_ip, ip_type="ipv4"):
 
 
 def get_server_ips_from_hostname(server_location_list):
+    """
+    get_server_ips_from_hostname
+    """
     max_lookup_timeout = 20
 
     # Start an address resolution thread for each hostname
@@ -63,6 +85,9 @@ def order_servers_by_ip_address_distance(
         local_ipv4s,
         local_ipv6s,
         server_location_list):
+    """
+    order_servers_by_ip_address_distance
+    """
     for server in server_location_list:
         min_dist = 1000  # Initialise min_dist with a big number
 

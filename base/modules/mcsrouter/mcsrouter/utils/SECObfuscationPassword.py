@@ -104,6 +104,9 @@ C_KEY_FA = [
 #~ }
 
 def reverse_1(input_array):
+    """
+    reverse_1
+    """
     output_array = input_array[:]
     data_size = len(output_array)
     # Reverse Transposition of data - ADCB becomes ABCD
@@ -137,6 +140,9 @@ def reverse_1(input_array):
 #~ }
 
 def get_index(salt):
+    """
+    get_index
+    """
     KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
     key_length = len(KEY)
     mod3 = salt % 3
@@ -149,6 +155,9 @@ def get_index(salt):
 
 
 def get_mask(salt):
+    """
+    get_mask
+    """
     KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
     key_length = len(KEY)
     mod3 = salt % 3
@@ -183,6 +192,9 @@ def reverse_2(input_array):
 
 
 def get_masks(input_array):
+    """
+    get_masks
+    """
     output_array = []
     for (index, value) in enumerate(input_array):
         output_array.append(get_mask(index))
@@ -191,6 +203,9 @@ def get_masks(input_array):
 
 
 def get_indexes(input_array):
+    """
+    get_indexes
+    """
     output_array = []
     for (index, value) in enumerate(input_array):
         output_array.append(get_index(index))
@@ -265,6 +280,9 @@ def reverse_3(input_array):
 #~ }
 
 def get_password_uncached():
+    """
+    get_password_uncached
+    """
     data = reverse_1(C_KEY_DO)
     sect1 = reverse_2(data)
 
@@ -289,6 +307,9 @@ GL_PASSWORD = None
 
 
 def get_password():
+    """
+    get_password
+    """
     global GL_PASSWORD
     if GL_PASSWORD is None:
         GL_PASSWORD = get_password_uncached()
@@ -296,6 +317,9 @@ def get_password():
 
 
 def dump(name, array):
+    """
+    dump
+    """
     print("\n%s" % name)
     for item in array:
         if isinstance(item, str):

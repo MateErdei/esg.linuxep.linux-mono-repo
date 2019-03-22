@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import Timer
+import mcsrouter.mcsclient.Timer
 
 
-class StatusTimer(Timer.Timer):
+class StatusTimer(mcsrouter.mcsclient.Timer.Timer):
     """
     Object to indicate when the next status event should be sent.
     """
@@ -16,13 +16,25 @@ class StatusTimer(Timer.Timer):
         super(StatusTimer, self).__init__(latency, interval)
 
     def status_updated(self):
+        """
+        status_updated
+        """
         return self._latency_trigger()
 
     def status_sent(self):
+        """
+        status_sent
+        """
         return self._interval_trigger()
 
     def send_status(self):
+        """
+        send_status
+        """
         return self._triggered()
 
     def error_sending_status(self):
+        """
+        error_sending_status
+        """
         self._handle_error()

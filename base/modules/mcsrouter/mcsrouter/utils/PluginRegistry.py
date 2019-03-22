@@ -2,13 +2,15 @@ import json
 import logging
 import os
 
-import PathManager
+import mcsrouter.utils.PathManager
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def get_app_ids_from_plugin_registry_json(file_path):
-
+    """
+    get_app_ids_from_plugin_registry_json
+    """
     try:
         with open(file_path, 'r') as file:
             parsed_file = json.load(file)
@@ -17,19 +19,22 @@ def get_app_ids_from_plugin_registry_json(file_path):
             return app_ids
 
     except Exception as exception:
-        logger.error("Failed to load plugin file: " + str(file_path))
-        logger.error(str(exception))
+        LOGGER.error("Failed to load plugin file: " + str(file_path))
+        LOGGER.error(str(exception))
         return None
 
 
 def get_app_ids_from_directory(directory_path):
+    """
+    get_app_ids_from_directory
+    """
     app_ids = set()
     for file_name in os.listdir(directory_path):
         if(file_name.endswith('.json')):
             app_ids_for_file = get_app_ids_from_plugin_registry_json(
                 os.path.join(directory_path, file_name))
             if app_ids_for_file:
-                logger.info(
+                LOGGER.info(
                     "Apps for plugin " +
                     file_name +
                     " are: " +
@@ -40,13 +45,22 @@ def get_app_ids_from_directory(directory_path):
 
 
 class PluginRegistry:
+    """
+    PluginRegistry
+    """
     def __init__(self, install_dir):
-        PathManager.INST = install_dir
-        self._plugin_registry_path = PathManager.plugin_registry_path()
-        logger.info("PluginRegistry path: " + self._plugin_registry_path)
+        """
+        __init__
+        """
+        mcsrouter.utils.PathManager.INST = install_dir
+        self._plugin_registry_path = mcsrouter.utils.PathManager.plugin_registry_path()
+        LOGGER.info("PluginRegistry path: " + self._plugin_registry_path)
         self._current_app_ids = set()
 
     def added_and_removed_app_ids(self):
+        """
+        added_and_removed_app_ids
+        """
         # fixme improve efficiency. It is parsing the files every time. It
         # should do only when new files are added.
         app_ids = get_app_ids_from_directory(self._plugin_registry_path)

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-import utils.Config
+import mcsrouter.utils.Config
 
 
-class MCSConfig(utils.Config.Config):
+class MCSConfig(mcsrouter.utils.Config.Config):
+    """
+    MCSConfig
+    """
     pass

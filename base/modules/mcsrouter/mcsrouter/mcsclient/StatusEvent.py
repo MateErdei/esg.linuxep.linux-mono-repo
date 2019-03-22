@@ -12,6 +12,9 @@ TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 
 
 def textNode(doc, name, value):
+    """
+    textNode
+    """
     element = doc.createElement(name)
     text = doc.createTextNode(value)
     element.appendChild(text)
@@ -19,15 +22,25 @@ def textNode(doc, name, value):
 
 
 class StatusEvent(object):
+    """
+    StatusEvent
+    """
     def __init__(self):
+        """
+        __init__
+        """
         self.__m_adapters = {}
 
     def add_adapter(self, app_id, ttl, creation_time, adapter_status_xml):
         """
+        add_adapter
         """
         self.__m_adapters[app_id] = (ttl, creation_time, adapter_status_xml)
 
     def xml(self):
+        """
+        xml
+        """
         doc = xml.dom.minidom.parseString(TEMPLATE_STATUS_EVENT)
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 

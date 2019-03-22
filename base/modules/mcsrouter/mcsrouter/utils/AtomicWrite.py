@@ -6,6 +6,12 @@ import codecs
 
 
 def atomic_write(path, tmp_path, data):
+    """
+    atomic_write
+    :param path:
+    :param tmp_path:
+    :param data:
+    """
     try:
         if not isinstance(data, unicode):
             data = unicode(data, 'utf-8', 'replace')

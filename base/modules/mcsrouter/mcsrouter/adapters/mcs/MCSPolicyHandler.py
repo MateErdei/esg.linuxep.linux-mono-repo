@@ -8,20 +8,20 @@ import xml.dom.minidom
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import logging
-logger = logging.getLogger(__name__)
 
 import mcsrouter.utils.XmlHelper
 import mcsrouter.utils.AtomicWrite
-import mcsrouter.adapters.base.PolicyHandlerBase
 import mcsrouter.utils.PathManager as PathManager
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MCSPolicyHandlerException(Exception):
     pass
 
 
-class MCSPolicyHandler(
-        mcsrouter.adapters.base.PolicyHandlerBase.PolicyHandlerBase):
+class MCSPolicyHandler(object):
     """
     Process MCS adapter policy
     as defined at
@@ -31,7 +31,6 @@ class MCSPolicyHandler(
     def __init__(self, install_dir,
                  policy_config,
                  applied_config):
-        super(MCSPolicyHandler, self).__init__(install_dir)
         self.__m_compliance = None
         self.__m_policy_xml = None
         PathManager.INST = install_dir
@@ -41,15 +40,27 @@ class MCSPolicyHandler(
             self.__load_policy()
 
     def policy_name(self):
+        """
+        policy_name
+        """
         return "MCS"
 
     def policy_base_name(self):
+        """
+        policy_base_name
+        """
         return "MCS-25_policy.xml"
 
     def __policy_path(self):
+        """
+        __policy_path
+        """
         return os.path.join(PathManager.policy_dir(), self.policy_base_name())
 
     def __save_policy(self, policy_xml=None, path=None):
+        """
+        __save_policy
+        """
         if policy_xml is None:
             policy_xml = self.__m_policy_xml
         assert policy_xml is not None
@@ -59,12 +70,18 @@ class MCSPolicyHandler(
             PathManager.temp_dir(), self.policy_base_name()), policy_xml)
 
     def __load_policy(self):
+        """
+        __load_policy
+        """
         path = self.__policy_path()
         if os.path.isfile(path):
             self.__m_policy_xml = open(path, "rb").read()
             self.__try_apply_policy("existing", False)
 
     def __get_element(self, dom, element_name):
+        """
+        __get_element
+        """
         nodes = dom.getElementsByTagName(element_name)
         if len(nodes) != 1:
             return None
@@ -76,6 +93,9 @@ class MCSPolicyHandler(
             policy_option,
             config_option=None,
             treat_missing_as_empty=False):
+        """
+        __apply_policy_setting
+        """
         if config_option is None:
             config_option = policy_option
 
@@ -89,30 +109,33 @@ class MCSPolicyHandler(
         else:
             value = mcsrouter.utils.XmlHelper.get_text_from_element(node)
 
-        logger.debug("MCS policy %s = %s", policy_option, value)
+        LOGGER.debug("MCS policy %s = %s", policy_option, value)
 
         self.__m_policy_config.set(config_option, value)
         return True
 
     def __apply_polling_delay(self, dom):
+        """
+        __apply_polling_delay
+        """
         node = self.__get_element(dom, "commandPollingDelay")
         if node is None:
             return False
 
         value = node.getAttribute("default")
         if value == "":
-            logger.error(
+            LOGGER.error(
                 "MCS policy commandPollingDelay has no attribute default")
             return False
 
         try:
             value = int(value)
         except ValueError:
-            logger.error(
+            LOGGER.error(
                 "MCS policy commandPollingDelay default is not a number")
             return False
 
-        logger.debug("MCS policy commandPollingDelay = %d", value)
+        LOGGER.debug("MCS policy commandPollingDelay = %d", value)
         self.__m_policy_config.set(
             "COMMAND_CHECK_INTERVAL_MINIMUM", str(value))
         self.__m_policy_config.set(
@@ -121,6 +144,9 @@ class MCSPolicyHandler(
         return True
 
     def __get_non_empty_sub_elements(self, node, sub_node_name):
+        """
+        __get_non_empty_sub_elements
+        """
 
         sub_nodes = node.getElementsByTagName(sub_node_name)
 
@@ -142,13 +168,13 @@ class MCSPolicyHandler(
         servers = self.__get_non_empty_sub_elements(node, "server")
 
         if len(servers) == 0:
-            logger.error("MCS Policy has no server nodes in servers element")
+            LOGGER.error("MCS Policy has no server nodes in servers element")
             return False
 
         index = 1
         for server in servers:
             key = "mcs_policy_url%d" % index
-            logger.debug("MCS policy URL %s = %s", key, server)
+            LOGGER.debug("MCS policy URL %s = %s", key, server)
             self.__m_policy_config.set(key, server)
             index += 1
 
@@ -181,24 +207,24 @@ class MCSPolicyHandler(
             address_value = message_relay.getAttribute("address")
             id_value = message_relay.getAttribute("id")
 
-            logger.debug(
+            LOGGER.debug(
                 "MCS Policy Message Relay %s = %s",
                 priority_key,
                 priority_value)
-            logger.debug(
+            LOGGER.debug(
                 "MCS policy Message Relay %s = %s",
                 port_key,
                 port_value)
-            logger.debug(
+            LOGGER.debug(
                 "MCS policy Message Relay %s = %s",
                 address_key,
                 address_value)
-            logger.debug("MCS policy Message Relay %s = %s", id_key, id_value)
+            LOGGER.debug("MCS policy Message Relay %s = %s", id_key, id_value)
 
             message_relay_info_set = [
                 priority_value, port_value, address_value, id_value]
             if None in message_relay_info_set or "" in message_relay_info_set:
-                logger.error(
+                LOGGER.error(
                     "Message Relay Policy is incomplete: %s",
                     str(message_relay_info_set))
                 continue
@@ -226,6 +252,9 @@ class MCSPolicyHandler(
         return True
 
     def __apply_proxy_options(self, dom):
+        """
+        __apply_proxy_options
+        """
         proxies_node = self.__get_element(dom, "proxies")
         if proxies_node is None:
             # Don't apply credentials unless we have a proxy
@@ -234,13 +263,13 @@ class MCSPolicyHandler(
         proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
 
         if len(proxies) == 0:
-            logger.error("MCS Policy has no proxy nodes in proxies element")
+            LOGGER.error("MCS Policy has no proxy nodes in proxies element")
             return False
 
         if len(proxies) > 1:
-            logger.warning("Multiple MCS proxies in MCS policy")
+            LOGGER.warning("Multiple MCS proxies in MCS policy")
 
-        logger.debug("MCS policy proxy = %s", proxies[0])
+        LOGGER.debug("MCS policy proxy = %s", proxies[0])
         self.__m_policy_config.set("mcs_policy_proxy", proxies[0])
 
         credentials_node = self.__get_element(dom, "proxyCredentials")
@@ -254,34 +283,37 @@ class MCSPolicyHandler(
             return False
 
         if len(credentials) > 1:
-            logger.warning("Multiple MCS proxy credentials in MCS policy")
+            LOGGER.warning("Multiple MCS proxy credentials in MCS policy")
 
-        logger.debug("MCS policy proxy credential = %s", credentials[0])
+        LOGGER.debug("MCS policy proxy credential = %s", credentials[0])
         self.__m_policy_config.set(
             "mcs_policy_proxy_credentials",
             credentials[0])
         return True
 
     def __apply_policy(self, policy_age, save):
+        """
+        __apply_policy
+        """
         assert self.__m_policy_config is not None
 
         policy_xml = self.__m_policy_xml
         try:
             dom = xml.dom.minidom.parseString(policy_xml)
         except xml.parsers.expat.ExpatError as exception:
-            logger.error(
+            LOGGER.error(
                 "Failed to parse MCS policy (%s): %s",
                 str(exception),
                 policy_xml)
             return False
         except Exception:
-            logger.exception("Failed to parse MCS policy: %s", policy_xml)
+            LOGGER.exception("Failed to parse MCS policy: %s", policy_xml)
             return False
 
         try:
             policy_nodes = dom.getElementsByTagName("policy")
             if len(policy_nodes) != 1:
-                logger.error("MCS Policy doesn't have one policy node")
+                LOGGER.error("MCS Policy doesn't have one policy node")
                 return False
 
             policy_node = policy_nodes[0]
@@ -293,10 +325,10 @@ class MCSPolicyHandler(
                 rev_id = node.getAttribute("RevID")
                 compliance = (policy_type, rev_id)
             else:
-                logger.error("MCS Policy didn't contain one compliance node")
+                LOGGER.error("MCS Policy didn't contain one compliance node")
                 compliance = None
 
-            logger.info(
+            LOGGER.info(
                 "Applying %s %s policy %s",
                 policy_age,
                 self.policy_name(),
@@ -329,10 +361,13 @@ class MCSPolicyHandler(
             dom.unlink()
 
     def __try_apply_policy(self, policy_age, save):
+        """
+        __try_apply_policy
+        """
         try:
             self.__apply_policy(policy_age, save)
         except Exception:
-            logger.exception("Failed to apply MCS policy")
+            LOGGER.exception("Failed to apply MCS policy")
 
     def process(self, policy_xml):
         """
@@ -374,7 +409,7 @@ class MCSPolicyHandler(
                     None) != self.__m_applied_config.get_default(
                     field,
                     None):
-                logger.warning(
+                LOGGER.warning(
                     "MCS Policy not compliant: %s option differs", field)
                 compliant = False
 
@@ -385,7 +420,7 @@ class MCSPolicyHandler(
             policy_value = self.__m_policy_config.get_default(field, None)
             applied_value = self.__m_applied_config.get_default(field, None)
             if policy_value != applied_value:
-                logger.warning(
+                LOGGER.warning(
                     "MCS Policy not compliant: %s option differs", field)
                 compliant = False
             if policy_value is None and applied_value is None:

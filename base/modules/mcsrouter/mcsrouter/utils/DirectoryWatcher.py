@@ -15,17 +15,21 @@ import watchdog.events
 
 from . import SignalHandler
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class PipeEventHandler(watchdog.events.PatternMatchingEventHandler):
-    """Simple watchdog event handler to write to a pipe on any change"""
-
+    """
+    Simple watchdog event handler to write to a pipe on any change
+    """
     def __init__(
             self,
             pipe_file_descriptor,
             patterns=None,
             ignore_delete=False):
+        """
+        __init__
+        """
         super(
             PipeEventHandler,
             self).__init__(
@@ -38,36 +42,48 @@ class PipeEventHandler(watchdog.events.PatternMatchingEventHandler):
         self.__ignore_delete = ignore_delete
 
     def on_any_event(self, event):
-        """Write to the pipe whenever a change is observed"""
-        logger.debug("Got event: %s", str(event))
+        """
+        Write to the pipe whenever a change is observed
+        """
+        LOGGER.debug("Got event: %s", str(event))
         if self.__ignore_delete and event.event_type == "deleted":
             return
         os.write(self.__pipe_file_descriptor, b"1")
 
 
 class DirectoryWatcher(object):
-    """A simple directory watcher, which writes to a pipe whenever a change
+    """
+    A simple directory watcher, which writes to a pipe whenever a change
     is observed
     """
-
     def __init__(self):
+        """
+        __init__
+        """
         self.__pipe = SignalHandler.create_pipe()
         self.__observer = watchdog.observers.Observer()
         self.__observer.start()
 
     def __del__(self):
+        """
+        __del_
+        """
         self.__observer.stop()
         self.__observer.join()
         SignalHandler.close_pipe(self.__pipe)
 
     @property
     def notify_pipe_file_descriptor(self):
-        """get the readfd of the notification pipe (for use in a select() call)"""
+        """
+        get the readfd of the notification pipe (for use in a select() call)
+        """
         return self.__pipe[0]
 
     def add_watch(self, directory, patterns=None, ignore_delete=False):
-        """add a directory to watch"""
-        logger.debug("Adding directory watch for: %s", directory)
+        """
+        add a directory to watch
+        """
+        LOGGER.debug("Adding directory watch for: %s", directory)
         event_handler = PipeEventHandler(
             self.__pipe[1],
             patterns=patterns,

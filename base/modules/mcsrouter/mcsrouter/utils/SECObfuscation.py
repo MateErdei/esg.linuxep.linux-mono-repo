@@ -8,16 +8,33 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512, HMAC
 
 
+# Algorithm enumeration:
+ALGO_3DES = 7
+ALGO_AES256 = 8
+
+
 class SECObfuscationException(Exception):
+    """
+    SECObfuscationException
+    """
     pass
 
 
 class SECObfuscation(object):
+    """
+    SECObfuscation
+    """
     def get_password(self):
+        """
+        get_password
+        """
         from . import SECObfuscationPassword
         return SECObfuscationPassword.get_password()
 
     def remove_padding(self, text):
+        """
+        remove_padding
+        """
         padding = ord(text[-1])
         if padding > self.BLOCK_LENGTH:
             raise SECObfuscationException("Padding incorrect")
@@ -25,32 +42,42 @@ class SECObfuscation(object):
         return text[:-padding]
 
     def add_padding(self, text):
+        """
+        add_padding
+        """
         padding = self.BLOCK_LENGTH - len(text) % self.BLOCK_LENGTH
         return text + chr(padding) * padding
 
     def split_key_iv(self, key_iv):
+        """
+        split_key_iv
+        """
         key = key_iv[0:self.KEY_LENGTH]
         iv_value = key_iv[self.KEY_LENGTH:self.KEY_LENGTH + self.IV_LENGTH]
 
         return (key, iv_value)
 
     def deobfuscate(self, salt, cipher_text):
+        """
+        deobfuscate
+        """
         key, iv_value = self.create_session_key(salt)
         cipher = self.create_cipher(key, iv_value)
         return self.remove_padding(cipher.decrypt(cipher_text))
 
     def obfuscate(self, salt, plain_text):
+        """
+        obfuscate
+        """
         key, iv_value = self.create_session_key(salt)
         cipher = self.create_cipher(key, iv_value)
         return cipher.encrypt(self.add_padding(plain_text))
 
 
-# Algorithm enumeration:
-ALGO_3DES = 7
-ALGO_AES256 = 8
-
-
 class ThreeDES(SECObfuscation):
+    """
+    ThreeDES
+    """
     ALGORITHM_MARKER_BYTE = ALGO_3DES
     SALT_LENGTH = 8
     KEY_LENGTH = 24
@@ -58,6 +85,9 @@ class ThreeDES(SECObfuscation):
     IV_LENGTH = BLOCK_LENGTH
 
     def create_cipher(self, key, iv_value):
+        """
+        create_cipher
+        """
         return DES3.new(key, DES3.MODE_CBC, IV=iv_value)
 
     def create_session_key(self, salt):
@@ -83,6 +113,9 @@ class ThreeDES(SECObfuscation):
 
 
 class AES256(SECObfuscation):
+    """
+    AES256
+    """
     ALGORITHM_MARKER_BYTE = ALGO_AES256
     SALT_LENGTH = 32
     KEY_LENGTH = 256 // 8
@@ -91,6 +124,9 @@ class AES256(SECObfuscation):
     KEY_ITERATIONS = 50000
 
     def create_cipher(self, key, iv_value):
+        """
+        create_cipher
+        """
         from Crypto.Cipher import AES
         return AES.new(key, AES.MODE_CBC, IV=iv_value)
 
@@ -112,6 +148,9 @@ class AES256(SECObfuscation):
 
 
 def get_implementation_from_embedded_algorithm_byte(embedded_algorithm_byte):
+    """
+    get_implementation_from_embedded_algorithm_byte
+    """
     if embedded_algorithm_byte == ThreeDES.ALGORITHM_MARKER_BYTE:
         return ThreeDES()
     elif embedded_algorithm_byte == AES256.ALGORITHM_MARKER_BYTE:
@@ -121,6 +160,9 @@ def get_implementation_from_embedded_algorithm_byte(embedded_algorithm_byte):
 
 
 def get_implementation(raw_obfuscated):
+    """
+    get_implementation
+    """
     embedded_algorithm_byte = ord(raw_obfuscated[0])
     return get_implementation_from_embedded_algorithm_byte(
         embedded_algorithm_byte)

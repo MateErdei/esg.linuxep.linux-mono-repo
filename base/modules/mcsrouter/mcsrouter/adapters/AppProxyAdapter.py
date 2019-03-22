@@ -3,25 +3,36 @@
 from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
-
 import logging
-logger = logging.getLogger(__name__)
 
-import AdapterBase
-
+import mcsrouter.adapters.AdapterBase
 import mcsrouter.utils.Timestamp
 import mcsrouter.utils.XmlHelper
 import mcsrouter.mcsclient.MCSCommands
 
+LOGGER = logging.getLogger(__name__)
 
-class AppProxyAdapter(AdapterBase.AdapterBase):
+
+class AppProxyAdapter(mcsrouter.adapters.AdapterBase.AdapterBase):
+    """
+    AppProxyAdapter
+    """
     def __init__(self, app_ids):
+        """
+        __init__
+        """
         self.__m_app_ids = app_ids
 
     def get_app_id(self):
+        """
+        get_app_id
+        """
         return "APPSPROXY"
 
     def get_status_xml(self):
+        """
+        get_status_xml
+        """
         status_xml = []
 
         status_xml.append('<?xml version="1.0" encoding="utf-8"?>')
@@ -37,6 +48,9 @@ class AppProxyAdapter(AdapterBase.AdapterBase):
         return "".join(status_xml)
 
     def _has_new_status(self):
+        """
+        _has_new_status
+        """
         return False
 
     def process_command(self, command):
@@ -75,7 +89,7 @@ u'<?xml version="1.0"?>
         try:
             doc = xml.dom.minidom.parseString(body)
         except Exception:
-            logger.exception(
+            LOGGER.exception(
                 "Unable to parse AppProxy Action: '%s' from '%s'",
                 body,
                 command.get_xml_text())
@@ -84,7 +98,7 @@ u'<?xml version="1.0"?>
         try:
             policy_assignments = doc.getElementsByTagName("policyAssignment")
             commands = []
-            logger.debug(
+            LOGGER.debug(
                 "Received %d policyAssignments",
                 len(policy_assignments))
             command_id = command.get('id')
@@ -98,7 +112,7 @@ u'<?xml version="1.0"?>
                     command_id, app_id, policy_id, connection))
 
             fragmented_assignments = doc.getElementsByTagName("fragments")
-            logger.debug(
+            LOGGER.debug(
                 "Received %d fragmented policy assignments",
                 len(fragmented_assignments))
 

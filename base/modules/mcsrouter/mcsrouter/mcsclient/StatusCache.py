@@ -8,7 +8,7 @@ import re
 import time
 import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 MAX_STATUS_DELAY = 7 * 24 * 60 * 60
 
@@ -17,7 +17,13 @@ TIMESTAMP_RE = re.compile(
 
 
 class StatusCache(object):
+    """
+    StatusCache
+    """
     def __init__(self):
+        """
+        __init__
+        """
         self.__m_adapter_status_cache = {}
 
     def has_status_changed_and_record(self, app_id, adapter_status_xml):
@@ -37,10 +43,10 @@ class StatusCache(object):
 
         if adapter_status_xml == previous_status and (
                 now - previous_time) < MAX_STATUS_DELAY:
-            logger.debug("Adapter %s hasn't changed status", app_id)
+            LOGGER.debug("Adapter %s hasn't changed status", app_id)
             return False
 
-        logger.debug(
+        LOGGER.debug(
             "Adapter %s changed status: %s",
             app_id,
             adapter_status_xml)
@@ -49,4 +55,7 @@ class StatusCache(object):
         return True
 
     def clearCache(self):
+        """
+        clearCache
+        """
         self.__m_adapter_status_cache = {}

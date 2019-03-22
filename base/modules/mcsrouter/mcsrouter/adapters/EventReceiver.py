@@ -9,11 +9,17 @@ import logging
 import mcsrouter.utils.PathManager as PathManager
 import mcsrouter.utils.XmlHelper as XmlHelper
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class EventReceiver(object):
+    """
+    EventReceiver
+    """
     def __init__(self, install_dir):
+        """
+        __init__
+        """
         if install_dir is not None:
             PathManager.INST = install_dir
 
@@ -33,6 +39,6 @@ class EventReceiver(object):
                     file_path)
                 yield (app_id, time, body)
             else:
-                logger.warning("Malformed event file: %s", event_file)
+                LOGGER.warning("Malformed event file: %s", event_file)
 
             os.remove(file_path)

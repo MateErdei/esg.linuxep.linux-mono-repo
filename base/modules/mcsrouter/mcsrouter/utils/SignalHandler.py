@@ -6,13 +6,16 @@ import signal
 import sys
 
 import logging
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 subprocess_exit_pipe = None
 sig_term_pipe = None
 
 
 def handler(sig_num, frame):
+    """
+    handler
+    """
     global subprocess_exit_pipe, sig_term_pipe
     if sig_num == signal.SIGCHLD:
         os.write(subprocess_exit_pipe[1], "1")
@@ -23,12 +26,18 @@ def handler(sig_num, frame):
 
 
 def make_non_blocking_and_non_inherit(file_descriptor):
+    """
+    make_non_blocking_and_non_inherit
+    """
     flags = fcntl.fcntl(file_descriptor, fcntl.F_GETFL)
     fcntl.fcntl(file_descriptor, fcntl.F_SETFL, flags |
                 os.O_NONBLOCK | fcntl.FD_CLOEXEC)
 
 
 def create_pipe():
+    """
+    create_pipe
+    """
     pipe = os.pipe()
     make_non_blocking_and_non_inherit(pipe[0])
     make_non_blocking_and_non_inherit(pipe[1])
@@ -36,12 +45,18 @@ def create_pipe():
 
 
 def close_pipe(pipe):
+    """
+    close_pipe
+    """
     if pipe is not None:
         os.close(pipe[0])
         os.close(pipe[1])
 
 
 def close_pipes():
+    """
+    close_pipes
+    """
     global subprocess_exit_pipe, sig_term_pipe
 
     close_pipe(subprocess_exit_pipe)
@@ -52,6 +67,9 @@ def close_pipes():
 
 
 def setup_signal_handler():
+    """
+    setup_signal_handler
+    """
     global subprocess_exit_pipe, sig_term_pipe
 
     clear_signal_handler()
@@ -65,6 +83,9 @@ def setup_signal_handler():
 
 
 def clear_signal_handler():
+    """
+    clear_signal_handler
+    """
     # Clear signal handlers so that signals don't get blocked
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)

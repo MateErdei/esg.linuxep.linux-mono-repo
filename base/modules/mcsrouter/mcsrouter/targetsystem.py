@@ -46,17 +46,20 @@ DISTRIBUTION_NAME_MAP = {
 
 
 class TargetSystem(object):
-    '''
+    """
     Represents the system into which we are trying to install/load TALPA.
-    '''
+    """
 
     class TargetDetectionException(Exception):
         """
-        does something
+        TargetDetectionException
         """
         pass
 
     def __init__(self, install_dir="."):
+        """
+        __init__
+        """
         self._save_uname()
         self.platform = self.uname[0].lower().replace("-", "")
         self.is_linux = (self.platform == "linux")
@@ -130,7 +133,7 @@ class TargetSystem(object):
 
     def _read_uname(self):
         """
-        does something
+        _read_uname
         :return:
         """
         try:
@@ -140,7 +143,7 @@ class TargetSystem(object):
 
     def _save_uname(self):
         """
-        does something
+        _save_uname
         :return:
         """
         self.uname = self._read_uname()
@@ -148,7 +151,7 @@ class TargetSystem(object):
 
     def __back_tick(self, command):
         """
-        does something
+        __back_tick
         :return:
         """
         if isinstance(command, basestring):
@@ -160,7 +163,7 @@ class TargetSystem(object):
 
         def reset_env(env, variable):
             """
-            does something
+            reset_env
             :return:
             """
             orig = "ORIGINAL_%s" % variable
@@ -171,7 +174,7 @@ class TargetSystem(object):
 
         def remove_env_variable(env, variable):
             """
-            does something
+            remove_env_variable
             :return:
             """
             env.pop(variable, None)
@@ -182,7 +185,7 @@ class TargetSystem(object):
 
         def attempt(command, env, shell=False):
             """
-            does something
+            attempt
             :return:
             """
             try:
@@ -237,7 +240,7 @@ class TargetSystem(object):
 
     def using_lsb_release(self):
         """
-        does something
+        using_lsb_release
         :return:
         """
         return len(self.m_lsb_release) > 0
@@ -350,7 +353,7 @@ class TargetSystem(object):
 
     def __detect_init_process(self):
         """
-        does something
+        __detect_init_process
         :return:
         """
         (ret_code, stdout) = self.__back_tick(["/bin/ps", "-p1", "-ocomm="])
@@ -359,9 +362,9 @@ class TargetSystem(object):
         return stdout.strip()
 
     def detect_distro(self):
-        '''
+        """
         Detect the name of distro.
-        '''
+        """
         # lsb_release returned "Distribution ID"
         if 'vendor' in self.m_lsb_release:
             if 'Description' in self.m_lsb_release:
@@ -419,8 +422,9 @@ class TargetSystem(object):
         return distro_identified
 
     def check_distro_file(self, distro_file, distro_identified):
-        """Check a file to see if it describes the distro"""
-
+        """
+        Check a file to see if it describes the distro
+        """
         if not os.path.exists(distro_file):
             return distro_identified
         check_file = open(distro_file)
@@ -449,9 +453,9 @@ class TargetSystem(object):
         return distro_identified
 
     def detect_kernel(self):
-        '''
+        """
         Detect the name of the kernel we are running on.
-        '''
+        """
 
         if os.path.isfile('/proc/version'):
             version_file = open('/proc/version', 'r')
@@ -467,15 +471,15 @@ class TargetSystem(object):
             return "Unknown"
 
     def detect_version(self):
-        '''
+        """
         Detect the version of the kernel we are running on.
-        '''
+        """
 
         return self.uname[3]
 
     def detect_is_ec2_instance(self):
         """
-        does something
+        detect_is_ec2_instance
         :return:
         """
         try:
@@ -528,7 +532,7 @@ class TargetSystem(object):
 
     def detect_instance_info(self, cached=True, install_dir=None):
         """
-        does something
+        detect_instance_info
         :return:
         """
         # Assume anything non-Linux is not on AWS
@@ -562,9 +566,9 @@ class TargetSystem(object):
             return None
 
     def detect_smp(self):
-        '''
+        """
         Detect whether or not the current kernel is SMP enabled.
-        '''
+        """
         if os.path.isfile('/proc/version'):
             version_file = open('/proc/version', 'r')
             version = version_file.readline()
@@ -575,70 +579,70 @@ class TargetSystem(object):
         return False
 
     def detect_architecture(self):
-        '''
+        """
         Detect on which architecture we are running on.
-        '''
+        """
         return self.uname[4]
 
     def distro_name(self):
-        '''
+        """
         Obtain the name distro that we are running on.
-        '''
+        """
         return self.distro
 
     def product_name(self):
-        '''
+        """
         Obtain the name product that we are running on.
-        '''
+        """
         return self.product
 
     def ambiguous_distro_names(self):
-        '''
+        """
         Provides the list of ambiguous distro identifications
-        '''
+        """
         return self.ambiguous
 
     def kernel_name(self):
-        '''
+        """
         Obtain the name kernel that we are running on.
-        '''
+        """
         return self.kernel
 
     def kernel_version(self):
-        '''
+        """
         Obtain version of the kernel that we are running on.
-        '''
+        """
         return self.version
 
     def kernel_release_version(self):
-        '''
+        """
         Obtain release version of the kernel that we are running on.
-        '''
+        """
         return self.uname[2]
 
     def kernel_module_suffix(self):
-        '''
+        """
         Returns a string containing the suffix to be used by kernel modules.
-        '''
+        """
         if not self.is_linux:
             return ""
         return '.ko'
 
     def is_smp(self):
-        '''
+        """
         Is the kernel multi-processor?
-        '''
+        """
         return self.smp
 
     def architecture(self):
-        '''
+        """
         Returns the machine architecture.
-        '''
+        """
         return self.arch
 
     def system_map(self):
         """
-        does something
+        system_map
         :return:
         """
         map_file = '/boot/System.map-' + self.kernel
@@ -657,9 +661,9 @@ class TargetSystem(object):
         return None
 
     def get_symbol_address(self, symbol):
-        '''
+        """
         Returns the symbol address by looking in /boot/System.map for the running kernel.
-        '''
+        """
         map_file = self.system_map()
         if map_file is None:
             return ''
@@ -682,15 +686,15 @@ class TargetSystem(object):
         return address
 
     def syscall_table_address(self):
-        '''
+        """
         Returns the sys_call_table address for the running kernel.
-        '''
+        """
         return self.syscall_table
 
     def syscall_32_table_address(self):
-        '''
+        """
         Returns the ia32_sys_call_table address for the running kernel. (if applicable)
-        '''
+        """
         return self.syscall_32_table
 
     def get_platform(self):
@@ -760,7 +764,7 @@ class TargetSystem(object):
 
         def ver(version_string):
             """
-            does something
+            ver
             :return:
             """
             result = []
@@ -856,7 +860,7 @@ class TargetSystem(object):
 
     def hostname(self):
         """
-        does something
+        hostname
         :return:
         """
         hostname = self.uname[1].split(".")[0]
@@ -869,7 +873,7 @@ class TargetSystem(object):
 
     def vendor(self):
         """
-        does something
+        vendor
         :return:
         """
         if self.m_vendor is not None:
@@ -879,14 +883,14 @@ class TargetSystem(object):
 
     def os_version(self):
         """
-        does something
+        os_version
         :return:
         """
         return self.m_os_version
 
     def __detect_os_version(self):
         """
-        does something
+        __detect_os_version
         :return:
         """
         if self.m_os_version is not None:
@@ -919,14 +923,14 @@ class TargetSystem(object):
 
     def split_ldd_output(self, ldd_output):
         """
-        does something
+        split_ldd_output
         :return:
         """
         return ldd_output.splitlines()[0].split()[-1]
 
     def get_glibc_version(self):
         """
-        does something
+        get_glibc_version
         :return:
         """
         try:
@@ -941,21 +945,21 @@ class TargetSystem(object):
 
     def minimum_sls_glibc_version(self):
         """
-        does something
+        minimum_sls_glibc_version
         :return:
         """
         return "2.11"
 
     def minimum_sls_kernel_version(self):
         """
-        does something
+        minimum_sls_kernel_version
         :return:
         """
         return "2.6.32"
 
     def check_glibc_version_for_sls(self):
         """
-        does something
+        check_glibc_version_for_sls
         :return:
         """
         if self.glibc_version_is_at_least(self.minimum_sls_glibc_version()):
@@ -964,7 +968,7 @@ class TargetSystem(object):
 
     def check_kernel_version_for_sls(self):
         """
-        does something
+        check_kernel_version_for_sls
         :return:
         """
         if self.kernel_version_is_at_least(self.minimum_sls_kernel_version()):
@@ -973,7 +977,7 @@ class TargetSystem(object):
 
     def check_architecture_for_sls(self):
         """
-        does something
+        check_architecture_for_sls
         :return:
         """
         if self.arch == "x86_64":
@@ -982,7 +986,7 @@ class TargetSystem(object):
 
     def check_if_updatable_to_sls(self):
         """
-        does something
+        check_if_updatable_to_sls
         :return:
         """
         if self.is_linux:
@@ -1004,7 +1008,7 @@ class TargetSystem(object):
 
     def get_upgrade_response(self):
         """
-        does something
+        get_upgrade_response
         :return:
         """
         return self.m_upgrade_response
@@ -1040,7 +1044,7 @@ class TargetSystem(object):
 
 def printout(stream):
     """
-    does something
+    printout
     :return:
     """
     target_system = TargetSystem()
@@ -1092,7 +1096,7 @@ def printout(stream):
 
 def main():
     """
-    does something
+    main
     :return:
     """
     printout(sys.stdout)

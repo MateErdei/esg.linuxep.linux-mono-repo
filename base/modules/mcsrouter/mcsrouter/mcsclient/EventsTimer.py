@@ -31,6 +31,9 @@ class EventsTimer(object):
             regulation_delay=3,
             max_regulation_delay=60,
             max_events=20):
+        """
+        __init__
+        """
         self.__m_regulation_delay = regulation_delay
         self.__m_max_regulation_delay = max_regulation_delay
         self.__m_max_events = max_events
@@ -39,6 +42,9 @@ class EventsTimer(object):
         self.__m_first_event_time = -1
 
     def relative_time(self):
+        """
+        relative_time
+        """
         if self.__m_next_time < 0:
             return sys.maxsize
 
@@ -48,6 +54,9 @@ class EventsTimer(object):
         return self.__m_next_time - time.time()
 
     def event_added(self):
+        """
+        event_added
+        """
         self.__m_count_events += 1
 
         if self.__m_first_event_time < 0:
@@ -62,6 +71,9 @@ class EventsTimer(object):
             )
 
     def events_sent(self):
+        """
+        events_sent
+        """
         self.__m_count_events = 0
         self.__m_next_time = -1
         self.__m_first_event_time = -1
