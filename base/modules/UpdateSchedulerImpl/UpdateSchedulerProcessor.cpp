@@ -212,7 +212,7 @@ namespace UpdateSchedulerImpl
             return;
         }
 
-        LOGSUPPORT("Triggering SulDownloader");
+        LOGINFO("Triggering SulDownloader");
         m_sulDownloaderRunner->triggerSulDownloader();
     }
 
