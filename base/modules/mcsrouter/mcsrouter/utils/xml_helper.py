@@ -11,9 +11,9 @@ def get_text_from_element(element):
     get_text_from_element
     """
     text = []
-    for n in element.childNodes:
-        if n.nodeType == xml.dom.Node.TEXT_NODE:
-            text.append(n.data)
+    for child_node in element.childNodes:
+        if child_node.nodeType == xml.dom.Node.TEXT_NODE:
+            text.append(child_node.data)
     return "".join(text)
 
 
@@ -25,9 +25,9 @@ def get_text_node_text(node, element_name):
     return get_text_from_element(element)
 
 
-def get_xml_file_content_with_escaped_non_ascii_code(file_path):
+def get_escaped_non_ascii_content(file_path):
     """
-    get_xml_file_content_with_escaped_non_ascii_code
+    get_escaped_non_ascii_content
     """
     body = codecs.open(
         file_path,

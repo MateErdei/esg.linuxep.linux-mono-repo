@@ -4,6 +4,8 @@
 sec_obfuscation_password Module
 """
 
+#pylint: disable=no-self-use
+
 from __future__ import absolute_import, print_function, division, unicode_literals
 
 # From
@@ -146,8 +148,8 @@ def get_index(salt):
     """
     get_index
     """
-    KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
-    key_length = len(KEY)
+    key = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
+    key_length = len(key)
     mod3 = salt % 3
     if mod3 == 0:
         return (salt * 13) % key_length
@@ -160,14 +162,14 @@ def get_mask(salt):
     """
     get_mask
     """
-    KEY = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
-    key_length = len(KEY)
+    key = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
+    key_length = len(key)
     mod3 = salt % 3
     if mod3 == 0:
-        return ord(KEY[(salt * 13) % key_length])
+        return ord(key[(salt * 13) % key_length])
     elif mod3 == 1:
-        return ord(KEY[(salt * 11) % key_length])
-    return ord(KEY[(salt * 7) % key_length])
+        return ord(key[(salt * 11) % key_length])
+    return ord(key[(salt * 7) % key_length])
 
 
 #~ static std::vector<unsigned char> reverse_2(const std::vector<unsigned char>& data)
@@ -185,9 +187,10 @@ def reverse_2(input_array):
     """
     Reverse O2()?
     """
+    #pylint: disable=unused-variable
     output_array = []
-    for (i, c) in enumerate(input_array):
-        output_array.append(c ^ get_mask(i))
+    for (index, value) in enumerate(input_array):
+        output_array.append(value ^ get_mask(index))
 
     return output_array
 
@@ -196,6 +199,7 @@ def get_masks(input_array):
     """
     get_masks
     """
+    #pylint: disable=unused-variable
     output_array = []
     for (index, value) in enumerate(input_array):
         output_array.append(get_mask(index))
@@ -207,6 +211,7 @@ def get_indexes(input_array):
     """
     get_indexes
     """
+    #pylint: disable=unused-variable
     output_array = []
     for (index, value) in enumerate(input_array):
         output_array.append(get_index(index))
@@ -306,15 +311,13 @@ def get_password_uncached():
 
 GL_PASSWORD = None
 
-
-def get_password():
+def get_password(password=GL_PASSWORD):
     """
     get_password
     """
-    global GL_PASSWORD
-    if GL_PASSWORD is None:
-        GL_PASSWORD = get_password_uncached()
-    return GL_PASSWORD
+    if password is None:
+        password = get_password_uncached()
+    return password
 
 
 def dump(name, array):
@@ -330,8 +333,8 @@ def dump(name, array):
 
 
 if __name__ == '__main__':
-    password = get_password()
-    dump("password", password)
+    GL_PASSWORD = get_password(GL_PASSWORD)
+    dump("password", GL_PASSWORD)
 
     #~ data = reverse_1(C_KEY_DO)
     #~ dump("reverse_1",data)

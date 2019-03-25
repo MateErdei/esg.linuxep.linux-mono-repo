@@ -80,6 +80,18 @@ class AdapterBase(object):
         """
         return self._has_new_status()
 
+    def _has_new_status(self):
+        """
+        _has_new_status
+        """
+        pass
+
+    def _get_status_xml(self):
+        """
+        _get_status_xml
+        """
+        pass
+
     def get_status_xml(self):
         """
         get_status_xml

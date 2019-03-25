@@ -1,6 +1,7 @@
 """
 plugin_registry Module
 """
+#pylint: disable=too-few-public-methods
 
 import json
 import logging
@@ -11,19 +12,19 @@ import mcsrouter.utils.path_manager
 LOGGER = logging.getLogger(__name__)
 
 
-def get_app_ids_from_plugin_registry_json(file_path):
+def get_app_ids_from_plugin_json(file_path):
     """
-    get_app_ids_from_plugin_registry_json
+    get_app_ids_from_plugin_json
     """
     try:
-        with open(file_path, 'r') as file:
-            parsed_file = json.load(file)
+        with open(file_path, 'r') as file_to_read:
+            parsed_file = json.load(file_to_read)
             app_ids = set(parsed_file.get(u'policyAppIds', []))
             app_ids = app_ids.union(parsed_file.get(u'statusAppIds', []))
             return app_ids
 
-    except Exception as exception:
-        LOGGER.error("Failed to load plugin file: " + str(file_path))
+    except IOError as exception:
+        LOGGER.error("Failed to load plugin file: %s", str(file_path))
         LOGGER.error(str(exception))
         return None
 
@@ -34,8 +35,8 @@ def get_app_ids_from_directory(directory_path):
     """
     app_ids = set()
     for file_name in os.listdir(directory_path):
-        if(file_name.endswith('.json')):
-            app_ids_for_file = get_app_ids_from_plugin_registry_json(
+        if file_name.endswith('.json'):
+            app_ids_for_file = get_app_ids_from_plugin_json(
                 os.path.join(directory_path, file_name))
             if app_ids_for_file:
                 LOGGER.info(
@@ -48,7 +49,7 @@ def get_app_ids_from_directory(directory_path):
     return app_ids
 
 
-class PluginRegistry:
+class PluginRegistry(object):
     """
     PluginRegistry
     """
@@ -59,7 +60,7 @@ class PluginRegistry:
         """
         mcsrouter.utils.path_manager.INST = install_dir
         self._plugin_registry_path = mcsrouter.utils.path_manager.plugin_registry_path()
-        LOGGER.info("PluginRegistry path: " + self._plugin_registry_path)
+        LOGGER.info("PluginRegistry path: %s", str(self._plugin_registry_path))
         self._current_app_ids = set()
 
     def added_and_removed_app_ids(self):

@@ -101,10 +101,10 @@ class ComputerCommonStatus(object):
         ]
         if self.ipv4s or self.ipv6s:
             result.append("<ipAddresses>")
-            for ip in self.ipv4s:
-                result.append("<ipv4>%s</ipv4>" % ip)
-            for ip in self.ipv6s:
-                result.append("<ipv6>%s</ipv6>" % ip)
+            for ip_address in self.ipv4s:
+                result.append("<ipv4>%s</ipv4>" % ip_address)
+            for ip_address in self.ipv6s:
+                result.append("<ipv6>%s</ipv6>" % ip_address)
             result.append("</ipAddresses>")
 
         result.append("</commonComputerStatus>")

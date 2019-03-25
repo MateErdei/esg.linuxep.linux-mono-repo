@@ -115,7 +115,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         except OSError:
             pass
         try:
-            return xml_helper.get_xml_file_content_with_escaped_non_ascii_code(
+            return xml_helper.get_escaped_non_ascii_content(
                 status_path)
         except IOError:
             return None

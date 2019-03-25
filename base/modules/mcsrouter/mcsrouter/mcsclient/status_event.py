@@ -9,18 +9,10 @@ from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
 
+import events
+
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""
-
-
-def textNode(doc, name, value):
-    """
-    textNode
-    """
-    element = doc.createElement(name)
-    text = doc.createTextNode(value)
-    element.appendChild(text)
-    return element
 
 
 class StatusEvent(object):
@@ -53,10 +45,10 @@ class StatusEvent(object):
             if isinstance(ttl, int):
                 ttl = "PT%dS" % ttl
             status = doc.createElement("status")
-            status.appendChild(textNode(doc, "appId", app_id))
-            status.appendChild(textNode(doc, "creationTime", creation_time))
-            status.appendChild(textNode(doc, "ttl", ttl))
-            status.appendChild(textNode(doc, "body", adapter_status_xml))
+            status.appendChild(events.text_node(doc, "appId", app_id))
+            status.appendChild(events.text_node(doc, "creationTime", creation_time))
+            status.appendChild(events.text_node(doc, "ttl", ttl))
+            status.appendChild(events.text_node(doc, "body", adapter_status_xml))
             statuses.appendChild(status)
 
         output = doc.toxml(encoding="utf-8")

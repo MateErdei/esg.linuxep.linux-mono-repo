@@ -39,7 +39,7 @@ class EventReceiver(object):
             if match_object:
                 app_id = match_object.group(1)
                 time = os.path.getmtime(file_path)
-                body = xml_helper.get_xml_file_content_with_escaped_non_ascii_code(
+                body = xml_helper.get_escaped_non_ascii_content(
                     file_path)
                 yield (app_id, time, body)
             else:

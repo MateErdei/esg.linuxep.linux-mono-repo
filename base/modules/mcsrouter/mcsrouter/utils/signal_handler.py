@@ -11,11 +11,13 @@ import sys
 import logging
 LOGGER = logging.getLogger(__name__)
 
+#pylint: disable=invalid-name, global-statement
+
 subprocess_exit_pipe = None
 sig_term_pipe = None
 
 
-def handler(sig_num, frame):
+def handler(sig_num, frame):  #pylint: disable=unused-argument
     """
     handler
     """

@@ -3,6 +3,7 @@
 """
 sec_obfuscation Module
 """
+#pylint: disable=no-self-use
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
@@ -27,6 +28,9 @@ class SECObfuscation(object):
     """
     SECObfuscation class
     """
+    KEY_LENGTH = None
+    BLOCK_LENGTH = None
+    IV_LENGTH = BLOCK_LENGTH
 
     def get_password(self):
         """
@@ -60,6 +64,18 @@ class SECObfuscation(object):
         iv_value = key_iv[self.KEY_LENGTH:self.KEY_LENGTH + self.IV_LENGTH]
 
         return (key, iv_value)
+
+    def create_session_key(self, salt):
+        """
+        create_session_key
+        """
+        pass
+
+    def create_cipher(self, key, iv_value):
+        """
+        create_cipher
+        """
+        pass
 
     def deobfuscate(self, salt, cipher_text):
         """
@@ -106,11 +122,11 @@ class ThreeDES(SECObfuscation):
         previous_hash = b""
 
         while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
-            m = hashlib.md5()
-            m.update(previous_hash)
-            m.update(password)
-            m.update(salt)
-            previous_hash = m.digest()
+            md5_hash = hashlib.md5()
+            md5_hash.update(previous_hash)
+            md5_hash.update(password)
+            md5_hash.update(salt)
+            previous_hash = md5_hash.digest()
             key_iv += previous_hash
 
         return self.split_key_iv(key_iv)
@@ -141,23 +157,23 @@ class AES256(SECObfuscation):
 
         password = self.get_password()
 
-        def prf(p, s):
+        def pseudo_random_family(password, salt):
             """
-            prf
+            pseudo_random_family
             """
-            return HMAC.new(p, s, SHA512).digest()
+            return HMAC.new(password, salt, SHA512).digest()
+
         key_iv = PBKDF2(password, salt,
                         dkLen=self.KEY_LENGTH + self.IV_LENGTH,
                         count=self.KEY_ITERATIONS,
-                        prf=prf
-                        )
+                        prf=pseudo_random_family)
 
         return self.split_key_iv(key_iv)
 
 
-def get_implementation_from_embedded_algorithm_byte(embedded_algorithm_byte):
+def get_embedded_algorithm_byte(embedded_algorithm_byte):
     """
-    get_implementation_from_embedded_algorithm_byte
+    get_embedded_algorithm_byte
     """
     if embedded_algorithm_byte == ThreeDES.ALGORITHM_MARKER_BYTE:
         return ThreeDES()
@@ -172,7 +188,7 @@ def get_implementation(raw_obfuscated):
     get_implementation
     """
     embedded_algorithm_byte = ord(raw_obfuscated[0])
-    return get_implementation_from_embedded_algorithm_byte(
+    return get_embedded_algorithm_byte(
         embedded_algorithm_byte)
 
 
@@ -216,13 +232,13 @@ def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     @param random_generator
     @returns Base64 obfuscated text
     """
-    impl = get_implementation_from_embedded_algorithm_byte(
+    impl = get_embedded_algorithm_byte(
         embedded_algorithm_byte)
     assert impl is not None
 
     salt_length = impl.SALT_LENGTH
     salt = random_generator.random_bytes(salt_length)
-    assert(len(salt) == salt_length)
+    assert len(salt) == salt_length
 
     raw_obfuscated = chr(embedded_algorithm_byte) + \
         chr(salt_length) + salt + impl.obfuscate(salt, raw_plain)

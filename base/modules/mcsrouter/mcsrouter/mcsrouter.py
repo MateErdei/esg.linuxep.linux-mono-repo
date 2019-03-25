@@ -2,6 +2,7 @@
 """
 mcsrouter Module
 """
+#pylint: disable=relative-import, no-self-use, too-few-public-methods
 
 from __future__ import print_function, division, unicode_literals
 
@@ -135,12 +136,12 @@ def create_daemon():
                 if file_descriptor != 0:
                     os.dup2(file_descriptor, 0)
                     os.close(file_descriptor)
-            except Exception:
+            except IOError:
                 pass  # ignore error closing stdin
             # Returns
         else:
             # Exit parent (the first child) of the second child.
-            os._exit(0)
+            os._exit(0) #pylint: disable=protected-access
     else:
         return pid
 
@@ -163,10 +164,10 @@ def daemonise():
             if file_descriptor != 0:
                 os.dup2(file_descriptor, 0)
                 os.close(file_descriptor)
-        except Exception:
+        except IOError:
             pass  # ignore error closing stdin
 
-        os._exit(0)
+        os._exit(0) #pylint: disable=protected-access
 
 
 class SophosLogging(object):
@@ -191,8 +192,8 @@ class SophosLogging(object):
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
 
-        root_LOGGER = logging.getLogger()
-        root_LOGGER.setLevel(log_level)
+        root_logger = logging.getLogger()
+        root_logger.setLevel(log_level)
 
         formatter = logging.Formatter(
             "%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -200,31 +201,31 @@ class SophosLogging(object):
             log_file, maxBytes=1024 * 1024, backupCount=5)
         file_handler.setFormatter(formatter)
 
-        root_LOGGER.addHandler(file_handler)
+        root_logger.addHandler(file_handler)
 
         if config.get_default("CONSOLE", "0") == "1":
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(formatter)
-            root_LOGGER.addHandler(stream_handler)
+            root_logger.addHandler(stream_handler)
 
         envelope_file = config.get_default(
             "ENVELOPE_LOG", path_manager.mcs_envelope_log())
 
-        envelope_LOGGER = logging.getLogger("ENVELOPES")
-        envelope_LOGGER.propagate = False
+        envelope_logger = logging.getLogger("ENVELOPES")
+        envelope_logger.propagate = False
 
         if envelope_file == "":
-            envelope_LOGGER.setLevel(logging.CRITICAL)
+            envelope_logger.setLevel(logging.CRITICAL)
         else:
-            envelope_LOGGER.setLevel(log_level)
+            envelope_logger.setLevel(log_level)
 
             envelope_file_handler = logging.handlers.RotatingFileHandler(
                 envelope_file, maxBytes=1024 * 1024, backupCount=3)
 
-            envelopeFormatter = logging.Formatter("%(asctime)s: %(message)s")
-            envelope_file_handler.setFormatter(envelopeFormatter)
+            envelope_formatter = logging.Formatter("%(asctime)s: %(message)s")
+            envelope_file_handler.setFormatter(envelope_formatter)
 
-            envelope_LOGGER.addHandler(envelope_file_handler)
+            envelope_logger.addHandler(envelope_file_handler)
 
         LOGGER.debug("Logging to %s", log_file)
         sophos_https.LOGGER = logging.getLogger("sophos_https")
@@ -256,7 +257,7 @@ class MCSRouter(object):
             # Clean exits do exit
             try:
                 return proc.run()
-            except Exception:
+            except OSError:
                 LOGGER.critical(
                     "Caught exception at top-level; re-running.",
                     exc_info=True)

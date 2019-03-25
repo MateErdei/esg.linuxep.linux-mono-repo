@@ -22,17 +22,17 @@ def get_all_interfaces():
     """
     is_64bits = sys.maxsize > 2**32
     struct_size = 40 if is_64bits else 32
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    socket_instance = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     max_possible = 8  # initial value
     while True:
-        bytes = max_possible * struct_size
-        names = array.array('B', '\0' * bytes)
+        number_of_bytes = max_possible * struct_size
+        names = array.array('B', '\0' * number_of_bytes)
         out_bytes = struct.unpack('iL', fcntl.ioctl(
-            s.fileno(),
+            socket_instance.fileno(),
             0x8912,  # SIOCGIFCONF
-            struct.pack('iL', bytes, names.buffer_info()[0])
+            struct.pack('iL', number_of_bytes, names.buffer_info()[0])
         ))[0]
-        if out_bytes == bytes:
+        if out_bytes == number_of_bytes:
             max_possible *= 2
         else:
             break
@@ -96,13 +96,13 @@ def get_non_local_ipv6():
 
     ethernet_ips = []
     other_ips = []
-    for (d, ip) in field.iteritems():
-        if ip == "00000000000000000000000000000001":
+    for (device, ip_address) in field.iteritems():
+        if ip_address == "00000000000000000000000000000001":
             continue
-        elif d.startswith("eth"):
-            ethernet_ips.append((d, ip))
+        elif device.startswith("eth"):
+            ethernet_ips.append((device, ip_address))
         else:
-            other_ips.append((d, ip))
+            other_ips.append((device, ip_address))
 
     seen = {}
 

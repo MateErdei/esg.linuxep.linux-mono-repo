@@ -58,8 +58,8 @@ class StatusCache(object):
 
         return True
 
-    def clearCache(self):
+    def clear_cache(self):
         """
-        clearCache
+        clear_cache
         """
         self.__m_adapter_status_cache = {}

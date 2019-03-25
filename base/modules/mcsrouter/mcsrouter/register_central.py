@@ -58,8 +58,8 @@ def setup_logging():
     """
     setup_logging
     """
-    root_LOGGER = logging.getLogger()
-    root_LOGGER.setLevel(logging.DEBUG)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -70,7 +70,7 @@ def setup_logging():
         log_file, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
-    root_LOGGER.addHandler(file_handler)
+    root_logger.addHandler(file_handler)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
@@ -79,7 +79,7 @@ def setup_logging():
         stream_handler.setLevel(logging.DEBUG)
     else:
         stream_handler.setLevel(logging.ERROR)
-    root_LOGGER.addHandler(stream_handler)
+    root_logger.addHandler(stream_handler)
 
 
 def create_dirs():
@@ -114,9 +114,9 @@ def cleanup():
     """
     root_config = path_manager.root_config()
     sophosav_config = path_manager.sophosspl_config()
-    for configFile in [root_config, sophosav_config]:
+    for config_file in [root_config, sophosav_config]:
         try:
-            os.unlink(configFile)
+            os.unlink(config_file)
         except OSError:
             pass
 

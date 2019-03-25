@@ -34,11 +34,11 @@ class PipeEventHandler(watchdog.events.PatternMatchingEventHandler):
         super(
             PipeEventHandler,
             self).__init__(
-            ignore_directories=True,
-            ignore_patterns=[
-                "*/.*",
-                "*~"],
-            patterns=patterns)
+                ignore_directories=True,
+                ignore_patterns=[
+                    "*/.*",
+                    "*~"],
+                patterns=patterns)
         self.__pipe_file_descriptor = pipe_file_descriptor
         self.__ignore_delete = ignore_delete
 

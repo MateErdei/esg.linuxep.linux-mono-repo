@@ -18,8 +18,8 @@ def atomic_write(path, tmp_path, data):
     try:
         if not isinstance(data, unicode):
             data = unicode(data, 'utf-8', 'replace')
-        with codecs.open(tmp_path, mode="w", encoding='utf-8') as file:
-            file.write(data)
+        with codecs.open(tmp_path, mode="w", encoding='utf-8') as file_to_write:
+            file_to_write.write(data)
         os.rename(tmp_path, path)
     except (OSError, IOError) as exception:
-        logging.error("Atomic write failed with message: {}".format(exception))
+        logging.error("Atomic write failed with message: %s", str(exception))

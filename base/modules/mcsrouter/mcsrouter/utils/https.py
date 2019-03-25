@@ -1,6 +1,7 @@
 """
 https Module
 """
+#pylint: disable=too-many-ancestors
 
 import sophos_https
 

@@ -433,7 +433,7 @@ class MCS(object):
                     for app_id, event_time, event in event_receiver.receive():
                         LOGGER.info("queuing event for %s", app_id)
                         add_event(app_id, event, utils.timestamp.timestamp(
-                            event_time), 10000, utils.id_manager.id())
+                            event_time), 10000, utils.id_manager.generate_id())
 
                     # send status
                     if error_count > 0:

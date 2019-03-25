@@ -5,13 +5,13 @@ timestamp Module
 import time
 
 
-def timestamp(t=None):
+def timestamp(time_argument=None):
     """
     timestamp
     """
-    if t is None:
-        t = time.time()
-    nanoseconds = int((t % 1) * 1000000)
+    if time_argument is None:
+        time_argument = time.time()
+    nanoseconds = int((time_argument % 1) * 1000000)
     return time.strftime(
         "%Y-%m-%dT%H:%M:%S.",
-        time.gmtime(t)) + str(nanoseconds) + "Z"
+        time.gmtime(time_argument)) + str(nanoseconds) + "Z"
