@@ -156,7 +156,7 @@ def daemonise():
 
     if isinstance(pid, tuple):
         # Error
-        return pid
+        return
     elif pid != 0:
         # parent
         try:

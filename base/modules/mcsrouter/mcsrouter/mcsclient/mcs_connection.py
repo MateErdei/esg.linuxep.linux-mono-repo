@@ -6,6 +6,7 @@ mcs_connection Module
 import base64
 import os
 import xml.dom.minidom
+import xml.parsers.expat
 import httplib
 
 # urllib.parse in python 3
@@ -29,9 +30,6 @@ LOGGER = logging.getLogger(__name__)
 ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
 
 
-split_host_port = sophos_https.split_host_port
-
-
 class MCSHttpException(mcsrouter.mcsclient.mcs_exception.MCSNetworkException):
     """
     MCSHttpException
@@ -44,8 +42,8 @@ class MCSHttpException(mcsrouter.mcsclient.mcs_exception.MCSNetworkException):
         super(
             MCSHttpException,
             self).__init__(
-            "MCS HTTP Error: code=%d" %
-            (error_code))
+                "MCS HTTP Error: code=%d" %
+                (error_code))
         self.m_http_error_code = error_code
         self.__m_headers = headers
         self.__m_body = body
@@ -110,6 +108,7 @@ class MCSConnection(object):
     """
     MCSConnection class
     """
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, config, product_version="unknown", install_dir=".."):
         """
@@ -369,7 +368,7 @@ class MCSConnection(object):
         """
 
         mcs_url_parsed = urlparse.urlparse(mcs_url)
-        (host, port) = split_host_port(mcs_url_parsed.netloc, 443)
+        (host, port) = sophos_https.split_host_port(mcs_url_parsed.netloc, 443)
 
         if self.__m_mcs_url != mcs_url:
             self.__m_mcs_url = mcs_url
@@ -403,11 +402,11 @@ class MCSConnection(object):
         """
         __try_create_connection
         """
+        # pylint: disable=too-many-branches, too-many-statements
         (proxy_host, proxy_port) = (proxy.host(), proxy.port())
 
         connection = None
         args = {"ca_certs": self.__m_ca_file}
-        ConnectionClass = sophos_https.CertValidatingHTTPSConnection
         auth_calculator = self.get_authenticator_for_proxy(proxy, host, port)
         retry_count = 0
         retry = True
@@ -423,7 +422,7 @@ class MCSConnection(object):
                 else:
                     LOGGER.info("Trying connection via proxy %s:%d",
                                 proxy_host, proxy_port)
-                connection = ConnectionClass(
+                connection = sophos_https.CertValidatingHTTPSConnection(
                     proxy_host, proxy_port, timeout=30, **args)
                 proxy_username_password = auth_calculator.auth_header()
                 if proxy_username_password is None:
@@ -436,7 +435,10 @@ class MCSConnection(object):
             else:
                 LOGGER.info("Trying connection directly to %s:%d",
                             host, port)
-                connection = ConnectionClass(host, port, timeout=30, **args)
+                connection = sophos_https.CertValidatingHTTPSConnection(host,
+                                                                        port,
+                                                                        timeout=30,
+                                                                        **args)
 
             if self.__m_debug:
                 #~ connection.set_debuglevel(1)
@@ -461,7 +463,7 @@ class MCSConnection(object):
                         str(exception),
                     )
                     return None
-            except Exception as exception:
+            except mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException as exception:
                 if proxy_host:
                     if proxy.relay_id():
                         LOGGER.warning(
@@ -511,6 +513,7 @@ class MCSConnection(object):
         """
         __get_response
         """
+        # pylint: disable=too-many-branches, too-many-statements, too-many-locals
         path, headers, body, method = request_data
 
         conn = self.__m_connection
@@ -542,7 +545,8 @@ class MCSConnection(object):
         if len(body) > limit:
             if length is None:
                 LOGGER.error(
-                    "Response too long, no content-length in headers, and more than %d MiB received (%d)",
+                    "Response too long, no content-length in headers, \
+                     and more than %d MiB received (%d)",
                     MCS_DEFAULT_RESPONSE_SIZE_MIB,
                     len(body))
             else:
@@ -633,7 +637,7 @@ class MCSConnection(object):
 
         # Failed to get a response from the server, or the connection failed.
         # Close the connection.
-        except Exception as exception:
+        except Exception as exception:  # pylint: disable=broad-except
             self.__m_last_seen_http_error = exception
             # don't re-use old cookies after an error, as this may trigger
             # de-duplication
@@ -715,12 +719,12 @@ class MCSConnection(object):
             LOGGER.info("Failed to connect to Central")
             if not proxies:
                 LOGGER.info(
-                    "No proxies/message relays set to communicate with Central - useDirect is False")
+                    "No proxies/message relays set to communicate \
+                    with Central - useDirect is False")
             raise mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException(
                 "Failed to connect to MCS")
-
         # If we were able to connect, but received a HTTP error
-        raise self.__m_last_seen_http_error
+        raise Exception(str(self.__m_last_seen_http_error))
 
     def __create_connection_and_get_response(self, request_data):
         """
@@ -810,7 +814,7 @@ class MCSConnection(object):
         """
         capabilities
         """
-        (headers, body) = self.__request("", {})
+        (headers, body) = self.__request("", {})  # pylint: disable=unused-variable
         return body
 
     def register(self, token, status_xml):
@@ -850,10 +854,10 @@ class MCSConnection(object):
         """
         headers = {
             "Authorization": "Basic " +
-            base64.b64encode(
-                "%s:%s" %
-                (self.get_id(),
-                 self.get_password())),
+                             base64.b64encode(
+                                 "%s:%s" %
+                                 (self.get_id(),
+                                  self.get_password())),
             "Content-Type": "application/xml; charset=utf-8",
         }
         if method != "GET":
@@ -888,7 +892,7 @@ class MCSConnection(object):
         """
         Query any commands the server has for us
         """
-        assert(app_ids is not None)
+        assert app_ids is not None
         commands = self.send_message_with_id(
             "/commands/applications/%s/endpoint/" %
             (";".join(app_ids)))
@@ -898,10 +902,9 @@ class MCSConnection(object):
 
         try:
             doc = xml.dom.minidom.parseString(commands)
-        except Exception:
+        except xml.parsers.expat.ExpatError:
             LOGGER.exception("Failed to parse commands: %s", commands)
             return []
-
         try:
             command_nodes = doc.getElementsByTagName("command")
             commands = [

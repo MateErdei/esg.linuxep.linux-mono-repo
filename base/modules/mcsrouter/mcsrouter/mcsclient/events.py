@@ -3,6 +3,8 @@
 events Module
 """
 
+#pylint: disable=line-too-long
+
 import xml.dom.minidom
 
 import logging
@@ -43,8 +45,8 @@ class Event(object):
     """
     Event
     """
-
-    def __init__(self, app_id, creation_time, ttl, body, seq, id):
+    #pylint: disable=too-few-public-methods, too-many-arguments
+    def __init__(self, app_id, creation_time, ttl, body, seq, event_id):
         """
         __init__
         """
@@ -53,7 +55,7 @@ class Event(object):
         self.m_ttl = ttl
         self.m_body = body
         self.m_seq = str(seq)
-        self.m_id = id
+        self.m_id = event_id
 
     def add_xml(self, node, doc):
         """
@@ -86,10 +88,11 @@ class Events(object):
         self.__m_events = []
         self.__m_seq = 0
 
-    def add_event(self, app_id, body, creation_time, ttl, id):
+    def add_event(self, app_id, body, creation_time, ttl, event_id):
         """
         add_event
         """
+        #pylint: disable=too-many-arguments
         if isinstance(ttl, int):
             ttl = u"PT%dS" % ttl
         seq = self.__m_seq
@@ -101,7 +104,7 @@ class Events(object):
                 ttl,
                 body,
                 seq,
-                id))
+                event_id))
 
     def xml(self):
         """

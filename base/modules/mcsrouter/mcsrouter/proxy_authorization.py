@@ -11,8 +11,6 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import logging
 import urllib2
 
-parse_http_list = urllib2.parse_http_list
-parse_keqv_list = urllib2.parse_keqv_list
 LOGGER = logging.getLogger(__name__)
 
 
@@ -21,10 +19,11 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
     SophosProxyDigestAuthHandler
     """
 
-    def get_authorization(self, remote_host, chal, remote_port=443):
+    def get_proxy_authorization(self, remote_host, chal, remote_port=443):
         """
-        get_authorization
+        get_proxy_authorization
         """
+        #pylint: disable=too-many-locals
         try:
             realm = chal['realm']
             nonce = chal['nonce'].encode("UTF-8")
@@ -35,7 +34,7 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
             opaque = chal.get('opaque', None)
         except KeyError:
             return None
-
+        #pylint: disable=invalid-name
         H, KD = self.get_algorithm_impls(algorithm)
         if H is None:
             return None
@@ -65,10 +64,10 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
         elif qop is None:
             respdig = KD(H(A1), b"%s:%s" % (nonce, H(A2)))
         else:
-            # XXX handle auth-int.
+            # TODO: handle auth-int.
             raise urllib2.URLError("qop '%s' is not supported." % qop)
 
-        # XXX should the partial digests be encoded too?
+        # TODO: should the partial digests be encoded too?
 
         base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
                'response="%s"' % (user, realm, nonce, uri, respdig)
@@ -105,6 +104,7 @@ class ProxyAuthorization(object):
         """
         get_authenticate_header
         """
+        #pylint: disable=no-self-use
         headers = response.msg.headers
         for header in headers:
             if header.lower().startswith(b"proxy-authenticate: "):
@@ -144,10 +144,10 @@ class ProxyAuthorization(object):
         """
         @return True if we should retry
         """
-        token, challenge = auth.split(' ', 1)
-        chal = parse_keqv_list(parse_http_list(challenge))
+        token, challenge = auth.split(' ', 1) #pylint: disable=unused-variable
+        chal = urllib2.parse_keqv_list(urllib2.parse_http_list(challenge))
 
-        auth = self.m_proxy_handler.get_authorization(
+        auth = self.m_proxy_handler.get_proxy_authorization(
             self.m_remote_host, chal, remote_port=self.m_remote_port)
 
         if auth:

@@ -16,6 +16,7 @@ import select
 import logging
 import random
 
+# pylint: disable=relative-import
 import computer
 import adapters.agent_adapter
 import adapters.event_receiver

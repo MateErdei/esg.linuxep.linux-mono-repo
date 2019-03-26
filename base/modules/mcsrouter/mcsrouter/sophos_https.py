@@ -16,6 +16,7 @@ import base64
 import urlparse
 
 import proxy_authorization
+import mcsclient.mcs_exception
 
 LOGGER = None
 
@@ -282,30 +283,33 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
 
     def connect(self):
         "Connect to a host on a given (SSL) port."
-        sock = socket.create_connection((self.host, self.port),
-                                        self.timeout, self.source_address)
-        if self._tunnel_host:
-            self.sock = sock
-            self._tunnel()
-            hostname = self._tunnel_host
-        else:
-            hostname = self.host
+        try:
+            sock = socket.create_connection((self.host, self.port),
+                                            self.timeout, self.source_address)
+            if self._tunnel_host:
+                self.sock = sock
+                self._tunnel()
+                hostname = self._tunnel_host
+            else:
+                hostname = self.host
 
-        hostname = hostname.split(':', 0)[0]
+            hostname = hostname.split(':', 0)[0]
 
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        context.verify_mode = self.cert_reqs
-        if self.cert_reqs in (ssl.CERT_REQUIRED, ssl.CERT_OPTIONAL):
-            context.check_hostname = True
-        if self.ca_certs is not None:
-            context.load_verify_locations(cafile=self.ca_certs)
+            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            context.verify_mode = self.cert_reqs
+            if self.cert_reqs in (ssl.CERT_REQUIRED, ssl.CERT_OPTIONAL):
+                context.check_hostname = True
+            if self.ca_certs is not None:
+                context.load_verify_locations(cafile=self.ca_certs)
 
-        self.sock = context.wrap_socket(sock,
-                                        server_hostname=hostname)
+            self.sock = context.wrap_socket(sock,
+                                            server_hostname=hostname)
 
-        info("SSL Connection with %s cipher" % (str(self.sock.cipher())))
+            info("SSL Connection with %s cipher" % (str(self.sock.cipher())))
 
-        # Cert verification now built-in (Python 2.7.9)
+            # Cert verification now built-in (Python 2.7.9)
+        except socket.error as exception:
+            raise mcsclient.mcs_exception.MCSConnectionFailedException(exception)
 
 
 class ConnectHTTPSHandler(urllib2.HTTPSHandler):

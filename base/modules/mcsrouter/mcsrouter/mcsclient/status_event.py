@@ -9,7 +9,7 @@ from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
 
-import events
+import events #pylint: disable=relative-import
 
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""
@@ -40,7 +40,7 @@ class StatusEvent(object):
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 
         for (app_id, (ttl, creation_time, adapter_status_xml)
-             ) in self.__m_adapters.iteritems():
+            ) in self.__m_adapters.iteritems():
 
             if isinstance(ttl, int):
                 ttl = "PT%dS" % ttl

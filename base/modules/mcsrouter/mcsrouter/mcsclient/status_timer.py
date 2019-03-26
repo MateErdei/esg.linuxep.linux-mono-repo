@@ -17,6 +17,8 @@ class StatusTimer(mcsrouter.mcsclient.timer.Timer):
         @param interval the time to wait to send a status even if nothing changes
         """
         super(StatusTimer, self).__init__(latency, interval)
+        self.__m_latency = latency
+        self.__m_interval = interval
 
     def status_updated(self):
         """
