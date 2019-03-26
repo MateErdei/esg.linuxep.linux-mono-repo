@@ -20,6 +20,7 @@ namespace Common
         public:
             virtual ~IFormattedTime() = default;
             virtual std::string currentTime() const = 0;
+            virtual std::string currentDate() const = 0;
             virtual std::string bootTime() const = 0;
         };
 
@@ -31,19 +32,29 @@ namespace Common
             static std::time_t getBootTimeAsTimet();
 
             /**
-             * Return timestamp formated as required by Timestamp Event
+             * Return timestamp formatted as required by Timestamp Event
              * https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
              *
              * YYYYMMDD HHMMSS
-             * @return timestamp formated as required above.
+             * @return timestamp formatted as required above.
              */
             static std::string fromTime(std::time_t);
+
+            /**
+             * Return date as a string
+             *
+             * YYYYMMDD
+             * @return timestamp formatted as required above.
+             */
+            static std::string dateFromTime(std::time_t);
+
         };
 
         class FormattedTime : public virtual IFormattedTime
         {
         public:
             std::string currentTime() const override;
+            std::string currentDate() const override;
             std::string bootTime() const override;
         };
     } // namespace UtilityImpl

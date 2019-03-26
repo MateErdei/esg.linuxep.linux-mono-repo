@@ -7,5 +7,5 @@ add_library(diagnoseimpl STATIC
             SystemCommands.h
             Strings.h)
 
-target_include_directories(diagnoseimpl PUBLIC filesystemimpl)
+target_include_directories(diagnoseimpl PUBLIC filesystemimpl  utilityimpl)
 

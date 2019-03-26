@@ -24,6 +24,19 @@ namespace Common
             return formattedTime;
         }
 
+        std::string TimeUtils::dateFromTime(std::time_t time_)
+        {
+            if (time_ == -1)
+            {
+                return "";
+            }
+
+            char formattedTime[8];
+            strftime(formattedTime, 8, "%Y%m%d", std::localtime(&time_));
+
+            return formattedTime;
+        }
+
         std::time_t TimeUtils::getCurrTime() { return std::time(nullptr); }
 
         std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet()); }
@@ -40,6 +53,7 @@ namespace Common
         }
 
         std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime()); }
+        std::string FormattedTime::currentDate() const { return TimeUtils::dateFromTime(TimeUtils::getCurrTime()); }
 
         std::string FormattedTime::bootTime() const { return TimeUtils::getBootTime(); }
     } // namespace UtilityImpl

@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Strings.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include <iostream>
 
@@ -42,12 +43,15 @@ namespace diagnose
 
     void SystemCommands::tarDiagnoseFolder(const std::string& dirPath)
     {
-        std::string tarfile = Common::FileSystem::join(dirPath, "sspl-diagnose.tar.gz");
+        Common::UtilityImpl::FormattedTime m_formattedTime;
+        Common::FileSystem::FileSystemImpl fileSystem;
+
         std::cout << "Running tar on: " << dirPath <<std::endl;
 
-        std::string tarCommand = "tar -czf " + tarfile + " -C '" + dirPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+        std::string tarfileName = "sspl-diagnose-" + m_formattedTime.currentDate() + ".tar.gz";
+        std::string tarfile = Common::FileSystem::join(dirPath, tarfileName);
 
-        Common::FileSystem::FileSystemImpl fileSystem;
+        std::string tarCommand = "tar -czf " + tarfile + " -C '" + dirPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
         int ret =  system(tarCommand.c_str());
         if (ret != 0)
@@ -70,6 +74,7 @@ namespace diagnose
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
+        std::cout << "Created tarfile: " << tarfileName << " in directory " << dirPath << std::endl;
     }
 
     bool SystemCommands::isSafeToDelete(const std::string& path)
