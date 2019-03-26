@@ -31,8 +31,8 @@ namespace Common
                 return "";
             }
 
-            char formattedTime[8];
-            strftime(formattedTime, 8, "%Y%m%d", std::localtime(&time_));
+            char formattedTime[10];
+            strftime(formattedTime, 10, "%Y%m%d", std::localtime(&time_));
 
             return formattedTime;
         }
