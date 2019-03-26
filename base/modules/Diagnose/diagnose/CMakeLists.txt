@@ -5,7 +5,7 @@ add_library(diagnoseimpl STATIC
             GatherFiles.h
             SystemCommands.cpp
             SystemCommands.h
-            Strings.h)
-
-target_include_directories(diagnoseimpl PUBLIC filesystemimpl  utilityimpl)
-
+            Strings.h
+            $<TARGET_OBJECTS:filesystemimplobject>
+            ../../Common/UtilityImpl/TimeUtils.cpp
+            ../../Common/UtilityImpl/TimeUtils.h)
