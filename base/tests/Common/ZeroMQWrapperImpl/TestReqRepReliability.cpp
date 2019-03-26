@@ -58,6 +58,7 @@ namespace
 
         void monitorChild(int pid)
         {
+            auto begin = std::chrono::high_resolution_clock::now();
             try
             {
                 auto replierKillChannel = m_zmq_context->getReplier();
@@ -72,13 +73,17 @@ namespace
             }
             catch (std::exception& ex)
             {
-                std::cout << "monitor child: " << ex.what() << std::endl;
+                auto end = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
+                std::cout << "monitor child: " << ex.what() << " after " << duration << "ns" << std::endl;
             }
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
             int status = 1;
             pid_t exitedPID = ::waitpid(pid, &status, 0);
             assert(exitedPID == pid);
             static_cast<void>(exitedPID);
-            std::cerr << "Child PID="<< pid<< " exited with "<< status << std::endl;
+            std::cerr << "Child PID="<< pid<< " exited with "<< status << " after " << duration << "ns" << std::endl;
         }
 
     public:
