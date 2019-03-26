@@ -2,10 +2,12 @@
 """
 app_proxy_adapter Module
 """
+# pylint: disable=line-too-long
 
 from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
+import xml.parsers.expat
 import logging
 
 import mcsrouter.adapters.adapter_base
@@ -26,12 +28,13 @@ class AppProxyAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         __init__
         """
         self.__m_app_ids = app_ids
+        self.__m_app_id = "APPSPROXY"
 
     def get_app_id(self):
         """
         get_app_id
         """
-        return "APPSPROXY"
+        return self.__m_app_id
 
     def get_status_xml(self):
         """
@@ -87,12 +90,14 @@ u'<?xml version="1.0"?>
 
         @return list of commands to process
         """
+        # pylint: disable=no-self-use
+
         connection = command.get_connection()
         body = command.get("body")
 
         try:
             doc = xml.dom.minidom.parseString(body)
-        except Exception:
+        except xml.parsers.expat.ExpatError:
             LOGGER.exception(
                 "Unable to parse AppProxy Action: '%s' from '%s'",
                 body,

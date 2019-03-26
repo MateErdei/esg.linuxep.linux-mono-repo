@@ -50,17 +50,11 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         try:
             doc = xml.dom.minidom.parseString(policy)
-        except xml.parsers.expat.ExpatError as e:
+        except xml.parsers.expat.ExpatError as exception:
             LOGGER.error(
                 "Failed to parse %s policy (%s): %s",
                 self.__m_app_id,
-                str(e),
-                policy)
-            return []
-        except Exception:
-            LOGGER.exception(
-                "Failed to parse %s policy: %s",
-                self.__m_app_id,
+                str(exception),
                 policy)
             return []
 
@@ -71,7 +65,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             policy_name = "%s-%s_policy.xml" % (self.__m_app_id, policy_type)
         else:
             LOGGER.info(
-                "%s Policy didn't contain one compliance node" %
+                "%s Policy didn't contain one compliance node",
                 self.__m_app_id)
             policy_name = "%s_policy.xml" % (self.__m_app_id)
 

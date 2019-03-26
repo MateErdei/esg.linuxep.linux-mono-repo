@@ -14,7 +14,7 @@ import mcsrouter.utils.path_manager as path_manager
 
 LOGGER = logging.getLogger(__name__)
 
-
+# pylint: disable=anomalous-backslash-in-string
 TEMPLATE_STATUS_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
  <ns:mcsStatus xmlns:ns="http://www.sophos.com/xml/mcs/status">
         <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="" RevID="" policyType="25" />
@@ -43,12 +43,13 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         self.__m_policy_handler = mcsrouter.adapters.mcs.mcs_policy_handler.MCSPolicyHandler(
             path_manager.install_dir(), policy_config, applied_config)
         self.__m_relay_id = None
+        self.app_id = "MCS"
 
     def get_app_id(self):
         """
         get_app_id
         """
-        return "MCS"
+        return self.app_id
 
     def __set_compliance(self, comp_node):
         """
@@ -93,7 +94,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             relay_node.removeAttribute("lastUsed")
         output = doc.toxml(encoding="utf-8")
         doc.unlink()
-        LOGGER.debug("Status MCS XML: %s" % output)
+        LOGGER.debug("Status MCS XML: %s", output)
         return output
 
     def _has_new_status(self):
@@ -109,19 +110,8 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         __process_policy
         """
         LOGGER.debug("MCS Adapter processing policy %s", str(policy))
-        try:
-            self.__m_policy_handler.process(policy)
-        except Exception:
-            LOGGER.exception("Exception while processing MCS policy")
-
+        self.__m_policy_handler.process(policy)
         return []
-
-    def __process_action(self, command):
-        """
-        __process_action
-        """
-        LOGGER.error("Got action for the MCS adapter: %s", str(command))
-        return None
 
     def process_command(self, command):
         """
@@ -133,6 +123,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                 policy = command.get_policy()
                 return self.__process_policy(policy)
             except NotImplementedError:
-                return self.__process_action(command)
+                LOGGER.error("Got action for the MCS adapter: %s", str(command))
+                return None
         finally:
             command.complete()

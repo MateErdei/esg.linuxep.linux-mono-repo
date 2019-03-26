@@ -11,10 +11,18 @@ import xml.dom
 import mcsrouter.utils.xml_helper
 
 
+# pylint: disable=no-self-use
 class Command(object):
     """
     Command
     """
+    def __init__(self):
+        """
+        __init__
+        """
+        self._m_connection = None
+        self._m_app_id = None
+        self._m_command_id = None
 
     def get_connection(self):
         """
@@ -78,6 +86,7 @@ class BasicCommand(Command):
         """
         __init__
         """
+        super(BasicCommand, self).__init__()
         self._m_connection = connection
         self.__m_values = self.__decode_command(command_node)
         self._m_command_id = self.__m_values['id']
@@ -104,6 +113,12 @@ class BasicCommand(Command):
         return "Command %s for %s: %s" % (
             self._m_command_id, self.get_app_id(), str(self.__m_values))
 
+    def get_policy(self):
+        """
+        get_policy
+        """
+        raise NotImplementedError()
+
 
 class PolicyCommand(Command):
     """
@@ -114,6 +129,7 @@ class PolicyCommand(Command):
         """
         Represent a Policy apply command
         """
+        super(PolicyCommand, self).__init__()
         self._m_command_id = command_id
         self._m_app_id = app_id
         self.__m_policy_id = policy_id
@@ -139,6 +155,12 @@ class PolicyCommand(Command):
         """
         pass
 
+    def get(self, key):
+        """
+        get
+        """
+        raise NotImplementedError()
+
 
 class FragmentedPolicyCommand(PolicyCommand):
     """
@@ -151,6 +173,7 @@ class FragmentedPolicyCommand(PolicyCommand):
         """
         Represents a fragmented policy
         """
+        super(FragmentedPolicyCommand, self).__init__(command_id, app_id, None, mcs_connection)
         self._m_command_id = command_id
         self._m_app_id = app_id
 
@@ -213,3 +236,9 @@ class FragmentedPolicyCommand(PolicyCommand):
             fragment_id = self._m_fragments[seq]
             policy.append(self.__get_fragment(fragment_id))
         return "".join(policy)
+
+    def get(self, key):
+        """
+        get
+        """
+        raise NotImplementedError()

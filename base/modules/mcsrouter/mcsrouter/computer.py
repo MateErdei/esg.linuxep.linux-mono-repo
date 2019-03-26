@@ -9,6 +9,7 @@ from __future__ import print_function, division, unicode_literals
 
 import logging
 
+# pylint: disable=relative-import
 from mcsclient import status_cache
 import utils.timestamp
 
@@ -42,13 +43,14 @@ class Computer(object):
         """
         try:
             del self.__m_adapters[app_id]
-        except Exception as exception:
+        except KeyError as exception:
             LOGGER.warning('Failed to remove adapter: ' + str(exception))
 
     def get_timestamp(self):
         """
         get_timestamp
         """
+        # pylint: disable=no-self-use
         return utils.timestamp.timestamp()
 
     def fill_status_event(self, status_event):

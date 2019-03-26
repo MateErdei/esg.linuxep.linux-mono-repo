@@ -52,13 +52,14 @@ class ComputerCommonStatus(object):
     """
     Class to represent the details that constitute the common computer status XML
     """
+    # pylint: disable=too-many-instance-attributes, too-few-public-methods
 
     def __init__(self, target_system):
         """
         __init__
         """
         self.computer_name = target_system.hostname()
-        self.os = target_system.platform
+        self.operating_system = target_system.platform
         self.fqdn = ip_address.get_fqdn()
         self.user = "root@%s" % self.fqdn
         self.sls = target_system.check_if_updatable_to_sls()
@@ -92,7 +93,7 @@ class ComputerCommonStatus(object):
             "<domainName>UNKNOWN</domainName>",
             "<computerName>%s</computerName>" % (self.computer_name),
             "<computerDescription></computerDescription>",
-            "<operatingSystem>%s</operatingSystem>" % self.os,
+            "<operatingSystem>%s</operatingSystem>" % self.operating_system,
             "<lastLoggedOnUser>%s</lastLoggedOnUser>" % (self.user),
             "<ipv4>%s</ipv4>" % ipv4,
             "<ipv6>%s</ipv6>" % ipv6,
@@ -101,10 +102,10 @@ class ComputerCommonStatus(object):
         ]
         if self.ipv4s or self.ipv6s:
             result.append("<ipAddresses>")
-            for ip_address in self.ipv4s:
-                result.append("<ipv4>%s</ipv4>" % ip_address)
-            for ip_address in self.ipv6s:
-                result.append("<ipv6>%s</ipv6>" % ip_address)
+            for ip_addr in self.ipv4s:
+                result.append("<ipv4>%s</ipv4>" % ip_addr)
+            for ip_addr in self.ipv6s:
+                result.append("<ipv6>%s</ipv6>" % ip_addr)
             result.append("</ipAddresses>")
 
         result.append("</commonComputerStatus>")
@@ -115,6 +116,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
     AgentAdapter
     """
+    # pylint: disable=no-self-use
 
     def __init__(self, install_dir=None):
         """

@@ -17,7 +17,7 @@ except ImportError:
 
 import logging
 
-import mcsrouter.mcsclient.mcs_commands
+import mcsrouter.mcsclient.mcs_commands  # pylint: disable=no-name-in-module, import-error
 import mcsrouter.mcsclient.mcs_exception
 
 from mcsrouter import sophos_https
@@ -908,6 +908,8 @@ class MCSConnection(object):
         try:
             command_nodes = doc.getElementsByTagName("command")
             commands = [
+                # pylint: disable=no-member
+                # pylint for some reason cannot see the mcs_commands is available.
                 mcsrouter.mcsclient.mcs_commands.BasicCommand(
                     self,
                     node,

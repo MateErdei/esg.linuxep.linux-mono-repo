@@ -33,6 +33,7 @@ class AdapterBase(object):
     """
     AdapterBase class
     """
+    # pylint: disable=no-self-use
 
     def get_status_ttl(self):
         """

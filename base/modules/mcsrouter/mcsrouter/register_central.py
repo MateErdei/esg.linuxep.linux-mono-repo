@@ -104,6 +104,8 @@ def get_target_system():
     """
     get_target_system
     """
+    # For some reason Pylint can't find targetsystem even though it is okay
+    # pylint: disable=no-name-in-module, no-member
     import mcsrouter.targetsystem
     return mcsrouter.targetsystem.target_system()
 
@@ -133,13 +135,13 @@ def safe_delete(path):
         pass
 
 
-def register(config, INST, logger):
+def register(config, inst, logger):
     """
     register
     """
     # Do a register operation so that we can be sure that we have connectivity
     print("Registering with Sophos Central")
-    mcs = MCS.MCS(config, INST)
+    mcs = MCS.MCS(config, inst)
 
     count = 10
     ret = 0
@@ -243,11 +245,13 @@ class RandomGenerator(object):
     """
     RandomGenerator
     """
+    # pylint: disable=too-few-public-methods
 
     def random_bytes(self, size):
         """
         random_bytes
         """
+        # pylint: disable=no-self-use
         return bytearray(random.getrandbits(8) for _ in xrange(size))
 
 
@@ -258,8 +262,7 @@ def add_options_to_policy(relays, proxycredentials):
     if relays is None and proxycredentials is None:
         return
 
-    policy_config_path = path_manager.mcs_policy_config()
-    policy_config = utils_config.Config(policy_config_path)
+    policy_config = utils_config.Config(path_manager.mcs_policy_config())
 
     if relays is not None:
         for index, relay in enumerate(relays.split(";"), 1):
@@ -285,10 +288,10 @@ def add_options_to_policy(relays, proxycredentials):
 
     policy_config.save()
     os.chown(
-        policy_config_path,
+        path_manager.mcs_policy_config(),
         get_uid("sophos-spl-user"),
         get_gid("sophos-spl-group"))
-    os.chmod(policy_config_path, 0o600)
+    os.chmod(path_manager.mcs_policy_config(), 0o600)
 
 
 def set_file_permissions():
@@ -320,9 +323,9 @@ def remove_all_update_reports():
     """
     remove_all_update_reports
     """
-    for file in glob.glob(
+    for file_to_remove in glob.glob(
             "{}/report*.json".format(path_manager.update_var_path())):
-        os.remove(file)
+        os.remove(file_to_remove)
 
 
 def stop_mcs_router():
@@ -363,6 +366,8 @@ def inner_main(argv):
     """
     inner_main
     """
+    # pylint: disable=too-many-branches, too-many-statements
+
     stop_mcs_router()
     ret = 1
     usage = "Usage: register_central <MCS-Token> <MCS-URL> | register_central [options]"
@@ -511,7 +516,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    """
-    __name__
-    """
     sys.exit(main(sys.argv))

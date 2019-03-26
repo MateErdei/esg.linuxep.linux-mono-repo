@@ -15,6 +15,7 @@ import base64
 # urllib.parse in python 3
 import urlparse
 
+# pylint: disable=relative-import
 import proxy_authorization
 import mcsclient.mcs_exception
 
@@ -85,6 +86,7 @@ class Proxy(object):
         """
         __init__
         """
+        # pylint: disable=too-many-arguments
         if host in (None, "noproxy:", ""):
             # If we don't have a host then we don't have a proxy at all
             host = None
@@ -182,6 +184,7 @@ class InvalidCertificateException(httplib.HTTPException, urllib2.URLError):
     """
     InvalidCertificateException
     """
+    # pylint: disable=too-many-ancestors
 
     def __init__(self, host, cert, reason):
         """
@@ -230,6 +233,7 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
     """
     CertValidatingHTTPSConnection
     """
+    # pylint: disable=too-many-instance-attributes
     default_port = httplib.HTTPS_PORT
 
     def __init__(self, host, port=None, key_file=None, cert_file=None,
@@ -237,20 +241,21 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
         """
         __init__
         """
+        # pylint: disable=too-many-arguments
+
         httplib.HTTPConnection.__init__(
             self, host, port, strict, timeout, **kwargs)
         self.key_file = key_file
         self.cert_file = cert_file
         self.ca_certs = ca_certs
         self.auto_open = 0
+        self.using_proxy = False
         if self.ca_certs:
             self.cert_reqs = ssl.CERT_REQUIRED
         else:
             self.cert_reqs = ssl.CERT_NONE
         if timeout:
             self.timeout = timeout
-
-    _MAXLINE = httplib._MAXLINE
 
     def _tunnel(self):
         """
@@ -317,9 +322,9 @@ class ConnectHTTPSHandler(urllib2.HTTPSHandler):
     ConnectHTTPSHandler
     """
 
-    def do_open(self, http_class, req):
+    def do_open(self, http_class, req, **http_conn_args):
         return urllib2.HTTPSHandler.do_open(
-            self, CertValidatingHTTPSConnection, req)
+            self, CertValidatingHTTPSConnection, req, **http_conn_args)
 
 
 def create_connection(
@@ -332,6 +337,7 @@ def create_connection(
     """
     create_connection
     """
+    # pylint: disable=too-many-arguments, too-many-locals
     args = {}
     if cafile is not None:
         args["ca_certs"] = cafile
@@ -347,9 +353,8 @@ def create_connection(
 
     auth = proxy_authorization.ProxyAuthorization(proxy, url_host, url_port)
 
-    Connection_class = CertValidatingHTTPSConnection
+    connection_class = CertValidatingHTTPSConnection
 
-    #~ print proxy_url, proxy_host, proxy_port
     retry = True
     retry_count = 0
     while retry and retry_count < 5:
@@ -357,7 +362,7 @@ def create_connection(
         retry_count += 1
 
         if proxy_host:
-            connection = Connection_class(proxy_host, proxy_port, **args)
+            connection = connection_class(proxy_host, proxy_port, **args)
 
             # Get proxy header
             proxy_username_password = auth.auth_header()
@@ -370,7 +375,7 @@ def create_connection(
             connection.set_tunnel(url_host, url_port, headers=proxy_headers)
             connection.using_proxy = True
         else:
-            connection = Connection_class(url_host, url_port, **args)
+            connection = connection_class(url_host, url_port, **args)
             connection.using_proxy = False
 
         if debug:

@@ -3,6 +3,7 @@
 """
 TargetSystem Module
 """
+# pylint: disable=too-many-lines
 
 import glob
 import json
@@ -49,6 +50,8 @@ class TargetSystem(object):
     """
     Represents the system into which we are trying to install/load TALPA.
     """
+    # pylint: disable=too-many-instance-attributes, no-self-use
+    # pylint: disable=too-many-public-methods, too-many-return-statements
 
     class TargetDetectionException(Exception):
         """
@@ -193,8 +196,7 @@ class TargetSystem(object):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         shell=shell)
-                (stdout, stderr) = proc.communicate()
-                #stdout = proc.communicate()
+                (stdout, stderr) = proc.communicate()  # pylint: disable=unused-variable
                 ret_code = proc.wait()
                 assert ret_code is not None
             except OSError:
@@ -251,6 +253,7 @@ class TargetSystem(object):
         """
         Collect any lsb_release info
         """
+        # pylint: disable=too-many-locals, too-many-branches, too-many-statements
         self.m_lsb_release = {}
 
         if os.path.isfile('/etc/oracle-release'):
@@ -562,7 +565,7 @@ class TargetSystem(object):
                 return {"region": aws_info["region"],
                         "accountId": aws_info["accountId"],
                         "instanceId": aws_info["instanceId"]}
-            except Exception:
+            except urllib2.URLError:
                 return None
         else:
             return None

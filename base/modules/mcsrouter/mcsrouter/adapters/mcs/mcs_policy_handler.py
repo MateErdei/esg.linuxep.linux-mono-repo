@@ -33,6 +33,7 @@ class MCSPolicyHandler(object):
     as defined at
     https://wiki.sophos.net/display/SophosCloud/EMP%3A+policy-mcs
     """
+    # pylint: disable=no-self-use
 
     def __init__(self, install_dir,
                  policy_config,
@@ -42,7 +43,8 @@ class MCSPolicyHandler(object):
         path_manager.INST = install_dir
         self.__m_policy_config = policy_config
         self.__m_applied_config = applied_config
-        if not REGISTER_MCS:
+        #REGISTER_MCS is set in register_central.py or mcsrouter.py
+        if not REGISTER_MCS:  # pylint: disable=undefined-variable
             self.__load_policy()
 
     def policy_name(self):
@@ -311,16 +313,13 @@ class MCSPolicyHandler(object):
                 "Failed to parse MCS policy (%s): %s",
                 str(exception),
                 policy_xml)
-            return False
-        except Exception:
-            LOGGER.exception("Failed to parse MCS policy: %s", policy_xml)
-            return False
+            return
 
         try:
             policy_nodes = dom.getElementsByTagName("policy")
             if len(policy_nodes) != 1:
                 LOGGER.error("MCS Policy doesn't have one policy node")
-                return False
+                return
 
             policy_node = policy_nodes[0]
 
@@ -372,7 +371,7 @@ class MCSPolicyHandler(object):
         """
         try:
             self.__apply_policy(policy_age, save)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             LOGGER.exception("Failed to apply MCS policy")
 
     def process(self, policy_xml):
@@ -434,12 +433,13 @@ class MCSPolicyHandler(object):
 
         return compliant
 
+
 #~ <?xml version="1.0"?>
  #~ <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
    #~ <meta protocolVersion="1.1"/>
-   #~ <csc:Comp RevID="6f9cb63e8cb1eaa98df9efbf5d218056668f5f34392ba53cf206af03d7eb6614" policyType="25"/>
-   #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
-     #~ <registrationToken>21e72d59248ce0dc5f957b659d72a4261b663041bbc96c54a81c8ea578186648</registrationToken>
+   #~ <csc:Comp RevID="6f9cb63e8cb1eaa98df9efbf5d218056668f5f34392ba53cf206af03d7eb6614" policyType="25"/>  # pylint: disable=line-too-long
+   #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">  # pylint: disable=line-too-long
+     #~ <registrationToken>21e72d59248ce0dc5f957b659d72a4261b663041bbc96c54a81c8ea578186648</registrationToken>  # pylint: disable=line-too-long
      #~ <servers>
        #~ <server>https://mcs.sandbox.sophos/sophos/management/ep</server>
      #~ </servers>
@@ -456,11 +456,11 @@ class MCSPolicyHandler(object):
 #~ <?xml version="1.0"?>
 #~ <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
   #~ <meta protocolVersion="1.1"/>
-  #~ <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>
-  #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
-    #~ <registrationToken>1e64e66751cb985159cf40e8b06ca5018e5f7f5e0afad2bdc1225058b81a8b30</registrationToken>
+  #~ <csc:Comp RevID="0e09e27cfc21f8d7510d562c56e34507711bdce48bfdfd3846965f130fef142a" policyType="25"/>  # pylint: disable=line-too-long
+  #~ <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">  # pylint: disable=line-too-long
+    #~ <registrationToken>1e64e66751cb985159cf40e8b06ca5018e5f7f5e0afad2bdc1225058b81a8b30</registrationToken>  # pylint: disable=line-too-long
     #~ <servers>
-      #~ <server>https://dzr-mcs-amzn-eu-west-1-4c5f.upe.q.hmr.sophos.com/sophos/management/ep</server>
+      #~ <server>https://dzr-mcs-amzn-eu-west-1-4c5f.upe.q.hmr.sophos.com/sophos/management/ep</server>  # pylint: disable=line-too-long
     #~ </servers>
     #~ <useSystemProxy>true</useSystemProxy>
     #~ <useAutomaticProxy>true</useAutomaticProxy>

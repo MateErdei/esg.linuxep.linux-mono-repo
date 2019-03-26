@@ -144,6 +144,7 @@ class MCS(object):
     """
     MCS
     """
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, config, install_dir):
         """
@@ -174,7 +175,8 @@ class MCS(object):
         )
 
         # Configure fragmented policy cache directory
-        mcsclient.mcs_commands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = path_manager.fragmented_policies_dir()
+        mcsclient.mcs_commands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = \
+            path_manager.fragmented_policies_dir()
 
         # Create computer
         self.__m_computer = computer.Computer()
@@ -186,7 +188,9 @@ class MCS(object):
         #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
         self.__plugin_registry = utils.plugin_registry.PluginRegistry(
             install_dir)
+        # pylint: disable=unused-variable
         apps, ignored = self.__plugin_registry.added_and_removed_app_ids()
+        # pylint: enable=unused-variable
 
         for app in apps:
             self.__m_computer.add_adapter(
@@ -299,9 +303,6 @@ class MCS(object):
             config.get_int("EVENTS_MAX_REGULATION_DELAY", 60),
             config.get_int("EVENTS_MAX_EVENTS", 20)
         )
-
-        event_receiver = adapters.event_receiver.EventReceiver(
-            path_manager.install_dir())
 
         def add_event(*event_args):
             """
@@ -431,7 +432,7 @@ class MCS(object):
                             reason="adapter reporting status change")
 
                     # get all pending events
-                    for app_id, event_time, event in event_receiver.receive():
+                    for app_id, event_time, event in adapters.event_receiver.receive():
                         LOGGER.info("queuing event for %s", app_id)
                         add_event(app_id, event, utils.timestamp.timestamp(
                             event_time), 10000, utils.id_manager.generate_id())
@@ -540,12 +541,14 @@ class MCS(object):
 
                 try:
                     before = time.time()
+                    # pylint: disable=unused-variable
                     ready_to_read, ready_to_write, in_error = \
                         select.select(
                             [utils.signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor],
                             [],
                             [],
                             timeout)
+                    # pylint: enable=unused-variable
                     after = time.time()
                 except select.error as exception:
                     if exception.args[0] == errno.EINTR:
