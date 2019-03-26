@@ -211,7 +211,6 @@ namespace UpdateSchedulerImpl
             m_pendingUpdate = true;
             return;
         }
-
         LOGSUPPORT("Triggering SulDownloader");
         LOGINFO("Attempting to update from warehouse");
         m_sulDownloaderRunner->triggerSulDownloader();
