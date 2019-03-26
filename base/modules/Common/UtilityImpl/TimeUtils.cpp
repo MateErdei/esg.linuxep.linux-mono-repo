@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TimeUtils.h"
 
 #include <sys/sysinfo.h>
+#include <cassert>
 
 namespace Common
 {
@@ -19,7 +20,9 @@ namespace Common
             }
 
             char formattedTime[16];
-            strftime(formattedTime, 16, "%Y%m%d %H%M%S", std::localtime(&time_));
+            size_t ret = strftime(formattedTime, 16, "%Y%m%d %H%M%S", std::localtime(&time_));
+            assert(ret != 0);
+            static_cast<void>(ret);
 
             return formattedTime;
         }
@@ -32,8 +35,9 @@ namespace Common
             }
 
             char formattedTime[9];
-            strftime(formattedTime, 9, "%Y%m%d", std::localtime(&time_));
-
+            size_t ret = strftime(formattedTime, 9, "%Y%m%d", std::localtime(&time_));
+            assert(ret != 0);
+            static_cast<void>(ret);
             return formattedTime;
         }
 
