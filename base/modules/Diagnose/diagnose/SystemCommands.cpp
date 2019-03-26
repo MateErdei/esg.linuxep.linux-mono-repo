@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 
 #include <iostream>
+#include <algorithm>
 
 namespace diagnose
 {
@@ -48,7 +49,10 @@ namespace diagnose
 
         std::cout << "Running tar on: " << dirPath <<std::endl;
 
-        std::string tarfileName = "sspl-diagnose-" + m_formattedTime.currentDate() + ".tar.gz";
+        std::string timestamp = m_formattedTime.currentTime();
+        std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
+        std::string tarfileName = "sspl-diagnose_" + timestamp + ".tar.gz";
+
         std::string tarfile = Common::FileSystem::join(dirPath, tarfileName);
 
         std::string tarCommand = "tar -czf " + tarfile + " -C '" + dirPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
