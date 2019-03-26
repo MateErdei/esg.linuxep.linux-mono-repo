@@ -6,6 +6,7 @@ ip_selection Module
 import socket
 import threading
 
+# pylint: disable=relative-import
 import ip_address
 
 
@@ -85,12 +86,12 @@ def get_server_ips_from_hostname(server_location_list):
     return [domain for domain in server_location_list if 'ips' in domain]
 
 
-def order_servers_by_ip_address_distance(
+def order_by_ip_address_distance(
         local_ipv4s,
         local_ipv6s,
         server_location_list):
     """
-    order_servers_by_ip_address_distance
+    order_by_ip_address_distance
     """
     for server in server_location_list:
         min_dist = 1000  # Initialise min_dist with a big number
@@ -125,7 +126,7 @@ def evaluate_address_preference(server_location_list):
     local_ipv4s = list(ip_address.get_non_local_ipv4())
     local_ipv6s = [int(ipv6, 16) for ipv6 in ip_address.get_non_local_ipv6()]
     server_location_list = get_server_ips_from_hostname(server_location_list)
-    server_location_list = order_servers_by_ip_address_distance(
+    server_location_list = order_by_ip_address_distance(
         local_ipv4s, local_ipv6s, server_location_list)
 
     # Order by priority

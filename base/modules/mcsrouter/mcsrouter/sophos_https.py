@@ -366,12 +366,7 @@ def create_connection(
 
             # Get proxy header
             proxy_username_password = auth.auth_header()
-            if proxy_username_password is None:
-                proxy_headers = None
-            else:
-                proxy_headers = {
-                    'Proxy-authorization': proxy_username_password
-                }
+            proxy_headers = set_proxy_headers(proxy_username_password)
             connection.set_tunnel(url_host, url_port, headers=proxy_headers)
             connection.using_proxy = True
         else:
@@ -393,3 +388,15 @@ def create_connection(
             exception.close()
 
     return connection
+
+def set_proxy_headers(proxy_username_password):
+    """
+    set_proxy_headers
+    """
+    if proxy_username_password is None:
+        proxy_headers = None
+    else:
+        proxy_headers = {
+            'Proxy-authorization': proxy_username_password
+        }
+    return proxy_headers

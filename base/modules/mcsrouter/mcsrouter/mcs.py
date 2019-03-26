@@ -281,6 +281,8 @@ class MCS(object):
         """
         run
         """
+        # pylint: disable=too-many-locals, too-many-branches, too-many-statements
+
         config = self.__m_config
 
         if config.get_default("MCSID") is None:
@@ -291,7 +293,6 @@ class MCS(object):
             return 2
 
         comms = self.__m_comms
-        computer = self.__m_computer
         mcs_adapter = self.__m_mcs_adapter
 
         events = mcsclient.events.Events()
@@ -352,6 +353,7 @@ class MCS(object):
         if config.get_default("MCSID") == "reregister":
             reregister = True
 
+        # pylint: disable=too-many-nested-blocks
         try:
             while running:
                 timeout = self.__m_command_check_interval.get()
@@ -369,7 +371,7 @@ class MCS(object):
                         error_count = 0
                         # If re-registering due to a de-dupe from Central,
                         # clear cache and re-send status.
-                        computer.clear_cache()
+                        self.__m_computer.clear_cache()
                         status_updated(reason="reregistration")
 
                     # Check for any new app_ids 'for newly installed plugins'
@@ -400,12 +402,12 @@ class MCS(object):
 
                     if time.time() > last_commands + self.__m_command_check_interval.get():
                         LOGGER.debug("Checking for commands")
-                        commands = comms.query_commands(computer.get_app_ids())
+                        commands = comms.query_commands(self.__m_computer.get_app_ids())
                         last_commands = time.time()
 
                         mcs_token_before_commands = self.__get_mcs_token()
 
-                        if computer.run_commands(
+                        if self.__m_computer.run_commands(
                                 commands):  # To run any pending commands as well
                             status_updated(reason="applying commands")
                             mcs_token_after_commands = self.__get_mcs_token()
@@ -427,7 +429,7 @@ class MCS(object):
                     timeout = self.__m_command_check_interval.get() - (time.time() - last_commands)
 
                     # Check to see if any adapters have new status
-                    if computer.has_status_changed() or mcs_adapter.has_new_status():
+                    if self.__m_computer.has_status_changed() or mcs_adapter.has_new_status():
                         status_updated(
                             reason="adapter reporting status change")
 
@@ -442,7 +444,7 @@ class MCS(object):
                         pass  # Not sending status while in error state
                     elif self.__m_status_timer.send_status():
                         status_event = mcsclient.status_event.StatusEvent()
-                        changed = computer.fill_status_event(status_event)
+                        changed = self.__m_computer.fill_status_event(status_event)
                         if changed:
                             LOGGER.debug("Sending status")
                             try:

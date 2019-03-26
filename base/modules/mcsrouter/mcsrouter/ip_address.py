@@ -69,7 +69,7 @@ def get_non_local_ipv4():
     seen = {}
 
     ip_ordering.sort()
-    for (_, interface, ip_address) in ip_ordering:
+    for (_, interface, ip_address) in ip_ordering:  # pylint: disable=unused-variable
         if seen.get(ip_address, 0) == 1:
             continue
         seen[ip_address] = 1

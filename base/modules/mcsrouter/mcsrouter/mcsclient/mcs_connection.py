@@ -425,12 +425,7 @@ class MCSConnection(object):
                 connection = sophos_https.CertValidatingHTTPSConnection(
                     proxy_host, proxy_port, timeout=30, **args)
                 proxy_username_password = auth_calculator.auth_header()
-                if proxy_username_password is None:
-                    proxy_headers = None
-                else:
-                    proxy_headers = {
-                        'Proxy-authorization': proxy_username_password
-                    }
+                proxy_headers = sophos_https.set_proxy_headers(proxy_username_password)
                 connection.set_tunnel(host, port, headers=proxy_headers)
             else:
                 LOGGER.info("Trying connection directly to %s:%d",
