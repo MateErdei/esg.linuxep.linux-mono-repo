@@ -284,7 +284,7 @@ class MCS(object):
                     # Check for any new appids 'for newly installed plugins'
                     added_apps, removed_apps = self.__plugin_registry.added_and_removed_appids()
                     if added_apps or removed_apps:
-                        if  added_apps:
+                        if added_apps:
                             logger.info("New AppIds found to register for: " + ' ,'.join(added_apps))
                         if removed_apps:
                             logger.info("AppIds not supported anymore: " + ' ,'.join(removed_apps))
