@@ -1,6 +1,5 @@
 #!/bin/env python
 
-import os
 import sys
 import subprocess
 
@@ -10,15 +9,16 @@ def output(lines):
     proc.communicate(cert)
     proc.wait()
 
-currentCert = []
 
-for line in open(sys.argv[1]).readlines():
-    line = line.strip()
-    if line == "-----BEGIN CERTIFICATE-----":
-        currentCert = [line]
-    elif line == "-----END CERTIFICATE-----":
-        currentCert.append(line)
-        output(currentCert)
-    else:
-        currentCert.append(line)
-
+for arg in sys.argv[1:]:
+    currentCert = []
+    print(arg)
+    for line in open(arg).readlines():
+        line = line.strip()
+        if line == "-----BEGIN CERTIFICATE-----":
+            currentCert = [line]
+        elif line == "-----END CERTIFICATE-----":
+            currentCert.append(line)
+            output(currentCert)
+        else:
+            currentCert.append(line)

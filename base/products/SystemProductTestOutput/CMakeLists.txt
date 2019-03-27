@@ -6,5 +6,7 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/modules/Common/EventTypesImpl/capnproto/Credentials.capnp
         ${CMAKE_SOURCE_DIR}/modules/Common/EventTypesImpl/capnproto/Process.capnp
         ${CMAKE_SOURCE_DIR}/modules/Common/EventTypesImpl/capnproto/PortScanning.capnp
+        ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/extra_mcs_rootca.crt
+        ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/nova_mcs_rootca.crt
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
