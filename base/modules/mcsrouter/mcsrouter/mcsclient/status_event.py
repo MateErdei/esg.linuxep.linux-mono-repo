@@ -9,7 +9,7 @@ from __future__ import print_function, division, unicode_literals
 
 import xml.dom.minidom
 
-import events #pylint: disable=relative-import
+from . import events
 
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""

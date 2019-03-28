@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-mcsrouter Module
+mcs_router Module
 """
-#pylint: disable=relative-import, no-self-use, too-few-public-methods
+#pylint: disable=no-self-use, too-few-public-methods
 
 from __future__ import print_function, division, unicode_literals
 
@@ -17,9 +17,9 @@ import signal
 import time
 import __builtin__
 
-import utils.path_manager as path_manager
-import utils.config
-import sophos_https
+from .utils import path_manager
+from .utils import config as config_module
+from . import sophos_https
 
 
 LOGGER = logging.getLogger(__name__ if __name__ !=
@@ -272,14 +272,12 @@ class MCSRouter(object):
         """
         run
         """
-        config = self.__m_config
-        install_dir = self.__m_install_dir
         proc = None
         LOGGER.info("Starting mcsrouter")
 
         # Turn off core files
         try:
-            if config.get_default("SaveCore", "0") == "1":
+            if self.__m_config.get_default("SaveCore", "0") == "1":
                 LOGGER.info("Enabling saving core files")
                 resource.setrlimit(
                     resource.RLIMIT_CORE,
@@ -291,8 +289,8 @@ class MCSRouter(object):
         except ValueError:
             LOGGER.warning("Unable to set core file resource limit")
 
-        import mcs
-        proc = mcs.MCS(config, install_dir)
+        from . import mcs
+        proc = mcs.MCS(self.__m_config, self.__m_install_dir)
 
         assert proc is not None
         ret = self.__safe_run_forever(proc)
@@ -304,7 +302,7 @@ def create_configuration(argv):
     """
     create_configuration
     """
-    config = utils.config.Config(path_manager.mcs_router_conf())
+    config = config_module.Config(path_manager.mcs_router_conf())
     config.set_default("LOGLEVEL", LOG_LEVEL_DEFAULT)
 
     for arg in argv[1:]:

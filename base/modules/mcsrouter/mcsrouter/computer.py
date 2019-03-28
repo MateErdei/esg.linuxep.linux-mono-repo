@@ -9,9 +9,8 @@ from __future__ import print_function, division, unicode_literals
 
 import logging
 
-# pylint: disable=relative-import
-from mcsclient import status_cache
-import utils.timestamp
+from .mcsclient import status_cache
+from .utils import timestamp
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,7 +50,7 @@ class Computer(object):
         get_timestamp
         """
         # pylint: disable=no-self-use
-        return utils.timestamp.timestamp()
+        return timestamp.timestamp()
 
     def fill_status_event(self, status_event):
         """

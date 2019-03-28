@@ -311,13 +311,15 @@ def get_password_uncached():
 
 GL_PASSWORD = None
 
-def get_password(password=GL_PASSWORD):
+def get_password():
     """
     get_password
     """
-    if password is None:
-        password = get_password_uncached()
-    return password
+    # pylint: disable=global-statement
+    global GL_PASSWORD
+    if GL_PASSWORD is None:
+        GL_PASSWORD = get_password_uncached()
+    return GL_PASSWORD
 
 
 def dump(name, array):
@@ -333,8 +335,8 @@ def dump(name, array):
 
 
 if __name__ == '__main__':
-    GL_PASSWORD = get_password(GL_PASSWORD)
-    dump("password", GL_PASSWORD)
+    PASSWORD = get_password()
+    dump("password", PASSWORD)
 
     #~ data = reverse_1(C_KEY_DO)
     #~ dump("reverse_1",data)

@@ -6,8 +6,7 @@ ip_selection Module
 import socket
 import threading
 
-# pylint: disable=relative-import
-import ip_address
+from . import ip_address
 
 
 class IpLookupThread(threading.Thread):

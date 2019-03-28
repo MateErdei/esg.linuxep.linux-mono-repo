@@ -123,6 +123,8 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                 policy = command.get_policy()
                 return self.__process_policy(policy)
             except NotImplementedError:
+                # If we start processing actions in MCS we should add a method
+                # to this class to process it. For now we log an error.
                 LOGGER.error("Got action for the MCS adapter: %s", str(command))
                 return None
         finally:

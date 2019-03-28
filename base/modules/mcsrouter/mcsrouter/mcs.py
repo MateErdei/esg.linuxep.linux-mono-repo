@@ -16,29 +16,26 @@ import select
 import logging
 import random
 
-# pylint: disable=relative-import
-import computer
-import adapters.agent_adapter
-import adapters.event_receiver
-import adapters.app_proxy_adapter
-import adapters.mcs_adapter
-import adapters.generic_adapter
-import mcsclient.mcs_connection
-import mcsclient.mcs_commands
-import mcsclient.mcs_exception
-import mcsclient.status_cache
-import mcsclient.status_event
-import mcsclient.status_timer
-import mcsclient.events
-import mcsclient.events_timer
-import utils.config
-import utils.timestamp
-import utils.id_manager
-import utils.signal_handler
-import utils.directory_watcher
-import utils.plugin_registry
-
-import utils.path_manager as path_manager
+from .adapters import agent_adapter
+from .adapters import event_receiver
+from .adapters import app_proxy_adapter
+from .adapters import mcs_adapter
+from .adapters import generic_adapter
+from .mcsclient import mcs_connection
+from .mcsclient import mcs_commands
+from .mcsclient import mcs_exception
+from .mcsclient import status_event as status_event_module
+from .mcsclient import status_timer
+from .mcsclient import events as events_module
+from .mcsclient import events_timer as events_timer_module
+from .utils import config as config_module
+from .utils import timestamp
+from .utils import id_manager
+from .utils import signal_handler
+from .utils import directory_watcher as directory_watcher_module
+from .utils import plugin_registry
+from .utils import path_manager
+from . import computer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -156,37 +153,37 @@ class MCS(object):
         config.set_default(
             "MCSURL",
             "https://mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep")
-        fixed_config = utils.config.Config(
+        fixed_config = config_module.Config(
             filename=path_manager.root_config(),
             parent_config=config)
-        self.__m_policy_config = utils.config.Config(
+        self.__m_policy_config = config_module.Config(
             filename=path_manager.mcs_policy_config(),
             parent_config=fixed_config)
-        self.__m_config = utils.config.Config(
+        self.__m_config = config_module.Config(
             filename=path_manager.sophosspl_config(),
             parent_config=self.__m_policy_config)
         config = self.__m_config
 
         status_latency = self.__m_config.get_int("STATUS_LATENCY", 30)
         LOGGER.debug("STATUS_LATENCY=%d", status_latency)
-        self.__m_status_timer = mcsclient.status_timer.StatusTimer(
+        self.__m_status_timer = status_timer.StatusTimer(
             status_latency,
             self.__m_config.get_int("STATUS_INTERVAL", 60 * 60 * 24)
         )
 
         # Configure fragmented policy cache directory
-        mcsclient.mcs_commands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = \
+        mcs_commands.FragmentedPolicyCommand.FRAGMENT_CACHE_DIR = \
             path_manager.fragmented_policies_dir()
 
         # Create computer
         self.__m_computer = computer.Computer()
-        self.__m_mcs_adapter = adapters.mcs_adapter.MCSAdapter(
+        self.__m_mcs_adapter = mcs_adapter.MCSAdapter(
             install_dir, self.__m_policy_config, self.__m_config)
 
         self.__m_computer.add_adapter(self.__m_mcs_adapter)
 
         #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
-        self.__plugin_registry = utils.plugin_registry.PluginRegistry(
+        self.__plugin_registry = plugin_registry.PluginRegistry(
             install_dir)
         # pylint: disable=unused-variable
         apps, ignored = self.__plugin_registry.added_and_removed_app_ids()
@@ -194,15 +191,15 @@ class MCS(object):
 
         for app in apps:
             self.__m_computer.add_adapter(
-                adapters.generic_adapter.GenericAdapter(
+                generic_adapter.GenericAdapter(
                     app, install_dir))
 
         # AppsProxy needs to report all AppIds apart from AGENT and APPSPROXY
         app_ids = self.__m_computer.get_app_ids()
         self.__m_computer.add_adapter(
-            adapters.app_proxy_adapter.AppProxyAdapter(app_ids))
+            app_proxy_adapter.AppProxyAdapter(app_ids))
 
-        self.__m_agent = adapters.agent_adapter.AgentAdapter()
+        self.__m_agent = agent_adapter.AgentAdapter()
         self.__m_computer.add_adapter(self.__m_agent)
 
         # TODO: reload on MCS policy change (and any other configurables? Event
@@ -215,7 +212,7 @@ class MCS(object):
         """
         config = self.__m_config
 
-        comms = mcsclient.mcs_connection.MCSConnection(
+        comms = mcs_connection.MCSConnection(
             config,
             install_dir=path_manager.install_dir()
         )
@@ -254,7 +251,7 @@ class MCS(object):
         token = self.__get_mcs_token()
 
         comms.set_user_agent(
-            mcsclient.mcs_connection.create_user_agent(
+            mcs_connection.create_user_agent(
                 product_version, token))
 
     def register(self):
@@ -293,10 +290,9 @@ class MCS(object):
             return 2
 
         comms = self.__m_comms
-        mcs_adapter = self.__m_mcs_adapter
 
-        events = mcsclient.events.Events()
-        events_timer = mcsclient.events_timer.EventsTimer(
+        events = events_module.Events()
+        events_timer = events_timer_module.EventsTimer(
             config.get_int(
                 "EVENTS_REGULATION_DELAY",
                 5),
@@ -329,10 +325,10 @@ class MCS(object):
                 self.__m_status_timer.relative_time())
 
         # setup signal handler before connecting
-        utils.signal_handler.setup_signal_handler()
+        signal_handler.setup_signal_handler()
 
         # setup a directory watcher for events and statuses
-        directory_watcher = utils.directory_watcher.DirectoryWatcher()
+        directory_watcher = directory_watcher_module.DirectoryWatcher()
 
         directory_watcher.add_watch(
             path_manager.event_dir(),
@@ -389,7 +385,7 @@ class MCS(object):
                             # this will cause Central to delete commands
                         for app in added_apps:
                             self.__m_computer.add_adapter(
-                                adapters.generic_adapter.GenericAdapter(
+                                generic_adapter.GenericAdapter(
                                     app, path_manager.install_dir()))
                         app_ids = [app for app in self.__m_computer.get_app_ids() if app not in [
                             'APPSPROXY', 'AGENT']]
@@ -398,7 +394,7 @@ class MCS(object):
                             ' '.join(app_ids))
                         self.__m_computer.remove_adapter_by_app_id('APPSPROXY')
                         self.__m_computer.add_adapter(
-                            adapters.app_proxy_adapter.AppProxyAdapter(app_ids))
+                            app_proxy_adapter.AppProxyAdapter(app_ids))
 
                     if time.time() > last_commands + self.__m_command_check_interval.get():
                         LOGGER.debug("Checking for commands")
@@ -429,21 +425,22 @@ class MCS(object):
                     timeout = self.__m_command_check_interval.get() - (time.time() - last_commands)
 
                     # Check to see if any adapters have new status
-                    if self.__m_computer.has_status_changed() or mcs_adapter.has_new_status():
+                    if self.__m_computer.has_status_changed() \
+                            or self.__m_mcs_adapter.has_new_status():
                         status_updated(
                             reason="adapter reporting status change")
 
                     # get all pending events
-                    for app_id, event_time, event in adapters.event_receiver.receive():
+                    for app_id, event_time, event in event_receiver.receive():
                         LOGGER.info("queuing event for %s", app_id)
-                        add_event(app_id, event, utils.timestamp.timestamp(
-                            event_time), 10000, utils.id_manager.generate_id())
+                        add_event(app_id, event, timestamp.timestamp(
+                            event_time), 10000, id_manager.generate_id())
 
                     # send status
                     if error_count > 0:
                         pass  # Not sending status while in error state
                     elif self.__m_status_timer.send_status():
-                        status_event = mcsclient.status_event.StatusEvent()
+                        status_event = status_event_module.StatusEvent()
                         changed = self.__m_computer.fill_status_event(status_event)
                         if changed:
                             LOGGER.debug("Sending status")
@@ -480,7 +477,7 @@ class MCS(object):
                     LOGGER.exception("Got socket error")
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(error_count)
-                except mcsclient.mcs_connection.MCSHttpUnauthorizedException as exception:
+                except mcs_connection.MCSHttpUnauthorizedException as exception:
                     LOGGER.warning("Lost authentication with server")
                     header = exception.headers().get(
                         "www-authenticate", None)  # HTTP headers are case-insensitive
@@ -495,7 +492,7 @@ class MCS(object):
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient=False)
-                except mcsclient.mcs_connection.MCSHttpException as exception:
+                except mcs_connection.MCSHttpException as exception:
                     LOGGER.exception("Got http error from MCS")
                     error_count += 1
                     transient = True
@@ -506,7 +503,7 @@ class MCS(object):
 
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient)
-                except mcsclient.mcs_exception.MCSConnectionFailedException:
+                except mcs_exception.MCSConnectionFailedException:
                     # Already logged from mcsclient
                     #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
@@ -546,7 +543,7 @@ class MCS(object):
                     # pylint: disable=unused-variable
                     ready_to_read, ready_to_write, in_error = \
                         select.select(
-                            [utils.signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor],
+                            [signal_handler.sig_term_pipe[0], notify_pipe_file_descriptor],
                             [],
                             [],
                             timeout)
@@ -559,7 +556,7 @@ class MCS(object):
                     else:
                         raise
 
-                if utils.signal_handler.sig_term_pipe[0] in ready_to_read:
+                if signal_handler.sig_term_pipe[0] in ready_to_read:
                     LOGGER.info("Exiting MCS")
                     running = False
                     break

@@ -43,7 +43,7 @@ class MCSPolicyHandler(object):
         path_manager.INST = install_dir
         self.__m_policy_config = policy_config
         self.__m_applied_config = applied_config
-        #REGISTER_MCS is set in register_central.py or mcsrouter.py
+        #REGISTER_MCS is set in register_central.py or mcs_router.py
         if not REGISTER_MCS:  # pylint: disable=undefined-variable
             self.__load_policy()
 

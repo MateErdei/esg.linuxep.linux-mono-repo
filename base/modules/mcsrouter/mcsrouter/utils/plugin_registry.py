@@ -28,6 +28,11 @@ def get_app_ids_from_plugin_json(file_path):
         LOGGER.error(str(exception))
         return None
 
+    except ValueError as exception:
+        LOGGER.error("File not valid json: %s", str(file_path))
+        LOGGER.error(str(exception))
+        return None
+
 
 def get_app_ids_from_directory(directory_path):
     """

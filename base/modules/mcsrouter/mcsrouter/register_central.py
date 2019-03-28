@@ -47,12 +47,6 @@ def safe_mkdir(directory):
                 raise
     return
 
-# So don't need to add it
-## Already in mcsrouter.zip
-
-# ## munge sys.path to add mcsrouter_mcs.zip
-# sys.path.append(os.path.join(INST,"engine","mcsrouter_mcs.zip"))
-
 
 def setup_logging():
     """
