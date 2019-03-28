@@ -70,6 +70,11 @@ namespace
             LOGDEBUG(
                 "Tag: " << attribute << " value: " << SulDownloader::SulQueryProductMetadata(product, attribute, 0));
         }
+        std::vector<Tag> tags(getTags(product));
+        for( auto & tag: tags)
+        {
+           LOGDEBUG( "Product tag: label=" << tag.label << " baseversion=" << tag.baseversion << " tag=" << tag.tag);
+        }
         LOGDEBUG("\n");
     }
 

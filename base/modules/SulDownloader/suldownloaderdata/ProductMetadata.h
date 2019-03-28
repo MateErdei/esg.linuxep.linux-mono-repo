@@ -32,6 +32,7 @@ namespace SulDownloader
             void setTags(const std::vector<Tag>& tags);
 
             bool hasTag(const std::string& releaseTag) const;
+            const std::vector<Tag> tags() const;
 
             std::string getBaseVersion() const;
 
