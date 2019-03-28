@@ -53,9 +53,7 @@ void ProductMetadata::setVersion(const std::string& version)
 
 std::string ProductMetadata::getBaseVersion() const
 {
-    auto pos = m_version.find('.');
-    assert(pos != std::string::npos);
-    return std::string(m_version.begin(), m_version.begin() + pos);
+    return m_baseVersion;
 }
 
 const std::string& ProductMetadata::getVersion() const
@@ -76,4 +74,9 @@ const std::string& ProductMetadata::getDefaultHomePath() const
 const std::vector<Tag> ProductMetadata::tags() const
 {
     return m_tags;
+}
+
+void ProductMetadata::setBaseVersion(const std::string& baseVersion)
+{
+    m_baseVersion = baseVersion;
 }

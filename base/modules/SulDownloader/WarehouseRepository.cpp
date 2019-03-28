@@ -61,7 +61,6 @@ namespace
         return false;
     }
 
-#ifndef NDEBUG
     void displayProductTags(SU_PHandle product, const std::vector<std::string>& attributes)
     {
         LOGDEBUG("\nNew Product");
@@ -100,7 +99,6 @@ namespace
               "ResubscriptionsVersion" });
     }
 
-#endif
 
 } // namespace
 
@@ -176,14 +174,16 @@ namespace SulDownloader
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
             std::string name = SulQueryProductMetadata(product, "Name", 0);
-            std::string baseVersion = SulQueryProductMetadata(product, "VersionId", 0);
+            std::string productVersion = SulQueryProductMetadata(product, "VersionId", 0);
             std::string defaultHomePath = SulQueryProductMetadata(product, "DefaultHomeFolder", 0);
+            std::string baseVersion  = SulQueryProductMetadata(product, "ReleaseTagsBaseVersion", 0);
             std::vector<Tag> tags(getTags(product));
 
             productInformation.setLine(line);
             productInformation.setName(name);
             productInformation.setTags(tags);
-            productInformation.setVersion(baseVersion);
+            productInformation.setVersion(productVersion);
+            productInformation.setBaseVersion(baseVersion);
             productInformation.setDefaultHomePath(defaultHomePath);
 
             productInformationList.emplace_back(product, productInformation);
@@ -199,6 +199,7 @@ namespace SulDownloader
         for (size_t index : selectedIndexes.selected)
         {
             LOGSUPPORT("Product will be downloaded: " << productMetadataList[index].getLine());
+            displayProductTags(productInformationList[index].first);
         }
 
         for (size_t index : selectedIndexes.notselected)

@@ -39,6 +39,7 @@ namespace SulDownloader
             const std::string& getVersion() const;
 
             void setVersion(const std::string& version);
+            void setBaseVersion( const std::string & baseVersion);
 
             void setDefaultHomePath(const std::string& defaultHomeFolder);
 
@@ -49,6 +50,7 @@ namespace SulDownloader
             std::string m_line;
             std::string m_name;
             std::string m_version;
+            std::string m_baseVersion;
             std::string m_defaultHomeFolder;
         };
     } // namespace suldownloaderdata

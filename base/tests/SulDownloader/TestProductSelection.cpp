@@ -114,6 +114,7 @@ public:
             metadata.setLine("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
             metadata.setDefaultHomePath("Linux1");
             metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
             metadata.setName("Linux Security1");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
@@ -124,6 +125,7 @@ public:
             metadata.setLine("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
             metadata.setDefaultHomePath("Linux2");
             metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
             metadata.setName("Linux Security2");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
@@ -134,6 +136,7 @@ public:
             metadata.setLine("1CD8A804-6047-47BC-8CBE-2D4AEB37BEE2");
             metadata.setDefaultHomePath("Linux3");
             metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
             metadata.setName("Linux Security3");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
@@ -144,6 +147,7 @@ public:
             metadata.setLine("Unknown Product");
             metadata.setDefaultHomePath("Linux4");
             metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
             metadata.setName("Linux Security4");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
@@ -155,6 +159,7 @@ public:
             metadata.setLine("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
             metadata.setDefaultHomePath("Linux1");
             metadata.setVersion("10.1.1.1");
+            metadata.setBaseVersion("10");
             metadata.setName("Linux Security1");
             Tag tag("RECOMMENDED", "10", "RECOMMENDED");
             metadata.setTags({ tag });
@@ -165,6 +170,7 @@ public:
             metadata.setLine("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
             metadata.setDefaultHomePath("Linux2");
             metadata.setVersion("9.1.1.1");
+            metadata.setBaseVersion("9");
             metadata.setName("Linux Security2");
             Tag tag("PREVIEW", "9", "PREVIEW");
             metadata.setTags({ tag });

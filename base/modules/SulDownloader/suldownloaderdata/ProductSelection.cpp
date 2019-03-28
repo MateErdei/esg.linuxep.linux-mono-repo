@@ -76,18 +76,6 @@ namespace SulDownloader
 
     bool ProductSelector::keepProduct(const ProductMetadata& productInformation) const
     {
-        const auto reportTags = [](const std::vector<Tag> & tags){
-            std::stringstream s;
-            for( auto & tag : tags)
-            {
-                s << "label=" << tag.label<< " baseversion=" << tag.baseversion <<" tag=" <<  tag.tag;
-            }
-        };
-        const auto reportProduct = [](const ProductMetadata & productInformation){
-            LOGSUPPORT("Selected: " << productInformation.getName() <<
-            " baseversion=" << productInformation.getBaseVersion() <<
-            " version= " << productInformation.getVersion());
-        };
         size_t pos = productInformation.getLine().find(m_productName);
         if (pos != 0)
         {
@@ -106,9 +94,6 @@ namespace SulDownloader
 
         if (productInformation.getBaseVersion() == m_baseVersion)
         {
-            reportProduct(productInformation);
-            reportTags(productInformation.tags());
-
             return true;
         }
 
