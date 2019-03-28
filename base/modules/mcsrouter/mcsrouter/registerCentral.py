@@ -118,7 +118,7 @@ def register(config, INST, logger):
             break
         except MCSConnection.MCSHttpException as e:
             if e.errorCode() == 401:
-                print("ERROR: Authentication error from Sophos Central: Check Token", file=sys.stderr)
+                print("ERROR: Authentication error from Sophos Central: Check Token",file=sys.stderr)
                 logger.fatal("ERROR: Authentication error from Sophos Central: Check Token")
                 ret = 6
                 break
