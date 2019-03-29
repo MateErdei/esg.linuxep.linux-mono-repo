@@ -51,7 +51,7 @@ class PluginRegistry:
         file_names = set(file_names_appids.keys())
         added_plugins = file_names.difference(self._plugin_file_names)
         removed_plugins = self._plugin_file_names.difference(file_names)
-        self._plugin_file_names = self._plugin_file_names.union(file_names)
+        self._plugin_file_names = file_names
 
         added_app_ids = appids.difference(self._currentAppIds)
         removed_app_ids = self._currentAppIds.difference(appids)
