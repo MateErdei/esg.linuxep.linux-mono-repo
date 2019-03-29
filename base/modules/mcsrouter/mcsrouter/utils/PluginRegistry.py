@@ -42,6 +42,7 @@ class PluginRegistry:
         logger.info("PluginRegistry path: " + self._plugin_registry_path)
         self._currentAppIds = set()
         self._plugin_file_names = set()
+        self._prev_file_names_appids = {}
 
     def added_and_removed_appids(self):
         #fixme improve efficiency. It is parsing the files every time. It should do only when new files are added.
@@ -67,6 +68,6 @@ class PluginRegistry:
 
         if len(removed_plugins) > 0:
             for plugin in removed_plugins:
-                logger.info("Plugin removed: {}, with APPIDs: {}".format(plugin, ', '.join(file_names_appids[plugin])))
-
+                logger.info("Plugin removed: {}, with APPIDs: {}".format(plugin, ', '.join(self._prev_file_names_appids[plugin])))
+        self._prev_file_names_appids = file_names_appids
         return added_list, removed_list
