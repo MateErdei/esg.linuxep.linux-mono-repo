@@ -117,7 +117,7 @@ namespace SulDownloader
             {
                 continue;
             }
-            LOGSUPPORT("Try connection: " << connectionSetup.toString());
+            LOGINFO("Try connection: " << connectionSetup.toString());
             warehouse->setConnectionSetup(connectionSetup, configurationData);
 
             if (warehouse->hasError())
@@ -198,7 +198,7 @@ namespace SulDownloader
 
         for (size_t index : selectedIndexes.selected)
         {
-            LOGSUPPORT("Product will be downloaded: " << productMetadataList[index].getLine());
+            LOGINFO("Product will be downloaded: " << productMetadataList[index].getLine());
             displayProductTags(productInformationList[index].first);
         }
 
@@ -228,7 +228,7 @@ namespace SulDownloader
             std::string listOfSourcesMissing;
             for (const auto& missing : missingProducts)
             {
-                LOGSUPPORT("Product missing from warehouse: " << missing);
+                LOGWARN("Product missing from warehouse: " << missing);
                 if (!listOfSourcesMissing.empty())
                 {
                     listOfSourcesMissing += ";";
@@ -260,6 +260,8 @@ namespace SulDownloader
             m_products.emplace_back(productPair.first, DownloadedProduct(productPair.second));
         }
 
+        SULUtils::displayLogs(session());
+
         if (!syncSucceeded)
         {
             LOGERROR(failedProductErrorMessage.str());
@@ -287,6 +289,7 @@ namespace SulDownloader
             setError("Failed to distribute products");
             m_error.status = WarehouseStatus ::DOWNLOADFAILED;
         }
+        SULUtils::displayLogs(session());
 
         bool distSucceeded = true;
         std::stringstream failedProductErrorMessage;
@@ -309,6 +312,7 @@ namespace SulDownloader
             setError(failedProductErrorMessage.str());
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
         }
+        LOGINFO("Products downloaded and synchronized with warehouse.");
 
         SULUtils::displayLogs(session());
     }

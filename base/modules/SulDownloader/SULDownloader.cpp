@@ -133,6 +133,7 @@ namespace SulDownloader
 
         if (hasError(products))
         {
+            LOGWARN("Verification of the downloaded products failed.");
             return DownloadReport::Report(sourceURL, products, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
         }
 
