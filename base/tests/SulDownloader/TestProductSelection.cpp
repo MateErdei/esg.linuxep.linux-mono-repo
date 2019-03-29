@@ -270,6 +270,11 @@ TEST_F( // NOLINT
 {
     auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
+    /*
+     * FixProductName: "FD6C1066-E190-4F44-AD0E-F107F36D9D40"
+     * FixProductName: "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
+     * Prefix: "1CD8A804"
+     */
     ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
 
     std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
@@ -290,12 +295,23 @@ TEST_F( // NOLINT
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
     EXPECT_EQ(selectedProducts.missing.size(), 0);
-    EXPECT_EQ(selectedProducts.notselected.size(), 3);
-    EXPECT_EQ(selectedProducts.selected.size(), 3);
+    EXPECT_EQ(selectedProducts.notselected.size(), 2); //3, 5
+    EXPECT_EQ(selectedProducts.selected.size(), 4); // 0 1 2 4
+
+    // 0 and 4 differ only by the base version. Hence, both are selected
     EXPECT_EQ(selectedProducts.selected[0], 0);
-    EXPECT_EQ(selectedProducts.selected[1], 1);
-    EXPECT_EQ(selectedProducts.selected[2], 2);
+    EXPECT_EQ(selectedProducts.selected[1], 4);
+    // match filter line and recommended
+    EXPECT_EQ(warehouseProducts[0].getLine(), "FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+
+    EXPECT_EQ(warehouseProducts[0].getLine(), warehouseProducts[4].getLine());
+    EXPECT_TRUE(warehouseProducts[0].hasTag("RECOMMENDED"));
+    EXPECT_TRUE(warehouseProducts[4].hasTag("RECOMMENDED"));
+
+
+
+    EXPECT_EQ(selectedProducts.selected[2], 1);
+    EXPECT_EQ(selectedProducts.selected[3], 2);
     EXPECT_EQ(selectedProducts.notselected[0], 3);
-    EXPECT_EQ(selectedProducts.notselected[1], 4);
-    EXPECT_EQ(selectedProducts.notselected[2], 5);
+    EXPECT_EQ(selectedProducts.notselected[1], 5);
 }

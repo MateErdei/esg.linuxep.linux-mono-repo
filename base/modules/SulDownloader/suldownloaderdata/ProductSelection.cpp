@@ -92,7 +92,7 @@ namespace SulDownloader
             return false;
         }
 
-        if (productInformation.getBaseVersion() == m_baseVersion)
+        if (productInformation.getBaseVersion() == m_baseVersion || m_releaseTag == "RECOMMENDED")
         {
             return true;
         }
