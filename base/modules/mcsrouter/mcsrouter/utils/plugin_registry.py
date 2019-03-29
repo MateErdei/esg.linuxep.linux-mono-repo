@@ -39,19 +39,16 @@ def get_app_ids_from_directory(directory_path):
     get_app_ids_from_directory
     """
     app_ids = set()
+    file_names = {}
     for file_name in os.listdir(directory_path):
         if file_name.endswith('.json'):
-            app_ids_for_file = get_app_ids_from_plugin_json(
-                os.path.join(directory_path, file_name))
+            file_names[file_name] = set()
+            app_ids_for_file = get_app_ids_from_plugin_json(os.path.join(directory_path, file_name))
             if app_ids_for_file:
-                LOGGER.info(
-                    "Apps for plugin " +
-                    file_name +
-                    " are: " +
-                    ', '.join(app_ids_for_file))
                 app_ids = app_ids.union(app_ids_for_file)
+                file_names[file_name] = app_ids_for_file
 
-    return app_ids
+    return app_ids, file_names
 
 
 class PluginRegistry(object):
@@ -67,14 +64,22 @@ class PluginRegistry(object):
         self._plugin_registry_path = mcsrouter.utils.path_manager.plugin_registry_path()
         LOGGER.info("PluginRegistry path: %s", str(self._plugin_registry_path))
         self._current_app_ids = set()
+        self._plugin_file_names = set()
+        self._prev_file_names_app_ids = {}
 
     def added_and_removed_app_ids(self):
         """
         added_and_removed_app_ids
         """
-        # fixme improve efficiency. It is parsing the files every time. It
-        # should do only when new files are added.
-        app_ids = get_app_ids_from_directory(self._plugin_registry_path)
+        # fixme improve efficiency. It is parsing the files every time.
+        # It should do only when new files are added.
+        app_ids, file_names_app_ids = get_app_ids_from_directory(self._plugin_registry_path)
+
+        file_names = set(file_names_app_ids.keys())
+        added_plugins = file_names.difference(self._plugin_file_names)
+        removed_plugins = self._plugin_file_names.difference(file_names)
+        self._plugin_file_names = file_names
+
         added_app_ids = app_ids.difference(self._current_app_ids)
         removed_app_ids = self._current_app_ids.difference(app_ids)
         self._current_app_ids = app_ids
@@ -84,4 +89,16 @@ class PluginRegistry(object):
         added_list.sort()
         removed_list.sort()
 
+        if added_plugins:
+            for plugin in added_plugins:
+                message = "Plugin found: {}, with APPIDs: {}"\
+                    .format(plugin, ', '.join(file_names_app_ids[plugin]))
+                LOGGER.info(message)
+
+        if removed_plugins:
+            for plugin in removed_plugins:
+                message = "Plugin removed: {}, with APPIDs: {}"\
+                    .format(plugin, ', '.join(self._prev_file_names_app_ids[plugin]))
+                LOGGER.info(message)
+        self._prev_file_names_app_ids = file_names_app_ids
         return added_list, removed_list

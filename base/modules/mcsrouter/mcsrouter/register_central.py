@@ -149,7 +149,7 @@ def register(config, inst, logger):
             url = config.get("MCSURL")
             print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url,
                   file=sys.stderr)
-            logger.fatal(
+            logger.warning(
                 "Failed to connect to Sophos Central: Check URL: %s",
                 url,
                 exc_info=True)
