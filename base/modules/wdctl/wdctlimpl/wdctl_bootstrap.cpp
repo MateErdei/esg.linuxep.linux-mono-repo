@@ -15,7 +15,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
 #include <wdctl/wdctlactions/StopAction.h>
-
+#include <iostream>
 #include <csignal>
 #include <cstdlib>
 #include <unistd.h>
@@ -28,11 +28,10 @@ using namespace wdctl::wdctlimpl;
 
 int wdctl_bootstrap::main(int argc, char** argv)
 {
-    Common::Logging::FileLoggingSetup logSetup("wdctl");
-
     if (argc != 3)
     {
-        LOGERROR("Error: Wrong number of arguments expected 2");
+        // calling wdctl with wrong number of arguments will happen by users calling, hence, console output is correct.
+        std::cerr <<  "Error: Wrong number of arguments expected 2\n";
         return 2;
     }
 
@@ -96,6 +95,9 @@ int wdctl_bootstrap::main(const StringVector& args)
 
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, SOPHOS_INSTALL);
+
+    Common::Logging::FileLoggingSetup logSetup("wdctl");
+
 
     m_args.parseArguments(args);
 
