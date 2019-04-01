@@ -257,7 +257,9 @@ class MCSRouter(object):
             # Clean exits do exit
             try:
                 return proc.run()
-            except OSError:
+            except Exception: # pylint: disable=broad-except
+                # Deliberately catch everything, so that we re-run mcs_router on failures
+                # rather than crash
                 LOGGER.critical(
                     "Caught exception at top-level; re-running.",
                     exc_info=True)

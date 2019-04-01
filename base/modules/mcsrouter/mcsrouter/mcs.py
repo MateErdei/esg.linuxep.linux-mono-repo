@@ -504,7 +504,7 @@ class MCS(object):
 
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient)
-                except mcs_exception.MCSConnectionFailedException:
+                except (mcs_exception.MCSConnectionFailedException, httplib.NotConnected):
                     # Already logged from mcsclient
                     #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
