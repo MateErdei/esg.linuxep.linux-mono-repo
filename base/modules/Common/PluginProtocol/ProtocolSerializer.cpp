@@ -106,7 +106,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Missing required fields for protobuf message: " << missingFields.str();
-                LOGERROR("Protocol Serializer error: " << errorMessage.str());
+                LOGERROR("Protocol Serializer error - serialize: " << errorMessage.str());
                 throw Common::PluginApi::ApiException(errorMessage.str());
             }
 
@@ -141,9 +141,9 @@ namespace Common
 
             if (serializedData.empty() || !deserializedData.ParsePartialFromString(serializedData[0]))
             {
-                message.m_error = "Bad formed message: Protobuf parse error";
-                LOGERROR("Protocol Serializer error: " << message.m_error);
-                return message;
+                std::string errorMessage = "Bad formed message: Protobuf parse error";
+                LOGERROR("Protocol Serializer error: " << errorMessage);
+                throw Common::PluginApi::ApiException(errorMessage);
             }
 
             // Check minimum fields are defined post deserialisation
@@ -161,7 +161,7 @@ namespace Common
                 std::stringstream errorMessage;
                 errorMessage << "Bad formed message, missing required fields : " << missingFields.str();
                 message.m_error = errorMessage.str();
-                LOGERROR("Protocol Serializer error: " << message.m_error);
+                LOGERROR("Protocol Serializer error - deserialize: " << message.m_error);
                 return message;
             }
 

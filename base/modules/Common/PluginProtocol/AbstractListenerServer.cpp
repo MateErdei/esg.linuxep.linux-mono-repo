@@ -7,6 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "AbstractListenerServer.h"
 
 #include "Common/ReactorImpl/ReactorImpl.h"
+#include "Common/PluginApi/ApiException.h"
+
 
 namespace Common
 {
@@ -28,10 +30,19 @@ namespace Common
         void AbstractListenerServer::messageHandler(std::vector<std::string> data)
         {
             Protocol protocol;
-            DataMessage message = protocol.deserialize(data);
-            DataMessage replyMessage = process(message);
-            auto replyData = protocol.serialize(replyMessage);
-            m_ireadWrite->write(replyData);
+            try
+            {
+                DataMessage message = protocol.deserialize(data);
+                DataMessage replyMessage = process(message);
+                auto replyData = protocol.serialize(replyMessage);
+                m_ireadWrite->write(replyData);
+            }
+            catch (const Common::PluginApi::ApiException & apiException)
+            {
+                //Send a reply when de/serialisation fails to stop blocking on socket.
+                m_ireadWrite->write(std::vector<std::string>{apiException.what()});
+                throw;
+            }
         }
 
         void AbstractListenerServer::start() { m_reactor->start(); }

@@ -87,9 +87,9 @@ namespace ManagementAgent
             if (reply.m_command != request.m_command)
             {
                 throw PluginCommunication::IPluginCommunicationException(
-                    "Received reply from wrong command, expecting" +
+                    "Received reply from wrong command, Expecting: " +
                     Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
-                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(request.m_command));
+                    ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.m_command));
             }
 
             if (!reply.m_error.empty())

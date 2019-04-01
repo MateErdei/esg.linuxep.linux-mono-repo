@@ -15,7 +15,7 @@ namespace Common
     {
         class ISocketRequester : public virtual IReadWrite, public virtual ISocketSetup
         {
-        public:
+
         };
     } // namespace ZeroMQWrapper
 } // namespace Common

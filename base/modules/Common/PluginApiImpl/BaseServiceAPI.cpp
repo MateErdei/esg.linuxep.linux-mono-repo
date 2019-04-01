@@ -125,7 +125,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     if (reply.m_command != request.m_command)
     {
         std::string errorMessage(
-            "Received reply from wrong command, expecting" +
+            "Received reply from wrong command, Expecting: " +
             Common::PluginProtocol::ConvertCommandEnumToString(request.m_command) +
             ", Received: " + Common::PluginProtocol::ConvertCommandEnumToString(reply.m_command));
         LOGERROR(errorMessage);
