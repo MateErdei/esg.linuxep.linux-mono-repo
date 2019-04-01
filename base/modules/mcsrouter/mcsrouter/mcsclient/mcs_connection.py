@@ -722,7 +722,8 @@ class MCSConnection(object):
         # DELIBERATELY RE-RAISING PREVIOUS EXCEPTION!!!!!!
         # DO NOT CHANGE WITHOUT REVIEWING WITH DLCL
         assert self.__m_last_seen_http_error is not None
-        raise self.__m_last_seen_http_error
+        raise self.__m_last_seen_http_error \
+              or AssertionError("self.__m_last_seen_http_error is None")
 
     def __create_connection_and_get_response(self, request_data):
         """

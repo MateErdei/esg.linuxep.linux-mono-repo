@@ -182,7 +182,7 @@ def register(config, inst, logger):
                     ret = 5
                     break
         except mcs_exception.MCSException as exception:
-            logger.fatal("Registration failed with %s (%s)",str(exception), repr(exception))
+            logger.fatal("Registration failed with %s (%s)", str(exception), repr(exception))
 
     return ret
 
