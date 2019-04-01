@@ -142,7 +142,7 @@ namespace Common
             if (serializedData.empty() || !deserializedData.ParsePartialFromString(serializedData[0]))
             {
                 std::string errorMessage = "Bad formed message: Protobuf parse error";
-                LOGERROR("Protocol Serializer error: " << errorMessage);
+                LOGERROR("Protocol Serializer error - deserialize: " << errorMessage);
                 throw Common::PluginApi::ApiException(errorMessage);
             }
 
@@ -172,12 +172,12 @@ namespace Common
             if (deserializedData.has_error())
             {
                 message.m_error = deserializedData.error();
-                LOGERROR("Protocol Serializer message error: " << deserializedData.error());
+                LOGERROR("Protocol Serializer error - deserialize: message error: " << deserializedData.error());
             }
             else if (message.m_command == PluginProtocol::Commands::UNKNOWN)
             {
                 message.m_error = "Invalid request";
-                LOGERROR("Protocol Serializer error: " << message.m_error);
+                LOGERROR("Protocol Serializer error - deserialize: " << message.m_error);
             }
             else if (deserializedData.has_acknowledge())
             {
