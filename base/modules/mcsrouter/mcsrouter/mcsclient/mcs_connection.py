@@ -719,7 +719,10 @@ class MCSConnection(object):
             raise mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException(
                 "Failed to connect to MCS")
         # If we were able to connect, but received a HTTP error
-        raise Exception(str(self.__m_last_seen_http_error))
+        # DELIBERATELY RE-RAISING PREVIOUS EXCEPTION!!!!!!
+        # DO NOT CHANGE WITHOUT REVIEWING WITH DLCL
+        assert self.__m_last_seen_http_error is not None
+        raise self.__m_last_seen_http_error
 
     def __create_connection_and_get_response(self, request_data):
         """

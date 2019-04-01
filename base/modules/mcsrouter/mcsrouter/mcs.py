@@ -397,8 +397,9 @@ class MCS(object):
                             app_proxy_adapter.AppProxyAdapter(app_ids))
 
                     if time.time() > last_commands + self.__m_command_check_interval.get():
-                        LOGGER.debug("Checking for commands")
-                        commands = comms.query_commands(self.__m_computer.get_app_ids())
+                        appids = self.__m_computer.getAppIds()
+                        LOGGER.debug("Checking for commands for %s", str(appids))
+                        commands = comms.queryCommands(appids)
                         last_commands = time.time()
 
                         mcs_token_before_commands = self.__get_mcs_token()

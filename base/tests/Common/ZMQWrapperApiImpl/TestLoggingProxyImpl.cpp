@@ -295,11 +295,11 @@ TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
     proxy.reset();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    ASSERT_NE(logMessage.size(), 0);
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
+    EXPECT_NE(logMessage.size(), 0);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Subscribe FOOBAR"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "FOOBAR DATA"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Unsubscribe FOOBAR"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "TERMINATE"), 1);
 }
 
 TEST_F(TestLoggingProxyImpl, TwoSenders) // NOLINT
