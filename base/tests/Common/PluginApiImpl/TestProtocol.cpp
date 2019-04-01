@@ -167,34 +167,45 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsValidDataStringWhenPayloadCo
     EXPECT_EQ(receivedMessage.m_payload[4], "Payload");
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenNoDataPassed) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenPassedMessageWithNoData) // NOLINT
 {
     Protocol protocol;
-
     data_t serialisedMessage;
-    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
-
-    EXPECT_EQ(receivedMessage.m_applicationId, "");
-    EXPECT_EQ(receivedMessage.m_pluginName, "");
-    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
-    EXPECT_EQ(receivedMessage.m_error, "Bad formed message: Protobuf parse error");
-    EXPECT_EQ(receivedMessage.m_acknowledge, false);
-    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
+    try
+    {
+        protocol.deserialize(serialisedMessage);
+        FAIL() << "Protocol::deserialize failed to throw!";
+    }
+    catch (const Common::PluginApi::ApiException & apiException)
+    {
+        std::string errorMessage(apiException.what());
+        EXPECT_EQ(errorMessage, "Bad formed message: Protobuf parse error");
+    }
+    catch (...)
+    {
+        FAIL() << "Unexpected Exception";
+    }
 }
 
-TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenGarbageSerialisedDataPassed) // NOLINT
+TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed) // NOLINT
 {
     Protocol protocol;
+    try
+    {
+        data_t serialisedMessage = { "ThisIsAGarbageString" };
+        protocol.deserialize(serialisedMessage);
+        FAIL() << "Protocol::deserialize failed to throw!";
+    }
+    catch (const Common::PluginApi::ApiException & apiException)
+    {
+        std::string errorMessage(apiException.what());
+        EXPECT_EQ(errorMessage, "Bad formed message: Protobuf parse error");
+    }
+    catch (...)
+    {
+        FAIL() << "Unexpected Exception";
+    }
 
-    data_t serialisedMessage = { "ThisIsAGarbageString" };
-    DataMessage receivedMessage = protocol.deserialize(serialisedMessage);
-
-    EXPECT_EQ(receivedMessage.m_applicationId, "");
-    EXPECT_EQ(receivedMessage.m_pluginName, "");
-    EXPECT_EQ(receivedMessage.m_command, Common::PluginProtocol::Commands::UNSET);
-    EXPECT_EQ(receivedMessage.m_error, "Bad formed message: Protobuf parse error");
-    EXPECT_EQ(receivedMessage.m_acknowledge, false);
-    EXPECT_THAT(receivedMessage.m_payload.size(), 0);
 }
 
 TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField) // NOLINT

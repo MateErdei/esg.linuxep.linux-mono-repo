@@ -17,6 +17,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/TestCompare.h>
 
+namespace {
+    constexpr int defaultTimeoutMs = 2000;
+}
+
 class TestPluginServerCallbackHandler : public TestCompare
 {
 public:
@@ -35,6 +39,10 @@ public:
         m_context = Common::ZMQWrapperApi::createContext();
         auto replier = m_context->getReplier();
         m_requester = m_context->getRequester();
+        m_requester->setTimeout(defaultTimeoutMs);
+        m_requester->setConnectionTimeout(defaultTimeoutMs);
+        replier->setTimeout(defaultTimeoutMs);
+        replier->setConnectionTimeout(defaultTimeoutMs);
         replier->listen("inproc:///tmp/management.ipc");
         m_requester->connect("inproc:///tmp/management.ipc");
         m_PluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
@@ -299,4 +307,24 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnB
     errorMessage.m_error = "Request not supported";
     auto replyMessage = sendReceive(badMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
+}
+
+TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesNotStopHandlersAbilityToRespond)
+{
+    data_t rawMessage{"NotProtobufMessage"};
+    m_requester->write(rawMessage);
+    auto rawReply = m_requester->read();
+    EXPECT_EQ(rawReply[0], "Bad formed message: Protobuf parse error");
+
+    Common::PluginProtocol::DataMessage registerMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
+
+    EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.m_pluginName))
+            .WillOnce(Return());
+
+    Common::PluginProtocol::DataMessage ackMessage =
+            createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+
+    auto replyMessage = sendReceive(registerMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
