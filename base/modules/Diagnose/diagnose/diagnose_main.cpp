@@ -140,7 +140,7 @@ namespace diagnose
         }
         catch (std::invalid_argument& e)
         {
-            std::cout << e.what() << std::endl;
+            std::cerr << e.what() << std::endl;
             return 2;
         }
         return 0;

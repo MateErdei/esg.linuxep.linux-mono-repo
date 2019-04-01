@@ -58,13 +58,13 @@ namespace diagnose
         Path outputDir = Common::FileSystem::join(path, dirName);
         if (m_fileSystem.isDirectory(outputDir))
         {
-            if(dirName == DIAGNOSE_FOLDER)
+            if (dirName == DIAGNOSE_FOLDER)
             {
                 std::cout << "Diagnose folder already exists" << std::endl;
             }
             else
             {
-                throw std::invalid_argument("Error: Directory already exists: " + outputDir + ". Previous execution of Diagnose tool has not cleaned up.");
+                throw std::invalid_argument("Error:Previous execution of Diagnose tool has not cleaned up. Please remove " + outputDir);
             }
 
         }
