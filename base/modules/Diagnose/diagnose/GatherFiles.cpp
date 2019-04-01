@@ -64,7 +64,7 @@ namespace diagnose
             }
             else
             {
-                throw std::invalid_argument("Error:Previous execution of Diagnose tool has not cleaned up. Please remove " + outputDir);
+                throw std::invalid_argument("Error: Previous execution of Diagnose tool has not cleaned up. Please remove " + outputDir);
             }
 
         }
