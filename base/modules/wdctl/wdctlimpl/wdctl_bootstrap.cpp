@@ -31,7 +31,7 @@ int wdctl_bootstrap::main(int argc, char** argv)
     if (argc != 3)
     {
         // calling wdctl with wrong number of arguments will happen by users calling, hence, console output is correct.
-        std::cerr <<  "Error: Wrong number of arguments expected 2\n";
+        std::cerr <<  "Error: Wrong number of arguments expected 2" << std::endl;
         return 2;
     }
 
