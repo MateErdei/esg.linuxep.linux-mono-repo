@@ -33,7 +33,7 @@ namespace diagnose
     {
         if (argc > 2)
         {
-            std::cout << "Expecting only one parameter got " << (argc - 1) << std::endl;
+            std::cerr << "Expecting only one parameter got " << (argc - 1) << std::endl;
             return 1;
         }
 
@@ -43,7 +43,7 @@ namespace diagnose
             std::string arg(argv[1]);
             if (arg == "--help")
             {
-                std::cout << "Expected Usage: ./sophos_diagnose <path_to_output_directory>" << std::endl;
+                std::cerr << "Expected Usage: ./sophos_diagnose <path_to_output_directory>" << std::endl;
                 return 0;
             }
             outputDir = arg;
