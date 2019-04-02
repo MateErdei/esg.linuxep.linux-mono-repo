@@ -101,7 +101,7 @@ function mountFiler6()
 function mountAllegro()
 {
     allegroLoc="/redist"
-    allegromount="allegro:/redist $allegroLoc nfs ro,vers=3,tcp,exec 0 0"
+    allegromount="allegro.eng.sophos:/redist $allegroLoc nfs ro,vers=3,tcp,exec 0 0"
     mountShare "${allegroLoc}" "${allegromount}"
 }
 
