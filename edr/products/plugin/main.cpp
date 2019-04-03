@@ -10,6 +10,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/Logging/PluginLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/PluginApi/ApiException.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 
@@ -26,8 +27,17 @@ int main()
     auto queueTask = std::make_shared<QueueTask>();
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
 
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService =
-        resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+    std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
+
+    try
+    {
+        baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
+    }
+    catch (const Common::PluginApi::ApiException & apiException)
+    {
+        LOGERROR("Unexpected error: " << apiException.what());
+        throw;
+    }
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
