@@ -2,13 +2,13 @@
 
 echo "Bootstrapping Ubuntu"
 mkdir -p /redist
-grep allegro /etc/fstab > /dev/null
+grep allegro.eng.sophos /etc/fstab > /dev/null
 if [[ "x$?" != 'x0' ]]
 then
    echo 'setup redist entry'
    cp /etc/fstab /tmp/fstab
-   echo 'allegro:/redist /redist nfs ro,vers=3,tcp,exec 0 0
-allegro:/oldTarFiles /oldTarFiles nfs ro,soft,intr,users 0 0
+   echo 'allegro.eng.sophos:/redist /redist nfs ro,vers=3,tcp,exec 0 0
+allegro.eng.sophos:/oldTarFiles /oldTarFiles nfs ro,soft,intr,users 0 0
    ' >> /tmp/fstab
    mv /tmp/fstab /etc/fstab
 fi
