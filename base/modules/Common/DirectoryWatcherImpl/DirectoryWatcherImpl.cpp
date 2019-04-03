@@ -147,13 +147,20 @@ namespace Common
                 {
                     // the inotify fd has an event
                     ssize_t len = m_iNotifyWrapperPtr->read(m_inotifyFd, buf, sizeof(buf));
+
                     if (len == -1)
                     {
                         LOGERROR("iNotify read failed with error " << errno << ": Stopping DirectoryWatcher");
                         exit = true;
                     }
+                    else if ( len == 0)
+                    {
+                        LOGWARN("Read from inotify returned 0 bytes read");
+                    }
                     else
                     {
+                        // enforcing the terminate that ensure strings are null terminated.
+                        buf[len] = 0;
                         for (char* ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len)
                         {
                             event = (const struct inotify_event*)ptr;
