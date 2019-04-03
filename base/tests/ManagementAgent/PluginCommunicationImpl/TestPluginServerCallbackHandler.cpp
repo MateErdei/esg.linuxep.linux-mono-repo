@@ -314,7 +314,7 @@ TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesN
     data_t rawMessage{"NotProtobufMessage"};
     m_requester->write(rawMessage);
     auto rawReply = m_requester->read();
-    EXPECT_EQ(rawReply[0], "Bad formed message: Protobuf parse error");
+    EXPECT_EQ(rawReply[0], "INVALID");
 
     Common::PluginProtocol::DataMessage registerMessage =
             createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");

@@ -23,7 +23,7 @@ add_library(pluginapiobjects OBJECT
         PluginResourceManagement.h
         Logger.cpp
         Logger.h
-        )
+        ../PluginApi/ErrorCodes.h)
 
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )

@@ -40,7 +40,7 @@ namespace Common
             catch (const Common::PluginApi::ApiException & apiException)
             {
                 //Send a reply when de/serialisation fails to stop blocking on socket.
-                m_ireadWrite->write(data_t{apiException.what()});
+                m_ireadWrite->write(data_t{"INVALID"});
                 throw;
             }
         }
