@@ -21,6 +21,11 @@ namespace Common
             void* skt();
             void reset(void* zmq_socket = nullptr);
             void reset(ContextHolderSharedPtr& context, int type);
+            /**
+             * Release the socket we're holding - for testing
+             * @return
+             */
+            void* release();
 
         private:
             void* m_socket;

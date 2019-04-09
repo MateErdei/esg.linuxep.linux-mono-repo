@@ -59,3 +59,10 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
         throw ZeroMQWrapperException("Failed to create socket");
     }
 }
+
+void* Common::ZeroMQWrapperImpl::SocketHolder::release()
+{
+    void* skt = m_socket;
+    m_socket = nullptr;
+    return skt;
+}

@@ -57,6 +57,7 @@ namespace Common
             void listen(const std::string& address) override;
 
             void* skt() { return m_socket.skt(); }
+            SocketHolder& socketHolder() { return m_socket; }
 
             /** Refresh the socket and reapply the settings.
              * To be used after the socket find to be 'broken'

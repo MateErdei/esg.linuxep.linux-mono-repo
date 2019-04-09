@@ -216,6 +216,8 @@ namespace
         EXPECT_THROW( // NOLINT
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException); // NOLINT
+
+        socket->socketHolder().release(); // Socket already closed
     }
 
     TEST(TestPollerImpl, ThePollerShouldReturnThatDataIsAvailableWhileItIsAvailable) // NOLINT
