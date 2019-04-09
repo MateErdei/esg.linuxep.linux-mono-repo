@@ -51,10 +51,8 @@ include_directories(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
 set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 
 PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${SulDownloaderData}/proto/ConfigurationSettings.proto)
+PROTOBUF_GENERATE_CPP(DOWNLOADER_REPORT_PROTO_SRC DOWNLOADER_REPORT_PROTO_H ${SulDownloaderData}/proto/DownloadReport.proto)
 
-
-message(protosrc ${CONFIG_SETTINGS_PROTO_SRC})
-#include(${SulDownloaderData}/proto/CMakeLists.txt)
 add_executable(suldownloaderconfigtests
         suldownloaderconfigtests.cpp
         ${SulDownloaderData}/ConfigurationData.h
@@ -88,4 +86,29 @@ SET_TARGET_PROPERTIES( suldownloaderconfigtests
         )
 
 target_include_directories(suldownloaderconfigtests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR}   ${CMAKE_CURRENT_BINARY_DIR})
+
+
+add_executable(suldownloaderreporttests
+        suldownloaderreporttests.cpp
+        )
+
+target_link_libraries(suldownloaderreporttests PRIVATE
+        suldownloaderdata
+        )
+
+SET_TARGET_PROPERTIES( suldownloaderreporttests
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        )
+
+target_include_directories(suldownloaderreporttests PUBLIC
+        ${CMAKE_SOURCE_DIR}/modules
+        ${CMAKE_SOURCE_DIR}/modules/Common
+        ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR})
+
+
+
 
