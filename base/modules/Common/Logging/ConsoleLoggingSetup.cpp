@@ -38,3 +38,9 @@ void Common::Logging::ConsoleLoggingSetup::consoleSetupLogging()
 
     log4cplus::Logger::getRoot().addAppender(appender);
 }
+
+Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup(std::string log)
+{
+    consoleSetupLogging();
+    applyGeneralConfig(log);
+}

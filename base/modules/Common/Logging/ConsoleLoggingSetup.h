@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <string>
 namespace Common
 {
     namespace Logging
@@ -13,6 +14,7 @@ namespace Common
         {
         public:
             ConsoleLoggingSetup();
+            ConsoleLoggingSetup(std::string);
             ~ConsoleLoggingSetup();
             static void consoleSetupLogging();
         };

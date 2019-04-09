@@ -4,8 +4,8 @@ project(everest_base CXX)
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 set(CMAKE_CXX_STANDARD 17)
 
-set(SANITISE_FLAGS   "-static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
-set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector")
+#set(SANITISE_FLAGS   "-static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
+#set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector")
 
 set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SANITISE_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
@@ -24,7 +24,7 @@ set(MEMORYCHECK_COMMAND_OPTIONS
 set(MEMORYCHECK_COMMAND_OPTIONS
         "${MEMORYCHECK_COMMAND_OPTIONS} --gen-suppressions=all --suppressions=${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")
 
-
+option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 include (CTest)
 enable_testing()
 
@@ -64,7 +64,7 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
-set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
+set( LOG4CPLUS_INPUT /home/pair/gesner/myredist/log4cplus )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 
@@ -168,6 +168,9 @@ set(REL_DIST distribution)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+
+
 
 add_subdirectory(modules)
 add_subdirectory(products)
