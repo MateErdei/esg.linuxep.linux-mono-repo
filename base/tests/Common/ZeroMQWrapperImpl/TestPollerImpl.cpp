@@ -175,7 +175,9 @@ namespace
         requester->write({ "another request" });
         EXPECT_THROW( // NOLINT
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
-            Common::ZeroMQWrapperImpl::ZeroMQPollerException); // NOLINT
+            Common::ZeroMQWrapperImpl::ZeroMQPollerException);
+
+        socket->socketHolder().release(); // zmq socket already closed
     }
 
     TEST(TestPollerImpl, AddToPollerAnInvalidFileDescriptorShouldThrowException) // NOLINT
