@@ -42,3 +42,50 @@ SET_TARGET_PROPERTIES( parsealcpolicytests
         )
 
 target_include_directories(parsealcpolicytests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/UpdateSchedulerImpl/configModule ${LOG4CPLUS_INCLUDE_DIR} )
+
+
+set( SulDownloaderData  ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata)
+
+include_directories(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
+
+set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
+
+PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${SulDownloaderData}/proto/ConfigurationSettings.proto)
+
+
+message(protosrc ${CONFIG_SETTINGS_PROTO_SRC})
+#include(${SulDownloaderData}/proto/CMakeLists.txt)
+add_executable(suldownloaderconfigtests
+        suldownloaderconfigtests.cpp
+        ${SulDownloaderData}/ConfigurationData.h
+        ${SulDownloaderData}/ConfigurationData.cpp
+        ${SulDownloaderData}/Proxy.h
+        ${SulDownloaderData}/Proxy.cpp
+        ${SulDownloaderData}/Credentials.h
+        ${SulDownloaderData}/Credentials.cpp
+        ${SulDownloaderData}/SulDownloaderException.h
+        ${SulDownloaderData}/SulDownloaderException.cpp
+        ${SulDownloaderData}/Logger.h
+        ${SulDownloaderData}/Logger.cpp
+        ${CONFIG_SETTINGS_PROTO_SRC}
+        ${CONFIG_SETTINGS_PROTO_H}
+        $<TARGET_OBJECTS:loggingobject>
+        $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+
+        )
+target_link_libraries(suldownloaderconfigtests PRIVATE
+        ${LOG4CPLUS_LIBRARY}
+        ${Protobuf_LIBRARIES}
+        utilityimpl
+        obfuscationimpl
+        )
+
+SET_TARGET_PROPERTIES( suldownloaderconfigtests
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        )
+
+target_include_directories(suldownloaderconfigtests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR}   ${CMAKE_CURRENT_BINARY_DIR})
+
