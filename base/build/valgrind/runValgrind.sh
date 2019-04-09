@@ -18,14 +18,17 @@ NPROC=8
 
 cd ${BUILD_DIR}
 
-ctest -VV --debug \
+#ctest -VV --debug --test-action memcheck
+
+ctest \
     -D MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D CTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     -D CTEST_MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     --test-action memcheck --parallel ${NPROC} \
     --output-on-failure \
-    || echo "ctest failed: $?"
-
-#ctest -VV --debug --test-action memcheck
+    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks'
+EXIT=$?
+[[ ${EXIT} == 0 ]] || echo "ctest failed: $EXIT"
+exit ${EXIT}
 

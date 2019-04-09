@@ -13,6 +13,105 @@
    fun:call_init
    fun:_dl_init
 }
+
+{
+   log4cplus init 2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE
+   fun:thread<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEERS0_DpOT_
+   fun:emplace_back_worker
+   fun:ThreadPool
+   fun:DefaultContext
+   fun:_ZN9log4cplus12_GLOBAL__N_1L8alloc_dcEv
+   fun:get_dc
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.242
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.27.so
+}
+
+{
+   log4cplus init 3
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:_Znwm
+   fun:_S_make_state<std::thread::_Invoker<std::tuple<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> > > >
+   fun:thread<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEERS0_DpOT_
+   fun:emplace_back_worker
+   fun:ThreadPool
+   fun:DefaultContext
+   fun:_ZN9log4cplus12_GLOBAL__N_1L8alloc_dcEv
+   fun:get_dc
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.242
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.27.so
+}
+
+{
+   log4cplus init 4
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:_Znwm
+   fun:_S_make_state<std::thread::_Invoker<std::tuple<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> > > >
+   fun:thread<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEERS0_DpOT_
+   fun:emplace_back_worker
+   fun:ThreadPool
+   fun:DefaultContext
+   fun:_ZN9log4cplus12_GLOBAL__N_1L8alloc_dcEv
+   fun:get_dc
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.242
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.27.so
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+
+{
+   log4cplus init 5
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE
+   fun:thread<progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:construct<std::thread, progschj::ThreadPool::emplace_back_worker(std::size_t)::<lambda()> >
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZN8progschj10ThreadPool19emplace_back_workerEmEUlvE_EEERS0_DpOT_
+   fun:emplace_back_worker
+   fun:ThreadPool
+   fun:DefaultContext
+   fun:_ZN9log4cplus12_GLOBAL__N_1L8alloc_dcEv
+   fun:get_dc
+   fun:_ZN9log4cplus19initializeLog4cplusEv.part.242
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.27.so
+}
+
 # ZMQ suppressions from http://zeromq.org/docs:using-valgrind
 {
    ZMQ <socketcall_sendto>
