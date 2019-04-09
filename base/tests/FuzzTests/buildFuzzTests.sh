@@ -100,13 +100,14 @@ if [[ ! -f ${AFL_PATH}/afl-gcc ]]; then
   exitFailure  ${FAILURE_BUILD_AFL}  "afl-gcc not in the expected path"
 fi
 
+TARGETS="loggerconfigtests parsealcpolicytests"
 
 # build the executables to fuzz
 mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup build directory"
 
 pushd ${CMAKE_BUILD_FULL_PATH}
   ${CMAKE} -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DCMAKE_CXX_COMPILER="${AFL_PATH}/afl-g++" -DCMAKE_C_COMPILER="${AFL_PATH}/afl-gcc" -DBUILD_FUZZ_TESTS=True  "${SOURCE_DIR}"
-  make -j4 copy_libs loggerconfigtests
+  make -j4 copy_libs ${TARGETS}
 popd
 
 MachineFuzzTestCase="${SSPL_TOOLS_DIR}/${FuzzTestCaseRelDir}"
@@ -121,12 +122,13 @@ LIBS_VAGRANT=$(echo ${LIBS_MACHINE} | sed s_${SSPL_TOOLS_DIR}_/vagrant_)
 
 pushd ${CMAKE_BUILD_FULL_PATH}/tests/FuzzTests
 
-for target in loggerconfigtests; do
+for target in ${TARGETS}; do
 
 echo configuring ${target} script
 cat > fuzzRun${target}.sh << EOF
 mkdir -p /tmp/base/etc/
-AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -d -m 200 "${MachineExecPath}/${target}"
+AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${MachineExecPath}/${target}"
+#AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-cmin -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${MachineExecPath}/${target}"
 EOF
 
 

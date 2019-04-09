@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <regex>
 #include <sstream>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 namespace
 {
@@ -105,7 +106,25 @@ namespace UpdateSchedulerImpl
         using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
 
+
         SettingsHolder UpdatePolicyTranslator::translatePolicy(const std::string& policyXml)
+        {
+            static std::string error{"Failed to parse policy"};
+            try{
+                return _translatePolicy(policyXml);
+
+            }catch ( SulDownloader::suldownloaderdata::SulDownloaderException & ex)
+            {
+                LOGERROR( ex.what());
+                throw std::runtime_error( error);
+            }catch ( std::invalid_argument& ex)
+            {
+                LOGERROR( ex.what());
+                throw std::runtime_error( error);
+            }
+        }
+
+        SettingsHolder UpdatePolicyTranslator::_translatePolicy(const std::string& policyXml)
         {
             m_Caches.clear();
 

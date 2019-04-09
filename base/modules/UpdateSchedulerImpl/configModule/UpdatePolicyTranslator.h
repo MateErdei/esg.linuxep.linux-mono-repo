@@ -41,6 +41,7 @@ namespace UpdateSchedulerImpl
             std::string revID() const;
 
         private:
+            SettingsHolder _translatePolicy(const std::string& policyXml);
             struct Cache
             {
                 std::string hostname;
