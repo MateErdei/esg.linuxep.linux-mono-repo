@@ -309,7 +309,7 @@ TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -432,7 +432,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultEnsuringInvalidPreviousReportFilesAreIgnored)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -486,7 +486,7 @@ TEST_F(                // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -547,7 +547,7 @@ TEST_F(                // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -610,7 +610,7 @@ TEST_F(                // NOLINT
 
 // the other execution paths were covered in main_entry_* tests.
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
     auto filesystemMock = new MockFileSystem();
@@ -620,7 +620,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
     EXPECT_THROW(                                   // NOLINT
-        SulDownloader::fileEntriesAndRunDownloader( // NOLINT
+        SulDownloader::fileEntriesAndRunDownloader( 
             "/dir/input.json",
             "/dir/path/that/cannot/be/created/output.json"),
         SulDownloader::suldownloaderdata::SulDownloaderException);
@@ -628,7 +628,7 @@ TEST_F(                // NOLINT
 
 // configAndRunDownloader
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     configAndRunDownloaderInvalidSettingsReportError_WarehouseStatus_UNSPECIFIED)
 {
     auto filesystemMock = new MockFileSystem();
@@ -655,7 +655,7 @@ TEST_F(                // NOLINT
 
 // runSULDownloader
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     setupFileSystemAndGetMock();
@@ -684,7 +684,7 @@ TEST_F(                // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
     setupFileSystemAndGetMock();
@@ -767,7 +767,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -815,7 +815,7 @@ TEST_F(                // NOLINT
  *
  */
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_UpdateFailForInvalidSignature)
 {
     setupFileSystemAndGetMock();
@@ -880,7 +880,7 @@ TEST_F(                // NOLINT
  * Simulate error in installing base successfully but fail to install plugin
  */
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -966,7 +966,7 @@ TEST_F(                // NOLINT
  *
  */
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
@@ -1044,7 +1044,7 @@ TEST_F(                // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
@@ -1067,7 +1067,7 @@ TEST_F(                // NOLINT
 }
 
 TEST_F(                // NOLINT
-    SULDownloaderTest, // NOLINT
+    SULDownloaderTest, 
     runSULDownloader_checkLogVerbosityNORMAL)
 {
     auto& fileSystem = setupFileSystemAndGetMock();

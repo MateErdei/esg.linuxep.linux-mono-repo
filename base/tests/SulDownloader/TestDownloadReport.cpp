@@ -247,7 +247,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 }
 
 TEST_F(                 // NOLINT
-    DownloadReportTest, // NOLINT
+    DownloadReportTest, 
     fromReportWarehouseRepositoryAndTimeTrackerShouldReportSyncFailedForAllProductsOnMissingPackage)
 {
     MockWarehouseRepository mockWarehouseRepository;
@@ -498,7 +498,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
 }
 
 TEST_F(                 // NOLINT
-    DownloadReportTest, // NOLINT
+    DownloadReportTest, 
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
 {
     std::string errorString; // = "";
@@ -550,7 +550,7 @@ TEST_F(                 // NOLINT
 }
 
 TEST_F(                 // NOLINT
-    DownloadReportTest, // NOLINT
+    DownloadReportTest, 
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
 {
     std::string errorString; // = "";
@@ -606,7 +606,7 @@ TEST_F(                 // NOLINT
 }
 
 TEST_F(                 // NOLINT
-    DownloadReportTest, // NOLINT
+    DownloadReportTest, 
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
 {
     std::string errorString = "Install Failed";

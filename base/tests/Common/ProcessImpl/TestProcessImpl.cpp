@@ -4,6 +4,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessInfo.h>
@@ -120,6 +121,7 @@ namespace
 
     TEST(ProcessImpl, NonExistingCommandShouldFail) // NOLINT
     {
+        Common::Logging::ConsoleLoggingSetup consoleLogging;
         auto process = createProcess();
         process->exec("/bin/command_does_not_exists", { "fake_argument" });
         EXPECT_EQ(process->wait(milli(1), 500), ProcessStatus::FINISHED);

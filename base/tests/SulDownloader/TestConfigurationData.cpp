@@ -653,7 +653,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDat
 
     EXPECT_THROW( // NOLINT
         ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)),
-        SulDownloaderException); // NOLINT
+        SulDownloaderException); 
 }
 
 TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT

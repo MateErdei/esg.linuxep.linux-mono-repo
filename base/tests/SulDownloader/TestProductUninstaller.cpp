@@ -13,11 +13,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace SulDownloader;
 
 class ProductUninstallerTest : public ::testing::Test
 {
+    Common::Logging::ConsoleLoggingSetup m_consoleLogging;
+
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
@@ -86,7 +89,7 @@ TEST_F( // NOLINT
 }
 
 TEST_F(                     // NOLINT
-    ProductUninstallerTest, // NOLINT
+    ProductUninstallerTest, 
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenInstalledProductDirectoryDoesNotExist)
 {
     std::vector<std::string> emptyList;
@@ -99,7 +102,7 @@ TEST_F(                     // NOLINT
 }
 
 TEST_F(                     // NOLINT
-    ProductUninstallerTest, // NOLINT
+    ProductUninstallerTest, 
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenOnlyInstalledProductsInList)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
@@ -112,7 +115,7 @@ TEST_F(                     // NOLINT
 }
 
 TEST_F(                     // NOLINT
-    ProductUninstallerTest, // NOLINT
+    ProductUninstallerTest, 
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenMoreProductsAreInDownloadListThanInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(1);
@@ -125,7 +128,7 @@ TEST_F(                     // NOLINT
 }
 
 TEST_F(                     // NOLINT
-    ProductUninstallerTest, // NOLINT
+    ProductUninstallerTest, 
     removeProductsNotDownloaded_ExpectToUninstallProductWhenProductNotInDownloadListButIsInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
