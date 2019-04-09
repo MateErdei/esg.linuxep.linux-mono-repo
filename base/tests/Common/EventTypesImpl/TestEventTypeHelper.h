@@ -278,8 +278,8 @@ namespace Tests
         ::testing::AssertionResult processEventIsEquivalent(
             const char* m_expr,
             const char* n_expr,
-            const Common::EventTypes::ProcessEvent expected,
-            const Common::EventTypes::ProcessEvent resulted)
+            const Common::EventTypes::ProcessEvent& expected,
+            const Common::EventTypes::ProcessEvent& resulted)
         {
             std::stringstream s;
             s << m_expr << " and " << n_expr << " failed: ";
