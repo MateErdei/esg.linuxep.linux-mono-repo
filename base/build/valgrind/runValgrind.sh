@@ -10,11 +10,11 @@
 #    local EXITCODE=$?
 #    exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
 
-BASE=$(pwd)
+[[ -n ${BASE} ]] || BASE=$(pwd)
 BUILD_DIR=$BASE/build64
 export MEMORYCHECK_SUPPRESSIONS_FILE=$BASE/build/valgrind/suppressions.supp
 export MEMORYCHECK_COMMAND_OPTIONS="--gen-suppressions=all"
-NPROC=8
+[[ -n ${NPROC:-} ]] || NPROC=2
 
 cd ${BUILD_DIR}
 

@@ -333,10 +333,8 @@ function build()
         if (( ${VALGRIND} == 1 ))
         then
             ## -VV --debug
-            ctest \
-                --test-action memcheck \
-                --parallel ${NPROC} \
-                --no-compress-output --output-on-failure \
+            export NPROC
+            bash ${BASE}/build/valgrind/runValgrind.sh \
              || {
                 local EXITCODE=$?
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
