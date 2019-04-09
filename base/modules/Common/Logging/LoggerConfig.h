@@ -42,7 +42,7 @@ namespace Common
         /** replacement for log4cplus::Logger::getInstance which ensures that the settings are applied.
             this allows, for example for the config file to target 'inner' logs, for example: pluginapi
          */
-        log4cplus::Logger getInstance(const std::string& loggername);
+        log4cplus::Logger getInstance(const std::string& loggername) noexcept;
         enum SophosLogLevel : log4cplus::LogLevel
         {
             DEBUG = log4cplus::DEBUG_LOG_LEVEL,

@@ -8,8 +8,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <log4cplus/loggingmacros.h>
 
 #include <iostream>
+
 namespace
 {
     /**
@@ -108,21 +110,28 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
     log4cplus::getLogLevelManager().pushFromStringMethod(log4cplus::supportFromStringMethod);
 }
 
-log4cplus::Logger Common::Logging::getInstance(const std::string& loggername)
+log4cplus::Logger Common::Logging::getInstance(const std::string& loggername) noexcept
 {
     log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(loggername));
     // this implementation relies on log4cplus inheritance of settings and hence
     // change loglevel only if there is a specific specialization associated with the
     // log name.
 
-    if (LoggerSophosSettings::instance().hasSpecializationFor(loggername))
+    try
     {
-        log4cplus::LogLevel logLevel;
-        // logLevel may not be set if the value is not recognized.
-        if (LoggerSophosSettings::instance().logLevel(loggername, logLevel))
+        if (LoggerSophosSettings::instance().hasSpecializationFor(loggername))
         {
-            logger.setLogLevel(logLevel);
+            log4cplus::LogLevel logLevel;
+            // logLevel may not be set if the value is not recognized.
+            if (LoggerSophosSettings::instance().logLevel(loggername, logLevel))
+            {
+                logger.setLogLevel(logLevel);
+            }
         }
+    }
+    catch (const boost::property_tree::ptree_bad_path&)
+    {
+        LOG4CPLUS_FATAL(logger, "bad_path attempting to look up specialization level");
     }
 
     return logger;

@@ -10,6 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/EventTypes/EventStrings.h>
 #include <Common/EventTypesImpl/EventConverter.h>
+#include <Common/Exceptions/Print.h>
 #include <Common/PluginApi/AbstractEventVisitor.h>
 #include <Common/PluginApi/ISubscriber.h>
 #include <Common/ZMQWrapperApi/IContext.h>
@@ -78,7 +79,17 @@ namespace Common
             }
         }
 
-        SensorDataSubscriber::~SensorDataSubscriber() { stop(); }
+        SensorDataSubscriber::~SensorDataSubscriber() noexcept
+        {
+            try
+            {
+                stop();
+            }
+            catch(...)
+            {
+                PRINT("Exception trying to stop SensorDataSubscriber in destructor");
+            }
+        }
 
         void SensorDataSubscriber::start()
         {

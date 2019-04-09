@@ -32,7 +32,7 @@ namespace Common
                 std::shared_ptr<Common::PluginApi::IRawDataCallback> rawDataCallback,
                 Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber);
 
-            ~SensorDataSubscriber() override;
+            ~SensorDataSubscriber() noexcept override;
             void start() override;
             void stop() override;
 
