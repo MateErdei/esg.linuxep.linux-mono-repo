@@ -52,8 +52,6 @@ namespace Common
 
             void makeExecutable(const Path& path) const override;
 
-            void removeDirectory(const Path& path) const override;
-
             void makedirs(const Path& path) const override;
 
             std::vector<Path> listFiles(const Path& directoryPath) const override;
@@ -63,6 +61,9 @@ namespace Common
             std::vector<std::string> readLines(const Path& path) const override;
 
             void removeFile(const Path& path) const override;
+
+            void removeDirectory(const Path& path) const override;
+
 
         };
 

@@ -5,7 +5,10 @@ add_library(filesystemimplobject OBJECT
         FileSystemImpl.h
         ../FileSystem/IFilePermissions.h
         FilePermissionsImpl.h
-        FilePermissionsImpl.cpp TempDir.cpp TempDir.h)
+        FilePermissionsImpl.cpp
+        ../FileSystem/ITempDir.h
+        TempDir.cpp
+        TempDir.h)
 
 add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject>)
 

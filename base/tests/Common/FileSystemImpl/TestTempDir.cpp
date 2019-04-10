@@ -17,3 +17,15 @@ TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
     ASSERT_TRUE(fileSystem->isDirectory(td.dirPath()));
 }
 
+
+TEST(TestTempDir, DestructorRemovesTheTemporaryDirectory) // NOLINT
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    std::string dirPath;
+    {
+        Common::FileSystemImpl::TempDir td("", "DestructorRemovesTheTemporaryDirectory");
+        dirPath = td.dirPath();
+        ASSERT_TRUE(fileSystem->isDirectory(dirPath));
+    }
+    EXPECT_FALSE(fileSystem->isDirectory(dirPath));
+}

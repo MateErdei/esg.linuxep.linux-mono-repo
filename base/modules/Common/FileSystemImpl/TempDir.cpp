@@ -4,6 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "TempDir.h"
+#include "FileSystemImpl.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 
@@ -14,11 +15,11 @@ using namespace Common::FileSystemImpl;
 
 TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix)
 {
-    auto filesystem = Common::FileSystem::fileSystem();
     std::string template_name;
     if (baseDirectory.empty())
     {
-        template_name = filesystem->currentWorkingDirectory();
+        Common::FileSystem::FileSystemImpl filesystem;
+        template_name = filesystem.currentWorkingDirectory();
     }
     else
     {
@@ -47,6 +48,7 @@ TempDir::~TempDir()
 
 void TempDir::deleteTempDir()
 {
-    auto filesystem = Common::FileSystem::fileSystem();
-    filesystem->removeDirectory(m_tempdir);
+    // Must use our own instance, because the filesystem may go away before TempDir is deleted. e.g. TestLoggerConfig
+    Common::FileSystem::FileSystemImpl filesystem;
+    filesystem.removeDirectory(m_tempdir);
 }

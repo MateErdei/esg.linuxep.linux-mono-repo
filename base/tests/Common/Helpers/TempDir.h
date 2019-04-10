@@ -7,6 +7,7 @@
 #pragma once
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystemImpl/TempDir.h>
 
 #include <memory>
 #include <string>
@@ -19,6 +20,7 @@ namespace Tests
      * retrieve their path.
      */
     class TempDir
+            : public Common::FileSystemImpl::TempDir
     {
     public:
         /**
@@ -38,18 +40,11 @@ namespace Tests
          * directory name.
          */
         explicit TempDir(const std::string& baseDirectory = "", const std::string& namePrefix = "temp");
-        ~TempDir();
         /**
          * It handles resources, should not be copied.
          */
         TempDir& operator=(const TempDir&) = delete;
         TempDir(const TempDir&) = delete;
-
-        /**
-         *
-         * @return The Absolute path of the temporary directory
-         */
-        std::string dirPath() const;
 
         /**
          * Get the full path from a relative path
@@ -135,7 +130,6 @@ namespace Tests
     private:
         static std::vector<std::string> pathParts(const std::string& relativePath);
         std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
-        std::string m_rootpath;
     };
 
 } // namespace Tests

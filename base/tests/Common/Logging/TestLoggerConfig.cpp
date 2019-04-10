@@ -251,7 +251,7 @@ VERBOSITY=SUPPORT
 
     // swap the comment lines below to run in this proc and not in another one.
     // runTest(testInput, false);
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); //NOLINT
 }
 
 TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile) // NOLINT
@@ -265,7 +265,7 @@ VERBOSITY=INFO
                          .moduleContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); //NOLINT
 }
 
 TEST_F(TestLoggerConfig, TargetProductAndModuleDifferently) // NOLINT
@@ -282,7 +282,7 @@ VERBOSITY=DEBUG
                                               LogLevels::SUPPORT,
                          .moduleDoesNotContainLogs = 0,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); //NOLINT
 }
 
 TEST_F(TestLoggerConfig, TargetProductAndModuleWithReducingLevelForModule) // NOLINT
@@ -299,7 +299,7 @@ VERBOSITY=WARN
                          .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); //NOLINT
 }
 
 TEST_F(TestLoggerConfig, ConfigMayContainCommentSpacesAndAnyOtherNonRelatedEntries) // NOLINT
@@ -321,7 +321,7 @@ ANOTHERENTRY = anything
                          .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
-    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success");
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); //NOLINT
 }
 
 #endif
