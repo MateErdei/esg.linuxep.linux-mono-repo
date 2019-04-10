@@ -77,13 +77,13 @@ namespace VerificationToolCrypto
         {
             unsigned char* utf8;
             length = static_cast<size_t>(ASN1_STRING_to_UTF8(&utf8, d));
-            asn1_string = std::string((char*)utf8, static_cast<size_t>(length));
+            asn1_string = std::string(reinterpret_cast<char*>(utf8), static_cast<size_t>(length));
             OPENSSL_free(utf8);
         }
         else
         {
             length = static_cast<size_t>(ASN1_STRING_length(d));
-            asn1_string = string((char*)ASN1_STRING_get0_data(d), length);
+            asn1_string = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(d)), length);
         }
         return asn1_string;
     }
@@ -100,29 +100,29 @@ namespace VerificationToolCrypto
         Error.append(X509_verify_cert_error_string(X509_STORE_CTX_get_error(stor)));
         CertName.clear();
         X509* currentCert = X509_STORE_CTX_get_current_cert(stor);
-        if (currentCert != NULLPTR)
+        if (currentCert == NULLPTR)
         {
-            X509_NAME* nm = X509_get_subject_name(currentCert);
-            int lastpos = -1;
-            X509_NAME_ENTRY* e;
-
-            for (;;)
-            {
-                lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
-                if (lastpos == -1)
-                    break;
-                e = X509_NAME_get_entry(nm, lastpos);
-                /* Do something with e */
-                ASN1_STRING* common_name_asn1 = X509_NAME_ENTRY_get_data(e);
-                CertName = convertASN1StringToStdString(common_name_asn1);
-            }
-            string::size_type start = CertName.find("CN=");
-            start += 3;
-            string::size_type end = CertName.substr(start).find('/');
-            Error.append("; ");
-            CertName = CertName.substr(start, end);
-            Error.append(CertName);
+            return Error;
         }
+        X509_NAME* nm = X509_get_subject_name(currentCert);
+        if (nm == NULLPTR)
+        {
+            return Error;
+        }
+        int lastpos = -1;
+
+        for (;;)
+        {
+            lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
+            if (lastpos == -1)
+                break;
+            X509_NAME_ENTRY* e = X509_NAME_get_entry(nm, lastpos);
+            /* Do something with e */
+            ASN1_STRING* common_name_asn1 = X509_NAME_ENTRY_get_data(e);
+            CertName = convertASN1StringToStdString(common_name_asn1);
+        }
+        Error.append("; ");
+        Error.append(CertName);
         return Error;
     }
 
