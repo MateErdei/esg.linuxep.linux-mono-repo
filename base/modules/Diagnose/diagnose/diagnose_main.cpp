@@ -10,6 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemCommands.h"
 
 #include <cstring>
+#include <sstream>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -28,6 +29,14 @@ namespace
         // If we can't get the cwd then use a fixed string.
         return "/opt/sophos-spl";
     }
+
+    std::string getJournalCtlCmd(int numDays)
+    {
+        std::stringstream journalcmd;
+        journalcmd << "journalctl --since '"<< numDays<<" days ago' ";
+        return journalcmd.str();
+    }
+
 } // namespace
 namespace diagnose
 {
@@ -83,6 +92,7 @@ namespace diagnose
             // Copy all audit log files.
             gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", systemFilesDir);
 
+            std::string journalcltcommand{getJournalCtlCmd(10)};
             // Run any system commands that we cant to capture the output from.
             SystemCommands systemCommands(systemFilesDir);
             systemCommands.runCommand("df -h", "df");
@@ -99,9 +109,9 @@ namespace diagnose
             systemCommands.runCommand("auditctl -l", "auditctl");
             systemCommands.runCommand("systemctl status auditd", "systemctl-status-auditd");
             systemCommands.runCommand("ls /etc/audisp/plugins.d/", "plugins.d");
-            systemCommands.runCommand("journalctl -u sophos-spl", "journalctl-sophos-spl");
-            systemCommands.runCommand("journalctl -u auditd", "journalctl-auditd");
-            systemCommands.runCommand("journalctl _TRANSPORT=audit", "journalctl_TRANSPORT=audit");
+            systemCommands.runCommand(journalcltcommand + "-u sophos-spl", "journalctl-sophos-spl");
+            systemCommands.runCommand(journalcltcommand + " -u auditd", "journalctl-auditd");
+            systemCommands.runCommand(journalcltcommand + "_TRANSPORT=audit", "journalctl_TRANSPORT=audit");
             systemCommands.runCommand("journalctl --since yesterday | grep -v audit", "journalctl-auditd-yesterday");
             systemCommands.runCommand("ps -ef", "ps");
             systemCommands.runCommand("getenforce", "getenforce");
