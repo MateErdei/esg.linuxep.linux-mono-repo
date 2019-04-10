@@ -253,7 +253,7 @@ fi
 # TODO LINUXEP-6541: we should check if it's centrally managed, potentially going to allow non-centrally managed endpoints to have SSPL installed alongside.
 ## We check everything on $PATH, and always /usr/local/bin and /usr/bin
 ## This should catch everywhere SAV might have installed the sweep symlink
-SWEEP=`which sweep`
+SWEEP=$(which sweep 2>/dev/null)
 [ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
