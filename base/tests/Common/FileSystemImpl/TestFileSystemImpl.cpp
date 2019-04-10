@@ -482,15 +482,33 @@ namespace
     TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
     {
         Path original = "/foo";
-        Path result = Common::FileSystem::fileSystem()->make_absolute(original);
+        Path result = Common::FileSystem::fileSystem()->makeAbsolute(original);
         EXPECT_EQ(original, result);
     }
 
     TEST_F(FileSystemImplTest, makeAbsoluteReturnsAbsolutePathWhenArgumentIsRelative) // NOLINT
     {
         Path original = "foo";
-        Path result = Common::FileSystem::fileSystem()->make_absolute(original);
+        Path result = Common::FileSystem::fileSystem()->makeAbsolute(original);
         EXPECT_EQ(result[0], '/');
+    }
+
+    TEST_F(FileSystemImplTest, readLinkReturnsLinkedToPathWhenCalledOnSymbolicLink) // NOLINT
+    {
+        Path findPath = m_fileSystem->readlink("/proc/self/exe");
+        ASSERT_NE(findPath.size(), 0);
+    }
+
+    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonExistentFile) // NOLINT
+    {
+        Path findPath = m_fileSystem->readlink("/Not/a/file/path");
+        ASSERT_EQ(findPath.size(), 0);
+    }
+
+    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonLinkFile) // NOLINT
+    {
+        Path findPath = m_fileSystem->readlink("/bin/bash");
+        ASSERT_EQ(findPath.size(), 0);
     }
 
 } // namespace

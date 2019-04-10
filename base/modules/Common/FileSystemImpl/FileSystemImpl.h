@@ -27,7 +27,7 @@ namespace Common
 
             bool isDirectory(const Path& path) const override;
 
-            Path make_absolute(const Path& path) const override;
+            Path makeAbsolute(const Path& path) const override;
 
             Path currentWorkingDirectory() const override;
 
@@ -54,6 +54,8 @@ namespace Common
             std::vector<std::string> readLines(const Path& path) const override;
 
             void removeFile(const Path& path) const override;
+
+            Path readlink(const Path& path) const override;
 
         };
 

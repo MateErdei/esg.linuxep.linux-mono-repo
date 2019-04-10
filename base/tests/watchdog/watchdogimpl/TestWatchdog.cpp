@@ -26,6 +26,8 @@ namespace
     public:
         TestWatchdog()
         {
+            //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
+            setenv("SOPHOS_INSTALL", "", 0);
             auto mockFileSystem = new StrictMock<MockFileSystem>();
             std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
             Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
@@ -37,6 +39,11 @@ namespace
 
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+        }
+
+        ~TestWatchdog()
+        {
+            unsetenv("SOPHOS_INSTALL");
         }
     };
 

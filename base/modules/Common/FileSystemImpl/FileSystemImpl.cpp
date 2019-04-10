@@ -498,7 +498,7 @@ namespace Common
             }
         }
 
-        Path FileSystemImpl::make_absolute(const Path& path) const
+        Path FileSystemImpl::makeAbsolute(const Path& path) const
         {
             if (path[0] == '/')
             {
@@ -557,6 +557,19 @@ namespace Common
             (void)closedir(directoryPtr);
 
             return dirs;
+        }
+
+        Path FileSystemImpl::readlink(const Path& path) const
+        {
+            char linkPath[PATH_MAX + 1];
+            ssize_t ret = ::readlink(path.c_str(), linkPath, PATH_MAX);
+            if (ret > 0)
+            {
+                linkPath[ret] = 0;
+                linkPath[PATH_MAX] = 0;
+                return makeAbsolute(linkPath);
+            }
+            return Path();
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()

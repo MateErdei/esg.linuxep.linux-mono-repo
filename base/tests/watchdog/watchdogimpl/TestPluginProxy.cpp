@@ -6,6 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
@@ -18,7 +19,17 @@ namespace
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
     public:
-        TestPluginProxy() {}
+        TestPluginProxy()
+        {
+            //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
+            setenv("SOPHOS_INSTALL", Common::ApplicationConfigurationImpl::DefaultInstallLocation, 0);
+        }
+
+        ~TestPluginProxy()
+        {
+            unsetenv("SOPHOS_INSTALL");
+        }
+
     };
 } // namespace
 

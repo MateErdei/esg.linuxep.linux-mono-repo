@@ -193,7 +193,16 @@ namespace Common
              * @param path
              * @return Absolute Path
              */
-            virtual Path make_absolute(const Path& path) const = 0;
+            virtual Path makeAbsolute(const Path& path) const = 0;
+
+            /**
+             * Follows a symbolic link and returns the file it is linked to
+             * or an empty string if path doesn't point to a symbolic link
+             *
+             * @param pathToLink
+             * @return pathLinkedTo
+             */
+            virtual Path readlink(const Path& path) const = 0;
         };
 
         /**

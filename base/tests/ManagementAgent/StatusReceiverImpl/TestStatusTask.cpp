@@ -18,7 +18,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 class TestStatusTask : public ::testing::Test
 {
 public:
-    TestStatusTask() = default;
+    TestStatusTask()
+    {
+        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
+        setenv("SOPHOS_INSTALL", "", 0);
+    }
+
+    ~TestStatusTask()
+    {
+        unsetenv("SOPHOS_INSTALL");
+    }
 
 private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;

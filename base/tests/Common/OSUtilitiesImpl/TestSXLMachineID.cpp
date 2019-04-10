@@ -19,8 +19,13 @@ public:
         std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
         mockIFileSystemPtr = mockfileSystem.get();
         Tests::replaceFileSystem(std::move(mockfileSystem));
+        setenv("SOPHOS_INSTALL", "", 0);
     }
-    ~TestSXLMachineID() { Tests::restoreFileSystem(); }
+    ~TestSXLMachineID()
+    {
+        Tests::restoreFileSystem();
+        unsetenv("SOPHOS_INSTALL");
+    }
     MockFileSystem* mockIFileSystemPtr;
 };
 

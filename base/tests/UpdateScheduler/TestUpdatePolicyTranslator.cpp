@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
@@ -302,7 +303,16 @@ using namespace UpdateSchedulerImpl::configModule;
 class TestUpdatePolicyTranslator : public ::testing::Test
 {
 public:
-    TestUpdatePolicyTranslator() : m_loggingSetup() {}
+    TestUpdatePolicyTranslator() : m_loggingSetup()
+    {
+        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
+        setenv("SOPHOS_INSTALL", Common::ApplicationConfigurationImpl::DefaultInstallLocation, 0);
+    }
+
+    ~TestUpdatePolicyTranslator()
+    {
+        unsetenv("SOPHOS_INSTALL");
+    }
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 

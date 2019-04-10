@@ -14,6 +14,8 @@ namespace Common
 {
     namespace ApplicationConfigurationImpl
     {
+        constexpr char DefaultInstallLocation[] = "/opt/sophos-spl";
+
         class ApplicationConfiguration : public virtual Common::ApplicationConfiguration::IApplicationConfiguration
         {
         public:

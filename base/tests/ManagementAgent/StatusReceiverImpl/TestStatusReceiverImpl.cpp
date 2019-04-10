@@ -5,6 +5,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
@@ -16,7 +17,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 class TestStatusReceiverImpl : public ::testing::Test
 {
 public:
-    TestStatusReceiverImpl() {}
+    TestStatusReceiverImpl()
+    {
+        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
+        setenv("SOPHOS_INSTALL", Common::ApplicationConfigurationImpl::DefaultInstallLocation, 0);
+    }
+
+    ~TestStatusReceiverImpl()
+    {
+        unsetenv("SOPHOS_INSTALL");
+    }
 
 private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
