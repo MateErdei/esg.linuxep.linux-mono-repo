@@ -5,16 +5,30 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "diagnose_main.h"
+
 #include "GatherFiles.h"
 #include "SystemCommands.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-
 #include <cstring>
 #include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#include <unistd.h>
+namespace
+{
+    std::string workOutInstallDirectory()
+    {
+        // Check if we have an environment variable telling us the installation location
+        char* SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
+        if (SOPHOS_INSTALL != nullptr)
+        {
+            return SOPHOS_INSTALL;
+        }
 
+        // If we can't get the cwd then use a fixed string.
+        return "/opt/sophos-spl";
+    }
+} // namespace
 namespace diagnose
 {
     int diagnose_main::main(int argc, char* argv[])
@@ -39,7 +53,10 @@ namespace diagnose
 
         try
         {
-            const std::string installDir = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+            //Set the umask for the diagnose tool to remove other users' permissions
+            umask(007);
+
+            const std::string installDir = workOutInstallDirectory();
 
             // Setup the file gatherer.
             GatherFiles gatherFiles;
