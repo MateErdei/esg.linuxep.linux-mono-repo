@@ -69,6 +69,25 @@ namespace VerificationToolCrypto
     }
 
 #ifndef NDEBUG
+    std::string convertASN1StringToStdString(ASN1_STRING* d)
+    {
+        std::string asn1_string;
+        size_t length;
+        if (ASN1_STRING_type(d) != V_ASN1_UTF8STRING)
+        {
+            unsigned char* utf8;
+            length = static_cast<size_t>(ASN1_STRING_to_UTF8(&utf8, d));
+            asn1_string = std::string(reinterpret_cast<char*>(utf8), static_cast<size_t>(length));
+            OPENSSL_free(utf8);
+        }
+        else
+        {
+            length = static_cast<size_t>(ASN1_STRING_length(d));
+            asn1_string = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(d)), length);
+        }
+        return asn1_string;
+    }
+
     // This function is a utility to extract a suitable error string from an
     // OpenSSL store once an error has occurred. We get a human-readable string
     // from the store (this is only available in English) and access the CN part
@@ -81,16 +100,29 @@ namespace VerificationToolCrypto
         Error.append(X509_verify_cert_error_string(stor->error));
         CertName.clear();
         X509* currentCert = X509_STORE_CTX_get_current_cert(stor);
-        if (currentCert != NULLPTR)
+        if (currentCert == NULLPTR)
         {
-            CertName = stor->current_cert->name;
-            string::size_type start = CertName.find("CN=");
-            start += 3;
-            string::size_type end = CertName.substr(start).find('/');
-            Error.append("; ");
-            CertName = CertName.substr(start, end);
-            Error.append(CertName);
+            return Error;
         }
+        X509_NAME* nm = X509_get_subject_name(currentCert);
+        if (nm == NULLPTR)
+        {
+            return Error;
+        }
+        int lastpos = -1;
+
+        for (;;)
+        {
+            lastpos = X509_NAME_get_index_by_NID(nm, NID_commonName, lastpos);
+            if (lastpos == -1)
+                break;
+            X509_NAME_ENTRY* e = X509_NAME_get_entry(nm, lastpos);
+            /* Do something with e */
+            ASN1_STRING* common_name_asn1 = X509_NAME_ENTRY_get_data(e);
+            CertName = convertASN1StringToStdString(common_name_asn1);
+        }
+        Error.append("; ");
+        Error.append(CertName);
         return Error;
     }
 
