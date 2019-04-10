@@ -157,6 +157,17 @@ namespace Common
             return S_ISDIR(statbuf.st_mode); // NOLINT
         }
 
+        bool FileSystemImpl::isSymlink(const Path& path) const
+        {
+            struct stat statbuf; // NOLINT
+            int ret = ::lstat(path.c_str(), &statbuf);
+            if (ret != 0)
+            { // if it does not exists, it is not a directory
+                return false;
+            }
+            return S_ISLNK(statbuf.st_mode); // NOLINT
+        }
+
         Path FileSystemImpl::currentWorkingDirectory() const
         {
             char currentWorkingDirectory[FILENAME_MAX];
@@ -435,7 +446,7 @@ namespace Common
             return files;
         }
 
-        std::vector<Path> FileSystemImpl::listFilesAndDirectories(const Path& directoryPath) const
+        std::vector<Path> FileSystemImpl::listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks) const
         {
             static std::string dot{ "." };
             static std::string dotdot{ ".." };
@@ -469,13 +480,22 @@ namespace Common
                     outDirEntity->d_name != dotdot)
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                    bool include = true;
 
-                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this
-                    // method again on the returned directories
-                    struct stat buf;
-                    int ret = ::lstat(fullPath.c_str(), &buf);
+                    if (!includeSymlinks)
+                    {
 
-                    if (ret == 0 && !S_ISLNK(buf.st_mode))
+                        // we do not want to return symlinks as it could create a infinite loop if the caller calls this
+                        // method again on the returned directories
+                        struct stat buf;
+                        int ret = ::lstat(fullPath.c_str(), &buf);
+
+                        if (ret == 0 && S_ISLNK(buf.st_mode))
+                        {
+                            include = false;
+                        }
+                    }
+                    if (include)
                     {
                         files.push_back(fullPath);
                     }

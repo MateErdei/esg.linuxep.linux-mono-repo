@@ -27,11 +27,18 @@ namespace Common
 
             bool isDirectory(const Path& path) const override;
 
-            Path makeAbsolute(const Path& path) const override;
+            /**
+             * Checks to see if the given path is a symlink.
+             * @param path to check
+             * @return true, if path is a symlink, false otherwise
+             */
+            virtual bool isSymlink(const Path& path) const override;
+
+            Path make_absolute(const Path& path) const override;
 
             Path currentWorkingDirectory() const override;
 
-            std::vector<Path> listFilesAndDirectories(const Path& directoryPath) const override;
+            std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks=false) const override;
 
             std::vector<Path> listDirectories(const Path& directoryPath) const override;
 
@@ -54,8 +61,6 @@ namespace Common
             std::vector<std::string> readLines(const Path& path) const override;
 
             void removeFile(const Path& path) const override;
-
-            Path readlink(const Path& path) const override;
 
         };
 

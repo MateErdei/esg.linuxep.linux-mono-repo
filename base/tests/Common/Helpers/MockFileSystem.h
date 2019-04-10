@@ -30,6 +30,7 @@ public:
     MOCK_CONST_METHOD1(isExecutable, bool(const Path& path));
     MOCK_CONST_METHOD1(isFile, bool(const Path& path));
     MOCK_CONST_METHOD1(isDirectory, bool(const Path& path));
+    MOCK_CONST_METHOD1(isSymlink, bool(const Path& path));
     MOCK_CONST_METHOD0(currentWorkingDirectory, Path());
     MOCK_CONST_METHOD2(moveFile, void(const Path& sourcePath, const Path& destPath));
     MOCK_CONST_METHOD1(readFile, std::string(const Path& path));
@@ -39,7 +40,7 @@ public:
     MOCK_CONST_METHOD3(writeFileAtomically, void(const Path& path, const std::string& content, const Path& tempDir));
     MOCK_CONST_METHOD1(makeExecutable, void(const Path& path));
     MOCK_CONST_METHOD1(listFiles, std::vector<Path>(const Path& directoryPath));
-    MOCK_CONST_METHOD1(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath));
+    MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
     MOCK_CONST_METHOD1(listDirectories, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD1(removeFile, void(const Path& path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));

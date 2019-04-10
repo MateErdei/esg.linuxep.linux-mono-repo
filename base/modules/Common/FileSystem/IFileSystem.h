@@ -74,6 +74,13 @@ namespace Common
             virtual bool isDirectory(const Path& path) const = 0;
 
             /**
+             * Checks to see if the given path is a symlink.
+             * @param path to check
+             * @return true, if path is a symlink, false otherwise
+             */
+            virtual bool isSymlink(const Path& path) const = 0;
+
+            /**
              * Gets the current working directory for the application.
              * @return path to the current working directory
              */
@@ -144,9 +151,10 @@ namespace Common
              * . and .. are not listed
              *
              * @param directoryPath
+             * @param includeSymlinks If true then include symlinks
              * @return List of the full path of files under the directoryPath.
              */
-            virtual std::vector<Path> listFilesAndDirectories(const Path& directoryPath) const = 0;
+            virtual std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks=false) const = 0;
 
             /**
             * Provide the full absolute path of the directories under the directoryPath given.
