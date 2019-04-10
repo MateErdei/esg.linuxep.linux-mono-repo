@@ -200,24 +200,24 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     Common::ZeroMQWrapper::ISocketPublisherPtr publisher(
         new Common::ZeroMQWrapperImpl::SocketPublisherImpl(contextHolder));
 
-    Common::ZeroMQWrapper::ISocketSubscriberPtr socket(
+    Common::ZeroMQWrapper::ISocketSubscriberPtr subscriber(
         new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(contextHolder));
 
-    ASSERT_NE(socket.get(), nullptr);
-    socket->setTimeout(2000);
-    socket->connect(backend);
-    socket->subscribeTo("FOOBAR");
+    ASSERT_NE(subscriber.get(), nullptr);
+    subscriber->setTimeout(2000);
+    subscriber->connect(backend);
+    subscriber->subscribeTo("FOOBAR");
 
     // Start sender thread - since we need to wait for subscription to propagate
     SenderThread thread(*publisher, frontend, { "FOOBAR", "DATA" });
     thread.start();
 
-    auto data = socket->read();
+    auto data = subscriber->read();
 
     EXPECT_EQ(data.at(0), "FOOBAR");
     EXPECT_EQ(data.at(1), "DATA");
 
-    socket.reset();
+    subscriber.reset();
 
     thread.stop();
     publisher.reset();
@@ -226,11 +226,12 @@ TEST_F(TestLoggingProxyImpl, PassMessage) // NOLINT
     proxy.reset();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    ASSERT_NE(logMessage.size(), 0);
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "Subscribe FOOBAR"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "FOOBAR DATA"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "Unsubscribe FOOBAR"));
-    ASSERT_EQ(1, countOccurancesInString(logMessage, "TERMINATE"));
+    PRINT(logMessage);
+    EXPECT_NE(logMessage.size(), 0);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Subscribe FOOBAR"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "FOOBAR DATA"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "Unsubscribe FOOBAR"), 1);
+    EXPECT_EQ(countOccurancesInString(logMessage, "TERMINATE"), 1);
 }
 
 TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
@@ -295,6 +296,7 @@ TEST_F(TestLoggingProxyImpl, TwoSubscribers) // NOLINT
     proxy.reset();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
+    PRINT(logMessage);
     EXPECT_NE(logMessage.size(), 0);
     EXPECT_EQ(countOccurancesInString(logMessage, "Subscribe FOOBAR"), 1);
     EXPECT_EQ(countOccurancesInString(logMessage, "FOOBAR DATA"), 1);

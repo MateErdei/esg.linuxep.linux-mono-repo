@@ -56,7 +56,15 @@ namespace Common
 
             void listen(const std::string& address) override;
 
+            /**
+             * For unit-tests give direct access to the ZMQ socket
+             * @return
+             */
             void* skt() { return m_socket.skt(); }
+            /**
+             * For unit-tests give direct access to the socket holder
+             * @return
+             */
             SocketHolder& socketHolder() { return m_socket; }
 
             /** Refresh the socket and reapply the settings.

@@ -142,24 +142,46 @@ namespace
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
     }
 
+    class SocketReleaser
+    {
+        Common::ZeroMQWrapperImpl::SocketHolder& m_socket;
+    public:
+        explicit SocketReleaser(Common::ZeroMQWrapperImpl::SocketHolder& socket)
+            : m_socket(socket)
+        {
+        }
+
+        ~SocketReleaser()
+        {
+            release();
+        }
+
+        void* release()
+        {
+            return m_socket.release();
+        }
+
+    };
+
     TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT
     {
+        constexpr int POLL_MS = 2000;
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
         auto context = Common::ZMQWrapperApi::createContext();
         auto replier = context->getReplier();
         auto requester = context->getRequester();
-        replier->listen("inproc://REPSocketNotified");
+        replier->listen("inproc://PollerShouldThrowExceptionIfUnderlingSocketCloses");
         requester->setTimeout(200);
-        requester->connect("inproc://REPSocketNotified");
+        requester->connect("inproc://PollerShouldThrowExceptionIfUnderlingSocketCloses");
         poller->addEntry(*replier, Common::ZeroMQWrapper::IPoller::POLLIN);
 
         auto notifyFuture = std::async(std::launch::async, [&requester]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             requester->write({ "hello1" });
         });
-        auto result = poller->poll(Common::ZeroMQWrapper::ms(1000));
+        auto result = poller->poll(Common::ZeroMQWrapper::ms(POLL_MS));
         notifyFuture.get();
         EXPECT_EQ(result.size(), 1);
 
@@ -172,12 +194,17 @@ namespace
         ASSERT_TRUE(socket != nullptr);
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
+        SocketReleaser releaser(socket->socketHolder());
         requester->write({ "another request" });
         EXPECT_THROW( // NOLINT
-            poller->poll(Common::ZeroMQWrapper::ms(2000)),
+            poller->poll(Common::ZeroMQWrapper::ms(POLL_MS)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
 
-        socket->socketHolder().release(); // zmq socket already closed
+        poller.reset();
+        releaser.release(); // zmq socket already closed
+        replier.reset();
+        requester.reset();
+        context.reset();
     }
 
     TEST(TestPollerImpl, AddToPollerAnInvalidFileDescriptorShouldThrowException) // NOLINT
