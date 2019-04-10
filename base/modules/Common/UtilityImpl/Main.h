@@ -21,52 +21,52 @@ Copyright 2018, Sophos Limited.  All rights reserved.
         }                                                                                                              \
         catch (std::bad_alloc & e)                                                                                     \
         {                                                                                                              \
-            std::cerr << "Uncaught std::bad_alloc " << e.what() << std::endl;                                          \
+            std::cerr << "Unknown std::bad_alloc error, " << e.what() << std::endl;                                    \
             return 52;                                                                                                 \
         }                                                                                                              \
         catch (std::bad_cast & e)                                                                                      \
         {                                                                                                              \
-            std::cerr << "Uncaught std::bad_case " << e.what() << std::endl;                                           \
+            std::cerr << "Unknown std::bad_case error, " << e.what() << std::endl;                                     \
             return 53;                                                                                                 \
         }                                                                                                              \
         catch (std::bad_typeid & e)                                                                                    \
         {                                                                                                              \
-            std::cerr << "Uncaught std::bad_typeid " << e.what() << std::endl;                                         \
+            std::cerr << "Unknown std::bad_typeid error, " << e.what() << std::endl;                                   \
             return 54;                                                                                                 \
         }                                                                                                              \
         catch (std::bad_exception & e)                                                                                 \
         {                                                                                                              \
-            std::cerr << "Uncaught std::bad_exception " << e.what() << std::endl;                                      \
+            std::cerr << "Unknown std::bad_exception error, " << e.what() << std::endl;                                \
             return 55;                                                                                                 \
         }                                                                                                              \
         catch (std::out_of_range & e)                                                                                  \
         {                                                                                                              \
-            std::cerr << "Uncaught std::out_of_range " << e.what() << std::endl;                                       \
+            std::cerr << "Unknown std::out_of_range error, " << e.what() << std::endl;                                 \
             return 56;                                                                                                 \
         }                                                                                                              \
         catch (std::invalid_argument & e)                                                                              \
         {                                                                                                              \
-            std::cerr << "Uncaught std::invalid_argument " << e.what() << std::endl;                                   \
+            std::cerr << "Unknown std::invalid_argument error, " << e.what() << std::endl;                             \
             return 57;                                                                                                 \
         }                                                                                                              \
         catch (std::overflow_error & e)                                                                                \
         {                                                                                                              \
-            std::cerr << "Uncaught std::overflow_error " << e.what() << std::endl;                                     \
+            std::cerr << "Unknown std::overflow_error error, " << e.what() << std::endl;                               \
             return 58;                                                                                                 \
         }                                                                                                              \
         catch (std::ios_base::failure & e)                                                                             \
         {                                                                                                              \
-            std::cerr << "Uncaught std::ios_base::failure " << e.what() << std::endl;                                  \
+            std::cerr << "Unknown std::ios_base::failure error, " << e.what() << std::endl;                            \
             return 59;                                                                                                 \
         }                                                                                                              \
         catch (std::exception & e)                                                                                     \
         {                                                                                                              \
-            std::cerr << "Uncaught std::exception " << e.what() << std::endl;                                          \
+            std::cerr << "Unknown std::exception error, " << e.what() << std::endl;                                    \
             return 60;                                                                                                 \
         }                                                                                                              \
         catch (...)                                                                                                    \
         {                                                                                                              \
-            std::cerr << "Caught ... at top level." << std::endl;                                                      \
+            std::cerr << "Unknown error failed to obtain system data from diagnose." << std::endl;                     \
             return 61;                                                                                                 \
         }                                                                                                              \
         return 70;                                                                                                     \

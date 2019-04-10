@@ -9,6 +9,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "GatherFiles.h"
 #include "SystemCommands.h"
 
+#include <Common/FileSystem/IFileSystemException.h>
+
 #include <cstring>
 #include <sstream>
 #include <iostream>
@@ -158,6 +160,12 @@ namespace diagnose
             std::cerr << e.what() << std::endl;
             return 2;
         }
+        catch(Common::FileSystem::IFileSystemException &e)
+        {
+            std::cerr << "File system error: " << e.what() << std::endl;
+            return 2;
+        }
+
         return 0;
     }
 
