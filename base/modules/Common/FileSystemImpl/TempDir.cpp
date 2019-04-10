@@ -47,26 +47,6 @@ TempDir::~TempDir()
 
 void TempDir::deleteTempDir()
 {
-    deleteDirectory(m_tempdir);
-}
-
-void TempDir::deleteDirectory(const std::string& dir, Common::FileSystem::IFileSystem* filesystem)
-{
-    if (filesystem == nullptr)
-    {
-        filesystem = Common::FileSystem::fileSystem();
-    }
-    for (const auto& path : filesystem->listFilesAndDirectories(dir, true))
-    {
-        if (filesystem->isSymlink(path) || filesystem->isFile(path))
-        {
-            filesystem->removeFile(path);
-        }
-        else if (filesystem->isDirectory(path))
-        {
-            deleteDirectory(path, filesystem);
-        }
-    }
-
-    filesystem->removeFile(dir);
+    auto filesystem = Common::FileSystem::fileSystem();
+    filesystem->removeDirectory(m_tempdir);
 }

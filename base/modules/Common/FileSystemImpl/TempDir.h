@@ -25,7 +25,6 @@ namespace Common
 
         private:
             void deleteTempDir();
-            void deleteDirectory(const std::string& dir, Common::FileSystem::IFileSystem* filesystem=nullptr);
 
             Path m_tempdir;
         };

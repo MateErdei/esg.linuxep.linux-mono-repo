@@ -202,6 +202,11 @@ namespace
         EXPECT_TRUE(m_fileSystem->isDirectory("/etc"));
     }
 
+    TEST_F(FileSystemImplTest, isSymlinkReturnsTrueForSymlink) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isSymlink("/proc/self/exe"));
+    }
+
     TEST_F(FileSystemImplTest, currentWorkingDirectoryReturnsCorrectValue) // NOLINT
     {
         std::string startingDirectory = m_fileSystem->currentWorkingDirectory();
@@ -478,6 +483,54 @@ namespace
         ASSERT_FALSE(m_fileSystem->exists(filePath));
         EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException); // NOLINT
     }
+
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesFile) // NOLINT
+    {
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+
+        std::string testContent("HelloWorld");
+
+        m_fileSystem->writeFile(filePath, testContent);
+
+        EXPECT_TRUE(m_fileSystem->isFile(filePath));
+
+        m_fileSystem->removeDirectory(filePath);
+
+        EXPECT_FALSE(m_fileSystem->exists(filePath));
+    }
+
+
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesEmptyDirectory) // NOLINT
+    {
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesEmptyDirectory");
+
+        m_fileSystem->makedirs(filePath);
+
+        EXPECT_TRUE(m_fileSystem->isDirectory(filePath));
+
+        m_fileSystem->removeDirectory(filePath);
+
+        EXPECT_FALSE(m_fileSystem->exists(filePath));
+    }
+
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesNonEmptyDirectory) // NOLINT
+    {
+        std::string dirPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesNonEmptyDirectory");
+        std::string filePath = Common::FileSystem::join(dirPath, "testFile");
+
+        m_fileSystem->makedirs(dirPath);
+        std::string testContent("HelloWorld");
+        m_fileSystem->writeFile(filePath, testContent);
+
+
+        EXPECT_TRUE(m_fileSystem->isDirectory(dirPath));
+        EXPECT_TRUE(m_fileSystem->isFile(filePath));
+
+        m_fileSystem->removeDirectory(dirPath);
+
+        EXPECT_FALSE(m_fileSystem->exists(dirPath));
+    }
+
 
     TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
     {

@@ -469,14 +469,15 @@ namespace Common
             while (true)
             {
                 errno = 0;
-                outDirEntity = readdir(directoryPtr);
+                outDirEntity = ::readdir(directoryPtr);
 
                 if (errno != 0 || outDirEntity == nullptr)
                 {
                     break;
                 }
 
-                if ((DT_REG | DT_DIR) & outDirEntity->d_type && outDirEntity->d_name != dot &&
+                if ((DT_REG | DT_DIR) & outDirEntity->d_type &&
+                    outDirEntity->d_name != dot &&
                     outDirEntity->d_name != dotdot)
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
@@ -487,10 +488,10 @@ namespace Common
 
                         // we do not want to return symlinks as it could create a infinite loop if the caller calls this
                         // method again on the returned directories
-                        struct stat buf;
+                        struct stat buf; //NOLINT
                         int ret = ::lstat(fullPath.c_str(), &buf);
 
-                        if (ret == 0 && S_ISLNK(buf.st_mode))
+                        if (ret == 0 && S_ISLNK(buf.st_mode)) //NOLINT
                         {
                             include = false;
                         }
@@ -518,7 +519,20 @@ namespace Common
             }
         }
 
-        Path FileSystemImpl::makeAbsolute(const Path& path) const
+        void FileSystemImpl::removeDirectory(const Path& dir) const
+        {
+            if (isDirectory(dir))
+            {
+                for (const auto& path : listFilesAndDirectories(dir, true))
+                {
+                    removeDirectory(path);
+                }
+            }
+
+            removeFile(dir);
+        }
+
+        Path FileSystemImpl::make_absolute(const Path& path) const
         {
             if (path[0] == '/')
             {
@@ -577,19 +591,6 @@ namespace Common
             (void)closedir(directoryPtr);
 
             return dirs;
-        }
-
-        Path FileSystemImpl::readlink(const Path& path) const
-        {
-            char linkPath[PATH_MAX + 1];
-            ssize_t ret = ::readlink(path.c_str(), linkPath, PATH_MAX);
-            if (ret > 0)
-            {
-                linkPath[ret] = 0;
-                linkPath[PATH_MAX] = 0;
-                return makeAbsolute(linkPath);
-            }
-            return Path();
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()

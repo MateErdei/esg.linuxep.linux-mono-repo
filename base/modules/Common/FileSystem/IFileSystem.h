@@ -193,6 +193,12 @@ namespace Common
             virtual void removeFile(const Path& path) const = 0;
 
             /**
+             * Recursively delete a directory or file.
+             * @param path, full path to the directory which is to be deleted
+             */
+            virtual void removeDirectory(const Path& path) const = 0;
+
+            /**
              * Convert a relative path to an absolute path in the current working directory.
              *
              * /Foo -> /Foo
