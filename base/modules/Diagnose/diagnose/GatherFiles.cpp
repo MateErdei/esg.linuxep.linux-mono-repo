@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <iostream>
+#include <Common/FileSystemImpl/TempDir.h>
 
 namespace
 {
@@ -40,7 +41,11 @@ namespace diagnose
 {
     void GatherFiles::setInstallDirectory(const Path& path) { m_installDirectory = path; }
 
-    Path GatherFiles::createRootDir(const Path& path) { return createDiagnoseFolder(path, DIAGNOSE_FOLDER); }
+    Path GatherFiles::createRootDir(const Path& path)
+    {
+        m_tempDir.reset(new Common::FileSystemImpl::TempDir(path, DIAGNOSE_FOLDER));
+        return createDiagnoseFolder(m_tempDir->dirPath(), DIAGNOSE_FOLDER);
+    }
 
     Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, BASE_FOLDER); }
 
@@ -48,7 +53,7 @@ namespace diagnose
 
     Path GatherFiles::createSystemFilesDir(const Path& path) { return createDiagnoseFolder(path, SYSTEM_FOLDER); }
 
-    Path GatherFiles::createDiagnoseFolder(const Path& path, std::string dirName)
+    Path GatherFiles::createDiagnoseFolder(const Path& path, const std::string& dirName)
     {
         if (!m_fileSystem.isDirectory(path))
         {

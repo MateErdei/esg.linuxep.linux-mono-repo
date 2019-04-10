@@ -25,37 +25,21 @@ namespace diagnose
         return system(fullCommand.c_str());
     }
 
-    void SystemCommands::cleanupDir(const std::string& dirPath)
-    {
-        std::string removeCommand = "rm -rf '" + dirPath + "'";
-        int ret = system(removeCommand.c_str());
-        if (ret != 0)
-        {
-            std::cout << "Error: " << removeCommand << " failed." << std::endl;
-        }
-    }
 
-    void SystemCommands::cleanupDirs(const std::string& dirPath)
-    {
-        cleanupDir(Common::FileSystem::join(dirPath, PLUGIN_FOLDER));
-        cleanupDir(Common::FileSystem::join(dirPath, BASE_FOLDER));
-        cleanupDir(Common::FileSystem::join(dirPath, SYSTEM_FOLDER));
-    }
-
-    void SystemCommands::tarDiagnoseFolder(const std::string& dirPath)
+    void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath)
     {
         Common::UtilityImpl::FormattedTime m_formattedTime;
         Common::FileSystem::FileSystemImpl fileSystem;
 
-        std::cout << "Running tar on: " << dirPath <<std::endl;
+        std::cout << "Running tar on: " << srcPath <<std::endl;
 
         std::string timestamp = m_formattedTime.currentTime();
         std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
         std::string tarfileName = "sspl-diagnose_" + timestamp + ".tar.gz";
 
-        std::string tarfile = Common::FileSystem::join(dirPath, tarfileName);
+        std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
 
-        std::string tarCommand = "tar -czf " + tarfile + " -C '" + dirPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+        std::string tarCommand = "tar -czf " + tarfile + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
         int ret =  system(tarCommand.c_str());
         if (ret != 0)
@@ -63,28 +47,11 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        if(fileSystem.isFile(tarfile) )
-        {
-            if(isSafeToDelete(dirPath))
-            {
-                cleanupDirs(dirPath);
-            }
-            else
-            {
-                throw std::invalid_argument("dirpath is not safe to delete: " + dirPath);
-            }
-        }
-        else
+        if( ! fileSystem.isFile(tarfile) )
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
-        std::cout << "Created tarfile: " << tarfileName << " in directory " << dirPath << std::endl;
-    }
-
-    bool SystemCommands::isSafeToDelete(const std::string& path)
-    {
-        return (Common::FileSystem::basename(path) == DIAGNOSE_FOLDER);
-
+        std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
     }
 
 } // namespace diagnose

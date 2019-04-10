@@ -153,7 +153,7 @@ namespace diagnose
             gatherFiles.copyFile(
                 "/etc/systemd/system.conf", Common::FileSystem::join(systemFilesDir, "systemd-system.conf"));
 
-            systemCommands.tarDiagnoseFolder(destination);
+            systemCommands.tarDiagnoseFolder(destination, outputDir);
         }
         catch (std::invalid_argument& e)
         {

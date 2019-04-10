@@ -5,6 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystem/ITempDir.h>
+
 #pragma once
 
 namespace diagnose
@@ -25,11 +27,6 @@ namespace diagnose
          * or any explicitly listed files to destination.
          */
         void copyPluginFiles(const Path& destination);
-
-        /*
-         * Creates directories
-         */
-        std::string createDiagnoseFolder(const Path& path, std::string dirName);
 
         /*
          * Creates and returns the main diagnose output folder.
@@ -74,11 +71,20 @@ namespace diagnose
         void copyFileIntoDirectory(const Path& filePath, const Path& dirPath);
 
     private:
+
+
+        /*
+         * Creates directories
+         */
+        std::string createDiagnoseFolder(const Path& path, const std::string& dirName);
+
+
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
 
         std::vector<std::string> m_logFilePaths;
         Common::FileSystem::FileSystemImpl m_fileSystem;
         std::string m_installDirectory;
+        std::unique_ptr<Common::FileSystem::ITempDir> m_tempDir;
     };
 } // namespace diagnose

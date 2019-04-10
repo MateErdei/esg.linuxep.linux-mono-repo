@@ -25,7 +25,7 @@ namespace diagnose
         /*
          * Archive the diagnose output into a tar.gz ready for sending to Sophos.
          */
-        void tarDiagnoseFolder(const std::string& dirPath);
+        void tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath);
 
     private:
         std::string m_destination;
