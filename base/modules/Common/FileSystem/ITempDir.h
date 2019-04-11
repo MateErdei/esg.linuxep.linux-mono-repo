@@ -5,6 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "IFileSystem.h"
+
 namespace Common
 {
     namespace FileSystem

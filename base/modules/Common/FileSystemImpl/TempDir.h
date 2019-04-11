@@ -20,7 +20,7 @@ namespace Common
         public:
             TempDir(const std::string& baseDir, const std::string& prefix);
             ~TempDir() override;
-            Path dirPath() const
+            Path dirPath() const override
             {
                 return m_tempdir;
             }

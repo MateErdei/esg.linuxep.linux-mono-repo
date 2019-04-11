@@ -9,6 +9,7 @@
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystemImpl/TempDir.h>
 #include <sys/stat.h>
 
 #include <cassert>
@@ -20,10 +21,16 @@ namespace Tests
         return std::unique_ptr<TempDir>(new TempDir("/tmp", nameprefix));
     }
 
-    TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix)
-        : Common::FileSystemImpl::TempDir(baseDirectory, namePrefix)
+    TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix) :
+        m_fileSystem(new Common::FileSystem::FileSystemImpl()),
+        m_tempDirBase(new Common::FileSystemImpl::TempDir(baseDirectory, namePrefix))
     {
-        m_fileSystem = std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
+
+    }
+
+    Path TempDir::dirPath() const
+    {
+        return m_tempDirBase->dirPath();
     }
 
     std::string TempDir::absPath(const std::string& relativePath) const

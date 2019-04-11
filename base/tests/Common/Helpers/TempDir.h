@@ -7,7 +7,7 @@
 #pragma once
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystemImpl/TempDir.h>
+#include <Common/FileSystem/ITempDir.h>
 
 #include <memory>
 #include <string>
@@ -20,7 +20,7 @@ namespace Tests
      * retrieve their path.
      */
     class TempDir
-            : public Common::FileSystemImpl::TempDir
+            : public Common::FileSystem::ITempDir
     {
     public:
         /**
@@ -45,6 +45,8 @@ namespace Tests
          */
         TempDir& operator=(const TempDir&) = delete;
         TempDir(const TempDir&) = delete;
+
+        Path dirPath() const override;
 
         /**
          * Get the full path from a relative path
@@ -130,6 +132,7 @@ namespace Tests
     private:
         static std::vector<std::string> pathParts(const std::string& relativePath);
         std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
+        std::unique_ptr<Common::FileSystem::ITempDir> m_tempDirBase;
     };
 
 } // namespace Tests
