@@ -1,4 +1,6 @@
 add_library(diagnoseimpl STATIC
+            CheckForTar.cpp
+            CheckForTar.h
             diagnose_main.cpp
             diagnose_main.h
             GatherFiles.cpp
@@ -9,4 +11,5 @@ add_library(diagnoseimpl STATIC
             $<TARGET_OBJECTS:filesystemimplobject>
             $<TARGET_OBJECTS:applicationconfigurationimplobject>
             ../../Common/UtilityImpl/TimeUtils.cpp
-            ../../Common/UtilityImpl/TimeUtils.h CheckForTar.cpp CheckForTar.h)
+            ../../Common/UtilityImpl/TimeUtils.h
+        )
