@@ -207,8 +207,6 @@ function build()
         then
             rm -rf $REDIST/openssl
             tar xf "$OPENSSL_TAR" -C "$REDIST"
-            ln -snf libssl.so.1 ${REDIST}/openssl/lib${BITS}/libssl.so.10
-            ln -snf libcrypto.so.1 ${REDIST}/openssl/lib${BITS}/libcrypto.so.10
         elif [[ -d $ALLEGRO_REDIST ]]
         then
             ln -snf $ALLEGRO_REDIST/openssl $REDIST/openssl
