@@ -18,3 +18,8 @@ TEST(TestCheckForTar, emptyPath) // NOLINT
 {
     ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable(""));
 }
+
+TEST(TestCheckForTar, nonExistentPath) // NOLINT
+{
+    ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable("/t"));
+}
