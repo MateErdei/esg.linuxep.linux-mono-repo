@@ -23,3 +23,13 @@ TEST(TestCheckForTar, nonExistentPath) // NOLINT
 {
     ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable("/t"));
 }
+
+TEST(TestCheckForTar, manyNonExistentPaths) // NOLINT
+{
+    ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable("/t:/a:/b:/c:/d:/e:/f"));
+}
+
+TEST(TestCheckForTar, manyNonExistentPathsFollowedByBin) // NOLINT
+{
+    ASSERT_TRUE(diagnose::CheckForTar::isTarAvailable("/t:/a:/b:/c:/d:/e:/f:/bin:/usr/bin"));
+}
