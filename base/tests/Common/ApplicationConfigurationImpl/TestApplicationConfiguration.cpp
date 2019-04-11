@@ -26,7 +26,6 @@ public:
         unsetenv("SOPHOS_INSTALL");
     }
 
-private:
     MockFileSystem* m_mockFileSystem;
 };
 
