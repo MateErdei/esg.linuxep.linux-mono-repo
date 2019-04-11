@@ -10,6 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <cstring>
 #include <unistd.h>
+#include <iostream>
 
 using namespace Common::FileSystemImpl;
 
@@ -43,7 +44,15 @@ TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix
 
 TempDir::~TempDir()
 {
-    deleteTempDir();
+    try
+    {
+        deleteTempDir();
+    }
+    catch (const std::exception& ex)
+    {
+        // Can't rely on logging to be setup here.
+        std::cerr << "Failed to delete temp directory: "<<m_tempdir<<" with " << ex.what() << std::endl;
+    }
 }
 
 void TempDir::deleteTempDir()
