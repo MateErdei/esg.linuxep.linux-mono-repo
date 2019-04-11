@@ -4,6 +4,7 @@ add_custom_target(echogTest
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
 add_subdirectory(Common)
+add_subdirectory(diagnose)
 add_subdirectory(SulDownloader)
 add_subdirectory(Installer)
 add_subdirectory(ManagementAgent)
