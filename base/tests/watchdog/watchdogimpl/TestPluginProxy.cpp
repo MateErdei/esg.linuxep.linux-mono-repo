@@ -6,7 +6,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>

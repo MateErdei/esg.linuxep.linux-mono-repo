@@ -5,7 +5,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>

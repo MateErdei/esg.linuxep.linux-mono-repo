@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/ApplicationConfigurationImpl/ApplicationConfiguration.h>
 #include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
@@ -304,7 +303,6 @@ class TestUpdatePolicyTranslator : public ::testing::Test
 {
 public:
     TestUpdatePolicyTranslator() : m_loggingSetup() {}
-    
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
