@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "GatherFiles.h"
 #include "SystemCommands.h"
+#include "CheckForTar.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 
@@ -60,6 +61,12 @@ namespace diagnose
                 return 0;
             }
             outputDir = arg;
+        }
+
+        if (!diagnose::CheckForTar::isTarAvailable())
+        {
+            std::cerr << "tar command not available: unable to generate diagnose output" << std::endl;
+            return 2;
         }
 
         try
