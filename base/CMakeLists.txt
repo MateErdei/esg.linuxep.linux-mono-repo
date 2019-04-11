@@ -64,7 +64,6 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
-set( LOG4CPLUS_INPUT /home/pair/gesner/myredist/log4cplus )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 
