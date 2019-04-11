@@ -163,7 +163,7 @@ namespace diagnose
         catch(Common::FileSystem::IFileSystemException &e)
         {
             std::cerr << "File system error: " << e.what() << std::endl;
-            return 2;
+            return 3;
         }
 
         return 0;
