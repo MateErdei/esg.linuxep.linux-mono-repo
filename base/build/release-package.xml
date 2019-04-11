@@ -9,7 +9,7 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-0-2p-8/213064/output" dest="input">
+        <package name="openssllinux11" version="1-1-1a-2/214501/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
