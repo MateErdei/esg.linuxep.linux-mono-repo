@@ -66,7 +66,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
         }                                                                                                              \
         catch (...)                                                                                                    \
         {                                                                                                              \
-            std::cerr << "Critical unhandled error failed to obtain system data from diagnose." << std::endl;          \
+            std::cerr << "Critical unhandled error. No information available." << std::endl;                           \
             return 61;                                                                                                 \
         }                                                                                                              \
         return 70;                                                                                                     \
