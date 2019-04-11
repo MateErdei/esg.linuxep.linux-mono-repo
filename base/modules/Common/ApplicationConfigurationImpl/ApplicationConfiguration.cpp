@@ -21,16 +21,16 @@ namespace
         }
 
         // If we don't have the environment variable, see if we can work out from the executable
-        Path exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X or $SOPHOS_INSTALL/bin/X
+        Path exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
+                                                                                 // $SOPHOS_INSTALL/bin/X or
+                                                                                 // $SOPHOS_INSTALL/plugins/PluginName/X
         if (!exe.empty())
         {
-            Path bindir = Common::FileSystem::dirName(exe);  // either $SOPHOS_INSTALL/base/bin or $SOPHOS_INSTALL/bin
-            std::string dirName = Common::FileSystem::basename(bindir);
-            while (dirName == "base" || dirName == "bin") {
-                bindir = Common::FileSystem::dirName(bindir);
-                dirName = Common::FileSystem::basename(bindir);
+            std::string installTipDir = "sophos-spl"; // All custom installation directories have sophos-spl at the tip
+            size_t pos = exe.find(installTipDir);
+            if (pos !=std::string::npos) {
+               return exe.substr(0, pos+installTipDir.size());
             }
-            return bindir; // installdir $SOPHOS_INSTALL
         }
 
         // If we can't get the cwd then use a fixed string.

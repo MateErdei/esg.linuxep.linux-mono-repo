@@ -20,10 +20,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstdlib>
 #include <unistd.h>
 
-#ifndef PATH_MAX
-#    define PATH_MAX 2048
-#endif
-
 using namespace wdctl::wdctlimpl;
 
 int wdctl_bootstrap::main(int argc, char** argv)
@@ -53,7 +49,7 @@ StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char** argv)
 int wdctl_bootstrap::main(const StringVector& args)
 {
     Common::Logging::FileLoggingSetup logSetup("wdctl");
-    
+
     m_args.parseArguments(args);
 
     LOGINFO(m_args.m_command << " " << m_args.m_argument);
