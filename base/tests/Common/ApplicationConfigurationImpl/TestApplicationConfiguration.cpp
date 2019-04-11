@@ -58,6 +58,21 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     ASSERT_EQ(installLocation, basePath);
 }
 
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder) //NOLINT
+{
+    std::string basePath("/opt/non-default-install/sophos-spl");
+    std::string exePath("plugins/DummyPlugin/bin/DummyPlugin.exe");
+    std::string fullPath = Common::FileSystem::join(basePath, exePath);
+
+    std::unique_ptr<MockFileSystem> mockFileSystem(new StrictMock<MockFileSystem>(false));
+    EXPECT_CALL(*mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+    Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
+    std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
+
+    ASSERT_EQ(installLocation, basePath);
+}
+
 TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutableCantBeFoundAndNoEnvPathSet) //NOLINT
 {
     std::string defaultInstallLocation = Common::ApplicationConfigurationImpl::DefaultInstallLocation;
