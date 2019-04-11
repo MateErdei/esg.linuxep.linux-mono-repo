@@ -20,10 +20,8 @@ namespace
         {
             return SOPHOS_INSTALL;
         }
-        // Use local instantiation of file system to avoid upsetting mockFilesyse
-        Common::FileSystem::FileSystemImpl fileSystem;
         // If we don't have the environment variable, see if we can work out from the executable
-        Path exe = fileSystem.readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
+        Path exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
                                                                                  // $SOPHOS_INSTALL/bin/X or
                                                                                  // $SOPHOS_INSTALL/plugins/PluginName/X
         if (!exe.empty())
