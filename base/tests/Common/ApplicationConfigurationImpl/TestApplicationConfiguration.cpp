@@ -13,10 +13,21 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 class ApplicationConfigurationTests : public ::testing::Test
 {
 public:
+    ApplicationConfigurationTests()
+    {
+        m_mockFileSystem = new StrictMock<MockFileSystem>(false);  //Cleaned up by unique_ptr below
+        std::unique_ptr<MockFileSystem> mockFileSystemUniquePtr(m_mockFileSystem);
+        Tests::replaceFileSystem(std::move(mockFileSystemUniquePtr));
+    }
+
     ~ApplicationConfigurationTests() override
     {
+        Tests::restoreFileSystem();
         unsetenv("SOPHOS_INSTALL");
     }
+
+private:
+    MockFileSystem* m_mockFileSystem;
 };
 
 TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromEnvironmentVariable) //NOLINT
@@ -34,9 +45,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     std::string exePath("base/bin/dummy.exe");
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
-    std::unique_ptr<MockFileSystem> mockFileSystem(new StrictMock<MockFileSystem>(false));
-    EXPECT_CALL(*mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
-    Tests::replaceFileSystem(std::move(mockFileSystem));
+    EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
@@ -49,9 +58,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     std::string exePath("bin/dummy.exe");
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
-    std::unique_ptr<MockFileSystem> mockFileSystem(new StrictMock<MockFileSystem>(false));
-    EXPECT_CALL(*mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
-    Tests::replaceFileSystem(std::move(mockFileSystem));
+    EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
@@ -64,9 +71,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder
     std::string exePath("plugins/DummyPlugin/bin/DummyPlugin.exe");
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
-    std::unique_ptr<MockFileSystem> mockFileSystem(new StrictMock<MockFileSystem>(false));
-    EXPECT_CALL(*mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
-    Tests::replaceFileSystem(std::move(mockFileSystem));
+    EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
@@ -77,9 +82,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocatio
 {
     std::string defaultInstallLocation = Common::ApplicationConfigurationImpl::DefaultInstallLocation;
 
-    std::unique_ptr<MockFileSystem> mockFileSystem(new StrictMock<MockFileSystem>(false));
-    EXPECT_CALL(*mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(""));
-    Tests::replaceFileSystem(std::move(mockFileSystem));
+    EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(""));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
