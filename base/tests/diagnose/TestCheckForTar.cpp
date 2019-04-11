@@ -13,3 +13,8 @@ TEST(TestCheckForTar, realPath) // NOLINT
     // Assume tar is actually available everywhere we run unittests
     ASSERT_TRUE(diagnose::CheckForTar::isTarAvailable());
 }
+
+TEST(TestCheckForTar, emptyPath) // NOLINT
+{
+    ASSERT_FALSE(diagnose::CheckForTar::isTarAvailable(""));
+}

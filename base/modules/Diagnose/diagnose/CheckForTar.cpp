@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 bool diagnose::CheckForTar::isTarAvailable(const std::string& PATH)
 {
     static_cast<void>(PATH);
-    return true;
+    return !PATH.empty();
 }
 
 bool diagnose::CheckForTar::isTarAvailable()
