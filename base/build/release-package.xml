@@ -20,10 +20,10 @@
                  version="2-0-0-33/214528/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux10" version="7-59-0/212805/curllinux10" dest="input">
+        <package name="curllinux10" version="7-64-0/214472/curllinux10" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux10" version="1-0-0/212833/sullinux" dest="input">
+        <package name="sullinux10" version="1-0-0/214495/sullinux" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux10" version="1-66-0/211773/boostlinux10" dest="input">
