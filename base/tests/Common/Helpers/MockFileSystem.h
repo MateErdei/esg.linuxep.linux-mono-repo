@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <gmock/gmock.h>
 
@@ -16,6 +17,15 @@ using namespace Common::FileSystem;
 class MockFileSystem : public Common::FileSystem::IFileSystem
 {
 public:
+    MockFileSystem(bool initApplicationConfiguration = true)
+    {
+        if (initApplicationConfiguration)
+        {
+            //Initialise the application configuration in the constructor of the mock to avoid
+            //hitting a unexpected readlink when performing a strict mock
+            Common::ApplicationConfiguration::applicationConfiguration();
+        }
+    }
     MOCK_CONST_METHOD1(exists, bool(const Path& path));
     MOCK_CONST_METHOD1(isExecutable, bool(const Path& path));
     MOCK_CONST_METHOD1(isFile, bool(const Path& path));

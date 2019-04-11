@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ApplicationConfiguration.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 namespace
 {
@@ -19,14 +20,16 @@ namespace
         {
             return SOPHOS_INSTALL;
         }
-
+        // Use local instantiation of file system to avoid upsetting mockFilesyse
+        Common::FileSystem::FileSystemImpl fileSystem;
         // If we don't have the environment variable, see if we can work out from the executable
-        Path exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
+        Path exe = fileSystem.readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
                                                                                  // $SOPHOS_INSTALL/bin/X or
                                                                                  // $SOPHOS_INSTALL/plugins/PluginName/X
         if (!exe.empty())
         {
             std::string installTipDir = "sophos-spl"; // All custom installation directories have sophos-spl at the tip
+                                                      // this is added by the thin-installer
             size_t pos = exe.find(installTipDir);
             if (pos !=std::string::npos) {
                return exe.substr(0, pos+installTipDir.size());

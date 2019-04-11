@@ -21,16 +21,6 @@ using namespace SulDownloader::suldownloaderdata;
 class TestDownloadReportAnalyser : public ::testing::Test
 {
 public:
-    TestDownloadReportAnalyser()
-    {
-        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-        setenv("SOPHOS_INSTALL", "", 0);
-    }
-
-    ~TestDownloadReportAnalyser()
-    {
-        unsetenv("SOPHOS_INSTALL");
-    }
 
     ::testing::AssertionResult insertMessagesAreEquivalent(
         const char* m_expr,

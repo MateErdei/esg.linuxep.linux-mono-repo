@@ -19,18 +19,6 @@ using namespace ::testing;
 class PluginRegistryTests : public ::testing::Test
 {
 public:
-
-    void SetUp() override
-    {
-        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-        setenv("SOPHOS_INSTALL", "", 0);
-    }
-
-    void TearDown() override
-    {
-        unsetenv("SOPHOS_INSTALL");
-    }
-
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
     {
         std::string jsonString = R"({

@@ -22,13 +22,10 @@ class ProductUninstallerTest : public ::testing::Test
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
-        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-        setenv("SOPHOS_INSTALL", "", 0);
     }
 
     void TearDown() override
     {
-        unsetenv("SOPHOS_INSTALL");
         Tests::restoreFileSystem();
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
     }

@@ -77,8 +77,6 @@ public:
         std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
             std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
         Common::OSUtilitiesImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
-        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-        setenv("SOPHOS_INSTALL", "", 0);
     }
 
     /**
@@ -91,7 +89,6 @@ public:
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();
-        unsetenv("SOPHOS_INSTALL");
         Test::TearDown();
     }
 

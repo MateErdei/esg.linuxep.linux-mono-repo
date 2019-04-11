@@ -17,19 +17,6 @@ namespace
     class TestPluginProxy : public ::testing::Test
     {
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-
-    public:
-        TestPluginProxy()
-        {
-            //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-            setenv("SOPHOS_INSTALL", Common::ApplicationConfigurationImpl::DefaultInstallLocation, 0);
-        }
-
-        ~TestPluginProxy()
-        {
-            unsetenv("SOPHOS_INSTALL");
-        }
-
     };
 } // namespace
 

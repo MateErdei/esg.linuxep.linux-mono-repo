@@ -303,16 +303,8 @@ using namespace UpdateSchedulerImpl::configModule;
 class TestUpdatePolicyTranslator : public ::testing::Test
 {
 public:
-    TestUpdatePolicyTranslator() : m_loggingSetup()
-    {
-        //Set to override finding the install location with a readlink call to make strict mocking of FileSystem easier
-        setenv("SOPHOS_INSTALL", Common::ApplicationConfigurationImpl::DefaultInstallLocation, 0);
-    }
-
-    ~TestUpdatePolicyTranslator()
-    {
-        unsetenv("SOPHOS_INSTALL");
-    }
+    TestUpdatePolicyTranslator() : m_loggingSetup() {}
+    
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
