@@ -494,7 +494,7 @@ namespace
 
         EXPECT_TRUE(m_fileSystem->isFile(filePath));
 
-        m_fileSystem->removeDirectory(filePath);
+        m_fileSystem->removeFileOrDirectory(filePath);
 
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
@@ -508,7 +508,7 @@ namespace
 
         EXPECT_TRUE(m_fileSystem->isDirectory(filePath));
 
-        m_fileSystem->removeDirectory(filePath);
+        m_fileSystem->removeFileOrDirectory(filePath);
 
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
@@ -526,7 +526,7 @@ namespace
         EXPECT_TRUE(m_fileSystem->isDirectory(dirPath));
         EXPECT_TRUE(m_fileSystem->isFile(filePath));
 
-        m_fileSystem->removeDirectory(dirPath);
+        m_fileSystem->removeFileOrDirectory(dirPath);
 
         EXPECT_FALSE(m_fileSystem->exists(dirPath));
     }

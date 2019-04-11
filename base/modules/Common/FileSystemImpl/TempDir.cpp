@@ -59,5 +59,5 @@ void TempDir::deleteTempDir()
 {
     // Must use our own instance, because the filesystem may go away before TempDir is deleted. e.g. TestLoggerConfig
     Common::FileSystem::FileSystemImpl filesystem;
-    filesystem.removeDirectory(m_tempdir);
+    filesystem.removeFileOrDirectory(m_tempdir);
 }

@@ -62,7 +62,7 @@ namespace Common
 
             void removeFile(const Path& path) const override;
 
-            void removeDirectory(const Path& path) const override;
+            void removeFileOrDirectory(const Path& path) const override;
 
 
         };

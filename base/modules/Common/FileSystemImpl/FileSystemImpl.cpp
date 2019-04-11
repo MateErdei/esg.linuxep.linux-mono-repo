@@ -519,13 +519,13 @@ namespace Common
             }
         }
 
-        void FileSystemImpl::removeDirectory(const Path& dir) const
+        void FileSystemImpl::removeFileOrDirectory(const Path& dir) const
         {
             if (isDirectory(dir))
             {
                 for (const auto& path : listFilesAndDirectories(dir, true))
                 {
-                    removeDirectory(path);
+                    removeFileOrDirectory(path);
                 }
             }
 
