@@ -11,14 +11,10 @@ namespace Telemetry
     /**
      * To be used when parsing arguments from argv as received in int main( int argc, char * argv[]).
      *
-     * It runs fileEntriesAndRunDownloader and forward its return.
+     * It logs a message then returns.
      *
-     * It accepts only the following usage:
-     * argv => SulDownloader <InputPath> <OutputPath>
-     * Hence, it require argc == 3 and passes the InputPath and OutputPath to fileEntriesAndRunDownloader.
-     *
-     * @param argc As convention, the number of valid entries in argv with the program as the first argument.
-     * @param argv As convention the strings of arguments.
+     * @param argc As convention the number of valid entries in argv with the program as the first argument.
+     * @param argv As convention an array of string arguments.
      * @return
      */
     int main_entry(int argc, char* argv[]);

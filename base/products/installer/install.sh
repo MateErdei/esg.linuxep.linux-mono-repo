@@ -255,6 +255,8 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
+makedir 770 "${SOPHOS_INSTALL}/base/etc/sophosspl"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
@@ -265,8 +267,8 @@ makedir 700 "${SOPHOS_INSTALL}/base/update/certs"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 
-makedir 700 "${SOPHOS_INSTALL}/base/bin"
-makedir 700 "${SOPHOS_INSTALL}/base/lib64"
+makedir 711 "${SOPHOS_INSTALL}/base/bin"
+makedir 711 "${SOPHOS_INSTALL}/base/lib64"
 
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/action"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/policy"
@@ -275,7 +277,9 @@ makedir 750 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
 
-chmod -R 750 "${SOPHOS_INSTALL}/base/mcs/"*
+makedir 711 "${SOPHOS_INSTALL}/plugins"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
+
 chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 
@@ -314,11 +318,22 @@ done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
+chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
 chmod u+x "${SOPHOS_INSTALL}/base/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/bin"/*
 chmod u+x "${SOPHOS_INSTALL}/base/lib64"/*
+chown -h root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/lib64"/*
+chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
+
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/Telemetry"*
+
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
+chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
