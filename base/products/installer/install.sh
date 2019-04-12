@@ -330,7 +330,7 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
 chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/Telemetry"*
+chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*

@@ -19,7 +19,7 @@ namespace Telemetry
 
         std::stringstream msg;
         msg << "Running telemetry executable with arguments: ";
-        for (int i = 0; i < argc; i++)
+        for (int i = 0; i < argc; ++i)
         {
             msg << argv[i] << " ";
         }

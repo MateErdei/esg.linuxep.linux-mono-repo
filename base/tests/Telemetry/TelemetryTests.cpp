@@ -31,9 +31,10 @@ TEST_F(TelemetryTest, main_entry_ReturnsSuccess) // NOLINT
     std::vector<std::string> arguments = {"arg1", "arg2"};
 
     std::vector<char*> argv;
-    for (const auto& arg : arguments)
-        argv.push_back((char*)arg.data());
-    argv.push_back(nullptr);
+    for (auto& arg : arguments)
+    {
+        argv.emplace_back(static_cast<char*>(arg.data()));
+    }
 
     int expectedErrorCode = 0;
 
