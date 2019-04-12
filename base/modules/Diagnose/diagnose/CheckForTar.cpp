@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #include <stdlib.h>
 
@@ -55,5 +56,10 @@ bool diagnose::CheckForTar::isTarAvailable()
      * even if we are called from a setuid binary.
      */
     char* PATH = ::getenv("PATH");
+    if (PATH == nullptr)
+    {
+        std::cerr << "No PATH specified in environment" << std::endl;
+        return false;
+    }
     return isTarAvailable(PATH);
 }
