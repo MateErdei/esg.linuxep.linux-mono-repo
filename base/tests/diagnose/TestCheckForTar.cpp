@@ -4,7 +4,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/Diagnose/diagnose/CheckForTar.h>
+#include <Diagnose/diagnose/CheckForTar.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <gtest/gtest.h>
 
@@ -36,5 +37,9 @@ TEST(TestCheckForTar, manyNonExistentPathsFollowedByBin) // NOLINT
 
 TEST(TestCheckForTar, simpleBin) // NOLINT
 {
-    ASSERT_TRUE(diagnose::CheckForTar::isTarAvailable("/bin"));
+    // Check for /bin/tar
+    auto filesystem = Common::FileSystem::fileSystem();
+    auto tarpresent = filesystem->isFile("/bin/tar");
+
+    ASSERT_EQ(diagnose::CheckForTar::isTarAvailable("/bin"),tarpresent);
 }
