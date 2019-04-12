@@ -66,7 +66,7 @@ namespace diagnose
         if (!diagnose::CheckForTar::isTarAvailable())
         {
             std::cerr << "tar command not available: unable to generate diagnose output" << std::endl;
-            return 2;
+            return 4;
         }
 
         try
