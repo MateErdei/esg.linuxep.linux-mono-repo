@@ -32,7 +32,6 @@ namespace
 
 bool diagnose::CheckForTar::isTarAvailable(const std::string& PATH)
 {
-    static_cast<void>(PATH);
     if (PATH.empty())
     {
         return false;
