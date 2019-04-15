@@ -135,7 +135,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocatio
 }
 
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutableCantBeFoundAndNoEnvPathSet) //NOLINT
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExpectedFoldersCantBeFoundAndNoEnvPathSet) //NOLINT
 {
     std::string path = "/Not/A/sophos-spl/Install/Path";
 
