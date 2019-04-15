@@ -10,6 +10,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <stdlib.h>
 
+namespace
+{
+    constexpr char pluginRegRelPath[] = "base/pluginRegistry";
+    constexpr char baseBinRelPath[] = "base/bin";
+}  //namespace
+
 class ApplicationConfigurationTests : public ::testing::Test
 {
 public:
@@ -45,6 +51,20 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
     EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
+
+    std::string binDirName = Common::FileSystem::dirName(fullPath);
+    std::string baseDirName = Common::FileSystem::dirName(binDirName);
+    std::string sophosDirName = Common::FileSystem::dirName(baseDirName);
+
+    std::string testPath = Common::FileSystem::join(binDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(baseDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(sophosDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
+    testPath = Common::FileSystem::join(sophosDirName, baseBinRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
+
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
@@ -58,6 +78,16 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
     EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
+
+    std::string binDirName = Common::FileSystem::dirName(fullPath);
+    std::string sophosDirName = Common::FileSystem::dirName(binDirName);
+
+    std::string testPath = Common::FileSystem::join(binDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(sophosDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
+    testPath = Common::FileSystem::join(sophosDirName, baseBinRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
@@ -71,17 +101,48 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder
     std::string fullPath = Common::FileSystem::join(basePath, exePath);
 
     EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(fullPath));
+    std::string pluginBinDirName = Common::FileSystem::dirName(fullPath);
+    std::string pluginNameDirName = Common::FileSystem::dirName(pluginBinDirName);
+    std::string pluginsDirName = Common::FileSystem::dirName(pluginNameDirName);
+    std::string sophosDirName = Common::FileSystem::dirName(pluginsDirName);
+
+    std::string testPath = Common::FileSystem::join(pluginBinDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(pluginNameDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(pluginsDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(false));
+    testPath = Common::FileSystem::join(sophosDirName, pluginRegRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
+    testPath = Common::FileSystem::join(sophosDirName, baseBinRelPath);
+    EXPECT_CALL(*m_mockFileSystem, exists(testPath)).WillOnce(Return(true));
+
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
     ASSERT_EQ(installLocation, basePath);
 }
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutableCantBeFoundAndNoEnvPathSet) //NOLINT
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutablePathReturnsEmpty) //NOLINT
 {
     std::string defaultInstallLocation = Common::ApplicationConfigurationImpl::DefaultInstallLocation;
 
     EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(""));
+    Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
+    std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
+
+    ASSERT_EQ(installLocation, defaultInstallLocation);
+}
+
+
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutableCantBeFoundAndNoEnvPathSet) //NOLINT
+{
+    std::string path = "/Not/A/sophos-spl/Install/Path";
+
+    std::string defaultInstallLocation = Common::ApplicationConfigurationImpl::DefaultInstallLocation;
+
+    EXPECT_CALL(*m_mockFileSystem, readlink("/proc/self/exe")).WillOnce(Return(path));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillRepeatedly(Return(false));
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 

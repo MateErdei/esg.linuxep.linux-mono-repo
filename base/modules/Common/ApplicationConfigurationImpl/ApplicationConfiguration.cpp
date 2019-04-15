@@ -11,6 +11,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
+    // Below directories should exist in the sophos install path and have
+    // correct permissions for both root and sophos-spl-user to query
+    constexpr char pluginRegRelPath[] = "base/pluginRegistry";
+    constexpr char baseBinRelPath[] = "base/bin";
 
     Path workOutInstallDirectory()
     {
@@ -26,11 +30,16 @@ namespace
                                                                                  // $SOPHOS_INSTALL/plugins/PluginName/X
         if (!exe.empty())
         {
-            std::string installTipDir = "sophos-spl"; // All custom installation directories have sophos-spl at the tip
-                                                      // this is added by the thin-installer
-            size_t pos = exe.find(installTipDir);
-            if (pos !=std::string::npos) {
-               return exe.substr(0, pos+installTipDir.size());
+            std::string baseDirName = Common::FileSystem::dirName(exe);
+            while (!baseDirName.empty()) {
+                std::string checkPath1 = Common::FileSystem::join(baseDirName, pluginRegRelPath);
+                std::string checkPath2 = Common::FileSystem::join(baseDirName, baseBinRelPath);
+                if (Common::FileSystem::fileSystem()->exists(checkPath1) &&
+                    Common::FileSystem::fileSystem()->exists(checkPath2))
+                {
+                    return baseDirName;
+                }
+                baseDirName = Common::FileSystem::dirName(baseDirName);
             }
         }
 
