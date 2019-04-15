@@ -153,6 +153,12 @@ find_library(OPENSSLCRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
+set( CURL_INCLUDE_DIR ${CURL_INPUT}/include64 )
+find_library(CURL_LIBRARY
+        NAMES curl
+        PATHS ${CURL_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
