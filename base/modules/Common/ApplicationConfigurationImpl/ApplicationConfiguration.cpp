@@ -32,6 +32,7 @@ namespace
         {
             std::string baseDirName = Common::FileSystem::dirName(exe);
             while (!baseDirName.empty()) {
+                //Check if expected directories exist here
                 std::string checkPath1 = Common::FileSystem::join(baseDirName, pluginRegRelPath);
                 std::string checkPath2 = Common::FileSystem::join(baseDirName, baseBinRelPath);
                 if (Common::FileSystem::fileSystem()->exists(checkPath1) &&
