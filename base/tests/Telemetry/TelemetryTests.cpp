@@ -18,7 +18,7 @@ class TelemetryTest : public ::testing::Test
 
 TEST(TelemetryTest, main_entry_ReturnsSuccess) // NOLINT
 {
-    std::vector<std::string> arguments = {"arg1", "arg2"};
+    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "localhost", "4443", "GET"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
