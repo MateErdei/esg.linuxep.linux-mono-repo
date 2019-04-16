@@ -218,6 +218,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         os_name = target_system.os_name
         return "".join((
             "<posixPlatformDetails>",
+            "<productType>sspl</productType>",
             "<platform>%s</platform>" % platform,
             "<vendor>%s</vendor>" % vendor,
             "<isServer>1</isServer>",
