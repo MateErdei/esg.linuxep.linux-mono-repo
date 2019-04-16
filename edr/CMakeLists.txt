@@ -43,6 +43,10 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER ${PRODUCT_NAME})
 endif()
 
+if(NOT DEFINED FEATURE_LIST)
+    set(FEATURE_LIST "Sensors")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 # Check process children and give detail for each leak
