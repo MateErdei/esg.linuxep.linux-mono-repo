@@ -13,14 +13,18 @@ enum class NodeType
     dict
 };
 
-class TelemetryNode
+namespace Common::Telemetry
 {
-public:
-    explicit TelemetryNode(NodeType type = NodeType::unknown);
-    virtual ~TelemetryNode() = default;
+    class TelemetryNode
+    {
+    public:
+        explicit TelemetryNode(NodeType type = NodeType::unknown);
 
-    NodeType getType() const noexcept;
+        virtual ~TelemetryNode() = default;
 
-protected:
-    NodeType m_type;
-};
+        NodeType getType() const noexcept;
+
+    protected:
+        NodeType m_nodeType;
+    };
+}

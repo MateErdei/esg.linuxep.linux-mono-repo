@@ -16,7 +16,7 @@ namespace Common::Telemetry
     {
     }
 
-    void TelemetryDictionary::set(const std::string& key, const TelemetryNode& value)
+    void TelemetryDictionary::set(const std::string& key, const std::shared_ptr<TelemetryNode>& value)
     {
         m_nodes[key] = value;
     }
@@ -26,7 +26,7 @@ namespace Common::Telemetry
         m_nodes.clear();
     }
 
-    TelemetryNode& TelemetryDictionary::getNode(const std::string& key)
+    std::shared_ptr<TelemetryNode> TelemetryDictionary::getNode(const std::string& key)
     {
         return m_nodes[key];
     }
