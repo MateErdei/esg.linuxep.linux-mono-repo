@@ -3,6 +3,8 @@ PRODUCT=sspl-base
 export PRODUCT_NAME="Sophos Server Protection Linux - Base"
 export PRODUCT_LINE_ID="ServerProtectionLinux-Base"
 export DEFAULT_HOME_FOLDER="sspl-base"
+#Specify the feature list of the form "feature1, feature2, feature3"
+export FEATURE_LIST="Core, MDR"
 
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
@@ -320,6 +322,7 @@ function build()
         -DPRODUCT_NAME="${PRODUCT_NAME}" \
         -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
         -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
+        -DFEATURE_LIST="${FEATURE_LIST}" \
         -DREDIST="${REDIST}" \
         -DINPUT="${REDIST}" \
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \

@@ -63,6 +63,14 @@ def addFile(doc, filelist, fileobj):
 
     filelist.appendChild(fileNode)
 
+def addFeature(doc, featureList, feature):
+    """
+    <Feature id="AV"/>
+    """
+    featureNode = doc.createElement("Feature")
+    featureNode.setAttribute("id", feature)
+    featureList.appendChild(featureNode)
+
 def remove_blanks(node):
     for x in node.childNodes:
         if x.nodeType == xml.dom.Node.TEXT_NODE:
@@ -215,6 +223,16 @@ def getProductName():
 
     return getVariable("PRODUCT_NAME", "PRODUCT_NAME", "Product/Plugin Name", "Sophos Server Protection Linux - Base")
 
+def getFeatureList():
+    temp = os.environ.get("FEATURE_LIST", None)
+    if temp is not None:
+        return temp
+
+#   Read csv list of features of the form: feature1, feature2, feature3
+    features_string = getVariable("FEATURE_LIST", "FEATURE_LIST", "Feature List", "Core")
+    return features_string.split(", ")
+
+
 def getRigidName():
     return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base")
 
@@ -227,6 +245,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     fullVersion = readVersion(BASE)
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
+    featureList = getFeatureList()
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
@@ -238,6 +257,11 @@ def generate_sdds_import(dist, file_objects, BASE=None):
             fullVersion = f.contents().strip()
         elif base == "rigidName":
             rigidName = f.contents().strip()
+
+    featureListNode = doc.getElementsByTagName("Features")[0]
+    for feature in featureList:
+        addFeature(doc, featureListNode, feature)
+
 
     setTextInTag(doc, "RigidName", rigidName)
     setTextInTag(doc, "Version", fullVersion)
@@ -252,6 +276,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
 
     longDescription = "Sophos Server Protection for Linux v%s" % fullVersion
     setTextInTag(doc, "LongDesc", longDescription)
+
 
 
     f = open(sdds_import_path, "wb")
