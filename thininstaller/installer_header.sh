@@ -509,6 +509,5 @@ then
 fi
 
 cleanup_and_exit ${inst_ret}
-#__END_OF_HEADER__
 __MIDDLE_BIT__
 __ARCHIVE_BELOW__
