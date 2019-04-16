@@ -42,7 +42,7 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER "sspl-base")
 endif()
 if(NOT DEFINED FEATURE_LIST)
-    set(FEATURES_LIST "Core, MDR")
+    set(FEATURES_LIST "Core")
 endif()
 
 find_package(PkgConfig)

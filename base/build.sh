@@ -4,7 +4,7 @@ export PRODUCT_NAME="Sophos Server Protection Linux - Base"
 export PRODUCT_LINE_ID="ServerProtectionLinux-Base"
 export DEFAULT_HOME_FOLDER="sspl-base"
 #Specify the feature list of the form "feature1, feature2, feature3"
-export FEATURE_LIST="Core, MDR"
+export FEATURE_LIST="Core"
 
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
