@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 const int TEST_INTEGER = 10;
 const bool TEST_BOOL = true;
-const std::string TEST_STRING = "Test String";
+const std::string TEST_STRING = "Test String";  // NOLINT
 
 // Construction
 TEST(TestTelemetryValueImpl, Construction) // NOLINT
@@ -58,7 +58,7 @@ TEST(TestTelemetryValueImpl, GetIntegerThrowsWhenSetToString) // NOLINT
     Common::Telemetry::TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(Common::Telemetry::ValueType::string_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getInteger(), std::bad_variant_access);
+    EXPECT_THROW(telemetryValue.getInteger(), std::bad_variant_access);  // NOLINT
 }
 
 // Strings
@@ -85,7 +85,7 @@ TEST(TestTelemetryValueImpl, GetStringThrowsWhenSetToInt) // NOLINT
     Common::Telemetry::TelemetryValue telemetryValue;
     telemetryValue.set(TEST_INTEGER);
     ASSERT_EQ(Common::Telemetry::ValueType::integer_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getString(), std::bad_variant_access);
+    EXPECT_THROW(telemetryValue.getString(), std::bad_variant_access);  // NOLINT
 }
 
 // Bools
@@ -103,11 +103,11 @@ TEST(TestTelemetryValueImpl, GetBoolThrowsWhenSetToString) // NOLINT
     Common::Telemetry::TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(Common::Telemetry::ValueType::string_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getBoolean(), std::bad_variant_access);
+    EXPECT_THROW(telemetryValue.getBoolean(), std::bad_variant_access);  // NOLINT
 }
 
 TEST(TestTelemetryValueImpl, GetBoolThrowsWhenNothingSet) // NOLINT
 {
     Common::Telemetry::TelemetryValue telemetryValue;
-    EXPECT_THROW(telemetryValue.getBoolean(), std::bad_variant_access);
+    EXPECT_THROW(telemetryValue.getBoolean(), std::bad_variant_access);  // NOLINT
 }

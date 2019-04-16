@@ -28,7 +28,7 @@ namespace Common::Telemetry
 
     std::shared_ptr<TelemetryNode> TelemetryDictionary::getNode(const std::string& key)
     {
-        return m_nodes[key];
+        return m_nodes.at(key);
     }
 
     bool TelemetryDictionary::keyExists(const std::string& key)
