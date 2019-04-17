@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include "curl.h"
 
+#include <fstream>
 #include <sstream>
 
 namespace Telemetry
@@ -16,10 +17,9 @@ namespace Telemetry
     void http_request(
             const std::string& server,
             const int& port,
-            const std::string& verb
-            //const std::vector<std::string>& additionalHeaders,
-            //const std::string& resourceRoot,
-            //const int& interval
+            const std::string& verb,
+            const std::vector<std::string>& additionalHeaders=std::vector<std::string>(),
+            const std::string& jsonStruct=""
             )
     {
         std::stringstream uri;
@@ -39,23 +39,29 @@ namespace Telemetry
         {
             curl_easy_setopt(curl, CURLOPT_URL, uri.str().c_str());
 
-            /* Perform the request, res will get the return code */
-
-
-            /* TODO: Add code to execute a PUT request
-            if(verb.compare("PUT") == 0)
+            struct curl_slist *headers = nullptr;
+            headers = curl_slist_append(headers, "Accept: application/json");
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            headers = curl_slist_append(headers, "charsets: utf-8");
+            for (auto const& header : additionalHeaders)
             {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=mel&project=telemetryrequest");
+                headers = curl_slist_append(headers, header.c_str());
             }
-            */
+
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+            if(verb.compare("POST") == 0)
+            {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStruct.c_str());
+            }
 
             res = curl_easy_perform(curl);
-            /* Check for errors */
+
             if(res != CURLE_OK)
                 fprintf(stderr, "curl_easy_perform() failed: %s\n",
                         curl_easy_strerror(res));
 
-            /* always cleanup */
+            curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
         }
 
@@ -67,15 +73,30 @@ namespace Telemetry
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("telemetry");
 
-        std::stringstream msg;
-        msg << "Running telemetry executable with arguments: ";
-        for (int i = 0; i < argc; ++i)
+        if (argc != 4) // argv[0] is the binary path
         {
-            msg << argv[i] << " ";
+            LOGERROR("Telemetry executable expects 3 arguments [server, port, verb]");
+            return 1;
         }
+
+        std::string server = argv[1];
+        int port = std::stoi(argv[2]);
+        std::string verb = argv[3];
+        std::vector<std::string> additionalHeaders;
+        additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control"); // [LINUXEP-6075] This will be read in from a configuration file
+
+        std::stringstream msg;
+        msg << "Running telemetry executable with arguments: Server: " << server << ", Port: " << port << ", Verb: " << verb;
         LOGINFO(msg.str());
 
-        http_request(argv[1], std::stoi(argv[2]), argv[3]); // [LINUXEP-6075] This will be done via a configuration file
+        if(verb.compare("POST") == 0) {
+            std::string jsonStruct = "{ telemetryKey : telemetryValue }"; // [LINUXEP-6631] This will be specified later on
+            http_request(server, port, verb, additionalHeaders, jsonStruct); // [LINUXEP-6075] This will be done via a configuration file
+        }
+        else
+        {
+            http_request(server, port, verb, additionalHeaders); // [LINUXEP-6075] This will be done via a configuration file
+        }
 
         return 0;
     }
