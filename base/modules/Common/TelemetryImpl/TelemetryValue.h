@@ -23,10 +23,11 @@ namespace Common::Telemetry
     {
     public:
         TelemetryValue();
-        explicit TelemetryValue(const std::string&  value);
-        explicit TelemetryValue(const bool value);
-        explicit TelemetryValue(const int value);
-        explicit TelemetryValue(const char* value);
+        explicit TelemetryValue(const std::string& str);
+        explicit TelemetryValue(const std::string& str, const std::string& value);
+        explicit TelemetryValue(const std::string& str, const bool value);
+        explicit TelemetryValue(const std::string& str, const int value);
+        explicit TelemetryValue(const std::string& str, const char* value);
         ~TelemetryValue() override = default;
 
         void set(int value);
@@ -36,9 +37,12 @@ namespace Common::Telemetry
 
         ValueType getValueType() const;
 
-        int getInteger();
-        bool getBoolean();
-        std::string getString();
+        int getInteger() const;
+        bool getBoolean() const;
+        std::string getString() const;
+
+        bool operator==(const TelemetryValue& rhs) const;
+        bool operator!=(const TelemetryValue& rhs) const;
 
     private:
         std::variant<int, bool, std::string> m_value;

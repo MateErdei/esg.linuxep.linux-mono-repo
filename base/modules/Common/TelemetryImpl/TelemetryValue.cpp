@@ -14,23 +14,23 @@ namespace Common::Telemetry
     {
     }
 
-    TelemetryValue::TelemetryValue(const std::string& value)
-        : TelemetryNode(NodeType::value), m_value(value), m_valueType(ValueType::string_type)
+    TelemetryValue::TelemetryValue(const std::string& str, const std::string& value)
+        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::string_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const bool value)
-        : TelemetryNode(NodeType::value), m_value(value), m_valueType(ValueType::boolean_type)
+    TelemetryValue::TelemetryValue(const std::string& str, const bool value)
+        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::boolean_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const int value)
-        : TelemetryNode(NodeType::value), m_value(value), m_valueType(ValueType::integer_type)
+    TelemetryValue::TelemetryValue(const std::string& str, const int value)
+        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::integer_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const char* value)
-        : TelemetryNode(NodeType::value), m_value(std::string(value)), m_valueType(ValueType::string_type)
+    TelemetryValue::TelemetryValue(const std::string& str, const char* value)
+        : TelemetryNode(str, NodeType::value), m_value(std::string(value)), m_valueType(ValueType::string_type)
     {
     }
 
@@ -58,17 +58,17 @@ namespace Common::Telemetry
         m_valueType = ValueType::string_type;
     }
 
-    int TelemetryValue::getInteger()
+    int TelemetryValue::getInteger() const
     {
         return std::get<int>(m_value);
     }
 
-    bool TelemetryValue::getBoolean()
+    bool TelemetryValue::getBoolean() const
     {
         return std::get<bool>(m_value);
     }
 
-    std::string TelemetryValue::getString()
+    std::string TelemetryValue::getString() const
     {
         return std::get<std::string>(m_value);
     }
@@ -76,5 +76,22 @@ namespace Common::Telemetry
     ValueType TelemetryValue::getValueType() const
     {
         return m_valueType;
+    }
+
+    TelemetryValue::TelemetryValue(const std::string& str)
+        : TelemetryNode(str, NodeType::value), m_valueType(ValueType::unset)
+    {
+
+    }
+
+    bool TelemetryValue::operator==(const TelemetryValue& rhs) const
+    {
+        return m_value == rhs.m_value &&
+               m_valueType == rhs.m_valueType;
+    }
+
+    bool TelemetryValue::operator!=(const TelemetryValue& rhs) const
+    {
+        return !(rhs == *this);
     }
 }

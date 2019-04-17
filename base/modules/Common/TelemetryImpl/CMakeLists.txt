@@ -6,10 +6,12 @@ add_library(telemetryimpl
         TelemetryValue.h
         TelemetryNode.cpp
         TelemetryNode.h
+        TelemetrySerialiser.h
+        TelemetrySerialiser.cpp
         Logger.h
         Logger.cpp)
 
-target_include_directories(telemetryimpl PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(telemetryimpl PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE})
 
 target_link_libraries(telemetryimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
 
