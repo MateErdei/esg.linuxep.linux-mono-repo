@@ -43,9 +43,10 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER ${PRODUCT_NAME})
 endif()
 
-if(NOT DEFINED FEATURE_LIST)
-    set(FEATURE_LIST "Sensors")
-endif()
+#Specify the feature list of the form "feature1, feature2, feature3"
+#Set "" for no features when including in a component suite
+set(FEATURE_LIST "")
+
 
 set(CMAKE_CXX_STANDARD 17)
 
