@@ -264,7 +264,6 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     for feature in featureList:
         addFeature(doc, featureListNode, feature)
 
-
     setTextInTag(doc, "RigidName", rigidName)
     setTextInTag(doc, "Version", fullVersion)
     setTextInTag(doc, "Name", productName)
