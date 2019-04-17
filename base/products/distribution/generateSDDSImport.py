@@ -229,7 +229,9 @@ def getFeatureList():
         return temp
 
 #   Read csv list of features of the form: feature1, feature2, feature3
-    features_string = getVariable("FEATURE_LIST", "FEATURE_LIST", "Feature List", "Core")
+    features_string = getVariable("FEATURE_LIST", "FEATURE_LIST", "Feature List", "")
+    if features_string == "":
+        return []
     return features_string.split(", ")
 
 

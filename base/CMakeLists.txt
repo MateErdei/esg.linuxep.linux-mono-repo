@@ -41,9 +41,10 @@ endif()
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER "sspl-base")
 endif()
-if(NOT DEFINED FEATURE_LIST)
-    set(FEATURES_LIST "Core")
-endif()
+
+#Specify the feature list of the form "feature1, feature2, feature3"
+#Set "" for no features when including in a component suite
+set(FEATURES_LIST "CORE")
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
