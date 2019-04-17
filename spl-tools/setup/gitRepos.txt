@@ -5,3 +5,5 @@ ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-audit.git
 ssh://git@stash.sophos.net:7999/linuxep/exampleplugin.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-eventprocessor.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git
