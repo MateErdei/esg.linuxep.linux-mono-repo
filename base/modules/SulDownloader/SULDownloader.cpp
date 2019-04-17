@@ -67,8 +67,10 @@ namespace SulDownloader
         if (productReportItr != productReports.end())
         {
             if (productReportItr->productStatus == ProductReport::ProductStatus::InstallFailed ||
-                productReportItr->productStatus == ProductReport::ProductStatus::SyncFailed)
+                productReportItr->productStatus == ProductReport::ProductStatus::SyncFailed ||
+                productReportItr->productStatus == ProductReport::ProductStatus::VerifyFailed)
             {
+                LOGDEBUG("Force reinstall because this specific product failed.");
                 return true;
             }
         }
