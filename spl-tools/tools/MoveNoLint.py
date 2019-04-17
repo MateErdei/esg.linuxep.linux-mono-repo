@@ -29,7 +29,8 @@ def processFile(filepath):
             b"ASSERT_THROW" in line or
             b"EXPECT_NO_THROW" in line or
             b"ASSERT_NO_THROW" in line or
-            b"INSTANTIATE_TEST_CASE_P" in line
+            b"INSTANTIATE_TEST_CASE_P" in line or
+            b"EXPECT_EXIT" in line
         )
 
         if nolint:
