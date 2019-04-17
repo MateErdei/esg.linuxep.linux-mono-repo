@@ -119,12 +119,12 @@ namespace SulDownloader
         bool forceReinstallAllProducts = configurationData.getForceReinstallAllProducts();
         for (auto& product : products)
         {
-            bool forceReinstallThisProduct = forceReinstallAllProducts? true: forceInstallOfProduct(product, previousDownloadReport);
+            bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);
 
-            if (forceReinstallThisProduct)
+            if ( forceReinstallAllProducts || forceReinstallThisProduct)
             {
-                LOGSUPPORT("Mark product to be reinstalled. Reason, AllProducts: " << forceReinstallAllProducts
-                << ", This Product: " << forceReinstallThisProduct << ". Product=" << product.getLine());
+                LOGSUPPORT("Mark product to be reinstalled. Reason: AllProducts: " << forceReinstallAllProducts
+                << ", This Product: " << forceReinstallThisProduct << ". Product = " << product.getLine());
                 product.setForceProductReinstall(true);
             }
         }
