@@ -44,7 +44,7 @@ endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
-set(FEATURES_LIST "CORE")
+set(FEATURE_LIST "CORE")
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
