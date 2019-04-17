@@ -16,6 +16,36 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
+        class ProductSubscription
+        {
+            std::string m_rigidName;
+            std::string m_baseVersion;
+            std::string m_tag;
+            std::string m_fixVersion;
+
+        public:
+            ProductSubscription( const std::string & rigidName, const std::string & baseVersion,
+                    const std::string & tag, const std::string & fixVersion):
+                    m_rigidName(rigidName), m_baseVersion(baseVersion),
+                    m_tag(tag), m_fixVersion(fixVersion)
+            {
+            }
+            ProductSubscription() {}
+            const std::string&  rigidName() const { return m_rigidName; }
+            const std::string&  baseVersion() const {return m_baseVersion; }
+            const std::string&  tag() const {return m_tag; }
+            const std::string&  fixVersion() const {return m_fixVersion; }
+
+            bool operator==(const ProductSubscription& rhs) const
+            {
+                return (
+                        (m_rigidName == rhs.m_rigidName) && (m_baseVersion == rhs.m_baseVersion) &&
+                        (m_tag== rhs.m_tag) && (m_fixVersion == rhs.m_fixVersion));
+            }
+
+            bool operator!=(const ProductSubscription& rhs) const { return !operator==(rhs); }
+        };
+
         struct ProductGUID
         {
             std::string Name;
@@ -57,7 +87,11 @@ namespace SulDownloader
                 NORMAL,
                 VERBOSE
             };
-
+            static ConfigurationData createConfigurationDataV2(
+                    const std::vector<std::string>& sophosLocationURL = {},
+                    Credentials credentials = Credentials(),
+                    const std::vector<std::string>& updateCache = std::vector<std::string>(),
+                    Proxy policyProxy = Proxy());
             explicit ConfigurationData(
                 const std::vector<std::string>& sophosLocationURL = {},
                 Credentials credentials = Credentials(),
@@ -188,6 +222,27 @@ namespace SulDownloader
             const std::string& getSystemSslCertificatePath() const;
 
             /**
+             * Set the primary subscription. The primary subscription is meant to be used to enforce that it can never
+             * be automatically uninstalled if not present in the warehouse. For sspl it is meant to target base.
+             * @param productSubscription
+             */
+            void setPrimarySubscription( const ProductSubscription & productSubscription);
+            /** Set the list of other products to be installed. In sspl it is meant to target Sensors, MDR, etc
+             */
+            void setProductsSubscription( const std::vector<ProductSubscription> & productsSubscriptions);
+
+            /**
+             * Access to the primary subscription
+             * @return
+             */
+
+            const ProductSubscription&  getPrimarySubscription() const;
+            /** Access to the list of subscriptions
+             * @return
+             */
+            const std::vector<ProductSubscription>&  getProductsSubscription() const;
+
+            /**
              * Adds the given productGUID containing the product details to the product selection list
              * @param productGUID, object containing the product details.
              */
@@ -248,6 +303,21 @@ namespace SulDownloader
             void setManifestNames(const std::vector<std::string>& manifestNames);
 
             /**
+             * Set the list of features that the downloaded products should have.
+             * Valid values are for example CORE, MDR, SENSORS. It is meant to be used
+             * as a second filter level to select only products that have the featues that the
+             * EndPoint is meant to have.
+             * @param features
+             */
+            void setFeatures(const std::vector<std::string> & features);
+            /**
+             * Access to the features configured.
+             * @return
+             */
+            std::vector<std::string> getFeatures() const;
+
+
+            /**
              * Used to verify all required settings stored in the ConfigurationData object
              * @test sophosUpdateUrls list is not empty
              * @test productSelection list is not empty
@@ -288,12 +358,20 @@ namespace SulDownloader
             static std::string toJsonSettings(const ConfigurationData&);
 
         private:
+
             enum class State
             {
                 Initialized,
                 Verified,
                 FailedVerified
             };
+            enum class Version
+            {
+                V1,
+                V2
+            };
+            Version m_version = Version::V1;
+
             Credentials m_credentials;
             std::vector<std::string> m_sophosUpdateUrls;
             std::vector<std::string> m_localUpdateCacheUrls;
@@ -303,6 +381,9 @@ namespace SulDownloader
             std::string m_systemSslCertificatePath;
             std::string m_updateCacheSslCertificatePath;
             std::vector<ProductGUID> m_productSelection;
+            std::vector<ProductSubscription> m_productsSubscription;
+            ProductSubscription m_primarySubscription;
+            std::vector<std::string> m_features;
             std::vector<std::string> m_installArguments;
             LogLevel m_logLevel;
             bool m_forceReinstallAllProducts;

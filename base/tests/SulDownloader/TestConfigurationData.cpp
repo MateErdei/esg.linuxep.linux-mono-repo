@@ -122,6 +122,78 @@ public:
         return jsonString;
     }
 
+
+    std::string createV2JsonString(const std::string& oldPartString, const std::string& newPartString)
+    {
+        std::string jsonString = R"({
+                               "sophosURLs": [
+                               "https://sophosupdate.sophos.com/latest/warehouse"
+                               ],
+                               "updateCache": [
+                               "https://cache.sophos.com/latest/warehouse"
+                               ],
+                               "credential": {
+                               "username": "administrator",
+                               "password": "password"
+                               },
+                               "proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },
+                               "manifestNames" : ["manifest.dat"],
+                               "installationRootPath": "absInstallationPath",
+                               "certificatePath": "absCertificatePath",
+                               "systemSslPath": "absSystemSslPath",
+                               "cacheUpdateSslPath": "absCacheUpdatePath",
+                               "primarySubscription": {
+                                "rigidName" : "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixVersion" : ""
+                                },
+                                "products": [
+                                {
+                                "rigidName" : "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixVersion" : ""
+                                },
+                                ],
+                                "features": ["CORE", "MDR"],
+                                "configVersion": "V2",
+                               "installArguments": [
+                               "--install-dir",
+                               "/opt/sophos-av"
+                               ]
+                               })";
+
+        jsonString.replace(
+                jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
+        jsonString.replace(
+                jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
+        jsonString.replace(
+                jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
+        jsonString.replace(
+                jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
+
+        if (!oldPartString.empty())
+        {
+            size_t pos = jsonString.find(oldPartString);
+
+            EXPECT_TRUE(pos != std::string::npos);
+
+            jsonString.replace(pos, oldPartString.size(), newPartString);
+        }
+
+        return jsonString;
+    }
+
+
+
     ::testing::AssertionResult configurationDataIsEquivalent(
         const char* m_expr,
         const char* n_expr,
@@ -158,12 +230,13 @@ public:
 
         if (expected.getPolicyProxy().getUrl() != resulted.getPolicyProxy().getUrl())
         {
-            return ::testing::AssertionFailure() << s.str() << "proxy urls differ";
+            return ::testing::AssertionFailure() << s.str() << "proxy urls differ "
+                << expected.getPolicyProxy().getUrl() << " != " << resulted.getPolicyProxy().getUrl();
         }
 
         if (expected.getPolicyProxy() != resulted.getPolicyProxy())
         {
-            return ::testing::AssertionFailure() << s.str() << "proxy credentials differ";
+            return ::testing::AssertionFailure() << s.str() << "proxy credentials differ ";
         }
 
         if (expected.proxiesList() != resulted.proxiesList())
@@ -204,6 +277,21 @@ public:
         if (expected.getInstallArguments() != resulted.getInstallArguments())
         {
             return ::testing::AssertionFailure() << s.str() << "install arguments differs";
+        }
+
+        if (expected.getPrimarySubscription() != resulted.getPrimarySubscription())
+        {
+            return ::testing::AssertionFailure() << s.str() << "primary subscription differs";
+        }
+
+        if (expected.getProductsSubscription() != resulted.getProductsSubscription())
+        {
+            return ::testing::AssertionFailure() << s.str() << "products subscription differs";
+        }
+
+        if (expected.getFeatures() != resulted.getFeatures())
+        {
+            return ::testing::AssertionFailure() << s.str() << "features differs";
         }
 
         return ::testing::AssertionSuccess();
@@ -868,4 +956,135 @@ TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
         ConfigurationData::fromJsonSettings(ConfigurationData::toJsonSettings(configurationData));
 
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
+}
+
+
+TEST_F( // NOLINT
+        ConfigurationDataTest,
+        supportConfigurationDataV2)
+{
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
+
+    ConfigurationData expectedConfiguration = ConfigurationData::createConfigurationDataV2({"https://sophosupdate.sophos.com/latest/warehouse"},
+            Credentials{"administrator", "password"},
+            {"https://cache.sophos.com/latest/warehouse"},
+            Proxy("noproxy:"));
+    expectedConfiguration.setPrimarySubscription( ProductSubscription{"FD6C1066-E190-4F44-AD0E-F107F36D9D40", "9", "RECOMMENDED", ""} );
+    expectedConfiguration.setProductsSubscription({ProductSubscription{"1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2", "9", "RECOMMENDED", ""}});
+    expectedConfiguration.setFeatures({"CORE", "MDR"});
+    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
+    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
+    expectedConfiguration.setCertificatePath(m_absCertificatePath);
+    expectedConfiguration.setInstallArguments({"--install-dir", "/opt/sophos-av"});
+    expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
+    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
+    std::string serialized = ConfigurationData::toJsonSettings(configurationData);
+    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
+    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
+}
+
+
+TEST_F( // NOLINT
+        ConfigurationDataTest,
+        InterfaceForbidsSettingValuesThatWereNotPresentInV1)
+{
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"FD6C1066-E190-4F44-AD0E-F107F36D9D40", "9", "RECOMMENDED", ""} ), std::logic_error);
+    EXPECT_THROW(configurationData.setProductsSubscription({ProductSubscription{"1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2", "9", "RECOMMENDED", ""}}), std::logic_error);
+    EXPECT_THROW(configurationData.setFeatures({"CORE", "MDR"}), std::logic_error);
+}
+
+TEST_F( // NOLINT
+        ConfigurationDataTest,
+        InterfaceForbidsSettingValuesThatIsMeantToBeRemovedInV2)
+{
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
+    EXPECT_THROW(configurationData.addProductSelection({}), std::logic_error);
+}
+
+
+TEST_F( // NOLINT
+        ConfigurationDataTest,
+        settingsAreValidForV2)
+{
+    setupFileSystemAndGetMock();
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
+    EXPECT_TRUE(configurationData.verifySettingsAreValid());
+
+    std::vector<ConfigurationData> all_invalid_cases;
+
+    ConfigurationData noPrimarySubscriptionConfig(configurationData);
+    noPrimarySubscriptionConfig.setPrimarySubscription({});
+    all_invalid_cases.emplace_back(noPrimarySubscriptionConfig);
+
+    ConfigurationData primaryWithRigidNameOnly(configurationData);
+    primaryWithRigidNameOnly.setPrimarySubscription({"rigidname","","",""});
+    all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
+
+    ConfigurationData primaryWithRigidNameAndBaseVersion(configurationData);
+    primaryWithRigidNameAndBaseVersion.setPrimarySubscription({"rigidname","baseversion","",""});
+    all_invalid_cases.emplace_back(primaryWithRigidNameAndBaseVersion);
+
+    ConfigurationData productsWithRigidNameOnly(configurationData);
+    productsWithRigidNameOnly.setProductsSubscription({ProductSubscription("rigidname", "", "RECOMMENDED", ""),
+                                                       ProductSubscription("rigidname","","","")});
+    all_invalid_cases.emplace_back(productsWithRigidNameOnly);
+
+    ConfigurationData noCoreFeature(configurationData);
+    noCoreFeature.setFeatures({"SAV", "MDR", "SENSOR"});
+    all_invalid_cases.emplace_back(noCoreFeature);
+
+    ConfigurationData noFeatureSet(configurationData);
+    noFeatureSet.setFeatures({});
+    all_invalid_cases.emplace_back(noFeatureSet);
+
+
+    for( auto & configData: all_invalid_cases)
+    {
+        EXPECT_FALSE( configData.verifySettingsAreValid());
+    }
+
+    std::vector<ConfigurationData> all_valid_cases;
+    ConfigurationData primaryWithTag(configurationData);
+    primaryWithTag.setPrimarySubscription({"rigidname", "baseversion", "RECOMMENDED", ""});
+    all_valid_cases.emplace_back(primaryWithTag);
+
+    ConfigurationData primaryWithoutBaseVersion(configurationData);
+    primaryWithoutBaseVersion.setPrimarySubscription({"rigidname", "", "RECOMMENDED", ""});
+    all_valid_cases.emplace_back(primaryWithoutBaseVersion);
+
+    ConfigurationData primaryWithTagAndFixVersion(configurationData);
+    primaryWithTagAndFixVersion.setPrimarySubscription({"rigidname", "", "RECOMMENDED", "9.1"});
+    all_valid_cases.emplace_back(primaryWithTagAndFixVersion);
+
+    ConfigurationData primaryWithOnlyFixVersion(configurationData);
+    primaryWithOnlyFixVersion.setPrimarySubscription({"rigidname", "", "", "9.1"});
+    all_valid_cases.emplace_back(primaryWithOnlyFixVersion);
+
+    ConfigurationData featuresContainCORE(configurationData);
+    featuresContainCORE.setFeatures({{"CORE"}, {"MDR"}});
+    all_valid_cases.emplace_back(featuresContainCORE);
+
+    ConfigurationData onlyCOREinFeatures(configurationData);
+    onlyCOREinFeatures.setFeatures({{"CORE"}});
+    all_valid_cases.emplace_back(onlyCOREinFeatures);
+
+    ConfigurationData moreThanOneProduct(configurationData);
+    moreThanOneProduct.setProductsSubscription({
+                                                       {"p1", "", "RECOMMENDED", ""},
+                                                       {"p2", "", "", "9.1"}
+    });
+    all_valid_cases.emplace_back(moreThanOneProduct);
+
+    ConfigurationData onlyPrimaryAvailable(configurationData);
+    onlyPrimaryAvailable.setProductsSubscription({});
+    all_valid_cases.emplace_back(onlyPrimaryAvailable);
+
+    for( auto & configData: all_valid_cases)
+    {
+        EXPECT_TRUE( configData.verifySettingsAreValid());
+    }
+
+
+
 }

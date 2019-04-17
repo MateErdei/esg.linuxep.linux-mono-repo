@@ -49,4 +49,22 @@ message ConfigurationSettings
     optional bool forceReinstallAllProducts = 16 [default=false];
     repeated string manifestNames = 17;
 
+    message Subscription
+    {
+        optional string rigidName = 1;
+        optional string baseVersion = 2;
+        optional string tag = 3;
+        optional string fixVersion = 4;
+    }
+
+    optional Subscription primarySubscription = 18;
+    repeated Subscription products = 19;
+    repeated string features = 20;
+    enum ConfigVersion
+    {
+       V1=0;
+       V2=1; // Introduced features and subscriptions
+    }
+    optional ConfigVersion  configVersion = 21 [default=V1];
+
 }
