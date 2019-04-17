@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Telemetry/Logger.h"
+#include "Logger.h"
 
 #include <Common/Logging/FileLoggingSetup.h>
 
