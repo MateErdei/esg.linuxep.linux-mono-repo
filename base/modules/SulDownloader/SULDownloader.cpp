@@ -55,6 +55,7 @@ namespace SulDownloader
         if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED ||
             previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED)
         {
+            LOGDEBUG("Force reinstall because previous report failed.");
             return true;
         }
 
@@ -115,15 +116,19 @@ namespace SulDownloader
         std::string sourceURL = warehouseRepository->getSourceURL();
 
         // Mark which products need to be forced to re/install.
+        bool forceReinstallAllProducts = configurationData.getForceReinstallAllProducts();
         for (auto& product : products)
         {
-            if (configurationData.getForceReinstallAllProducts() ||
-                forceInstallOfProduct(product, previousDownloadReport))
+            bool forceReinstallThisProduct = forceReinstallAllProducts? true: forceInstallOfProduct(product, previousDownloadReport);
+
+            if (forceReinstallThisProduct)
             {
+                LOGSUPPORT("Mark product to be reinstalled. Reason, AllProducts: " << forceReinstallAllProducts
+                << ", This Product: " << forceReinstallThisProduct << ". Product=" << product.getLine());
                 product.setForceProductReinstall(true);
             }
         }
-
+        LOGSUPPORT("Checking signature.");
         // Only need to verify the products which the install.sh will be called on.
         for (auto& product : products)
         {

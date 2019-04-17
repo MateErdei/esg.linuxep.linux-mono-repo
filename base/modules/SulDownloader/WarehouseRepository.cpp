@@ -66,8 +66,19 @@ namespace
         LOGDEBUG("\nNew Product");
         for (auto& attribute : attributes)
         {
-            LOGDEBUG(
-                "Tag: " << attribute << " value: " << SulDownloader::SulQueryProductMetadata(product, attribute, 0));
+            std::stringstream all_attributes;
+            for( int i = 0; i< 10; i++)
+            {
+                std::string attribute_value = SulDownloader::SulQueryProductMetadata(product, attribute, i);
+                if( attribute_value.empty())
+                {
+                    break;
+                }
+                all_attributes << " " << attribute_value;
+            }
+            LOGDEBUG(  "Tag: " << attribute << " value:"
+                               << all_attributes.str());
+
         }
         std::vector<Tag> tags(getTags(product));
         for( auto & tag: tags)
