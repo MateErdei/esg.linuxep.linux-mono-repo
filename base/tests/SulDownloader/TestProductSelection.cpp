@@ -4,6 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ConfigurationDataBase.h"
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/TempDir.h>
@@ -11,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-class ProductSelectionTest : public ::testing::Test
+class ProductSelectionTest : public ConfigurationDataBase
 {
 public:
     std::string m_installRootRelPath;
@@ -19,10 +20,13 @@ public:
     std::string m_systemSslRelPath;
     std::string m_cacheUpdateSslRelPath;
 
-    std::string m_absInstallationPath;
-    std::string m_absCertificatePath;
-    std::string m_absSystemSslPath;
-    std::string m_absCacheUpdatePath;
+    // come from ConfigurationDataBAse
+    //std::string m_absInstallationPath;
+    //std::string m_absCertificatePath;
+    //std::string m_absSystemSslPath;
+    //std::string m_absCacheUpdatePath;
+    //std::string m_primaryPath
+    //std::string m_distPath
 
     std::unique_ptr<Tests::TempDir> m_tempDir;
 
@@ -32,6 +36,8 @@ public:
         m_certificateRelPath = "tmp/dev_certificates";
         m_systemSslRelPath = "tmp/etc/ssl/certs";
         m_cacheUpdateSslRelPath = "tmp/etc/cachessl/certs";
+        m_primaryPath = "tmp/sophos-av/update/cache/primarywarehouse";
+        m_distPath =  "tmp/sophos-av/update/cache/primary";
         m_tempDir = Tests::TempDir::makeTempDir();
 
         m_tempDir->makeDirs(std::vector<std::string>{ m_installRootRelPath,
@@ -39,8 +45,8 @@ public:
                                                       m_systemSslRelPath,
                                                       m_systemSslRelPath,
                                                       m_cacheUpdateSslRelPath,
-                                                      "tmp/sophos-av/update/cache/primarywarehouse",
-                                                      "tmp/sophos-av/update/cache/primary" });
+                                                      m_primaryPath,
+                                                      m_distPath});
 
         m_tempDir->createFile(m_certificateRelPath + "/ps_rootca.crt", "empty");
         m_tempDir->createFile(m_certificateRelPath + "/rootca.crt", "empty");
@@ -55,54 +61,13 @@ public:
 
     std::string createJsonString()
     {
-        std::string jsonString = R"({
-                               "sophosURLs": [
-                               "https://sophosupdate.sophos.com/latest/warehouse"
-                               ],
-                               "updateCache": [
-                               "https://cache.sophos.com/latest/warehouse"
-                               ],
-                               "credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },
-                               "proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },
-                               "installationRootPath": "absInstallationPath",
-                               "certificatePath": "absCertificatePath",
-                               "systemSslPath": "absSystemSslPath",
-                               "cacheUpdateSslPath": "absCacheUpdatePath",
-                               "releaseTag": "RECOMMENDED",
-                               "baseVersion": "9",
-                               "primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
-                               "fullNames": [
-                               "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
-                               ],
-                               "prefixNames": [
+        std::string otherprefix = R"("prefixNames": [
+                               "1CD8A803"
+                               ],)";
+        std::string newprefix = R"("prefixNames": [
                                "1CD8A804"
-                               ],
-                               "installArguments": [
-                               "--install-dir",
-                               "/opt/sophos-av"
-                               ]
-                               })";
-
-        jsonString.replace(
-            jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
-        jsonString.replace(
-            jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
-        jsonString.replace(
-            jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
-        jsonString.replace(
-            jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
-
-        return jsonString;
+                               ],)";
+        return ConfigurationDataBase::createJsonString(otherprefix, newprefix);
     }
 
     SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem)
