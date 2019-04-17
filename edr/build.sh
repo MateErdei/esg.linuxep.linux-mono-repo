@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 DEFAULT_PRODUCT=TemplatePlugin
-#Specify the feature list of the form "feature1, feature2, feature3"
-FEATURE_LIST="Sensors"
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -239,7 +237,6 @@ function build()
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
             -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
-            -DFEATURE_LIST="${FEATURE_LIST}" \
             -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
             -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
             -DCMAKE_CXX_COMPILER=$CXX \
