@@ -7,28 +7,26 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <variant>
-#include "TelemetryNode.h"
 
 namespace Common::Telemetry
 {
-    enum class ValueType
-    {
-        unset,
-        integer_type,
-        boolean_type,
-        string_type
-    };
-
-    class TelemetryValue : public TelemetryNode
+    class TelemetryValue
     {
     public:
         TelemetryValue();
-        explicit TelemetryValue(const std::string& str);
-        explicit TelemetryValue(const std::string& str, const std::string& value);
-        explicit TelemetryValue(const std::string& str, const bool value);
-        explicit TelemetryValue(const std::string& str, const int value);
-        explicit TelemetryValue(const std::string& str, const char* value);
-        ~TelemetryValue() override = default;
+        explicit TelemetryValue(const std::string& value);
+        explicit TelemetryValue(const bool value);
+        explicit TelemetryValue(const int value);
+        explicit TelemetryValue(const char* value);
+        ~TelemetryValue() = default;
+
+        enum class ValueType
+        {
+            unset,
+            integer_type,
+            boolean_type,
+            string_type
+        };
 
         void set(int value);
         void set(bool value);
@@ -36,6 +34,7 @@ namespace Common::Telemetry
         void set(const char* value);
 
         ValueType getValueType() const;
+        void checkType(ValueType expectedType) const;
 
         int getInteger() const;
         bool getBoolean() const;

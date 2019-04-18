@@ -4,33 +4,34 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <stdexcept>
 #include "TelemetryValue.h"
 
 namespace Common::Telemetry
 {
 
     TelemetryValue::TelemetryValue()
-        : TelemetryNode(NodeType::value), m_valueType(ValueType::unset)
+        : m_valueType(ValueType::unset)
     {
     }
 
-    TelemetryValue::TelemetryValue(const std::string& str, const std::string& value)
-        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::string_type)
+    TelemetryValue::TelemetryValue(const std::string& value)
+        : m_value(value), m_valueType(ValueType::string_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const std::string& str, const bool value)
-        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::boolean_type)
+    TelemetryValue::TelemetryValue(const bool value)
+        : m_value(value), m_valueType(ValueType::boolean_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const std::string& str, const int value)
-        : TelemetryNode(str, NodeType::value), m_value(value), m_valueType(ValueType::integer_type)
+    TelemetryValue::TelemetryValue(const int value)
+        : m_value(value), m_valueType(ValueType::integer_type)
     {
     }
 
-    TelemetryValue::TelemetryValue(const std::string& str, const char* value)
-        : TelemetryNode(str, NodeType::value), m_value(std::string(value)), m_valueType(ValueType::string_type)
+    TelemetryValue::TelemetryValue(const char* value)
+        : m_value(std::string(value)), m_valueType(ValueType::string_type)
     {
     }
 
@@ -60,28 +61,25 @@ namespace Common::Telemetry
 
     int TelemetryValue::getInteger() const
     {
+        checkType(ValueType::integer_type);
         return std::get<int>(m_value);
     }
 
     bool TelemetryValue::getBoolean() const
     {
+        checkType(ValueType::boolean_type);
         return std::get<bool>(m_value);
     }
 
     std::string TelemetryValue::getString() const
     {
+        checkType(ValueType::string_type);
         return std::get<std::string>(m_value);
     }
 
-    ValueType TelemetryValue::getValueType() const
+    TelemetryValue::ValueType TelemetryValue::getValueType() const
     {
         return m_valueType;
-    }
-
-    TelemetryValue::TelemetryValue(const std::string& str)
-        : TelemetryNode(str, NodeType::value), m_valueType(ValueType::unset)
-    {
-
     }
 
     bool TelemetryValue::operator==(const TelemetryValue& rhs) const
@@ -93,5 +91,13 @@ namespace Common::Telemetry
     bool TelemetryValue::operator!=(const TelemetryValue& rhs) const
     {
         return !(rhs == *this);
+    }
+
+    void TelemetryValue::checkType(ValueType expectedType) const
+    {
+        if(m_valueType != expectedType)
+        {
+            throw std::invalid_argument("bad telem value type");
+        }
     }
 }

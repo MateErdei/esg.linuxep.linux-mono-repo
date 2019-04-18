@@ -1,8 +1,8 @@
 include(GoogleTest)
 add_executable(TestTelemetryImpl
-        TestTelemetryDictionary.cpp
         TestTelemetryValue.cpp
         TestTelemetrySerialiser.cpp
+        TestTelemetryObject.cpp
         )
 target_include_directories(TestTelemetryImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TestTelemetryImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}")

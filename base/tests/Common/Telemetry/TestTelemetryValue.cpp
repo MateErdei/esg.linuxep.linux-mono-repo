@@ -1,9 +1,9 @@
 ///******************************************************************************************************
-//
-//Copyright 2019, Sophos Limited.  All rights reserved.
-//
-//******************************************************************************************************/
-//
+///
+/// Copyright 2019, Sophos Limited.  All rights reserved.
+///
+///******************************************************************************************************/
+
 //#include <Common/TelemetryImpl/TelemetryValue.h>
 //
 //#include <include/gtest/gtest.h>
@@ -21,7 +21,7 @@
 //
 //TEST(TestTelemetryValueImpl, ConstructionWithString) // NOLINT
 //{
-//    Common::Telemetry::TelemetryValue telemetryValue(TEST_STRING);
+//    Common::Telemetry::TelemetryValue telemetryValue("key", TEST_STRING);
 //    ASSERT_EQ(NodeType::value, telemetryValue.getType());
 //    ASSERT_EQ(Common::Telemetry::ValueType::string_type, telemetryValue.getValueType());
 //    ASSERT_EQ(TEST_STRING, telemetryValue.getString());
@@ -29,7 +29,7 @@
 //
 //TEST(TestTelemetryValueImpl, ConstructionWithInt) // NOLINT
 //{
-//    Common::Telemetry::TelemetryValue telemetryValue(TEST_INTEGER);
+//    Common::Telemetry::TelemetryValue telemetryValue("key", TEST_INTEGER);
 //    ASSERT_EQ(NodeType::value, telemetryValue.getType());
 //    ASSERT_EQ(Common::Telemetry::ValueType::integer_type, telemetryValue.getValueType());
 //    ASSERT_EQ(TEST_INTEGER, telemetryValue.getInteger());
@@ -37,7 +37,7 @@
 //
 //TEST(TestTelemetryValueImpl, ConstructionWithBool) // NOLINT
 //{
-//    Common::Telemetry::TelemetryValue telemetryValue(TEST_BOOL);
+//    Common::Telemetry::TelemetryValue telemetryValue("key", TEST_BOOL);
 //    ASSERT_EQ(NodeType::value, telemetryValue.getType());
 //    ASSERT_EQ(Common::Telemetry::ValueType::boolean_type, telemetryValue.getValueType());
 //    ASSERT_EQ(TEST_BOOL, telemetryValue.getBoolean());
@@ -93,7 +93,6 @@
 //{
 //    Common::Telemetry::TelemetryValue telemetryValue;
 //    telemetryValue.set(TEST_BOOL);
-//
 //    ASSERT_EQ(Common::Telemetry::ValueType::boolean_type, telemetryValue.getValueType());
 //    ASSERT_EQ(TEST_BOOL, telemetryValue.getBoolean());
 //}

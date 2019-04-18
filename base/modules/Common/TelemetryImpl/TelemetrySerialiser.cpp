@@ -10,70 +10,39 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Common::Telemetry
 {
 
-    std::string TelemetrySerialiser::serialise(const Common::Telemetry::TelemetryNode& /*node*/)
-    {
-        return "";
-    }
+//    std::string TelemetrySerialiser::serialise(const Common::Telemetry::TelemetryNode& /*node*/)
+//    {
+//        return "";
+//    }
 
     void to_json(nlohmann::json& j, const TelemetryValue& value)
     {
         auto type = value.getValueType();
         switch(type)
         {
-            case ValueType::integer_type:
+            case TelemetryValue::ValueType::integer_type:
             {
-                j[value.getKey()] = value.getInteger();
+                j = value.getInteger();
                 break;
             }
 
-            case ValueType::string_type:
+            case TelemetryValue::ValueType::string_type:
             {
-                j[value.getKey()] = value.getString();
+                j = value.getString();
                 break;
             }
 
-            case ValueType::boolean_type:
+            case TelemetryValue::ValueType::boolean_type:
             {
-                j[value.getKey()] = value.getBoolean();
+                j = value.getBoolean();
                 break;
             }
 
             default:
             {
-                throw std::invalid_argument("Cannot serialise value. Invalid type");
+                throw std::invalid_argument("Cannot to_json(nlohmann::json& j, const TelemetryValue& value) serialise value. Invalid type");
             }
         }
-    }
-
-    void to_json(nlohmann::json& j, const TelemetryDictionary& dict)
-    {
-        auto object = dict.getDictionary();
-        for(const auto& node: object)
-        {
-            auto type = node->getType();
-            switch(type)
-            {
-                case NodeType::dict:
-                {
-                    auto nestedDict = std::static_pointer_cast<TelemetryDictionary>(node);
-                    j[nestedDict->getKey()] = *nestedDict;
-                    break;
-                }
-
-                case NodeType::value:
-                {
-                    auto nestedValue = std::static_pointer_cast<TelemetryValue>(node);
-                    to_json(j, *nestedValue);
-                    break;
-                }
-
-                default:
-                {
-                    throw std::invalid_argument("Cannot serialise node. Invalid type");
-                }
-            }
-        }
-
     }
 
     void from_json(const nlohmann::json& j, TelemetryValue& value)
@@ -100,12 +69,42 @@ namespace Common::Telemetry
 
             default:
             {
-                throw std::invalid_argument("Cannot serialise value. Invalid type");
+                throw std::invalid_argument("Cannot serialise value. Invalid type: " + j.dump());
             }
         }
     }
 
-    void from_json(const nlohmann::json& j, TelemetryDictionary& dict)
+    void to_json(nlohmann::json& j, const TelemetryObject& telemetryObject)
+    {
+        auto type = telemetryObject.getType();
+        switch(type)
+        {
+            case TelemetryObject::Type::object:
+            {
+                j = telemetryObject.getChildObjects();
+                break;
+            }
+
+            case TelemetryObject::Type::array:
+            {
+                j = telemetryObject.getArray();
+                break;
+            }
+
+            case TelemetryObject::Type::value:
+            {
+                to_json(j, telemetryObject.getValue());
+                break;
+            }
+
+            default:
+            {
+                throw std::invalid_argument("Cannot to_json(nlohmann::json& j, const TelemetryObject& telemetryObject) serialise node. Invalid type");
+            }
+        }
+    }
+
+    void from_json(const nlohmann::json& j, TelemetryObject& telemetryObject)
     {
         for(const auto& item: j.items())
         {
@@ -115,17 +114,26 @@ namespace Common::Telemetry
                 case nlohmann::detail::value_t::string:
                 case nlohmann::detail::value_t::boolean:
                 {
-                    auto nestedValue = std::make_shared<TelemetryValue>(item.key());
-                    dict.set(nestedValue);
-                    from_json(item.value(), *nestedValue);
+                    if (item.key().empty())
+                    {
+                        telemetryObject.set(item.value().get<TelemetryValue>());
+                    }
+                    else
+                    {
+                        telemetryObject.set(item.key(), item.value().get<TelemetryValue>());
+                    }
                     break;
                 }
 
                 case nlohmann::detail::value_t::object:
                 {
-                    auto nestedDict = std::make_shared<TelemetryDictionary>(item.key());
-                    dict.set(nestedDict);
-                    from_json(item.value(), *nestedDict);
+                    telemetryObject.set(item.key(), item.value().get<TelemetryObject>());
+                    break;
+                }
+
+                case nlohmann::detail::value_t::array:
+                {
+                    telemetryObject.set(item.key(), item.value().get<std::list<TelemetryObject>>());
                     break;
                 }
 
@@ -135,5 +143,17 @@ namespace Common::Telemetry
                 }
             }
         }
+    }
+
+    std::string TelemetrySerialiser::serialise(const Common::Telemetry::TelemetryObject& telemetryObject)
+    {
+        nlohmann::json j = telemetryObject;
+        return j.dump();
+    }
+
+    Common::Telemetry::TelemetryObject TelemetrySerialiser::deserialise(const std::string& jsonString)
+    {
+        nlohmann::json j = nlohmann::json::parse(jsonString);
+        return j.get<TelemetryObject>();
     }
 }
