@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-# Copyright (C) 2019 Sophos Plc, Oxford, England.
-# All rights reserved.
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
-import fileInfo
-import readVersion
+import re
 import os
-import sys
 import xml.dom.minidom
 
 TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
@@ -17,7 +13,7 @@ TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
     <RigidName></RigidName>
     <Version></Version>
     <Build>1</Build>
-    <ProductType></ProductType>
+    <ProductType>Component</ProductType>
     <DefaultHomeFolder></DefaultHomeFolder>
     <TargetTypes>
       <TargetType Name="ENDPOINT"/>
@@ -72,7 +68,7 @@ def addFeature(doc, featureList, feature):
     <Feature id="AV"/>
     """
     featureNode = doc.createElement("Feature")
-    featureNode.setAttribute("Name", feature)
+    featureNode.setAttribute("id", feature)
     featureList.appendChild(featureNode)
 
 def remove_blanks(node):
@@ -103,7 +99,121 @@ def getXmlText(node):
     return text
 
 
-def getVariable(environmentVariable, fileName, variableName, defaultValue, reportAbsentFile=True):
+def dir_file_search(dir_path):
+    for root, dirs, files in os.walk(dir_path):
+        for file in files:
+            if file.endswith(".ini"):
+                print(os.path.join(root, file))
+        for dir in dirs:
+            dir_file_search(os.path.join(root, dir))
+
+def readVersionIniFile(BASE=None):
+    """
+    __file__ is either <plugin>/redist/pluginapi/distribution/generateSDDSImport.py
+    or <base>/products/distribution/generateSDDSImport.py
+
+    So we need to handle either.
+
+    :param BASE: $BASE environment variable, or argv[3]
+    :return: version from ini file or None
+    """
+
+    scriptPath = os.path.dirname(os.path.realpath(__file__))  # <plugin>/redist/pluginapi/distribution
+    print("##### Script Path: {}".format(scriptPath))
+    version = None
+
+    dir_file_search(scriptPath)
+
+    autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
+    if not os.path.isfile(autoVersionFile):
+        if BASE is None:
+            BASE = os.path.dirname(scriptPath)  # <plugin>/redist/pluginapi
+            BASE = os.path.dirname(BASE)  # <plugin>/redist
+            BASE = os.path.dirname(BASE)  # <plugin>
+
+        if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
+            autoVersionFile = os.path.join(BASE, "products", "distribution", "include",
+                                           "AutoVersioningHeaders", "AutoVersion.ini")
+
+    if os.path.isfile(autoVersionFile):
+        print ("Reading version from {}".format(autoVersionFile))
+        with open(autoVersionFile, "r") as f:
+            for line in f.readlines():
+                if "ComponentAutoVersion=" in line:
+                    version = line.strip().split("=")[1]
+    else:
+        print("Failed to get AutoVersion from {}".format(autoVersionFile))
+
+    if version == "1.0.999":
+        print("Ignoring template version {} from {}".format(version, autoVersionFile))
+        version = None
+
+    return version
+
+
+def readVersionFromJenkinsFile(BASE=None):
+    scriptPath = os.path.dirname(os.path.realpath(__file__))
+    ## Try reading from Jenkinsfile
+    productsDir = os.path.dirname(scriptPath)
+    srcdir = os.path.dirname(productsDir)
+    jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+    if not os.path.isfile(jenkinsfile):
+        ## if we are in a plugin then the script is in a sub-directory 1 deeper.
+        srcdir = os.path.dirname(srcdir)
+        jenkinsfile = os.path.join(srcdir, "Jenkinsfile")
+    if BASE is not None and not os.path.isfile(jenkinsfile):
+        ## Try base
+        jenkinsfile = os.path.join(BASE, "Jenkinsfile")
+
+
+    if os.path.isfile(jenkinsfile):
+        lines = open(jenkinsfile).readlines()
+        print("Reading version from {}".format(jenkinsfile))
+        LINE_RE=re.compile(r"version_key = '([\d.]+)'$")
+        for line in lines:
+            line = line.strip()
+            mo = LINE_RE.match(line)
+            if mo:
+                return mo.group(1)
+    else:
+        print("Failed to find Jenkinsfile {} from {}".format(jenkinsfile, scriptPath))
+
+    return None
+
+
+def defaultVersion():
+    defaultValue = "0.5.1"
+    print ("Using default {}".format(defaultValue))
+    return defaultValue
+
+
+def readVersion(BASE=None):
+    """
+    10 possible use cases:
+    (Base or Plugin) *
+    (
+        manual build using cmake directly - e.g. CLion
+        local build.sh
+        Local Jenkins
+        ESG-CI (Artisan-CI)
+        Production Artisan
+    )
+
+    manual build has to find version without $BASE being set
+        Base finds it relative to the script dir
+        Plugins find it up a directory from the script dir
+    other builds should have BASE set correctly.
+
+    :return:
+    """
+    if BASE is None:
+        BASE = os.environ.get("BASE", None)
+    version = readVersionIniFile(BASE) or readVersionFromJenkinsFile(BASE) or defaultVersion()
+    print("Using version {}".format(version))
+    return version
+
+
+def getVariable(environmentVariable, fileName, variableName, defaultValue):
     temp = os.environ.get(environmentVariable, None)
     if temp is not None:
         return temp
@@ -111,9 +221,9 @@ def getVariable(environmentVariable, fileName, variableName, defaultValue, repor
     try:
         return open(fileName).read().strip()
     except EnvironmentError as e:
-        if reportAbsentFile:
-            print("Failed to read", variableName, "from", fileName, "in", os.getcwd(), ":", e, ", using default:",
-                  defaultValue)
+        print("Failed to read", variableName, "from", fileName, "in", os.getcwd(), ":", e, ", using default:",
+              defaultValue)
+        pass
 
     return defaultValue
 
@@ -125,7 +235,11 @@ def getProductName():
     return getVariable("PRODUCT_NAME", "PRODUCT_NAME", "Product/Plugin Name", "Sophos Server Protection Linux - Base")
 
 def getFeatureList():
-    #   Read csv list of features of the form: feature1, feature2, feature3
+    temp = os.environ.get("FEATURE_LIST", None)
+    if temp is not None:
+        return temp
+
+#   Read csv list of features of the form: feature1, feature2, feature3
     features_string = getVariable("FEATURE_LIST", "FEATURE_LIST", "Feature List", "")
     if features_string == "":
         return []
@@ -141,11 +255,10 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     tidyXml(doc)
 
     productName = getProductName()
-    fullVersion = readVersion.readVersion(BASE)
+    fullVersion = readVersion(BASE)
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
     featureList = getFeatureList()
-    productType = getVariable("PRODUCT_TYPE", "PRODUCT_TYPE", "productType", "Component", False)
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
@@ -166,16 +279,14 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     setTextInTag(doc, "Version", fullVersion)
     setTextInTag(doc, "Name", productName)
     setTextInTag(doc, "DefaultHomeFolder", defaultHomeFolder)
-    setTextInTag(doc, "ProductType", productType)
 
     token = rigidName+"#"+fullVersion
     setTextInTag(doc, "Token", token)
 
-    shortDescription = getVariable("SHORT_DESCRIPTION", "SHORT_DESCRIPTION", "shortDescription", fullVersion, reportAbsentFile=False)
+    shortDescription = fullVersion
     setTextInTag(doc, "ShortDesc", shortDescription)
 
     longDescription = "Sophos Server Protection for Linux v%s" % fullVersion
-    longDescription = getVariable("LONG_DESCRIPTION", "LONG_DESCRIPTION", "longDescription", longDescription, reportAbsentFile=False)
     setTextInTag(doc, "LongDesc", longDescription)
 
 
@@ -184,24 +295,3 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     doc.writexml(f, encoding="UTF-8")
     f.close()
     doc.unlink()
-
-def main(argv):
-    dist = argv[1]
-    if len(argv) > 2:
-        distribution_list = argv[2]
-    else:
-        distribution_list = None
-    if len(argv) > 3:
-        BASE = argv[3]
-    else:
-        BASE = os.environ.get("BASE", None)
-
-    ## Don't exclude manifest from SDDS-Import.xml direct generation
-    file_objects = fileInfo.load_file_info(dist, distribution_list, excludeManifest=False)
-    generate_sdds_import(dist, file_objects, BASE)
-
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
