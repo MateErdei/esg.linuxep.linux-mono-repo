@@ -45,7 +45,6 @@ namespace Common::Telemetry
         std::map<std::string, TelemetryObject>& getChildObjects();
         const std::map<std::string, TelemetryObject>& getChildObjects() const;
 
-
         Type getType() const;
         bool keyExists(const std::string& key);
 

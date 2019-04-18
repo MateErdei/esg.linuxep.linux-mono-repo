@@ -2,8 +2,10 @@
 
 #include "TelemetryObject.h"
 
-Common::Telemetry::TelemetryObject::TelemetryObject() : m_type(Type::object)
+Common::Telemetry::TelemetryObject::TelemetryObject()
+    : m_type(Type::object)
 {
+    m_value = std::map<std::string, TelemetryObject>();
 }
 
 void Common::Telemetry::TelemetryObject::set(const std::string& key, const Common::Telemetry::TelemetryValue& value)
@@ -68,12 +70,14 @@ Common::Telemetry::TelemetryObject& Common::Telemetry::TelemetryObject::getObjec
 
 Common::Telemetry::TelemetryValue& Common::Telemetry::TelemetryObject::getValue()
 {
+    checkType(Type::value);
     auto& value = std::get<TelemetryValue>(m_value);
     return value;
 }
 
 const Common::Telemetry::TelemetryValue& Common::Telemetry::TelemetryObject::getValue() const
 {
+    checkType(Type::value);
     const auto& value = std::get<TelemetryValue>(m_value);
     return value;
 }
@@ -94,12 +98,14 @@ const std::list<Common::Telemetry::TelemetryObject>& Common::Telemetry::Telemetr
 
 std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects()
 {
+    checkType(Type::object);
     auto& obj = std::get<std::map<std::string, TelemetryObject>>(m_value);
     return obj;
 }
 
 const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects() const
 {
+    checkType(Type::object);
     const auto& obj = std::get<std::map<std::string, TelemetryObject>>(m_value);
     return obj;
 }
