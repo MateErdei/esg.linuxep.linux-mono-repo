@@ -4,7 +4,7 @@
 ///
 ///******************************************************************************************************/
 
-#include <Common/TelemetryImpl/TelemetryObject.h>
+#include <Common/TelemetryHelperImpl/TelemetryObject.h>
 
 #include <include/gtest/gtest.h>
 

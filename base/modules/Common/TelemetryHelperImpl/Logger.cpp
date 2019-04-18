@@ -8,6 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getTelemetryLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("TelemetryImpl");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("TelemetryHelperImpl");
     return STATIC_LOGGER;
 }
