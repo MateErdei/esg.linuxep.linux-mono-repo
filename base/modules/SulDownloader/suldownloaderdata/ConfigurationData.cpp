@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <google/protobuf/util/json_util.h>
 
 #include <ConfigurationSettings.pb.h>
+#include <sstream>
 #include <iostream>
 
 namespace
@@ -809,4 +810,11 @@ void ConfigurationData::setFeatures(const std::vector<std::string>& features)
 const std::vector<std::string> & ConfigurationData::getFeatures() const
 {
     return m_features;
+}
+
+const std::string ProductSubscription::toString() const
+{
+    std::stringstream  s;
+    s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag << " fixversion = " << m_fixVersion;
+    return s.str();
 }

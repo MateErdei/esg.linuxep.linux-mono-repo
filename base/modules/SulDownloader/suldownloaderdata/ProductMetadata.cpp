@@ -80,3 +80,13 @@ void ProductMetadata::setBaseVersion(const std::string& baseVersion)
 {
     m_baseVersion = baseVersion;
 }
+
+void ProductMetadata::setFeatures(const std::vector<std::string>& features)
+{
+    m_features = features;
+}
+
+const std::vector<std::string>& ProductMetadata::getFeatures() const
+{
+    return  m_features;
+}

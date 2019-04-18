@@ -38,6 +38,7 @@ namespace SulDownloader
             const std::string&  baseVersion() const {return m_baseVersion; }
             const std::string&  tag() const {return m_tag; }
             const std::string&  fixVersion() const {return m_fixVersion; }
+            const std::string   toString() const;
 
             bool operator==(const ProductSubscription& rhs) const
             {

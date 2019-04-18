@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationData.h"
 #include "ProductMetadata.h"
-
+#include <Common/UtilityImpl/VectorAsSet.h>
 #include <memory>
 #include <vector>
 
@@ -58,6 +58,22 @@ namespace SulDownloader
             std::string m_baseVersion;
         };
 
+
+        class SubscriptionSelector : public virtual  ISingleProductSelector
+        {
+        public:
+
+            SubscriptionSelector( const ProductSubscription & productSubscription);
+            std::string targetProductName() const override;
+
+            bool keepProduct(const suldownloaderdata::ProductMetadata&) const override;
+
+            bool isProductRequired() const override;
+
+        private:
+            ProductSubscription m_productSubscription;
+        };
+
         struct SelectedResultsIndexes
         {
             std::vector<size_t> selected;
@@ -75,6 +91,7 @@ namespace SulDownloader
             ProductSelection() = default;
 
         public:
+            static std::string MissingCoreProduct();
             using ProductMetaDataVector = std::vector<suldownloaderdata::ProductMetadata>;
             using ISingleProductSelectorPtr = std::unique_ptr<ISingleProductSelector>;
 
@@ -86,7 +103,9 @@ namespace SulDownloader
 
         private:
             std::vector<ISingleProductSelectorPtr> m_selection;
-
+            bool m_useFeatures = true;
+            Common::UtilityImpl::VectorAsSet m_features;
+            bool passFeatureSetSelection( const ProductMetadata &  ) const;
             std::vector<size_t> selectedProducts(
                 const ISingleProductSelector&,
                 const ProductMetaDataVector& warehouseProducts) const;

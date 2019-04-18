@@ -42,6 +42,8 @@ namespace SulDownloader
             void setBaseVersion( const std::string & baseVersion);
 
             void setDefaultHomePath(const std::string& defaultHomeFolder);
+            void setFeatures(const std::vector<std::string> & features);
+            const std::vector<std::string>& getFeatures() const;
 
             const std::string& getDefaultHomePath() const;
 
@@ -52,6 +54,7 @@ namespace SulDownloader
             std::string m_version;
             std::string m_baseVersion;
             std::string m_defaultHomeFolder;
+            std::vector<std::string> m_features;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

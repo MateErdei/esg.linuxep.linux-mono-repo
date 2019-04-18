@@ -70,6 +70,7 @@ public:
         return ConfigurationDataBase::createJsonString(otherprefix, newprefix);
     }
 
+
     SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem)
     {
         SulDownloader::suldownloaderdata::ProductMetadata metadata;
@@ -83,6 +84,7 @@ public:
             metadata.setName("Linux Security1");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
+            metadata.setFeatures({"CORE"});
         }
 
         if (productItem == 2)
@@ -94,6 +96,7 @@ public:
             metadata.setName("Linux Security2");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
+            metadata.setFeatures({"MDR"});
         }
 
         if (productItem == 3)
@@ -105,6 +108,7 @@ public:
             metadata.setName("Linux Security3");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
+            metadata.setFeatures({"MDR"});
         }
 
         if (productItem == 4) // used for missing product test.
@@ -116,6 +120,7 @@ public:
             metadata.setName("Linux Security4");
             Tag tag("RECOMMENDED", "9", "RECOMMENDED");
             metadata.setTags({ tag });
+            metadata.setFeatures({});
         }
 
         // Products with different releaseTag and base version, used for testing keepProduct
@@ -128,6 +133,7 @@ public:
             metadata.setName("Linux Security1");
             Tag tag("RECOMMENDED", "10", "RECOMMENDED");
             metadata.setTags({ tag });
+            metadata.setFeatures({"CORE"});
         }
 
         if (productItem == 6)
@@ -139,10 +145,61 @@ public:
             metadata.setName("Linux Security2");
             Tag tag("PREVIEW", "9", "PREVIEW");
             metadata.setTags({ tag });
+            metadata.setFeatures({"MDR"});
         }
 
         return metadata;
     }
+
+
+    enum ProductIdForDev{
+        Primary_Rec_CORE=1,
+        ProdA_Rec_MDR=2,
+        DiffA_Rec_MDR=3,
+        UNK_Rec_NONE=4,
+        Primary_Rec_CORE_V2=5,
+        ProdA_PREV_MDR=6,
+    };
+
+    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> createWh(std::vector<ProductIdForDev> products)
+    {
+        std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+        for( auto productID : products)
+        {
+            warehouseProducts.emplace_back(  createTestProductMetaData(static_cast<int>(productID) ));
+        }
+        return warehouseProducts;
+    }
+
+    ConfigurationData getDefaultV2ConfigData()
+    {
+        return suldownloaderdata::ConfigurationData::fromJsonSettings(createV2JsonString("",""));
+    }
+
+
+    bool expect_selected( const SulDownloader::suldownloaderdata::ProductMetadata &  primaryProduct,
+            const ProductSubscription & productSubscription)
+    {
+        auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createV2JsonString("",""));
+
+        configurationData.setProductsSubscription({});
+
+        configurationData.setPrimarySubscription(productSubscription);
+
+        auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+        std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
+        warehouseProducts.push_back(primaryProduct);
+
+        auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+        std::vector<size_t>selected{0};
+        return selectedProducts.selected ==  selected;
+    }
+
+
+
+
 };
 
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow) // NOLINT
@@ -179,6 +236,26 @@ TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAl
     EXPECT_EQ(selectedProducts.selected.size(), 3);
 }
 
+TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAllProductsFoundV2) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_Rec_MDR, DiffA_Rec_MDR });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    // only primaryProduct and correctProduct Will be selected
+    EXPECT_EQ(selectedProducts.missing.size(), 0);
+    std::vector<size_t>notselected{2};
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{0,1};
+    EXPECT_EQ(selectedProducts.selected, selected);
+}
+
+
+
 TEST_F( // NOLINT
     ProductSelectionTest,
     CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts)
@@ -205,6 +282,46 @@ TEST_F( // NOLINT
     EXPECT_EQ(selectedProducts.selected.size(), 0);
 }
 
+TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReported) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({UNK_Rec_NONE});
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    std::vector<std::string> missing{configurationData.getPrimarySubscription().rigidName(), configurationData.getProductsSubscription()[0].rigidName()};
+    EXPECT_EQ(selectedProducts.missing, missing);
+    std::vector<size_t>notselected{0};
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{};
+    EXPECT_EQ(selectedProducts.selected, selected);
+}
+
+
+TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReportedForNonPrimaryProducts) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({Primary_Rec_CORE, DiffA_Rec_MDR});
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    std::vector<std::string> missing{configurationData.getProductsSubscription()[0].rigidName()};
+    EXPECT_EQ(selectedProducts.missing, missing);
+    std::vector<size_t>notselected{1};  // DiffA_Rec_MDR
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{0}; // Primary_Rec_Core
+    EXPECT_EQ(selectedProducts.selected, selected);
+}
+
+
+
+
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMixOfSelectedAndMissingProducts) // NOLINT
 {
     auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
@@ -228,6 +345,7 @@ TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMi
     EXPECT_EQ(selectedProducts.notselected.size(), 1);
     EXPECT_EQ(selectedProducts.selected.size(), 2);
 }
+
 
 TEST_F( // NOLINT
     ProductSelectionTest,
@@ -280,3 +398,123 @@ TEST_F( // NOLINT
     EXPECT_EQ(selectedProducts.notselected[0], 3);
     EXPECT_EQ(selectedProducts.notselected[1], 5);
 }
+
+TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersionIsAvailable) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    std::vector<std::string> missing{};
+    EXPECT_EQ(selectedProducts.missing, missing);
+    std::vector<size_t>notselected{1};  // ProdA_PREV_MDR
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{0, 2}; // Primary_Rec_CORE, ProdA_Rec_MDR
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+    auto productSubscription = configurationData.getProductsSubscription()[0];
+    ProductSubscription newSubscription( productSubscription.rigidName(), productSubscription.baseVersion(),
+               "PREVIEW", "");
+
+    configurationData.setProductsSubscription({newSubscription});
+
+    productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    EXPECT_EQ(selectedProducts.missing, missing);
+    // swap the ProdA_PREV_MDR with ProdA_Rec_MDR
+    notselected[0] = 2;
+    selected[1] = 1;
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+}
+
+
+TEST_F(ProductSelectionTest, FeaturesShouldFilterTheProductsToBeInstalled) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+    configurationData.setFeatures({"CORE", "SENSORS"}); // no MDR in the features.
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    std::vector<std::string> missing{};
+    EXPECT_EQ(selectedProducts.missing, missing);
+    std::vector<size_t>notselected{1, 2};  // ProdA_PREV_MDR and ProdA_Rec_MDR
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{0}; // Primary_Rec_CORE
+    EXPECT_EQ(selectedProducts.selected, selected);
+
+}
+
+
+TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeature) // NOLINT
+{
+    auto configurationData = getDefaultV2ConfigData();
+    // configuring subscription targeting only ProdA_Rec_MDR
+    auto currentProductSubscription = configurationData.getProductsSubscription()[0];
+    configurationData.setProductsSubscription({});
+    configurationData.setPrimarySubscription(currentProductSubscription);
+
+    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
+
+    auto warehouseProducts = createWh({ProdA_Rec_MDR });
+
+    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
+
+    std::vector<std::string> missing{ProductSelection::MissingCoreProduct()};
+    EXPECT_EQ(selectedProducts.missing, missing);
+    std::vector<size_t>notselected{};
+    EXPECT_EQ(selectedProducts.notselected, notselected);
+    std::vector<size_t>selected{0}; // ProdA_Rec_MDR
+    EXPECT_EQ(selectedProducts.selected, selected);
+}
+
+
+
+
+TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
+{
+    auto wh = createWh({Primary_Rec_CORE});
+    SulDownloader::suldownloaderdata::ProductMetadata primaryProduct = wh[0];
+    ProductSubscription subscription(primaryProduct.getLine(), "", "RECOMMENDED", "" );
+
+    // select by recommended tag
+    EXPECT_TRUE( expect_selected( primaryProduct, subscription));
+
+    subscription = ProductSubscription( primaryProduct.getLine(), "notbaseversion", "RECOMMENDED", "");
+    // select by recommended tag - ignore base version
+    EXPECT_TRUE( expect_selected( primaryProduct, subscription));
+
+    SulDownloader::suldownloaderdata::ProductMetadata previewPrimaryProdut = primaryProduct;
+    previewPrimaryProdut.setBaseVersion("9");
+    previewPrimaryProdut.setTags({Tag("PREVIEW", "9","lab")});
+    subscription = ProductSubscription( previewPrimaryProdut.getLine(), "9", "PREVIEW", "");
+    // select by tag and base version matching
+    EXPECT_TRUE( expect_selected( previewPrimaryProdut, subscription));
+
+
+    subscription = ProductSubscription( primaryProduct.getLine(), "", "", primaryProduct.getVersion());
+    // select by version
+    EXPECT_TRUE( expect_selected( primaryProduct, subscription));
+
+    // do not select if rigid name is different
+    subscription = ProductSubscription( primaryProduct.getLine() + 'b', "", "RECOMMENDED", "");
+    EXPECT_FALSE( expect_selected( primaryProduct, subscription));
+
+    // do not select if tag is different
+    subscription = ProductSubscription( primaryProduct.getLine(), "", "RECOMMENDED", "");
+    EXPECT_FALSE( expect_selected( previewPrimaryProdut, subscription));
+
+}
+
+
+
