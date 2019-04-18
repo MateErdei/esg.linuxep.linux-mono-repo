@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <memory>
 #include <string>
+#include <variant>
 #include "TelemetryValue.h"
 
 namespace Common::Telemetry
@@ -27,35 +28,28 @@ namespace Common::Telemetry
 
         TelemetryObject();
 
-//        void set(std::string key, const char* value);
-//        void set(std::string key, std::string value);
-//        void set(std::string key, bool value);
-//        void set(std::string key, int value);
-        void set(std::string key, TelemetryValue value);
-        void set(std::string key, TelemetryObject value);
-        void set(std::string key, std::list<TelemetryObject> objectList);
-        void set(const char* value);
+        void set(const std::string& key, const TelemetryValue& value);
+        void set(const std::string& key, const TelemetryObject& value);
+        void set(const std::string& key, const std::list<TelemetryObject>& objectList);
+        void set(const TelemetryValue& value);
+        void set(const std::list<TelemetryObject>& value);
 
-//        void set(std::string value);
-//        void set(int value);
-//        void set(bool value);
-        void set(TelemetryValue value);
-        void set(std::list<TelemetryObject> value);
+        TelemetryObject& getObject(const std::string& key);
 
-//        std::string getString();
-//        int getInt();
-//        bool getBool();
-        TelemetryValue getValue() const;
-        std::list<TelemetryObject> getArray() const;
-        TelemetryObject getObject(std::string key);
+        TelemetryValue& getValue();
+        const TelemetryValue& getValue() const;
+
+        std::list<TelemetryObject>& getArray();
+        const std::list<TelemetryObject>& getArray() const;
+
+        std::map<std::string, TelemetryObject>& getChildObjects();
         const std::map<std::string, TelemetryObject>& getChildObjects() const;
 
+
         Type getType() const;
-//        TelemetryValue::ValueType getValueType();
-        bool keyExists(std::string key);
+        bool keyExists(const std::string& key);
 
         bool operator==(const TelemetryObject& rhs) const;
-
         bool operator!=(const TelemetryObject& rhs) const;
 
     private:
@@ -63,8 +57,6 @@ namespace Common::Telemetry
         void checkType(Type expectedType) const;
 
         Type m_type;
-        std::map<std::string, TelemetryObject> m_nodes;
-        std::list<TelemetryObject> m_array;
-        TelemetryValue m_value;
+        std::variant<TelemetryValue, std::map<std::string, TelemetryObject>, std::list<TelemetryObject>> m_value;
     };
 }

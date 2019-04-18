@@ -27,7 +27,7 @@ const std::string TEST_STRING = "Test String";  // NOLINT
 //}
 namespace Common::Telemetry
 {
-    TEST(TestTelemetryValueImpl, SerialiseDictionaryNoKey) // NOLINT
+    TEST(TestTelemetrySerialiserImpl, SerialiseDictionaryNoKey) // NOLINT
     {
         TelemetryObject root;
         TelemetryValue val1;
@@ -73,7 +73,6 @@ namespace Common::Telemetry
 
         auto newRoot = j.get<TelemetryObject>();
         ASSERT_EQ(root, newRoot);
-
     }
 
     TEST(TestTelemetryValueImpl, SerialiseToString) // NOLINT
