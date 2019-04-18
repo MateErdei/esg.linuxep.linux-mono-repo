@@ -80,12 +80,12 @@ public:
                                "cacheUpdateSslPath": "absCacheUpdatePath",
                                "releaseTag": "RECOMMENDED",
                                "baseVersion": "9",
-                               "primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",
+                               "primary": "PrimaryProduct-RigidName",
                                "fullNames": [
-                               "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
+                               "PrefixOfProduct-SimulateProductA"
                                ],
                                "prefixNames": [
-                               "1CD8A803"
+                               "PrefixOfProduct"
                                ],
                                "installArguments": [
                                "--install-dir",

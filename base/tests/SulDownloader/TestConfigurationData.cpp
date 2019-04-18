@@ -201,19 +201,19 @@ TEST_F( // NOLINT
     EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getUsername().c_str(), "");
     EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getPassword().c_str(), "");
 
-    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "PrimaryProduct-RigidName");
     EXPECT_TRUE(configurationData.getProductSelection()[0].Primary);
     EXPECT_FALSE(configurationData.getProductSelection()[0].Prefix);
     EXPECT_STREQ(configurationData.getProductSelection()[0].releaseTag.c_str(), "RECOMMENDED");
     EXPECT_STREQ(configurationData.getProductSelection()[0].baseVersion.c_str(), "9");
 
-    EXPECT_STREQ(configurationData.getProductSelection()[1].Name.c_str(), "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
+    EXPECT_STREQ(configurationData.getProductSelection()[1].Name.c_str(), "PrefixOfProduct-SimulateProductA");
     EXPECT_FALSE(configurationData.getProductSelection()[1].Primary);
     EXPECT_FALSE(configurationData.getProductSelection()[1].Prefix);
     EXPECT_STREQ(configurationData.getProductSelection()[1].releaseTag.c_str(), "RECOMMENDED");
     EXPECT_STREQ(configurationData.getProductSelection()[1].baseVersion.c_str(), "9");
 
-    EXPECT_STREQ(configurationData.getProductSelection()[2].Name.c_str(), "1CD8A803");
+    EXPECT_STREQ(configurationData.getProductSelection()[2].Name.c_str(), "PrefixOfProduct");
     EXPECT_FALSE(configurationData.getProductSelection()[2].Primary);
     EXPECT_TRUE(configurationData.getProductSelection()[2].Prefix);
     EXPECT_STREQ(configurationData.getProductSelection()[2].releaseTag.c_str(), "RECOMMENDED");
@@ -627,7 +627,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVers
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimaryShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = "FD6C1066-E190-4F44-AD0E-F107F36D9D40";
+    std::string oldString = "PrimaryProduct-RigidName";
 
     std::string newString; // = "";
 
@@ -641,7 +641,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimarySho
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("primary": "FD6C1066-E190-4F44-AD0E-F107F36D9D40",)";
+    std::string oldString = R"("primary": "PrimaryProduct-RigidName",)";
     std::string newString; //  = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -655,7 +655,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesS
 {
     setupFileSystemAndGetMock();
 
-    std::string oldString = R"("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2")";
+    std::string oldString = R"("PrefixOfProduct-SimulateProductA")";
     std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -669,7 +669,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullName
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("fullNames": [
-                               "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
+                               "PrefixOfProduct-SimulateProductA"
                                ],)";
     std::string newString; // = "";
 
@@ -683,7 +683,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullName
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesValueShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2";
+    std::string oldString = "PrefixOfProduct-SimulateProductA";
     std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -696,7 +696,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesV
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNamesShouldNotFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("1CD8A803")";
+    std::string oldString = R"("PrefixOfProduct")";
     std::string newString; // = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -710,7 +710,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNa
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("prefixNames": [
-                               "1CD8A803"
+                               "PrefixOfProduct"
                                ],)";
 
     std::string newString; // = "";
@@ -725,7 +725,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNa
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNameValueShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("1CD8A803")";
+    std::string oldString = R"("PrefixOfProduct")";
     std::string newString = R"("")";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -817,8 +817,8 @@ TEST_F( // NOLINT
             Credentials{"administrator", "password"},
             {"https://cache.sophos.com/latest/warehouse"},
             Proxy("noproxy:"));
-    expectedConfiguration.setPrimarySubscription( ProductSubscription{"FD6C1066-E190-4F44-AD0E-F107F36D9D40", "9", "RECOMMENDED", ""} );
-    expectedConfiguration.setProductsSubscription({ProductSubscription{"1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2", "9", "RECOMMENDED", ""}});
+    expectedConfiguration.setPrimarySubscription( ProductSubscription{"PrimaryProduct-RigidName", "9", "RECOMMENDED", ""} );
+    expectedConfiguration.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}});
     expectedConfiguration.setFeatures({"CORE", "MDR"});
     expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
     expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
@@ -837,8 +837,8 @@ TEST_F( // NOLINT
         InterfaceForbidsSettingValuesThatWereNotPresentInV1)
 {
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"FD6C1066-E190-4F44-AD0E-F107F36D9D40", "9", "RECOMMENDED", ""} ), std::logic_error);
-    EXPECT_THROW(configurationData.setProductsSubscription({ProductSubscription{"1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2", "9", "RECOMMENDED", ""}}), std::logic_error);
+    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"PrimaryProduct-RigidName", "9", "RECOMMENDED", ""} ), std::logic_error);
+    EXPECT_THROW(configurationData.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}}), std::logic_error);
     EXPECT_THROW(configurationData.setFeatures({"CORE", "MDR"}), std::logic_error);
 }
 

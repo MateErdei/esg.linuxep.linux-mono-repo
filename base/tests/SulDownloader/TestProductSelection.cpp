@@ -62,10 +62,10 @@ public:
     std::string createJsonString()
     {
         std::string otherprefix = R"("prefixNames": [
-                               "1CD8A803"
+                               "PrefixOfProduct"
                                ],)";
         std::string newprefix = R"("prefixNames": [
-                               "1CD8A804"
+                               "DifferentPrefix"
                                ],)";
         return ConfigurationDataBase::createJsonString(otherprefix, newprefix);
     }
@@ -76,7 +76,7 @@ public:
 
         if (productItem == 1)
         {
-            metadata.setLine("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+            metadata.setLine("PrimaryProduct-RigidName");
             metadata.setDefaultHomePath("Linux1");
             metadata.setVersion("9.1.1.1");
             metadata.setBaseVersion("9");
@@ -87,7 +87,7 @@ public:
 
         if (productItem == 2)
         {
-            metadata.setLine("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
+            metadata.setLine("PrefixOfProduct-SimulateProductA");
             metadata.setDefaultHomePath("Linux2");
             metadata.setVersion("9.1.1.1");
             metadata.setBaseVersion("9");
@@ -98,7 +98,7 @@ public:
 
         if (productItem == 3)
         {
-            metadata.setLine("1CD8A804-6047-47BC-8CBE-2D4AEB37BEE2");
+            metadata.setLine("DifferentPrefix-SimulateProductA");
             metadata.setDefaultHomePath("Linux3");
             metadata.setVersion("9.1.1.1");
             metadata.setBaseVersion("9");
@@ -121,7 +121,7 @@ public:
         // Products with different releaseTag and base version, used for testing keepProduct
         if (productItem == 5)
         {
-            metadata.setLine("FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+            metadata.setLine("PrimaryProduct-RigidName");
             metadata.setDefaultHomePath("Linux1");
             metadata.setVersion("10.1.1.1");
             metadata.setBaseVersion("10");
@@ -132,7 +132,7 @@ public:
 
         if (productItem == 6)
         {
-            metadata.setLine("1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2");
+            metadata.setLine("PrefixOfProduct-SimulateProductA");
             metadata.setDefaultHomePath("Linux2");
             metadata.setVersion("9.1.1.1");
             metadata.setBaseVersion("9");
@@ -236,9 +236,9 @@ TEST_F( // NOLINT
     auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
 
     /*
-     * FixProductName: "FD6C1066-E190-4F44-AD0E-F107F36D9D40"
-     * FixProductName: "1CD8A803-6047-47BC-8CBE-2D4AEB37BEE2"
-     * Prefix: "1CD8A804"
+     * FixProductName: "PrimaryProduct-RigidName"
+     * FixProductName: "PrefixOfProduct-SimulateProductA"
+     * Prefix: "DifferentPrefix"
      */
     ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
 
@@ -267,7 +267,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(selectedProducts.selected[0], 0);
     EXPECT_EQ(selectedProducts.selected[1], 4);
     // match filter line and recommended
-    EXPECT_EQ(warehouseProducts[0].getLine(), "FD6C1066-E190-4F44-AD0E-F107F36D9D40");
+    EXPECT_EQ(warehouseProducts[0].getLine(), "PrimaryProduct-RigidName");
 
     EXPECT_EQ(warehouseProducts[0].getLine(), warehouseProducts[4].getLine());
     EXPECT_TRUE(warehouseProducts[0].hasTag("RECOMMENDED"));
