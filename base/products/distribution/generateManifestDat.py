@@ -1,14 +1,19 @@
 #!/usr/bin/env python
+# Copyright (C) 2019 Sophos Plc, Oxford, England.
+# All rights reserved.
 
 from __future__ import absolute_import, print_function, division, unicode_literals
 
 import os
 import socket
+import sys
 
 try:
     import xmlrpc.client as xmlrpc_client
 except ImportError:
     import xmlrpclib as xmlrpc_client
+
+import fileInfo
 
 
 class SigningOracleClientSigner(object):
@@ -63,7 +68,8 @@ def read(p):
 
 def generate_manifest(dist, file_objects):
     options = Options()
-    manifest_path = os.path.join(dist, b"manifest.dat")
+    MANIFEST_NAME = os.environ.get(b"MANIFEST_NAME",b"manifest.dat")
+    manifest_path = os.path.join(dist, MANIFEST_NAME)
 
     previousContents = read(manifest_path)
     newContents = []
@@ -99,3 +105,19 @@ def generate_manifest(dist, file_objects):
     output.write(signer.ca_cert())
     output.close()
     return True
+
+def main(argv):
+    dist = argv[1]
+    if len(argv) > 2:
+        distribution_list = argv[2]
+    else:
+        distribution_list = None
+
+    file_objects = fileInfo.load_file_info(dist, distribution_list)
+    generate_manifest(dist, file_objects)
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
