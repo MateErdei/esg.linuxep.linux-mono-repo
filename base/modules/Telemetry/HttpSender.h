@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 class HttpSender: public IHttpSender
 {
 public:
-    HttpSender(const std::string& server, const int& port);
+    HttpSender(std::string server, int port);
     HttpSender(const HttpSender&) = delete;
     ~HttpSender() override = default;
 
