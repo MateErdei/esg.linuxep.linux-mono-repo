@@ -2,7 +2,10 @@ add_library(telemetryimpl SHARED
         Telemetry.cpp
         Telemetry.h
         Logger.cpp
-        Logger.h)
+        Logger.h
+        HttpSender.cpp
+        HttpSender.h
+        IHttpSender.h)
 
 
 include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
