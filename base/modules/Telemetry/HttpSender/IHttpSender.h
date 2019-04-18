@@ -14,6 +14,10 @@ class IHttpSender
 public:
     virtual ~IHttpSender() = default;
 
+    virtual void setServer(const std::string& server) = 0;
+
+    virtual void setPort(const int& port) = 0;
+
     virtual void get_request(const std::vector<std::string>& additionalHeaders) = 0;
 
     virtual void post_request(const std::vector<std::string>& additionalHeaders,

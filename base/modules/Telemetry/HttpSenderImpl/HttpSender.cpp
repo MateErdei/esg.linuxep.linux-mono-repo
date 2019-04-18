@@ -5,20 +5,32 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "HttpSender.h"
-#include "Logger.h"
+
+#include <Telemetry/TelemetryImpl/Logger.h>
 
 #include <curl.h>
 #include <sstream>
 
 HttpSender::HttpSender(
         std::string server,
-        int port)
+        int port,
+        std::shared_ptr<ICurlWrapper> curlWrapper)
 : m_server(std::move(server))
 , m_port(port)
+, m_curlWrapper(curlWrapper)
 {
 
 }
 
+void HttpSender::setServer(const std::string& server)
+{
+    m_server = server;
+}
+
+void HttpSender::setPort(const int& port)
+{
+    m_port = port;
+}
 
 void HttpSender::https_request(
         const std::string& verb,
@@ -33,43 +45,43 @@ void HttpSender::https_request(
     LOGINFO(msg.str());
 
     CURL *curl;
-    CURLcode res;
+    CURLcode result;
 
-    curl_global_init(CURL_GLOBAL_DEFAULT); // NOLINT
+    m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
 
-    curl = curl_easy_init();
+    curl = m_curlWrapper->curlEasyInit();
     if(curl)
     {
-        curl_easy_setopt(curl, CURLOPT_URL, uri.str().c_str());
-        curl_easy_setopt(curl, CURLOPT_CAPATH, "/opt/sophos-spl/base/etc");
+        m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.str().c_str());
+        m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAPATH, "/opt/sophos-spl/base/etc");
 
         struct curl_slist *headers = nullptr;
-        headers = curl_slist_append(headers, "Accept: application/json");
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        headers = curl_slist_append(headers, "charsets: utf-8");
+        headers = m_curlWrapper->curlSlistAppend(headers, "Accept: application/json");
+        headers = m_curlWrapper->curlSlistAppend(headers, "Content-Type: application/json");
+        headers = m_curlWrapper->curlSlistAppend(headers, "charsets: utf-8");
         for (auto const& header : additionalHeaders)
         {
-            headers = curl_slist_append(headers, header.c_str());
+            headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
         }
 
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        m_curlWrapper->curlEasySetopt(curl, CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
 
         if(verb == "POST")
         {
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStruct.c_str());
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, jsonStruct.c_str());
         }
 
-        res = curl_easy_perform(curl);
+        result = m_curlWrapper->curlEasyPerform(curl);
 
-        if(res != CURLE_OK)
+        if(result != CURLE_OK)
             fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                    curl_easy_strerror(res));
+                    m_curlWrapper->curlEasyStrerror(result));
 
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
+        m_curlWrapper->curlSlistFreeAll(headers);
+        m_curlWrapper->curlEasyCleanup(curl);
     }
 
-    curl_global_cleanup();
+    m_curlWrapper->curlGlobalCleanup();
 }
 
 void HttpSender::get_request(

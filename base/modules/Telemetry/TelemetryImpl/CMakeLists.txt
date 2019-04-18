@@ -4,13 +4,22 @@ add_library(telemetryimpl SHARED
         Logger.cpp
         Logger.h)
 
-
-include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
+        ${CURL_LIBRARY}
         logging
+        httpsenderimpl
+        )
+
+SET_TARGET_PROPERTIES(telemetryimpl
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
         )
 
 install(TARGETS telemetryimpl
         LIBRARY DESTINATION files/base/lib64)
+
+add_dependencies(telemetryimpl copy_libs)

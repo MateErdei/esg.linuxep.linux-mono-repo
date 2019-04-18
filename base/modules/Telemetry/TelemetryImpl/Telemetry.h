@@ -6,6 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Telemetry/HttpSenderImpl/HttpSender.h>
+
 namespace Telemetry
 {
     /**
@@ -17,5 +19,5 @@ namespace Telemetry
      * @param argv As convention an array of string arguments.
      * @return
      */
-    int main_entry(int argc, char* argv[]);
+    int main_entry(int argc, char* argv[], std::shared_ptr<IHttpSender> httpSender=std::make_shared<HttpSender>());
 } // namespace Telemetry
