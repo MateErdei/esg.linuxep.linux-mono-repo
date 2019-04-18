@@ -80,7 +80,7 @@ public:
                                "cacheUpdateSslPath": "absCacheUpdatePath",
                                "releaseTag": "RECOMMENDED",
                                "baseVersion": "9",
-                               "primary": "PrimaryProduct-RigidName",
+                               "primary": "BaseProduct-RigidName",
                                "fullNames": [
                                "PrefixOfProduct-SimulateProductA"
                                ],

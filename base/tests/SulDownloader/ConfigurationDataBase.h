@@ -54,7 +54,7 @@ public:
                                "cacheUpdateSslPath": "absCacheUpdatePath",
                                "releaseTag": "RECOMMENDED",
                                "baseVersion": "9",
-                               "primary": "PrimaryProduct-RigidName",
+                               "primary": "BaseProduct-RigidName",
                                "fullNames": [
                                "PrefixOfProduct-SimulateProductA"
                                ],
@@ -120,7 +120,7 @@ public:
                                "systemSslPath": "absSystemSslPath",
                                "cacheUpdateSslPath": "absCacheUpdatePath",
                                "primarySubscription": {
-                                "rigidName" : "PrimaryProduct-RigidName",
+                                "rigidName" : "BaseProduct-RigidName",
                                 "baseVersion" : "9",
                                 "tag" : "RECOMMENDED",
                                 "fixVersion" : ""

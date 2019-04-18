@@ -201,7 +201,7 @@ TEST_F( // NOLINT
     EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getUsername().c_str(), "");
     EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getPassword().c_str(), "");
 
-    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "PrimaryProduct-RigidName");
+    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "BaseProduct-RigidName");
     EXPECT_TRUE(configurationData.getProductSelection()[0].Primary);
     EXPECT_FALSE(configurationData.getProductSelection()[0].Prefix);
     EXPECT_STREQ(configurationData.getProductSelection()[0].releaseTag.c_str(), "RECOMMENDED");
@@ -627,7 +627,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVers
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimaryShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = "PrimaryProduct-RigidName";
+    std::string oldString = "BaseProduct-RigidName";
 
     std::string newString; // = "";
 
@@ -641,7 +641,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimarySho
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("primary": "PrimaryProduct-RigidName",)";
+    std::string oldString = R"("primary": "BaseProduct-RigidName",)";
     std::string newString; //  = "";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
@@ -817,7 +817,7 @@ TEST_F( // NOLINT
             Credentials{"administrator", "password"},
             {"https://cache.sophos.com/latest/warehouse"},
             Proxy("noproxy:"));
-    expectedConfiguration.setPrimarySubscription( ProductSubscription{"PrimaryProduct-RigidName", "9", "RECOMMENDED", ""} );
+    expectedConfiguration.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} );
     expectedConfiguration.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}});
     expectedConfiguration.setFeatures({"CORE", "MDR"});
     expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
@@ -837,7 +837,7 @@ TEST_F( // NOLINT
         InterfaceForbidsSettingValuesThatWereNotPresentInV1)
 {
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"PrimaryProduct-RigidName", "9", "RECOMMENDED", ""} ), std::logic_error);
+    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} ), std::logic_error);
     EXPECT_THROW(configurationData.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}}), std::logic_error);
     EXPECT_THROW(configurationData.setFeatures({"CORE", "MDR"}), std::logic_error);
 }
