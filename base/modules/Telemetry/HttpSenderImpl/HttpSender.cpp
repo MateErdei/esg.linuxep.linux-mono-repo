@@ -6,9 +6,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "HttpSender.h"
 
-#include <Telemetry/TelemetryImpl/Logger.h>
+#include <Telemetry/LoggerImpl/Logger.h>
 
 #include <curl.h>
+#include <openssl/crypto.h>
+#include <openssl/ssl.h>
 #include <sstream>
 
 HttpSender::HttpSender(
@@ -19,7 +21,10 @@ HttpSender::HttpSender(
 , m_port(port)
 , m_curlWrapper(curlWrapper)
 {
-
+    // Initialising ssl and crypto to create a dependency on their libraries and be able to get the correct rpath
+    // TODO: Rebuild libcurl with rpath set and remove these lines
+    SSL_library_init();
+    OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS | OPENSSL_INIT_NO_ADD_ALL_DIGESTS, NULL);
 }
 
 void HttpSender::setServer(const std::string& server)
@@ -32,20 +37,20 @@ void HttpSender::setPort(const int& port)
     m_port = port;
 }
 
-void HttpSender::https_request(
+int HttpSender::httpsRequest(
         const std::string& verb,
         const std::vector<std::string>& additionalHeaders,
         const std::string& jsonStruct)
 {
     std::stringstream uri;
-    uri << "https://" << m_server << ":" << m_port;
+    uri << "http://" << m_server << ":" << m_port;
 
     std::stringstream msg;
     msg << "Creating HTTP " << verb << " Request to " << uri.str();
     LOGINFO(msg.str());
 
     CURL *curl;
-    CURLcode result;
+    CURLcode result = CURLE_FAILED_INIT;
 
     m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
 
@@ -74,25 +79,30 @@ void HttpSender::https_request(
         result = m_curlWrapper->curlEasyPerform(curl);
 
         if(result != CURLE_OK)
-            fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                    m_curlWrapper->curlEasyStrerror(result));
+        {
+            std::stringstream errMsg;
+            errMsg << "curl_easy_perform() failed: " << m_curlWrapper->curlEasyStrerror(result);
+            LOGERROR(errMsg.str());
+        }
 
         m_curlWrapper->curlSlistFreeAll(headers);
         m_curlWrapper->curlEasyCleanup(curl);
     }
 
     m_curlWrapper->curlGlobalCleanup();
+
+    return static_cast<int>(result);
 }
 
-void HttpSender::get_request(
+int HttpSender::getRequest(
         const std::vector<std::string>& additionalHeaders)
 {
-    https_request("GET", additionalHeaders, "");
+    return httpsRequest("GET", additionalHeaders, "");
 }
 
-void HttpSender::post_request(
-        const std::vector<std::string>& additionalHeaders,
-        const std::string& jsonStruct)
+int HttpSender::postRequest(
+        const std::vector<std::string> &additionalHeaders,
+        const std::string &jsonStruct)
 {
-    https_request("POST", additionalHeaders, jsonStruct);
+    return httpsRequest("POST", additionalHeaders, jsonStruct);
 }

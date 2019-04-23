@@ -22,13 +22,12 @@ public:
     void setServer(const std::string& server) override;
     void setPort(const int& port) override;
 
-    void get_request(const std::vector<std::string>& additionalHeaders) override;
-
-    void post_request(const std::vector<std::string>& additionalHeaders,
+    int getRequest(const std::vector<std::string>& additionalHeaders) override;
+    int postRequest(const std::vector<std::string>& additionalHeaders,
                            const std::string& jsonStruct) override;
 
 private:
-    void https_request(const std::string& verb,
+    int httpsRequest(const std::string& verb,
                        const std::vector<std::string>& additionalHeaders = std::vector<std::string>(),
                        const std::string& jsonStruct = std::string());
 

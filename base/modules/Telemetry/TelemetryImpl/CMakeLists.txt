@@ -1,22 +1,19 @@
 add_library(telemetryimpl SHARED
         Telemetry.cpp
-        Telemetry.h
-        Logger.cpp
-        Logger.h)
+        Telemetry.h)
 
 include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
-        ${CURL_LIBRARY}
-        logging
+        telemetryloggerimpl
         httpsenderimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 install(TARGETS telemetryimpl

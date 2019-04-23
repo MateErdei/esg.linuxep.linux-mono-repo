@@ -6,12 +6,15 @@ add_library(httpsenderimpl SHARED
         CurlWrapper.h
         ../HttpSender/ICurlWrapper.h)
 
-include_directories(httpsenderimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+include_directories(httpsenderimpl BEFORE ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 
 target_link_libraries(httpsenderimpl PUBLIC
-        ${LOG4CPLUS_LIBRARY}
+        -L"${CMAKE_BINARY_DIR}/libs"
+        ssl
+        crypto
         ${CURL_LIBRARY}
-        logging
+        ${LOG4CPLUS_LIBRARY}
+        telemetryloggerimpl
         )
 
 SET_TARGET_PROPERTIES(httpsenderimpl
