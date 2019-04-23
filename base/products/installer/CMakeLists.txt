@@ -50,3 +50,8 @@ install(TARGETS manifestdiff
 
 install(TARGETS machineid
         DESTINATION files/base/bin)
+
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/licenses.txt
+        DESTINATION files/base/etc
+        PERMISSIONS OWNER_READ
+        )
