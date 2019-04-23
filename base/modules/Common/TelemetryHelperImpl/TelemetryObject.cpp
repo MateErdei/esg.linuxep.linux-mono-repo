@@ -8,9 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <sstream>
 
 Common::Telemetry::TelemetryObject::TelemetryObject()
-    : m_type(Type::object)
+    : m_type(Type::object), m_value(std::map<std::string, TelemetryObject>())
 {
-    m_value = std::map<std::string, TelemetryObject>();
 }
 
 void Common::Telemetry::TelemetryObject::set(const std::string& key, const Common::Telemetry::TelemetryValue& value)
