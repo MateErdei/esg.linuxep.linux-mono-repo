@@ -48,6 +48,42 @@ namespace
         return tags;
     }
 
+    std::vector<std::string> getFeatures(SU_PHandle & product)
+    {
+        std::vector<std::string> features;
+        int index = 0;
+        while (true)
+        {
+            std::string feature = SulDownloader::SulQueryProductMetadata(product, "R_Features", index );
+            if( feature.empty())
+            {
+                break;
+            }
+            features.emplace_back(feature);
+            index ++;
+        }
+        return features;
+    }
+
+    std::string joinEntries(const std::vector<std::string> & entries)
+    {
+        std::stringstream ss;
+        bool isfirst = true;
+        for( auto & entry: entries)
+        {
+            if ( isfirst )
+            {
+                ss << entry;
+            }
+            else
+            {
+                ss << ", " << entry;
+            }
+            isfirst = false;
+        }
+        return ss.str();
+    }
+
     bool hasError(
         const std::vector<std::pair<SU_PHandle, SulDownloader::suldownloaderdata::DownloadedProduct>>& products)
     {
@@ -80,6 +116,9 @@ namespace
                                << all_attributes.str());
 
         }
+
+        LOGDEBUG("Tag: features value: " << joinEntries( getFeatures(product) ));
+
         std::vector<Tag> tags(getTags(product));
         for( auto & tag: tags)
         {
@@ -97,7 +136,6 @@ namespace
               "Name",
               "PublicationTime",
               "DefaultHomeFolder",
-              "Features",
               "Roles",
               "TargetTypes",
               "ReleaseTagsBaseVersion",
@@ -194,6 +232,7 @@ namespace SulDownloader
             productInformation.setName(name);
             productInformation.setTags(tags);
             productInformation.setVersion(productVersion);
+            productInformation.setFeatures( getFeatures(product) );
             productInformation.setBaseVersion(baseVersion);
             productInformation.setDefaultHomePath(defaultHomePath);
 
