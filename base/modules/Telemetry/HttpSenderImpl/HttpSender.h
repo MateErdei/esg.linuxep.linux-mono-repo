@@ -12,10 +12,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
+#define HTTP_PORT 443
+
 class HttpSender: public IHttpSender
 {
 public:
-    HttpSender(std::string server = "https://t1.sophosupd.com/", int port = 443, std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>());
+    explicit HttpSender(std::string server = "https://t1.sophosupd.com/", int port = HTTP_PORT, std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>());
     HttpSender(const HttpSender&) = delete;
     ~HttpSender() override = default;
 

@@ -19,12 +19,12 @@ HttpSender::HttpSender(
         std::shared_ptr<ICurlWrapper> curlWrapper)
 : m_server(std::move(server))
 , m_port(port)
-, m_curlWrapper(curlWrapper)
+, m_curlWrapper(std::move(curlWrapper))
 {
     // Initialising ssl and crypto to create a dependency on their libraries and be able to get the correct rpath
     // TODO: Rebuild libcurl with rpath set and remove these lines
     SSL_library_init();
-    OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS | OPENSSL_INIT_NO_ADD_ALL_DIGESTS, NULL);
+    OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS, nullptr);
 }
 
 void HttpSender::setServer(const std::string& server)
