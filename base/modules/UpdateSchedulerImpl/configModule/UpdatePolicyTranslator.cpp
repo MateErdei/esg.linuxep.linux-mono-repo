@@ -332,22 +332,5 @@ namespace UpdateSchedulerImpl
             });
             return orderedCaches;
         }
-
-        void PolicyValidationException::validateOrThrow(SettingsHolder& settingsHolder)
-        {
-            if (!settingsHolder.configurationData.verifySettingsAreValid())
-            {
-                LOGWARN("Configuration for the connection to the warehouse is invalid. Can not be used. ");
-                throw PolicyValidationException("Invalid ConfigurationData");
-            }
-
-            long updatePeriod = settingsHolder.schedulerPeriod.count();
-            constexpr long year = 365 * 24 * 60;
-            if (updatePeriod < 5 || updatePeriod > year)
-            {
-                throw PolicyValidationException(
-                    "Invalid update period given. It must be between 5 minutes and an year.");
-            }
-        }
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

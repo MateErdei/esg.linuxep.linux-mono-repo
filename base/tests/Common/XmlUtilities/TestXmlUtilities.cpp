@@ -146,7 +146,7 @@ TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText) // NOLINT
         "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
     ASSERT_EQ(attributes_fullname.size(), 3);
     std::string one_full_path = "AUConfigurations/update_cache/intermediate_certificates/"
-                                "intermediate_certificate#33d6a435957397fc9336c8633445aa33e1774500.crt";
+                                "intermediate_certificate#2";
 
     ASSERT_TRUE(
         std::find(std::begin(attributes_fullname), std::end(attributes_fullname), one_full_path) !=

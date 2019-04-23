@@ -27,7 +27,6 @@ namespace UpdateSchedulerImpl
         class PolicyValidationException : public Common::Exceptions::IException
         {
         public:
-            static void validateOrThrow(SettingsHolder& settingsHolder);
             using Common::Exceptions::IException::IException;
         };
 

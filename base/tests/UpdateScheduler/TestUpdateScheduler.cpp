@@ -41,9 +41,9 @@ namespace
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
       <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="true"/>
@@ -83,9 +83,9 @@ namespace
 
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
       <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="false"/>
@@ -234,9 +234,9 @@ static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
       <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="true"/>
@@ -407,7 +407,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/certs/cache_certificates.crt", _));
-    EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
+//    EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
 
     std::future<void> schedulerRunHandle =
@@ -494,6 +494,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) /
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
+    ICronSchedulerThread::DurationTime schedulerTime = std::chrono::minutes(40);
+    EXPECT_CALL(*cron, setPeriodTime(schedulerTime));
     EXPECT_CALL(*cron, requestStop());
 
     ScheduledUpdate scheduledUpdate;
@@ -559,6 +561,8 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
+    ICronSchedulerThread::DurationTime schedulerTime = std::chrono::minutes(40);
+    EXPECT_CALL(*cron, setPeriodTime(schedulerTime));
     EXPECT_CALL(*cron, requestStop());
 
     ScheduledUpdate scheduledUpdate;
@@ -615,7 +619,7 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     EXPECT_EQ(scheduledUpdate.getEnabled(), true);
 }
 
-TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
+TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
 {
     MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
@@ -623,6 +627,8 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
 
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setPeriodTime(time)).Times(1);
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).Times(2);
 
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
@@ -637,8 +643,10 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateAConfig) // NOLINT
         std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     // no config will be created when an invalid policy is given
-    EXPECT_CALL(*cron, setPeriodTime(time)).Times(0);
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(0);
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(2);
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
     std::future<void> schedulerRunHandle =
         std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
@@ -668,6 +676,8 @@ TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLIN
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
+    ICronSchedulerThread::DurationTime schedulerTime = std::chrono::minutes(40);
+    EXPECT_CALL(*cron, setPeriodTime(schedulerTime));
     EXPECT_CALL(*cron, requestStop());
 
     ScheduledUpdate scheduledUpdate;

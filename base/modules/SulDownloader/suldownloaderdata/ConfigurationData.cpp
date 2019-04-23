@@ -547,11 +547,6 @@ void ConfigurationData::addProductSelection(const ProductGUID& productGUID)
 
 const std::vector<ProductGUID>& ConfigurationData::getProductSelection() const
 {
-    if (m_version == ConfigurationData::Version::V2)
-    {
-        throw std::logic_error( "Version two does not support this feature");
-    }
-
     return m_productSelection;
 }
 
@@ -793,21 +788,11 @@ void ConfigurationData::setProductsSubscription(const std::vector<ProductSubscri
 
 const ProductSubscription& ConfigurationData::getPrimarySubscription() const
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
-
     return m_primarySubscription;
 }
 
 const std::vector<ProductSubscription>& ConfigurationData::getProductsSubscription() const
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
-
     return m_productsSubscription;
 }
 
@@ -823,10 +808,5 @@ void ConfigurationData::setFeatures(const std::vector<std::string>& features)
 
 const std::vector<std::string> & ConfigurationData::getFeatures() const
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
-
     return m_features;
 }

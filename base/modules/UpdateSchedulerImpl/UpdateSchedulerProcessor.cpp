@@ -119,7 +119,17 @@ namespace UpdateSchedulerImpl
                 saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
             }
 
-            UpdateSchedulerImpl::configModule::PolicyValidationException::validateOrThrow(settingsHolder);
+            //Check that the policy period is within expected range and set default if not
+            long updatePeriod = settingsHolder.schedulerPeriod.count();
+            constexpr long year = 365 * 24 * 60;
+            if (updatePeriod < 5 || updatePeriod > year)
+            {
+                LOGWARN("Invalid scheduled update period given: " << updatePeriod << ". It must be between 5 minutes and a year. Leaving update settings as previous");
+            }
+            else
+            {
+                m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
+            }
 
             m_cronThread->setScheduledUpdate(settingsHolder.scheduledUpdate);
             if (settingsHolder.scheduledUpdate.getEnabled())
@@ -132,10 +142,6 @@ namespace UpdateSchedulerImpl
                 }
 
                 m_cronThread->setPeriodTime(std::chrono::minutes(1));
-            }
-            else
-            {
-                m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(m_configfilePath))
