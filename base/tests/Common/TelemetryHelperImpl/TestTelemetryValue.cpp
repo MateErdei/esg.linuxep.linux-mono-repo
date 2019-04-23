@@ -73,7 +73,7 @@ TEST(TestTelemetryValueImpl, GetIntegerThrowsWhenSetToString) // NOLINT
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::ValueType::string_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getInteger(), std::invalid_argument);  // NOLINT
+    EXPECT_THROW(telemetryValue.getInteger(), std::logic_error);  // NOLINT
 }
 
 // Integers
@@ -91,7 +91,7 @@ TEST(TestTelemetryValueImpl, GetUnsignedIntegerThrowsWhenSetToString) // NOLINT
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::ValueType::string_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getUnsignedInteger(), std::invalid_argument);  // NOLINT
+    EXPECT_THROW(telemetryValue.getUnsignedInteger(), std::logic_error);  // NOLINT
 }
 
 // Strings
@@ -118,7 +118,7 @@ TEST(TestTelemetryValueImpl, GetStringThrowsWhenSetToInt) // NOLINT
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_INTEGER);
     ASSERT_EQ(TelemetryValue::ValueType::integer_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getString(), std::invalid_argument);  // NOLINT
+    EXPECT_THROW(telemetryValue.getString(), std::logic_error);  // NOLINT
 }
 
 // Bools
@@ -135,13 +135,13 @@ TEST(TestTelemetryValueImpl, GetBoolThrowsWhenSetToString) // NOLINT
     TelemetryValue telemetryValue;
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::ValueType::string_type, telemetryValue.getValueType());
-    EXPECT_THROW(telemetryValue.getBoolean(), std::invalid_argument);  // NOLINT
+    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error);  // NOLINT
 }
 
 TEST(TestTelemetryValueImpl, GetBoolThrowsWhenNothingSet) // NOLINT
 {
     TelemetryValue telemetryValue;
-    EXPECT_THROW(telemetryValue.getBoolean(), std::invalid_argument);  // NOLINT
+    EXPECT_THROW(telemetryValue.getBoolean(), std::logic_error);  // NOLINT
 }
 // Operators
 TEST(TestTelemetryValueImpl, EqualityMatchingItems) // NOLINT

@@ -5,12 +5,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "TelemetryValue.h"
 #include <list>
 #include <map>
-#include <memory>
 #include <string>
 #include <variant>
-#include "TelemetryValue.h"
 
 namespace Common::Telemetry
 {

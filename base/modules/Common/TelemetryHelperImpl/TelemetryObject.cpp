@@ -1,6 +1,11 @@
-//
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "TelemetryObject.h"
+#include <sstream>
 
 Common::Telemetry::TelemetryObject::TelemetryObject()
     : m_type(Type::object)
@@ -135,6 +140,9 @@ void Common::Telemetry::TelemetryObject::checkType(Type expectedType) const
 {
     if (m_type != expectedType)
     {
-        throw std::invalid_argument("bad type");
+        std::stringstream msg;
+        msg << "Telemetry object does not contain the expected type. Expected: "
+            << static_cast<int>(expectedType) << "Actual: " << static_cast<int>(m_type);
+        throw std::logic_error(msg.str());
     }
 }

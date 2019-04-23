@@ -5,8 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetrySerialiser.h"
-#include <exception>
-#include <iostream>
+#include <stdexcept>
+#include <sstream>
 
 namespace Common::Telemetry
 {
@@ -41,14 +41,17 @@ namespace Common::Telemetry
 
             default:
             {
-                throw std::invalid_argument("Cannot to_json(nlohmann::json& j, const TelemetryValue& value) serialise value. Invalid type");
+                std::stringstream msg;
+                msg << "Cannot serialise telemetry value. Invalid type: " << static_cast<int>(type);
+                throw std::invalid_argument(msg.str());
             }
         }
     }
 
     void from_json(const nlohmann::json& j, TelemetryValue& value)
     {
-        switch(j.type())
+        auto type = j.type();
+        switch(type)
         {
             case nlohmann::detail::value_t::number_integer:
             {
@@ -76,7 +79,9 @@ namespace Common::Telemetry
 
             default:
             {
-                throw std::invalid_argument("Cannot serialise value. Invalid type: " + j.dump());
+                std::stringstream msg;
+                msg << "Cannot deserialise value. Invalid type: " << static_cast<int>(type);
+                throw std::invalid_argument(msg.str());
             }
         }
     }
@@ -106,20 +111,18 @@ namespace Common::Telemetry
 
             default:
             {
-                throw std::invalid_argument("Cannot to_json(nlohmann::json& j, const TelemetryObject& telemetryObject) serialise node. Invalid type");
+                std::stringstream msg;
+                msg << "Cannot serialise telemetry object. Invalid type: " << static_cast<int>(type);
+                throw std::invalid_argument(msg.str());
             }
         }
     }
 
     void from_json(const nlohmann::json& j, TelemetryObject& telemetryObject)
     {
-
-        auto thing = j.type();
-        (void)thing;
-
         for(const auto& item: j.items())
         {
-            nlohmann::detail::value_t type = item.value().type();
+            auto type = item.value().type();
             switch(type)
             {
                 case nlohmann::detail::value_t::number_unsigned:
@@ -152,7 +155,9 @@ namespace Common::Telemetry
 
                 default:
                 {
-                    throw std::invalid_argument("Cannot deserialise value. Invalid type");
+                    std::stringstream msg;
+                    msg << "Cannot deserialise json item. Invalid type: " << static_cast<int>(type);
+                    throw std::invalid_argument(msg.str());
                 }
             }
         }

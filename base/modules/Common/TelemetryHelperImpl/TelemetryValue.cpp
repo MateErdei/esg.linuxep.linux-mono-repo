@@ -4,8 +4,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <stdexcept>
 #include "TelemetryValue.h"
+#include <stdexcept>
+#include <sstream>
 
 namespace Common::Telemetry
 {
@@ -114,7 +115,10 @@ namespace Common::Telemetry
     {
         if(m_valueType != expectedType)
         {
-            throw std::invalid_argument("bad telem value type");
+            std::stringstream msg;
+            msg << "Telemetry value does not contain the expected type. Expected: "
+                << static_cast<int>(expectedType) << "Actual: " << static_cast<int>(m_valueType);
+            throw std::logic_error(msg.str());
         }
     }
 }
