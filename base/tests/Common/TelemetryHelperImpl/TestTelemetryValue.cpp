@@ -9,6 +9,7 @@
 #include <include/gtest/gtest.h>
 
 const int TEST_INTEGER = 10;
+const unsigned int TEST_UNSIGNED_INTEGER = 11U;
 const bool TEST_BOOL = true;
 const char* TEST_CSTRING = "Test String";
 const std::string TEST_STRING = TEST_CSTRING;  // NOLINT
@@ -43,6 +44,13 @@ TEST(TestTelemetryValueImpl, ConstructionWithInt) // NOLINT
     ASSERT_EQ(TEST_INTEGER, telemetryValue.getInteger());
 }
 
+TEST(TestTelemetryValueImpl, ConstructionWithUnsignedInt) // NOLINT
+{
+    TelemetryValue telemetryValue(TEST_UNSIGNED_INTEGER);
+    ASSERT_EQ(TelemetryValue::ValueType::unsigned_integer_type, telemetryValue.getValueType());
+    ASSERT_EQ(TEST_UNSIGNED_INTEGER, telemetryValue.getUnsignedInteger());
+}
+
 TEST(TestTelemetryValueImpl, ConstructionWithBool) // NOLINT
 {
     TelemetryValue telemetryValue(TEST_BOOL);
@@ -66,6 +74,24 @@ TEST(TestTelemetryValueImpl, GetIntegerThrowsWhenSetToString) // NOLINT
     telemetryValue.set(TEST_STRING);
     ASSERT_EQ(TelemetryValue::ValueType::string_type, telemetryValue.getValueType());
     EXPECT_THROW(telemetryValue.getInteger(), std::invalid_argument);  // NOLINT
+}
+
+// Integers
+TEST(TestTelemetryValueImpl, UnsignedIntegerValue) // NOLINT
+{
+    TelemetryValue telemetryValue;
+    telemetryValue.set(TEST_UNSIGNED_INTEGER);
+
+    ASSERT_EQ(TelemetryValue::ValueType::unsigned_integer_type, telemetryValue.getValueType());
+    ASSERT_EQ(TEST_UNSIGNED_INTEGER, telemetryValue.getUnsignedInteger());
+}
+
+TEST(TestTelemetryValueImpl, GetUnsignedIntegerThrowsWhenSetToString) // NOLINT
+{
+    TelemetryValue telemetryValue;
+    telemetryValue.set(TEST_STRING);
+    ASSERT_EQ(TelemetryValue::ValueType::string_type, telemetryValue.getValueType());
+    EXPECT_THROW(telemetryValue.getUnsignedInteger(), std::invalid_argument);  // NOLINT
 }
 
 // Strings

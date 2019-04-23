@@ -8,7 +8,7 @@ add_library(telemetryhelperimpl SHARED
         Logger.h
         Logger.cpp)
 
-target_include_directories(telemetryhelperimpl PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE})
+target_include_directories(telemetryhelperimpl PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
 target_link_libraries(telemetryhelperimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
 

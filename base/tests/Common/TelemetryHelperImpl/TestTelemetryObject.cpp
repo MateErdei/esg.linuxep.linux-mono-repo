@@ -13,12 +13,21 @@ using namespace Common::Telemetry;
 class TelemetryObjectTestFixture : public ::testing::Test
 {
 public:
+    TelemetryObjectTestFixture()
+    {
+        m_telemObj1.set(m_testKey, m_testValue);
+        m_telemObj2.set(m_testKey, m_testValue);
+    }
+
     std::string m_testKey = "TestKey";
     std::string m_badKey = "BadKey";
     std::string m_testString = "Test Value";
     TelemetryValue m_testValue = TelemetryValue(m_testString);
     std::list<TelemetryObject> m_testArray {TelemetryObject(), TelemetryObject()};
+
     TelemetryObject m_root;
+    TelemetryObject m_telemObj1;
+    TelemetryObject m_telemObj2;
 };
 
 TEST_F(TelemetryObjectTestFixture, Construction)
@@ -150,8 +159,15 @@ TEST_F(TelemetryObjectTestFixture, KeyDoesntExist) // NOLINT
 
 TEST_F(TelemetryObjectTestFixture, EqualityMatching) // NOLINT
 {
+    // Ensure objects are really not the same ones.
+    ASSERT_NE(&m_telemObj1, &m_telemObj2);
+
+    ASSERT_EQ(m_telemObj1, m_telemObj2);
 }
 
 TEST_F(TelemetryObjectTestFixture, EqualityDifferent) // NOLINT
 {
+    ASSERT_NE(m_telemObj1, m_root);
 }
+
+

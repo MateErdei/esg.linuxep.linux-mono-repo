@@ -6,15 +6,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetrySerialiser.h"
 #include <exception>
+#include <iostream>
 
 namespace Common::Telemetry
 {
-
-//    std::string TelemetrySerialiser::serialise(const Common::Telemetry::TelemetryNode& /*node*/)
-//    {
-//        return "";
-//    }
-
     void to_json(nlohmann::json& j, const TelemetryValue& value)
     {
         auto type = value.getValueType();
@@ -23,6 +18,12 @@ namespace Common::Telemetry
             case TelemetryValue::ValueType::integer_type:
             {
                 j = value.getInteger();
+                break;
+            }
+
+            case TelemetryValue::ValueType::unsigned_integer_type:
+            {
+                j = value.getUnsignedInteger();
                 break;
             }
 
@@ -52,6 +53,12 @@ namespace Common::Telemetry
             case nlohmann::detail::value_t::number_integer:
             {
                 value.set(j.get<int>());
+                break;
+            }
+
+            case nlohmann::detail::value_t::number_unsigned:
+            {
+                value.set(j.get<unsigned int>());
                 break;
             }
 
@@ -106,10 +113,16 @@ namespace Common::Telemetry
 
     void from_json(const nlohmann::json& j, TelemetryObject& telemetryObject)
     {
+
+        auto thing = j.type();
+        (void)thing;
+
         for(const auto& item: j.items())
         {
-            switch(item.value().type())
+            nlohmann::detail::value_t type = item.value().type();
+            switch(type)
             {
+                case nlohmann::detail::value_t::number_unsigned:
                 case nlohmann::detail::value_t::number_integer:
                 case nlohmann::detail::value_t::string:
                 case nlohmann::detail::value_t::boolean:

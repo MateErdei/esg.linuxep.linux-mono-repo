@@ -9,90 +9,78 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryValue.h>
 
 #include <include/gtest/gtest.h>
-#include <iostream>
-#include <memory>
-#include <map>
 
-const int TEST_INTEGER = 10;
-const bool TEST_BOOL = true;
-const std::string TEST_STRING = "Test String";  // NOLINT
-
-//TEST(TestTelemetryValueImpl, SerialiseValue) // NOLINT
-//{
-//    Common::Telemetry::TelemetryValue telemetryValue("key", TEST_STRING);
-//    nlohmann::json j = telemetryValue;
-//
-//    std::cout << j.dump() << std::endl;
-//
-//}
 using namespace Common::Telemetry;
 
-TEST(TestTelemetrySerialiserImpl, SerialiseDictionaryNoKey) // NOLINT
+class TelemetrySerialiserTestFixture : public ::testing::Test
 {
-    TelemetryObject root;
-    TelemetryValue val1;
-    val1.set(1);
-    TelemetryValue val2;
-    val2.set(2);
-    TelemetryValue val3;
-    val3.set(3);
-    TelemetryValue val4;
-    val4.set(4);
-    TelemetryValue val5;
-    val5.set(5);
-    root.set("key1", val1);
-    TelemetryObject nested1;
-    nested1.set("nested1", val2);
-    nested1.set("nested2", val3);
-    nested1.set("nested3", val4);
-    root.set("key2", nested1);
+public:
+    TelemetrySerialiserTestFixture()
+        : m_testValue1(1U),
+          m_testValue2(4294967200U),
+          m_testValue3(3U),
+          m_testValue4(-4),
+          m_testString("TestValue"),
+          m_testBool(true)
+    {
+        TelemetryObject stringObj;
+        stringObj.set(TelemetryValue(m_testString));
+        TelemetryObject boolObj;
+        boolObj.set(TelemetryValue(m_testBool));
 
-    TelemetryObject stringObj;
-    TelemetryValue stringVal("string");
-    stringObj.set(stringVal);
+        TelemetryObject nested;
+        nested.set("nested1", TelemetryValue(m_testValue2));
+        nested.set("nested2", TelemetryValue(m_testValue3));
+        nested.set("nested3", TelemetryValue(m_testValue4));
 
-    TelemetryObject boolObj;
-    TelemetryValue boolVal(true);
-    boolObj.set(boolVal);
+        m_root.set("key1", TelemetryValue(m_testValue1));
+        m_root.set("key2", nested);
 
-    std::list<TelemetryObject> array{stringObj, boolObj, nested1};
-    root.set("my array", array);
+        std::list<TelemetryObject> array{stringObj, boolObj, nested};
+        m_root.set("my array", array);
+    }
 
-    nlohmann::json j = root;
+    unsigned int m_testValue1;
+    unsigned int m_testValue2;
+    unsigned int m_testValue3;
+    int m_testValue4;
+    std::string m_testString;
+    bool m_testBool;
 
-    ASSERT_EQ(1, j["key1"].get<int>());
-    ASSERT_EQ(2, j["key2"]["nested1"].get<int>());
-    ASSERT_EQ(3, j["key2"]["nested2"].get<int>());
-    ASSERT_EQ(4, j["key2"]["nested3"].get<int>());
+    TelemetryObject m_root;
+    std::string m_serialisedTelemetry = R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3,"nested3":-4}]})";
+};
 
-    ASSERT_EQ("string", j["my array"][0].get<std::string>());
-    ASSERT_EQ(true, j["my array"][1].get<bool>());
-    ASSERT_EQ(2, j["my array"][2]["nested1"].get<int>());
-    ASSERT_EQ(3, j["my array"][2]["nested2"].get<int>());
-    ASSERT_EQ(4, j["my array"][2]["nested3"].get<int>());
+TEST_F(TelemetrySerialiserTestFixture, TelemetryObjectToJsonAndBackToTelemetryObject) // NOLINT
+{
+    // Serialise known object to json and verify fields.
+    nlohmann::json j = m_root;
 
+    // Check json object constructed correctly.
+    ASSERT_EQ(m_testValue1, j["key1"].get<unsigned int>());
+    ASSERT_EQ(m_testValue2, j["key2"]["nested1"].get<unsigned int>());
+    ASSERT_EQ(m_testValue3, j["key2"]["nested2"].get<unsigned int>());
+    ASSERT_EQ(m_testValue4, j["key2"]["nested3"].get<int>());
+    ASSERT_EQ(m_testString, j["my array"][0].get<std::string>());
+    ASSERT_EQ(m_testBool, j["my array"][1].get<bool>());
+    ASSERT_EQ(m_testValue2, j["my array"][2]["nested1"].get<unsigned int>());
+    ASSERT_EQ(m_testValue3, j["my array"][2]["nested2"].get<unsigned int>());
+    ASSERT_EQ(m_testValue4, j["my array"][2]["nested3"].get<int>());
+
+    // Create a new Telemetry Object from the json object and check it is equal in value to the original root.
     auto newRoot = j.get<TelemetryObject>();
-    ASSERT_EQ(root, newRoot);
+    ASSERT_EQ(m_root, newRoot);
 }
 
-TEST(TestTelemetryValueImpl, SerialiseToString) // NOLINT
+TEST_F(TelemetrySerialiserTestFixture, SerialiseToString) // NOLINT
 {
-    TelemetryObject obj;
-    TelemetryValue value;
-    value.set("test");
-    obj.set("key", value);
     TelemetrySerialiser serialiser;
-    ASSERT_EQ(R"({"key":"test"})", serialiser.serialise(obj));
+    ASSERT_EQ(m_serialisedTelemetry, serialiser.serialise(m_root));
 }
 
-TEST(TestTelemetryValueImpl, DeserialiseToTelemetryObject) // NOLINT
+TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
 {
-    TelemetryObject obj;
-    TelemetryValue value;
-    value.set("test");
-    obj.set("key", value);
-    std::string jsonString = R"({"key":"test"})";
     TelemetrySerialiser serialiser;
-    auto deserialised = serialiser.deserialise(jsonString);
-    ASSERT_EQ(obj, deserialised);
+    auto deserialised = serialiser.deserialise(m_serialisedTelemetry);
+    ASSERT_EQ(m_root, deserialised);
 }

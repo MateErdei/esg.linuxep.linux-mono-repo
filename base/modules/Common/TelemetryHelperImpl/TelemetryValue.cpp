@@ -30,6 +30,11 @@ namespace Common::Telemetry
     {
     }
 
+    TelemetryValue::TelemetryValue(const unsigned int value)
+            : m_value(value), m_valueType(ValueType::unsigned_integer_type)
+    {
+    }
+
     TelemetryValue::TelemetryValue(const char* value)
         : m_value(std::string(value)), m_valueType(ValueType::string_type)
     {
@@ -39,6 +44,12 @@ namespace Common::Telemetry
     {
         m_value = value;
         m_valueType = ValueType::integer_type;
+    }
+
+    void TelemetryValue::set(unsigned int value)
+    {
+        m_value = value;
+        m_valueType = ValueType::unsigned_integer_type;
     }
 
     void TelemetryValue::set(const bool value)
@@ -63,6 +74,12 @@ namespace Common::Telemetry
     {
         checkType(ValueType::integer_type);
         return std::get<int>(m_value);
+    }
+
+    unsigned int TelemetryValue::getUnsignedInteger() const
+    {
+        checkType(ValueType::unsigned_integer_type);
+        return std::get<unsigned int>(m_value);
     }
 
     bool TelemetryValue::getBoolean() const

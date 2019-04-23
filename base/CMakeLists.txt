@@ -68,10 +68,6 @@ set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 
-# Used for telemtry
-set(NLOHMANN_JSON_INCLUDE ${INPUT}/nlohmann-json)
-#find_package(nlohmann_json 3.6.1 REQUIRED)
-
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
 endif()
