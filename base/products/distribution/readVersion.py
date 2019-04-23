@@ -22,11 +22,7 @@ def readVersionIniFile(BASE=None):
     scriptPath = os.path.dirname(os.path.realpath(__file__))  # <plugin>/redist/pluginapi/distribution
     version = None
 
-    print ("script path 1 = {}".format(scriptPath))
-
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
-
-    print ("autoVersionFile 1 = {}".format(autoVersionFile))
 
     if not os.path.isfile(autoVersionFile):
         if BASE is None:
@@ -42,12 +38,8 @@ def readVersionIniFile(BASE=None):
                 autoVersionFile = os.path.join(BASE, "distribution", "include",
                                                "AutoVersioningHeaders", "AutoVersion.ini")
 
-            print ("autoVersionFile 2 = {}".format(autoVersionFile))
-            if not os.path.isfile(autoVersionFile):
-                autoVersionFile = os.path.join(BASE, "AutoVersioningHeaders", "AutoVersion.ini")
-
-                print ("autoVersionFile 3 = {}".format(autoVersionFile))
-
+                if not os.path.isfile(autoVersionFile):
+                    autoVersionFile = os.path.join(BASE, "AutoVersioningHeaders", "AutoVersion.ini")
 
     if os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
