@@ -24,12 +24,6 @@ def readVersionIniFile(BASE=None):
 
     print ("script path 1 = {}".format(scriptPath))
 
-    # plugins will not obtain a path with distrubution as the last directory.  Therefore we need to add it.
-    if os.path.basename(os.path.normpath(scriptPath)) != "distribution":
-        scriptPath = os.path.join(scriptPath, "distribution")
-
-    print ("script path 2 = {}".format(scriptPath))
-
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
 
     print ("autoVersionFile 1 = {}".format(autoVersionFile))
@@ -43,6 +37,10 @@ def readVersionIniFile(BASE=None):
         if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
             autoVersionFile = os.path.join(BASE, "products", "distribution", "include",
                                            "AutoVersioningHeaders", "AutoVersion.ini")
+
+            if not os.path.isfile(autoVersionFile):
+                autoVersionFile = os.path.join(BASE, "distribution", "include",
+                                               "AutoVersioningHeaders", "AutoVersion.ini")
 
             print ("autoVersionFile 2 = {}".format(autoVersionFile))
             if not os.path.isfile(autoVersionFile):
