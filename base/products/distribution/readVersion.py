@@ -22,6 +22,10 @@ def readVersionIniFile(BASE=None):
     scriptPath = os.path.dirname(os.path.realpath(__file__))  # <plugin>/redist/pluginapi/distribution
     version = None
 
+    # plugins will not obtain a path with distrubution as the last directory.  Therefore we need to add it.
+    if os.path.basename(os.path.normpath(scriptPath)) != "distribution":
+        scriptPath = os.path.join(scriptPath, "distribution")
+
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
     if not os.path.isfile(autoVersionFile):
         if BASE is None:
