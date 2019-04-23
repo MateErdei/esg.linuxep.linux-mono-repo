@@ -317,7 +317,7 @@ static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
     <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
     <cloud_subscriptions>
       <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
-`     <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
+      <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
     </cloud_subscriptions>
     <delay_updating Day="Wednesday" Time="11:00:00"/>
     <delay_supplements enabled="true"/>
@@ -855,6 +855,73 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
 
     const auto & productsSubscription = config.getProductsSubscription();
     EXPECT_EQ(productsSubscription.size(), 0);
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 3);
+    EXPECT_EQ(features[0], "CORE");
+    EXPECT_EQ(features[1], "SDU");
+    EXPECT_EQ(features[2], "MDR");
+
+    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    std::string errorMsg = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errorMsg, ::testing::HasSubstr("SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
+}
+
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsErrorInLog) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+
+    std::string subscriptionWithoutBase{ R"sophos(    <cloud_subscriptions>
+      <subscription Id="NotBase" RigidName="ServerProtectionLinux-NotBase" Tag="RECOMMENDED"/>
+      <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>)sophos"};
+
+    auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions", subscriptionWithoutBase);
+
+    testing::internal::CaptureStderr();
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
+    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "");
+    EXPECT_EQ(primarySubscription.rigidName(), "");
+    EXPECT_EQ(primarySubscription.tag(), "");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
+
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 2);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-NotBase");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+    EXPECT_EQ(productsSubscription[1].baseVersion(), "");
+    EXPECT_EQ(productsSubscription[1].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[1].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[1].fixVersion(), "");
 
     const auto & features = config.getFeatures();
     EXPECT_EQ(features.size(), 3);
