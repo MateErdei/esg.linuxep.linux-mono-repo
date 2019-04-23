@@ -8,7 +8,7 @@
         <workingdir>sspl-template-plugin-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="sspl-base/bugfix-LINUXEP-8032-auto-versioning-on-plugins-does-not-appear-in-/20190423095606-33fc100aee5424fb1b8be2f2af12e46bae9ef78f/sspl-base/0.5.1/output/" dest="input" buildtype="dev">
+        <package name="sspl-base" version="sspl-base/bugfix-LINUXEP-8032-auto-versioning-on-plugins-does-not-appear-in-/20190423102932-33fc100aee5424fb1b8be2f2af12e46bae9ef78f/sspl-base/0.5.1/output/" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
         <!-- <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/0.5.1/output" dest="input" buildtype="dev">
