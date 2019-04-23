@@ -16,6 +16,9 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
+
+        constexpr char SSPLBaseName[] = "ServerProtectionLinux-Base";
+
         class ProductSubscription
         {
             std::string m_rigidName;
@@ -314,7 +317,7 @@ namespace SulDownloader
              * Access to the features configured.
              * @return
              */
-            std::vector<std::string> getFeatures() const;
+            const std::vector<std::string> & getFeatures() const;
 
 
             /**

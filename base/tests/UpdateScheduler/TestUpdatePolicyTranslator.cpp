@@ -33,10 +33,10 @@ static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
 
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="false"/>
   </AUConfig>
@@ -154,10 +154,10 @@ static const std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="true"/>
   </AUConfig>
@@ -196,10 +196,10 @@ static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version
     <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
     <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
-      <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="true"/>
     <delay_updating Day="Wednesday" Time="17:00:00"/>
@@ -297,6 +297,61 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos" };
 
+
+static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="6d95c7ad1c25b034c94bea54fad38711e3f5057157c3468a8aafe3885f213802" policyType="1"/>
+  <AUConfig platform="Linux">
+    <sophos_address address="http://es-web.sophos.com/update"/>
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="CSP190408113225" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </primary_location>
+    <secondary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </secondary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
+    <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+    <bootstrap Location="" UsePrimaryServerAddress="true"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+`     <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
+    <delay_updating Day="Wednesday" Time="11:00:00"/>
+    <delay_supplements enabled="true"/>
+  </AUConfig>
+  <Features>
+    <Feature id="CORE"/>
+    <Feature id="SDU"/>
+    <Feature id="MDR"/>
+  </Features>
+  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+  <customer id="8dd8c9f3-a9a1-84e2-49d8-f9320a76298e"/>
+</AUConfigurations>
+)sophos"};
+
+namespace{
+
+    std::string replaceXMLSection(const std::string & xml, const std::string & section, std::string replacement ="")
+    {
+        if (replacement.empty())
+        {
+            replacement = "<" + section + "/>";
+        }
+        std::string sectionStart = "<" + section + ">";
+        std::string sectionEnd = "</" + section + ">\n";
+
+        size_t posStart = xml.find(sectionStart);
+        size_t posEnd = xml.find(sectionEnd) + sectionEnd.size();
+        std::string editedXml = xml.substr(0,posStart) + replacement+ "\n" + xml.substr(posEnd);
+        return editedXml;
+    }
+
+} //namespace
+
+
 using namespace UpdateSchedulerImpl::configModule;
 
 class TestUpdatePolicyTranslator : public ::testing::Test
@@ -330,25 +385,45 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/certs/cache_certificates.crt");
 
-    EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/cloudupdate");
-    EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(config.getSophosUpdateUrls()[2], "http://dci.sophosupd.net/update");
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 3);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[0], "maineng2.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[1], "2k12-64-ld55-df.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[2], "w2k8r2-std-en-df.eng.sophos:8191");
+    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    EXPECT_EQ(cacheUrls.size(),3);
+    EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[2], "w2k8r2-std-en-df.eng.sophos:8191");
 
-    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
-    EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
-    EXPECT_EQ(config.getProductSelection()[0].Primary, true);
-    EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "10");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
 
-    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
-    EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
-    EXPECT_EQ(config.getProductSelection()[1].Primary, false);
-    EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 12);
+    EXPECT_EQ(features[0], "APPCNTRL");
+    EXPECT_EQ(features[1], "AV");
+    EXPECT_EQ(features[2], "CORE");
+    EXPECT_EQ(features[3], "DLP");
+    EXPECT_EQ(features[4], "DVCCNTRL");
+    EXPECT_EQ(features[5], "EFW");
+    EXPECT_EQ(features[6], "HBT");
+    EXPECT_EQ(features[7], "MTD");
+    EXPECT_EQ(features[8], "NTP");
+    EXPECT_EQ(features[9], "SAV");
+    EXPECT_EQ(features[10], "SDU");
+    EXPECT_EQ(features[11], "WEBCNTRL");
 
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
@@ -386,22 +461,40 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
-    EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.net/update");
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
     EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
 
-    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
-    EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
-    EXPECT_EQ(config.getProductSelection()[0].Primary, true);
-    EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "10");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
 
-    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
-    EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
-    EXPECT_EQ(config.getProductSelection()[1].Primary, false);
-    EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 12);
+    EXPECT_EQ(features[0], "APPCNTRL");
+    EXPECT_EQ(features[1], "AV");
+    EXPECT_EQ(features[2], "CORE");
+    EXPECT_EQ(features[3], "DLP");
+    EXPECT_EQ(features[4], "DVCCNTRL");
+    EXPECT_EQ(features[5], "EFW");
+    EXPECT_EQ(features[6], "HBT");
+    EXPECT_EQ(features[7], "MTD");
+    EXPECT_EQ(features[8], "NTP");
+    EXPECT_EQ(features[9], "SAV");
+    EXPECT_EQ(features[10], "SDU");
+    EXPECT_EQ(features[11], "WEBCNTRL");
 
     SulDownloader::suldownloaderdata::Proxy expectedProxy{
         "uk-abn-wpan-1.green.sophos:8080",
@@ -430,22 +523,40 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
-    EXPECT_EQ(config.getSophosUpdateUrls()[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(config.getSophosUpdateUrls()[1], "http://dci.sophosupd.net/update");
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
     EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
 
-    EXPECT_EQ(config.getProductSelection()[0].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[0].Name, "ServerProtectionLinux-Base");
-    EXPECT_EQ(config.getProductSelection()[0].Prefix, false);
-    EXPECT_EQ(config.getProductSelection()[0].Primary, true);
-    EXPECT_EQ(config.getProductSelection()[0].releaseTag, "RECOMMENDED");
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "10");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
 
-    EXPECT_EQ(config.getProductSelection()[1].baseVersion, "0");
-    EXPECT_EQ(config.getProductSelection()[1].Name, "ServerProtectionLinux-Plugin");
-    EXPECT_EQ(config.getProductSelection()[1].Prefix, true);
-    EXPECT_EQ(config.getProductSelection()[1].Primary, false);
-    EXPECT_EQ(config.getProductSelection()[1].releaseTag, "RECOMMENDED");
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 12);
+    EXPECT_EQ(features[0], "APPCNTRL");
+    EXPECT_EQ(features[1], "AV");
+    EXPECT_EQ(features[2], "CORE");
+    EXPECT_EQ(features[3], "DLP");
+    EXPECT_EQ(features[4], "DVCCNTRL");
+    EXPECT_EQ(features[5], "EFW");
+    EXPECT_EQ(features[6], "HBT");
+    EXPECT_EQ(features[7], "MTD");
+    EXPECT_EQ(features[8], "NTP");
+    EXPECT_EQ(features[9], "SAV");
+    EXPECT_EQ(features[10], "SDU");
+    EXPECT_EQ(features[11], "WEBCNTRL");
 
     EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
     std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
@@ -481,9 +592,11 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[0], "maineng2.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[1], "w2k8r2-std-en-df.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[2], "2k12-64-ld55-df.eng.sophos:8191");
+    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    EXPECT_EQ(cacheUrls.size(),3);
+    EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[1], "w2k8r2-std-en-df.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[2], "2k12-64-ld55-df.eng.sophos:8191");
 
     Common::OSUtilitiesImpl::restoreDnsLookup();
     Common::OSUtilitiesImpl::restoreLocalIP();
@@ -509,10 +622,253 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[0], "maineng2.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[1], "2k12-64-ld55-df.eng.sophos:8191");
-    EXPECT_EQ(config.getLocalUpdateCacheUrls()[2], "w2k8r2-std-en-df.eng.sophos:8191");
+    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    EXPECT_EQ(cacheUrls.size(),3);
+    EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
+    EXPECT_EQ(cacheUrls[2], "w2k8r2-std-en-df.eng.sophos:8191");
 
     Common::OSUtilitiesImpl::restoreDnsLookup();
     Common::OSUtilitiesImpl::restoreLocalIP();
+}
+
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+
+    auto settingsHolder = translator.translatePolicy(mdrSSPLBasePolicy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
+    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
+
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 3);
+    EXPECT_EQ(features[0], "CORE");
+    EXPECT_EQ(features[1], "SDU");
+    EXPECT_EQ(features[2], "MDR");
+
+    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+}
+
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+    std::string policy = replaceXMLSection(mdrSSPLBasePolicy, "Features");
+
+    testing::internal::CaptureStderr();
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
+    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
+
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 0);
+
+    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    std::string errorMsg = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
+
+}
+
+
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreReportsErrorInLog) // NOLINT
+{
+
+    UpdatePolicyTranslator translator;
+    std::string extraFeatures{ R"sophos(  <Features>
+    <Feature id="APPCNTRL"/>
+    <Feature id="AV"/>
+    <Feature id="DLP"/>
+    <Feature id="DVCCNTRL"/>
+    <Feature id="EFW"/>
+    <Feature id="HBT"/>
+    <Feature id="MTD"/>
+    <Feature id="NTP"/>
+    <Feature id="SAV"/>
+    <Feature id="SDU"/>
+    <Feature id="WEBCNTRL"/>
+  </Features>)sophos"};
+    std::string policy = replaceXMLSection(mdrSSPLBasePolicy, "Features", extraFeatures);
+
+    testing::internal::CaptureStderr();
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
+    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
+
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 11);
+    EXPECT_EQ(features[0], "APPCNTRL");
+    EXPECT_EQ(features[1], "AV");
+    EXPECT_EQ(features[2], "DLP");
+    EXPECT_EQ(features[3], "DVCCNTRL");
+    EXPECT_EQ(features[4], "EFW");
+    EXPECT_EQ(features[5], "HBT");
+    EXPECT_EQ(features[6], "MTD");
+    EXPECT_EQ(features[7], "NTP");
+    EXPECT_EQ(features[8], "SAV");
+    EXPECT_EQ(features[9], "SDU");
+    EXPECT_EQ(features[10], "WEBCNTRL");
+
+    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    std::string errorMsg = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
+}
+
+
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsErrorInLog) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+
+    auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions");
+
+    testing::internal::CaptureStderr();
+    auto settingsHolder = translator.translatePolicy(policy);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
+    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
+    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
+    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+
+    auto urls = config.getSophosUpdateUrls();
+    EXPECT_EQ(urls.size(), 2);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
+
+    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+
+    const auto & primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "");
+    EXPECT_EQ(primarySubscription.rigidName(), "");
+    EXPECT_EQ(primarySubscription.tag(), "");
+    EXPECT_EQ(primarySubscription.fixVersion(), "");
+
+    const auto & productsSubscription = config.getProductsSubscription();
+    EXPECT_EQ(productsSubscription.size(), 0);
+
+    const auto & features = config.getFeatures();
+    EXPECT_EQ(features.size(), 3);
+    EXPECT_EQ(features[0], "CORE");
+    EXPECT_EQ(features[1], "SDU");
+    EXPECT_EQ(features[2], "MDR");
+
+    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
+    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
+    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
+    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    std::string errorMsg = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errorMsg, ::testing::HasSubstr("SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
 }

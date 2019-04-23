@@ -102,6 +102,7 @@ namespace UpdateSchedulerImpl
 {
     namespace configModule
     {
+
         using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
 
@@ -129,7 +130,8 @@ namespace UpdateSchedulerImpl
                 defaultLocations.insert(begin(defaultLocations), connectionAddress);
             }
 
-            SulDownloader::suldownloaderdata::ConfigurationData config{ defaultLocations };
+            SulDownloader::suldownloaderdata::ConfigurationData config =
+                    SulDownloader::suldownloaderdata::ConfigurationData::createConfigurationDataV2(defaultLocations);
             config.setCredentials(SulDownloader::suldownloaderdata::Credentials{
                 primaryLocation.value("UserName"), primaryLocation.value("UserPassword") });
 
@@ -195,8 +197,6 @@ namespace UpdateSchedulerImpl
             std::string proxyAddress = primaryProxy.value("ProxyAddress");
             if (!proxyAddress.empty())
             {
-                //      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress=""
-                //      AllowLocalConfig="false"/>
                 std::string proxyPort = primaryProxy.value("ProxyPortNumber");
                 std::string proxyUser = primaryProxy.value("ProxyUserName");
                 std::string proxyPassword = primaryProxy.value("ProxyUserPassword");
@@ -215,16 +215,62 @@ namespace UpdateSchedulerImpl
             config.setInstallationRootPath(applicationPathManager().sophosInstall());
             config.setSystemSslCertificatePath(":system:");
 
-            //        struct ProductGUID
-            //        {
-            //            std::string Name;
-            //            bool Primary;
-            //            bool Prefix;
-            //            std::string releaseTag;
-            //            std::string baseVersion;
-            //        };
-            config.addProductSelection({ "ServerProtectionLinux-Base", true, false, "RECOMMENDED", "0" });
-            config.addProductSelection({ "ServerProtectionLinux-Plugin", false, true, "RECOMMENDED", "0" });
+            auto cloudSubscriptions = attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions");
+            std::vector<SulDownloader::suldownloaderdata::ProductSubscription> productsSubscription;
+
+            bool ssplBaseIncluded = false;
+            for (const auto & cloudSubscription : cloudSubscriptions)
+            {
+                auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
+                std::string rigidName = subscriptionDetails.value("RigidName");
+                if (rigidName != SulDownloader::suldownloaderdata::SSPLBaseName)
+                {
+                    productsSubscription.emplace_back(SulDownloader::suldownloaderdata::ProductSubscription(
+                        rigidName,
+                        subscriptionDetails.value("BaseVersion"),
+                        subscriptionDetails.value("Tag"),
+                        subscriptionDetails.value("FixVersion")
+                    ));
+                }
+                else
+                {
+                    config.setPrimarySubscription({
+                        rigidName,
+                        subscriptionDetails.value("BaseVersion"),
+                        subscriptionDetails.value("Tag"),
+                        subscriptionDetails.value("FixVersion")
+                    });
+                    ssplBaseIncluded = true;
+                }
+
+            }
+            config.setProductsSubscription(productsSubscription);
+
+            if (!ssplBaseIncluded)
+            {
+                LOGERROR("SSPL base product name : " << SulDownloader::suldownloaderdata::SSPLBaseName << " not in the subscription of the policy.");
+            }
+
+            auto features = attributesMap.entitiesThatContainPath("AUConfigurations/Features");
+            std::vector<std::string> allFeatures;
+            bool includesCore = false;
+            for (const auto & feature : features)
+            {
+                auto featureDetails = attributesMap.lookup(feature);
+                std::string featureName = featureDetails.value("id");
+                if (featureName == "CORE")
+                {
+                    includesCore = true;
+                }
+                allFeatures.emplace_back(featureName);
+            }
+
+            if (!includesCore)
+            {
+                LOGERROR("CORE not in the features of the policy.");
+            }
+
+            config.setFeatures(allFeatures);
 
             config.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
             config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);

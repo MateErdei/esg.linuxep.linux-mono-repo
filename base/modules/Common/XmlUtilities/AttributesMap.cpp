@@ -35,6 +35,8 @@ namespace
         std::stack<AttributesEntry> m_stack;
         std::unordered_map<std::string, Attributes> m_attributesMap;
         size_t m_maxdepth;
+        std::string m_lastEntry;
+        int m_entryCount;
     };
 
     /** general utility function **/
@@ -47,11 +49,10 @@ namespace
         {
             std::string attributeName = attr[i];
             std::string attributeValue = attr[i + 1];
-            if (attributeName == "id")
+            if (attributeName == "id" || attributeName == "Id")
             {
                 idValue = attributeValue;
             }
-
             attributesPair.emplace_back(AttributePair{ attributeName, attributeValue });
         }
         return { attributesPair, idValue };
@@ -91,7 +92,7 @@ namespace
     /** implementation of SimpleXmlParser **/
 
     /** SimpleXmlParser **/
-    SimpleXmlParser::SimpleXmlParser(size_t maxdepth) : m_stack(), m_attributesMap(), m_maxdepth(maxdepth) {}
+    SimpleXmlParser::SimpleXmlParser(size_t maxdepth) : m_stack(), m_attributesMap(), m_maxdepth(maxdepth), m_lastEntry(""), m_entryCount(0) {}
 
     void SimpleXmlParser::onStartElement(
         const std::string& element,
@@ -134,7 +135,14 @@ namespace
         std::string elementPath = m_stack.empty() ? currentElement : m_stack.top().fullpath + "/" + currentElement;
         if (!id.empty())
         {
-            elementPath += "#" + id;
+            if (m_lastEntry != elementPath)
+            {
+                m_entryCount = 0;
+            }
+            m_lastEntry = elementPath;
+            std::stringstream elementPathWithCount;
+            elementPathWithCount << elementPath << "#" << m_entryCount++;
+            elementPath = elementPathWithCount.str();
             pathIds.push_back(elementPath);
         }
         return elementPath;
