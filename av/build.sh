@@ -188,7 +188,7 @@ function build()
 
     cd $BASE
 
-    #unpack_scaffold_gcc_make "$INPUT"
+    unpack_scaffold_gcc_make "$INPUT"
 
     if [[ -d $INPUT ]]
     then
