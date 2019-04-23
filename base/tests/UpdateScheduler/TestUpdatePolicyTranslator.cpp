@@ -35,8 +35,8 @@ static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixVersion="9"/>
     </cloud_subscriptions>
     <delay_supplements enabled="false"/>
   </AUConfig>
@@ -401,14 +401,14 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "");
+    EXPECT_EQ(primarySubscription.fixVersion(), "10");
 
     const auto & productsSubscription = config.getProductsSubscription();
     EXPECT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "9");
 
     const auto & features = config.getFeatures();
     EXPECT_EQ(features.size(), 12);
