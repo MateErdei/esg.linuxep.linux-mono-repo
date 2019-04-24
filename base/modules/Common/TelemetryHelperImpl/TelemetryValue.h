@@ -21,9 +21,9 @@ namespace Common::Telemetry
         explicit TelemetryValue(const char* value);
         ~TelemetryValue() = default;
 
-        enum class ValueType
+        // Must be in same order as the types in the m_value variant.
+        enum class Type
         {
-            unset,
             integer_type,
             unsigned_integer_type,
             boolean_type,
@@ -36,8 +36,8 @@ namespace Common::Telemetry
         void set(const std::string& value);
         void set(const char* value);
 
-        ValueType getValueType() const;
-        void checkType(ValueType expectedType) const;
+        Type getType() const;
+        void checkType(Type expectedType) const;
 
         int getInteger() const;
         unsigned int getUnsignedInteger() const;
@@ -49,6 +49,5 @@ namespace Common::Telemetry
 
     private:
         std::variant<int, unsigned int, bool, std::string> m_value;
-        ValueType m_valueType;
     };
 } // namespace Common::Telemetry

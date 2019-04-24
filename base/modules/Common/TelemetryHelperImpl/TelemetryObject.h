@@ -17,11 +17,12 @@ namespace Common::Telemetry
     class TelemetryObject
     {
     public:
+        // This must be in the same order as the variant types of m_value.
         enum class Type
         {
-            array,
+            value,
             object,
-            value
+            array
         };
 
         TelemetryObject();
@@ -44,7 +45,7 @@ namespace Common::Telemetry
         const std::map<std::string, TelemetryObject>& getChildObjects() const;
 
         Type getType() const;
-        bool keyExists(const std::string& key);
+        bool keyExists(const std::string& key) const;
 
         bool operator==(const TelemetryObject& rhs) const;
         bool operator!=(const TelemetryObject& rhs) const;
@@ -52,7 +53,7 @@ namespace Common::Telemetry
     private:
         void checkType(Type expectedType) const;
 
-        Type m_type;
+        // Type m_type;
         std::variant<TelemetryValue, std::map<std::string, TelemetryObject>, std::list<TelemetryObject>> m_value;
     };
 } // namespace Common::Telemetry

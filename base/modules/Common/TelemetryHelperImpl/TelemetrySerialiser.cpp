@@ -5,35 +5,36 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetrySerialiser.h"
-#include <stdexcept>
+
 #include <sstream>
+#include <stdexcept>
 
 namespace Common::Telemetry
 {
     void to_json(nlohmann::json& j, const TelemetryValue& value)
     {
-        auto type = value.getValueType();
-        switch(type)
+        auto type = value.getType();
+        switch (type)
         {
-            case TelemetryValue::ValueType::integer_type:
+            case TelemetryValue::Type::integer_type:
             {
                 j = value.getInteger();
                 break;
             }
 
-            case TelemetryValue::ValueType::unsigned_integer_type:
+            case TelemetryValue::Type::unsigned_integer_type:
             {
                 j = value.getUnsignedInteger();
                 break;
             }
 
-            case TelemetryValue::ValueType::string_type:
+            case TelemetryValue::Type::string_type:
             {
                 j = value.getString();
                 break;
             }
 
-            case TelemetryValue::ValueType::boolean_type:
+            case TelemetryValue::Type::boolean_type:
             {
                 j = value.getBoolean();
                 break;
@@ -51,7 +52,7 @@ namespace Common::Telemetry
     void from_json(const nlohmann::json& j, TelemetryValue& value)
     {
         auto type = j.type();
-        switch(type)
+        switch (type)
         {
             case nlohmann::detail::value_t::number_integer:
             {
@@ -89,7 +90,7 @@ namespace Common::Telemetry
     void to_json(nlohmann::json& j, const TelemetryObject& telemetryObject)
     {
         auto type = telemetryObject.getType();
-        switch(type)
+        switch (type)
         {
             case TelemetryObject::Type::object:
             {
@@ -120,10 +121,10 @@ namespace Common::Telemetry
 
     void from_json(const nlohmann::json& j, TelemetryObject& telemetryObject)
     {
-        for(const auto& item: j.items())
+        for (const auto& item : j.items())
         {
             auto type = item.value().type();
-            switch(type)
+            switch (type)
             {
                 case nlohmann::detail::value_t::number_unsigned:
                 case nlohmann::detail::value_t::number_integer:

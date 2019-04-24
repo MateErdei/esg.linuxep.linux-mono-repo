@@ -16,8 +16,8 @@ namespace Common::Telemetry
     class TelemetrySerialiser
     {
     public:
-        std::string serialise(const Common::Telemetry::TelemetryObject& telemetryObject);
-        Common::Telemetry::TelemetryObject deserialise(const std::string& jsonString);
+        static std::string serialise(const Common::Telemetry::TelemetryObject& telemetryObject);
+        static Common::Telemetry::TelemetryObject deserialise(const std::string& jsonString);
     };
 
     void to_json(nlohmann::json& j, const TelemetryValue& node);
