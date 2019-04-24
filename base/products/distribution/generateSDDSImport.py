@@ -72,7 +72,7 @@ def addFeature(doc, featureList, feature):
     <Feature id="AV"/>
     """
     featureNode = doc.createElement("Feature")
-    featureNode.setAttribute("id", feature)
+    featureNode.setAttribute("Name", feature)
     featureList.appendChild(featureNode)
 
 def remove_blanks(node):
