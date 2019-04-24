@@ -13,6 +13,8 @@ namespace Common::Telemetry
     class TelemetryValue
     {
     public:
+
+        // TelemetryValue is by default constructed with an int of value 0, this is the first type in the variant.
         TelemetryValue();
         explicit TelemetryValue(const std::string& value);
         explicit TelemetryValue(const bool value);
