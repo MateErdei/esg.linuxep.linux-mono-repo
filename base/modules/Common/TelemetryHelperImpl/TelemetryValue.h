@@ -49,8 +49,6 @@ namespace Common::Telemetry
 
     private:
         std::variant<int, unsigned int, bool, std::string> m_value;
-        ValueType  m_valueType;
-
+        ValueType m_valueType;
     };
-}
-
+} // namespace Common::Telemetry

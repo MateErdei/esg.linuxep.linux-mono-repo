@@ -6,6 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryValue.h"
+
 #include <list>
 #include <map>
 #include <string>
@@ -13,11 +14,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
-
     class TelemetryObject
     {
     public:
-
         enum class Type
         {
             array,
@@ -51,10 +50,9 @@ namespace Common::Telemetry
         bool operator!=(const TelemetryObject& rhs) const;
 
     private:
-
         void checkType(Type expectedType) const;
 
         Type m_type;
         std::variant<TelemetryValue, std::map<std::string, TelemetryObject>, std::list<TelemetryObject>> m_value;
     };
-}
+} // namespace Common::Telemetry

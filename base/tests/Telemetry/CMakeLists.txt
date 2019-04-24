@@ -1,5 +1,5 @@
 
-set( ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs )
+set(ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs)
 
 include(GoogleTest)
 add_executable(TelemetryTests
@@ -20,4 +20,4 @@ SET_TARGET_PROPERTIES(TelemetryTests
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")

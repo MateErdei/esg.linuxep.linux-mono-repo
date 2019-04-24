@@ -5,10 +5,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryObject.h"
+
 #include <sstream>
 
-Common::Telemetry::TelemetryObject::TelemetryObject()
-    : m_type(Type::object), m_value(std::map<std::string, TelemetryObject>())
+Common::Telemetry::TelemetryObject::TelemetryObject() :
+    m_type(Type::object),
+    m_value(std::map<std::string, TelemetryObject>())
 {
 }
 
@@ -38,8 +40,8 @@ void Common::Telemetry::TelemetryObject::set(const std::string& key, const Commo
 }
 
 void Common::Telemetry::TelemetryObject::set(
-        const std::string& key,
-        const std::list<Common::Telemetry::TelemetryObject>& objectList)
+    const std::string& key,
+    const std::list<Common::Telemetry::TelemetryObject>& objectList)
 {
     if (!std::holds_alternative<std::map<std::string, TelemetryObject>>(m_value))
     {
@@ -107,7 +109,8 @@ std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::Te
     return obj;
 }
 
-const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects() const
+const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects()
+    const
 {
     checkType(Type::object);
     const auto& obj = std::get<std::map<std::string, TelemetryObject>>(m_value);
@@ -140,8 +143,8 @@ void Common::Telemetry::TelemetryObject::checkType(Type expectedType) const
     if (m_type != expectedType)
     {
         std::stringstream msg;
-        msg << "Telemetry object does not contain the expected type. Expected: "
-            << static_cast<int>(expectedType) << "Actual: " << static_cast<int>(m_type);
+        msg << "Telemetry object does not contain the expected type. Expected: " << static_cast<int>(expectedType)
+            << "Actual: " << static_cast<int>(m_type);
         throw std::logic_error(msg.str());
     }
 }
