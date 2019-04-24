@@ -117,11 +117,6 @@ public:
             return ::testing::AssertionFailure() << s.str() << "system ssl certificate path differs";
         }
 
-        if (expected.getProductSelection() != resulted.getProductSelection())
-        {
-            return ::testing::AssertionFailure() << s.str() << "product selection differs";
-        }
-
         if (expected.getInstallArguments() != resulted.getInstallArguments())
         {
             return ::testing::AssertionFailure() << s.str() << "install arguments differs";
@@ -179,52 +174,6 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F( // NOLINT
-    ConfigurationDataTest,
-    fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
-{
-    setupFileSystemAndGetMock();
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-
-    EXPECT_STREQ(
-        configurationData.getSophosUpdateUrls()[0].c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
-    EXPECT_STREQ(configurationData.getLocalUpdateCacheUrls()[0].c_str(), "https://cache.sophos.com/latest/warehouse");
-
-    EXPECT_STREQ(configurationData.getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(configurationData.getCredentials().getPassword().c_str(), "password");
-
-    EXPECT_STREQ(configurationData.getPolicyProxy().getUrl().c_str(), "noproxy:");
-    EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getUsername().c_str(), "");
-    EXPECT_STREQ(configurationData.getPolicyProxy().getCredentials().getPassword().c_str(), "");
-
-    EXPECT_STREQ(configurationData.getProductSelection()[0].Name.c_str(), "BaseProduct-RigidName");
-    EXPECT_TRUE(configurationData.getProductSelection()[0].Primary);
-    EXPECT_FALSE(configurationData.getProductSelection()[0].Prefix);
-    EXPECT_STREQ(configurationData.getProductSelection()[0].releaseTag.c_str(), "RECOMMENDED");
-    EXPECT_STREQ(configurationData.getProductSelection()[0].baseVersion.c_str(), "9");
-
-    EXPECT_STREQ(configurationData.getProductSelection()[1].Name.c_str(), "PrefixOfProduct-SimulateProductA");
-    EXPECT_FALSE(configurationData.getProductSelection()[1].Primary);
-    EXPECT_FALSE(configurationData.getProductSelection()[1].Prefix);
-    EXPECT_STREQ(configurationData.getProductSelection()[1].releaseTag.c_str(), "RECOMMENDED");
-    EXPECT_STREQ(configurationData.getProductSelection()[1].baseVersion.c_str(), "9");
-
-    EXPECT_STREQ(configurationData.getProductSelection()[2].Name.c_str(), "PrefixOfProduct");
-    EXPECT_FALSE(configurationData.getProductSelection()[2].Primary);
-    EXPECT_TRUE(configurationData.getProductSelection()[2].Prefix);
-    EXPECT_STREQ(configurationData.getProductSelection()[2].releaseTag.c_str(), "RECOMMENDED");
-    EXPECT_STREQ(configurationData.getProductSelection()[2].baseVersion.c_str(), "9");
-
-    EXPECT_STREQ(configurationData.getSystemSslCertificatePath().c_str(), m_absSystemSslPath.c_str());
-    EXPECT_STREQ(configurationData.getUpdateCacheSslCertificatePath().c_str(), m_absCacheUpdatePath.c_str());
-
-    EXPECT_STREQ(configurationData.getInstallArguments()[0].c_str(), "--install-dir");
-    EXPECT_STREQ(configurationData.getInstallArguments()[1].c_str(), "/opt/sophos-av");
-}
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject) // NOLINT
 {
@@ -457,7 +406,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificat
         Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOnde) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOne) // NOLINT
 {
     setupFileSystemAndGetMock();
 
@@ -567,166 +516,16 @@ TEST_F( // NOLINT
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyReleaseTagShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimarySubscriptionShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = "RECOMMENDED";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingReleaseTagShouldNotFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("releaseTag": "RECOMMENDED",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    // default will set RECOMMENDED Value.
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyBaseVersionShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = "9";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingBaseVersionShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("baseVersion": "9",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrimaryShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = "BaseProduct-RigidName";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("primary": "BaseProduct-RigidName",)";
+    std::string oldString = R"(                               "primarySubscription": {
+                                "rigidName" : "BaseProduct-RigidName",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixVersion" : ""
+                                },)";
     std::string newString; //  = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesShouldNotFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-
-    std::string oldString = R"("PrefixOfProduct-SimulateProductA")";
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingFullNamesShouldNotFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("fullNames": [
-                               "PrefixOfProduct-SimulateProductA"
-                               ],)";
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyFullNamesValueShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = "PrefixOfProduct-SimulateProductA";
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNamesShouldNotFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("PrefixOfProduct")";
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrefixNamesShouldNotFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("prefixNames": [
-                               "PrefixOfProduct"
-                               ],)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyPrefixNameValueShouldFailValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("PrefixOfProduct")";
-    std::string newString = R"("")";
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
@@ -786,10 +585,10 @@ TEST_F( // NOLINT
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDataShouldThrow) // NOLINT
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("baseVersion": "9",)";
+    std::string oldString = R"("baseVersion" : "9",)";
 
-    std::string newString = R"("baseVersion": "9",
-            "UnknownDataItem": "UnknownString",)";
+    std::string newString = R"("baseVersion" : "9",
+            "UnknownDataItem" : "UnknownString",)";
 
     EXPECT_THROW( // NOLINT
         ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)),
@@ -806,14 +605,13 @@ TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
 }
 
-
 TEST_F( // NOLINT
         ConfigurationDataTest,
         supportConfigurationDataV2)
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
-    ConfigurationData expectedConfiguration = ConfigurationData::createConfigurationDataV2({"https://sophosupdate.sophos.com/latest/warehouse"},
+    ConfigurationData expectedConfiguration({"https://sophosupdate.sophos.com/latest/warehouse"},
             Credentials{"administrator", "password"},
             {"https://cache.sophos.com/latest/warehouse"},
             Proxy("noproxy:"));
@@ -831,32 +629,12 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
 }
 
-
-TEST_F( // NOLINT
-        ConfigurationDataTest,
-        InterfaceForbidsSettingValuesThatWereNotPresentInV1)
-{
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    EXPECT_THROW(configurationData.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} ), std::logic_error);
-    EXPECT_THROW(configurationData.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}}), std::logic_error);
-    EXPECT_THROW(configurationData.setFeatures({"CORE", "MDR"}), std::logic_error);
-}
-
-TEST_F( // NOLINT
-        ConfigurationDataTest,
-        InterfaceForbidsSettingValuesThatIsMeantToBeRemovedInV2)
-{
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
-    EXPECT_THROW(configurationData.addProductSelection({}), std::logic_error);
-}
-
-
 TEST_F( // NOLINT
         ConfigurationDataTest,
         settingsAreValidForV2)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createV2JsonString("", ""));
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
 
     std::vector<ConfigurationData> all_invalid_cases;
@@ -868,6 +646,10 @@ TEST_F( // NOLINT
     ConfigurationData primaryWithRigidNameOnly(configurationData);
     primaryWithRigidNameOnly.setPrimarySubscription({"rigidname","","",""});
     all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
+
+    ConfigurationData primaryWithOutRigidName(configurationData);
+    primaryWithOutRigidName.setPrimarySubscription({"","baseversion","RECOMMENDED","None"});
+    all_invalid_cases.emplace_back(primaryWithOutRigidName);
 
     ConfigurationData primaryWithRigidNameAndBaseVersion(configurationData);
     primaryWithRigidNameAndBaseVersion.setPrimarySubscription({"rigidname","baseversion","",""});
@@ -932,7 +714,4 @@ TEST_F( // NOLINT
     {
         EXPECT_TRUE( configData.verifySettingsAreValid());
     }
-
-
-
 }

@@ -207,32 +207,29 @@ namespace SulDownloader
             }
         }
 
-        if ( m_useFeatures )
-        {
-            StableSetIndex secondSelection(warehouseProducts.size());
-            bool atLeastOnHasCore = false;
-            auto hasCore = [](const std::vector<std::string>& features) {
-                return std::find(features.begin(), features.end(), "CORE") != features.end();
-            };
+        StableSetIndex secondSelection(warehouseProducts.size());
+        bool atLeastOnHasCore = false;
+        auto hasCore = [](const std::vector<std::string>& features) {
+            return std::find(features.begin(), features.end(), "CORE") != features.end();
+        };
 
-            for (auto index: selectedProductsIndex.values())
+        for (auto index: selectedProductsIndex.values())
+        {
+            const auto& warehouseProduct = warehouseProducts[index];
+            if (passFeatureSetSelection(warehouseProduct))
             {
-                const auto& warehouseProduct = warehouseProducts[index];
-                if (passFeatureSetSelection(warehouseProduct))
+                secondSelection.addIndex(index);
+                if (hasCore(warehouseProduct.getFeatures()))
                 {
-                    secondSelection.addIndex(index);
-                    if (hasCore(warehouseProduct.getFeatures()))
-                    {
-                        atLeastOnHasCore = true;
-                    }
+                    atLeastOnHasCore = true;
                 }
             }
-            if (!atLeastOnHasCore && selection.missing.empty())
-            {
-                selection.missing.push_back(MissingCoreProduct());
-            }
-            selectedProductsIndex = secondSelection;
         }
+        if (!atLeastOnHasCore && selection.missing.empty())
+        {
+            selection.missing.push_back(MissingCoreProduct());
+        }
+        selectedProductsIndex = secondSelection;
 
         selection.selected = selectedProductsIndex.values();
 
@@ -264,11 +261,6 @@ namespace SulDownloader
 
     bool ProductSelection::passFeatureSetSelection(const ProductMetadata& productMetadata) const
     {
-        if ( !m_useFeatures)
-        {
-            return true;
-        }
-
         for( const auto & feature : productMetadata.getFeatures())
         {
             if( m_features.hasEntry(feature))

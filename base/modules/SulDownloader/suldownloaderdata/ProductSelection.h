@@ -103,7 +103,6 @@ namespace SulDownloader
 
         private:
             std::vector<ISingleProductSelectorPtr> m_selection;
-            bool m_useFeatures = true;
             Common::UtilityImpl::VectorAsSet m_features;
             bool passFeatureSetSelection( const ProductMetadata &  ) const;
             std::vector<size_t> selectedProducts(

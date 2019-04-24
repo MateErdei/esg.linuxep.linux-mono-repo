@@ -47,39 +47,6 @@ namespace
                                     proto_subscription.fixversion());
     }
 
-    void fromProtobuf(ConfigurationData& configurationData, const SulDownloaderProto::ConfigurationSettings& settings)
-    {
-        ProductSubscription primary = getSubscription(settings.primarysubscription());
-        std::vector<ProductSubscription> products;
-        for( auto & ProtoSubscription : settings.products())
-        {
-            products.emplace_back( getSubscription(ProtoSubscription));
-        }
-        std::vector<std::string> features;
-        for( auto & feature: settings.features())
-        {
-            features.emplace_back(feature);
-        }
-        configurationData.setPrimarySubscription(primary);
-        configurationData.setProductsSubscription(products);
-        configurationData.setFeatures(features);
-    }
-
-    void toProtobuf(const ConfigurationData& configurationData, SulDownloaderProto::ConfigurationSettings& settings)
-    {
-        const auto & primarySubscription = configurationData.getPrimarySubscription();
-        setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
-        for( auto & product : configurationData.getProductsSubscription())
-        {
-            setProtobufEntries(product, settings.add_products());
-        }
-        for ( auto feature : configurationData.getFeatures())
-        {
-            settings.add_features(feature);
-        }
-
-    }
-
     bool isProductSubscriptionValid( const ProductSubscription & productSubscription)
     {
         if( productSubscription.rigidName().empty() )
@@ -457,7 +424,20 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setCertificatePath(settings.certificatepath());
     configurationData.setInstallationRootPath(settings.installationrootpath());
 
-    fromProtobuf(configurationData, settings);
+    ProductSubscription primary = getSubscription(settings.primarysubscription());
+    std::vector<ProductSubscription> products;
+    for( auto & ProtoSubscription : settings.products())
+    {
+        products.emplace_back( getSubscription(ProtoSubscription));
+    }
+    std::vector<std::string> features;
+    for( auto & feature: settings.features())
+    {
+        features.emplace_back(feature);
+    }
+    configurationData.setPrimarySubscription(primary);
+    configurationData.setProductsSubscription(products);
+    configurationData.setFeatures(features);
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -561,7 +541,16 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.set_certificatepath(configurationData.getCertificatePath());
     settings.set_installationrootpath(configurationData.getInstallationRootPath());
 
-    toProtobuf(configurationData, settings);
+    const auto & primarySubscription = configurationData.getPrimarySubscription();
+    setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
+    for( auto & product : configurationData.getProductsSubscription())
+    {
+        setProtobufEntries(product, settings.add_products());
+    }
+    for ( auto feature : configurationData.getFeatures())
+    {
+        settings.add_features(feature);
+    }
 
     for (auto& installarg : configurationData.getInstallArguments())
     {

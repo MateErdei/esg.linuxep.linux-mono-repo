@@ -104,12 +104,12 @@ public:
         settings.mutable_proxy()->set_url("noproxy:");
         settings.mutable_proxy()->mutable_credential()->set_username("");
         settings.mutable_proxy()->mutable_credential()->set_password("");
-        settings.set_baseversion("10");
-        settings.set_releasetag("RECOMMENDED");
-        settings.set_primary("Everest-Base");
-        // settings.add_fullnames("Everest-Plugin-Update-Cache");
-        settings.add_prefixnames("Everest-Plugins");
-
+        auto proto_subscription = settings.mutable_primarysubscription();
+        proto_subscription->set_rigidname("Everest-Base");
+        proto_subscription->set_baseversion("10");
+        proto_subscription->set_tag("RECOMMMENDED");
+        proto_subscription->set_fixversion("");
+        settings.add_features("CORE");
         settings.set_certificatepath("/installroot/base/update/certificates");
         settings.set_installationrootpath("/installroot");
         settings.set_systemsslpath("/installroot/etc/ssl");

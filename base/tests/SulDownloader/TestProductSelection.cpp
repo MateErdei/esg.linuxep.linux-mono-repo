@@ -59,18 +59,6 @@ public:
 
     void TearDown() override {}
 
-    std::string createJsonString()
-    {
-        std::string otherprefix = R"("prefixNames": [
-                               "PrefixOfProduct"
-                               ],)";
-        std::string newprefix = R"("prefixNames": [
-                               "DifferentPrefix"
-                               ],)";
-        return ConfigurationDataBase::createJsonString(otherprefix, newprefix);
-    }
-
-
     SulDownloader::suldownloaderdata::ProductMetadata createTestProductMetaData(int productItem)
     {
         SulDownloader::suldownloaderdata::ProductMetadata metadata;
@@ -189,8 +177,7 @@ public:
         ProdB_Rec_SAV=8,
     };
 
-    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> simulateWarehouseContent(
-            std::vector<ProductIdForDev> products)
+    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> createWh(std::vector<ProductIdForDev> products)
     {
         std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
         for( auto productID : products)
@@ -200,16 +187,10 @@ public:
         return warehouseProducts;
     }
 
-    ConfigurationData getDefaultV2ConfigData()
-    {
-        return suldownloaderdata::ConfigurationData::fromJsonSettings(createV2JsonString("",""));
-    }
-
-
     bool expect_selected( const SulDownloader::suldownloaderdata::ProductMetadata &  primaryProduct,
             const ProductSubscription & productSubscription)
     {
-        auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createV2JsonString("",""));
+        auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
         configurationData.setProductsSubscription({});
 
@@ -231,7 +212,7 @@ public:
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow) // NOLINT
 {
     suldownloaderdata::ConfigurationData configurationData =
-        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
+        suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
@@ -242,33 +223,12 @@ TEST_F(ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNot
 
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAllProductsFound) // NOLINT
 {
-    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
-    SulDownloader::suldownloaderdata::ProductMetadata metadata1 = createTestProductMetaData(1);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata2 = createTestProductMetaData(2);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata3 = createTestProductMetaData(3);
-
-    warehouseProducts.push_back(metadata1);
-    warehouseProducts.push_back(metadata2);
-    warehouseProducts.push_back(metadata3);
-
-    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
-
-    EXPECT_EQ(selectedProducts.missing.size(), 0);
-    EXPECT_EQ(selectedProducts.notselected.size(), 0);
-    EXPECT_EQ(selectedProducts.selected.size(), 3);
-}
-
-TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAllProductsFoundV2) // NOLINT
-{
-    auto configurationData = getDefaultV2ConfigData();
-
-    auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
-
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, DiffA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_Rec_MDR, DiffA_Rec_MDR });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -286,7 +246,7 @@ TEST_F( // NOLINT
     ProductSelectionTest,
     CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts)
 {
-    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
 
@@ -310,11 +270,12 @@ TEST_F( // NOLINT
 
 TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReported) // NOLINT
 {
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({UNK_Rec_NONE});
+    auto warehouseProducts = createWh({UNK_Rec_NONE});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -329,11 +290,12 @@ TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReported) // NOLINT
 
 TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReportedForNonPrimaryProducts) // NOLINT
 {
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, DiffA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_Rec_CORE, DiffA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -345,44 +307,15 @@ TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReportedForNonPrimaryPr
     EXPECT_EQ(selectedProducts.selected, selected);
 }
 
-
-
-
-TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnMixOfSelectedAndMissingProducts) // NOLINT
-{
-    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
-
-    ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
-
-    std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
-    SulDownloader::suldownloaderdata::ProductMetadata metadata1 = createTestProductMetaData(1);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata2 = createTestProductMetaData(2);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata3 = createTestProductMetaData(3);
-    SulDownloader::suldownloaderdata::ProductMetadata metadata4 = createTestProductMetaData(4);
-
-    warehouseProducts.push_back(metadata1);
-    warehouseProducts.push_back(metadata3);
-    warehouseProducts.push_back(metadata4);
-
-    auto selectedProducts = productSelection.selectProducts(warehouseProducts);
-
-    EXPECT_EQ(selectedProducts.missing.size(), 1);
-    EXPECT_EQ(selectedProducts.missing[0].c_str(), metadata2.getLine());
-    EXPECT_EQ(selectedProducts.notselected.size(), 1);
-    EXPECT_EQ(selectedProducts.selected.size(), 2);
-}
-
-
 TEST_F( // NOLINT
     ProductSelectionTest,
     CreateProductSelection_SelectProductsShouldReturnCorrectProductsWhenWarehouseContainsMoreThanOneVersion)
 {
-    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString());
+    auto configurationData = suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     /*
-     * FixProductName: "BaseProduct-RigidName"
-     * FixProductName: "PrefixOfProduct-SimulateProductA"
-     * Prefix: "DifferentPrefix"
+     * primarySubscription: "BaseProduct-RigidName"
+     * products: "PrefixOfProduct-SimulateProductA"
      */
     ProductSelection productSelection = ProductSelection::CreateProductSelection(configurationData);
 
@@ -404,8 +337,8 @@ TEST_F( // NOLINT
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
     EXPECT_EQ(selectedProducts.missing.size(), 0);
-    EXPECT_EQ(selectedProducts.notselected.size(), 2); //3, 5
-    EXPECT_EQ(selectedProducts.selected.size(), 4); // 0 1 2 4
+    EXPECT_EQ(selectedProducts.notselected.size(), 3); //2, 3, 5
+    EXPECT_EQ(selectedProducts.selected.size(), 3); // 0 1 4
 
     // 0 and 4 differ only by the base version. Hence, both are selected
     EXPECT_EQ(selectedProducts.selected[0], 0);
@@ -417,21 +350,22 @@ TEST_F( // NOLINT
     EXPECT_TRUE(warehouseProducts[0].hasTag("RECOMMENDED"));
     EXPECT_TRUE(warehouseProducts[4].hasTag("RECOMMENDED"));
 
-
-
     EXPECT_EQ(selectedProducts.selected[2], 1);
-    EXPECT_EQ(selectedProducts.selected[3], 2);
-    EXPECT_EQ(selectedProducts.notselected[0], 3);
-    EXPECT_EQ(selectedProducts.notselected[1], 5);
+
+    EXPECT_EQ(selectedProducts.notselected[0], 2);
+    EXPECT_EQ(selectedProducts.notselected[1], 3);
+    EXPECT_EQ(selectedProducts.notselected[2], 5);
+
 }
 
 TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersionIsAvailable) // NOLINT
 {
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -464,11 +398,12 @@ TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersion
 
 TEST_F(ProductSelectionTest, FeaturesShouldFilterTheProductsToBeInstalled) // NOLINT
 {
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setFeatures({"CORE", "SENSORS"}); // no MDR in the features.
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -484,7 +419,8 @@ TEST_F(ProductSelectionTest, FeaturesShouldFilterTheProductsToBeInstalled) // NO
 
 TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeature) // NOLINT
 {
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     // configuring subscription targeting only ProdA_Rec_MDR
     auto currentProductSubscription = configurationData.getProductsSubscription()[0];
     configurationData.setProductsSubscription({});
@@ -492,7 +428,7 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeatu
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = simulateWarehouseContent({ProdA_Rec_MDR});
+    auto warehouseProducts = createWh({ProdA_Rec_MDR });
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -509,7 +445,7 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeatu
 
 TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
 {
-    auto wh = simulateWarehouseContent({Primary_Rec_CORE});
+    auto wh = createWh({Primary_Rec_CORE});
     SulDownloader::suldownloaderdata::ProductMetadata primaryProduct = wh[0];
     ProductSubscription subscription(primaryProduct.getLine(), "", "RECOMMENDED", "" );
 
@@ -549,10 +485,9 @@ TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
  */
 TEST_F(ProductSelectionTest, ShoudNotSelectPreviewProduct) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent(
-            {Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR}
-    );
-    auto configurationData = getDefaultV2ConfigData();
+    auto warehouseProducts = createWh({Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR });
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setProductsSubscription({
         ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
         ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "")
@@ -578,10 +513,9 @@ TEST_F(ProductSelectionTest, ShoudNotSelectPreviewProduct) // NOLINT
  */
 TEST_F(ProductSelectionTest, ShoudNotSelectProductIfNotINFeatureSet) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent(
-            {Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR}
-    );
-    auto configurationData = getDefaultV2ConfigData();
+    auto warehouseProducts = createWh({Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR });
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setProductsSubscription({
                                                       ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
                                                       ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "")
@@ -607,9 +541,10 @@ TEST_F(ProductSelectionTest, ShoudNotSelectProductIfNotINFeatureSet) // NOLINT
    */
 TEST_F(ProductSelectionTest, ShouldReportMissingProductAndDoNotSelectIfNotInFeature) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdB_Rec_SAV});
-    auto nonWhProducts = simulateWarehouseContent({ProdA_Rec_MDR});
-    auto configurationData = getDefaultV2ConfigData();
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdB_Rec_SAV });
+    auto nonWhProducts = createWh({ProdA_Rec_MDR});
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setProductsSubscription({
                                                       ProductSubscription(nonWhProducts[0].getLine(), "", "RECOMMENDED", ""),
                                               });
@@ -634,8 +569,9 @@ Case 4: Wh contains products 1, 3 and configuration file requires: Subscription 
    */
 TEST_F(ProductSelectionTest, ShouldNotSetToMissingIFFilteredByFeatureSet) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdB_Rec_SAV});
-    auto configurationData = getDefaultV2ConfigData();
+    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdB_Rec_SAV });
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setProductsSubscription({});
     configurationData.setFeatures({"CORE", "MDR"});
 
@@ -658,9 +594,10 @@ Case 4: Wh contains products 2,3,4 and configuration file requires: Subscription
  */
 TEST_F(ProductSelectionTest, ShouldReportIfPrimarySubscriptionNotInWarehouse) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR  });
 
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setProductsSubscription({
                                                       ProductSubscription(warehouseProducts[1].getLine(), "", "RECOMMENDED", ""),
                                                       ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", "")
@@ -686,9 +623,10 @@ selectProducts should select product 3,4. Set not selected to 2. Set missing to:
 */
 TEST_F(ProductSelectionTest, ShouldReportMissingIfNoCoreProduct) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR});
+    auto warehouseProducts = createWh({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR  });
 
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setPrimarySubscription(ProductSubscription(warehouseProducts[1].getLine(), "", "RECOMMENDED", ""));
     configurationData.setProductsSubscription({
                                                       ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", "")
@@ -710,9 +648,10 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoCoreProduct) // NOLINT
 
 TEST_F(ProductSelectionTest, ShouldAllowSelectionOfNewerVersion) // NOLINT
 {
-    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, Primary_Rec_CORE_V2});
+    auto warehouseProducts = createWh({Primary_PREV_CORE,  Primary_Rec_CORE_V2  });
 
-    auto configurationData = getDefaultV2ConfigData();
+    auto configurationData =
+            suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("",""));
     configurationData.setPrimarySubscription(ProductSubscription(warehouseProducts[1].getLine(), "", "",
             warehouseProducts[1].getVersion() ));
     configurationData.setProductsSubscription({});
