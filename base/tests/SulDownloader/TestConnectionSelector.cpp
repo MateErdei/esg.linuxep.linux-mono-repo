@@ -7,22 +7,18 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include "ConfigurationDataBase.h"
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-class ConnectionSelectorTest : public ::testing::Test
+class ConnectionSelectorTest : public ConfigurationDataBase
 {
 public:
     std::string m_installRootRelPath;
     std::string m_certificateRelPath;
     std::string m_systemSslRelPath;
     std::string m_cacheUpdateSslRelPath;
-
-    std::string m_absInstallationPath;
-    std::string m_absCertificatePath;
-    std::string m_absSystemSslPath;
-    std::string m_absCacheUpdatePath;
 
     std::unique_ptr<Tests::TempDir> m_tempDir;
 
@@ -53,70 +49,9 @@ public:
 
     void TearDown() override {}
 
-    std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
-    {
-        std::string jsonString = R"({
-                               "sophosURLs": [
-                               "https://sophosupdate.sophos.com/latest/warehouse"
-                               ],
-                               "updateCache": [
-                               "https://cache.sophos.com/latest/warehouse"
-                               ],
-                               "credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },
-                               "proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },
-                               "installationRootPath": "absInstallationPath",
-                               "certificatePath": "absCertificatePath",
-                               "systemSslPath": "absSystemSslPath",
-                               "cacheUpdateSslPath": "absCacheUpdatePath",
-                               "releaseTag": "RECOMMENDED",
-                               "baseVersion": "9",
-                               "primary": "BaseProduct-RigidName",
-                               "fullNames": [
-                               "PrefixOfProduct-SimulateProductA"
-                               ],
-                               "prefixNames": [
-                               "PrefixOfProduct"
-                               ],
-                               "installArguments": [
-                               "--install-dir",
-                               "/opt/sophos-av"
-                               ]
-                               })";
-
-        jsonString.replace(
-            jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
-        jsonString.replace(
-            jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
-        jsonString.replace(
-            jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
-        jsonString.replace(
-            jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
-
-        if (!oldPartString.empty())
-        {
-            size_t pos = jsonString.find(oldPartString);
-
-            EXPECT_TRUE(pos != std::string::npos);
-
-            jsonString.replace(pos, oldPartString.size(), newPartString);
-        }
-
-        return jsonString;
-    }
-
     ConfigurationData configFromJson(const std::string& oldPartString, const std::string& newPartString)
     {
-        return ConfigurationData::fromJsonSettings(createJsonString(oldPartString, newPartString));
+        return ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString(oldPartString, newPartString));
     }
 };
 

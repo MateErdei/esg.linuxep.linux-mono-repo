@@ -57,61 +57,6 @@ namespace
 
 namespace SulDownloader
 {
-    // Product Selector
-
-    ProductSelector::ProductSelector(
-        const std::string& productName,
-        NamePrefix productNamePrefix,
-        const std::string& releaseTag,
-        const std::string& baseVersion) :
-        m_productName(productName),
-        m_NamePrefix(productNamePrefix),
-        m_releaseTag(releaseTag),
-        m_baseVersion(baseVersion)
-
-    {
-        if (m_productName.empty())
-        {
-            throw SulDownloaderException("Cannot accept empty product name or prefix.");
-        }
-    }
-
-    bool ProductSelector::keepProduct(const ProductMetadata& productInformation) const
-    {
-        size_t pos = productInformation.getLine().find(m_productName);
-        if (pos != 0)
-        {
-            // m_productname is not a prefix of productInformation.getLine()
-            return false;
-        }
-        if (m_NamePrefix == NamePrefix::UseFullName && m_productName != productInformation.getLine())
-        {
-            return false;
-        }
-
-        if (!productInformation.hasTag(m_releaseTag))
-        {
-            return false;
-        }
-
-        if (productInformation.getBaseVersion() == m_baseVersion || m_releaseTag == "RECOMMENDED")
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    std::string ProductSelector::targetProductName() const { return m_productName; }
-
-    bool ProductSelector::isProductRequired() const { return (m_NamePrefix != NamePrefix::UseNameAsPrefix); }
-
-    void ProductSelection::appendSelector(std::unique_ptr<ISingleProductSelector> productSelector)
-    {
-        m_selection.emplace_back(std::move(productSelector));
-    }
-
-
     // Subscription Selector
 
     SubscriptionSelector::SubscriptionSelector(const ProductSubscription& productSubscription)
@@ -165,7 +110,6 @@ namespace SulDownloader
 
     // Product Selection
 
-
     ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData& configurationData)
     {
         ProductSelection productSelection;
@@ -185,6 +129,11 @@ namespace SulDownloader
         productSelection.m_features.setEntries(configurationData.getFeatures() );
 
         return productSelection;
+    }
+
+    void ProductSelection::appendSelector(std::unique_ptr<ISingleProductSelector> productSelector)
+    {
+        m_selection.emplace_back(std::move(productSelector));
     }
 
     SelectedResultsIndexes ProductSelection::selectProducts(const std::vector<ProductMetadata>& warehouseProducts) const
