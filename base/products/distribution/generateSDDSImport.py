@@ -145,6 +145,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
     featureList = getFeatureList()
+    productType = getVariable("PRODUCT_TYPE", "PRODUCT_TYPE", "productType", "Component", False)
 
     filelistNode = doc.getElementsByTagName("FileList")[0]
     for f in file_objects:
@@ -165,6 +166,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     setTextInTag(doc, "Version", fullVersion)
     setTextInTag(doc, "Name", productName)
     setTextInTag(doc, "DefaultHomeFolder", defaultHomeFolder)
+    setTextInTag(doc, "ProductType", productType)
 
     token = rigidName+"#"+fullVersion
     setTextInTag(doc, "Token", token)
