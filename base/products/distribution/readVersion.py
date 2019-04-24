@@ -8,6 +8,29 @@ import os
 import re
 import sys
 
+
+def get_base_path(script_path, BASE=None):
+    if BASE is None:
+        BASE = os.path.dirname(script_path)  # <plugin>/redist/pluginapi
+        BASE = os.path.dirname(BASE)  # <plugin>/redist
+        BASE = os.path.dirname(BASE)  # <plugin>
+
+    return BASE
+
+def get_possible_auto_version_sub_paths():
+    possible_sub_paths = [os.path.join("products", "distribution", "include",
+                                       "AutoVersioningHeaders", "AutoVersion.ini"),
+                          os.path.join("AutoVersioningHeaders", "AutoVersion.ini")
+                          ]
+    return possible_sub_paths
+
+def get_vaild_auto_version_path(BASE):
+    for path in get_possible_auto_version_sub_paths():
+        full_path = os.path.join(BASE, path)
+        if os.path.isfile(full_path):
+            return full_path
+    return None
+
 def readVersionIniFile(BASE=None):
     """
     __file__ is either <plugin>/redist/pluginapi/distribution/generateSDDSImport.py
@@ -25,23 +48,12 @@ def readVersionIniFile(BASE=None):
     autoVersionFile = os.path.join(scriptPath, "include", "AutoVersioningHeaders", "AutoVersion.ini")
 
     if not os.path.isfile(autoVersionFile):
-        if BASE is None:
-            BASE = os.path.dirname(scriptPath)  # <plugin>/redist/pluginapi
-            BASE = os.path.dirname(BASE)  # <plugin>/redist
-            BASE = os.path.dirname(BASE)  # <plugin>
+        BASE = get_base_path(scriptPath, BASE)
 
         if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
-            autoVersionFile = os.path.join(BASE, "products", "distribution", "include",
-                                           "AutoVersioningHeaders", "AutoVersion.ini")
+            autoVersionFile = get_vaild_auto_version_path(BASE)
 
-            if not os.path.isfile(autoVersionFile):
-                autoVersionFile = os.path.join(BASE, "distribution", "include",
-                                               "AutoVersioningHeaders", "AutoVersion.ini")
-
-                if not os.path.isfile(autoVersionFile):
-                    autoVersionFile = os.path.join(BASE, "AutoVersioningHeaders", "AutoVersion.ini")
-
-    if os.path.isfile(autoVersionFile):
+    if autoVersionFile is not None:
         print ("Reading version from {}".format(autoVersionFile))
         with open(autoVersionFile, "r") as f:
             for line in f.readlines():
