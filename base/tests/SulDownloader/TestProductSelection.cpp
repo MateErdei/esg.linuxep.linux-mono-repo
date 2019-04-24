@@ -240,8 +240,6 @@ TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAl
     EXPECT_EQ(selectedProducts.selected, selected);
 }
 
-
-
 TEST_F( // NOLINT
     ProductSelectionTest,
     CreateProductSelection_SelectProductsShouldReturnMissingAllNonPrefixNamedProducts)
@@ -439,9 +437,6 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeatu
     std::vector<size_t>selected{0}; // ProdA_Rec_MDR
     EXPECT_EQ(selectedProducts.selected, selected);
 }
-
-
-
 
 TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
 {

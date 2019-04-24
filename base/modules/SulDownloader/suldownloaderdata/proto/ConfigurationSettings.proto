@@ -32,22 +32,17 @@ message ConfigurationSettings
     optional string installationRootPath = 6;
     optional string systemSslPath = 7;
     optional string cacheUpdateSslPath = 8;
-
-    optional string releaseTag = 9 [default="RECOMMENDED"];
-    optional string baseVersion = 10;
-    optional string primary = 11;
-    repeated string fullNames = 12;
-    repeated string prefixNames = 13;
-    repeated string installArguments = 14;
+    repeated string installArguments = 9;
 
     enum LogLevelOption
     {
        NORMAL = 0;
        VERBOSE = 1;
     }
-    optional LogLevelOption logLevel = 15 [default=NORMAL];
-    optional bool forceReinstallAllProducts = 16 [default=false];
-    repeated string manifestNames = 17;
+
+    optional LogLevelOption logLevel = 10 [default=NORMAL];
+    optional bool forceReinstallAllProducts = 11 [default=false];
+    repeated string manifestNames = 12;
 
     message Subscription
     {
@@ -57,14 +52,8 @@ message ConfigurationSettings
         optional string fixVersion = 4;
     }
 
-    optional Subscription primarySubscription = 18;
-    repeated Subscription products = 19;
-    repeated string features = 20;
-    enum ConfigVersion
-    {
-       V1=0;
-       V2=1; // Introduced features and subscriptions
-    }
-    optional ConfigVersion  configVersion = 21 [default=V1];
+    optional Subscription primarySubscription = 13;
+    repeated Subscription products = 14;
+    repeated string features = 15;
 
 }

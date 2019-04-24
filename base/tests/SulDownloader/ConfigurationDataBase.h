@@ -67,7 +67,6 @@ public:
                                 },
                                 ],
                                 "features": ["CORE", "MDR"],
-                                "configVersion": "V2",
                                "installArguments": [
                                "--install-dir",
                                "/opt/sophos-av"
