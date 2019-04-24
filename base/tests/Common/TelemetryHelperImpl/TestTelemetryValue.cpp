@@ -8,11 +8,11 @@
 
 #include <include/gtest/gtest.h>
 
-const int TEST_INTEGER = 10;
-const unsigned int TEST_UNSIGNED_INTEGER = 11U;
-const bool TEST_BOOL = true;
-const char* TEST_CSTRING = "Test String";
-const std::string TEST_STRING = TEST_CSTRING;  // NOLINT
+static const int TEST_INTEGER = 10;
+static const unsigned int TEST_UNSIGNED_INTEGER = 11U;
+static const bool TEST_BOOL = true;
+static const char* TEST_CSTRING = "Test String";
+static const std::string TEST_STRING = TEST_CSTRING;  // NOLINT
 
 using namespace Common::Telemetry;
 

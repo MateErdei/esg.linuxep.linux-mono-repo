@@ -37,6 +37,7 @@ void Common::Telemetry::TelemetryObject::set(const std::string& key, const Commo
 
     auto& nodes = std::get<std::map<std::string, TelemetryObject>>(m_value);
     nodes[key] = value;
+    m_type = Type::object;
 }
 
 void Common::Telemetry::TelemetryObject::set(
