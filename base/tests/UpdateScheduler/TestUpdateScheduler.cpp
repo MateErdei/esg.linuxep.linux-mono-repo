@@ -642,8 +642,6 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
         std::unique_ptr<ICronSchedulerThread>(cron),
         std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    // no config will be created when an invalid policy is given
-
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(2);
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
