@@ -51,6 +51,26 @@ public:
         R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3,"nested3":-4}]})";
 };
 
+
+class TelemetrySerialiserParameterisedTestFixture : public ::testing::TestWithParam<std::string>
+{
+};
+
+INSTANTIATE_TEST_CASE_P(ParameterisedJsonTests,  // NOLINT
+                        TelemetrySerialiserParameterisedTestFixture,
+                        ::testing::Values(
+                            R"({"a":"b"})",
+                            R"({"OS":{"Name":"Ubuntu","Arch":"x64","Platform":"Linux","Version":"18.04"},"DiskSpace":{"SpaceInMB":150000,"Healthy":true}})"));
+
+TEST_P(TelemetrySerialiserParameterisedTestFixture, SerialiseAndDeserialise ) // NOLINT
+{
+    std::string testJson = GetParam();
+    auto telemetryObject = TelemetrySerialiser::deserialise(testJson);
+    std::string serialized = TelemetrySerialiser::serialise(telemetryObject);
+    auto anotherObject = TelemetrySerialiser::deserialise(serialized);
+    EXPECT_EQ(telemetryObject, anotherObject) << "Failed: " << testJson;
+}
+
 TEST_F(TelemetrySerialiserTestFixture, TelemetryObjectToJsonAndBackToTelemetryObject) // NOLINT
 {
     // Serialise known object to json and verify fields.
@@ -80,9 +100,7 @@ TEST_F(TelemetrySerialiserTestFixture, SerialiseToString) // NOLINT
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
 {
-    TelemetrySerialiser serialiser;
-    auto deserialised = serialiser.deserialise(m_serialisedTelemetry);
-    ASSERT_EQ(m_root, deserialised);
+    ASSERT_EQ(m_root, TelemetrySerialiser::deserialise(m_serialisedTelemetry));
 }
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseEmptyString) // NOLINT
@@ -93,6 +111,5 @@ TEST_F(TelemetrySerialiserTestFixture, DeserialiseEmptyString) // NOLINT
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseInvalidJson) // NOLINT
 {
-    TelemetrySerialiser serialiser;
-    ASSERT_THROW(serialiser.deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
+    ASSERT_THROW(TelemetrySerialiser::deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
 }
