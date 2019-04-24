@@ -62,6 +62,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master, bugfix/LINUXEP-8032-auto-versioning-on-plugins-does-not-appear-in-</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>

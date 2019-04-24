@@ -53,7 +53,7 @@ def readVersionIniFile(BASE=None):
         if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
             autoVersionFile = get_vaild_auto_version_path(BASE)
 
-    if autoVersionFile is not None:
+    if autoVersionFile is not None and os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
         with open(autoVersionFile, "r") as f:
             for line in f.readlines():
