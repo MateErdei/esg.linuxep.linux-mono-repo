@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-template-plugin" version="0.5.0">
     <versioning>
-        <workingdir>sspl-template-plugin-build/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-template-plugin-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
         <workingdir>sspl-template-plugin-build</workingdir>
         <!-- DIFF SEPARATION COMMENT -->
         <!--Plugin Api Dev Build - This will check filer 6 getting the latest build-->
-        <package name="sspl-base" version="bugfix-LINUXEP-8032-auto-versioning-on-plugins-does-not-appear-in-/20190423121423-eff347fc8011e722354e075ef76fb4666954ef06/sspl-base/0.5.1/output/" dest="input" buildtype="dev">
+        <package name="sspl-base" version="bugfix-LINUXEP-8032-auto-versioning-on-plugins-does-not-appear-in-/20190424083934-884325dd85f1684aefab2fd5a8005d423f833e93/sspl-base/0.5.1/output/" dest="input" buildtype="dev">
             <include src="pluginapi.tar.gz" dest="."/>
         </package>
         <!-- <package name="sspl-base" version="master/%LASTGOODCOMPONENTBUILD%/sspl-base/0.5.1/output" dest="input" buildtype="dev">
