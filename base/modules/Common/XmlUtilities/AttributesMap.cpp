@@ -135,14 +135,21 @@ namespace
         std::string elementPath = m_stack.empty() ? currentElement : m_stack.top().fullpath + "/" + currentElement;
         if (!id.empty())
         {
+            elementPath = elementPath + "#" + id;
+            std::string number;
+            //If ids are not unique add an integer to allow the map to disambiguate them.
             if (m_lastEntry != elementPath)
             {
                 m_entryCount = 0;
             }
+            else
+            {
+                std::stringstream appendNumber;
+                appendNumber << "_" << m_entryCount++;
+                number = appendNumber.str();
+            }
             m_lastEntry = elementPath;
-            std::stringstream elementPathWithCount;
-            elementPathWithCount << elementPath << "#" << m_entryCount++;
-            elementPath = elementPathWithCount.str();
+            elementPath = elementPath + number;
             pathIds.push_back(elementPath);
         }
         return elementPath;

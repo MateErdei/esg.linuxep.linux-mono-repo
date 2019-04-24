@@ -35,8 +35,8 @@ static const std::string updatePolicyWithCache{ R"sophos(<?xml version="1.0"?>
     <bootstrap Location="" UsePrimaryServerAddress="true"/>
     <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
     <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixVersion="10"/>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixVersion="9"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixVersion="11"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixVersion="8"/>
     </cloud_subscriptions>
     <delay_supplements enabled="false"/>
   </AUConfig>
@@ -317,7 +317,7 @@ static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
     <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
     <cloud_subscriptions>
       <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
-      <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
+      <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
     </cloud_subscriptions>
     <delay_updating Day="Wednesday" Time="11:00:00"/>
     <delay_supplements enabled="true"/>
@@ -348,6 +348,7 @@ namespace{
         std::string editedXml = xml.substr(0,posStart) + replacement+ "\n" + xml.substr(posEnd);
         return editedXml;
     }
+
 
 } //namespace
 
@@ -386,13 +387,13 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/certs/cache_certificates.crt");
 
     auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 3);
+    ASSERT_EQ(urls.size(), 3);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 
     auto cacheUrls = config.getLocalUpdateCacheUrls();
-    EXPECT_EQ(cacheUrls.size(),3);
+    ASSERT_EQ(cacheUrls.size(),3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[2], "w2k8r2-std-en-df.eng.sophos:8191");
@@ -401,29 +402,18 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
     EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
-    EXPECT_EQ(primarySubscription.fixVersion(), "10");
+    EXPECT_EQ(primarySubscription.fixVersion(), "11");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(productsSubscription[0].fixVersion(), "9");
+    EXPECT_EQ(productsSubscription[0].fixVersion(), "8");
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 12);
-    EXPECT_EQ(features[0], "APPCNTRL");
-    EXPECT_EQ(features[1], "AV");
-    EXPECT_EQ(features[2], "CORE");
-    EXPECT_EQ(features[3], "DLP");
-    EXPECT_EQ(features[4], "DVCCNTRL");
-    EXPECT_EQ(features[5], "EFW");
-    EXPECT_EQ(features[6], "HBT");
-    EXPECT_EQ(features[7], "MTD");
-    EXPECT_EQ(features[8], "NTP");
-    EXPECT_EQ(features[9], "SAV");
-    EXPECT_EQ(features[10], "SDU");
-    EXPECT_EQ(features[11], "WEBCNTRL");
+    std::vector<std::string> expectedFeatures = {"APPCNTRL","AV","CORE","DLP","DVCCNTRL","EFW","HBT","MTD","NTP","SAV","SDU","WEBCNTRL"};
+    EXPECT_EQ(features,expectedFeatures);
 
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
@@ -462,7 +452,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
+    ASSERT_EQ(urls.size(), 2);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
@@ -475,26 +465,15 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 12);
-    EXPECT_EQ(features[0], "APPCNTRL");
-    EXPECT_EQ(features[1], "AV");
-    EXPECT_EQ(features[2], "CORE");
-    EXPECT_EQ(features[3], "DLP");
-    EXPECT_EQ(features[4], "DVCCNTRL");
-    EXPECT_EQ(features[5], "EFW");
-    EXPECT_EQ(features[6], "HBT");
-    EXPECT_EQ(features[7], "MTD");
-    EXPECT_EQ(features[8], "NTP");
-    EXPECT_EQ(features[9], "SAV");
-    EXPECT_EQ(features[10], "SDU");
-    EXPECT_EQ(features[11], "WEBCNTRL");
+    std::vector<std::string> expectedFeatures = {"APPCNTRL","AV","CORE","DLP","DVCCNTRL","EFW","HBT","MTD","NTP","SAV","SDU","WEBCNTRL"};
+    EXPECT_EQ(features,expectedFeatures);
 
     SulDownloader::suldownloaderdata::Proxy expectedProxy{
         "uk-abn-wpan-1.green.sophos:8080",
@@ -513,23 +492,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "QA940267");
-    EXPECT_EQ(config.getCredentials().getPassword(), "54m5ung");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
-
-    auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
-
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
-
     const auto & primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
@@ -537,26 +499,15 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 12);
-    EXPECT_EQ(features[0], "APPCNTRL");
-    EXPECT_EQ(features[1], "AV");
-    EXPECT_EQ(features[2], "CORE");
-    EXPECT_EQ(features[3], "DLP");
-    EXPECT_EQ(features[4], "DVCCNTRL");
-    EXPECT_EQ(features[5], "EFW");
-    EXPECT_EQ(features[6], "HBT");
-    EXPECT_EQ(features[7], "MTD");
-    EXPECT_EQ(features[8], "NTP");
-    EXPECT_EQ(features[9], "SAV");
-    EXPECT_EQ(features[10], "SDU");
-    EXPECT_EQ(features[11], "WEBCNTRL");
+    std::vector<std::string> expectedFeatures = {"APPCNTRL","AV","CORE","DLP","DVCCNTRL","EFW","HBT","MTD","NTP","SAV","SDU","WEBCNTRL"};
+    EXPECT_EQ(features,expectedFeatures);
 
     EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
     std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
@@ -593,7 +544,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
     auto config = settingsHolder.configurationData;
 
     auto cacheUrls = config.getLocalUpdateCacheUrls();
-    EXPECT_EQ(cacheUrls.size(),3);
+    ASSERT_EQ(cacheUrls.size(),3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "w2k8r2-std-en-df.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[2], "2k12-64-ld55-df.eng.sophos:8191");
@@ -623,7 +574,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
     auto config = settingsHolder.configurationData;
 
     auto cacheUrls = config.getLocalUpdateCacheUrls();
-    EXPECT_EQ(cacheUrls.size(),3);
+    ASSERT_EQ(cacheUrls.size(),3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[2], "w2k8r2-std-en-df.eng.sophos:8191");
@@ -650,7 +601,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
+    ASSERT_EQ(urls.size(), 2);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
@@ -663,17 +614,16 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 3);
-    EXPECT_EQ(features[0], "CORE");
-    EXPECT_EQ(features[1], "SDU");
-    EXPECT_EQ(features[2], "MDR");
+    std::vector<std::string> expectedFeatures = {"CORE","SDU","MDR"};
+    EXPECT_EQ(features,expectedFeatures);
+
 
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
@@ -693,23 +643,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
-    EXPECT_EQ(config.getCredentials().getPassword(), "password");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
-
-    auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
-
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
-
     const auto & primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
@@ -717,26 +650,17 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
-
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 0);
+    ASSERT_EQ(features.size(), 0);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
-
 }
 
 
@@ -763,23 +687,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
-    EXPECT_EQ(config.getCredentials().getPassword(), "password");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
-
-    auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
-
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
-
     const auto & primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
@@ -787,34 +694,16 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 1);
+    ASSERT_EQ(productsSubscription.size(), 1);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
-
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 11);
-    EXPECT_EQ(features[0], "APPCNTRL");
-    EXPECT_EQ(features[1], "AV");
-    EXPECT_EQ(features[2], "DLP");
-    EXPECT_EQ(features[3], "DVCCNTRL");
-    EXPECT_EQ(features[4], "EFW");
-    EXPECT_EQ(features[5], "HBT");
-    EXPECT_EQ(features[6], "MTD");
-    EXPECT_EQ(features[7], "NTP");
-    EXPECT_EQ(features[8], "SAV");
-    EXPECT_EQ(features[9], "SDU");
-    EXPECT_EQ(features[10], "WEBCNTRL");
+    std::vector<std::string> expectedFeatures = {"APPCNTRL","AV","DLP","DVCCNTRL","EFW","HBT","MTD","NTP","SAV","SDU","WEBCNTRL"};
+    EXPECT_EQ(features,expectedFeatures);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
 }
@@ -830,21 +719,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
-    EXPECT_EQ(config.getCredentials().getPassword(), "password");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
-
-    auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
-
     EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
 
     const auto & primarySubscription = config.getPrimarySubscription();
@@ -854,21 +728,12 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 0);
+    ASSERT_EQ(productsSubscription.size(), 0);
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 3);
-    EXPECT_EQ(features[0], "CORE");
-    EXPECT_EQ(features[1], "SDU");
-    EXPECT_EQ(features[2], "MDR");
+    std::vector<std::string> expectedFeatures = {"CORE","SDU","MDR"};
+    EXPECT_EQ(features,expectedFeatures);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
 }
@@ -879,7 +744,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 
     std::string subscriptionWithoutBase{ R"sophos(    <cloud_subscriptions>
       <subscription Id="NotBase" RigidName="ServerProtectionLinux-NotBase" Tag="RECOMMENDED"/>
-      <subscription Id="MDR" RigidName="ServerProtectionLinux-DarkBytesMDR" Tag="RECOMMENDED"/>
+      <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
     </cloud_subscriptions>)sophos"};
 
     auto policy = replaceXMLSection(mdrSSPLBasePolicy, "cloud_subscriptions", subscriptionWithoutBase);
@@ -888,23 +753,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
-
-    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
-    EXPECT_EQ(config.getCredentials().getPassword(), "password");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
-    EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
-    EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
-
-    auto urls = config.getSophosUpdateUrls();
-    EXPECT_EQ(urls.size(), 2);
-    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
-    EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
-
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
-
     const auto & primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
     EXPECT_EQ(primarySubscription.rigidName(), "");
@@ -912,30 +760,21 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
     EXPECT_EQ(primarySubscription.fixVersion(), "");
 
     const auto & productsSubscription = config.getProductsSubscription();
-    EXPECT_EQ(productsSubscription.size(), 2);
+    ASSERT_EQ(productsSubscription.size(), 2);
     EXPECT_EQ(productsSubscription[0].baseVersion(), "");
     EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-NotBase");
     EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[0].fixVersion(), "");
 
     EXPECT_EQ(productsSubscription[1].baseVersion(), "");
-    EXPECT_EQ(productsSubscription[1].rigidName(), "ServerProtectionLinux-DarkBytesMDR");
+    EXPECT_EQ(productsSubscription[1].rigidName(), "ServerProtectionLinux-Plugin-MDR");
     EXPECT_EQ(productsSubscription[1].tag(), "RECOMMENDED");
     EXPECT_EQ(productsSubscription[1].fixVersion(), "");
 
     const auto & features = config.getFeatures();
-    EXPECT_EQ(features.size(), 3);
-    EXPECT_EQ(features[0], "CORE");
-    EXPECT_EQ(features[1], "SDU");
-    EXPECT_EQ(features[2], "MDR");
+    std::vector<std::string> expectedFeatures = {"CORE","SDU","MDR"};
+    EXPECT_EQ(features,expectedFeatures);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
 }
