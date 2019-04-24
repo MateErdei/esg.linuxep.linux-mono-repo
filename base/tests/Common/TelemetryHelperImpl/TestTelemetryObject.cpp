@@ -5,7 +5,6 @@
 ///******************************************************************************************************/
 
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
-
 #include <include/gtest/gtest.h>
 
 using namespace Common::Telemetry;
@@ -23,7 +22,7 @@ public:
     std::string m_badKey = "BadKey";
     std::string m_testString = "Test Value";
     TelemetryValue m_testValue = TelemetryValue(m_testString);
-    std::list<TelemetryObject> m_testArray {TelemetryObject(), TelemetryObject()};
+    std::list<TelemetryObject> m_testArray{ TelemetryObject(), TelemetryObject() };
 
     TelemetryObject m_root;
     TelemetryObject m_telemObj1;
@@ -80,7 +79,7 @@ TEST_F(TelemetryObjectTestFixture, GetNonExistentObject) // NOLINT
 TEST_F(TelemetryObjectTestFixture, GetValue_NotValue) // NOLINT
 {
     m_root.set(m_testArray);
-    ASSERT_THROW(m_root.getValue(), std::logic_error); //NOLINT
+    ASSERT_THROW(m_root.getValue(), std::logic_error); // NOLINT
 }
 
 TEST_F(TelemetryObjectTestFixture, GetValueReference) // NOLINT
@@ -99,7 +98,7 @@ TEST_F(TelemetryObjectTestFixture, GetValueConstReference) // NOLINT
 TEST_F(TelemetryObjectTestFixture, GetArray_NotArray) // NOLINT
 {
     m_root.set(m_testValue);
-    ASSERT_THROW(m_root.getArray(), std::logic_error); //NOLINT
+    ASSERT_THROW(m_root.getArray(), std::logic_error); // NOLINT
 }
 
 TEST_F(TelemetryObjectTestFixture, GetArrayReference) // NOLINT
@@ -118,7 +117,7 @@ TEST_F(TelemetryObjectTestFixture, GetArrayConstReference) // NOLINT
 TEST_F(TelemetryObjectTestFixture, GetChildObjects_NotObject) // NOLINT
 {
     m_root.set(m_testValue);
-    ASSERT_THROW(m_root.getChildObjects(), std::logic_error); //NOLINT
+    ASSERT_THROW(m_root.getChildObjects(), std::logic_error); // NOLINT
 }
 
 TEST_F(TelemetryObjectTestFixture, GetChildObjectsReference) // NOLINT
@@ -169,5 +168,3 @@ TEST_F(TelemetryObjectTestFixture, EqualityDifferent) // NOLINT
 {
     ASSERT_NE(m_telemObj1, m_root);
 }
-
-

@@ -4,10 +4,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
+#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryValue.h>
-
 #include <include/gtest/gtest.h>
 
 using namespace Common::Telemetry;
@@ -15,13 +14,13 @@ using namespace Common::Telemetry;
 class TelemetrySerialiserTestFixture : public ::testing::Test
 {
 public:
-    TelemetrySerialiserTestFixture()
-        : m_testValue1(1U),
-          m_testValue2(4294967200U),
-          m_testValue3(3U),
-          m_testValue4(-4),
-          m_testString("TestValue"),
-          m_testBool(true)
+    TelemetrySerialiserTestFixture() :
+        m_testValue1(1U),
+        m_testValue2(4294967200U),
+        m_testValue3(3U),
+        m_testValue4(-4),
+        m_testString("TestValue"),
+        m_testBool(true)
     {
         TelemetryObject stringObj;
         stringObj.set(TelemetryValue(m_testString));
@@ -36,7 +35,7 @@ public:
         m_root.set("key1", TelemetryValue(m_testValue1));
         m_root.set("key2", nested);
 
-        std::list<TelemetryObject> array{stringObj, boolObj, nested};
+        std::list<TelemetryObject> array{ stringObj, boolObj, nested };
         m_root.set("my array", array);
     }
 
@@ -48,7 +47,8 @@ public:
     bool m_testBool;
 
     TelemetryObject m_root;
-    std::string m_serialisedTelemetry = R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3,"nested3":-4}]})";
+    std::string m_serialisedTelemetry =
+        R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3,"nested3":-4}]})";
 };
 
 TEST_F(TelemetrySerialiserTestFixture, TelemetryObjectToJsonAndBackToTelemetryObject) // NOLINT
@@ -83,4 +83,16 @@ TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
     TelemetrySerialiser serialiser;
     auto deserialised = serialiser.deserialise(m_serialisedTelemetry);
     ASSERT_EQ(m_root, deserialised);
+}
+
+TEST_F(TelemetrySerialiserTestFixture, DeserialiseEmptyString) // NOLINT
+{
+    TelemetrySerialiser serialiser;
+    ASSERT_THROW(serialiser.deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
+}
+
+TEST_F(TelemetrySerialiserTestFixture, DeserialiseInvalidJson) // NOLINT
+{
+    TelemetrySerialiser serialiser;
+    ASSERT_THROW(serialiser.deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
 }
