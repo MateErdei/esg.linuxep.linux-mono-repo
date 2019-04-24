@@ -60,6 +60,11 @@ INSTANTIATE_TEST_CASE_P(ParameterisedJsonTests,  // NOLINT
                         TelemetrySerialiserParameterisedTestFixture,
                         ::testing::Values(
                             R"({"a":"b"})",
+                            R"({"a":""})",
+                            R"({"key":[]})",
+                            R"([])",
+                            R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, "string2", "string"]})",
+                            R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, {"nested":{"array":[1,2,3]}}, "string"]})",
                             R"({"OS":{"Name":"Ubuntu","Arch":"x64","Platform":"Linux","Version":"18.04"},"DiskSpace":{"SpaceInMB":150000,"Healthy":true}})"));
 
 TEST_P(TelemetrySerialiserParameterisedTestFixture, SerialiseAndDeserialise ) // NOLINT
@@ -94,8 +99,7 @@ TEST_F(TelemetrySerialiserTestFixture, TelemetryObjectToJsonAndBackToTelemetryOb
 
 TEST_F(TelemetrySerialiserTestFixture, SerialiseToString) // NOLINT
 {
-    TelemetrySerialiser serialiser;
-    ASSERT_EQ(m_serialisedTelemetry, serialiser.serialise(m_root));
+    ASSERT_EQ(m_serialisedTelemetry, TelemetrySerialiser::serialise(m_root));
 }
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
@@ -105,8 +109,7 @@ TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseEmptyString) // NOLINT
 {
-    TelemetrySerialiser serialiser;
-    ASSERT_THROW(serialiser.deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
+    ASSERT_THROW(TelemetrySerialiser::deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
 }
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseInvalidJson) // NOLINT
