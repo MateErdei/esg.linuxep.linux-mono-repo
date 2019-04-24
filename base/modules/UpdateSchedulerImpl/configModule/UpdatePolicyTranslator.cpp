@@ -130,8 +130,7 @@ namespace UpdateSchedulerImpl
                 defaultLocations.insert(begin(defaultLocations), connectionAddress);
             }
 
-            SulDownloader::suldownloaderdata::ConfigurationData config =
-                    SulDownloader::suldownloaderdata::ConfigurationData::createConfigurationDataV2(defaultLocations);
+            SulDownloader::suldownloaderdata::ConfigurationData config(defaultLocations);
             config.setCredentials(SulDownloader::suldownloaderdata::Credentials{
                 primaryLocation.value("UserName"), primaryLocation.value("UserPassword") });
 

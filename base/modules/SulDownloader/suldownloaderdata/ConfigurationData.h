@@ -91,11 +91,6 @@ namespace SulDownloader
                 NORMAL,
                 VERBOSE
             };
-            static ConfigurationData createConfigurationDataV2(
-                    const std::vector<std::string>& sophosLocationURL = {},
-                    Credentials credentials = Credentials(),
-                    const std::vector<std::string>& updateCache = std::vector<std::string>(),
-                    Proxy policyProxy = Proxy());
             explicit ConfigurationData(
                 const std::vector<std::string>& sophosLocationURL = {},
                 Credentials credentials = Credentials(),
@@ -247,18 +242,6 @@ namespace SulDownloader
             const std::vector<ProductSubscription>&  getProductsSubscription() const;
 
             /**
-             * Adds the given productGUID containing the product details to the product selection list
-             * @param productGUID, object containing the product details.
-             */
-            void addProductSelection(const ProductGUID& productGUID);
-
-            /**
-             * Gets the list productGUID objetcs containing the details of all the selected products
-             * @return list of ProductGUID objects.
-             */
-            const std::vector<ProductGUID>& getProductSelection() const;
-
-            /**
              * Gets the log level parameter that has been set for the application.
              * @return LogLevel, enum specifying the set log level.
              */
@@ -369,12 +352,6 @@ namespace SulDownloader
                 Verified,
                 FailedVerified
             };
-            enum class Version
-            {
-                V1,
-                V2
-            };
-            Version m_version = Version::V1;
 
             Credentials m_credentials;
             std::vector<std::string> m_sophosUpdateUrls;
@@ -384,7 +361,6 @@ namespace SulDownloader
             std::string m_certificatePath;
             std::string m_systemSslCertificatePath;
             std::string m_updateCacheSslCertificatePath;
-            std::vector<ProductGUID> m_productSelection;
             std::vector<ProductSubscription> m_productsSubscription;
             ProductSubscription m_primarySubscription;
             std::vector<std::string> m_features;

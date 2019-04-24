@@ -152,13 +152,9 @@ namespace SulDownloader
             return false;
         }
 
-        if (productInformation.getBaseVersion() == m_productSubscription.baseVersion() ||
-            m_productSubscription.tag() == "RECOMMENDED")
-        {
-            return true;
-        }
+        return productInformation.getBaseVersion() == m_productSubscription.baseVersion() ||
+        m_productSubscription.tag() == "RECOMMENDED";
 
-        return false;
     }
 
     bool SubscriptionSelector::isProductRequired() const
@@ -174,33 +170,6 @@ namespace SulDownloader
     {
         ProductSelection productSelection;
 
-        // this is the V1 algorithm.
-        for (const auto & product : configurationData.getProductSelection())
-        {
-            // the v1 algorithm did not supported Features. If this was not empty, it was a v1 algorithm.
-            productSelection.m_useFeatures = false;
-
-            ProductSelector::NamePrefix namePrefix;
-
-            if (product.Prefix)
-            {
-                namePrefix = ProductSelector::UseNameAsPrefix;
-            }
-            else
-            {
-                namePrefix = ProductSelector::UseFullName;
-            }
-            LOGSUPPORT("Product Selector: name=" << product.Name << " Prefix= " << namePrefix << " ReleaseTag=" << product.releaseTag << " BaseVersion= " <<  product.baseVersion);
-            productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(
-                new ProductSelector(product.Name, namePrefix, product.releaseTag, product.baseVersion)));
-        }
-
-        if ( !productSelection.m_useFeatures)
-        {
-            return productSelection;
-        }
-
-        // V2 algorithm. using Subscriptions
         auto & primary = configurationData.getPrimarySubscription();
         LOGSUPPORT("Product Selector: " << primary.toString() << ". Primary.");
         productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(

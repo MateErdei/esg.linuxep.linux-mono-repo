@@ -29,69 +29,6 @@ namespace
             secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr ||
             secure_getenv("http_proxy") != nullptr || secure_getenv("HTTP_PROXY") != nullptr);
     }
-    void toProtobufV1Specific( const ConfigurationData & configurationData, SulDownloaderProto::ConfigurationSettings & settings)
-    {
-        auto productsGUID = configurationData.getProductSelection();
-
-        if (!productsGUID.empty())
-        {
-            auto& primaryProduct = productsGUID[0];
-            // the established convention is that the first one should be the primary
-            assert(primaryProduct.Primary);
-            settings.set_primary(primaryProduct.Name);
-            settings.set_baseversion(primaryProduct.baseVersion);
-            settings.set_releasetag(primaryProduct.releaseTag);
-        }
-        // skip first as it is the primary
-        for (size_t i = 1; i < productsGUID.size(); i++)
-        {
-            auto& secondaryProduct = productsGUID[i];
-            if (secondaryProduct.Prefix)
-            {
-                settings.add_prefixnames()->assign(secondaryProduct.Name);
-            }
-            else
-            {
-                settings.add_fullnames()->assign(secondaryProduct.Name);
-            }
-        }
-
-    }
-
-
-    void fromProtobufV1Specific( ConfigurationData & configurationData, const SulDownloaderProto::ConfigurationSettings & settings)
-    {
-
-        ProductGUID primaryProductGUID;
-        primaryProductGUID.Name = settings.primary();
-        primaryProductGUID.Primary = true;
-        primaryProductGUID.Prefix = false;
-        primaryProductGUID.releaseTag = settings.releasetag();
-        primaryProductGUID.baseVersion = settings.baseversion();
-        configurationData.addProductSelection(primaryProductGUID);
-
-        for (auto& product : settings.fullnames())
-        {
-            ProductGUID productGUID;
-            productGUID.Name = product;
-            productGUID.Primary = false;
-            productGUID.Prefix = false;
-            productGUID.releaseTag = settings.releasetag();
-            productGUID.baseVersion = settings.baseversion();
-            configurationData.addProductSelection(productGUID);
-        }
-
-        for (auto& product : settings.prefixnames())
-        {
-            ProductGUID productGUID;
-            productGUID.Name = product;
-            productGUID.Primary = false;
-            productGUID.Prefix = true;
-            productGUID.releaseTag = settings.releasetag();
-            productGUID.baseVersion = settings.baseversion();
-            configurationData.addProductSelection(productGUID);
-        }
-    }
 
     void setProtobufEntries( const ProductSubscription & subscription,
                              SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription )
@@ -110,7 +47,7 @@ namespace
                                     proto_subscription.fixversion());
     }
 
-    void fromProtobufV2Specific( ConfigurationData & configurationData, const SulDownloaderProto::ConfigurationSettings & settings)
+    void fromProtobuf(ConfigurationData& configurationData, const SulDownloaderProto::ConfigurationSettings& settings)
     {
         ProductSubscription primary = getSubscription(settings.primarysubscription());
         std::vector<ProductSubscription> products;
@@ -128,9 +65,7 @@ namespace
         configurationData.setFeatures(features);
     }
 
-
-
-    void toProtobufV2Specific( const ConfigurationData & configurationData, SulDownloaderProto::ConfigurationSettings & settings)
+    void toProtobuf(const ConfigurationData& configurationData, SulDownloaderProto::ConfigurationSettings& settings)
     {
         const auto & primarySubscription = configurationData.getPrimarySubscription();
         setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
@@ -143,53 +78,6 @@ namespace
             settings.add_features(feature);
         }
 
-    }
-
-    bool configurationDataV1SpecificIsVerified(const ConfigurationData & configurationData)
-    {
-        const auto & productSelection = configurationData.getProductSelection();
-        if (productSelection.empty())
-        {
-            LOGERROR("Invalid Settings: No product selection.");
-            return false;
-        }
-        else
-        {
-            for (auto& value : productSelection)
-            {
-                if (value.releaseTag.empty())
-                {
-                    LOGERROR("Invalid Settings: ReleaseTag cannot be an empty string");
-                    return false;
-                }
-
-                if (value.baseVersion.empty())
-                {
-                    LOGERROR("Invalid Settings: Base version cannot be an empty string");
-                    return false;
-                }
-
-                if (value.Name.empty() && !value.Prefix)
-                {
-                    LOGERROR("Invalid Settings: Full product name cannot be an empty string");
-                    return false;
-                }
-
-                if (value.Name.empty() && value.Prefix)
-                {
-                    LOGERROR("Invalid Settings: Prefix product name cannot be an empty string");
-                    return false;
-                }
-            }
-        }
-
-        // productselection should already be ordered with primary being the first one.
-        if (productSelection[0].Name.empty() || productSelection[0].Prefix || !productSelection[0].Primary)
-        {
-            LOGERROR("Invalid Settings: No primary product provided.");
-            return false;
-        }
-        return true;
     }
 
     bool isProductSubscriptionValid( const ProductSubscription & productSubscription)
@@ -206,41 +94,6 @@ namespace
         }
         return true;
     }
-
-    bool configurationDataV2SpecificIsVerified(const ConfigurationData & configurationData)
-    {
-
-        if( !isProductSubscriptionValid(configurationData.getPrimarySubscription()))
-        {
-            LOGERROR("Invalid Settings: No primary product provided.");
-            return false;
-        }
-
-        for( auto & productSubscription: configurationData.getProductsSubscription())
-        {
-            if( !isProductSubscriptionValid(productSubscription))
-            {
-                return false;
-            }
-        }
-
-        auto features = configurationData.getFeatures();
-        if( features.empty())
-        {
-            LOGERROR("Empty feature set");
-            return false;
-        }
-        if ( std::find(features.begin(), features.end(), "CORE") == features.end())
-        {
-            LOGERROR( "CORE feature not in the feature set. ");
-            return false;
-        }
-        return true;
-
-    }
-
-
-
 } // namespace
 
 
@@ -423,19 +276,31 @@ bool ConfigurationData::verifySettingsAreValid()
         return false;
     }
 
-    if ( m_version == ConfigurationData::Version::V1)
+    if( !isProductSubscriptionValid(getPrimarySubscription()))
     {
-        if ( !configurationDataV1SpecificIsVerified(*this))
+        LOGERROR("Invalid Settings: No primary product provided.");
+        return false;
+    }
+
+    for( auto & productSubscription: getProductsSubscription())
+    {
+        if( !isProductSubscriptionValid(productSubscription))
         {
             return false;
         }
     }
-    else
+
+    auto features = getFeatures();
+    if( features.empty())
     {
-        if ( !configurationDataV2SpecificIsVerified(*this))
-        {
-            return false;
-        }
+        LOGERROR("Empty feature set");
+        return false;
+    }
+
+    if ( std::find(features.begin(), features.end(), "CORE") == features.end())
+    {
+        LOGERROR( "CORE feature not in the feature set. ");
+        return false;
     }
 
 
@@ -536,21 +401,6 @@ bool ConfigurationData::isVerified() const
     return m_state == State::Verified;
 }
 
-void ConfigurationData::addProductSelection(const ProductGUID& productGUID)
-{
-    if (m_version == ConfigurationData::Version::V2)
-    {
-        throw std::logic_error( "Version two does not support this feature");
-    }
-
-    m_productSelection.push_back(productGUID);
-}
-
-const std::vector<ProductGUID>& ConfigurationData::getProductSelection() const
-{
-    return m_productSelection;
-}
-
 ConfigurationData::LogLevel ConfigurationData::getLogLevel() const
 {
     return m_logLevel;
@@ -607,16 +457,7 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setCertificatePath(settings.certificatepath());
     configurationData.setInstallationRootPath(settings.installationrootpath());
 
-    if (settings.configversion() == ::SulDownloaderProto::ConfigurationSettings_ConfigVersion::ConfigurationSettings_ConfigVersion_V1)
-    {
-        fromProtobufV1Specific(configurationData, settings);
-    }
-    else
-    {
-        configurationData.m_version = ConfigurationData::Version::V2;
-        fromProtobufV2Specific(configurationData, settings);
-    }
-
+    fromProtobuf(configurationData, settings);
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -720,15 +561,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.set_certificatepath(configurationData.getCertificatePath());
     settings.set_installationrootpath(configurationData.getInstallationRootPath());
 
-    if ( configurationData.m_version == ConfigurationData::Version::V1)
-    {
-        toProtobufV1Specific(configurationData, settings);
-    }
-    else
-    {
-        settings.set_configversion(::SulDownloaderProto::ConfigurationSettings_ConfigVersion::ConfigurationSettings_ConfigVersion_V2);
-        toProtobufV2Specific(configurationData, settings);
-    }
+    toProtobuf(configurationData, settings);
 
     for (auto& installarg : configurationData.getInstallArguments())
     {
@@ -757,34 +590,16 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     return Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
 }
 
-ConfigurationData
-ConfigurationData::createConfigurationDataV2(const std::vector<std::string>& sophosLocationURL, Credentials credentials,
-                                             const std::vector<std::string>& updateCache, Proxy policyProxy)
-{
-    ConfigurationData configurationData(sophosLocationURL, credentials, updateCache, policyProxy);
-    configurationData.m_version=ConfigurationData::Version::V2;
-    return configurationData;
-}
-
 void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
+
     m_primarySubscription = productSubscription;
 
 }
 
 void ConfigurationData::setProductsSubscription(const std::vector<ProductSubscription>& productsSubscriptions)
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
-
     m_productsSubscription = productsSubscriptions;
-
 }
 
 const ProductSubscription& ConfigurationData::getPrimarySubscription() const
@@ -799,11 +614,6 @@ const std::vector<ProductSubscription>& ConfigurationData::getProductsSubscripti
 
 void ConfigurationData::setFeatures(const std::vector<std::string>& features)
 {
-    if (m_version == ConfigurationData::Version::V1)
-    {
-        throw std::logic_error( "Version one does not support this feature");
-    }
-
     m_features = features;
 }
 
