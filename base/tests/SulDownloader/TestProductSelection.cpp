@@ -189,7 +189,8 @@ public:
         ProdB_Rec_SAV=8,
     };
 
-    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> createWh(std::vector<ProductIdForDev> products)
+    std::vector<SulDownloader::suldownloaderdata::ProductMetadata> simulateWarehouseContent(
+            std::vector<ProductIdForDev> products)
     {
         std::vector<suldownloaderdata::ProductMetadata> warehouseProducts;
         for( auto productID : products)
@@ -267,7 +268,7 @@ TEST_F(ProductSelectionTest, CreateProductSelection_SelectProductsShouldReturnAl
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_Rec_MDR, DiffA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_Rec_MDR, DiffA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -313,7 +314,7 @@ TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReported) // NOLINT
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({UNK_Rec_NONE});
+    auto warehouseProducts = simulateWarehouseContent({UNK_Rec_NONE});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -332,7 +333,7 @@ TEST_F(ProductSelectionTest, MissingSubscriptionsShouldBeReportedForNonPrimaryPr
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({Primary_Rec_CORE, DiffA_Rec_MDR});
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, DiffA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -430,7 +431,7 @@ TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersion
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -467,7 +468,7 @@ TEST_F(ProductSelectionTest, FeaturesShouldFilterTheProductsToBeInstalled) // NO
     configurationData.setFeatures({"CORE", "SENSORS"}); // no MDR in the features.
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdA_PREV_MDR, ProdA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -491,7 +492,7 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeatu
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
-    auto warehouseProducts = createWh({ProdA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent({ProdA_Rec_MDR});
 
     auto selectedProducts = productSelection.selectProducts(warehouseProducts);
 
@@ -508,7 +509,7 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoProductSelectedWithCOREFeatu
 
 TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
 {
-    auto wh = createWh({Primary_Rec_CORE});
+    auto wh = simulateWarehouseContent({Primary_Rec_CORE});
     SulDownloader::suldownloaderdata::ProductMetadata primaryProduct = wh[0];
     ProductSubscription subscription(primaryProduct.getLine(), "", "RECOMMENDED", "" );
 
@@ -548,7 +549,9 @@ TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
  */
 TEST_F(ProductSelectionTest, ShoudNotSelectPreviewProduct) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent(
+            {Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR}
+    );
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setProductsSubscription({
         ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
@@ -575,7 +578,9 @@ TEST_F(ProductSelectionTest, ShoudNotSelectPreviewProduct) // NOLINT
  */
 TEST_F(ProductSelectionTest, ShoudNotSelectProductIfNotINFeatureSet) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR });
+    auto warehouseProducts = simulateWarehouseContent(
+            {Primary_Rec_CORE, Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR}
+    );
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setProductsSubscription({
                                                       ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
@@ -602,8 +607,8 @@ TEST_F(ProductSelectionTest, ShoudNotSelectProductIfNotINFeatureSet) // NOLINT
    */
 TEST_F(ProductSelectionTest, ShouldReportMissingProductAndDoNotSelectIfNotInFeature) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdB_Rec_SAV });
-    auto nonWhProducts = createWh({ProdA_Rec_MDR});
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdB_Rec_SAV});
+    auto nonWhProducts = simulateWarehouseContent({ProdA_Rec_MDR});
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setProductsSubscription({
                                                       ProductSubscription(nonWhProducts[0].getLine(), "", "RECOMMENDED", ""),
@@ -629,7 +634,7 @@ Case 4: Wh contains products 1, 3 and configuration file requires: Subscription 
    */
 TEST_F(ProductSelectionTest, ShouldNotSetToMissingIFFilteredByFeatureSet) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_Rec_CORE, ProdB_Rec_SAV });
+    auto warehouseProducts = simulateWarehouseContent({Primary_Rec_CORE, ProdB_Rec_SAV});
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setProductsSubscription({});
     configurationData.setFeatures({"CORE", "MDR"});
@@ -653,7 +658,7 @@ Case 4: Wh contains products 2,3,4 and configuration file requires: Subscription
  */
 TEST_F(ProductSelectionTest, ShouldReportIfPrimarySubscriptionNotInWarehouse) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR  });
+    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR});
 
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setProductsSubscription({
@@ -681,7 +686,7 @@ selectProducts should select product 3,4. Set not selected to 2. Set missing to:
 */
 TEST_F(ProductSelectionTest, ShouldReportMissingIfNoCoreProduct) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR  });
+    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, ProdB_Rec_SAV, ProdA_Rec_MDR});
 
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setPrimarySubscription(ProductSubscription(warehouseProducts[1].getLine(), "", "RECOMMENDED", ""));
@@ -705,7 +710,7 @@ TEST_F(ProductSelectionTest, ShouldReportMissingIfNoCoreProduct) // NOLINT
 
 TEST_F(ProductSelectionTest, ShouldAllowSelectionOfNewerVersion) // NOLINT
 {
-    auto warehouseProducts = createWh({Primary_PREV_CORE,  Primary_Rec_CORE_V2  });
+    auto warehouseProducts = simulateWarehouseContent({Primary_PREV_CORE, Primary_Rec_CORE_V2});
 
     auto configurationData = getDefaultV2ConfigData();
     configurationData.setPrimarySubscription(ProductSubscription(warehouseProducts[1].getLine(), "", "",
