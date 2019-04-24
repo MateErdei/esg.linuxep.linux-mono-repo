@@ -30,7 +30,7 @@ public:
     TelemetryObject m_telemObj2;
 };
 
-TEST_F(TelemetryObjectTestFixture, Construction)
+TEST_F(TelemetryObjectTestFixture, Construction) // NOLINT
 {
     TelemetryObject telemetryObject;
 

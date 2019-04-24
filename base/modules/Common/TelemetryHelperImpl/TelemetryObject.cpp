@@ -124,6 +124,7 @@ Common::Telemetry::TelemetryObject::Type Common::Telemetry::TelemetryObject::get
 
 bool Common::Telemetry::TelemetryObject::keyExists(const std::string& key)
 {
+    checkType(Type::object);
     auto& nodes = std::get<std::map<std::string, TelemetryObject>>(m_value);
     return nodes.find(key) != nodes.end();
 }

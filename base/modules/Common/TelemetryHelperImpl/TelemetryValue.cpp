@@ -87,7 +87,7 @@ namespace Common::Telemetry
 
     bool TelemetryValue::operator==(const TelemetryValue& rhs) const
     {
-        return m_value == rhs.m_value && m_valueType == rhs.m_valueType;
+        return m_valueType == rhs.m_valueType && m_value == rhs.m_value;
     }
 
     bool TelemetryValue::operator!=(const TelemetryValue& rhs) const { return !(rhs == *this); }
