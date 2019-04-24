@@ -1,4 +1,7 @@
 add_library(telemetryhelperimpl SHARED
+        ../TelemetryHelper/ITelemetryHelper.h
+        TelemetryHelper.h
+        TelemetryHelper.cpp
         TelemetryValue.cpp
         TelemetryValue.h
         TelemetrySerialiser.h
