@@ -24,15 +24,18 @@ public:
     void setServer(const std::string& server) override;
     void setPort(const int& port) override;
 
-    int getRequest(const std::vector<std::string>& additionalHeaders) override;
+    int getRequest(const std::vector<std::string>& additionalHeaders,
+                   const std::string& certPath) override;
+
     int postRequest(const std::vector<std::string>& additionalHeaders,
-                           const std::string& jsonStruct) override;
+                    const std::string& jsonStruct,
+                    const std::string& certPath) override;
 
 private:
     int httpsRequest(const std::string& verb,
-                       const std::vector<std::string>& additionalHeaders = std::vector<std::string>(),
-                       const std::string& jsonStruct = std::string());
-
+                     const std::string& certPath,
+                     const std::vector<std::string>& additionalHeaders = std::vector<std::string>(),
+                     const std::string& jsonStruct = std::string());
     std::string m_server;
     int m_port;
     std::shared_ptr<ICurlWrapper> m_curlWrapper;

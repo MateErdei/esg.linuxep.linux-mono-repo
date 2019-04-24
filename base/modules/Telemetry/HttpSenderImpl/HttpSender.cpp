@@ -39,11 +39,12 @@ void HttpSender::setPort(const int& port)
 
 int HttpSender::httpsRequest(
         const std::string& verb,
+        const std::string& certPath,
         const std::vector<std::string>& additionalHeaders,
         const std::string& jsonStruct)
 {
     std::stringstream uri;
-    uri << "http://" << m_server << ":" << m_port;
+    uri << "https://" << m_server << ":" << m_port;
 
     std::stringstream msg;
     msg << "Creating HTTP " << verb << " Request to " << uri.str();
@@ -58,7 +59,7 @@ int HttpSender::httpsRequest(
     if(curl)
     {
         m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.str().c_str());
-        m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAPATH, "/opt/sophos-spl/base/etc");
+        m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAINFO, certPath.c_str()); // TODO: Set to "/opt/sophos-spl/base/etc"
 
         struct curl_slist *headers = nullptr;
         headers = m_curlWrapper->curlSlistAppend(headers, "Accept: application/json");
@@ -95,14 +96,16 @@ int HttpSender::httpsRequest(
 }
 
 int HttpSender::getRequest(
-        const std::vector<std::string>& additionalHeaders)
+        const std::vector<std::string>& additionalHeaders,
+        const std::string& certPath)
 {
-    return httpsRequest("GET", additionalHeaders, "");
+    return httpsRequest("GET", certPath, additionalHeaders, "");
 }
 
 int HttpSender::postRequest(
         const std::vector<std::string> &additionalHeaders,
-        const std::string &jsonStruct)
+        const std::string &jsonStruct,
+        const std::string& certPath)
 {
-    return httpsRequest("POST", additionalHeaders, jsonStruct);
+    return httpsRequest("POST", certPath, additionalHeaders, jsonStruct);
 }

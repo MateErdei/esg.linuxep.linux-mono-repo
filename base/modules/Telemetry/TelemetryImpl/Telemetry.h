@@ -8,6 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Telemetry/HttpSenderImpl/HttpSender.h>
 
+#define CERT_PATH "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem"
+
 namespace Telemetry
 {
     /**

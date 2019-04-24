@@ -39,6 +39,7 @@ public:
     CURLcode m_succeededResult = CURLE_OK;
     CURLcode m_failedResult = CURLE_FAILED_INIT;
     std::string m_strerror = "strError";
+    std::string m_certPath = "/opt/sophos-spl/base/etc/telemetry_cert.pem";
 
     void SetUp() override
     {
@@ -58,7 +59,7 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders), m_succeededResult);
+    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders, m_certPath), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, postRequest) // NOLINT
@@ -72,7 +73,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->postRequest(m_additionalHeaders, m_jsonStruct), m_succeededResult);
+    EXPECT_EQ(m_httpSender->postRequest(m_additionalHeaders, m_jsonStruct, m_certPath), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
@@ -87,7 +88,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     m_additionalHeaders.emplace_back("testHeader");
-    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders), m_succeededResult);
+    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders, m_certPath), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLINT
@@ -96,7 +97,7 @@ TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLI
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders), m_failedResult);
+    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders, m_certPath), m_failedResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
@@ -111,5 +112,5 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders), m_failedResult);
+    EXPECT_EQ(m_httpSender->getRequest(m_additionalHeaders, m_certPath), m_failedResult);
 }
