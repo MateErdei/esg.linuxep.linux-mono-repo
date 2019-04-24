@@ -17,7 +17,7 @@ TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
     <RigidName></RigidName>
     <Version></Version>
     <Build>1</Build>
-    <ProductType>Component</ProductType>
+    <ProductType></ProductType>
     <DefaultHomeFolder></DefaultHomeFolder>
     <TargetTypes>
       <TargetType Name="ENDPOINT"/>
