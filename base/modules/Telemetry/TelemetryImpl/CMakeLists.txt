@@ -2,7 +2,7 @@ add_library(telemetryimpl SHARED
         Telemetry.cpp
         Telemetry.h)
 
-include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
