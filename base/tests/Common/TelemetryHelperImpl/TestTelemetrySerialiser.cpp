@@ -109,7 +109,7 @@ TEST_F(TelemetrySerialiserTestFixture, DeserialiseToTelemetryObject) // NOLINT
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseEmptyString) // NOLINT
 {
-    ASSERT_THROW(TelemetrySerialiser::deserialise("{thing:}"), nlohmann::detail::parse_error); // NOLINT
+    ASSERT_THROW(TelemetrySerialiser::deserialise(""), nlohmann::detail::parse_error); // NOLINT
 }
 
 TEST_F(TelemetrySerialiserTestFixture, DeserialiseInvalidJson) // NOLINT
