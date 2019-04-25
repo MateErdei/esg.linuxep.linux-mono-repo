@@ -7,7 +7,7 @@ add_library(httpsenderimpl SHARED
         HttpSender.cpp
         )
 
-include_directories(httpsenderimpl BEFORE ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 target_link_libraries(httpsenderimpl PUBLIC
         -L"${CMAKE_BINARY_DIR}/libs"

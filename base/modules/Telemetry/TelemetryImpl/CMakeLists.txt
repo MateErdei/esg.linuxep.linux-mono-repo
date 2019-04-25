@@ -2,12 +2,9 @@ add_library(telemetryimpl SHARED
         Telemetry.cpp
         Telemetry.h)
 
-include_directories(telemetryimpl BEFORE ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+include_directories(telemetryimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
-        -L"${CMAKE_BINARY_DIR}/libs"
-        ssl
-        crypto
         ${LOG4CPLUS_LIBRARY}
         telemetryloggerimpl
         httpsenderimpl
