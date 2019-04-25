@@ -16,7 +16,6 @@ using namespace Common::Telemetry;
 
 class TelemetryHelper : public Common::Telemetry::ITelemetryHelper
 {
-
 public:
     void set(const std::string& key, int value) override;
 
@@ -55,9 +54,4 @@ private:
 
     TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
     void clearData();
-
-
 };
-
-
-

@@ -14,7 +14,7 @@ using namespace Common::Telemetry;
 class DummyTelemetryProvider
 {
 public:
-    DummyTelemetryProvider(const std::string& cookie)
+    explicit DummyTelemetryProvider(const std::string& cookie)
         : m_cookie(cookie), m_callbackCalled(false)
     {
 
@@ -182,28 +182,93 @@ TEST_F(TestTelemetryHelper, nestedTelem) //NOLINT
     ASSERT_EQ(R"({"1":1,"2":2,"a":{"nested":{"array":["string2",1,false],"string":"string1"}}})", helper.serialise());
 }
 
-TEST_F(TestTelemetryHelper, registerResetCallback) //NOLINT
+TEST_F(TestTelemetryHelper, registerResetCallback) // NOLINT
 {
     TelemetryHelper helper;
     DummyTelemetryProvider dummy("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
 }
 
-TEST_F(TestTelemetryHelper, reregisterResetCallback) //NOLINT
+TEST_F(TestTelemetryHelper, reregisterResetCallback) // NOLINT
 {
     TelemetryHelper helper;
     DummyTelemetryProvider dummy("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
-    ASSERT_THROW(helper.registerResetCallback(dummy.getCookie()), std::logic_error);
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+    ASSERT_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)), std::logic_error); // NOLINT
 }
 
-TEST_F(TestTelemetryHelper, unregisterResetCallback) //NOLINT
+TEST_F(TestTelemetryHelper, unregisterResetCallback) // NOLINT
 {
     TelemetryHelper helper;
     DummyTelemetryProvider dummy("dummy1");
-    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
-    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
 }
+
+
+TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalled) // NOLINT
+{
+    TelemetryHelper helper;
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+    helper.reset();
+    ASSERT_TRUE(dummy.hasCallbackBeenCalled());
+}
+
+TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalled) // NOLINT
+{
+    TelemetryHelper helper;
+
+    DummyTelemetryProvider dummy1("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1))); // NOLINT
+
+    DummyTelemetryProvider dummy2("dummy2");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy2.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy2))); // NOLINT
+
+    helper.reset();
+    ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
+    ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
+}
+
+TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOLINT
+{
+    TelemetryHelper helper;
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+
+    helper.reset();
+    ASSERT_TRUE(dummy.hasCallbackBeenCalled());
+
+    dummy.resetTestState();
+
+    helper.reset();
+    ASSERT_TRUE(dummy.hasCallbackBeenCalled());
+
+}
+
+TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) // NOLINT
+{
+    TelemetryHelper helper;
+
+    DummyTelemetryProvider dummy1("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1))); // NOLINT
+
+    DummyTelemetryProvider dummy2("dummy2");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy2.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy2))); // NOLINT
+
+    helper.reset();
+    ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
+    ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
+    dummy1.resetTestState();
+    dummy2.resetTestState();
+
+    helper.reset();
+    ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
+    ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
+}
+
+
+
 
 
 

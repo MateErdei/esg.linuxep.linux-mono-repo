@@ -5,7 +5,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryHelper.h"
+
 #include "TelemetrySerialiser.h"
+
 #include <functional>
 
 void TelemetryHelper::set(const std::string& key, int value)
@@ -191,7 +193,7 @@ void TelemetryHelper::reset()
 {
     clearData();
     std::lock_guard<std::mutex> callbackLock(m_callbackLock);
-    for(const auto& callback_entry: m_callbacks)
+    for (const auto& callback_entry : m_callbacks)
     {
         callback_entry.second();
     }
