@@ -182,13 +182,22 @@ class SophosLogging(object):
         path_manager.INST = install_dir
         log_config = config.get_default(
             "LOGCONFIG", path_manager.log_conf_file())
-        if os.path.isfile(log_config):
-            logging.config.fileConfig(log_config)
-            return
-
-        # Configure directly
         log_level_string = config.get_default(
             "LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
+
+        # Configure log level from config file if present
+        if os.path.isfile(log_config):
+            file_to_read = open(log_config)
+            lines = file_to_read.readlines()
+            file_to_read.close()
+
+            for line in lines:
+                if line.startswith("LOGLEVEL="):
+                    line = line.strip()
+                    value = line.split("=", 1)[1]
+                    log_level_string = value.upper()
+                    pass
+
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
 
@@ -196,7 +205,7 @@ class SophosLogging(object):
         root_logger.setLevel(log_level)
 
         formatter = logging.Formatter(
-            "%(asctime)s %(levelname)s %(name)s: %(message)s")
+            "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s [%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
         file_handler = logging.handlers.RotatingFileHandler(
             log_file, maxBytes=1024 * 1024, backupCount=5)
         file_handler.setFormatter(formatter)
@@ -227,7 +236,9 @@ class SophosLogging(object):
 
             envelope_logger.addHandler(envelope_file_handler)
 
-        LOGGER.debug("Logging to %s", log_file)
+        root_logger_level = root_logger.getEffectiveLevel()
+        LOGGER.info("Logging level: %s", str(root_logger_level))
+        LOGGER.info("Logging to %s", log_file)
         sophos_https.LOGGER = logging.getLogger("sophos_https")
 
     def shutdown(self):

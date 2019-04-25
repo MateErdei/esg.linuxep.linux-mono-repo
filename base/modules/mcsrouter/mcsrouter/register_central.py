@@ -56,7 +56,7 @@ def setup_logging():
     root_logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
-        "%(asctime)s %(levelname)s %(name)s: %(message)s")
+        "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s [%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
 
     log_file = path_manager.register_log()
 
