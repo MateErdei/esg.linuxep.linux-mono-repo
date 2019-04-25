@@ -196,7 +196,7 @@ class SophosLogging(object):
                     line = line.strip()
                     value = line.split("=", 1)[1]
                     log_level_string = value.upper()
-                    pass
+                    break
 
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
