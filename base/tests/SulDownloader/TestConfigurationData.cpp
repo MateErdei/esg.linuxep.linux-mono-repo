@@ -174,6 +174,29 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_TRUE(configurationData.isVerified());
 }
 
+TEST_F( // NOLINT
+        ConfigurationDataTest,
+        fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
+{
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    ConfigurationData expectedConfiguration({"https://sophosupdate.sophos.com/latest/warehouse"},
+                                            Credentials{"administrator", "password"},
+                                            {"https://cache.sophos.com/latest/warehouse"},
+                                            Proxy("noproxy:"));
+    expectedConfiguration.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} );
+    expectedConfiguration.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}});
+    expectedConfiguration.setFeatures({"CORE", "MDR"});
+    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
+    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
+    expectedConfiguration.setCertificatePath(m_absCertificatePath);
+    expectedConfiguration.setInstallArguments({"--install-dir", "/opt/sophos-av"});
+    expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
+    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
+    std::string serialized = ConfigurationData::toJsonSettings(configurationData);
+    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
+    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
+}
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject) // NOLINT
 {
@@ -641,30 +664,6 @@ TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
         ConfigurationData::fromJsonSettings(ConfigurationData::toJsonSettings(configurationData));
 
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
-}
-
-TEST_F( // NOLINT
-        ConfigurationDataTest,
-        supportConfigurationDataV2)
-{
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
-    ConfigurationData expectedConfiguration({"https://sophosupdate.sophos.com/latest/warehouse"},
-            Credentials{"administrator", "password"},
-            {"https://cache.sophos.com/latest/warehouse"},
-            Proxy("noproxy:"));
-    expectedConfiguration.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} );
-    expectedConfiguration.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}});
-    expectedConfiguration.setFeatures({"CORE", "MDR"});
-    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
-    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
-    expectedConfiguration.setCertificatePath(m_absCertificatePath);
-    expectedConfiguration.setInstallArguments({"--install-dir", "/opt/sophos-av"});
-    expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
-    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
-    std::string serialized = ConfigurationData::toJsonSettings(configurationData);
-    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
-    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
 }
 
 TEST_F( // NOLINT
