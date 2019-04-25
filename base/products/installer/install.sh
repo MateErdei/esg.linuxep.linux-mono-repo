@@ -351,6 +351,7 @@ done
 
 rm -rf "${INSTALLER_LIB}"
 
+EXIT_CODE=0
 if (( $CLEAN_INSTALL == 1 ))
 then
     if [[ -n "$MCS_CA" ]]
@@ -359,7 +360,13 @@ then
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS || failure ${EXIT_FAIL_REGISTER} "Failed to register with Sophos Central: $?"
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS
+        REGISTER_EXIT=$?
+        if [[ "$REGISTER_EXIT" != 0 ]]
+        then
+            EXIT_CODE=${EXIT_FAIL_REGISTER}
+            echo  "Failed to register with Sophos Central: $REGISTER_EXIT"
+        fi
     fi
 fi
 
@@ -379,7 +386,7 @@ function ssplChanged()
 if (( $CLEAN_INSTALL == 1 ))
 then
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "EXIT_CODE" == 0 ]]
     then
         waitForProcess "python -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
@@ -401,3 +408,5 @@ fi
 cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
 chmod 600 "${SOPHOS_INSTALL}/base/update/manifest.dat"
 
+## Exit with error code if registration was run and failed
+exit ${EXIT_CODE}
