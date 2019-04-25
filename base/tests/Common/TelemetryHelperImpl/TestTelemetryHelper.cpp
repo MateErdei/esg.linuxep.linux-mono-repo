@@ -11,6 +11,40 @@
 
 using namespace Common::Telemetry;
 
+class DummyTelemetryProvider
+{
+public:
+    DummyTelemetryProvider(const std::string& cookie)
+        : m_cookie(cookie), m_callbackCalled(false)
+    {
+
+    }
+
+    void callback()
+    {
+        m_callbackCalled = true;
+    }
+
+    bool hasCallbackBeenCalled()
+    {
+        return m_callbackCalled;
+    }
+
+    void resetTestState()
+    {
+        m_callbackCalled = false;
+    }
+
+    std::string getCookie()
+    {
+        return m_cookie;
+    }
+
+private:
+    std::string m_cookie;
+    bool m_callbackCalled = false;
+};
+
 class TestTelemetryHelper : public ::testing::Test
 {
 public:
@@ -18,7 +52,6 @@ public:
     {
 
     }
-
 };
 
 TEST_F(TestTelemetryHelper, constructor) //NOLINT
@@ -61,6 +94,81 @@ TEST_F(TestTelemetryHelper, addBoolTelem) //NOLINT
     ASSERT_EQ(R"({"true":true})", helper.serialise());
 }
 
+TEST_F(TestTelemetryHelper, appendInt) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", 1);
+    ASSERT_EQ(R"({"array":[1]})", helper.serialise());
+    helper.append("array", 2);
+    ASSERT_EQ(R"({"array":[1,2]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, appendUnsignedInt) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", 2u);
+    ASSERT_EQ(R"({"array":[2]})", helper.serialise());
+    helper.append("array", 3u);
+    ASSERT_EQ(R"({"array":[2,3]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, appendString) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", std::string("string"));
+    ASSERT_EQ(R"({"array":["string"]})", helper.serialise());
+    helper.append("array", std::string("string2"));
+    ASSERT_EQ(R"({"array":["string","string2"]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, appendCString) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", "cstring");
+    ASSERT_EQ(R"({"array":["cstring"]})", helper.serialise());
+    helper.append("array", "cstring2");
+    ASSERT_EQ(R"({"array":["cstring","cstring2"]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, appendBool) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", true);
+    ASSERT_EQ(R"({"array":[true]})", helper.serialise());
+    helper.append("array", false);
+    ASSERT_EQ(R"({"array":[true,false]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, appendMixed) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.append("array", 1);
+    helper.append("array", 3u);
+    helper.append("array", false);
+    helper.append("array", "cstring");
+    helper.append("array", std::string("string"));
+    ASSERT_EQ(R"({"array":[1,3,false,"cstring","string"]})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, incCounter) //NOLINT
+{
+    TelemetryHelper helper;
+    helper.set("counter", 1);
+    ASSERT_EQ(R"({"counter":1})", helper.serialise());
+    helper.increment("counter",1);
+    ASSERT_EQ(R"({"counter":2})", helper.serialise());
+    helper.increment("counter",5);
+    ASSERT_EQ(R"({"counter":7})", helper.serialise());
+    helper.increment("counter",-2);
+    ASSERT_EQ(R"({"counter":5})", helper.serialise());
+}
+
+TEST_F(TestTelemetryHelper, incNonExistantValue) //NOLINT
+{
+    TelemetryHelper helper;
+    ASSERT_THROW(helper.increment("counter", 1), std::logic_error); //NOLINT
+}
+
 TEST_F(TestTelemetryHelper, nestedTelem) //NOLINT
 {
     TelemetryHelper helper;
@@ -68,14 +176,33 @@ TEST_F(TestTelemetryHelper, nestedTelem) //NOLINT
     helper.set("2", 2u);
     helper.set("a.nested.string", "string1");
     helper.append("a.nested.array", "string2");
-    //helper.append("a.nested.array", 1);
-    //helper.append("a.nested.array", false);
-    //helper.append("a.nested.array.nestedarray", 3);
-    //helper.append("a.nested.array.nestedarray", 4);
+    helper.append("a.nested.array", 1);
+    helper.append("a.nested.array", false);
 
-    std::cout << helper.serialise() << std::endl;
+    ASSERT_EQ(R"({"1":1,"2":2,"a":{"nested":{"array":["string2",1,false],"string":"string1"}}})", helper.serialise());
+}
 
-    //ASSERT_EQ(R"({"true":true})", helper.serialise());
+TEST_F(TestTelemetryHelper, registerResetCallback) //NOLINT
+{
+    TelemetryHelper helper;
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+}
+
+TEST_F(TestTelemetryHelper, reregisterResetCallback) //NOLINT
+{
+    TelemetryHelper helper;
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+    ASSERT_THROW(helper.registerResetCallback(dummy.getCookie()), std::logic_error);
+}
+
+TEST_F(TestTelemetryHelper, unregisterResetCallback) //NOLINT
+{
+    TelemetryHelper helper;
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie()));
 }
 
 
