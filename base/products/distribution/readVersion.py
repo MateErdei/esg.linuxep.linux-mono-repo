@@ -24,7 +24,7 @@ def get_possible_auto_version_sub_paths():
                           ]
     return possible_sub_paths
 
-def get_vaild_auto_version_path(BASE):
+def get_valid_auto_version_path(BASE):
     for path in get_possible_auto_version_sub_paths():
         full_path = os.path.join(BASE, path)
         if os.path.isfile(full_path):
@@ -51,7 +51,7 @@ def readVersionIniFile(BASE=None):
         BASE = get_base_path(scriptPath, BASE)
 
         if os.path.isfile(os.path.join(BASE, "Jenkinsfile")):  # Check we have a correct directory
-            autoVersionFile = get_vaild_auto_version_path(BASE)
+            autoVersionFile = get_valid_auto_version_path(BASE)
 
     if autoVersionFile is not None and os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile))
