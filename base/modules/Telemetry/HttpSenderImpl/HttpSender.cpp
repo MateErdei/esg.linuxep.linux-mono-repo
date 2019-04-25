@@ -9,9 +9,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <curl.h>
+#include <fstream>
 #include <openssl/crypto.h>
 #include <openssl/ssl.h>
 #include <sstream>
+#include <sys/stat.h>
 
 HttpSender::HttpSender(
         std::string server,
@@ -44,7 +46,7 @@ int HttpSender::httpsRequest(
         const std::string& jsonStruct)
 {
     std::stringstream uri;
-    uri << "https://" << m_server << ":" << m_port;
+    uri << "https://" << m_server;
 
     std::stringstream msg;
     msg << "Creating HTTP " << verb << " Request to " << uri.str();
@@ -61,13 +63,12 @@ int HttpSender::httpsRequest(
         m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.str().c_str());
         m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAINFO, certPath.c_str()); // TODO: Set to "/opt/sophos-spl/base/etc"
 
+        LOGINFO(">>> with headers:");
         struct curl_slist *headers = nullptr;
-        headers = m_curlWrapper->curlSlistAppend(headers, "Accept: application/json");
-        headers = m_curlWrapper->curlSlistAppend(headers, "Content-Type: application/json");
-        headers = m_curlWrapper->curlSlistAppend(headers, "charsets: utf-8");
         for (auto const& header : additionalHeaders)
         {
             headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+            LOGINFO(header);
         }
 
         m_curlWrapper->curlEasySetopt(curl, CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
@@ -75,6 +76,27 @@ int HttpSender::httpsRequest(
         if(verb == "POST")
         {
             m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, jsonStruct.c_str());
+        }
+        else if(verb == "PUT")
+        {
+            //m_curlWrapper->curlEasySetopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+            //m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, jsonStruct.c_str());
+
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_UPLOAD, 1L);
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_PUT, 1L);
+
+            std::string filePath = "/tmp/test.json";
+            std::ofstream jsonFile;
+            jsonFile.open(filePath);
+            jsonFile << jsonStruct.c_str();
+            jsonFile.close();
+
+            struct stat file_info;
+            stat(filePath.c_str(), &file_info);
+            FILE* fh = fopen(filePath.c_str(), "rb");
+
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_READDATA, fh);
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_INFILESIZE_LARGE, file_info.st_size);
         }
 
         result = m_curlWrapper->curlEasyPerform(curl);
@@ -108,4 +130,12 @@ int HttpSender::postRequest(
         const std::string& certPath)
 {
     return httpsRequest("POST", certPath, additionalHeaders, jsonStruct);
+}
+
+int HttpSender::putRequest(
+    const std::vector<std::string> &additionalHeaders,
+    const std::string &jsonStruct,
+    const std::string& certPath)
+{
+    return httpsRequest("PUT", certPath, additionalHeaders, jsonStruct);
 }

@@ -19,6 +19,8 @@ public:
     CURL* curlEasyInit(void) override;
 
     CURLcode curlEasySetopt(CURL* handle, CURLoption option, const char* parameter) override;
+    CURLcode curlEasySetopt(CURL* handle, CURLoption option, long parameter) override;
+    CURLcode curlEasySetopt(CURL* handle, CURLoption option, FILE* parameter) override;
 
     struct curl_slist* curlSlistAppend(struct curl_slist* list, const char* value) override;
 

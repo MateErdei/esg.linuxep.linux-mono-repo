@@ -39,7 +39,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_httpSender, setServer(m_server));
     EXPECT_CALL(*m_httpSender, setPort(std::stoi(m_port)));
-    EXPECT_CALL(*m_httpSender, getRequest(m_additionalHeaders, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, getRequest(_, CERT_PATH));
 
     std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET", m_server, m_port, CERT_PATH};
 
@@ -58,7 +58,7 @@ TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_httpSender, setServer(m_server));
     EXPECT_CALL(*m_httpSender, setPort(std::stoi(m_port)));
-    EXPECT_CALL(*m_httpSender, postRequest(m_additionalHeaders, m_jsonStruct, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_jsonStruct, CERT_PATH));
 
     std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST", m_server, m_port, CERT_PATH};
 
@@ -75,7 +75,7 @@ TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_httpSender, getRequest(m_additionalHeaders, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, getRequest(_, CERT_PATH));
 
     std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET"};
 
@@ -92,7 +92,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_httpSender, postRequest(m_additionalHeaders, m_jsonStruct, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_jsonStruct, CERT_PATH));
 
     std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST"};
 

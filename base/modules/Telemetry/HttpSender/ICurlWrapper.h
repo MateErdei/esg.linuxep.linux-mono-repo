@@ -18,6 +18,8 @@ public:
     virtual CURL* curlEasyInit() = 0;
 
     virtual CURLcode curlEasySetopt(CURL* handle, CURLoption option, const char* parameter) = 0;
+    virtual CURLcode curlEasySetopt(CURL* handle, CURLoption option, long parameter) = 0;
+    virtual CURLcode curlEasySetopt(CURL* handle, CURLoption option, FILE* parameter) = 0;
 
     virtual struct curl_slist* curlSlistAppend(struct curl_slist* list, const char* value) = 0;
 

@@ -53,7 +53,6 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetopt(_,_,_)).Times(3);
-    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).Times(3).WillRepeatedly(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
@@ -67,7 +66,6 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetopt(_,_,_)).Times(4);
-    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).Times(3).WillRepeatedly(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
@@ -81,7 +79,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetopt(_,_,_)).Times(3);
-    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).Times(4).WillRepeatedly(Return(&m_headers));
+    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
@@ -105,7 +103,6 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetopt(_,_,_)).Times(3);
-    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).Times(AtLeast(3)).WillRepeatedly(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_failedResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyStrerror(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));

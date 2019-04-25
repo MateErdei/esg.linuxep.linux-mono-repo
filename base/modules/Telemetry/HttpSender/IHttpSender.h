@@ -22,4 +22,7 @@ public:
     virtual int postRequest(const std::vector<std::string>& additionalHeaders,
                             const std::string& jsonStruct,
                             const std::string& certPath) = 0;
+    virtual int putRequest(const std::vector<std::string>& additionalHeaders,
+                           const std::string& jsonStruct,
+                           const std::string& certPath) = 0;
 };

@@ -31,6 +31,10 @@ public:
                     const std::string& jsonStruct,
                     const std::string& certPath) override;
 
+    int putRequest(const std::vector<std::string>& additionalHeaders,
+                   const std::string& jsonStruct,
+                   const std::string& certPath) override;
+
 private:
     int httpsRequest(const std::string& verb,
                      const std::string& certPath,

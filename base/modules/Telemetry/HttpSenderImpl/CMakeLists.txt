@@ -20,7 +20,7 @@ target_link_libraries(httpsenderimpl PUBLIC
 SET_TARGET_PROPERTIES(httpsenderimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 install(TARGETS httpsenderimpl

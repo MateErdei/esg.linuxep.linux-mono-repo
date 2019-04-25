@@ -24,4 +24,7 @@ public:
     MOCK_METHOD3(postRequest, int(const std::vector<std::string>& additionalHeaders,
                                   const std::string& jsonStruct,
                                   const std::string& certPath));
+    MOCK_METHOD3(putRequest, int(const std::vector<std::string>& additionalHeaders,
+                                  const std::string& jsonStruct,
+                                  const std::string& certPath));
 };
