@@ -534,6 +534,44 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimaryS
     EXPECT_FALSE(configurationData.isVerified());
 }
 
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissingRigidNameShouldFailValidation) // NOLINT
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("rigidName" : "PrefixOfProduct-SimulateProductA")";
+    std::string newString = R"("rigidName" : "")";
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_FALSE(configurationData.isVerified());
+}
+
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixVersionShouldFailValidation) // NOLINT
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"({
+                                "rigidName" : "PrefixOfProduct-SimulateProductA",
+                                "baseVersion" : "9",
+                                "tag" : "RECOMMENDED",
+                                "fixVersion" : ""
+                                },)";
+    std::string newString = R"({
+                                "rigidName" : "PrefixOfProduct-SimulateProductA",
+                                "baseVersion" : "9",
+                                "tag" : "",
+                                "fixVersion" : ""
+                                },)";
+
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    configurationData.verifySettingsAreValid();
+
+    EXPECT_FALSE(configurationData.isVerified());
+}
+
+
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
