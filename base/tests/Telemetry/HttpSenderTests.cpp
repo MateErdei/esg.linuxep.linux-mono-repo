@@ -28,13 +28,12 @@ public:
     std::shared_ptr<StrictMock<MockCurlWrapper>> m_curlWrapper;
 
     std::string m_server = "testServer.com";
-    int m_port = HTTP_PORT;
     std::vector<std::string> m_additionalHeaders;
 
     std::shared_ptr<HttpSender> m_httpSender;
 
     std::string m_curlHandle = "validCurlHandle";
-    std::string m_jsonStruct = "validJsonStruct";
+    std::string m_data = "validJsonStruct";
     struct curl_slist m_headers = curl_slist();
     CURLcode m_succeededResult = CURLE_OK;
     CURLcode m_failedResult = CURLE_FAILED_INIT;
@@ -44,7 +43,7 @@ public:
     void SetUp() override
     {
         m_curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
-        m_httpSender = std::make_shared<HttpSender>(m_server, m_port, m_curlWrapper);
+        m_httpSender = std::make_shared<HttpSender>(m_server, m_curlWrapper);
     }
 };
 
@@ -71,7 +70,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->postRequest(m_additionalHeaders, m_jsonStruct, m_certPath), m_succeededResult);
+    EXPECT_EQ(m_httpSender->postRequest(m_additionalHeaders, m_data, m_certPath), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT

@@ -17,14 +17,13 @@ class MockHttpSender : public IHttpSender
 {
 public:
     MOCK_METHOD1(setServer, void(const std::string& server));
-    MOCK_METHOD1(setPort, void(const int& port));
 
     MOCK_METHOD2(getRequest, int(const std::vector<std::string>& additionalHeaders,
                                  const std::string& certPath));
     MOCK_METHOD3(postRequest, int(const std::vector<std::string>& additionalHeaders,
-                                  const std::string& jsonStruct,
+                                  const std::string& data,
                                   const std::string& certPath));
     MOCK_METHOD3(putRequest, int(const std::vector<std::string>& additionalHeaders,
-                                  const std::string& jsonStruct,
+                                  const std::string& data,
                                   const std::string& certPath));
 };

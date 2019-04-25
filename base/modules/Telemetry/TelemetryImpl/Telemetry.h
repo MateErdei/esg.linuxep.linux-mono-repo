@@ -21,5 +21,5 @@ namespace Telemetry
      * @param argv As convention an array of string arguments.
      * @return
      */
-    int main_entry(int argc, char* argv[], std::shared_ptr<IHttpSender> httpSender=std::make_shared<HttpSender>());
+    int main_entry(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender = std::make_shared<HttpSender>());
 } // namespace Telemetry

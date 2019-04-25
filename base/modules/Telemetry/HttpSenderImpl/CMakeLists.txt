@@ -1,10 +1,11 @@
 add_library(httpsenderimpl SHARED
-        HttpSender.cpp
-        HttpSender.h
-        ../HttpSender/IHttpSender.h
-        CurlWrapper.cpp
+        ../HttpSender/ICurlWrapper.h
         CurlWrapper.h
-        ../HttpSender/ICurlWrapper.h)
+        CurlWrapper.cpp
+        ../HttpSender/IHttpSender.h
+        HttpSender.h
+        HttpSender.cpp
+        )
 
 include_directories(httpsenderimpl BEFORE ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 

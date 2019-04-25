@@ -22,11 +22,10 @@ class TelemetryTest : public ::testing::Test
 public:
     std::shared_ptr<StrictMock<MockHttpSender>> m_httpSender;
     std::string m_server = "localhost";
-    std::string m_port = "443";
     std::vector<std::string> m_additionalHeaders;
-    std::string m_jsonStruct = "{ telemetryKey : telemetryValue }";
+    std::string m_data = "{ telemetryKey : telemetryValue }";
 
-    std::vector<std::string> m_args = {"/opt/sophos-spl/base/bin/telemetry", "POST", "localhost", "1234", CERT_PATH, "extraArg"};
+    std::vector<std::string> m_args = {"/opt/sophos-spl/base/bin/telemetry", "POST", "localhost", CERT_PATH, "extraArg"};
 
     void SetUp() override
     {
@@ -38,10 +37,9 @@ public:
 TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_httpSender, setServer(m_server));
-    EXPECT_CALL(*m_httpSender, setPort(std::stoi(m_port)));
     EXPECT_CALL(*m_httpSender, getRequest(_, CERT_PATH));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET", m_server, m_port, CERT_PATH};
+    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET", m_server, CERT_PATH};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -57,10 +55,9 @@ TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_httpSender, setServer(m_server));
-    EXPECT_CALL(*m_httpSender, setPort(std::stoi(m_port)));
-    EXPECT_CALL(*m_httpSender, postRequest(_, m_jsonStruct, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, CERT_PATH));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST", m_server, m_port, CERT_PATH};
+    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST", m_server, CERT_PATH};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -92,7 +89,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_httpSender, postRequest(_, m_jsonStruct, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, CERT_PATH));
 
     std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST"};
 
@@ -127,10 +124,7 @@ class TelemetryTestVariableArgs : public TelemetryTest,
 
 };
 
-INSTANTIATE_TEST_CASE_P(TelemetryTest,
-                        TelemetryTestVariableArgs, ::testing::Values
-                        (1,3,6)
-);
+INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestVariableArgs, ::testing::Values(1,5)); // NOLINT
 
 
 TEST_P(TelemetryTestVariableArgs, main_entry_HttpRequestReturnsFailure) // NOLINT
