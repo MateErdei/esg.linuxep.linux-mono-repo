@@ -6,6 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Telemetry.h"
 
+#include <Common/FileSystem/IFileSystem.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <sstream>
@@ -20,7 +21,7 @@ namespace Telemetry
             if (argc == 1 || argc > 4)
             {
                 throw std::runtime_error(
-                    "Telemetry executable expects the following arguments: verb [server] [cert path]");
+                    "Telemetry executable expects the following arguments: request_type [server] [cert_path]");
             }
 
             std::vector<std::string> additionalHeaders;
@@ -31,11 +32,16 @@ namespace Telemetry
                 httpSender->setServer(server);
             }
 
-            std::string certPath = CERT_PATH;
+            std::string certPath = "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
 
             if (argc == 4)
             {
                 certPath = argv[3];
+            }
+
+            if (!Common::FileSystem::fileSystem()->isFile(certPath))
+            {
+                throw std::runtime_error("Certificate is not a valid file");
             }
 
             additionalHeaders.emplace_back(
@@ -69,9 +75,7 @@ namespace Telemetry
         }
         catch (const std::exception& e)
         {
-            std::stringstream errorMsg;
-            errorMsg << "Caught exception: " << e.what();
-            LOGERROR(errorMsg.str());
+            LOGERROR("Caught exception: " << e.what());
             return 1;
         }
 

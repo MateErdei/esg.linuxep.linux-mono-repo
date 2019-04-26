@@ -11,6 +11,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 
 #include <Telemetry/TelemetryImpl/Telemetry.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -24,22 +26,37 @@ public:
     std::string m_server = "localhost";
     std::vector<std::string> m_additionalHeaders;
     std::string m_data = "{ telemetryKey : telemetryValue }";
+    std::string m_customCertPath = "/tmp/telemetry_cert.pem";
+    std::string m_defaultCertPath = "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
+    std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
+    MockFileSystem* m_mockFileSystem = nullptr;
 
-    std::vector<std::string> m_args = {"/opt/sophos-spl/base/bin/telemetry", "POST", "localhost", CERT_PATH, "extraArg"};
+    std::vector<std::string> m_args = {m_binaryPath, "POST", m_server, m_defaultCertPath, "extraArg"};
+
 
     void SetUp() override
     {
+        std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
+        m_mockFileSystem = mockfileSystem.get();
+        Tests::replaceFileSystem(std::move(mockfileSystem));
+
         m_httpSender = std::make_shared<StrictMock<MockHttpSender>>();
         m_additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control");
+    }
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
     }
 };
 
 TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 {
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, setServer(m_server));
-    EXPECT_CALL(*m_httpSender, getRequest(_, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, getRequest(_, m_defaultCertPath));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET", m_server, CERT_PATH};
+    std::vector<std::string> arguments = {m_binaryPath, "GET", m_server, m_defaultCertPath};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -54,10 +71,11 @@ TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 {
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, setServer(m_server));
-    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, CERT_PATH));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, m_defaultCertPath));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST", m_server, CERT_PATH};
+    std::vector<std::string> arguments = {m_binaryPath, "POST", m_server, m_defaultCertPath};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -72,9 +90,10 @@ TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_httpSender, getRequest(_, CERT_PATH));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_httpSender, getRequest(_, m_defaultCertPath));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "GET"};
+    std::vector<std::string> arguments = {m_binaryPath, "GET"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -89,9 +108,10 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, CERT_PATH));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_httpSender, postRequest(_, m_data, m_defaultCertPath));
 
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "POST"};
+    std::vector<std::string> arguments = {m_binaryPath, "POST"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -106,7 +126,9 @@ TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_entry_InvalidHttpRequestReturnsFailure) // NOLINT
 {
-    std::vector<std::string> arguments = {"/opt/sophos-spl/base/bin/telemetry", "DANCE"};
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readlink(_)).WillRepeatedly(Return(""));
+    std::vector<std::string> arguments = {m_binaryPath, "DANCE"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -129,6 +151,7 @@ INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestVariableArgs, ::testing::Val
 
 TEST_P(TelemetryTestVariableArgs, main_entry_HttpRequestReturnsFailure) // NOLINT
 {
+    EXPECT_CALL(*m_mockFileSystem, readlink(_)).WillRepeatedly(Return(""));
     std::vector<char*> argv;
     for (int i=0; i < GetParam(); ++i)
     {

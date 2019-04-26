@@ -13,12 +13,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <curl.h>
 #include <sstream>
 
-HttpSender::HttpSender(std::string server, std::shared_ptr<ICurlWrapper> curlWrapper) :
+HttpSender::HttpSender(std::string& server, std::shared_ptr<ICurlWrapper>& curlWrapper) :
     m_server(std::move(server)),
     m_curlWrapper(std::move(curlWrapper))
 {
     // Initialising ssl and crypto to create a dependency on their libraries and be able to get the correct rpath
-    // TODO: Rebuild libcurl with rpath set and remove these lines
+    // [LINUXEP-6636] Rebuild libcurl with rpath set and remove these lines
     SSL_library_init();
     OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS, nullptr);
 }
@@ -28,69 +28,99 @@ void HttpSender::setServer(const std::string& server)
     m_server = server;
 }
 
+std::string HttpSender::requestTypeToString(RequestType requestType)
+{
+    switch(requestType)
+    {
+        case RequestType::GET:
+            return "GET";
+        case RequestType::POST:
+            return "POST";
+        case RequestType::PUT:
+            return "PUT";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 int HttpSender::httpsRequest(
-    const std::string& verb,
+    const RequestType& requestType,
     const std::string& certPath,
     const std::vector<std::string>& additionalHeaders,
     const std::string& data)
 {
-    std::stringstream uri;
-    uri << "https://" << m_server;
+    std::stringstream uriStream;
+    uriStream << "https://" << m_server;
+    std::string uri = uriStream.str();
 
-    std::stringstream msg;
-    msg << "Creating HTTPS " << verb << " Request to " << uri.str();
-    LOGINFO(msg.str());
+    LOGINFO("Creating HTTPS " << requestTypeToString(requestType) << " Request to " << uri);
 
-    CURL* curl;
+    CURL* curl = nullptr;
     CURLcode result = CURLE_FAILED_INIT;
+    curl_slist* headers = nullptr;
 
-    m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
-
-    curl = m_curlWrapper->curlEasyInit();
-    if (curl)
+    try
     {
-        m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.str().c_str());
-        m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAINFO, certPath.c_str());
+        m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
 
-        struct curl_slist* headers = nullptr;
-        for (auto const& header : additionalHeaders)
+        curl = m_curlWrapper->curlEasyInit();
+        if (curl)
         {
-            headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.c_str());
+            m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAINFO, certPath.c_str());
+
+            for (const auto& header : additionalHeaders)
+            {
+                headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+                if (!headers)
+                {
+                    throw std::runtime_error("Failed to append header to request");
+                }
+            }
+
+            if (headers)
+            {
+                m_curlWrapper->curlEasySetopt(curl, CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
+            }
+
+            if (requestType == RequestType::POST)
+            {
+                m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+            }
+            else if (requestType == RequestType::PUT)
+            {
+                m_curlWrapper->curlEasySetopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+                m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+            }
+
+            result = m_curlWrapper->curlEasyPerform(curl);
+
+            if (result != CURLE_OK)
+            {
+                LOGERROR("curl_easy_perform() failed: " << m_curlWrapper->curlEasyStrerror(result));
+            }
+
+            m_curlWrapper->curlSlistFreeAll(headers);
+            m_curlWrapper->curlEasyCleanup(curl);
         }
 
-        m_curlWrapper->curlEasySetopt(curl, CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
-
-        if (verb == "POST")
-        {
-            m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-        }
-        else if (verb == "PUT")
-        {
-            m_curlWrapper->curlEasySetopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-            m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-        }
-
-        result = m_curlWrapper->curlEasyPerform(curl);
-
-        if (result != CURLE_OK)
-        {
-            std::stringstream errMsg;
-            errMsg << "curl_easy_perform() failed: " << m_curlWrapper->curlEasyStrerror(result);
-            LOGERROR(errMsg.str());
-        }
-
-        m_curlWrapper->curlSlistFreeAll(headers);
-        m_curlWrapper->curlEasyCleanup(curl);
+        m_curlWrapper->curlGlobalCleanup();
     }
 
-    m_curlWrapper->curlGlobalCleanup();
+    catch(const std::exception& e)
+    {
+        LOGERROR("Exception while making HTTPS " << requestTypeToString(requestType) << " request: " << e.what());
+        m_curlWrapper->curlSlistFreeAll(headers);
+        m_curlWrapper->curlEasyCleanup(curl);
+        m_curlWrapper->curlGlobalCleanup();
+    }
 
     return static_cast<int>(result);
 }
 
 int HttpSender::getRequest(const std::vector<std::string>& additionalHeaders, const std::string& certPath)
 {
-    return httpsRequest("GET", certPath, additionalHeaders, "");
+    return httpsRequest(RequestType::GET, certPath, additionalHeaders, "");
 }
 
 int HttpSender::postRequest(
@@ -98,7 +128,7 @@ int HttpSender::postRequest(
     const std::string& data,
     const std::string& certPath)
 {
-    return httpsRequest("POST", certPath, additionalHeaders, data);
+    return httpsRequest(RequestType::POST, certPath, additionalHeaders, data);
 }
 
 int HttpSender::putRequest(
@@ -106,5 +136,5 @@ int HttpSender::putRequest(
     const std::string& data,
     const std::string& certPath)
 {
-    return httpsRequest("PUT", certPath, additionalHeaders, data);
+    return httpsRequest(RequestType::PUT, certPath, additionalHeaders, data);
 }

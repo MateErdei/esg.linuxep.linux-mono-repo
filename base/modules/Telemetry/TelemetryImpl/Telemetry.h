@@ -8,8 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Telemetry/HttpSenderImpl/HttpSender.h>
 
-#define CERT_PATH "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem"
-
 namespace Telemetry
 {
     /**
@@ -21,5 +19,5 @@ namespace Telemetry
      * @param argv As convention an array of string arguments.
      * @return
      */
-    int main_entry(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender = std::make_shared<HttpSender>());
+    int main_entry(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender);
 } // namespace Telemetry

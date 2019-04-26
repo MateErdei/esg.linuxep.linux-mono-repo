@@ -12,13 +12,21 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
+enum class RequestType
+{
+    GET,
+    POST,
+    PUT
+};
+
 class HttpSender : public IHttpSender
 {
 public:
     explicit HttpSender(
-        std::string server = "https://t1.sophosupd.com/",
-        std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>());
+        std::string& server,
+        std::shared_ptr<ICurlWrapper>& curlWrapper);
     HttpSender(const HttpSender&) = delete;
+    HttpSender& operator= (const HttpSender&) = delete;
     ~HttpSender() override = default;
 
     void setServer(const std::string& server) override;
@@ -35,10 +43,11 @@ public:
 
 private:
     int httpsRequest(
-        const std::string& verb,
+        const RequestType& requestType,
         const std::string& certPath,
         const std::vector<std::string>& additionalHeaders = std::vector<std::string>(),
         const std::string& data = std::string());
+    std::string requestTypeToString(RequestType requestType);
 
     std::string m_server;
     std::shared_ptr<ICurlWrapper> m_curlWrapper;
