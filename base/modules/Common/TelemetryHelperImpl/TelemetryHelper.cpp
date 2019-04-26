@@ -43,22 +43,36 @@ void TelemetryHelper::set(const std::string& key, bool value)
     setInternal(key, value);
 }
 
-void TelemetryHelper::increment(const std::string& key, int value)
+template<class T>
+void TelemetryHelper::incrementInternal(const std::string& key, T value)
 {
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-    int newValue = telemetryObject.getValue().getInteger() + value;
-    TelemetryValue telemetryValue(newValue);
+    TelemetryValue telemetryValue;
+
+    TelemetryValue::Type valueType = telemetryObject.getValue().getType();
+    if (valueType == TelemetryValue::Type::integer_type)
+    {
+        int newValue = telemetryObject.getValue().getInteger() + value;
+        telemetryValue.set(newValue);
+    }
+    else if (valueType == TelemetryValue::Type::unsigned_integer_type)
+    {
+        unsigned int newValue = telemetryObject.getValue().getUnsignedInteger() + value;
+        telemetryValue.set(newValue);
+    }
+
     telemetryObject.set(telemetryValue);
+}
+
+void TelemetryHelper::increment(const std::string& key, int value)
+{
+   incrementInternal(key, value);
 }
 
 void TelemetryHelper::increment(const std::string& key, unsigned int value)
 {
-    std::lock_guard<std::mutex> lock(m_dataLock);
-    TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-    unsigned int newValue = telemetryObject.getValue().getUnsignedInteger() + value;
-    TelemetryValue telemetryValue(newValue);
-    telemetryObject.set(telemetryValue);
+    incrementInternal(key, value);
 }
 
 template <class T>

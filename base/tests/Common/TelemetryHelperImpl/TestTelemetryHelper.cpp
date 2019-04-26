@@ -166,6 +166,18 @@ TEST_F(TestTelemetryHelper, incCounter) //NOLINT
     ASSERT_EQ(R"({"counter":5})", helper.serialise());
 }
 
+TEST_F(TestTelemetryHelper, incNegativeCounter) //NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+
+    helper.set("counter", -10);
+    ASSERT_EQ(R"({"counter":-10})", helper.serialise());
+
+    helper.increment("counter",1);
+    ASSERT_EQ(R"({"counter":-9})", helper.serialise());
+
+}
+
 TEST_F(TestTelemetryHelper, incNonExistantValue) //NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
@@ -269,4 +281,5 @@ TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes
     ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
     ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
 }
+
 

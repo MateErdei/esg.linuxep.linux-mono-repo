@@ -68,6 +68,9 @@ private:
     void setInternal (const std::string& key, T value);
 
     template <class T>
+    void incrementInternal (const std::string& key, T value);
+
+    template <class T>
     void appendInternal (const std::string& key, T value);
 
     TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
