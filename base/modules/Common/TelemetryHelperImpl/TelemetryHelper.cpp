@@ -43,8 +43,7 @@ void TelemetryHelper::set(const std::string& key, bool value)
     setInternal(key, value);
 }
 
-template<class T>
-void TelemetryHelper::incrementInternal(const std::string& key, T value)
+void TelemetryHelper::increment(const std::string& key, int value)
 {
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
@@ -53,14 +52,13 @@ void TelemetryHelper::incrementInternal(const std::string& key, T value)
     telemetryObject.set(telemetryValue);
 }
 
-void TelemetryHelper::increment(const std::string& key, int value)
-{
-   incrementInternal(key, value);
-}
-
 void TelemetryHelper::increment(const std::string& key, unsigned int value)
 {
-    incrementInternal(key, value);
+    std::lock_guard<std::mutex> lock(m_dataLock);
+    TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
+    unsigned int newValue = telemetryObject.getValue().getUnsignedInteger() + value;
+    TelemetryValue telemetryValue(newValue);
+    telemetryObject.set(telemetryValue);
 }
 
 template <class T>
