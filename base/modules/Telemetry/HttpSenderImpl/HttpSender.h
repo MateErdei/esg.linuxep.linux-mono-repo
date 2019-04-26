@@ -49,6 +49,14 @@ private:
         const std::string& data = std::string());
     std::string requestTypeToString(RequestType requestType);
 
+    void setCurlOptions(
+        CURL* curl,
+        curl_slist* headers,
+        const RequestType& requestType,
+        const std::string& certPath,
+        const std::vector<std::string>& additionalHeaders,
+        const std::string& data);
+
     std::string m_server;
     std::shared_ptr<ICurlWrapper> m_curlWrapper;
 };

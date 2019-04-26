@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <openssl/ssl.h>
 
 #include <curl.h>
+#include <map>
 #include <sstream>
 
 HttpSender::HttpSender(std::string server, std::shared_ptr<ICurlWrapper> curlWrapper) :
@@ -43,7 +44,9 @@ std::string HttpSender::requestTypeToString(RequestType requestType)
     }
 }
 
-int HttpSender::httpsRequest(
+void HttpSender::setCurlOptions(
+    CURL* curl,
+    curl_slist* headers,
     const RequestType& requestType,
     const std::string& certPath,
     const std::vector<std::string>& additionalHeaders,
@@ -55,53 +58,87 @@ int HttpSender::httpsRequest(
 
     LOGINFO("Creating HTTPS " << requestTypeToString(requestType) << " Request to " << uri);
 
+    CURLcode result;
+    std::vector<std::tuple<const char*, CURLoption, const char*>> curlOptions;
+
+    curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri.c_str());
+    curlOptions.emplace_back("Specify path to Certificate Authority bundle", CURLOPT_CAINFO, certPath.c_str());
+
+    for (const auto& header : additionalHeaders)
+    {
+        headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+        if (!headers)
+        {
+            throw std::runtime_error("Failed to append header to request");
+        }
+    }
+
+    if (headers)
+    {
+        curlOptions.emplace_back("Specify custom HTTP header(s)", CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
+    }
+
+    if (requestType == RequestType::POST)
+    {
+        curlOptions.emplace_back("Specify data to POST to server", CURLOPT_POSTFIELDS, data.c_str());
+    }
+    else if (requestType == RequestType::PUT)
+    {
+        curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
+        curlOptions.emplace_back("Specify data to POST to server", CURLOPT_POSTFIELDS, data.c_str());
+    }
+
+    for (const auto& curlOption : curlOptions)
+    {
+        result = m_curlWrapper->curlEasySetopt(curl, std::get<1>(curlOption), std::get<2>(curlOption));
+        if (result != CURLE_OK)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to: " << std::get<0>(curlOption) << " with error: " << m_curlWrapper->curlEasyStrerror(result);
+            throw std::runtime_error(errorMsg.str());
+        }
+    }
+}
+
+int HttpSender::httpsRequest(
+    const RequestType& requestType,
+    const std::string& certPath,
+    const std::vector<std::string>& additionalHeaders,
+    const std::string& data)
+{
     CURL* curl = nullptr;
     CURLcode result = CURLE_FAILED_INIT;
     curl_slist* headers = nullptr;
 
     try
     {
-        m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
+        result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
+
+        if (result != CURLE_OK)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to initialise libcurl with error: " << m_curlWrapper->curlEasyStrerror(result);
+        }
 
         curl = m_curlWrapper->curlEasyInit();
         if (curl)
         {
-            m_curlWrapper->curlEasySetopt(curl, CURLOPT_URL, uri.c_str());
-            m_curlWrapper->curlEasySetopt(curl, CURLOPT_CAINFO, certPath.c_str());
-
-            for (const auto& header : additionalHeaders)
-            {
-                headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
-                if (!headers)
-                {
-                    throw std::runtime_error("Failed to append header to request");
-                }
-            }
-
-            if (headers)
-            {
-                m_curlWrapper->curlEasySetopt(curl, CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
-            }
-
-            if (requestType == RequestType::POST)
-            {
-                m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-            }
-            else if (requestType == RequestType::PUT)
-            {
-                m_curlWrapper->curlEasySetopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                m_curlWrapper->curlEasySetopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-            }
-
+            setCurlOptions(curl, headers, requestType, certPath, additionalHeaders, data);
             result = m_curlWrapper->curlEasyPerform(curl);
 
             if (result != CURLE_OK)
             {
-                LOGERROR("curl_easy_perform() failed: " << m_curlWrapper->curlEasyStrerror(result));
+                std::stringstream errorMsg;
+                errorMsg << "Failed to perform file transfer with error: " << m_curlWrapper->curlEasyStrerror(result);
+                throw std::runtime_error(errorMsg.str());
             }
 
             m_curlWrapper->curlSlistFreeAll(headers);
             m_curlWrapper->curlEasyCleanup(curl);
+        }
+        else
+        {
+            result = CURLE_FAILED_INIT;
         }
 
         m_curlWrapper->curlGlobalCleanup();
