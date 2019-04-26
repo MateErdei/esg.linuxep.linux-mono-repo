@@ -18,6 +18,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/PluginApi/ApiException.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <csignal>
@@ -64,7 +65,18 @@ namespace UpdateSchedulerImpl
         m_cronThread->start();
 
         //Request policy on startup
-        m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
+        try
+        {
+            m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
+        }
+        catch ( const Common::PluginApi::ApiException & apiException)
+        {
+            std::string errorMsg(apiException.what());
+            if (!errorMsg.find("No policy available"))
+            {
+                LOGERROR("Unexpected error when requesting policy: " << apiException.what());
+            }
+        }
 
         while (true)
         {

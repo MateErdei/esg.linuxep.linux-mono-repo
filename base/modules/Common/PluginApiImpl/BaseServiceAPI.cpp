@@ -97,7 +97,6 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
 
     Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestCurrentPolicyMessage(appId));
 
-    LOGSUPPORT("Received policy from management agent for AppId: " << appId);
     if (!m_messageBuilder.hasAck(reply))
     {
         std::string errorMessage = "Request policies failed with error: ";
@@ -105,6 +104,8 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
+
+    LOGSUPPORT("Received policy from management agent for AppId: " << appId);
 }
 
 Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getReply(
@@ -135,7 +136,6 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     if (!reply.m_error.empty())
     {
         std::string errorMessage("Invalid reply, error: " + reply.m_error);
-        LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
 
