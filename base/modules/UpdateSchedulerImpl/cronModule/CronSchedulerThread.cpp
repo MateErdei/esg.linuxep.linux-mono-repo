@@ -128,7 +128,6 @@ namespace UpdateSchedulerImpl
                     else if (!m_scheduledUpdate.getEnabled())
                     {
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
-                        LOGINFO("Update triggered, next update in " << timeToWait.count() << " minutes");
                     }
 
                     // scheduled updating is enabled. Check if it is time to update
