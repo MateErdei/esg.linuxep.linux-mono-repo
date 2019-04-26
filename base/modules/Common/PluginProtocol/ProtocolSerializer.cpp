@@ -172,6 +172,7 @@ namespace Common
             if (deserializedData.has_error())
             {
                 message.m_error = deserializedData.error();
+                LOGSUPPORT("Protocol Serializer error - deserialize: message error: " << deserializedData.error());
             }
             else if (message.m_command == PluginProtocol::Commands::UNKNOWN)
             {

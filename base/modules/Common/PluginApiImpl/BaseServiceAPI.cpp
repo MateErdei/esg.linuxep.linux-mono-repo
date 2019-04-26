@@ -136,6 +136,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     if (!reply.m_error.empty())
     {
         std::string errorMessage("Invalid reply, error: " + reply.m_error);
+        LOGSUPPORT(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }
 
