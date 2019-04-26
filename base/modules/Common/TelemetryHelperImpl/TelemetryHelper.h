@@ -17,6 +17,15 @@ using namespace Common::Telemetry;
 class TelemetryHelper : public Common::Telemetry::ITelemetryHelper
 {
 public:
+    static TelemetryHelper& getInstance()
+    {
+        static TelemetryHelper instance;
+        return instance;
+    }
+
+    TelemetryHelper(TelemetryHelper const&) = delete;
+    void operator=(TelemetryHelper const&) = delete;
+
     void set(const std::string& key, int value) override;
 
     void set(const std::string& key, unsigned int value) override;
@@ -47,6 +56,8 @@ public:
     std::string serialise();
 
 private:
+    TelemetryHelper() = default;
+
     TelemetryObject m_root;
     std::mutex m_dataLock;
     std::mutex m_callbackLock;

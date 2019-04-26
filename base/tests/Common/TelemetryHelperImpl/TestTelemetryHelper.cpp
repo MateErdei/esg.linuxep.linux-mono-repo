@@ -54,50 +54,53 @@ public:
     }
 };
 
-TEST_F(TestTelemetryHelper, constructor) //NOLINT
+TEST_F(TestTelemetryHelper, constructionAndGetInstance) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper1 = TelemetryHelper::getInstance();
+    TelemetryHelper& helper2 = TelemetryHelper::getInstance();
+    ASSERT_EQ(&helper1, &helper2);
+
 }
 
 TEST_F(TestTelemetryHelper, addStringTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("OS Name", std::string("Ubuntu"));
     ASSERT_EQ(R"({"OS Name":"Ubuntu"})", helper.serialise());
 }
 
 TEST_F(TestTelemetryHelper, addCStringTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("OS Name", "Ubuntu");
     ASSERT_EQ(R"({"OS Name":"Ubuntu"})", helper.serialise());
 }
 
 TEST_F(TestTelemetryHelper, addIntTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("An int", 3);
     ASSERT_EQ(R"({"An int":3})", helper.serialise());
 }
 
 TEST_F(TestTelemetryHelper, addUnsignedIntTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("uint", 1U);
     ASSERT_EQ(R"({"uint":1})", helper.serialise());
 }
 
 TEST_F(TestTelemetryHelper, addBoolTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("true", true);
     ASSERT_EQ(R"({"true":true})", helper.serialise());
 }
 
 TEST_F(TestTelemetryHelper, appendInt) //NOLINT
 {
-    TelemetryHelper helper;
-    helper.append("array", 1);
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+        helper.append("array", 1);
     ASSERT_EQ(R"({"array":[1]})", helper.serialise());
     helper.append("array", 2);
     ASSERT_EQ(R"({"array":[1,2]})", helper.serialise());
@@ -105,7 +108,7 @@ TEST_F(TestTelemetryHelper, appendInt) //NOLINT
 
 TEST_F(TestTelemetryHelper, appendUnsignedInt) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.append("array", 2u);
     ASSERT_EQ(R"({"array":[2]})", helper.serialise());
     helper.append("array", 3u);
@@ -114,7 +117,7 @@ TEST_F(TestTelemetryHelper, appendUnsignedInt) //NOLINT
 
 TEST_F(TestTelemetryHelper, appendString) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.append("array", std::string("string"));
     ASSERT_EQ(R"({"array":["string"]})", helper.serialise());
     helper.append("array", std::string("string2"));
@@ -123,7 +126,7 @@ TEST_F(TestTelemetryHelper, appendString) //NOLINT
 
 TEST_F(TestTelemetryHelper, appendCString) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.append("array", "cstring");
     ASSERT_EQ(R"({"array":["cstring"]})", helper.serialise());
     helper.append("array", "cstring2");
@@ -132,7 +135,7 @@ TEST_F(TestTelemetryHelper, appendCString) //NOLINT
 
 TEST_F(TestTelemetryHelper, appendBool) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.append("array", true);
     ASSERT_EQ(R"({"array":[true]})", helper.serialise());
     helper.append("array", false);
@@ -141,7 +144,7 @@ TEST_F(TestTelemetryHelper, appendBool) //NOLINT
 
 TEST_F(TestTelemetryHelper, appendMixed) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.append("array", 1);
     helper.append("array", 3u);
     helper.append("array", false);
@@ -152,7 +155,7 @@ TEST_F(TestTelemetryHelper, appendMixed) //NOLINT
 
 TEST_F(TestTelemetryHelper, incCounter) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("counter", 1);
     ASSERT_EQ(R"({"counter":1})", helper.serialise());
     helper.increment("counter",1);
@@ -165,13 +168,13 @@ TEST_F(TestTelemetryHelper, incCounter) //NOLINT
 
 TEST_F(TestTelemetryHelper, incNonExistantValue) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     ASSERT_THROW(helper.increment("counter", 1), std::logic_error); //NOLINT
 }
 
 TEST_F(TestTelemetryHelper, nestedTelem) //NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.set("1", 1);
     helper.set("2", 2u);
     helper.set("a.nested.string", "string1");
@@ -184,14 +187,14 @@ TEST_F(TestTelemetryHelper, nestedTelem) //NOLINT
 
 TEST_F(TestTelemetryHelper, registerResetCallback) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
 }
 
 TEST_F(TestTelemetryHelper, reregisterResetCallback) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
     ASSERT_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)), std::logic_error); // NOLINT
@@ -199,7 +202,7 @@ TEST_F(TestTelemetryHelper, reregisterResetCallback) // NOLINT
 
 TEST_F(TestTelemetryHelper, unregisterResetCallback) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
     ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
@@ -208,7 +211,7 @@ TEST_F(TestTelemetryHelper, unregisterResetCallback) // NOLINT
 
 TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalled) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
     helper.reset();
@@ -217,7 +220,7 @@ TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalled) // NOLINT
 
 TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalled) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
 
     DummyTelemetryProvider dummy1("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1))); // NOLINT
@@ -232,7 +235,7 @@ TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalled) // NOLINT
 
 TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
 
@@ -248,7 +251,7 @@ TEST_F(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOL
 
 TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) // NOLINT
 {
-    TelemetryHelper helper;
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
 
     DummyTelemetryProvider dummy1("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback(dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1))); // NOLINT
@@ -266,9 +269,4 @@ TEST_F(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes
     ASSERT_TRUE(dummy1.hasCallbackBeenCalled());
     ASSERT_TRUE(dummy2.hasCallbackBeenCalled());
 }
-
-
-
-
-
 
