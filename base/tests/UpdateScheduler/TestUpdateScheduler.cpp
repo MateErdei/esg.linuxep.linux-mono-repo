@@ -321,6 +321,7 @@ TEST_F(TestUpdateScheduler, shutdownReceivedShouldStopScheduler) // NOLINT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
@@ -347,6 +348,7 @@ TEST_F(TestUpdateScheduler, policyConfigureSulDownloaderAndFrequency) // NOLINT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -386,6 +388,7 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -427,6 +430,7 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -491,6 +495,7 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpNotSetToFalseWhenMissedUpdate) /
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -558,6 +563,7 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -625,6 +631,7 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time)).Times(1);
@@ -671,6 +678,7 @@ TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLIN
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(1);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -718,6 +726,7 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadD
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(40);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -761,6 +770,7 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(40);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -804,6 +814,7 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(40);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -847,6 +858,7 @@ TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleDayT
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(40);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -890,6 +902,7 @@ TEST_F(TestUpdateScheduler, policyAfterInstallConfiguresSulDownloaderAndTriggers
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
@@ -933,6 +946,7 @@ TEST_F(TestUpdateScheduler, policyChangeDoesNotTriggerSulDownloaderToUpdate) // 
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
     MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
 
+    EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
     EXPECT_CALL(*cron, setPeriodTime(time));
