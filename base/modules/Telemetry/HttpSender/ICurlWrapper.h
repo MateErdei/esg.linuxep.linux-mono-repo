@@ -18,11 +18,11 @@ public:
 
     virtual CURLcode curlEasySetopt(CURL* handle, CURLoption option, const char* parameter) = 0;
 
-    virtual struct curl_slist* curlSlistAppend(struct curl_slist* list, const char* value) = 0;
+    virtual struct curl_slist* curlSlistAppend(curl_slist* list, const char* value) = 0;
 
     virtual CURLcode curlEasyPerform(CURL* handle) = 0;
 
-    virtual void curlSlistFreeAll(struct curl_slist* list) = 0;
+    virtual void curlSlistFreeAll(curl_slist* list) = 0;
 
     virtual void curlEasyCleanup(CURL* handle) = 0;
     virtual void curlGlobalCleanup() = 0;

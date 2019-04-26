@@ -66,7 +66,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
@@ -85,7 +85,7 @@ TEST_F(TelemetryTest, main_entry_PostRequestReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
@@ -103,7 +103,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
@@ -121,7 +121,7 @@ TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_InvalidHttpRequestReturnsFailure) // NOLINT
@@ -138,7 +138,7 @@ TEST_F(TelemetryTest, main_entry_InvalidHttpRequestReturnsFailure) // NOLINT
 
     int expectedErrorCode = 1;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
 class TelemetryTestVariableArgs : public TelemetryTest,
@@ -160,5 +160,5 @@ TEST_P(TelemetryTestVariableArgs, main_entry_HttpRequestReturnsFailure) // NOLIN
 
     int expectedErrorCode = 1;
 
-    EXPECT_EQ(Telemetry::main_entry(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }

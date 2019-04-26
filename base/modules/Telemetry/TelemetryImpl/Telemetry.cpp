@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/Logging/FileLoggingSetup.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <sstream>
@@ -14,7 +15,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    int main_entry(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender)
+    int main(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender)
     {
         try
         {
@@ -80,6 +81,17 @@ namespace Telemetry
         }
 
         return 0;
+    }
+
+    int main_entry(int argc, char* argv[])
+    {
+        // Configure logging
+        Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
+
+        std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>();
+        std::shared_ptr<IHttpSender> httpSender = std::make_shared<HttpSender>("https://t1.sophosupd.com/", curlWrapper);
+
+        return main(argc, argv, httpSender);
     }
 
 } // namespace Telemetry

@@ -20,11 +20,11 @@ public:
 
     CURLcode curlEasySetopt(CURL* handle, CURLoption option, const char* parameter) override;
 
-    struct curl_slist* curlSlistAppend(struct curl_slist* list, const char* value) override;
+    curl_slist* curlSlistAppend(curl_slist* list, const char* value) override;
 
     CURLcode curlEasyPerform(CURL* handle) override;
 
-    void curlSlistFreeAll(struct curl_slist* list) override;
+    void curlSlistFreeAll(curl_slist* list) override;
 
     void curlEasyCleanup(CURL* handle) override;
     void curlGlobalCleanup() override;

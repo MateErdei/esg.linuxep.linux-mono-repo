@@ -21,7 +21,7 @@ CURLcode CurlWrapper::curlEasySetopt(CURL* handle, CURLoption option, const char
     return curl_easy_setopt(handle, option, parameter);
 }
 
-struct curl_slist* CurlWrapper::curlSlistAppend(struct curl_slist* list, const char* value)
+curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const char* value)
 {
     return curl_slist_append(list, value);
 }
@@ -31,7 +31,7 @@ CURLcode CurlWrapper::curlEasyPerform(CURL* handle)
     return curl_easy_perform(handle);
 }
 
-void CurlWrapper::curlSlistFreeAll(struct curl_slist* list)
+void CurlWrapper::curlSlistFreeAll(curl_slist* list)
 {
     curl_slist_free_all(list);
 }

@@ -20,11 +20,11 @@ public:
 
     MOCK_METHOD3(curlEasySetopt, CURLcode(CURL* handle, CURLoption option, const char* parameter));
 
-    MOCK_METHOD2(curlSlistAppend, curl_slist*(struct curl_slist* list, const char* value));
+    MOCK_METHOD2(curlSlistAppend, curl_slist*(curl_slist* list, const char* value));
 
     MOCK_METHOD1(curlEasyPerform, CURLcode(CURL* handle));
 
-    MOCK_METHOD1(curlSlistFreeAll, void(struct curl_slist * list));
+    MOCK_METHOD1(curlSlistFreeAll, void(curl_slist * list));
 
     MOCK_METHOD1(curlEasyCleanup, void(CURL* handle));
 
