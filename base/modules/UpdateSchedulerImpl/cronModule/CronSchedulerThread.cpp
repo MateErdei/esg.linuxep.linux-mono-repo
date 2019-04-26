@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Logger.h"
 
 #include <cassert>
 
@@ -60,6 +61,7 @@ namespace UpdateSchedulerImpl
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
             m_periodTick = repeatPeriod;
+            LOGINFO("Period time set to: " << repeatPeriod.count());
         }
 
         void CronSchedulerThread::setScheduledUpdate(ScheduledUpdate scheduledUpdate)
@@ -76,6 +78,7 @@ namespace UpdateSchedulerImpl
 
         void CronSchedulerThread::run()
         {
+
             std::chrono::milliseconds timeToWait = m_firstTick;
             bool firstUpdate = true;
 
@@ -84,6 +87,7 @@ namespace UpdateSchedulerImpl
             int scheduledUpdateOffsetInMinutes = distribution.next();
 
             announceThreadStarted();
+            LOGINFO("running with period: " << m_periodTick.count() << " ms");
             auto poller = Common::ZeroMQWrapper::createPoller();
 
             auto pipePollerEntry = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
@@ -94,10 +98,12 @@ namespace UpdateSchedulerImpl
                 poll_result_t poll_result;
                 try
                 {
+                    LOGDEBUG("wait for time to trigger update: " << std::chrono::duration_cast<std::chrono::minutes>(timeToWait).count() << " minutes");
                     poll_result = poller->poll(timeToWait);
                 }
                 catch (Common::ZeroMQWrapperImpl::ZeroMQPollerException& ex)
                 {
+                    LOGWARN("poll exception: " << ex.what());
                     // the poller will not work anymore and the CronSchedulerThread must stop.
                     // This may happen on shutdown.
                     break;
@@ -107,15 +113,17 @@ namespace UpdateSchedulerImpl
 
                 if (poll_result.empty())
                 {
+                    LOGDEBUG("Checking if time to update");
                     // First update after m_firstTick seconds
                     if (firstUpdate && m_updateOnStartUp)
                     {
+                        LOGINFO("First update triggered");
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                         firstUpdate = false;
 
                         if (m_scheduledUpdate.getEnabled())
                         {
-                            m_scheduledUpdate.resetScheduledUpdateTimes();
+                            resetScheduledUpdate();
                             // Wait for 15 minutes so we do not update more than once
                             timeToWait = std::chrono::minutes(15);
                         }
@@ -124,6 +132,7 @@ namespace UpdateSchedulerImpl
                     // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
                     else if (!m_scheduledUpdate.getEnabled())
                     {
+                        LOGINFO("Trigger new update");
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                     }
 
@@ -132,8 +141,9 @@ namespace UpdateSchedulerImpl
                     {
                         if (m_scheduledUpdate.timeToUpdate(scheduledUpdateOffsetInMinutes))
                         {
+                            LOGINFO("Trigger new scheduled update");
                             m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
-                            m_scheduledUpdate.resetScheduledUpdateTimes();
+                            resetScheduledUpdate();
 
                             scheduledUpdateOffsetInMinutes = distribution.next();
                             // Wait for 15 minutes so we do not update more than once
@@ -143,6 +153,7 @@ namespace UpdateSchedulerImpl
                 }
                 else
                 {
+                    LOGINFO("interrupted");
                     // it is necessary to call stopRequested to clean the pipe buffer.
                     // and it is necessary to ensure the compiler will keep this.
                     if (!stopRequested())
@@ -156,15 +167,18 @@ namespace UpdateSchedulerImpl
                     if (actionOnInterrupt == ActionOnInterrupt::RESET)
                     {
                         // timeToWait is already up2date with the reset time
+                        LOGINFO("interrupted and will continue to run");
                         continue;
                     }
                     else
                     {
                         // skip from the while loop
+                        LOGINFO("interrupted and stopped");
                         return;
                     }
                 }
             }
+            LOGINFO("stopped");
         }
 
         std::chrono::milliseconds CronSchedulerThread::getPeriodTick()
@@ -182,6 +196,15 @@ namespace UpdateSchedulerImpl
         }
 
         void CronSchedulerThread::start() { AbstractThread::start(); }
+
+        void CronSchedulerThread::resetScheduledUpdate()
+        {
+            m_scheduledUpdate.resetScheduledUpdateTimes();
+
+            std::string nextUpdate = Common::UtilityImpl::TimeUtils::fromTime(m_scheduledUpdate.getScheduledTime());
+            LOGINFO("Next Update scheduled to: " << nextUpdate);
+
+        }
 
     } // namespace cronModule
 } // namespace UpdateSchedulerImpl

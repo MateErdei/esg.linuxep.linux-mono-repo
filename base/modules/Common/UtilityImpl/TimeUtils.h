@@ -38,6 +38,7 @@ namespace Common
              * @return timestamp formatted as required above.
              */
             static std::string fromTime(std::time_t);
+            static std::string fromTime(std::tm);
 
         };
 

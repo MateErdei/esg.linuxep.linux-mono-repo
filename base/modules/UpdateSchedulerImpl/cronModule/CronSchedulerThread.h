@@ -46,7 +46,7 @@ namespace UpdateSchedulerImpl
 
         private:
             void run() override;
-
+            void resetScheduledUpdate();
             enum class ActionOnInterrupt
             {
                 NOTHING,

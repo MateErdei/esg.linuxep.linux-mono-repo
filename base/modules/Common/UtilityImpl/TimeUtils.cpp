@@ -18,13 +18,8 @@ namespace Common
             {
                 return "";
             }
-
-            char formattedTime[16];
-            size_t ret = strftime(formattedTime, 16, "%Y%m%d %H%M%S", std::localtime(&time_));
-            assert(ret != 0);
-            static_cast<void>(ret);
-
-            return formattedTime;
+            std::tm time_tm{*std::localtime(&time_) };
+            return fromTime(time_tm);
         }
 
         std::time_t TimeUtils::getCurrTime() { return std::time(nullptr); }
@@ -40,6 +35,16 @@ namespace Common
             }
             auto curr = getCurrTime();
             return curr - info.uptime;
+        }
+
+        std::string TimeUtils::fromTime(std::tm time_tm)
+        {
+            char formattedTime[16];
+            size_t ret = strftime(formattedTime, 16, "%Y%m%d %H%M%S", &time_tm);
+            assert(ret != 0);
+            static_cast<void>(ret);
+
+            return formattedTime;
         }
 
         std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime()); }
