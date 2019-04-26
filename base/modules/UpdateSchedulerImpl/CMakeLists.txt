@@ -12,6 +12,8 @@ add_library(updateschedulerimpl SHARED
         configModule/UpdateEvent.h
         cronModule/CronSchedulerThread.h
         cronModule/CronSchedulerThread.cpp
+        cronModule/Logger.cpp
+        cronModule/Logger.h
         runnerModule/SulDownloaderRunner.cpp
         runnerModule/SulDownloaderRunner.h
         runnerModule/SulDownloaderResultDirectoryListener.cpp
