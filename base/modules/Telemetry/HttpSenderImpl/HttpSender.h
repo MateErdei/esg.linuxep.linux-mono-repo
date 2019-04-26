@@ -23,8 +23,8 @@ class HttpSender : public IHttpSender
 {
 public:
     explicit HttpSender(
-        std::string& server,
-        std::shared_ptr<ICurlWrapper>& curlWrapper);
+        std::string server,
+        std::shared_ptr<ICurlWrapper> curlWrapper);
     HttpSender(const HttpSender&) = delete;
     HttpSender& operator= (const HttpSender&) = delete;
     ~HttpSender() override = default;

@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <curl.h>
 #include <sstream>
 
-HttpSender::HttpSender(std::string& server, std::shared_ptr<ICurlWrapper>& curlWrapper) :
+HttpSender::HttpSender(std::string server, std::shared_ptr<ICurlWrapper> curlWrapper) :
     m_server(std::move(server)),
     m_curlWrapper(std::move(curlWrapper))
 {
