@@ -63,6 +63,9 @@ namespace UpdateSchedulerImpl
 
         m_cronThread->start();
 
+        //Request policy on startup
+        m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
+
         while (true)
         {
             try
