@@ -216,9 +216,7 @@ namespace SulDownloader
             {
                 break;
             }
-#ifndef NDEBUG
             displayProductTags(product);
-#endif
             ProductMetadata productInformation;
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
