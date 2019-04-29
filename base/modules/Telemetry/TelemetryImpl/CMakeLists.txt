@@ -1,4 +1,6 @@
 add_library(telemetryimpl SHARED
+        TelemetryProcessor.h
+        TelemetryProcessor.cpp
         Telemetry.cpp
         Telemetry.h)
 
@@ -8,6 +10,7 @@ target_link_libraries(telemetryimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
         telemetryloggerimpl
         httpsenderimpl
+        telemetryhelperimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl

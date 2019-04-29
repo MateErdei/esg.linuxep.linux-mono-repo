@@ -44,6 +44,8 @@ public:
     void append(const std::string& key, const char* value) override;
     void append(const std::string& key, bool value) override;
 
+    void mergeJsonIn(const std::string& key, const std::string& json) override;
+
     void registerResetCallback(std::string cookie, std::function<void()> function) override;
     void unregisterResetCallback(std::string cookie) override;
     void reset() override;

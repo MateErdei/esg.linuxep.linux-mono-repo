@@ -48,12 +48,7 @@ void TelemetryHelper::incrementInternal(const std::string& key, T value)
 {
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-    TelemetryValue telemetryValue(0);
-
-    if (telemetryObject.getType() != TelemetryObject::Type::value)
-    {
-        telemetryObject.set(telemetryValue);
-    }
+    TelemetryValue telemetryValue;
 
     TelemetryValue::Type valueType = telemetryObject.getValue().getType();
     if (valueType == TelemetryValue::Type::integer_type)
@@ -159,7 +154,6 @@ void TelemetryHelper::unregisterResetCallback(std::string cookie)
     std::lock_guard<std::mutex> lock(m_callbackLock);
     m_callbacks.erase(cookie);
 }
-
 void TelemetryHelper::reset()
 {
     clearData();
@@ -172,29 +166,16 @@ void TelemetryHelper::reset()
         }
     }
 }
-
 void TelemetryHelper::clearData()
 {
     std::lock_guard<std::mutex> dataLock(m_dataLock);
     m_root = TelemetryObject();
 }
 
-std::string TelemetryHelper::serialiseAndReset()
+
+void TelemetryHelper::mergeJsonIn(const std::string& key, const std::string& json)
 {
-    std::scoped_lock lock(m_dataLock, m_callbackLock);
-
-    // Serialise
-    std::string serialised = TelemetrySerialiser::serialise(m_root);
-
-    // Reset
-    for (const auto& callback_entry : m_callbacks)
-    {
-        if (callback_entry.second)
-        {
-            callback_entry.second();
-        }
-    }
-    m_root = TelemetryObject();
-
-    return serialised;
+    std::lock_guard<std::mutex> dataLock(m_dataLock);
+    TelemetryObject telemetryObject = TelemetrySerialiser::deserialise(json);
+    getTelemetryObjectByKey(key) = telemetryObject;
 }
