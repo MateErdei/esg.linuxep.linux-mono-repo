@@ -5,9 +5,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <gmock/gmock.h>
-
 #include <Telemetry/HttpSender/ICurlWrapper.h>
+
+#include <gmock/gmock.h>
 
 using namespace ::testing;
 

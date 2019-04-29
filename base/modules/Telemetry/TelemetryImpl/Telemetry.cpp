@@ -9,70 +9,55 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+#include <Telemetry/HttpSenderImpl/RequestConfig.h>
 
 #include <sstream>
 #include <string>
 
 namespace Telemetry
 {
+    static const int g_maxArgs = 5;
+
     int main(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender)
     {
         try
         {
-            if (argc == 1 || argc > 4)
+            if (argc == 1 || argc > g_maxArgs)
             {
                 throw std::runtime_error(
-                    "Telemetry executable expects the following arguments: request_type [server] [cert_path]");
+                    "Telemetry executable expects the following arguments: request_type [server] [cert_path] [resource_root]");
             }
 
             std::vector<std::string> additionalHeaders;
-            std::string verb = argv[1];
+            additionalHeaders.emplace_back(
+                "x-amz-acl:bucket-owner-full-control"); // [LINUXEP-6075] This will be read in from a configuration file
+
+            std::shared_ptr<RequestConfig> requestConfig = std::make_shared<RequestConfig>(
+                argv[1], additionalHeaders
+            );
+
             if (argc >= 3)
             {
-                std::string server = argv[2];
-                httpSender->setServer(server);
+                requestConfig->setServer(argv[2]);
             }
 
-            std::string certPath = "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
-
-            if (argc == 4)
+            if (argc >= 4)
             {
-                certPath = argv[3];
+                requestConfig->setCertPath(argv[3]);
             }
 
-            if (!Common::FileSystem::fileSystem()->isFile(certPath))
+            if (argc == g_maxArgs)
+            {
+                requestConfig->setResourceRoot(argv[4]);
+            }
+
+            if (!Common::FileSystem::fileSystem()->isFile(requestConfig->getCertPath()))
             {
                 throw std::runtime_error("Certificate is not a valid file");
             }
 
-            additionalHeaders.emplace_back(
-                "x-amz-acl:bucket-owner-full-control"); // [LINUXEP-6075] This will be read in from a configuration file
-
-            if (verb == "POST")
-            {
-                std::string data =
-                    "{ telemetryKey : telemetryValue }"; // [LINUXEP-6631] This will be specified later on
-                httpSender->postRequest(
-                    additionalHeaders, data, certPath); // [LINUXEP-6075] This will be done via a configuration file
-            }
-            else if (verb == "PUT")
-            {
-                std::string data =
-                    "{ telemetryKey : telemetryValue }"; // [LINUXEP-6631] This will be specified later on
-                httpSender->putRequest(
-                    additionalHeaders, data, certPath); // [LINUXEP-6075] This will be done via a configuration file
-            }
-            else if (verb == "GET")
-            {
-                httpSender->getRequest(
-                    additionalHeaders, certPath); // [LINUXEP-6075] This will be done via a configuration file
-            }
-            else
-            {
-                std::stringstream errorMsg;
-                errorMsg << "Unexpected HTTPS request type: " << verb;
-                throw std::runtime_error(errorMsg.str());
-            }
+            requestConfig->setData("{ telemetryKey : telemetryValue }"); // [LINUXEP-6631] This will be specified later on
+            httpSender->httpsRequest(requestConfig); // [LINUXEP-6075] This will be done via a configuration file
         }
         catch (const std::exception& e)
         {
@@ -89,7 +74,7 @@ namespace Telemetry
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
 
         std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>();
-        std::shared_ptr<IHttpSender> httpSender = std::make_shared<HttpSender>("https://t1.sophosupd.com/", curlWrapper);
+        std::shared_ptr<IHttpSender> httpSender = std::make_shared<HttpSender>(curlWrapper);
 
         return main(argc, argv, httpSender);
     }

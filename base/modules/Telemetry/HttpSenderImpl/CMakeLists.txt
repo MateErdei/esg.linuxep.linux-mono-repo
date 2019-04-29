@@ -5,7 +5,8 @@ add_library(httpsenderimpl SHARED
         ../HttpSender/IHttpSender.h
         HttpSender.h
         HttpSender.cpp
-        )
+        RequestConfig.h
+        RequestConfig.cpp)
 
 include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
@@ -28,3 +29,5 @@ install(TARGETS httpsenderimpl
         LIBRARY DESTINATION files/base/lib64)
 
 add_dependencies(httpsenderimpl copy_libs)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")

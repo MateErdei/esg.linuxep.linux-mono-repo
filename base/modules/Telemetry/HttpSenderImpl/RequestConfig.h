@@ -1,0 +1,74 @@
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#pragma once
+
+#include <string>
+#include <vector>
+
+enum class RequestType
+{
+    GET,
+    POST,
+    PUT
+};
+
+enum class ResourceRoot
+{
+    PROD,
+    DEV,
+    TEST
+};
+
+constexpr static const char* g_defaultServer = "t1.sophosupd.com";
+constexpr static int g_defaultPort = 443;
+constexpr static const char* g_defaultCertPath = "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
+constexpr static ResourceRoot g_defaultResourceRoot = ResourceRoot::PROD;
+
+
+class RequestConfig
+{
+public:
+    RequestConfig(
+        const std::string& requestTypeStr,
+        std::vector<std::string> additionalHeaders,
+        std::string server = g_defaultServer,
+        int port = g_defaultPort,
+        std::string certPath = g_defaultCertPath,
+        ResourceRoot resourceRoot = g_defaultResourceRoot
+        );
+    RequestConfig(const RequestConfig&) = delete;
+    RequestConfig& operator= (const RequestConfig&) = delete;
+    ~RequestConfig() = default;
+
+    void setData(const std::string& data);
+    void setServer(const std::string& server);
+    void setCertPath(const std::string& certPath);
+    void setResourceRoot(const std::string& resourceRoot);
+
+    std::string getData();
+    std::vector<std::string> getAdditionalHeaders();
+    RequestType getRequestType();
+    std::string getCertPath();
+    std::string getServer();
+    std::string getResourceRootAsString();
+    std::string getRequestTypeAsString();
+
+    static std::string resourceRootToString(ResourceRoot resourceRoot);
+    static std::string requestTypeToString(RequestType requestType);
+
+private:
+    std::string m_data;
+    std::vector<std::string> m_additionalHeaders;
+    static ResourceRoot stringToResourceRoot(const std::string& resourceRoot);
+    static RequestType stringToRequestType(const std::string& requestType);
+
+    std::string m_server;
+    int m_port;
+    RequestType m_requestType;
+    std::string m_certPath;
+    ResourceRoot m_resourceRoot;
+};

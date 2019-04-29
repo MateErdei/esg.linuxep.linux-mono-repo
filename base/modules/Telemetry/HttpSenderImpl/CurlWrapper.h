@@ -13,6 +13,7 @@ class CurlWrapper : public ICurlWrapper
 public:
     CurlWrapper() = default;
     CurlWrapper(const CurlWrapper&) = delete;
+    CurlWrapper& operator= (const CurlWrapper&) = delete;
     ~CurlWrapper() override = default;
 
     CURLcode curlGlobalInit(long flags) override;

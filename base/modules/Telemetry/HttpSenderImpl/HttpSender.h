@@ -10,53 +10,19 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Telemetry/HttpSender/IHttpSender.h>
 
-#include <memory>
-
-enum class RequestType
-{
-    GET,
-    POST,
-    PUT
-};
-
 class HttpSender : public IHttpSender
 {
 public:
-    explicit HttpSender(
-        std::string server,
-        std::shared_ptr<ICurlWrapper> curlWrapper);
+    explicit HttpSender(std::shared_ptr<ICurlWrapper> curlWrapper);
     HttpSender(const HttpSender&) = delete;
     HttpSender& operator= (const HttpSender&) = delete;
     ~HttpSender() override = default;
 
-    void setServer(const std::string& server) override;
-
-    int getRequest(const std::vector<std::string>& additionalHeaders, const std::string& certPath) override;
-    int postRequest(
-        const std::vector<std::string>& additionalHeaders,
-        const std::string& data,
-        const std::string& certPath) override;
-    int putRequest(
-        const std::vector<std::string>& additionalHeaders,
-        const std::string& data,
-        const std::string& certPath) override;
-
+    int httpsRequest(std::shared_ptr<RequestConfig> requestConfig) override;
 private:
-    int httpsRequest(
-        const RequestType& requestType,
-        const std::string& certPath,
-        const std::vector<std::string>& additionalHeaders = std::vector<std::string>(),
-        const std::string& data = std::string());
-    std::string requestTypeToString(RequestType requestType);
-
-    void setCurlOptions(
+    curl_slist* setCurlOptions(
         CURL* curl,
-        curl_slist* headers,
-        const RequestType& requestType,
-        const std::string& certPath,
-        const std::vector<std::string>& additionalHeaders,
-        const std::string& data);
+        const std::shared_ptr<RequestConfig>& requestConfig);
 
-    std::string m_server;
     std::shared_ptr<ICurlWrapper> m_curlWrapper;
 };

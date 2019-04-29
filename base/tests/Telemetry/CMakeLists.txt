@@ -13,6 +13,7 @@ target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_D
 target_include_directories(TelemetryTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")
 
 target_link_libraries(TelemetryTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto telemetryimpl testhelpers)
+target_link_libraries(TelemetryTests gcov)
 gtest_discover_tests(TelemetryTests)
 
 SET_TARGET_PROPERTIES(TelemetryTests

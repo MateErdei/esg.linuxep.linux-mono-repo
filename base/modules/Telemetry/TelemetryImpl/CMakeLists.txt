@@ -20,3 +20,5 @@ install(TARGETS telemetryimpl
         LIBRARY DESTINATION files/base/lib64)
 
 add_dependencies(telemetryimpl copy_libs)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")
