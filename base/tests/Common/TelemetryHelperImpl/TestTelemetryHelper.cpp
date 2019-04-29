@@ -151,6 +151,28 @@ TEST(TestTelemetryHelper, incCounter) // NOLINT
     ASSERT_EQ(R"({"counter":5})", helper.serialise());
 }
 
+TEST(TestTelemetryHelper, incCounterByUnsignedInt) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("counter", 1);
+    ASSERT_EQ(R"({"counter":1})", helper.serialise());
+    helper.increment("counter", 1u);
+    ASSERT_EQ(R"({"counter":2})", helper.serialise());
+}
+
+
+TEST(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("counter", 1u);
+    ASSERT_EQ(R"({"counter":1})", helper.serialise());
+    helper.increment("counter", 1u);
+    ASSERT_EQ(R"({"counter":2})", helper.serialise());
+}
+
+
 TEST(TestTelemetryHelper, incNegativeCounter) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
