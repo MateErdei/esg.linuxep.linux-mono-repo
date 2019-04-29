@@ -4,6 +4,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#pragma once
+
 #include "TelemetryObject.h"
 
 #include "Common/TelemetryHelper/ITelemetryHelper.h"
