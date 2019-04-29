@@ -20,7 +20,7 @@ void TelemetryHelper::setInternal(const std::string& key, T value)
 
 void TelemetryHelper::set(const std::string& key, int value)
 {
-   setInternal(key, value);
+    setInternal(key, value);
 }
 
 void TelemetryHelper::set(const std::string& key, unsigned int value)
@@ -67,7 +67,7 @@ void TelemetryHelper::incrementInternal(const std::string& key, T value)
 
 void TelemetryHelper::increment(const std::string& key, int value)
 {
-   incrementInternal(key, value);
+    incrementInternal(key, value);
 }
 
 void TelemetryHelper::increment(const std::string& key, unsigned int value)
@@ -75,8 +75,9 @@ void TelemetryHelper::increment(const std::string& key, unsigned int value)
     incrementInternal(key, value);
 }
 
-template <class T>
-void TelemetryHelper::appendInternal (const std::string& key, T value) {
+template<class T>
+void TelemetryHelper::appendInternal(const std::string& key, T value)
+{
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
 
@@ -159,7 +160,10 @@ void TelemetryHelper::reset()
     std::lock_guard<std::mutex> callbackLock(m_callbackLock);
     for (const auto& callback_entry : m_callbacks)
     {
-        callback_entry.second();
+        if (callback_entry.second)
+        {
+            callback_entry.second();
+        }
     }
 }
 void TelemetryHelper::clearData()

@@ -40,7 +40,6 @@ public:
 
     void increment(const std::string& key, unsigned int value) override;
 
-
     void append(const std::string& key, int value) override;
 
     void append(const std::string& key, unsigned int value) override;
@@ -64,17 +63,15 @@ private:
     std::mutex m_callbackLock;
     std::map<std::string, std::function<void()>> m_callbacks;
 
-    template <class T>
-    void setInternal (const std::string& key, T value);
+    template<class T>
+    void setInternal(const std::string& key, T value);
 
-    template <class T>
-    void incrementInternal (const std::string& key, T value);
+    template<class T>
+    void incrementInternal(const std::string& key, T value);
 
-    template <class T>
-    void appendInternal (const std::string& key, T value);
+    template<class T>
+    void appendInternal(const std::string& key, T value);
 
     TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
     void clearData();
 };
-
-
