@@ -15,11 +15,12 @@ TelemetryProcessor::TelemetryProcessor(std::string jsonOutputPath)
     : m_telemetryJsonOutput(std::move(jsonOutputPath))
 {
 }
+
 void TelemetryProcessor::run()
 {
     LOGINFO("Telemetry processing started");
     gatherTelemetry();
-    saveTelemetryToDisk("somefile");
+    saveTelemetryToDisk(m_telemetryJsonOutput);
     sendTelemetry();
 }
 
@@ -44,7 +45,6 @@ void TelemetryProcessor::sendTelemetry()
 {
     LOGINFO("Sending telemetry");
     LOGDEBUG("Sending telemetry: " << getSerialisedTelemetry());
-
 }
 
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
