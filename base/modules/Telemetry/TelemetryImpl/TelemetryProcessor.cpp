@@ -9,20 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 
-using namespace Common::Telemetry;
-
-TelemetryProcessor::TelemetryProcessor(std::string jsonOutputPath)
-    : m_telemetryJsonOutput(std::move(jsonOutputPath))
-{
-}
-
-void TelemetryProcessor::run()
-{
-    LOGINFO("Telemetry processing started");
-    gatherTelemetry();
-    saveTelemetryToDisk(m_telemetryJsonOutput);
-    sendTelemetry();
-}
+using namespace Telemetry;
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
 {
@@ -41,12 +28,6 @@ void TelemetryProcessor::gatherTelemetry()
     addTelemetry("TelemetryExecutableExample", gatheredExampleJson);
 }
 
-void TelemetryProcessor::sendTelemetry()
-{
-    LOGINFO("Sending telemetry");
-    LOGDEBUG("Sending telemetry: " << getSerialisedTelemetry());
-}
-
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
 {
     LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
@@ -59,3 +40,4 @@ std::string TelemetryProcessor::getSerialisedTelemetry()
 {
     return TelemetryHelper::getInstance().serialise();
 }
+
