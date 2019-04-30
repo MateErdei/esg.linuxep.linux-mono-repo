@@ -25,7 +25,10 @@ public:
         return instance;
     }
 
+    // Delete construction copy
     TelemetryHelper(TelemetryHelper const&) = delete;
+    
+    // Delete assignment copy
     void operator=(TelemetryHelper const&) = delete;
 
     void set(const std::string& key, int value) override;
@@ -57,9 +60,10 @@ public:
     void reset() override;
     std::string serialise();
 
-private:
+    // As per review comment, move to public so that plugins can instantiate this if they want to.
     TelemetryHelper() = default;
-
+    
+private:
     TelemetryObject m_root;
     std::mutex m_dataLock;
     std::mutex m_callbackLock;
