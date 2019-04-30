@@ -16,7 +16,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 using namespace Common::Telemetry;
 
-class TelemetryHelper : public Common::Telemetry::ITelemetryHelper
+class TelemetryHelper : public ITelemetryHelper
 {
 public:
     static TelemetryHelper& getInstance()
