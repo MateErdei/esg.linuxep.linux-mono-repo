@@ -25,10 +25,8 @@ public:
         return instance;
     }
 
-    // Delete construction copy
     TelemetryHelper(TelemetryHelper const&) = delete;
 
-    // Delete assignment copy
     void operator=(TelemetryHelper const&) = delete;
 
     void set(const std::string& key, int value) override;
