@@ -57,6 +57,7 @@ public:
     std::string getServer();
     std::string getResourceRootAsString();
     std::string getRequestTypeAsString();
+    int getPort();
 
     static std::string resourceRootToString(ResourceRoot resourceRoot);
     static std::string requestTypeToString(RequestType requestType);

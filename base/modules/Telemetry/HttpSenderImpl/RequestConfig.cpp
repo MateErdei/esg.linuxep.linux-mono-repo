@@ -152,3 +152,8 @@ std::string RequestConfig::getResourceRootAsString()
 {
     return resourceRootToString(m_resourceRoot);
 }
+
+int RequestConfig::getPort()
+{
+    return m_port;
+}

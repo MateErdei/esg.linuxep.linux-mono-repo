@@ -30,7 +30,7 @@ curl_slist* HttpSender::setCurlOptions(
     curl_slist* headers = nullptr;
 
     std::stringstream uriStream;
-    uriStream << "https://" << requestConfig->getServer() << requestConfig->getResourceRootAsString();
+    uriStream << "https://" << requestConfig->getServer() << ":" << requestConfig->getPort() << requestConfig->getResourceRootAsString();
     std::string uri = uriStream.str();
 
     LOGINFO("Creating HTTPS " << requestConfig->getRequestTypeAsString() << " Request to " << uri);
