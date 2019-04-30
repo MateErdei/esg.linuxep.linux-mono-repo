@@ -6,7 +6,9 @@ add_library(httpsenderimpl SHARED
         HttpSender.h
         HttpSender.cpp
         RequestConfig.h
-        RequestConfig.cpp)
+        RequestConfig.cpp
+        Logger.h
+        Logger.cpp)
 
 include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
@@ -16,7 +18,7 @@ target_link_libraries(httpsenderimpl PUBLIC
         crypto
         ${CURL_LIBRARY}
         ${LOG4CPLUS_LIBRARY}
-        telemetryloggerimpl
+        logging
         )
 
 SET_TARGET_PROPERTIES(httpsenderimpl

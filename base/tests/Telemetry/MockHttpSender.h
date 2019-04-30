@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <Telemetry/HttpSender/IHttpSender.h>
+#include <Common/HttpSender/IHttpSender.h>
 
 #include <gmock/gmock.h>
 
@@ -13,8 +13,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace ::testing;
 
-class MockHttpSender : public IHttpSender
+class MockHttpSender : public Common::HttpSender::IHttpSender
 {
 public:
-    MOCK_METHOD1(httpsRequest, int(std::shared_ptr<RequestConfig> requestConfig));
+    MOCK_METHOD1(doHttpsRequest, int(std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig));
 };

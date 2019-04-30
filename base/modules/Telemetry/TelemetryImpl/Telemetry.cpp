@@ -7,9 +7,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/HttpSenderImpl/RequestConfig.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Telemetry/LoggerImpl/Logger.h>
-#include <Telemetry/HttpSenderImpl/RequestConfig.h>
 
 #include <sstream>
 #include <string>
@@ -18,7 +18,7 @@ namespace Telemetry
 {
     static const int g_maxArgs = 5;
 
-    int main(int argc, char* argv[], const std::shared_ptr<IHttpSender>& httpSender)
+    int main(int argc, char* argv[], const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender)
     {
         try
         {
@@ -32,7 +32,7 @@ namespace Telemetry
             additionalHeaders.emplace_back(
                 "x-amz-acl:bucket-owner-full-control"); // [LINUXEP-6075] This will be read in from a configuration file
 
-            std::shared_ptr<RequestConfig> requestConfig = std::make_shared<RequestConfig>(
+            std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
                 argv[1], additionalHeaders
             );
 
@@ -57,7 +57,7 @@ namespace Telemetry
             }
 
             requestConfig->setData("{ telemetryKey : telemetryValue }"); // [LINUXEP-6631] This will be specified later on
-            httpSender->httpsRequest(requestConfig); // [LINUXEP-6075] This will be done via a configuration file
+            httpSender->doHttpsRequest(requestConfig); // [LINUXEP-6075] This will be done via a configuration file
         }
         catch (const std::exception& e)
         {
@@ -73,8 +73,8 @@ namespace Telemetry
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
 
-        std::shared_ptr<ICurlWrapper> curlWrapper = std::make_shared<CurlWrapper>();
-        std::shared_ptr<IHttpSender> httpSender = std::make_shared<HttpSender>(curlWrapper);
+        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper = std::make_shared<Common::HttpSender::CurlWrapper>();
+        std::shared_ptr<Common::HttpSender::IHttpSender> httpSender = std::make_shared<Common::HttpSender::HttpSender>(curlWrapper);
 
         return main(argc, argv, httpSender);
     }
