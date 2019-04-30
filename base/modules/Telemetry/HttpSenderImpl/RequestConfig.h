@@ -23,11 +23,10 @@ enum class ResourceRoot
     TEST
 };
 
-#define DEFAULT_SERVER "t1.sophosupd.com"
-#define DEFAULT_CERT_PATH "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem"
-
-constexpr static int g_defaultPort = 443;
-constexpr static ResourceRoot g_defaultResourceRoot = ResourceRoot::PROD;
+static const char* g_defaultServer = "t1.sophosupd.com";
+static const char* g_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
+static const int g_defaultPort = 443;
+static const ResourceRoot g_defaultResourceRoot = ResourceRoot::PROD;
 
 
 class RequestConfig
@@ -36,9 +35,9 @@ public:
     RequestConfig(
         const std::string& requestTypeStr,
         std::vector<std::string> additionalHeaders,
-        std::string server = DEFAULT_SERVER,
+        std::string server = g_defaultServer,
         int port = g_defaultPort,
-        std::string certPath = DEFAULT_CERT_PATH,
+        std::string certPath = g_defaultCertPath,
         ResourceRoot resourceRoot = g_defaultResourceRoot
         );
     RequestConfig(const RequestConfig&) = delete;

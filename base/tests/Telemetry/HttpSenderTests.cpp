@@ -45,9 +45,9 @@ public:
         m_curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
         m_httpSender = std::make_shared<HttpSender>(m_curlWrapper);
 
-        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, DEFAULT_SERVER, g_defaultPort, DEFAULT_CERT_PATH, ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, DEFAULT_SERVER, g_defaultPort, DEFAULT_CERT_PATH, ResourceRoot::PROD);
-        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, DEFAULT_SERVER, g_defaultPort, "/nonDefaultCertPath");
+        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, g_defaultServer, g_defaultPort, g_defaultCertPath, ResourceRoot::DEV);
+        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, g_defaultServer, g_defaultPort, g_defaultCertPath, ResourceRoot::PROD);
+        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, g_defaultServer, g_defaultPort, "/nonDefaultCertPath");
     }
 };
 
