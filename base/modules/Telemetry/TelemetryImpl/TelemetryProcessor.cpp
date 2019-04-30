@@ -50,6 +50,8 @@ void TelemetryProcessor::sendTelemetry()
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
 {
     LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
+
+    // Will overwrite data each time.
     Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, getSerialisedTelemetry());
 }
 
