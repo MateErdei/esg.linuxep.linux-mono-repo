@@ -235,6 +235,23 @@ namespace
         removeFile(filePath);
     }
 
+    TEST_F(FileSystemImplTest, writeOverwritesExistingFile) // NOLINT
+    {
+        std::string filePath =
+                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "overwriteme.txt");
+
+        std::string initialContent("initial");
+        m_fileSystem->writeFile(filePath, initialContent);
+        EXPECT_EQ(m_fileSystem->readFile(filePath), initialContent);
+
+        std::string finalContent("final");
+        m_fileSystem->writeFile(filePath, finalContent);
+
+        EXPECT_EQ(m_fileSystem->readFile(filePath), finalContent);
+        removeFile(filePath);
+    }
+
+
     TEST_F(FileSystemImplTest, readThrowsForTooLargeFile) // NOLINT
     {
         std::string filePath =
