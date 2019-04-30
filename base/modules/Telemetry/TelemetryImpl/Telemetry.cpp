@@ -8,6 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryProcessor.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Telemetry/HttpSenderImpl/RequestConfig.h>
@@ -24,6 +26,12 @@ namespace Telemetry
     {
         try
         {
+
+            TelemetryProcessor::gatherTelemetry();
+            std::string installationRootPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+            Path jsonFile = Common::FileSystem::join(installationRootPath, "var/telemetry.json");
+            TelemetryProcessor::saveTelemetryToDisk(jsonFile);
+
             if (argc == 1 || argc > g_maxArgs)
             {
                 throw std::runtime_error("Telemetry executable expects the following arguments: request_type [server] "
