@@ -8,8 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryObject.h"
 
-#include "Common/TelemetryHelper/ITelemetryHelper.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include <Common/TelemetryHelper/ITelemetryHelper.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <functional>
 #include <mutex>
@@ -27,7 +27,7 @@ public:
 
     // Delete construction copy
     TelemetryHelper(TelemetryHelper const&) = delete;
-    
+
     // Delete assignment copy
     void operator=(TelemetryHelper const&) = delete;
 
@@ -60,9 +60,10 @@ public:
     void reset() override;
     std::string serialise();
 
-    // As per review comment, move to public so that plugins can instantiate this if they want to.
+    // Move to public so that plugins can instantiate this if they want to
+    // https://stash.sophos.net/projects/LINUXEP/repos/everest-base/pull-requests/322/overview
     TelemetryHelper() = default;
-    
+
 private:
     TelemetryObject m_root;
     std::mutex m_dataLock;
