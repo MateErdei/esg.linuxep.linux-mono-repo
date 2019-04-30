@@ -60,8 +60,7 @@ public:
     void reset() override;
     std::string serialise();
 
-    // Move to public so that plugins can instantiate this if they want to
-    // https://stash.sophos.net/projects/LINUXEP/repos/everest-base/pull-requests/322/overview
+    // Move to public so that plugins can instantiate this if they want to.
     TelemetryHelper() = default;
 
 private:
