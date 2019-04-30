@@ -123,12 +123,12 @@ RequestType RequestConfig::getRequestType()
     return m_requestType;
 }
 
-std::string RequestConfig::getCertPath()
+const std::string& RequestConfig::getCertPath()
 {
     return m_certPath;
 }
 
-std::string RequestConfig::getData()
+const std::string& RequestConfig::getData()
 {
     return m_data;
 }

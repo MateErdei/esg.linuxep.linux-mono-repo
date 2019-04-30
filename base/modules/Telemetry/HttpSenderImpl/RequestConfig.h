@@ -23,9 +23,10 @@ enum class ResourceRoot
     TEST
 };
 
-constexpr static const char* g_defaultServer = "t1.sophosupd.com";
+#define DEFAULT_SERVER "t1.sophosupd.com"
+#define DEFAULT_CERT_PATH "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem"
+
 constexpr static int g_defaultPort = 443;
-constexpr static const char* g_defaultCertPath = "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
 constexpr static ResourceRoot g_defaultResourceRoot = ResourceRoot::PROD;
 
 
@@ -35,9 +36,9 @@ public:
     RequestConfig(
         const std::string& requestTypeStr,
         std::vector<std::string> additionalHeaders,
-        std::string server = g_defaultServer,
+        std::string server = DEFAULT_SERVER,
         int port = g_defaultPort,
-        std::string certPath = g_defaultCertPath,
+        std::string certPath = DEFAULT_CERT_PATH,
         ResourceRoot resourceRoot = g_defaultResourceRoot
         );
     RequestConfig(const RequestConfig&) = delete;
@@ -49,10 +50,10 @@ public:
     void setCertPath(const std::string& certPath);
     void setResourceRoot(const std::string& resourceRoot);
 
-    std::string getData();
+    const std::string& getData();
     std::vector<std::string> getAdditionalHeaders();
     RequestType getRequestType();
-    std::string getCertPath();
+    const std::string& getCertPath();
     std::string getServer();
     std::string getResourceRootAsString();
     std::string getRequestTypeAsString();
