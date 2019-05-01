@@ -6,8 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IProcess.h"
-
+#include <Common/Process/IProcess.h>
 #include <sys/types.h>
 
 #include <functional>
@@ -59,7 +58,7 @@ namespace Common
 
         public:
             static ProcessFactory& instance();
-            std::unique_ptr<Process::IProcess> createProcess();
+            virtual std::unique_ptr<Process::IProcess> createProcess();
             // for tests only
             void replaceCreator(std::function<std::unique_ptr<Common::Process::IProcess>(void)> creator);
             void restoreCreator();
