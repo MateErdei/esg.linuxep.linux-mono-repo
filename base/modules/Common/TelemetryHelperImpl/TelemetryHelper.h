@@ -30,27 +30,37 @@ public:
     void operator=(TelemetryHelper const&) = delete;
 
     void set(const std::string& key, int value) override;
+
     void set(const std::string& key, unsigned int value) override;
+
     void set(const std::string& key, const std::string& value) override;
+
     void set(const std::string& key, const char* value) override;
+
     void set(const std::string& key, bool value) override;
 
     void increment(const std::string& key, int value) override;
+
     void increment(const std::string& key, unsigned int value) override;
 
     void append(const std::string& key, int value) override;
+
     void append(const std::string& key, unsigned int value) override;
+
     void append(const std::string& key, const std::string& value) override;
+
     void append(const std::string& key, const char* value) override;
+
     void append(const std::string& key, bool value) override;
+
+    void mergeJsonIn(const std::string& key, const std::string& json) override;
 
     void registerResetCallback(std::string cookie, std::function<void()> function) override;
     void unregisterResetCallback(std::string cookie) override;
     void reset() override;
     std::string serialise();
 
-    // Normally with a singleton the constructor is private but here we make the constructor public
-    // so that plugins can instantiate this if they want to.
+    // Move to public so that plugins can instantiate this if they want to.
     TelemetryHelper() = default;
 
 private:

@@ -8,155 +8,158 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <sstream>
 
-namespace Common::HttpSenderImpl
+namespace Common
 {
-    RequestConfig::RequestConfig(
-        const std::string& requestTypeStr,
-        std::vector<std::string> additionalHeaders,
-        std::string server,
-        int port,
-        std::string certPath,
-        ResourceRoot resourceRoot )
-    : m_additionalHeaders(std::move(additionalHeaders))
-    , m_server(std::move(server))
-    , m_port(port)
-    , m_requestType(stringToRequestType(requestTypeStr))
-    , m_certPath(std::move(certPath))
-    , m_resourceRoot(resourceRoot)
+    namespace HttpSender
     {
-    }
-
-    std::string RequestConfig::resourceRootToString(ResourceRoot resourceRoot)
-    {
-        switch(resourceRoot)
+        RequestConfig::RequestConfig(
+            const std::string& requestTypeStr,
+            std::vector<std::string> additionalHeaders,
+            std::string server,
+            int port,
+            std::string certPath,
+            ResourceRoot resourceRoot )
+        : m_additionalHeaders(std::move(additionalHeaders))
+        , m_server(std::move(server))
+        , m_port(port)
+        , m_requestType(stringToRequestType(requestTypeStr))
+        , m_certPath(std::move(certPath))
+        , m_resourceRoot(resourceRoot)
         {
-            case ResourceRoot::PROD:
-                return "/linux/sspl/prod";
-            case ResourceRoot::DEV:
-                return "/linux/sspl/dev";
-            case ResourceRoot::TEST:
-                return "";
-            default:
-                throw std::logic_error("Unknown resource root");
         }
-    }
 
-    ResourceRoot RequestConfig::stringToResourceRoot(const std::string& resourceRoot)
-    {
-        if (resourceRoot == "PROD")
+        std::string RequestConfig::resourceRootToString(ResourceRoot resourceRoot)
         {
-            return ResourceRoot::PROD;
+            switch(resourceRoot)
+            {
+                case ResourceRoot::PROD:
+                    return "/linux/sspl/prod";
+                case ResourceRoot::DEV:
+                    return "/linux/sspl/dev";
+                case ResourceRoot::TEST:
+                    return "";
+                default:
+                    throw std::logic_error("Unknown resource root");
+            }
         }
-        else if (resourceRoot == "DEV")
+
+        ResourceRoot RequestConfig::stringToResourceRoot(const std::string& resourceRoot)
         {
-            return ResourceRoot::DEV;
+            if (resourceRoot == "PROD")
+            {
+                return ResourceRoot::PROD;
+            }
+            else if (resourceRoot == "DEV")
+            {
+                return ResourceRoot::DEV;
+            }
+            else if (resourceRoot == "TEST")
+            {
+                return ResourceRoot::TEST;
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Unknown resource root: " << resourceRoot;
+                throw std::range_error(ss.str());
+            }
         }
-        else if (resourceRoot == "TEST")
+
+        std::string RequestConfig::requestTypeToString(RequestType requestType)
         {
-            return ResourceRoot::TEST;
+            switch(requestType)
+            {
+                case RequestType::GET:
+                    return "GET";
+                case RequestType::POST:
+                    return "POST";
+                case RequestType::PUT:
+                    return "PUT";
+                default:
+                    throw std::logic_error("Unknown request type");
+            }
         }
-        else
+
+        RequestType RequestConfig::stringToRequestType(const std::string& requestType)
         {
-            std::stringstream ss;
-            ss << "Unknown resource root: " << resourceRoot;
-            throw std::range_error(ss.str());
+            if (requestType == "GET")
+            {
+                return RequestType::GET;
+            }
+            else if (requestType == "POST")
+            {
+                return RequestType::POST;
+            }
+            else if (requestType == "PUT")
+            {
+                return RequestType::PUT;
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Unknown request type: " << requestType;
+                throw std::range_error(ss.str());
+            }
         }
-    }
 
-    std::string RequestConfig::requestTypeToString(RequestType requestType)
-    {
-        switch(requestType)
+        void RequestConfig::setData(const std::string& data)
         {
-            case RequestType::GET:
-                return "GET";
-            case RequestType::POST:
-                return "POST";
-            case RequestType::PUT:
-                return "PUT";
-            default:
-                throw std::logic_error("Unknown request type");
+            m_data = data;
         }
-    }
 
-    RequestType RequestConfig::stringToRequestType(const std::string& requestType)
-    {
-        if (requestType == "GET")
+        void RequestConfig::setServer(const std::string& server)
         {
-            return RequestType::GET;
+            m_server = server;
         }
-        else if (requestType == "POST")
+
+        void RequestConfig::setCertPath(const std::string& certPath)
         {
-            return RequestType::POST;
+            m_certPath = certPath;
         }
-        else if (requestType == "PUT")
+
+        void RequestConfig::setResourceRoot(const std::string& resourceRoot)
         {
-            return RequestType::PUT;
+            m_resourceRoot = stringToResourceRoot(resourceRoot);
         }
-        else
+
+        RequestType RequestConfig::getRequestType()
         {
-            std::stringstream ss;
-            ss << "Unknown request type: " << requestType;
-            throw std::range_error(ss.str());
+            return m_requestType;
         }
-    }
 
-    void RequestConfig::setData(const std::string& data)
-    {
-        m_data = data;
-    }
+        const std::string& RequestConfig::getCertPath()
+        {
+            return m_certPath;
+        }
 
-    void RequestConfig::setServer(const std::string& server)
-    {
-        m_server = server;
-    }
+        const std::string& RequestConfig::getData()
+        {
+            return m_data;
+        }
 
-    void RequestConfig::setCertPath(const std::string& certPath)
-    {
-        m_certPath = certPath;
-    }
+        std::vector<std::string> RequestConfig::getAdditionalHeaders()
+        {
+            return m_additionalHeaders;
+        }
 
-    void RequestConfig::setResourceRoot(const std::string& resourceRoot)
-    {
-        m_resourceRoot = stringToResourceRoot(resourceRoot);
-    }
+        std::string RequestConfig::getServer()
+        {
+            return m_server;
+        }
 
-    RequestType RequestConfig::getRequestType()
-    {
-        return m_requestType;
-    }
+        std::string RequestConfig::getRequestTypeAsString()
+        {
+            return requestTypeToString(m_requestType);
+        }
 
-    const std::string& RequestConfig::getCertPath()
-    {
-        return m_certPath;
-    }
+        std::string RequestConfig::getResourceRootAsString()
+        {
+            return resourceRootToString(m_resourceRoot);
+        }
 
-    const std::string& RequestConfig::getData()
-    {
-        return m_data;
-    }
-
-    std::vector<std::string> RequestConfig::getAdditionalHeaders()
-    {
-        return m_additionalHeaders;
-    }
-
-    std::string RequestConfig::getServer()
-    {
-        return m_server;
-    }
-
-    std::string RequestConfig::getRequestTypeAsString()
-    {
-        return requestTypeToString(m_requestType);
-    }
-
-    std::string RequestConfig::getResourceRootAsString()
-    {
-        return resourceRootToString(m_resourceRoot);
-    }
-
-    int RequestConfig::getPort()
-    {
-        return m_port;
-    }
-} // namespace Common::HttpSenderImpl
+        int RequestConfig::getPort()
+        {
+            return m_port;
+        }
+    } // namespace HttpSender
+} // namespace Common

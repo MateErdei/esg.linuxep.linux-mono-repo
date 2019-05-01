@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SystemTelemetryCollectorImpl.h"
 
-#include "Logger.h"
+#include <Telemetry/LoggerImpl/Logger.h>
 
 #include <Common/Process/IProcessException.h>
 
@@ -33,6 +33,7 @@ namespace Telemetry
     {
         m_commandOutputCache.clear();
         std::map<std::string, T> telemetry;
+
         for (auto const& [name, item] : config)
         {
             auto const& [command, commandArgs, regexp, valueType] = item;

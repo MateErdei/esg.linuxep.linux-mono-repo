@@ -8,31 +8,33 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/HttpSender/ICurlWrapper.h>
 
-namespace Common::HttpSenderImpl
+namespace Common
 {
-    class CurlWrapper : public Common::HttpSender::ICurlWrapper
+    namespace HttpSender
     {
-    public:
-        CurlWrapper() = default;
-        CurlWrapper(const CurlWrapper&) = delete;
-        CurlWrapper& operator= (const CurlWrapper&) = delete;
-        ~CurlWrapper() override = default;
+        class CurlWrapper : public ICurlWrapper
+        {
+        public:
+            CurlWrapper() = default;
+            CurlWrapper(const CurlWrapper&) = delete;
+            CurlWrapper& operator= (const CurlWrapper&) = delete;
+            ~CurlWrapper() override = default;
 
-        CURLcode curlGlobalInit(long flags) override;
-        CURL* curlEasyInit() override;
+            CURLcode curlGlobalInit(long flags) override;
+            CURL* curlEasyInit() override;
 
-        CURLcode curlEasySetOptHeaders(CURL *handle, curl_slist *headers) override;
-        CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter) override;
+            CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const char* parameter) override;
 
-        curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) override;
+            curl_slist* curlSlistAppend(curl_slist* list, const char* value) override;
 
-        CURLcode curlEasyPerform(CURL* handle) override;
+            CURLcode curlEasyPerform(CURL* handle) override;
 
-        void curlSlistFreeAll(curl_slist* list) override;
+            void curlSlistFreeAll(curl_slist* list) override;
 
-        void curlEasyCleanup(CURL* handle) override;
-        void curlGlobalCleanup() override;
+            void curlEasyCleanup(CURL* handle) override;
+            void curlGlobalCleanup() override;
 
-        const char* curlEasyStrError(CURLcode errornum) override;
-    };
-} // namespace Common::HttpSenderImpl
+            const char* curlEasyStrError(CURLcode errornum) override;
+        };
+    } // namespace HttpSender
+} // namespace Common

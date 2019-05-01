@@ -4,36 +4,31 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-/**
- * WARNING: There should only ever be a single instance of this class as it initialises libcurl on construction.
- * TODO: Convert class to a singleton or use a factory where libcurl initilisation can be done before instance creation.
- */
-
 #pragma once
 
 #include "CurlWrapper.h"
 
 #include <Common/HttpSender/IHttpSender.h>
 
-namespace Common::HttpSenderImpl
+namespace Common
 {
-    class HttpSender : public Common::HttpSender::IHttpSender
+    namespace HttpSender
     {
-    public:
-        explicit HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper);
-        HttpSender(const HttpSender&) = delete;
-        HttpSender& operator= (const HttpSender&) = delete;
-        ~HttpSender() override;
+        class HttpSender : public IHttpSender
+        {
+        public:
+            explicit HttpSender(std::shared_ptr<ICurlWrapper> curlWrapper);
+            HttpSender(const HttpSender&) = delete;
+            HttpSender& operator= (const HttpSender&) = delete;
+            ~HttpSender() override = default;
 
-        int doHttpsRequest(RequestConfig& requestConfig) override;
-    private:
-        CURLcode setCurlOptions(
-            CURL* curl,
-            RequestConfig& requestConfig,
-            curl_slist* headers,
-            std::vector<std::tuple<std::string, CURLoption, std::string>> &curlOptions
-            );
+            int doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig) override;
+        private:
+            curl_slist* setCurlOptions(
+                CURL* curl,
+                const std::shared_ptr<RequestConfig>& requestConfig);
 
-        std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
-    };
-} // namespace Common::HttpSenderImpl
+            std::shared_ptr<ICurlWrapper> m_curlWrapper;
+        };
+    } // namespace HttpSender
+} // namespace Common

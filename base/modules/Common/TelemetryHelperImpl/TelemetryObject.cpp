@@ -5,12 +5,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryObject.h"
+
 #include <sstream>
 
-Common::Telemetry::TelemetryObject::TelemetryObject()
-    : m_type(Type::object), m_value(std::map<std::string, TelemetryObject>())
-{
-}
+Common::Telemetry::TelemetryObject::TelemetryObject() : m_value(std::map<std::string, TelemetryObject>()) {}
 
 void Common::Telemetry::TelemetryObject::set(const std::string& key, const Common::Telemetry::TelemetryValue& value)
 {
@@ -23,7 +21,6 @@ void Common::Telemetry::TelemetryObject::set(const std::string& key, const Commo
     TelemetryObject obj;
     obj.set(value);
     nodes[key] = obj;
-    m_type = Type::object;
 }
 
 void Common::Telemetry::TelemetryObject::set(const std::string& key, const Common::Telemetry::TelemetryObject& value)
@@ -38,8 +35,8 @@ void Common::Telemetry::TelemetryObject::set(const std::string& key, const Commo
 }
 
 void Common::Telemetry::TelemetryObject::set(
-        const std::string& key,
-        const std::list<Common::Telemetry::TelemetryObject>& objectList)
+    const std::string& key,
+    const std::list<Common::Telemetry::TelemetryObject>& objectList)
 {
     if (!std::holds_alternative<std::map<std::string, TelemetryObject>>(m_value))
     {
@@ -50,19 +47,16 @@ void Common::Telemetry::TelemetryObject::set(
     TelemetryObject obj;
     obj.set(objectList);
     nodes[key] = obj;
-    m_type = Type::object;
 }
 
 void Common::Telemetry::TelemetryObject::set(const Common::Telemetry::TelemetryValue& value)
 {
     m_value = value;
-    m_type = Type::value;
 }
 
 void Common::Telemetry::TelemetryObject::set(const std::list<Common::Telemetry::TelemetryObject>& value)
 {
     m_value = value;
-    m_type = Type::array;
 }
 
 Common::Telemetry::TelemetryObject& Common::Telemetry::TelemetryObject::getObject(const std::string& key)
@@ -107,7 +101,8 @@ std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::Te
     return obj;
 }
 
-const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects() const
+const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemetry::TelemetryObject::getChildObjects()
+    const
 {
     checkType(Type::object);
     const auto& obj = std::get<std::map<std::string, TelemetryObject>>(m_value);
@@ -116,18 +111,19 @@ const std::map<std::string, Common::Telemetry::TelemetryObject>& Common::Telemet
 
 Common::Telemetry::TelemetryObject::Type Common::Telemetry::TelemetryObject::getType() const
 {
-    return m_type;
+    return static_cast<Type>(m_value.index());
 }
 
-bool Common::Telemetry::TelemetryObject::keyExists(const std::string& key)
+bool Common::Telemetry::TelemetryObject::keyExists(const std::string& key) const
 {
+    checkType(Type::object);
     auto& nodes = std::get<std::map<std::string, TelemetryObject>>(m_value);
     return nodes.find(key) != nodes.end();
 }
 
 bool Common::Telemetry::TelemetryObject::operator==(const Common::Telemetry::TelemetryObject& rhs) const
 {
-    return m_type == rhs.m_type && m_value == rhs.m_value;
+    return m_value == rhs.m_value;
 }
 
 bool Common::Telemetry::TelemetryObject::operator!=(const Common::Telemetry::TelemetryObject& rhs) const
@@ -137,11 +133,11 @@ bool Common::Telemetry::TelemetryObject::operator!=(const Common::Telemetry::Tel
 
 void Common::Telemetry::TelemetryObject::checkType(Type expectedType) const
 {
-    if (m_type != expectedType)
+    if (getType() != expectedType)
     {
         std::stringstream msg;
-        msg << "Telemetry object does not contain the expected type. Expected: "
-            << static_cast<int>(expectedType) << " Actual: " << static_cast<int>(m_type);
+        msg << "Telemetry object does not contain the expected type. Expected: " << static_cast<int>(expectedType)
+            << " Actual: " << m_value.index();
         throw std::logic_error(msg.str());
     }
 }

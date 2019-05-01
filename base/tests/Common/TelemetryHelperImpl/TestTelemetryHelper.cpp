@@ -29,23 +29,12 @@ private:
     bool m_callbackCalled = false;
 };
 
-TEST(TestTelemetryHelper, getInstanceReturnsSingleton) // NOLINT
+TEST(TestTelemetryHelper, constructionAndGetInstance) // NOLINT
 {
     TelemetryHelper& helper1 = TelemetryHelper::getInstance();
     TelemetryHelper& helper2 = TelemetryHelper::getInstance();
     ASSERT_EQ(&helper1, &helper2);
 }
-
-TEST(TestTelemetryHelper, constructionCreatesDifferentInstance) // NOLINT
-{
-    TelemetryHelper& helper1 = TelemetryHelper::getInstance();
-    TelemetryHelper helper2;
-    TelemetryHelper helper3;
-    ASSERT_NE(&helper1, &helper2);
-    ASSERT_NE(&helper2, &helper3);
-    ASSERT_NE(&helper1, &helper3);
-}
-
 
 TEST(TestTelemetryHelper, addStringTelem) // NOLINT
 {
@@ -91,9 +80,9 @@ TEST(TestTelemetryHelper, appendInt) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", 1);
+    helper.append("array", 1);
     ASSERT_EQ(R"({"array":[1]})", helper.serialise());
-    helper.appendValue("array", 2);
+    helper.append("array", 2);
     ASSERT_EQ(R"({"array":[1,2]})", helper.serialise());
 }
 
@@ -101,9 +90,9 @@ TEST(TestTelemetryHelper, appendUnsignedInt) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", 2u);
+    helper.append("array", 2u);
     ASSERT_EQ(R"({"array":[2]})", helper.serialise());
-    helper.appendValue("array", 3u);
+    helper.append("array", 3u);
     ASSERT_EQ(R"({"array":[2,3]})", helper.serialise());
 }
 
@@ -111,9 +100,9 @@ TEST(TestTelemetryHelper, appendString) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", std::string("string"));
+    helper.append("array", std::string("string"));
     ASSERT_EQ(R"({"array":["string"]})", helper.serialise());
-    helper.appendValue("array", std::string("string2"));
+    helper.append("array", std::string("string2"));
     ASSERT_EQ(R"({"array":["string","string2"]})", helper.serialise());
 }
 
@@ -121,9 +110,9 @@ TEST(TestTelemetryHelper, appendCString) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", "cstring");
+    helper.append("array", "cstring");
     ASSERT_EQ(R"({"array":["cstring"]})", helper.serialise());
-    helper.appendValue("array", "cstring2");
+    helper.append("array", "cstring2");
     ASSERT_EQ(R"({"array":["cstring","cstring2"]})", helper.serialise());
 }
 
@@ -131,73 +120,22 @@ TEST(TestTelemetryHelper, appendBool) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", true);
+    helper.append("array", true);
     ASSERT_EQ(R"({"array":[true]})", helper.serialise());
-    helper.appendValue("array", false);
+    helper.append("array", false);
     ASSERT_EQ(R"({"array":[true,false]})", helper.serialise());
-}
-
-TEST(TestTelemetryHelper, appendCstringObject) // NOLINT
-{
-    TelemetryHelper& helper = TelemetryHelper::getInstance();
-    helper.reset();
-    helper.appendObject("array", "key1", "value1");
-    ASSERT_EQ(R"({"array":[{"key1":"value1"}]})", helper.serialise());
-    helper.appendObject("array", "key2", "value2");
-    ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
-}
-
-TEST(TestTelemetryHelper, appendIntObject) // NOLINT
-{
-    TelemetryHelper& helper = TelemetryHelper::getInstance();
-    helper.reset();
-    helper.appendObject("array", "key1", 1);
-    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
-    helper.appendObject("array", "key2", 2);
-    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
-}
-
-TEST(TestTelemetryHelper, appendStringObject) // NOLINT
-{
-    TelemetryHelper& helper = TelemetryHelper::getInstance();
-    helper.reset();
-    helper.appendObject("array", "key1", std::string("value1"));
-    ASSERT_EQ(R"({"array":[{"key1":"value1"}]})", helper.serialise());
-    helper.appendObject("array", "key2", std::string("value2"));
-    ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
-}
-
-TEST(TestTelemetryHelper, appendUnsignedIntObject) // NOLINT
-{
-    TelemetryHelper& helper = TelemetryHelper::getInstance();
-    helper.reset();
-    helper.appendObject("array", "key1", 1u);
-    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
-    helper.appendObject("array", "key2", 2u);
-    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
-}
-
-TEST(TestTelemetryHelper, appendBoolObject) // NOLINT
-{
-    TelemetryHelper& helper = TelemetryHelper::getInstance();
-    helper.reset();
-    helper.appendObject("array", "key1", false);
-    ASSERT_EQ(R"({"array":[{"key1":false}]})", helper.serialise());
-    helper.appendObject("array", "key2", true);
-    ASSERT_EQ(R"({"array":[{"key1":false},{"key2":true}]})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, appendMixed) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendValue("array", 1);
-    helper.appendValue("array", 3u);
-    helper.appendValue("array", false);
-    helper.appendValue("array", "cstring");
-    helper.appendValue("array", std::string("string"));
-    helper.appendObject("array", "obj", std::string("val"));
-    ASSERT_EQ(R"({"array":[1,3,false,"cstring","string",{"obj":"val"}]})", helper.serialise());
+    helper.append("array", 1);
+    helper.append("array", 3u);
+    helper.append("array", false);
+    helper.append("array", "cstring");
+    helper.append("array", std::string("string"));
+    ASSERT_EQ(R"({"array":[1,3,false,"cstring","string"]})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, incCounter) // NOLINT
@@ -224,6 +162,7 @@ TEST(TestTelemetryHelper, incCounterByUnsignedInt) // NOLINT
     ASSERT_EQ(R"({"counter":2})", helper.serialise());
 }
 
+
 TEST(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
@@ -233,6 +172,7 @@ TEST(TestTelemetryHelper, incUnsignedIntCounterByUnsignedInt) // NOLINT
     helper.increment("counter", 1u);
     ASSERT_EQ(R"({"counter":2})", helper.serialise());
 }
+
 
 TEST(TestTelemetryHelper, incNegativeCounter) // NOLINT
 {
@@ -258,9 +198,9 @@ TEST(TestTelemetryHelper, nestedTelem) // NOLINT
     helper.set("1", 1);
     helper.set("2", 2u);
     helper.set("a.nested.string", "string1");
-    helper.appendValue("a.nested.array", "string2");
-    helper.appendValue("a.nested.array", 1);
-    helper.appendValue("a.nested.array", false);
+    helper.append("a.nested.array", "string2");
+    helper.append("a.nested.array", 1);
+    helper.append("a.nested.array", false);
 
     ASSERT_EQ(R"({"1":1,"2":2,"a":{"nested":{"array":["string2",1,false],"string":"string1"}}})", helper.serialise());
 }

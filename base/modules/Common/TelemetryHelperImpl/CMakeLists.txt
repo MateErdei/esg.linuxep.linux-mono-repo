@@ -1,4 +1,4 @@
-add_library(telemetryhelperimplobject OBJECT
+add_library(telemetryhelperimpl SHARED
         ../TelemetryHelper/ITelemetryHelper.h
         TelemetryHelper.h
         TelemetryHelper.cpp
@@ -11,9 +11,7 @@ add_library(telemetryhelperimplobject OBJECT
         Logger.h
         Logger.cpp)
 
-target_include_directories(telemetryhelperimplobject PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
-
-add_library(telemetryhelperimpl SHARED $<TARGET_OBJECTS:telemetryhelperimplobject>)
+target_include_directories(telemetryhelperimpl PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
 target_link_libraries(telemetryhelperimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
 

@@ -12,13 +12,16 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common::HttpSender
+namespace Common
 {
-    class IHttpSender
+    namespace HttpSender
     {
-    public:
-        virtual ~IHttpSender() = default;
+        class IHttpSender
+        {
+        public:
+            virtual ~IHttpSender() = default;
 
-        virtual int doHttpsRequest(Common::HttpSenderImpl::RequestConfig& requestConfig) = 0;
-    };
-} // namespace Common::HttpSenderImpl
+            virtual int doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig) = 0;
+        };
+    } // namespace HttpSender
+} // namespace Common

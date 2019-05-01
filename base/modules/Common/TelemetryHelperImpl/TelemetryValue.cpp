@@ -5,119 +5,71 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryValue.h"
-#include <stdexcept>
+
 #include <sstream>
+#include <stdexcept>
 
 namespace Common::Telemetry
 {
+    TelemetryValue::TelemetryValue() {}
 
-    TelemetryValue::TelemetryValue()
-        : m_valueType(ValueType::unset)
-    {
-    }
+    TelemetryValue::TelemetryValue(const std::string& value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const std::string& value)
-        : m_value(value), m_valueType(ValueType::string_type)
-    {
-    }
+    TelemetryValue::TelemetryValue(const bool value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const bool value)
-        : m_value(value), m_valueType(ValueType::boolean_type)
-    {
-    }
+    TelemetryValue::TelemetryValue(const int value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const int value)
-        : m_value(value), m_valueType(ValueType::integer_type)
-    {
-    }
+    TelemetryValue::TelemetryValue(const unsigned int value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const unsigned int value)
-            : m_value(value), m_valueType(ValueType::unsigned_integer_type)
-    {
-    }
+    TelemetryValue::TelemetryValue(const char* value) : m_value(std::string(value)) {}
 
-    TelemetryValue::TelemetryValue(const char* value)
-        : m_value(std::string(value)), m_valueType(ValueType::string_type)
-    {
-    }
+    void TelemetryValue::set(const int value) { m_value = value; }
 
-    void TelemetryValue::set(const int value)
-    {
-        m_value = value;
-        m_valueType = ValueType::integer_type;
-    }
+    void TelemetryValue::set(unsigned int value) { m_value = value; }
 
-    void TelemetryValue::set(unsigned int value)
-    {
-        m_value = value;
-        m_valueType = ValueType::unsigned_integer_type;
-    }
+    void TelemetryValue::set(const bool value) { m_value = value; }
 
-    void TelemetryValue::set(const bool value)
-    {
-        m_value = value;
-        m_valueType = ValueType::boolean_type;
-    }
+    void TelemetryValue::set(const std::string& value) { m_value = value; }
 
-    void TelemetryValue::set(const std::string& value)
-    {
-        m_value = value;
-        m_valueType = ValueType::string_type;
-    }
-
-    void TelemetryValue::set(const char* value)
-    {
-        m_value = std::string(value);
-        m_valueType = ValueType::string_type;
-    }
+    void TelemetryValue::set(const char* value) { m_value = std::string(value); }
 
     int TelemetryValue::getInteger() const
     {
-        checkType(ValueType::integer_type);
+        checkType(Type::integer_type);
         return std::get<int>(m_value);
     }
 
     unsigned int TelemetryValue::getUnsignedInteger() const
     {
-        checkType(ValueType::unsigned_integer_type);
+        checkType(Type::unsigned_integer_type);
         return std::get<unsigned int>(m_value);
     }
 
     bool TelemetryValue::getBoolean() const
     {
-        checkType(ValueType::boolean_type);
+        checkType(Type::boolean_type);
         return std::get<bool>(m_value);
     }
 
     std::string TelemetryValue::getString() const
     {
-        checkType(ValueType::string_type);
+        checkType(Type::string_type);
         return std::get<std::string>(m_value);
     }
 
-    TelemetryValue::ValueType TelemetryValue::getValueType() const
-    {
-        return m_valueType;
-    }
+    TelemetryValue::Type TelemetryValue::getType() const { return static_cast<Type>(m_value.index()); }
 
-    bool TelemetryValue::operator==(const TelemetryValue& rhs) const
-    {
-        return m_value == rhs.m_value &&
-               m_valueType == rhs.m_valueType;
-    }
+    bool TelemetryValue::operator==(const TelemetryValue& rhs) const { return m_value == rhs.m_value; }
 
-    bool TelemetryValue::operator!=(const TelemetryValue& rhs) const
-    {
-        return !(rhs == *this);
-    }
+    bool TelemetryValue::operator!=(const TelemetryValue& rhs) const { return !(rhs == *this); }
 
-    void TelemetryValue::checkType(ValueType expectedType) const
+    void TelemetryValue::checkType(Type expectedType) const
     {
-        if(m_valueType != expectedType)
+        if (getType() != expectedType)
         {
             std::stringstream msg;
-            msg << "Telemetry value does not contain the expected type. Expected: "
-                << static_cast<int>(expectedType) << " Actual: " << static_cast<int>(m_valueType);
+            msg << "Telemetry value does not contain the expected type. Expected: " << static_cast<int>(expectedType)
+                << " Actual: " << m_value.index();
             throw std::logic_error(msg.str());
         }
     }
