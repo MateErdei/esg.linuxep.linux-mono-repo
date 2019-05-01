@@ -22,6 +22,7 @@ namespace Telemetry
     {
         try
         {
+            // TODO: [LINUXEP-6075] All argument parsing is temporary as these parameters will be read in from a configuration file
             if (argc == 1 || argc > g_maxArgs)
             {
                 throw std::runtime_error(
@@ -30,7 +31,7 @@ namespace Telemetry
 
             std::vector<std::string> additionalHeaders;
             additionalHeaders.emplace_back(
-                "x-amz-acl:bucket-owner-full-control"); // [LINUXEP-6075] This will be read in from a configuration file
+                "x-amz-acl:bucket-owner-full-control"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
 
             std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
                 argv[1], additionalHeaders
@@ -38,17 +39,17 @@ namespace Telemetry
 
             if (argc >= 3)
             {
-                requestConfig->setServer(argv[2]);
+                requestConfig->setServer(argv[2]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
             }
 
             if (argc >= 4)
             {
-                requestConfig->setCertPath(argv[3]);
+                requestConfig->setCertPath(argv[3]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
             }
 
             if (argc == g_maxArgs)
             {
-                requestConfig->setResourceRoot(argv[4]);
+                requestConfig->setResourceRoot(argv[4]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(requestConfig->getCertPath()))
@@ -56,8 +57,8 @@ namespace Telemetry
                 throw std::runtime_error("Certificate is not a valid file");
             }
 
-            requestConfig->setData("{ telemetryKey : telemetryValue }"); // [LINUXEP-6631] This will be specified later on
-            httpSender->doHttpsRequest(requestConfig); // [LINUXEP-6075] This will be done via a configuration file
+            requestConfig->setData("{ telemetryKey : telemetryValue }"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+            httpSender->doHttpsRequest(requestConfig);
         }
         catch (const std::exception& e)
         {

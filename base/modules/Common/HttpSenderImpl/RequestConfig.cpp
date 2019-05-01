@@ -61,7 +61,7 @@ namespace Common
             {
                 std::stringstream ss;
                 ss << "Unknown resource root: " << resourceRoot;
-                throw std::runtime_error(ss.str());
+                throw std::range_error(ss.str());
             }
         }
 
@@ -98,7 +98,7 @@ namespace Common
             {
                 std::stringstream ss;
                 ss << "Unknown request type: " << requestType;
-                throw std::runtime_error(ss.str());
+                throw std::range_error(ss.str());
             }
         }
 

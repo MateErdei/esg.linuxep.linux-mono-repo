@@ -130,7 +130,7 @@ namespace Common
                 m_curlWrapper->curlGlobalCleanup();
             }
 
-            catch (const std::exception& e)
+            catch (const std::runtime_error& e)
             {
                 result = CURLE_FAILED_INIT;
                 LOGERROR(
