@@ -494,13 +494,20 @@ class MCS(object):
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient=False)
                 except mcs_connection.MCSHttpException as exception:
-                    LOGGER.exception("Got http error from MCS")
                     error_count += 1
                     transient = True
-                    if exception.error_code() == 400:
+
+                    if exception.error_code() == 503:
+                        LOGGER.warning("End-point has been temporarily suspended, possibly due to the machine "
+                                       "being deleted from the Sophos Central Console. "
+                                       "Communication should resume within the hour.")
+                        transient = False
+                    elif exception.error_code() == 400:
                         # From MCS spec section 12 - HTTP Bad Request is
                         # semi-permanent
                         transient = False
+                    else:
+                        LOGGER.exception("Got http error from MCS")
 
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient)
