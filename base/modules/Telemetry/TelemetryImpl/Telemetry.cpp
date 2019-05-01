@@ -4,13 +4,16 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "Telemetry.h"
+
 #include "ISystemTelemetryCollector.h"
 #include "SystemTelemetryCollectorImpl.h"
-#include "Telemetry.h"
+#include "TelemetryProcessor.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <sstream>
@@ -59,21 +62,16 @@ namespace Telemetry
                 throw std::runtime_error("Certificate is not a valid file");
             }
 
-            requestConfig->setData("{ telemetryKey : telemetryValue }"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+            TelemetryProcessor::gatherTelemetry();
+            std::string telemetry = TelemetryProcessor::getSerialisedTelemetry();
+            requestConfig->setData(telemetry);
             httpSender->doHttpsRequest(requestConfig);
         }
-        catch (const std::exception& e)
+        catch (const std::exception& e) // TODO: shouldn't catch std::exception - just let this abort the process?
         {
             LOGERROR("Caught exception: " << e.what());
             return 1;
         }
-
-        SystemTelemetryCollectorImpl systemTelemetryCollector(
-            GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
-        auto systemTelemetryObjects = systemTelemetryCollector.collectObjects();
-        auto systemTelemetryArrays = systemTelemetryCollector.collectArraysOfObjects();
-
-        // TODO: [LINUXEP-8094] append system telemetry to overall telemetry JSON document
 
         return 0;
     }
