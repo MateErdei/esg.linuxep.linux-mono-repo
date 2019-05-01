@@ -14,8 +14,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry::TelemetryProcessor
 {
+
     void addTelemetry(const std::string& sourceName, const std::string& json);
     void gatherTelemetry();
     void saveTelemetryToDisk(const std::string& jsonOutputFile);
+    // TODO void sendTelemetry();
+
     std::string getSerialisedTelemetry();
 }
