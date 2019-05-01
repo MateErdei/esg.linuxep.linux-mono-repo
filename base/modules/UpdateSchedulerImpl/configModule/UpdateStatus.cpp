@@ -69,12 +69,6 @@ namespace UpdateSchedulerImpl
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
     <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="@@version@@">
-        <lastBootTime>@@boottime@@</lastBootTime>
-        <lastStartedTime>@@lastStartedTime@@</lastStartedTime>
-        <lastSyncTime>@@lastSyncTime@@</lastSyncTime>
-        <lastInstallStartedTime>@@lastInstallStartedTime@@</lastInstallStartedTime>
-        <lastFinishedTime>@@lastFinishedTime@@</lastFinishedTime><!-- @@firstfailedTimeElement@@ -->
-        <lastResult>@@lastResult@@</lastResult>
         <endpoint id="@@endpointid@@" />
     </autoUpdate>
     <subscriptions><!-- @@subscriptionsElement@@ -->
@@ -93,20 +87,6 @@ namespace UpdateSchedulerImpl
                 statusNode.get_child("autoUpdate"); // Needs to be a reference so that we mutate the actual tree!
 
             autoUpdate.put("<xmlattr>.version", versionId);
-            autoUpdate.put("lastBootTime", bootTime);
-            autoUpdate.put("lastStartedTime", status.LastStartTime);
-            autoUpdate.put("lastSyncTime", status.LastSyncTime);
-            autoUpdate.put("lastInstallStartedTime", status.LastInstallStartedTime);
-            autoUpdate.put("lastFinishedTime", status.LastFinishdTime);
-            if (!status.FirstFailedTime.empty())
-            {
-                pt::ptree::assoc_iterator it =
-                    autoUpdate.find("lastResult"); // insert adds node before iterator element
-                assert(it != autoUpdate.not_found());
-                tree.insert(autoUpdate.to_iterator(it), { "firstFailedTime", pt::ptree(status.FirstFailedTime) });
-                //                dump(tree);
-            }
-            autoUpdate.put("lastResult", std::to_string(status.LastResult));
             autoUpdate.put("endpoint.<xmlattr>.id", machineId);
 
             addSubscriptionElements(status.Products, statusNode.get_child("subscriptions"));
