@@ -17,5 +17,5 @@ using namespace ::testing;
 class MockHttpSender : public Common::HttpSender::IHttpSender
 {
 public:
-    MOCK_METHOD1(doHttpsRequest, int(std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig));
+    MOCK_METHOD1(doHttpsRequest, int(std::shared_ptr<Common::HttpSenderImpl::RequestConfig> requestConfig));
 };

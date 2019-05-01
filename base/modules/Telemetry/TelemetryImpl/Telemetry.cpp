@@ -33,7 +33,7 @@ namespace Telemetry
             additionalHeaders.emplace_back(
                 "x-amz-acl:bucket-owner-full-control"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
 
-            std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
+            std::shared_ptr<Common::HttpSenderImpl::RequestConfig> requestConfig = std::make_shared<Common::HttpSenderImpl::RequestConfig>(
                 argv[1], additionalHeaders
             );
 
@@ -74,8 +74,8 @@ namespace Telemetry
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
 
-        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper = std::make_shared<Common::HttpSender::CurlWrapper>();
-        std::shared_ptr<Common::HttpSender::IHttpSender> httpSender = std::make_shared<Common::HttpSender::HttpSender>(curlWrapper);
+        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper = std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
+        std::shared_ptr<Common::HttpSender::IHttpSender> httpSender = std::make_shared<Common::HttpSenderImpl::HttpSender>(curlWrapper);
 
         return main(argc, argv, httpSender);
     }

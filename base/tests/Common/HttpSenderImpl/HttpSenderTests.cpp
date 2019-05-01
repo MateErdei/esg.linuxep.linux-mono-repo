@@ -22,11 +22,13 @@ using ::testing::AtLeast;
 using ::testing::Return;
 using ::testing::StrictMock;
 
+using namespace Common::HttpSenderImpl;
+
 class HttpSenderTest : public ::testing::Test
 {
 public:
     std::shared_ptr<StrictMock<MockCurlWrapper>> m_curlWrapper;
-    std::shared_ptr<Common::HttpSender::HttpSender> m_httpSender;
+    std::shared_ptr<HttpSender> m_httpSender;
 
     std::vector<std::string> m_additionalHeaders;
 
@@ -36,18 +38,18 @@ public:
     CURLcode m_failedResult = CURLE_FAILED_INIT;
     std::string m_strerror = "Test Error String";
 
-    std::shared_ptr<Common::HttpSender::RequestConfig> m_getRequestConfig;
-    std::shared_ptr<Common::HttpSender::RequestConfig> m_postRequestConfig;
-    std::shared_ptr<Common::HttpSender::RequestConfig> m_putRequestConfig;
+    std::shared_ptr<RequestConfig> m_getRequestConfig;
+    std::shared_ptr<RequestConfig> m_postRequestConfig;
+    std::shared_ptr<RequestConfig> m_putRequestConfig;
 
     void SetUp() override
     {
         m_curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
-        m_httpSender = std::make_shared<Common::HttpSender::HttpSender>(m_curlWrapper);
+        m_httpSender = std::make_shared<HttpSender>(m_curlWrapper);
 
-        m_getRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("GET", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, Common::HttpSender::G_defaultCertPath, Common::HttpSender::ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("POST", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, Common::HttpSender::G_defaultCertPath, Common::HttpSender::ResourceRoot::PROD);
-        m_putRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("PUT", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, "/nonDefaultCertPath");
+        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, G_defaultServer, G_defaultPort, G_defaultCertPath, ResourceRoot::DEV);
+        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, G_defaultServer, G_defaultPort, G_defaultCertPath, ResourceRoot::PROD);
+        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, G_defaultServer, G_defaultPort, "/nonDefaultCertPath");
     }
 };
 
@@ -100,7 +102,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<Common::HttpSender::RequestConfig> getRequestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
+    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
         "GET", m_additionalHeaders
     );
 
@@ -150,7 +152,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<Common::HttpSender::RequestConfig> getRequestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
+    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
         "GET", m_additionalHeaders
     );
 
@@ -183,7 +185,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<Common::HttpSender::RequestConfig> getRequestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
+    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
         "GET", m_additionalHeaders
     );
 
