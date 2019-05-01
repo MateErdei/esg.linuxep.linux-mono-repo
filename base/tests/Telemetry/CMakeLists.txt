@@ -3,9 +3,7 @@ set(ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs)
 
 include(GoogleTest)
 add_executable(TelemetryTests
-        HttpSenderTests.cpp
         TelemetryTests.cpp
-        MockCurlWrapper.h
         MockHttpSender.h)
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})

@@ -11,11 +11,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 
 #include <Telemetry/TelemetryImpl/Telemetry.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 using ::testing::StrictMock;
 using Common::HttpSender::RequestConfig;
