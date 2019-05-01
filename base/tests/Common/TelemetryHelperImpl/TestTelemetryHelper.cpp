@@ -145,7 +145,8 @@ TEST(TestTelemetryHelper, appendMixed) // NOLINT
     helper.appendValue("array", false);
     helper.appendValue("array", "cstring");
     helper.appendValue("array", std::string("string"));
-    ASSERT_EQ(R"({"array":[1,3,false,"cstring","string"]})", helper.serialise());
+    helper.appendObject("array", "obj", std::string("val"));
+    ASSERT_EQ(R"({"array":[1,3,false,"cstring","string",{"obj":"val"}]})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, incCounter) // NOLINT
