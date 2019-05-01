@@ -7,6 +7,7 @@
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <include/gtest/gtest.h>
+#include <json.hpp>
 
 using namespace Common::Telemetry;
 
@@ -351,4 +352,12 @@ TEST(TestTelemetryHelper, mergeJsonInTwice) // NOLINT
     ASSERT_EQ(jsonMerged, helper.serialise());
     helper.mergeJsonIn("merged", json);
     ASSERT_EQ(jsonMerged, helper.serialise());
+}
+
+TEST(TestTelemetryHelper, mergeInvalidJsonIn) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    std::string json = R"({"counter":})";
+    ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error);
 }
