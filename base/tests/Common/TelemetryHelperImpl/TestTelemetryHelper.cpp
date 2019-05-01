@@ -126,7 +126,7 @@ TEST(TestTelemetryHelper, appendBool) // NOLINT
     ASSERT_EQ(R"({"array":[true,false]})", helper.serialise());
 }
 
-TEST(TestTelemetryHelper, appendObject) // NOLINT
+TEST(TestTelemetryHelper, appendCstringObject) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
@@ -134,6 +134,46 @@ TEST(TestTelemetryHelper, appendObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":"value1"}]})", helper.serialise());
     helper.appendObject("array", "key2", "value2");
     ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, appendIntObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array", "key1", 1);
+    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
+    helper.appendObject("array", "key2", 2);
+    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, appendStringObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array", "key1", std::string("value1"));
+    ASSERT_EQ(R"({"array":[{"key1":"value1"}]})", helper.serialise());
+    helper.appendObject("array", "key2", std::string("value2"));
+    ASSERT_EQ(R"({"array":[{"key1":"value1"},{"key2":"value2"}]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, appendUnsignedIntObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array", "key1", 1u);
+    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
+    helper.appendObject("array", "key2", 2u);
+    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, appendBoolObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array", "key1", false);
+    ASSERT_EQ(R"({"array":[{"key1":false}]})", helper.serialise());
+    helper.appendObject("array", "key2", true);
+    ASSERT_EQ(R"({"array":[{"key1":false},{"key2":true}]})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, appendMixed) // NOLINT
