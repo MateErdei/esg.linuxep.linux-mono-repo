@@ -58,7 +58,8 @@ public:
     void reset() override;
     std::string serialise();
 
-    // Move to public so that plugins can instantiate this if they want to.
+    // Normally with a singleton the constructor is private but here we make the constructor public
+    // so that plugins can instantiate this if they want to.
     TelemetryHelper() = default;
 
 private:
