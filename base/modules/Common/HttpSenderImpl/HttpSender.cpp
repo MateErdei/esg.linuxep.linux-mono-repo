@@ -25,7 +25,7 @@ namespace Common
             OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS, nullptr);
         }
 
-        curl_slist* HttpSender::setCurlOptions(CURL* curl, const std::shared_ptr<RequestConfig>& requestConfig)
+        curl_slist* HttpSender::setCurlOptions(CURL* curl, const std::shared_ptr<RequestConfig> requestConfig)
         {
             curl_slist* headers = nullptr;
 

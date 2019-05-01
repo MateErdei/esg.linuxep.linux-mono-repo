@@ -27,10 +27,10 @@ namespace Common
             TEST
         };
 
-        static const char* g_defaultServer = "t1.sophosupd.com";
-        static const char* g_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
-        static const int g_defaultPort = 443;
-        static const ResourceRoot g_defaultResourceRoot = ResourceRoot::PROD;
+        static const char* G_defaultServer = "t1.sophosupd.com";
+        static const char* G_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
+        static const int G_defaultPort = 443;
+        static const ResourceRoot G_defaultResourceRoot = ResourceRoot::PROD;
 
 
         class RequestConfig
@@ -39,10 +39,10 @@ namespace Common
             RequestConfig(
                 const std::string& requestTypeStr,
                 std::vector<std::string> additionalHeaders,
-                std::string server = g_defaultServer,
-                int port = g_defaultPort,
-                std::string certPath = g_defaultCertPath,
-                ResourceRoot resourceRoot = g_defaultResourceRoot
+                std::string server = G_defaultServer,
+                int port = G_defaultPort,
+                std::string certPath = G_defaultCertPath,
+                ResourceRoot resourceRoot = G_defaultResourceRoot
                 );
             RequestConfig(const RequestConfig&) = delete;
             RequestConfig& operator= (const RequestConfig&) = delete;

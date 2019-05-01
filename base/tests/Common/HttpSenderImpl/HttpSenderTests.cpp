@@ -45,9 +45,9 @@ public:
         m_curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
         m_httpSender = std::make_shared<Common::HttpSender::HttpSender>(m_curlWrapper);
 
-        m_getRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("GET", m_additionalHeaders, Common::HttpSender::g_defaultServer, Common::HttpSender::g_defaultPort, Common::HttpSender::g_defaultCertPath, Common::HttpSender::ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("POST", m_additionalHeaders, Common::HttpSender::g_defaultServer, Common::HttpSender::g_defaultPort, Common::HttpSender::g_defaultCertPath, Common::HttpSender::ResourceRoot::PROD);
-        m_putRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("PUT", m_additionalHeaders, Common::HttpSender::g_defaultServer, Common::HttpSender::g_defaultPort, "/nonDefaultCertPath");
+        m_getRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("GET", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, Common::HttpSender::G_defaultCertPath, Common::HttpSender::ResourceRoot::DEV);
+        m_postRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("POST", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, Common::HttpSender::G_defaultCertPath, Common::HttpSender::ResourceRoot::PROD);
+        m_putRequestConfig =  std::make_shared<Common::HttpSender::RequestConfig>("PUT", m_additionalHeaders, Common::HttpSender::G_defaultServer, Common::HttpSender::G_defaultPort, "/nonDefaultCertPath");
     }
 };
 

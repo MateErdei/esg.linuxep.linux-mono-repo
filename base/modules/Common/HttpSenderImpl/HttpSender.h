@@ -26,7 +26,7 @@ namespace Common
         private:
             curl_slist* setCurlOptions(
                 CURL* curl,
-                const std::shared_ptr<RequestConfig>& requestConfig);
+                std::shared_ptr<RequestConfig> requestConfig);
 
             std::shared_ptr<ICurlWrapper> m_curlWrapper;
         };
