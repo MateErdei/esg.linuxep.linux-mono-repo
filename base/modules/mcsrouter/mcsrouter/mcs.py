@@ -498,7 +498,7 @@ class MCS(object):
                     transient = True
 
                     if exception.error_code() == 503:
-                        LOGGER.warning("End-point has been temporarily suspended, possibly due to the machine "
+                        LOGGER.warning("Endpoint has been temporarily suspended, possibly due to the machine "
                                        "being deleted from the Sophos Central Console. "
                                        "Communication should resume within the hour.")
                         transient = False
