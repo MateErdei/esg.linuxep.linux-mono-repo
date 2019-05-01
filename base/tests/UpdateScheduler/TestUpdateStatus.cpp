@@ -21,6 +21,22 @@ using namespace SulDownloader::suldownloaderdata;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
 
+namespace {
+    //Status expected to be the same on success and fail
+    static const std::string normalStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
+        <endpoint id="thisMachineID" />
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
+        <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
+    </subscriptions>
+</status>)sophos" };
+} // namespace
+
+
 class TestSerializeStatus : public ::testing::Test
 {
 public:
@@ -84,47 +100,10 @@ void TestSerializeStatus::runTest(const std::string& expectedXML, const UpdateSt
 
 TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
 {
-    static const std::string normalStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-<status xmlns="com.sophos\mansys\status" type="sau">
-    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
-    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
-        <lastBootTime>20180810 100000</lastBootTime>
-        <lastStartedTime>20180812 10:00:00</lastStartedTime>
-        <lastSyncTime>20180812 11:00:00</lastSyncTime>
-        <lastInstallStartedTime>20180812 10:00:00</lastInstallStartedTime>
-        <lastFinishedTime>20180812 11:00:00</lastFinishedTime>
-        <lastResult>0</lastResult>
-        <endpoint id="thisMachineID" />
-    </autoUpdate>
-    <subscriptions>
-        <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
-        <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
-    </subscriptions>
-</status>)sophos" };
-
     runTest(normalStatusXML, getGoodStatus());
 }
 
 TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
 {
-    static const std::string errorReportedStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-<status xmlns="com.sophos\mansys\status" type="sau">
-    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
-    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
-        <lastBootTime>20180810 100000</lastBootTime>
-        <lastStartedTime>20180812 10:00:00</lastStartedTime>
-        <lastSyncTime>20180811 11:00:00</lastSyncTime>
-        <lastInstallStartedTime>20180811 10:00:00</lastInstallStartedTime>
-        <lastFinishedTime>20180812 11:00:00</lastFinishedTime>
-        <firstFailedTime>20180812 10:00:00</firstFailedTime>
-        <lastResult>112</lastResult>
-        <endpoint id="thisMachineID" />
-    </autoUpdate>
-    <subscriptions>
-        <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
-        <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
-    </subscriptions>
-</status>)sophos" };
-
-    runTest(errorReportedStatusXML, getErrorStatus());
+    runTest(normalStatusXML, getErrorStatus());
 }
