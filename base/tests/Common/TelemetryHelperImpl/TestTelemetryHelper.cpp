@@ -359,5 +359,5 @@ TEST(TestTelemetryHelper, mergeInvalidJsonIn) // NOLINT
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     std::string json = R"({"counter":})";
-    ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error);
+    ASSERT_THROW(helper.mergeJsonIn("merged", json), nlohmann::detail::parse_error); // NOLINT
 }
