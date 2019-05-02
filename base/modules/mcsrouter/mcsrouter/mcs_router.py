@@ -12,6 +12,11 @@ import os
 import fcntl
 import logging
 import logging.handlers
+
+# ConfigParser has been renamed configparser in Python 3.
+# Therefore using the 'as' to minimise work needed during migration from 2 to 3
+import ConfigParser as configparser
+
 import resource
 import signal
 import time
@@ -169,6 +174,11 @@ def daemonise():
 
         os._exit(0) #pylint: disable=protected-access
 
+class UTCFormatter(logging.Formatter):
+    """
+    UTCFormatter class so all logs can show the same UTC time.
+    """
+    converter = time.gmtime
 
 class SophosLogging(object):
     """
@@ -179,6 +189,7 @@ class SophosLogging(object):
         """
         __init__
         """
+        #pylint: disable=too-many-locals
         path_manager.INST = install_dir
         log_config = config.get_default(
             "LOGCONFIG", path_manager.log_conf_file())
@@ -186,17 +197,19 @@ class SophosLogging(object):
             "LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
 
         # Configure log level from config file if present
+        readable = False
         if os.path.isfile(log_config):
-            file_to_read = open(log_config)
-            lines = file_to_read.readlines()
-            file_to_read.close()
-
-            for line in lines:
-                if line.startswith("LOGLEVEL="):
-                    line = line.strip()
-                    value = line.split("=", 1)[1]
-                    log_level_string = value.upper()
+            config_parser = configparser.ConfigParser()
+            readable = config_parser.read(log_config)
+            config_sections = config_parser.sections()
+            for section in config_sections:
+                if section == 'mcs_router':
+                    log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
                     break
+                elif section == 'global':
+                    log_level_string = config_parser.get('global', 'VERBOSITY')
+            if log_level_string == 'WARN':
+                log_level_string = 'WARNING'
 
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
@@ -204,12 +217,13 @@ class SophosLogging(object):
         root_logger = logging.getLogger()
         root_logger.setLevel(log_level)
 
-        formatter = logging.Formatter(
-            "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s [%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
+
+        formatter = UTCFormatter(
+            "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s "
+            "[%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
         file_handler = logging.handlers.RotatingFileHandler(
             log_file, maxBytes=1024 * 1024, backupCount=5)
         file_handler.setFormatter(formatter)
-
         root_logger.addHandler(file_handler)
 
         if config.get_default("CONSOLE", "0") == "1":
@@ -231,11 +245,15 @@ class SophosLogging(object):
             envelope_file_handler = logging.handlers.RotatingFileHandler(
                 envelope_file, maxBytes=1024 * 1024, backupCount=3)
 
-            envelope_formatter = logging.Formatter("%(asctime)s: %(message)s")
+            envelope_formatter = UTCFormatter(
+                "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s "
+                "[%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
             envelope_file_handler.setFormatter(envelope_formatter)
 
             envelope_logger.addHandler(envelope_file_handler)
 
+        if not readable:
+            LOGGER.info("Log config file exists but is either empty or cannot be read.")
         root_logger_level = root_logger.getEffectiveLevel()
         LOGGER.info("Logging level: %s", str(root_logger_level))
         LOGGER.info("Logging to %s", log_file)

@@ -150,7 +150,7 @@ def log_conf_file():
     """
     log_conf_file
     """
-    return os.path.join(etc_dir(), "mcsrouter.log.conf")
+    return os.path.join(etc_dir(), "logger.conf")
 
 
 def mcs_router_conf():
