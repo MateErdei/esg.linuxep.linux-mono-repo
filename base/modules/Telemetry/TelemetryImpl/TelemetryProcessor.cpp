@@ -24,13 +24,8 @@ void TelemetryProcessor::gatherTelemetry()
     LOGINFO("Gathering telemetry");
 
     gatherSystemTelemetry(TelemetryHelper::getInstance());
-    std::cout << TelemetryHelper::getInstance().serialise(); // TODO remove!
 
     // TODO gather plugin telemetry LINUXEP-7972
-
-    // This will gather telemetry from all the various sources and merge them in one at a time.
-    std::string gatheredExampleJson = R"({"thing":2})";
-    addTelemetry("TelemetryExecutableExample", gatheredExampleJson);
 }
 
 void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
@@ -40,55 +35,43 @@ void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
     auto systemTelemetryObjects = systemTelemetryCollector.collectObjects();
     auto systemTelemetryArrays = systemTelemetryCollector.collectArraysOfObjects();
 
-    for (const auto& [telemetryName, values] : systemTelemetryObjects)
+    // TODO: create a top-level "system-telemetry" object
+
+    for (const auto& [telemetryName, objects] : systemTelemetryObjects)
     {
-        if (values.size() == 1)
+        if (objects.size() == 1 && objects[0].first.empty())
         {
-            // just set a property and don't create a sub-object with just one property
-            if (values[0].index() == 0)
+            // Just one unnamed value, so add as value rather than sub-object.
+            if (objects[0].second.index() == 0)
             {
-                jsonConverter.set(telemetryName, std::get<std::string>(values[0]));
+                jsonConverter.set(telemetryName, std::get<std::string>(objects[0].second));
             }
             else
             {
-                jsonConverter.set(telemetryName, std::get<int>(values[0]));
+                jsonConverter.set(telemetryName, std::get<int>(objects[0].second));
             }
+
+            continue;
         }
-        else
-        {
-            // TODO: need to create a sub-object
-            for (const auto& value : values)
-            {
-                if (value.index() == 0)
-                {
-                    jsonConverter.set(telemetryName, std::get<std::string>(value));
-                }
-                else
-                {
-                    jsonConverter.set(telemetryName, std::get<int>(value));
-                }
-            }
-        }
+
+        // For now, no top-level objects are expected only values (handled above) and arrays of objects (handled below).
+        throw std::logic_error("No top-level objects are expected for the current implementation.");
     }
 
     for (const auto& [telemetryName, arrays] : systemTelemetryArrays)
     {
         for (const auto& array : arrays)
         {
-            // TODO: need to create a sub-object
-            for (const auto& value : array)
+            for (const auto& object : array)
             {
-                if (value.index() == 0)
+                if (object.second.index() == 0)
                 {
                     jsonConverter.appendObject(
-                        telemetryName,
-                        "ANONYMOUS",
-                        std::get<std::string>(value)); // TODO: sort out array of anonymous objects
+                        telemetryName, object.first, std::get<std::string>(object.second));
                 }
                 else
                 {
-                    jsonConverter.appendObject(
-                        telemetryName, "ANONYMOUS", std::get<int>(value)); // TODO: sort out array of anonymous objects
+                    jsonConverter.appendObject(telemetryName, object.first, std::get<int>(object.second));
                 }
             }
         }
