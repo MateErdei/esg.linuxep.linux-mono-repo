@@ -203,10 +203,10 @@ class SophosLogging(object):
             readable = config_parser.read(log_config)
             config_sections = config_parser.sections()
             for section in config_sections:
-                if section == 'mcs_router':
+                if section == 'mcs_router' and config_parser.has_option(section, 'VERBOSITY'):
                     log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
                     break
-                elif section == 'global':
+                elif section == 'global' and config_parser.has_option(section, 'VERBOSITY'):
                     log_level_string = config_parser.get('global', 'VERBOSITY')
             if log_level_string == 'WARN':
                 log_level_string = 'WARNING'
