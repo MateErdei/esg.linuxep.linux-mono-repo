@@ -37,6 +37,12 @@ namespace
     }
 }
 
+TEST(ScheduledUpdate, VerifyBasicAssumptionThatTimeIsCorrect)
+{
+    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(t_20190501T13h), reportedScheduledTime );
+}
+
+
 TEST(ScheduledUpdate, NextUpdateTimeShouldAlwaysBeAfterCurrentTime) // NOLINT
 {
     ScheduledUpdate scheduledUpdate;
