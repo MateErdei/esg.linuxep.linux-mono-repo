@@ -45,7 +45,6 @@ TEST(TestTelemetryHelper, constructionCreatesDifferentInstance) // NOLINT
     ASSERT_NE(&helper1, &helper3);
 }
 
-
 TEST(TestTelemetryHelper, addStringTelem) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
