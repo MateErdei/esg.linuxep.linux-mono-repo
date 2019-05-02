@@ -76,7 +76,7 @@ void TelemetryHelper::increment(const std::string& key, unsigned int value)
 }
 
 template<class T>
-void TelemetryHelper::appendInternal(const std::string& key, T value)
+void TelemetryHelper::appendValueInternal(const std::string& key, T value)
 {
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
@@ -94,29 +94,73 @@ void TelemetryHelper::appendInternal(const std::string& key, T value)
     list.emplace_back(newObj);
 }
 
-void TelemetryHelper::append(const std::string& key, int value)
+void TelemetryHelper::appendValue(const std::string& arrayKey, int value)
 {
-    appendInternal(key, value);
+    appendValueInternal(arrayKey, value);
 }
 
-void TelemetryHelper::append(const std::string& key, unsigned int value)
+void TelemetryHelper::appendValue(const std::string& arrayKey, unsigned int value)
 {
-    appendInternal(key, value);
+    appendValueInternal(arrayKey, value);
 }
 
-void TelemetryHelper::append(const std::string& key, const std::string& value)
+void TelemetryHelper::appendValue(const std::string& arrayKey, const std::string& value)
 {
-    appendInternal(key, value);
+    appendValueInternal(arrayKey, value);
 }
 
-void TelemetryHelper::append(const std::string& key, const char* value)
+void TelemetryHelper::appendValue(const std::string& arrayKey, const char* value)
 {
-    appendInternal(key, value);
+    appendValueInternal(arrayKey, value);
 }
 
-void TelemetryHelper::append(const std::string& key, bool value)
+void TelemetryHelper::appendValue(const std::string& arrayKey, bool value)
 {
-    appendInternal(key, value);
+    appendValueInternal(arrayKey, value);
+}
+
+template<class T>
+void TelemetryHelper::appendObjectInternal(const std::string& arrayKey, const std::string& key, T value)
+{
+    std::lock_guard<std::mutex> lock(m_dataLock);
+    TelemetryObject& telemetryObject = getTelemetryObjectByKey(arrayKey);
+
+    // Force telemetry object to be an array, they are defaulted to object type.
+    if (telemetryObject.getType() != TelemetryObject::Type::array)
+    {
+        telemetryObject.set(std::list<TelemetryObject>());
+    }
+
+    std::list<TelemetryObject>& list = telemetryObject.getArray();
+    TelemetryValue newValue(value);
+    TelemetryObject newObj;
+    newObj.set(key, newValue);
+    list.emplace_back(newObj);
+}
+
+void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, int value)
+{
+    appendObjectInternal(arrayKey, key, value);
+}
+
+void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, unsigned int value)
+{
+    appendObjectInternal(arrayKey, key, value);
+}
+
+void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, const std::string& value)
+{
+    appendObjectInternal(arrayKey, key, value);
+}
+
+void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, const char* value)
+{
+    appendObjectInternal(arrayKey, key, value);
+}
+
+void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, bool value)
+{
+    appendObjectInternal(arrayKey, key, value);
 }
 
 TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath)
@@ -180,3 +224,4 @@ void TelemetryHelper::mergeJsonIn(const std::string& key, const std::string& jso
     TelemetryObject telemetryObject = TelemetrySerialiser::deserialise(json);
     getTelemetryObjectByKey(key) = telemetryObject;
 }
+
