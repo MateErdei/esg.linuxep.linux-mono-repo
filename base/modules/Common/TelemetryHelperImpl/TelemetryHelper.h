@@ -30,27 +30,18 @@ public:
     void operator=(TelemetryHelper const&) = delete;
 
     void set(const std::string& key, int value) override;
-
     void set(const std::string& key, unsigned int value) override;
-
     void set(const std::string& key, const std::string& value) override;
-
     void set(const std::string& key, const char* value) override;
-
     void set(const std::string& key, bool value) override;
 
     void increment(const std::string& key, int value) override;
-
     void increment(const std::string& key, unsigned int value) override;
 
     void append(const std::string& key, int value) override;
-
     void append(const std::string& key, unsigned int value) override;
-
     void append(const std::string& key, const std::string& value) override;
-
     void append(const std::string& key, const char* value) override;
-
     void append(const std::string& key, bool value) override;
 
     void registerResetCallback(std::string cookie, std::function<void()> function) override;

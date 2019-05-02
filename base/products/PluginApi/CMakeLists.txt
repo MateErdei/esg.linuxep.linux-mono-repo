@@ -11,6 +11,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:eventtypesimplobject>
+        $<TARGET_OBJECTS:telemetryhelperimplobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
@@ -45,6 +46,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Logging
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/Reactor
+        COMMAND mkdir -p pluginapi/include/Common/TelemetryHelper
         COMMAND mkdir -p pluginapi/include/Common/Threads
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
@@ -94,6 +96,7 @@ add_copy_directory(Common/FileSystem)
 add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/Reactor)
+add_copy_directory(Common/TelemetryHelper)
 add_copy_directory(Common/Threads)
 add_copy_directory(Common/ZeroMQWrapper)
 add_copy_directory(Common/ZMQWrapperApi)
