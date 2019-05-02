@@ -109,6 +109,11 @@ namespace Common::Telemetry
         /// \param json
         virtual void mergeJsonIn(const std::string& key, const std::string& json) = 0;
 
+        /// Return the TelemetryObject at a given key, this is intended to be used in case the user wants to
+        /// perform more complex operations than what this helper ordinarily permits through set, append and increment.
+        /// \param key
+        virtual TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) = 0;
+
         /// Register a callback function to be executed when the telemetry has been sent and cleared.
         /// \param cookie - A unique string to link the callback function to the callee
         /// \param function

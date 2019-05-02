@@ -30,27 +30,18 @@ public:
     void operator=(TelemetryHelper const&) = delete;
 
     void set(const std::string& key, int value) override;
-
     void set(const std::string& key, unsigned int value) override;
-
     void set(const std::string& key, const std::string& value) override;
-
     void set(const std::string& key, const char* value) override;
-
     void set(const std::string& key, bool value) override;
 
     void increment(const std::string& key, int value) override;
-
     void increment(const std::string& key, unsigned int value) override;
 
     void appendValue(const std::string& arrayKey, int value) override;
-
     void appendValue(const std::string& arrayKey, unsigned int value) override;
-
     void appendValue(const std::string& arrayKey, const std::string& value) override;
-
     void appendValue(const std::string& arrayKey, const char* value) override;
-
     void appendValue(const std::string& arrayKey, bool value) override;
 
     void appendObject(const std::string& arrayKey, const std::string& key, int value) override;
@@ -61,19 +52,22 @@ public:
 
     void mergeJsonIn(const std::string& key, const std::string& json) override;
 
+    TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) override;
+
     void registerResetCallback(std::string cookie, std::function<void()> function) override;
     void unregisterResetCallback(std::string cookie) override;
     void reset() override;
+
     std::string serialise();
 
     // Normally with a singleton the constructor is private but here we make the constructor public
-    // so that plugins can instantiate this if they want to.
+    // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want to.
     TelemetryHelper() = default;
-
 private:
     TelemetryObject m_root;
     std::mutex m_dataLock;
     std::mutex m_callbackLock;
+
     std::map<std::string, std::function<void()>> m_callbacks;
 
     template<class T>
@@ -87,7 +81,5 @@ private:
 
     template<class T>
     void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value);
-
-    TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
     void clearData();
 };
