@@ -48,7 +48,7 @@ ServerAddress::ServerAddress(std::string address, int priority) :
         m_priority(priority)
 {}
 
-static size_t function_pt(char *ptr, size_t size, size_t nmemb, void *stream)
+static size_t function_pt(char *ptr, size_t size, size_t nmemb, void *)
 {
     size_t sizeOfData = size * nmemb;
     if (g_bufptr + sizeOfData >= BIGBUF)
@@ -78,7 +78,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
     bool ret = false;
     g_buf[0] = 0;
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl_global_init(CURL_GLOBAL_DEFAULT); // NOLINT
 
     CURL *curl = curl_easy_init();
     if(curl)
@@ -88,7 +88,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, function_pt);
 
-        curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
+        curl_easy_setopt(curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY); //NOLINT
         char* proxycreds = getenv("PROXY_CREDENTIALS");
         if (proxycreds != nullptr)
         {
@@ -146,7 +146,7 @@ static void writeSignedFile(const char* cred)
 {
     std::string path="./warehouse/catalogue/signed-";
     path += cred;
-    int fd = ::open(path.c_str(), O_CREAT|O_WRONLY|O_TRUNC, 0600);
+    int fd = ::open(path.c_str(), O_CREAT|O_WRONLY|O_TRUNC, 0600); //NOLINT
     assert (fd >= 0);
 
     ssize_t retSize = ::write(fd, "true", 4);
@@ -326,7 +326,13 @@ static int downloadInstaller(std::string location, bool updateCache)
         printf("Creds is [%s]\n", creds);
     }
 
-    ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, nullptr, nullptr, nullptr);
+    const char* proxy = nullptr;
+    if (updateCache)
+    {
+        proxy = "noproxy:";
+    }
+
+    ret = SU_addUpdateSource(session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
     RETURN_IF_ERROR("addUpdateSource", ret);
 
     ret = SU_setCertificatePath(session, certsDir);
