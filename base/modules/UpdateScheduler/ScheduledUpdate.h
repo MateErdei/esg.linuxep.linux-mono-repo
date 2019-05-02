@@ -14,6 +14,13 @@ namespace UpdateScheduler
     class ScheduledUpdate
     {
     public:
+        struct WeekDayAndTimeForDelay
+        {
+            int weekDay;
+            int hour;
+            int minute;
+            // seconds is not used when setting up delayed updates
+        };
         ScheduledUpdate();
 
         // the offsetInMinutes must be a positive number as it simplifies the
@@ -25,12 +32,12 @@ namespace UpdateScheduler
 
         void confirmUpdatedTime();
 
-        std::tm getScheduledTime() const;
-        void setScheduledTime(const std::tm& time);
-        
+        WeekDayAndTimeForDelay getScheduledTime() const;
+        void setScheduledTime(const WeekDayAndTimeForDelay & time);
+
         bool getEnabled() const;
         void setEnabled(bool enabled);
-        
+
         std::string nextUpdateTime();
     private:
         std::time_t calculateNextScheduledUpdateTime(const std::time_t& nowTime);

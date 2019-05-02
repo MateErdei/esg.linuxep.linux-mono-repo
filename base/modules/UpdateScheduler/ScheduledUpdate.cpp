@@ -78,13 +78,24 @@ namespace UpdateScheduler
 
     bool ScheduledUpdate::getEnabled() const { return m_enabled; }
 
-    std::tm ScheduledUpdate::getScheduledTime() const { return m_scheduledTime; }
+    ScheduledUpdate::WeekDayAndTimeForDelay ScheduledUpdate::getScheduledTime() const
+    {
+        WeekDayAndTimeForDelay weekDayAndTimeForDelay{
+            .weekDay = m_scheduledTime.tm_wday,
+            .hour = m_scheduledTime.tm_hour,
+            .minute = m_scheduledTime.tm_min};
+        return weekDayAndTimeForDelay;
+    }
 
     void ScheduledUpdate::setEnabled(bool enabled) { m_enabled = enabled; }
 
-    void ScheduledUpdate::setScheduledTime(const std::tm& time)
+    void ScheduledUpdate::setScheduledTime(const ScheduledUpdate::WeekDayAndTimeForDelay& time)
     {
-        m_scheduledTime = time;
+        std::tm time_tm{};
+        time_tm.tm_wday = time.weekDay;
+        time_tm.tm_hour = time.hour;
+        time_tm.tm_min = time.minute;
+        m_scheduledTime = time_tm;
         m_nextScheduledUpdateTime = 0;
         calculateNextScheduledUpdateTime(Common::UtilityImpl::TimeUtils::getCurrTime());
     }
@@ -107,4 +118,5 @@ namespace UpdateScheduler
         m_nextScheduledUpdateTime = 0;
         calculateNextScheduledUpdateTime( Common::UtilityImpl::TimeUtils::getCurrTime() + 3600 );
     }
+
 } // namespace UpdateScheduler

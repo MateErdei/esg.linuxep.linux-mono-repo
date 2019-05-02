@@ -84,10 +84,13 @@ namespace
         CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10),
                                             offsetInMinutes, std::chrono::milliseconds(100));
 
-        std::tm scheduledTime{};
-        scheduledTime.tm_wday = 3; // Wednesday
-        scheduledTime.tm_hour = 13; // 13:00
-        scheduledUpdate.setScheduledTime(scheduledTime); // this is the way updatescheduler sets before passing to chron
+        // Wednesday 13:00
+        ScheduledUpdate::WeekDayAndTimeForDelay scheduledTime{
+            .weekDay = 3,
+            .hour = 13,
+            .minute = 0
+        };
+        scheduledUpdate.setScheduledTime(scheduledTime);
 
         schedulerThread.setScheduledUpdate(scheduledUpdate);
         schedulerThread.setUpdateOnStartUp(setUpdateOnStartUp);

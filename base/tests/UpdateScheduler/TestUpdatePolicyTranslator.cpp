@@ -510,10 +510,10 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(features,expectedFeatures);
 
     EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 17);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    auto scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.weekDay, 3);
+    EXPECT_EQ(scheduledUpdateTime.hour, 17);
+    EXPECT_EQ(scheduledUpdateTime.minute, 0);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
@@ -628,10 +628,10 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
     EXPECT_EQ(settingsHolder.scheduledUpdate.getEnabled(), true);
-    std::tm scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(scheduledUpdateTime.tm_wday, 3);
-    EXPECT_EQ(scheduledUpdateTime.tm_hour, 11);
-    EXPECT_EQ(scheduledUpdateTime.tm_min, 0);
+    auto scheduledUpdateTime = settingsHolder.scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(scheduledUpdateTime.weekDay, 3);
+    EXPECT_EQ(scheduledUpdateTime.hour, 11);
+    EXPECT_EQ(scheduledUpdateTime.minute, 0);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT

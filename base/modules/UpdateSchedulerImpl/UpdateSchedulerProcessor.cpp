@@ -150,7 +150,11 @@ namespace UpdateSchedulerImpl
             if (settingsHolder.scheduledUpdate.getEnabled())
             {
                 char buffer[20];
-                std::tm scheduledTime = settingsHolder.scheduledUpdate.getScheduledTime();
+                auto weekAndTime = settingsHolder.scheduledUpdate.getScheduledTime();
+                std::tm scheduledTime{};
+                scheduledTime.tm_wday = weekAndTime.weekDay;
+                scheduledTime.tm_hour = weekAndTime.hour;
+                scheduledTime.tm_min = weekAndTime.minute;
                 if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
                 {
                     LOGINFO("Scheduling updates for " << buffer);

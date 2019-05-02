@@ -714,10 +714,10 @@ TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLIN
     // Saturday(6th day of the week), 9:41
     EXPECT_EQ(scheduledUpdate.getEnabled(), true);
 
-    std::tm actualTime = scheduledUpdate.getScheduledTime();
-    EXPECT_EQ(actualTime.tm_hour, 9);
-    EXPECT_EQ(actualTime.tm_min, 41);
-    EXPECT_EQ(actualTime.tm_wday, 6);
+    auto actualTime = scheduledUpdate.getScheduledTime();
+    EXPECT_EQ(actualTime.hour, 9);
+    EXPECT_EQ(actualTime.minute, 41);
+    EXPECT_EQ(actualTime.weekDay, 6);
 }
 
 TEST_F(TestUpdateScheduler, badScheduledUpdatePolicyWillNotConfigureScheduleBadDay) // NOLINT

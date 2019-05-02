@@ -31,12 +31,9 @@ namespace
     std::time_t week{ hour * 24 * 7};
     std::string reportedScheduledTime{"20190501 130000"};
     std::string reportedNextScheduledTime{"20190508 130000"};
-    std::tm getScheduledTime()
+    ScheduledUpdate::WeekDayAndTimeForDelay getScheduledTime()
     {
-        std::tm tm_1{};
-        tm_1.tm_wday=3;
-        tm_1.tm_hour=13;
-        return tm_1;
+        return {.weekDay=3,.hour=13,.minute=0};
     }
 }
 

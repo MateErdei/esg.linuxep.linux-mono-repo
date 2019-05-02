@@ -187,7 +187,11 @@ namespace UpdateSchedulerImpl
                 std::tm scheduledUpdateTime;
                 if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
                 {
-                    scheduledUpdate.setScheduledTime(scheduledUpdateTime);
+                    scheduledUpdate.setScheduledTime(
+                            {.weekDay=scheduledUpdateTime.tm_wday,
+                             .hour=scheduledUpdateTime.tm_hour,
+                             .minute=scheduledUpdateTime.tm_min
+                             });
                     scheduledUpdate.setEnabled(true);
                 }
             }
