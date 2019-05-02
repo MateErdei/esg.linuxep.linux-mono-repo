@@ -69,11 +69,15 @@ void TelemetryProcessor::gatherTelemetry()
             {
                 if (value.index() == 0)
                 {
-                    TelemetryHelper::getInstance().append(telemetryName, std::get<std::string>(value));
+                    TelemetryHelper::getInstance().appendObject(
+                        telemetryName,
+                        "ANONYMOUS",
+                        std::get<std::string>(value)); // TODO: sort out array of anonymous objects
                 }
                 else
                 {
-                    TelemetryHelper::getInstance().append(telemetryName, std::get<int>(value));
+                    TelemetryHelper::getInstance().appendObject(
+                        telemetryName, "ANONYMOUS", std::get<int>(value)); // TODO: sort out array of anonymous objects
                 }
             }
         }
