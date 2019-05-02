@@ -16,29 +16,28 @@ namespace UpdateScheduler
     public:
         ScheduledUpdate();
 
+        // the offsetInMinutes must be a positive number as it simplifies the
+        // calculation of the next time as the delayedUpdate never happens before the next scheduled time.
         bool timeToUpdate(int offsetInMinutes);
 
         bool missedUpdate(const std::string& lastUpdate);
 
-        void resetScheduledUpdateTimes();
 
-        bool getEnabled() const;
+        void confirmUpdatedTime();
 
         std::tm getScheduledTime() const;
-
-        void setEnabled(bool enabled);
-
         void setScheduledTime(const std::tm& time);
-
+        
+        bool getEnabled() const;
+        void setEnabled(bool enabled);
+        
+        std::string nextUpdateTime();
     private:
         std::time_t calculateNextScheduledUpdateTime(const std::time_t& nowTime);
-
-        std::time_t calculateLastScheduledUpdateTime(const std::time_t& nowTime);
 
         bool m_enabled;
         std::tm m_scheduledTime;
         std::time_t m_nextScheduledUpdateTime;
-        std::time_t m_lastScheduledUpdateTime;
 
         constexpr static int SecondsInMin = 60;
         constexpr static int SecondsInHour = 60 * SecondsInMin;

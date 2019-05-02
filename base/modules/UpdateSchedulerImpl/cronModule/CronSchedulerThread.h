@@ -28,7 +28,8 @@ namespace UpdateSchedulerImpl
                 std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerQueue,
                 DurationTime firstTick,
                 DurationTime repeatPeriod,
-                int scheduledUpdateOffsetInMinutes = 8);
+                int scheduledUpdateOffsetInMinutes = 8,
+                DurationTime onDelayUpdateWaitTime=std::chrono::minutes(15));
 
             ~CronSchedulerThread();
 
@@ -43,10 +44,10 @@ namespace UpdateSchedulerImpl
             void setScheduledUpdate(UpdateScheduler::ScheduledUpdate scheduledUpdate) override;
 
             void setUpdateOnStartUp(bool updateOnStartUp) override;
-
+            void join(); // for test
         private:
             void run() override;
-            void resetScheduledUpdate();
+            void reportNextUpdateTime();
             enum class ActionOnInterrupt
             {
                 NOTHING,
@@ -62,6 +63,7 @@ namespace UpdateSchedulerImpl
             std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerQueue;
             DurationTime m_firstTick;
             DurationTime m_periodTick;
+            DurationTime m_onDelayUpdateWaitTime;
             ActionOnInterrupt m_actionOnInterrupt;
             UpdateScheduler::ScheduledUpdate m_scheduledUpdate;
             int m_scheduledUpdateOffsetInMinutes;

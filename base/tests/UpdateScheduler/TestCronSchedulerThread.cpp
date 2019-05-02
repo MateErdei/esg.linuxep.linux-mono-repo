@@ -6,6 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <UpdateSchedulerImpl/cronModule/CronSchedulerThread.h>
 #include <gmock/gmock-matchers.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <tests/Common/Helpers/FakeTimeUtils.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
@@ -15,6 +18,11 @@ using time_point = std::chrono::steady_clock::time_point;
 using CronSchedulerThread = cronModule::CronSchedulerThread;
 namespace
 {
+    std::time_t t_20190501T13h{1556712000}; // Wednesday at 13:00
+    std::time_t minute{60};
+    std::time_t hour{ 60 * minute };
+    std::time_t week{ hour * 24 * 7};
+
     time_point now() { return std::chrono::steady_clock::now(); }
     long elapsed_time_ms(time_point from, time_point to)
     {
@@ -22,7 +30,81 @@ namespace
     }
 
     long elapsed_time_ms(time_point from) { return elapsed_time_ms(from, now()); }
-} // namespace
+
+
+    // setup the utility that will replace calls to TimeUtils::getCurrentTime to the list of simulated times
+    Common::UtilityImpl::ScopedReplaceITime setupSimulatedTimes( std::vector<time_t> simulated_times,
+                                                                 std::shared_ptr<SchedulerTaskQueue> taskQueue )
+    {
+        std::unique_ptr<Common::UtilityImpl::ITime> mockTimer{
+                new SequenceOfFakeTime( simulated_times, std::chrono::milliseconds(5), [taskQueue](){
+                    taskQueue->pushStop();
+                })
+        };
+        return Common::UtilityImpl::ScopedReplaceITime( std::move(mockTimer));
+    }
+
+    // helper methods to get all the entries in the queue up to the first stop
+    std::vector<SchedulerTask::TaskType> getReceivedActions( SchedulerTaskQueue & queue)
+    {
+        std::vector<SchedulerTask::TaskType> receivedValues;
+        while( true)
+        {
+            auto curr_value = queue.pop();
+            if( curr_value.taskType != SchedulerTask::TaskType::Stop)
+            {
+                receivedValues.push_back(curr_value.taskType);
+            }
+            else
+            {
+                break;
+            }
+        }
+        return receivedValues;
+
+    }
+
+
+    // helper method for the tests which simulates CronSchedulerThread operation.
+    std::vector<SchedulerTask::TaskType> receivedActionsForSimulatedTime( std::vector<time_t> simulated_entries,
+                                                                          std::string & capturedLog,
+                                                                          int offsetInMinutes , bool setUpdateOnStartUp)
+    {
+        Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+        ::testing::internal::CaptureStderr();
+        std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+
+        ScheduledUpdate scheduledUpdate;
+        scheduledUpdate.setEnabled(true);
+
+        Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime{ setupSimulatedTimes(
+                simulated_entries, queue
+        ) };
+
+        CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10),
+                                            offsetInMinutes, std::chrono::milliseconds(100));
+
+        std::tm scheduledTime{};
+        scheduledTime.tm_wday = 3; // Wednesday
+        scheduledTime.tm_hour = 13; // 13:00
+        scheduledUpdate.setScheduledTime(scheduledTime); // this is the way updatescheduler sets before passing to chron
+
+        schedulerThread.setScheduledUpdate(scheduledUpdate);
+        schedulerThread.setUpdateOnStartUp(setUpdateOnStartUp);
+
+
+        schedulerThread.start();
+
+        std::vector<SchedulerTask::TaskType> receivedValues = getReceivedActions(*queue);
+        schedulerThread.requestStop();
+        schedulerThread.join();
+        (void) capturedLog;
+        capturedLog = ::testing::internal::GetCapturedStderr();
+        return receivedValues;
+    }
+
+}
+
 
 TEST(TestCronSchedulerThread, Constructor) // NOLINT
 {
@@ -109,194 +191,153 @@ TEST(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
     EXPECT_GE(5000, elapsed_time_ms(start_time));
 }
 
-TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdate) // NOLINT
+
+
+TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdate) // NOLINT
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20), 0);
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    std::time_t timeT = std::time(nullptr);
-    std::tm nowTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(nowTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
+    std::vector<time_t> simulated_times{ t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour};
+    std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate };
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 0, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
 }
+
+TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdateWithMinutes) // NOLINT
+{
+    std::vector<time_t> simulated_times;
+    //simulate 30 minutes around the scheduled time, only one update schedule should be reported
+    for(int i =-30; i<30; i++)
+    {
+        simulated_times.push_back(t_20190501T13h + i*minute  );
+    }
+
+    std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate };
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 5, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
+}
+
+
+
+TEST(TestCronSchedulerThread, simulateRunningTwoScheduledUpdate) // NOLINT
+{
+    std::vector<time_t> simulated_times{ t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
+            t_20190501T13h + week - hour, t_20190501T13h + week,
+            t_20190501T13h + week + hour};
+    std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate,
+                                                         SchedulerTask::TaskType::ScheduledUpdate };
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 0, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190508 130000"));
+}
+
+
+TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdate) // NOLINT
+{
+    std::vector<time_t> simulated_times{
+           t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
+           t_20190501T13h + week - hour, t_20190501T13h + week, t_20190501T13h + week + hour,
+           t_20190501T13h + 2*week - hour, t_20190501T13h + 2*week, t_20190501T13h + 2*week + hour
+    };
+    std::vector<SchedulerTask::TaskType> expectedValues{
+        SchedulerTask::TaskType::ScheduledUpdate,
+        SchedulerTask::TaskType::ScheduledUpdate,
+        SchedulerTask::TaskType::ScheduledUpdate};
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 0, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190508 130000"));
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190515 130000"));
+
+}
+
+
+TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdateWithRequiringUpdateOnStartUp) // NOLINT
+{
+    std::vector<time_t> simulated_times{
+            t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
+            t_20190501T13h + week - hour, t_20190501T13h + week, t_20190501T13h + week + hour,
+            t_20190501T13h + 2*week - hour, t_20190501T13h + 2*week, t_20190501T13h + 2*week + hour
+    };
+    std::vector<SchedulerTask::TaskType> expectedValues{
+            SchedulerTask::TaskType::ScheduledUpdate, // an additional update will be executed because of the startup
+            SchedulerTask::TaskType::ScheduledUpdate,
+            SchedulerTask::TaskType::ScheduledUpdate,
+            SchedulerTask::TaskType::ScheduledUpdate};
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 0, true);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190508 130000"));
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190515 130000"));
+
+}
+
+
+TEST(TestCronSchedulerThread, NoScheduledUpdateShouldBeTriggereBeforeScheduledTime) // NOLINT
+{
+    std::vector<time_t> simulated_times;
+    //simulate 30 minutes before scheduled time
+    for(int i =-30; i<-1; i++)
+    {
+        simulated_times.push_back(t_20190501T13h + i*minute  );
+    }
+
+    std::vector<SchedulerTask::TaskType> expectedValues{  };
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 5, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
+}
+
 
 TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteBehind) // NOLINT
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::vector<time_t> simulated_times;
+    //simulate from 1 minute to 10
+    for(int i =-1; i<10; i++)
+    {
+        simulated_times.push_back(t_20190501T13h + i*minute  );
+    }
 
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10), 0);
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    std::time_t nowTime = std::time(nullptr);
-    std::time_t mod = nowTime % 60;
-    std::time_t timeT = nowTime - mod;
-    std::tm oneMinuteBehindTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(oneMinuteBehindTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
+    std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate };
+    std::string capturedLog;
+    auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 5, false);
+    ASSERT_EQ(receivedValues, expectedValues);
+    EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
 }
 
-TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteAhead) // NOLINT
+TEST(TestCronSchedulerThread, cronShouldNotTriggerUpdateBeforePassingTheOffsetInMinute) // NOLINT
 {
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
+    std::vector<time_t> simulated_times;
+    //simulate from 1 minute to 6
+    for(int i =-1; i<6; i++)
+    {
+        simulated_times.push_back(t_20190501T13h + i*minute  );
+    }
 
-    CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(10), 0);
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    std::time_t nowTime = std::time(nullptr);
-    std::time_t mod = nowTime % 60;
-    std::time_t timeT = nowTime + (60 - mod);
-    std::tm oneMinuteAheadTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(oneMinuteAheadTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
+    std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate };
+    std::string capturedLog;
+    int count_how_many_times_scheduled_update_was_triggered{0};
+    // run simulation 10 times. Some times the offset will be lower than 6 minutes, sometimes it will be higher (50%  chance)
+    for( int i =0; i<10; i++)
+    {
+        auto receivedValues = receivedActionsForSimulatedTime( simulated_times, capturedLog, 12, false);
+        if( receivedValues.empty())
+        {
+            continue;
+        }
+        ASSERT_EQ(receivedValues.size(), 1); // there should always be either none or one.
+        ASSERT_EQ(receivedValues, expectedValues); // if there is one, it must be the expectedValues
+        count_how_many_times_scheduled_update_was_triggered++;
+    }
+    // statistically it is very unlikely that it has always triggered or never triggered.
+    EXPECT_LT(count_how_many_times_scheduled_update_was_triggered, 10);
+    EXPECT_GT(count_how_many_times_scheduled_update_was_triggered, 0);
 }
 
-TEST(TestCronSchedulerThread, setScheduledTimeTwoMinutesButDoNotWait) // NOLINT
-{
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0);
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    std::time_t timeT = std::time(nullptr) + (2 * 60);
-    std::tm twoMinutesAheadTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(twoMinutesAheadTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
-}
-
-TEST(TestCronSchedulerThread, setScheduledTimeOneHourButDoNotWait) // NOLINT
-{
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0);
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    std::time_t timeT = std::time(nullptr) - (60 * 60);
-    std::tm oneHourBehindTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(oneHourBehindTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
-}
-
-TEST(TestCronSchedulerThread, setScheduledTimeOneDayButDoNotWait) // NOLINT
-{
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0);
-    std::time_t timeT = std::time(nullptr) + (24 * 60 * 60);
-    std::tm oneDayAheadTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(oneDayAheadTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(false);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
-}
-
-TEST(TestCronSchedulerThread, setScheduledTimeUpdateOnStart) // NOLINT
-{
-    std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
-
-    ScheduledUpdate scheduledUpdate;
-    scheduledUpdate.setEnabled(true);
-
-    CronSchedulerThread schedulerThread(queue, std::chrono::milliseconds(10), std::chrono::milliseconds(10), 0);
-    std::time_t timeT = std::time(nullptr) + (24 * 60 * 60);
-    std::tm oneDayAheadTm = *std::localtime(&timeT);
-    scheduledUpdate.setScheduledTime(oneDayAheadTm);
-
-    schedulerThread.setScheduledUpdate(scheduledUpdate);
-    schedulerThread.setUpdateOnStartUp(true);
-    schedulerThread.start();
-
-    std::thread stopInserter([&queue]() {
-        std::this_thread::sleep_for(milliseconds(30));
-        queue->pushStop();
-    });
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
-
-    stopInserter.join();
-}
