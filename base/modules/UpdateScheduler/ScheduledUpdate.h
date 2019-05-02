@@ -29,8 +29,8 @@ namespace UpdateScheduler
 
         bool missedUpdate(const std::string& lastUpdate);
 
-
         void confirmUpdatedTime();
+        void resetTimer();
 
         WeekDayAndTimeForDelay getScheduledTime() const;
         void setScheduledTime(const WeekDayAndTimeForDelay & time);

@@ -137,7 +137,7 @@ namespace UpdateSchedulerImpl
 
                         if (m_scheduledUpdate.getEnabled())
                         {
-                            m_scheduledUpdate.confirmUpdatedTime();
+                            m_scheduledUpdate.resetTimer();
                             timeToWait =  m_onDelayUpdateWaitTime;
                             reportNextUpdateTime();
                         }

@@ -119,4 +119,9 @@ namespace UpdateScheduler
         calculateNextScheduledUpdateTime( Common::UtilityImpl::TimeUtils::getCurrTime() + 3600 );
     }
 
+    void ScheduledUpdate::resetTimer()
+    {
+        setScheduledTime( getScheduledTime());
+    }
+
 } // namespace UpdateScheduler
