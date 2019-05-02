@@ -23,7 +23,18 @@ void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
 
-    // TODO: extract separate function for gathering system telemetry (LINUXEP-8094)
+    gatherSystemTelemetry(TelemetryHelper::getInstance());
+    std::cout << TelemetryHelper::getInstance().serialise(); // TODO remove!
+
+    // TODO gather plugin telemetry LINUXEP-7972
+
+    // This will gather telemetry from all the various sources and merge them in one at a time.
+    std::string gatheredExampleJson = R"({"thing":2})";
+    addTelemetry("TelemetryExecutableExample", gatheredExampleJson);
+}
+
+void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
+{
     SystemTelemetryCollectorImpl systemTelemetryCollector(
         GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
     auto systemTelemetryObjects = systemTelemetryCollector.collectObjects();
@@ -36,11 +47,11 @@ void TelemetryProcessor::gatherTelemetry()
             // just set a property and don't create a sub-object with just one property
             if (values[0].index() == 0)
             {
-                TelemetryHelper::getInstance().set(telemetryName, std::get<std::string>(values[0]));
+                jsonConverter.set(telemetryName, std::get<std::string>(values[0]));
             }
             else
             {
-                TelemetryHelper::getInstance().set(telemetryName, std::get<int>(values[0]));
+                jsonConverter.set(telemetryName, std::get<int>(values[0]));
             }
         }
         else
@@ -50,11 +61,11 @@ void TelemetryProcessor::gatherTelemetry()
             {
                 if (value.index() == 0)
                 {
-                    TelemetryHelper::getInstance().set(telemetryName, std::get<std::string>(value));
+                    jsonConverter.set(telemetryName, std::get<std::string>(value));
                 }
                 else
                 {
-                    TelemetryHelper::getInstance().set(telemetryName, std::get<int>(value));
+                    jsonConverter.set(telemetryName, std::get<int>(value));
                 }
             }
         }
@@ -69,27 +80,19 @@ void TelemetryProcessor::gatherTelemetry()
             {
                 if (value.index() == 0)
                 {
-                    TelemetryHelper::getInstance().appendObject(
+                    jsonConverter.appendObject(
                         telemetryName,
                         "ANONYMOUS",
                         std::get<std::string>(value)); // TODO: sort out array of anonymous objects
                 }
                 else
                 {
-                    TelemetryHelper::getInstance().appendObject(
+                    jsonConverter.appendObject(
                         telemetryName, "ANONYMOUS", std::get<int>(value)); // TODO: sort out array of anonymous objects
                 }
             }
         }
     }
-
-    std::cout << TelemetryHelper::getInstance().serialise(); // TODO remove!
-
-    // TODO gather plugin telemetry LINUXEP-7972
-
-    // This will gather telemetry from all the various sources and merge them in one at a time.
-    std::string gatheredExampleJson = R"({"thing":2})";
-    addTelemetry("TelemetryExecutableExample", gatheredExampleJson);
 }
 
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)

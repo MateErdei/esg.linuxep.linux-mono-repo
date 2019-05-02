@@ -6,9 +6,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Common/TelemetryHelperImpl/TelemetryObject.h>
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 namespace Common::Telemetry
 {

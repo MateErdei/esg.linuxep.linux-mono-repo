@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "json.hpp"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryObject.h>
+#include <Common/TelemetryHelper/ITelemetryHelper.h>
 
 #include <utility>
 
@@ -21,4 +21,5 @@ namespace Telemetry::TelemetryProcessor
     // TODO void sendTelemetry();
 
     std::string getSerialisedTelemetry();
+    void gatherSystemTelemetry(Common::Telemetry::ITelemetryHelper& jsonConverter);
 }
