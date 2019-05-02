@@ -20,8 +20,8 @@ namespace SulDownloader
             static const std::string NoProxy;
 
             explicit Proxy(
-                const std::string& url = "",
-                const suldownloaderdata::ProxyCredentials& credentials = suldownloaderdata::ProxyCredentials());
+                std::string url = "",
+                suldownloaderdata::ProxyCredentials credentials = suldownloaderdata::ProxyCredentials());
 
             const suldownloaderdata::ProxyCredentials& getCredentials() const;
 
@@ -35,6 +35,8 @@ namespace SulDownloader
             }
 
             bool operator!=(const Proxy& rhs) const { return !operator==(rhs); }
+
+            std::string toStringPostfix() const;
 
         private:
             std::string m_url;

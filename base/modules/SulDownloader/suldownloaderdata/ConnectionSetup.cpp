@@ -57,20 +57,14 @@ std::string ConnectionSetup::toString() const
     std::stringstream ss;
     if (isCacheUpdate())
     {
-        ss << "Update cache Url: ";
+        ss << "Update cache at ";
     }
     else
     {
-        ss << "Sophos Url: ";
+        ss << "Sophos at ";
     }
 
-    ss << m_updateLocationURL << "\n";
-
-    if (!m_proxy.empty())
-    {
-        ss << "Proxy url: " << m_proxy.getUrl();
-    }
-
+    ss << m_updateLocationURL << " " << m_proxy.toStringPostfix();
     return ss.str();
 }
 

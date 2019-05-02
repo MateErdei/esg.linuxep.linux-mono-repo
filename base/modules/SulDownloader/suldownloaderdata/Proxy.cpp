@@ -8,11 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
-const std::string Proxy::NoProxy("noproxy:");
+const std::string Proxy::NoProxy("noproxy:"); // nolint
 
-Proxy::Proxy(const std::string& url, const SulDownloader::suldownloaderdata::ProxyCredentials& credentials) :
-    m_url(url),
-    m_credentials(credentials)
+Proxy::Proxy(std::string url, SulDownloader::suldownloaderdata::ProxyCredentials credentials) :
+    m_url(std::move(url)),
+    m_credentials(std::move(credentials))
 {
 }
 
@@ -29,4 +29,24 @@ const std::string& Proxy::getUrl() const
 bool Proxy::empty() const
 {
     return m_url.empty() || m_url == NoProxy;
+}
+
+std::string Proxy::toStringPostfix() const
+{
+    if (getUrl() == "noproxy:")
+    {
+        return " directly";
+    }
+    else if (getUrl() == "environment:")
+    {
+        return " via environment proxy";
+    }
+    else if (getUrl().empty())
+    {
+        return " via environment proxy or directly";
+    }
+    else
+    {
+        return std::string("via proxy: ") + getUrl();
+    }
 }

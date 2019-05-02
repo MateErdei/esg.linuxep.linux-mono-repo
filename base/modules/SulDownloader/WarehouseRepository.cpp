@@ -178,9 +178,11 @@ namespace SulDownloader
             if (!SULUtils::isSuccess(SU_readRemoteMetadata(warehouse->session())))
             {
                 SULUtils::displayLogs(warehouse->session());
-                LOGSUPPORT("Failed to connect to warehouse\n" << warehouse->m_connectionSetup->toString());
+                LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
                 continue;
             }
+            LOGINFO("Successfully connected to: "<< warehouse->m_connectionSetup->toString());
+
             // for verbose it will list the entries in the warehouse
             SULUtils::displayLogs(warehouse->session());
             warehouse->m_state = State::Connected;
