@@ -195,7 +195,7 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[0].getProxy().getUrl().empty());
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(
         connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
@@ -253,7 +253,7 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
     EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
-    EXPECT_TRUE(connectionCandidates[0].getProxy().getUrl().empty());
+    EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // UpdateCache bypass proxy
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
