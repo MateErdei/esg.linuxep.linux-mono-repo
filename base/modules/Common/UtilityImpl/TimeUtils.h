@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <ctime>
 #include <string>
+#include <memory>
 
 namespace Common
 {
@@ -21,6 +22,30 @@ namespace Common
             virtual ~IFormattedTime() = default;
             virtual std::string currentTime() const = 0;
             virtual std::string bootTime() const = 0;
+        };
+
+        class ITime
+        {
+        public:
+            virtual ~ITime() = default;
+            virtual std::time_t getCurrentTime() =0;
+        };
+
+        /**
+         * This class is to be used in test only. It allows testers to redirect: TimeUtils::getCurrTime to
+         * the provided mockTimer->getCurrentTime.
+         * The object created will setup the time replacement and it will restore it on its destruction.
+         * As such, this class is not meant to be copied or moved.
+         */
+        class ScopedReplaceITime
+        {
+        public:
+            ScopedReplaceITime( std::unique_ptr<ITime> mockTimer);
+            ~ScopedReplaceITime();
+            ScopedReplaceITime(const ScopedReplaceITime&) = delete;
+            ScopedReplaceITime& operator=(const ScopedReplaceITime) = delete;
+            // not necessary to state the move operators as the constructor will not create them anyway.
+
         };
 
         class TimeUtils

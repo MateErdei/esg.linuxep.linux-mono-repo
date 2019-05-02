@@ -8,6 +8,25 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/sysinfo.h>
 #include <cassert>
 
+namespace
+{
+    class DefaultTimer : public Common::UtilityImpl::ITime
+    {
+        std::time_t getCurrentTime() override
+        {
+            return std::time(nullptr);
+        }
+    };
+
+    std::unique_ptr<Common::UtilityImpl::ITime>& static_Timer()
+    {
+        static std::unique_ptr<Common::UtilityImpl::ITime> timer{new DefaultTimer{}};
+        return timer;
+    }
+
+
+}
+
 namespace Common
 {
     namespace UtilityImpl
@@ -22,7 +41,10 @@ namespace Common
             return fromTime(time_tm);
         }
 
-        std::time_t TimeUtils::getCurrTime() { return std::time(nullptr); }
+        std::time_t TimeUtils::getCurrTime()
+        {
+            return static_Timer()->getCurrentTime();
+        }
 
         std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet()); }
 
@@ -47,7 +69,18 @@ namespace Common
             return formattedTime;
         }
 
+
         std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime()); }
         std::string FormattedTime::bootTime() const { return TimeUtils::getBootTime(); }
+
+        ScopedReplaceITime::ScopedReplaceITime(std::unique_ptr<ITime> mockTimer)
+        {
+            static_Timer().reset(mockTimer.release());
+        }
+
+        ScopedReplaceITime::~ScopedReplaceITime()
+        {
+            static_Timer().reset(new DefaultTimer{});
+        }
     } // namespace UtilityImpl
 } // namespace Common
