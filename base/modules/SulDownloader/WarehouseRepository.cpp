@@ -237,7 +237,7 @@ namespace SulDownloader
             productInformationList.emplace_back(product, productInformation);
         }
         std::vector<ProductMetadata> productMetadataList;
-        for (auto pInfoPair : productInformationList)
+        for (const auto& pInfoPair : productInformationList)
         {
             productMetadataList.push_back(pInfoPair.second);
         }
