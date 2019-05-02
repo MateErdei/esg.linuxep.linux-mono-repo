@@ -45,17 +45,19 @@ public:
     void SetUp() override
     {
         m_curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+
+        EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
+
         m_httpSender = std::make_shared<HttpSender>(m_curlWrapper);
 
-        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, G_defaultServer, G_defaultPort, G_defaultCertPath, ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, G_defaultServer, G_defaultPort, G_defaultCertPath, ResourceRoot::PROD);
-        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, G_defaultServer, G_defaultPort, "/nonDefaultCertPath");
+        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, GL_defaultCertPath, ResourceRoot::DEV);
+        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, GL_defaultCertPath, ResourceRoot::PROD);
+        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
     }
 };
 
 TEST_F(HttpSenderTest, getRequest) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(2).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
@@ -67,7 +69,6 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
 
 TEST_F(HttpSenderTest, postRequest) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(3).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
@@ -79,7 +80,6 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
 
 TEST_F(HttpSenderTest, putRequest) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(4).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
@@ -91,7 +91,6 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
 
 TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(3).WillRepeatedly(Return(m_succeededResult));
@@ -111,18 +110,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 
 TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
-    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
-
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_getRequestConfig), m_failedResult);
-}
-
-TEST_F(HttpSenderTest, getRequest_GlobalInitFailureStillDoesGlobalCleanup) // NOLINT
-{
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
@@ -131,7 +119,6 @@ TEST_F(HttpSenderTest, getRequest_GlobalInitFailureStillDoesGlobalCleanup) // NO
 
 TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(2).WillRepeatedly(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_failedResult));
@@ -144,7 +131,6 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
 
 TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
@@ -161,7 +147,6 @@ TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 
 TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
@@ -173,7 +158,6 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
 
 TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_succeededResult));
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(&m_headers));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillRepeatedly(Return(m_succeededResult));

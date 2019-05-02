@@ -18,7 +18,7 @@ namespace Common::HttpSenderImpl
         explicit HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper);
         HttpSender(const HttpSender&) = delete;
         HttpSender& operator= (const HttpSender&) = delete;
-        ~HttpSender() override = default;
+        ~HttpSender() override;
 
         int doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig) override;
     private:

@@ -25,10 +25,10 @@ namespace Common::HttpSenderImpl
         TEST
     };
 
-    static const char* G_defaultServer = "t1.sophosupd.com";
-    static const char* G_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
-    static const int G_defaultPort = 443;
-    static const ResourceRoot G_defaultResourceRoot = ResourceRoot::PROD;
+    static const char* GL_defaultServer = "t1.sophosupd.com";
+    static const char* GL_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
+    static const int GL_defaultPort = 443;
+    static const ResourceRoot GL_defaultResourceRoot = ResourceRoot::PROD;
 
 
     class RequestConfig
@@ -37,10 +37,10 @@ namespace Common::HttpSenderImpl
         RequestConfig(
             const std::string& requestTypeStr,
             std::vector<std::string> additionalHeaders,
-            std::string server = G_defaultServer,
-            int port = G_defaultPort,
-            std::string certPath = G_defaultCertPath,
-            ResourceRoot resourceRoot = G_defaultResourceRoot
+            std::string server = GL_defaultServer,
+            int port = GL_defaultPort,
+            std::string certPath = GL_defaultCertPath,
+            ResourceRoot resourceRoot = GL_defaultResourceRoot
             );
         RequestConfig(const RequestConfig&) = delete;
         RequestConfig& operator= (const RequestConfig&) = delete;

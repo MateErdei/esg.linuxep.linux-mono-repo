@@ -21,6 +21,19 @@ namespace Common::HttpSenderImpl
         // TODO: [LINUXEP-6636] Rebuild libcurl with rpath set and remove these lines
         SSL_library_init();
         OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS, nullptr);
+
+        CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
+        if (result != CURLE_OK)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to initialise libcurl with error: " << m_curlWrapper->curlEasyStrError(result);
+            throw std::runtime_error(errorMsg.str());
+        }
+    }
+
+    HttpSender::~HttpSender()
+    {
+        m_curlWrapper->curlGlobalCleanup();
     }
 
     curl_slist* HttpSender::setCurlOptions(CURL* curl, std::shared_ptr<RequestConfig> requestConfig)
@@ -43,11 +56,14 @@ namespace Common::HttpSenderImpl
 
         for (const auto& header : requestConfig->getAdditionalHeaders())
         {
-            headers = m_curlWrapper->curlSlistAppend(headers, header.c_str());
-            if (!headers)
+            curl_slist* temp = nullptr;
+            temp = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+            if (!temp)
             {
+                curl_slist_free_all(headers);
                 throw std::runtime_error("Failed to append header to request");
             }
+            headers = temp;
         }
 
         if (headers)
@@ -91,15 +107,6 @@ namespace Common::HttpSenderImpl
 
         try
         {
-            result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
-
-            if (result != CURLE_OK)
-            {
-                std::stringstream errorMsg;
-                errorMsg << "Failed to initialise libcurl with error: " << m_curlWrapper->curlEasyStrError(result);
-                throw std::runtime_error(errorMsg.str());
-            }
-
             curl = m_curlWrapper->curlEasyInit();
             if (curl)
             {
@@ -124,8 +131,6 @@ namespace Common::HttpSenderImpl
             {
                 throw std::runtime_error("Failed to initialise curl");
             }
-
-            m_curlWrapper->curlGlobalCleanup();
         }
 
         catch (const std::runtime_error& e)
@@ -139,7 +144,6 @@ namespace Common::HttpSenderImpl
                 m_curlWrapper->curlSlistFreeAll(headers);
             }
             m_curlWrapper->curlEasyCleanup(curl);
-            m_curlWrapper->curlGlobalCleanup();
         }
 
         return static_cast<int>(result);
