@@ -24,22 +24,23 @@ namespace Telemetry
         SystemTelemetryCollectorImpl(
             Telemetry::SystemTelemetryConfig objectsConfig,
             Telemetry::SystemTelemetryConfig arraysConfig);
-        std::map<std::string, std::vector<std::variant<std::string, int>>> collectObjects() override;
-        std::map<std::string, std::vector<std::vector<std::variant<std::string, int>>>> collectArraysOfObjects()
+        std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>> collectObjects()
             override;
+        std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
+        collectArraysOfObjects() override;
 
     protected:
         bool getValues(
-            std::vector<std::variant<std::string, int>>& values,
+            std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
             std::string& commandOutput,
             const std::string& regexp,
-            std::vector<TelemetryValueType> valueTypes);
+            std::vector<TelemetryProperty> properties);
 
         bool getValues(
-            std::vector<std::vector<std::variant<std::string, int>>>& values,
+            std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
             std::string& commandOutput,
             const std::string& regexp,
-            std::vector<TelemetryValueType> valueTypes);
+            std::vector<TelemetryProperty> properties);
 
     private:
         template<typename T>

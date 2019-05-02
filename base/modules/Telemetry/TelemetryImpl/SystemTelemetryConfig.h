@@ -19,9 +19,15 @@ namespace Telemetry
         INTEGER
     };
 
-    // telemetry item name to command, command-arguments, regex and type-of-value
+    struct TelemetryProperty
+    {
+        std::string name;
+        TelemetryValueType type;
+    };
+
+    // telemetry item name, command, command-arguments, regex and property
     using SystemTelemetryTuple =
-        std::tuple<const std::string, const std::string, const std::string, std::vector<TelemetryValueType>>;
+        std::tuple<const std::string, const std::string, const std::string, std::vector<TelemetryProperty>>;
 
     using SystemTelemetryConfig = std::map<const std::string, const SystemTelemetryTuple>;
 

@@ -32,24 +32,32 @@ namespace
           Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
                                            "",
                                            "^\\s*Kernel:\\s*(.*)$",
-                                           { Telemetry::TelemetryValueType::STRING } } },
+                                           { { "", Telemetry::TelemetryValueType::STRING } } } },
         { "os-pretty",
           Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
                                            "",
                                            "^ *Operating System: (.*)$",
-                                           { Telemetry::TelemetryValueType::STRING } } },
+                                           { { "", Telemetry::TelemetryValueType::STRING } } } },
         { "cpu-cores",
           Telemetry::SystemTelemetryTuple{ "/usr/bin/lscpu",
                                            "--pretty --total",
                                            "^CPU\\(s\\): (.*)$",
-                                           { Telemetry::TelemetryValueType::INTEGER } } }
+                                           { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
     const Telemetry::SystemTelemetryConfig L_kernelTelemetryConfig = {
-        { "kernel", { "/usr/bin/hostnamectl", "", "^ *Kernel: (.*)$", { Telemetry::TelemetryValueType::STRING } } }
+        { "kernel",
+          { "/usr/bin/hostnamectl", "", "^ *Kernel: (.*)$", { { "", Telemetry::TelemetryValueType::STRING } } } }
     };
     const Telemetry::SystemTelemetryConfig L_osTelemetryConfig = {
         { "os-pretty",
-          { "/usr/bin/hostnamectl", "", "^ *Operating System: (.*)$", { Telemetry::TelemetryValueType::STRING } } }
+          { "/usr/bin/hostnamectl",
+            "",
+            "^ *Operating System: (.*)$",
+            { { "", Telemetry::TelemetryValueType::STRING } } } }
+    };
+    const Telemetry::SystemTelemetryConfig L_lscpuTelemetryConfig = {
+        { "cpu-cores",
+          { "/usr/bin/lscpu", "", "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
 } // namespace
@@ -99,14 +107,10 @@ private:
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
 {
-    Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
-        { "cpu-cores", { "/usr/bin/lscpu", "", "^CPU\\(s\\): (.*)$", { Telemetry::TelemetryValueType::INTEGER } } }
-    };
-
-    setupMockProcesses(lscpuTelemetryConfig.size());
+    setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto mockProcess_ = mockProcesses_[0];
 
-    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(lscpuTelemetryConfig, {});
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_lscpuTelemetryConfig, {});
 
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
@@ -117,21 +121,23 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
     auto intValue = systemTelemetryCollectorImpl.collectObjects();
     auto cpuCores = intValue.find("cpu-cores");
     ASSERT_NE(cpuCores, intValue.cend());
-    ASSERT_EQ(std::get<1>(cpuCores->second[0]), 2);
+    ASSERT_EQ(std::get<int>(cpuCores->second[0].second), 2);
 }
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
 {
     Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
-        { "cpu-cores", { "/usr/bin/will-fail", "", "^CPU\\(s\\): (.*)$", { Telemetry::TelemetryValueType::INTEGER } } }
+        { "cpu-cores",
+          { "/usr/bin/will-fail", "", "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(lscpuTelemetryConfig.size());
     auto mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(lscpuTelemetryConfig, {});
-    std::string invalidLscpulines("Architecture:        x86_64\nCPU op-mode(s):      32-bit, 64-bit\nByte Order:          "
-                                  "Little Endian\nCPU(s):              two\n");
+    std::string invalidLscpulines(
+        "Architecture:        x86_64\nCPU op-mode(s):      32-bit, 64-bit\nByte Order:          "
+        "Little Endian\nCPU(s):              two\n");
 
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
@@ -145,16 +151,13 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
 {
-    Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
-        { "cpu-cores", { "/usr/bin/lscpu", "", "^CPU\\(s\\): (.*)$", { Telemetry::TelemetryValueType::INTEGER } } }
-    };
-
-    setupMockProcesses(lscpuTelemetryConfig.size());
+    setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto mockProcess_ = mockProcesses_[0];
 
-    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(lscpuTelemetryConfig, {});
-    std::string invalidLscpulines("Architecture:        x86_64\nCPU op-mode(s):      32-bit, 64-bit\nByte Order:          "
-                                  "Little Endian\nCPU(s): 9999999999999999999999999999999999999\n");
+    Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_lscpuTelemetryConfig, {});
+    std::string invalidLscpulines(
+        "Architecture:        x86_64\nCPU op-mode(s):      32-bit, 64-bit\nByte Order:          "
+        "Little Endian\nCPU(s): 9999999999999999999999999999999999999\n");
 
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
@@ -183,7 +186,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
 
     auto osPretty = stringValue.find("os-pretty");
     ASSERT_NE(osPretty, stringValue.cend());
-    ASSERT_EQ(std::get<std::string>(osPretty->second[0]), "Ubuntu 18.04.2 LTS");
+    ASSERT_EQ(std::get<std::string>(osPretty->second[0].second), "Ubuntu 18.04.2 LTS");
 }
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues)
@@ -222,7 +225,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialCha
 
     auto kernel = stringValue.find("kernel");
     ASSERT_NE(kernel, stringValue.cend());
-    ASSERT_EQ(std::get<0>(kernel->second[0]), "ひらがな 4.15.0-47-generic");
+    ASSERT_EQ(std::get<0>(kernel->second[0].second), "ひらがな 4.15.0-47-generic");
 }
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString)
@@ -337,7 +340,8 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
           { "/usr/bin/lscpu",
             "",
             "^(CPU.*): (.*)$",
-            { Telemetry::TelemetryValueType::STRING, Telemetry::TelemetryValueType::INTEGER } } }
+            { { "fstype", Telemetry::TelemetryValueType::STRING },
+              { "free", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTelemetryConfig.size());
@@ -359,7 +363,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
     ASSERT_EQ(thething.size(), 2);
     ASSERT_EQ(thething[0].size(), 2);
     auto v0 = std::get<std::string>((thething[0])[0]);
-    ASSERT_EQ(std::get<int>((thething[0])[1]), 32);
+    ASSERT_EQ(std::get<int>((thething[0])[1].second), 32);
 }
 
 TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
@@ -369,12 +373,14 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
           { "/usr/bin/lscpu",
             "",
             "^(CPU.*): (.*)$",
-            { Telemetry::TelemetryValueType::STRING, Telemetry::TelemetryValueType::INTEGER } } },
+            { { "fstype", Telemetry::TelemetryValueType::STRING },
+              { "free", Telemetry::TelemetryValueType::INTEGER } } } },
         { "Test",
           { "/usr/bin/test",
             "--testarg | testxargs",
             "^(CPU.*): .*$",
-            { Telemetry::TelemetryValueType::STRING, Telemetry::TelemetryValueType::INTEGER } } }
+            { { "willnoteshohw", Telemetry::TelemetryValueType::STRING },
+              { "novaluewill show", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTestTelemetryConfig.size());
@@ -390,10 +396,6 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
         EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
     }
 
-    // mapOfvv = {"cpu=cores", std::vector0{
-    // std::vector0 {std::variant0{"CPU op-mode(s)"}, std::variant1{32}},
-    // std::vector1 {std::variant0{"CPU(s)"}, std::variant1{2}}
-    // } }
     auto mapOfvvv = systemTelemetryCollectorImpl.collectArraysOfObjects();
 
     ASSERT_EQ(mapOfvvv.size(), 1);
@@ -405,5 +407,5 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
     ASSERT_EQ(vecOfVecOfVariants.size(), 2);
     ASSERT_EQ(vecOfVecOfVariants[0].size(), 2);
     auto v0 = std::get<std::string>((vecOfVecOfVariants[0])[0]);
-    ASSERT_EQ(std::get<int>((vecOfVecOfVariants[0])[1]), 32);
+    ASSERT_EQ(std::get<int>((vecOfVecOfVariants[0])[1].second), 32);
 }

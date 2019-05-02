@@ -16,9 +16,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    const int MB_SIZE = 1024 * 1024;
-    const int WAIT_TIME_MS = 50;
-    const int WAIT_MAX_RETRIES = 10;
+    const int GL_kbSize = 1024 * 1024;
+    const int GL_waitTimeMilliSeconds = 50;
+    const int GL_waitMaxRetries = 10;
 
     SystemTelemetryCollectorImpl::SystemTelemetryCollectorImpl(
         Telemetry::SystemTelemetryConfig objectsConfig,
@@ -33,10 +33,9 @@ namespace Telemetry
     {
         m_commandOutputCache.clear();
         std::map<std::string, T> telemetry;
-
         for (auto const& [name, item] : config)
         {
-            auto const& [command, commandArgs, regexp, valueType] = item;
+            auto const& [command, commandArgs, regexp, properties] = item;
             std::string commandOutput;
 
             try
@@ -53,7 +52,7 @@ namespace Telemetry
 
             T values;
 
-            if (getValues(values, commandOutput, regexp, valueType)) // getValues used depends on T
+            if (getValues(values, commandOutput, regexp, properties)) // getValues used depends on T
             {
                 telemetry[name] = values;
                 continue;
@@ -65,15 +64,17 @@ namespace Telemetry
         return telemetry;
     }
 
-    std::map<std::string, std::vector<std::variant<std::string, int>>> SystemTelemetryCollectorImpl::collectObjects()
+    std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>
+    SystemTelemetryCollectorImpl::collectObjects()
     {
-        return collect<std::vector<std::variant<std::string, int>>>(m_objectsConfig);
+        return collect<std::vector<std::pair<std::string, std::variant<std::string, int>>>>(m_objectsConfig);
     }
 
-    std::map<std::string, std::vector<std::vector<std::variant<std::string, int>>>> SystemTelemetryCollectorImpl::
-        collectArraysOfObjects()
+    std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
+    SystemTelemetryCollectorImpl::collectArraysOfObjects()
     {
-        return collect<std::vector<std::vector<std::variant<std::string, int>>>>(m_arraysConfig);
+        return collect<std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>(
+            m_arraysConfig);
     }
 
     std::string SystemTelemetryCollectorImpl::getTelemetryItem(const std::string& command, const std::string& args)
@@ -89,14 +90,16 @@ namespace Telemetry
             std::istream_iterator<std::string>{ argsStream }, std::istream_iterator<std::string>());
 
         auto processPtr = Common::Process::createProcess();
-        processPtr->setOutputLimit(MB_SIZE);
+        processPtr->setOutputLimit(GL_kbSize);
 
         // gather raw telemetry, ignoring failures
         processPtr->exec(command, commandArgs);
-        if (processPtr->wait(Common::Process::milli(WAIT_TIME_MS), WAIT_MAX_RETRIES) != Common::Process::ProcessStatus::FINISHED)
+        if (processPtr->wait(Common::Process::milli(GL_waitTimeMilliSeconds), GL_waitMaxRetries) !=
+            Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
-            throw Common::Process::IProcessException("Process execution timed out running: '" + command + " " + args + "'");
+            throw Common::Process::IProcessException(
+                "Process execution timed out running: '" + command + " " + args + "'");
         }
 
         auto output = processPtr->output();
@@ -131,29 +134,31 @@ namespace Telemetry
     }
 
     bool SystemTelemetryCollectorImpl::getValues(
-        std::vector<std::variant<std::string, int>>& values,
+        std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
         std::string& commandOutput,
         const std::string& regexp,
-        std::vector<TelemetryValueType> valueTypes)
+        std::vector<TelemetryProperty> properties)
     {
         std::istringstream stream(commandOutput);
         std::regex re(regexp);
 
         auto singleLineMatches = matchSingleLine(stream, re);
 
-        if (singleLineMatches.size() != valueTypes.size())
+        if (singleLineMatches.size() != properties.size())
         {
             return false;
         }
 
         for (size_t matchGroup = 0; matchGroup < singleLineMatches.size(); ++matchGroup)
         {
-            std::variant<std::string, int> value;
-            if (valueTypes[matchGroup] == TelemetryValueType::INTEGER)
+            std::pair<std::string, std::variant<std::string, int>> value;
+            value.first = properties[matchGroup].name;
+
+            if (properties[matchGroup].type == TelemetryValueType::INTEGER)
             {
                 try
                 {
-                    value.emplace<1>(std::stoi(singleLineMatches[matchGroup]));
+                    value.second.emplace<1>(std::stoi(singleLineMatches[matchGroup]));
                     values.emplace_back(value);
                 }
                 catch (const std::invalid_argument& e)
@@ -173,27 +178,27 @@ namespace Telemetry
             }
             else // default TelemetryValueType::STRING
             {
-                value.emplace<0>(singleLineMatches[matchGroup]);
+                value.second.emplace<0>(singleLineMatches[matchGroup]);
                 values.emplace_back(value);
             }
         }
 
-        return values.size() == valueTypes.size();
+        return values.size() == properties.size();
     }
 
     bool SystemTelemetryCollectorImpl::getValues(
-        std::vector<std::vector<std::variant<std::string, int>>>& values,
+        std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
         std::string& commandOutput,
         const std::string& regexp,
-        std::vector<TelemetryValueType> valueTypes)
+        std::vector<TelemetryProperty> properties)
     {
         std::istringstream stream(commandOutput);
         std::string lineFromCommandOutput;
         while (std::getline(stream, lineFromCommandOutput))
         {
-            std::vector<std::variant<std::string, int>> valuesFromLine;
+            std::vector<std::pair<std::string, std::variant<std::string, int>>> valuesFromLine;
 
-            if (getValues(valuesFromLine, lineFromCommandOutput, regexp, valueTypes))
+            if (getValues(valuesFromLine, lineFromCommandOutput, regexp, properties))
             {
                 values.emplace_back(valuesFromLine);
             }
