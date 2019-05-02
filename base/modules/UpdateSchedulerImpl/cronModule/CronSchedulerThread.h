@@ -55,6 +55,14 @@ namespace UpdateSchedulerImpl
                 STOP
             };
 
+            struct CrossThreadState
+            {
+                DurationTime m_periodTick;
+                bool m_updateOnStartUp;
+                UpdateScheduler::ScheduledUpdate m_scheduledUpdate;
+                bool m_changed;
+            };
+
             std::chrono::milliseconds getPeriodTick();
 
             ActionOnInterrupt getActionOnInterruptAndReset();
@@ -62,12 +70,14 @@ namespace UpdateSchedulerImpl
             std::mutex m_sharedState;
             std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_schedulerQueue;
             DurationTime m_firstTick;
-            DurationTime m_periodTick;
             DurationTime m_onDelayUpdateWaitTime;
             ActionOnInterrupt m_actionOnInterrupt;
-            UpdateScheduler::ScheduledUpdate m_scheduledUpdate;
             int m_scheduledUpdateOffsetInMinutes;
-            bool m_updateOnStartUp;
+
+            void updateInThreadState();
+            CrossThreadState m_crossThreadState;
+            CrossThreadState m_inThreadState;
+
         };
     } // namespace cronModule
 

@@ -343,9 +343,3 @@ TEST(TestCronSchedulerThread, cronShouldNotTriggerUpdateBeforePassingTheOffsetIn
     EXPECT_LT(count_how_many_times_scheduled_update_was_triggered, 10);
     EXPECT_GT(count_how_many_times_scheduled_update_was_triggered, 0);
 }
-
-TEST(TestCronSchedulerThread, cronSchedulerMustBeThreadSafe) // NOLINT
-{
-
-}
-
