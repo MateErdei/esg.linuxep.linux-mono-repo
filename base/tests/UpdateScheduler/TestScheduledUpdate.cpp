@@ -43,7 +43,7 @@ namespace
         timeIwant.tm_mon=4;
         timeIwant.tm_mday=1;
         timeIwant.tm_hour=13;
-        timeIwant.tm_isdst=1;
+        timeIwant.tm_isdst=-1;
 
 
         return mktime(&timeIwant);
