@@ -21,5 +21,4 @@ namespace Telemetry::TelemetryProcessor
     // TODO void sendTelemetry();
 
     std::string getSerialisedTelemetry();
-    std::string gatherSystemTelemetry();
 }

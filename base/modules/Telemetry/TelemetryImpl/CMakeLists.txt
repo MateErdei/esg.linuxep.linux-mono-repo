@@ -6,6 +6,8 @@ add_library(telemetryimpl SHARED
         SystemTelemetryCollectorImpl.h
         SystemTelemetryConfig.cpp
         SystemTelemetryConfig.h
+        SystemTelemetryReporter.cpp
+        SystemTelemetryReporter.h
         TelemetryProcessor.cpp
         TelemetryProcessor.h)
 
