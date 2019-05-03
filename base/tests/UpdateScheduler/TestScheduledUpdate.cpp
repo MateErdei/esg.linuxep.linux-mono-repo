@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
+#include "TestWithMockTimerAbstract.h"
 #include <thread>
 
 using namespace UpdateScheduler;
@@ -15,51 +16,20 @@ using milliseconds = std::chrono::milliseconds;
 using minutes = std::chrono::minutes;
 using time_point = std::chrono::steady_clock::time_point;
 
-namespace
+
+class ScheduledUpdateTest: public TestWithMockTimerAbstract
 {
-    Common::UtilityImpl::ScopedReplaceITime setupSimulatedTimes( std::vector<time_t> simulated_times )
-    {
-        std::unique_ptr<Common::UtilityImpl::ITime> mockTimer{
-                new SequenceOfFakeTime( simulated_times, std::chrono::milliseconds(5), [](){ })
-        };
-        return Common::UtilityImpl::ScopedReplaceITime( std::move(mockTimer));
-    }
-
-    std::time_t t_20190501T13h{1556712000}; // Wednesday at 13:00
-    std::time_t minute{60};
-    std::time_t hour{ 60 * minute };
-    std::time_t week{ hour * 24 * 7};
-    std::string reportedScheduledTime{"20190501 130000"};
-    std::string reportedNextScheduledTime{"20190508 130000"};
-    ScheduledUpdate::WeekDayAndTimeForDelay getScheduledTime()
-    {
-        return {.weekDay=3,.hour=13,.minute=0};
-    }
-
-    std::time_t tryInServer()
-    {
-        std::tm timeIwant{};
-        timeIwant.tm_year=2019-1900;
-        timeIwant.tm_mon=4;
-        timeIwant.tm_mday=1;
-        timeIwant.tm_hour=13;
-        timeIwant.tm_isdst=-1;
+    // t_20190501T13h is defined as 2019-05-01 Wednesday at 13:00
+};
 
 
-        return mktime(&timeIwant);
-    }
-
-
-}
-
-TEST(ScheduledUpdate, VerifyBasicAssumptionThatTimeIsCorrect)
+TEST_F(ScheduledUpdateTest, VerifyBasicAssumptionThatTimeIsCorrect)
 {
-    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(t_20190501T13h), reportedScheduledTime ) << "previous attempt";
-    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(tryInServer()), reportedScheduledTime) << "new attempt";
+    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(t_20190501T13h), reportedScheduledTime );
 }
 
 
-TEST(ScheduledUpdate, NextUpdateTimeShouldAlwaysBeAfterCurrentTime) // NOLINT
+TEST_F(ScheduledUpdateTest, NextUpdateTimeShouldAlwaysBeAfterCurrentTime) // NOLINT
 {
     ScheduledUpdate scheduledUpdate;
     scheduledUpdate.setEnabled(true);
@@ -85,7 +55,7 @@ TEST(ScheduledUpdate, NextUpdateTimeShouldAlwaysBeAfterCurrentTime) // NOLINT
 
 
 
-TEST(ScheduledUpdate, TimeToUpdate) // NOLINT
+TEST_F(ScheduledUpdateTest, TimeToUpdate) // NOLINT
 {
     struct TimeToUpdateExpectance
     {
@@ -118,7 +88,7 @@ TEST(ScheduledUpdate, TimeToUpdate) // NOLINT
 
 }
 
-TEST(ScheduledUpdate, missedUpdate) // NOLINT
+TEST_F(ScheduledUpdateTest, missedUpdate) // NOLINT
 {
     struct MissedUpdateExpectance
     {
@@ -154,7 +124,7 @@ TEST(ScheduledUpdate, missedUpdate) // NOLINT
 }
 
 
-TEST(ScheduledUpdate, confirmUpdatedTime) // NOLINT
+TEST_F(ScheduledUpdateTest, confirmUpdatedTime) // NOLINT
 {
 
     ScheduledUpdate scheduledUpdate;

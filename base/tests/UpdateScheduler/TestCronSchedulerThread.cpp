@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-
+#include "TestWithMockTimerAbstract.h"
 using namespace UpdateSchedulerImpl;
 using namespace UpdateScheduler;
 using milliseconds = std::chrono::milliseconds;
@@ -18,10 +18,6 @@ using time_point = std::chrono::steady_clock::time_point;
 using CronSchedulerThread = cronModule::CronSchedulerThread;
 namespace
 {
-    std::time_t t_20190501T13h{1556712000}; // Wednesday at 13:00
-    std::time_t minute{60};
-    std::time_t hour{ 60 * minute };
-    std::time_t week{ hour * 24 * 7};
 
     time_point now() { return std::chrono::steady_clock::now(); }
     long elapsed_time_ms(time_point from, time_point to)
@@ -31,17 +27,18 @@ namespace
 
     long elapsed_time_ms(time_point from) { return elapsed_time_ms(from, now()); }
 
+}
+class TestCronSchedulerThread: public TestWithMockTimerAbstract
+{
+public:
+
+    // t_20190501T13h is defined as 2019-05-01 Wednesday at 13:00
 
     // setup the utility that will replace calls to TimeUtils::getCurrentTime to the list of simulated times
     Common::UtilityImpl::ScopedReplaceITime setupSimulatedTimes( std::vector<time_t> simulated_times,
                                                                  std::shared_ptr<SchedulerTaskQueue> taskQueue )
     {
-        std::unique_ptr<Common::UtilityImpl::ITime> mockTimer{
-                new SequenceOfFakeTime( simulated_times, std::chrono::milliseconds(5), [taskQueue](){
-                    taskQueue->pushStop();
-                })
-        };
-        return Common::UtilityImpl::ScopedReplaceITime( std::move(mockTimer));
+        return TestWithMockTimerAbstract::setupSimulatedTimes(simulated_times, [taskQueue](){taskQueue->pushStop();});
     }
 
     // helper methods to get all the entries in the queue up to the first stop
@@ -86,9 +83,9 @@ namespace
 
         // Wednesday 13:00
         ScheduledUpdate::WeekDayAndTimeForDelay scheduledTime{
-            .weekDay = 3,
-            .hour = 13,
-            .minute = 0
+                .weekDay = 3,
+                .hour = 13,
+                .minute = 0
         };
         scheduledUpdate.setScheduledTime(scheduledTime);
 
@@ -106,17 +103,17 @@ namespace
         return receivedValues;
     }
 
-}
+};
 
 
-TEST(TestCronSchedulerThread, Constructor) // NOLINT
+TEST_F(TestCronSchedulerThread, Constructor) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     CronSchedulerThread schedulerThread(queue, milliseconds(10), milliseconds(20));
 }
 
-TEST(TestCronSchedulerThread, StartDestructor) // NOLINT
+TEST_F(TestCronSchedulerThread, StartDestructor) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -124,7 +121,7 @@ TEST(TestCronSchedulerThread, StartDestructor) // NOLINT
     schedulerThread.start();
 }
 
-TEST(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
+TEST_F(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -138,7 +135,7 @@ TEST(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
     EXPECT_LE(300, elapsed_time_ms(start_time));
 }
 
-TEST(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
+TEST_F(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -158,7 +155,7 @@ TEST(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
     EXPECT_LE(400, elapsed_time_ms(start_time));
 }
 
-TEST(TestCronSchedulerThread, requestStop) // NOLINT
+TEST_F(TestCronSchedulerThread, requestStop) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -172,7 +169,7 @@ TEST(TestCronSchedulerThread, requestStop) // NOLINT
     EXPECT_LE(110, elapsed_time_ms(start_time));
 }
 
-TEST(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
+TEST_F(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
 {
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
@@ -196,7 +193,7 @@ TEST(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
 
 
 
-TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdate) // NOLINT
+TEST_F(TestCronSchedulerThread, simulateRunningFirstScheduledUpdate) // NOLINT
 {
     std::vector<time_t> simulated_times{ t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour};
     std::vector<SchedulerTask::TaskType> expectedValues{ SchedulerTask::TaskType::ScheduledUpdate };
@@ -206,7 +203,7 @@ TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdate) // NOLINT
     EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
 }
 
-TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdateWithMinutes) // NOLINT
+TEST_F(TestCronSchedulerThread, simulateRunningFirstScheduledUpdateWithMinutes) // NOLINT
 {
     std::vector<time_t> simulated_times;
     //simulate 30 minutes around the scheduled time, only one update schedule should be reported
@@ -224,7 +221,7 @@ TEST(TestCronSchedulerThread, simulateRunningFirstScheduledUpdateWithMinutes) //
 
 
 
-TEST(TestCronSchedulerThread, simulateRunningTwoScheduledUpdate) // NOLINT
+TEST_F(TestCronSchedulerThread, simulateRunningTwoScheduledUpdate) // NOLINT
 {
     std::vector<time_t> simulated_times{ t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
             t_20190501T13h + week - hour, t_20190501T13h + week,
@@ -239,7 +236,7 @@ TEST(TestCronSchedulerThread, simulateRunningTwoScheduledUpdate) // NOLINT
 }
 
 
-TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdate) // NOLINT
+TEST_F(TestCronSchedulerThread, simulateRunningThreeScheduledUpdate) // NOLINT
 {
     std::vector<time_t> simulated_times{
            t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
@@ -260,7 +257,7 @@ TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdate) // NOLINT
 }
 
 
-TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdateWithRequiringUpdateOnStartUp) // NOLINT
+TEST_F(TestCronSchedulerThread, simulateRunningThreeScheduledUpdateWithRequiringUpdateOnStartUp) // NOLINT
 {
     std::vector<time_t> simulated_times{
             t_20190501T13h - hour, t_20190501T13h, t_20190501T13h + hour,
@@ -282,7 +279,7 @@ TEST(TestCronSchedulerThread, simulateRunningThreeScheduledUpdateWithRequiringUp
 }
 
 
-TEST(TestCronSchedulerThread, NoScheduledUpdateShouldBeTriggereBeforeScheduledTime) // NOLINT
+TEST_F(TestCronSchedulerThread, NoScheduledUpdateShouldBeTriggereBeforeScheduledTime) // NOLINT
 {
     std::vector<time_t> simulated_times;
     //simulate 30 minutes before scheduled time
@@ -299,7 +296,7 @@ TEST(TestCronSchedulerThread, NoScheduledUpdateShouldBeTriggereBeforeScheduledTi
 }
 
 
-TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteBehind) // NOLINT
+TEST_F(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteBehind) // NOLINT
 {
     std::vector<time_t> simulated_times;
     //simulate from 1 minute to 10
@@ -315,7 +312,7 @@ TEST(TestCronSchedulerThread, cronSendUpdateTaskScheduledUpdateUpToOneMinuteBehi
     EXPECT_THAT(capturedLog, ::testing::HasSubstr("Next Update scheduled to: 20190501 130000"));
 }
 
-TEST(TestCronSchedulerThread, cronShouldNotTriggerUpdateBeforePassingTheOffsetInMinute) // NOLINT
+TEST_F(TestCronSchedulerThread, cronShouldNotTriggerUpdateBeforePassingTheOffsetInMinute) // NOLINT
 {
     std::vector<time_t> simulated_times;
     //simulate from 1 minute to 6
