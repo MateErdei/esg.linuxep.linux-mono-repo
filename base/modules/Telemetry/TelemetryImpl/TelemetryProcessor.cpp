@@ -10,6 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 
 using namespace Telemetry;
+using namespace Common::Telemetry;
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
 {
