@@ -40,9 +40,9 @@ namespace Telemetry
                                 "\\s*System Locale:\\s*LANG=\\s*(.*)$",
                                 { { "", TelemetryValueType::STRING } } } },
         { "uptime",
-          SystemTelemetryTuple{ "/usr/bin/uptime",
-                                "--pretty",
-                                "^up\\s*(.*)$",
+          SystemTelemetryTuple{ "/usr/bin/head",
+                                "-100 /proc/uptime",
+                                "^(\\d+)\\.\\d*\\s+.*$",
                                 { { "", TelemetryValueType::STRING } } } }
     };
 
