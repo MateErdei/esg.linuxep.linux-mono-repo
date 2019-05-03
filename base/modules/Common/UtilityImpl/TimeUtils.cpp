@@ -37,7 +37,9 @@ namespace Common
             {
                 return "";
             }
-            std::tm time_tm{*std::localtime(&time_) };
+
+            std::tm time_tm;
+            (void) ::localtime_r(&time_, &time_tm);
             return fromTime(time_tm);
         }
 
