@@ -16,19 +16,20 @@ using namespace Telemetry;
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
 {
-    TelemetryHelper::getInstance().mergeJsonIn(sourceName, json);
+    Common::Telemetry::TelemetryHelper::getInstance().mergeJsonIn(sourceName, json);
 }
 
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
 
-    gatherSystemTelemetry(TelemetryHelper::getInstance());
+    auto systemTelemetryJson = gatherSystemTelemetry();
+    Common::Telemetry::TelemetryHelper::getInstance().mergeJsonIn("system-telemetry", systemTelemetryJson);
 
     // TODO gather plugin telemetry LINUXEP-7972
 }
 
-void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
+std::string TelemetryProcessor::gatherSystemTelemetry()
 {
     SystemTelemetryCollectorImpl systemTelemetryCollector(
         GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
@@ -36,6 +37,8 @@ void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
     auto systemTelemetryArrays = systemTelemetryCollector.collectArraysOfObjects();
 
     // TODO: create a top-level "system-telemetry" object
+
+    Common::Telemetry::TelemetryHelper jsonConverter;
 
     for (const auto& [telemetryName, objects] : systemTelemetryObjects)
     {
@@ -58,24 +61,31 @@ void TelemetryProcessor::gatherSystemTelemetry(ITelemetryHelper& jsonConverter)
         throw std::logic_error("No top-level objects are expected for the current implementation.");
     }
 
-    for (const auto& [telemetryName, arrays] : systemTelemetryArrays)
+    for (const auto& [telemetryName, array] : systemTelemetryArrays)
     {
-        for (const auto& array : arrays)
+        for (const auto& object : array)
         {
-            for (const auto& object : array)
+            Common::Telemetry::TelemetryObject& jsonObject = jsonConverter.appendObject(telemetryName);
+
+            for (const auto& value : object)
             {
-                if (object.second.index() == 0)
+                Common::Telemetry::TelemetryValue jsonValue;
+
+                if (value.second.index() == 0)
                 {
-                    jsonConverter.appendObject(
-                        telemetryName, object.first, std::get<std::string>(object.second));
+                    jsonValue.set(std::get<std::string>(value.second));
                 }
                 else
                 {
-                    jsonConverter.appendObject(telemetryName, object.first, std::get<int>(object.second));
+                    jsonValue.set(std::get<int>(value.second));
                 }
+
+                jsonObject.set(value.first, jsonValue);
             }
         }
     }
+
+    return jsonConverter.serialise();
 }
 
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
@@ -88,6 +98,6 @@ void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
 
 std::string TelemetryProcessor::getSerialisedTelemetry()
 {
-    return TelemetryHelper::getInstance().serialise();
+    return Common::Telemetry::TelemetryHelper::getInstance().serialise();
 }
 

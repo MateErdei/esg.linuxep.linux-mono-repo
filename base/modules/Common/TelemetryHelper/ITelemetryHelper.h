@@ -6,13 +6,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/TelemetryHelperImpl/TelemetryObject.h>
-
 #include <functional>
 #include <vector>
 
 namespace Common::Telemetry
 {
+    class TelemetryObject;
+
     class ITelemetryHelper
     {
     public:
@@ -80,6 +80,8 @@ namespace Common::Telemetry
         /// \param value
         virtual void appendValue(const std::string& arrayKey, bool value) = 0;
 
+        virtual TelemetryObject& appendObject(const std::string& arrayKey) = 0;
+
         /// Append an object with key and int value to an array, or if the array does not exist create it.
         /// \param key
         /// \param value
@@ -112,6 +114,7 @@ namespace Common::Telemetry
 
         /// Return the TelemetryObject at a given key, this is intended to be used in case the user wants to
         /// perform more complex operations than what this helper ordinarily permits through set, append and increment.
+        /// If object doesn't exist it is created.
         /// \param key
         virtual TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) = 0;
 

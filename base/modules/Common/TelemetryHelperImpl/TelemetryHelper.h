@@ -14,72 +14,78 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <functional>
 #include <mutex>
 #include <string>
-using namespace Common::Telemetry;
 
-class TelemetryHelper : public ITelemetryHelper
+namespace Common::Telemetry
 {
-public:
-    static TelemetryHelper& getInstance()
+    class TelemetryHelper : public ITelemetryHelper
     {
-        static TelemetryHelper instance;
-        return instance;
-    }
+    public:
+        static TelemetryHelper& getInstance()
+        {
+            static TelemetryHelper instance;
+            return instance;
+        }
 
-    TelemetryHelper(TelemetryHelper const&) = delete;
+        TelemetryHelper(TelemetryHelper const&) = delete;
 
-    void operator=(TelemetryHelper const&) = delete;
+        void operator=(TelemetryHelper const&) = delete;
 
-    void set(const std::string& key, int value) override;
-    void set(const std::string& key, unsigned int value) override;
-    void set(const std::string& key, const std::string& value) override;
-    void set(const std::string& key, const char* value) override;
-    void set(const std::string& key, bool value) override;
+        void set(const std::string& key, int value) override;
+        void set(const std::string& key, unsigned int value) override;
+        void set(const std::string& key, const std::string& value) override;
+        void set(const std::string& key, const char* value) override;
+        void set(const std::string& key, bool value) override;
 
-    void increment(const std::string& key, int value) override;
-    void increment(const std::string& key, unsigned int value) override;
+        void increment(const std::string& key, int value) override;
+        void increment(const std::string& key, unsigned int value) override;
 
-    void appendValue(const std::string& arrayKey, int value) override;
-    void appendValue(const std::string& arrayKey, unsigned int value) override;
-    void appendValue(const std::string& arrayKey, const std::string& value) override;
-    void appendValue(const std::string& arrayKey, const char* value) override;
-    void appendValue(const std::string& arrayKey, bool value) override;
+        void appendValue(const std::string& arrayKey, int value) override;
+        void appendValue(const std::string& arrayKey, unsigned int value) override;
+        void appendValue(const std::string& arrayKey, const std::string& value) override;
+        void appendValue(const std::string& arrayKey, const char* value) override;
+        void appendValue(const std::string& arrayKey, bool value) override;
 
-    void appendObject(const std::string& arrayKey, const std::string& key, int value) override;
-    void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value) override;
-    void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value) override;
-    void appendObject(const std::string& arrayKey, const std::string& key, const char* value) override;
-    void appendObject(const std::string& arrayKey, const std::string& key, bool value) override;
+        TelemetryObject& appendObject(const std::string& arrayKey) override;
 
-    void mergeJsonIn(const std::string& key, const std::string& json) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, int value) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, const char* value) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, bool value) override;
 
-    TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) override;
+        void mergeJsonIn(const std::string& key, const std::string& json) override;
 
-    void registerResetCallback(std::string cookie, std::function<void()> function) override;
-    void unregisterResetCallback(std::string cookie) override;
-    void reset() override;
+        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) override;
 
-    std::string serialise();
+        void registerResetCallback(std::string cookie, std::function<void()> function) override;
+        void unregisterResetCallback(std::string cookie) override;
+        void reset() override;
 
-    // Normally with a singleton the constructor is private but here we make the constructor public
-    // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want to.
-    TelemetryHelper() = default;
-private:
-    TelemetryObject m_root;
-    std::mutex m_dataLock;
-    std::mutex m_callbackLock;
+        std::string serialise();
 
-    std::map<std::string, std::function<void()>> m_callbacks;
+        // Normally with a singleton the constructor is private but here we make the constructor public
+        // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want
+        // to.
+        TelemetryHelper() = default;
 
-    template<class T>
-    void setInternal(const std::string& key, T value);
+    private:
+        TelemetryObject m_root;
+        std::mutex m_dataLock;
+        std::mutex m_callbackLock;
 
-    template<class T>
-    void incrementInternal(const std::string& key, T value);
+        std::map<std::string, std::function<void()>> m_callbacks;
 
-    template<class T>
-    void appendValueInternal(const std::string& key, T value);
+        template<class T>
+        void setInternal(const std::string& key, T value);
 
-    template<class T>
-    void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value);
-    void clearData();
-};
+        template<class T>
+        void incrementInternal(const std::string& key, T value);
+
+        template<class T>
+        void appendValueInternal(const std::string& key, T value);
+
+        template<class T>
+        void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value);
+        void clearData();
+    };
+} // namespace Common::Telemetry
