@@ -36,8 +36,6 @@ std::string TelemetryProcessor::gatherSystemTelemetry()
     auto systemTelemetryObjects = systemTelemetryCollector.collectObjects();
     auto systemTelemetryArrays = systemTelemetryCollector.collectArraysOfObjects();
 
-    // TODO: create a top-level "system-telemetry" object
-
     Common::Telemetry::TelemetryHelper jsonConverter;
 
     for (const auto& [telemetryName, objects] : systemTelemetryObjects)
