@@ -156,7 +156,7 @@ namespace UpdateSchedulerImpl
                     // timeout means a new tick. Hence, queue an update if scheduled updating is not enabled
                     else if (!m_inThreadState.m_scheduledUpdate.getEnabled())
                     {
-                        LOGINFO("Trigger new update");
+                        LOGSUPPORT("Trigger new update"); // this one is the regular update does not need INFO level.
                         m_schedulerQueue->push(SchedulerTask{ SchedulerTask::TaskType::ScheduledUpdate, "" });
                     }
 

@@ -70,7 +70,7 @@ namespace UpdateSchedulerImpl
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFinished;
             schedulerTask.content = reportFileLocation;
             m_schedulerTaskQueue->push(schedulerTask);
-            LOGINFO("Update Service finished.");
+            LOGSUPPORT("Update Service finished.");
         }
 
         std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()

@@ -14,7 +14,9 @@ add_library(testhelpersobject OBJECT
         FileSystemReplaceAndRestore.cpp
         MockApiBaseServices.h
         MockFilePermissions.h
-        MockFileSystem.h FakeTimeUtils.cpp FakeTimeUtils.h)
+        MockFileSystem.h
+        FakeTimeUtils.cpp
+        FakeTimeUtils.h)
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" )
 

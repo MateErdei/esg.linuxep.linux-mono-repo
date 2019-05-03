@@ -49,7 +49,7 @@ public:
 
 private:
     size_t m_index;
-    std::vector<std::time_t> m_times_to_return;
+    std::vector<std::time_t> m_timesToReturn;
 };
 
 

@@ -54,7 +54,7 @@ SequenceOfFakeTime::SequenceOfFakeTime(std::vector<std::time_t> times_to_return,
                                        std::function<void()> reportSimulationEnded):
                                        AbstractFakeTimeUtils(cacheTimeWindow, reportSimulationEnded),
                                        m_index{0},
-                                       m_times_to_return{times_to_return}
+                                       m_timesToReturn{times_to_return}
 {
 
 }
@@ -64,7 +64,7 @@ AbstractFakeTimeUtils::NextTimeStruct SequenceOfFakeTime::getNextTime(std::chron
     size_t nextIndex = m_index+1;
     size_t currIndex = m_index;
     NextTimeStruct::TimeLabel timeLabel{NextTimeStruct::TimeLabel::NORMAL};
-    if( nextIndex >= m_times_to_return.size())
+    if( nextIndex >= m_timesToReturn.size())
     {
         timeLabel = NextTimeStruct::TimeLabel::LASTONE;
     }
@@ -73,5 +73,5 @@ AbstractFakeTimeUtils::NextTimeStruct SequenceOfFakeTime::getNextTime(std::chron
         m_index++;
     }
 
-    return {.timeLabel=timeLabel, m_times_to_return.at(currIndex)};
+    return {.timeLabel=timeLabel, m_timesToReturn.at(currIndex)};
 }
