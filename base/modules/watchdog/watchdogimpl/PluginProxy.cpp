@@ -173,9 +173,13 @@ PluginProxy::~PluginProxy() noexcept
     {
         stop();
     }
+    catch (const std::exception& ex)
+    {
+        PRINT("Exception caught while attempting to stop PluginProxy in destructor: "<<ex.what());
+    }
     catch(...)
     {
-        PRINT("Exception while attempting to stop PluginProxy in destructor");
+        PRINT("Non std::exception caught while attempting to stop PluginProxy in destructor");
     }
 }
 

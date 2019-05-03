@@ -85,9 +85,13 @@ namespace Common
             {
                 stop();
             }
+            catch (const std::exception& ex)
+            {
+                PRINT("Exception caught while attempting to stop SensorDataSubscriber in destructor: "<<ex.what());
+            }
             catch(...)
             {
-                PRINT("Exception trying to stop SensorDataSubscriber in destructor");
+                PRINT("Non std::exception caught while attempting to stop SensorDataSubscriber in destructor");
             }
         }
 
