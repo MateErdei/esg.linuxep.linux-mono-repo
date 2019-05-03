@@ -35,11 +35,27 @@ namespace
     {
         return {.weekDay=3,.hour=13,.minute=0};
     }
+
+    std::time_t tryInServer()
+    {
+        std::tm timeIwant{};
+        timeIwant.tm_year=2019-1900;
+        timeIwant.tm_mon=4;
+        timeIwant.tm_mday=1;
+        timeIwant.tm_hour=13;
+        timeIwant.tm_isdst=1;
+
+
+        return mktime(&timeIwant);
+    }
+
+
 }
 
 TEST(ScheduledUpdate, VerifyBasicAssumptionThatTimeIsCorrect)
 {
-    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(t_20190501T13h), reportedScheduledTime );
+    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(t_20190501T13h), reportedScheduledTime ) << "previous attempt";
+    EXPECT_EQ( Common::UtilityImpl::TimeUtils::fromTime(tryInServer()), reportedScheduledTime) << "new attempt";
 }
 
 
