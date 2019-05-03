@@ -7,8 +7,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryObject.h"
-
-#include <Common/TelemetryHelper/ITelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <functional>
@@ -17,7 +15,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
-    class TelemetryHelper : public ITelemetryHelper
+    class TelemetryHelper
     {
     public:
         static TelemetryHelper& getInstance()
@@ -30,36 +28,36 @@ namespace Common::Telemetry
 
         void operator=(TelemetryHelper const&) = delete;
 
-        void set(const std::string& key, int value) override;
-        void set(const std::string& key, unsigned int value) override;
-        void set(const std::string& key, const std::string& value) override;
-        void set(const std::string& key, const char* value) override;
-        void set(const std::string& key, bool value) override;
+        void set(const std::string& key, int value);
+        void set(const std::string& key, unsigned int value);
+        void set(const std::string& key, const std::string& value);
+        void set(const std::string& key, const char* value);
+        void set(const std::string& key, bool value);
 
-        void increment(const std::string& key, int value) override;
-        void increment(const std::string& key, unsigned int value) override;
+        void increment(const std::string& key, int value);
+        void increment(const std::string& key, unsigned int value);
 
-        void appendValue(const std::string& arrayKey, int value) override;
-        void appendValue(const std::string& arrayKey, unsigned int value) override;
-        void appendValue(const std::string& arrayKey, const std::string& value) override;
-        void appendValue(const std::string& arrayKey, const char* value) override;
-        void appendValue(const std::string& arrayKey, bool value) override;
+        void appendValue(const std::string& arrayKey, int value);
+        void appendValue(const std::string& arrayKey, unsigned int value);
+        void appendValue(const std::string& arrayKey, const std::string& value);
+        void appendValue(const std::string& arrayKey, const char* value);
+        void appendValue(const std::string& arrayKey, bool value);
 
-        TelemetryObject& appendObject(const std::string& arrayKey) override;
+        TelemetryObject& appendObject(const std::string& arrayKey);
 
-        void appendObject(const std::string& arrayKey, const std::string& key, int value) override;
-        void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value) override;
-        void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value) override;
-        void appendObject(const std::string& arrayKey, const std::string& key, const char* value) override;
-        void appendObject(const std::string& arrayKey, const std::string& key, bool value) override;
+        void appendObject(const std::string& arrayKey, const std::string& key, int value);
+        void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value);
+        void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value);
+        void appendObject(const std::string& arrayKey, const std::string& key, const char* value);
+        void appendObject(const std::string& arrayKey, const std::string& key, bool value);
 
-        void mergeJsonIn(const std::string& key, const std::string& json) override;
+        void mergeJsonIn(const std::string& key, const std::string& json);
 
-        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath) override;
+        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
 
-        void registerResetCallback(std::string cookie, std::function<void()> function) override;
-        void unregisterResetCallback(std::string cookie) override;
-        void reset() override;
+        void registerResetCallback(std::string cookie, std::function<void()> function);
+        void unregisterResetCallback(std::string cookie);
+        void reset();
 
         std::string serialise();
 
@@ -72,7 +70,6 @@ namespace Common::Telemetry
         TelemetryObject m_root;
         std::mutex m_dataLock;
         std::mutex m_callbackLock;
-
         std::map<std::string, std::function<void()>> m_callbacks;
 
         template<class T>
@@ -86,6 +83,7 @@ namespace Common::Telemetry
 
         template<class T>
         void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value);
+
         void clearData();
     };
 } // namespace Common::Telemetry

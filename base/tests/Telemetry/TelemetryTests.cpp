@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
  */
 
 #include "MockHttpSender.h"
+#include "MockTelemetryProvider.h"
 
 #include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
@@ -202,10 +203,19 @@ TEST_P(TelemetryTestVariableArgs, main_entry_HttpRequestReturnsFailure) // NOLIN
     EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
 }
 
-TEST(TelemetryProcessor, gatherTelemAndCheckItIsSerialised) // NOLINT
+TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
 {
-    Telemetry::TelemetryProcessor::gatherTelemetry();
-    std::string telem = Telemetry::TelemetryProcessor::getSerialisedTelemetry();
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
-    ASSERT_EQ(R"({"TelemetryExecutableExample":{"thing":2}})", telem);
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ(R"({"Mock":{"key":1}})", json);
 }

@@ -62,9 +62,10 @@ namespace Telemetry
                 throw std::runtime_error("Certificate is not a valid file");
             }
 
-            TelemetryProcessor::gatherTelemetry();
-            std::string telemetry = TelemetryProcessor::getSerialisedTelemetry();
-            requestConfig->setData(telemetry);
+            // TODO: resolve this code with that below catch
+            //            TelemetryProcessor::gatherTelemetry();
+            //            std::string telemetry = TelemetryProcessor::getSerialisedTelemetry();
+            //            requestConfig->setData(telemetry);
             httpSender->doHttpsRequest(requestConfig);
         }
         catch (const std::exception& e) // TODO: shouldn't catch std::exception - just let this abort the process?
@@ -72,6 +73,11 @@ namespace Telemetry
             LOGERROR("Caught exception: " << e.what());
             return 1;
         }
+
+        // TODO: resolve this new code with that just before catch above
+        //        std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
+        //        TelemetryProcessor telemetryProcessor(telemetryProviders);
+        //        telemetryProcessor.gatherTelemetry();
 
         return 0;
     }
@@ -86,4 +92,5 @@ namespace Telemetry
 
         return main(argc, argv, httpSender);
     }
+
 } // namespace Telemetry

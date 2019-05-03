@@ -7,7 +7,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ISystemTelemetryCollector.h"
-#include "json.hpp"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/TelemetryHelper/ITelemetryHelper.h>
