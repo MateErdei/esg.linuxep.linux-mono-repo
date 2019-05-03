@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ISystemTelemetryCollector.h"
+#include "ITelemetryProvider.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/TelemetryHelper/ITelemetryHelper.h>
@@ -17,12 +18,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    class SystemTelemetryReporter
+    class SystemTelemetryReporter : public ITelemetryProvider
     {
     public:
         SystemTelemetryReporter(const ISystemTelemetryCollector& systemTelemetryCollector);
 
-        std::string gatherSystemTelemetry();
+        std::string getName() override { return "system-telemetry"; }
+        std::string getTelemetry() override;
 
     private:
         void getSimpleTelemetry(

@@ -6,11 +6,17 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "TelemetryProcessor.h"
+
 #include <Common/HttpSenderImpl/HttpSender.h>
 
 namespace Telemetry
 {
-    int main(int argc, char* argv[], const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender);
+    int main(
+        int argc,
+        char** argv,
+        const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender,
+        Telemetry::TelemetryProcessor& telemetryProcessor);
 
     /**
      * To be used when parsing arguments from argv as received in int main( int argc, char * argv[]).

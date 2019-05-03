@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ISystemTelemetryCollector.h"
 #include "SystemTelemetryCollectorImpl.h"
+#include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -23,7 +24,11 @@ namespace Telemetry
 {
     static const int g_maxArgs = 5;
 
-    int main(int argc, char* argv[], const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender)
+    int main(
+        int argc,
+        char** argv,
+        const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender,
+        TelemetryProcessor& telemetryProcessor)
     {
         try
         {
@@ -62,10 +67,10 @@ namespace Telemetry
                 throw std::runtime_error("Certificate is not a valid file");
             }
 
-            // TODO: resolve this code with that below catch
-            //            TelemetryProcessor::gatherTelemetry();
-            //            std::string telemetry = TelemetryProcessor::getSerialisedTelemetry();
-            //            requestConfig->setData(telemetry);
+            telemetryProcessor.gatherTelemetry();
+            std::string telemetry = telemetryProcessor.getSerialisedTelemetry();
+            requestConfig->setData(telemetry);
+
             httpSender->doHttpsRequest(requestConfig);
         }
         catch (const std::exception& e) // TODO: shouldn't catch std::exception - just let this abort the process?
@@ -74,23 +79,27 @@ namespace Telemetry
             return 1;
         }
 
-        // TODO: resolve this new code with that just before catch above
-        //        std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
-        //        TelemetryProcessor telemetryProcessor(telemetryProviders);
-        //        telemetryProcessor.gatherTelemetry();
-
         return 0;
     }
 
     int main_entry(int argc, char* argv[])
     {
-        // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
 
         std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper = std::make_shared<Common::HttpSender::CurlWrapper>();
         std::shared_ptr<Common::HttpSender::IHttpSender> httpSender = std::make_shared<Common::HttpSender::HttpSender>(curlWrapper);
 
-        return main(argc, argv, httpSender);
+        std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
+
+        SystemTelemetryCollectorImpl systemTelemetryCollector(
+            GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
+        std::shared_ptr<ITelemetryProvider> systemTelemetryReporter =
+            std::make_shared<SystemTelemetryReporter>(systemTelemetryCollector);
+        telemetryProviders.emplace_back(systemTelemetryReporter);
+
+        TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+        return main(argc, argv, httpSender, telemetryProcessor);
     }
 
 } // namespace Telemetry

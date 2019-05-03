@@ -20,7 +20,7 @@ namespace Telemetry
     {
     }
 
-    std::string SystemTelemetryReporter::gatherSystemTelemetry()
+    std::string SystemTelemetryReporter::getTelemetry()
     {
         Common::Telemetry::TelemetryHelper jsonConverter;
 

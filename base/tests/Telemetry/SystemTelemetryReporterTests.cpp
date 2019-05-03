@@ -50,7 +50,7 @@ TEST_F(SystemTelemetryReporterTests, gatherTelemetryEmptyOK)
     EXPECT_CALL(mockCollector, collectObjects()).WillOnce(Return(emptySimpleObjs));
     EXPECT_CALL(mockCollector, collectArraysOfObjects()).WillOnce(Return(emptyArrayObjs));
 
-    auto sysTelemetryJSON = reporter.gatherSystemTelemetry();
+    auto sysTelemetryJSON = reporter.getTelemetry();
 
     ASSERT_EQ(sysTelemetryJSON, "{}");
 }
@@ -67,7 +67,7 @@ TEST_F(SystemTelemetryReporterTests, gatherSimpleOk)
     EXPECT_CALL(mockCollector, collectObjects()).WillOnce(Return(simpleObjs));
     EXPECT_CALL(mockCollector, collectArraysOfObjects()).WillOnce(Return(arrayObjs));
 
-    auto sysTelemetryJSON = reporter.gatherSystemTelemetry();
+    auto sysTelemetryJSON = reporter.getTelemetry();
 
     ASSERT_TRUE(sysTelemetryJSON.find("testSimple") != std::string::npos);
     ASSERT_TRUE(sysTelemetryJSON.find("testArray") != std::string::npos);
@@ -84,5 +84,5 @@ TEST_F(SystemTelemetryReporterTests, gatherSimpleThrowsNoTopLevelExpectedExcepti
 
     EXPECT_CALL(mockCollector, collectObjects()).WillOnce(Return(simpleObjs));
 
-    ASSERT_ANY_THROW(reporter.gatherSystemTelemetry());
+    ASSERT_ANY_THROW(reporter.getTelemetry());
 }

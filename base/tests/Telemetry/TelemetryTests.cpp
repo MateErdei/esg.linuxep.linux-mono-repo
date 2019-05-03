@@ -110,7 +110,10 @@ TEST_P(TelemetryTestRequestTypes, main_entry_httpsRequestReturnsSuccess) // NOLI
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
@@ -128,7 +131,10 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
@@ -146,7 +152,10 @@ TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 
     int expectedErrorCode = 0;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_InvalidHttpRequestReturnsFailure) // NOLINT
@@ -161,7 +170,10 @@ TEST_F(TelemetryTest, main_entry_InvalidHttpRequestReturnsFailure) // NOLINT
 
     int expectedErrorCode = 1;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_entry_certificateDoesNotExist) // NOLINT
@@ -178,7 +190,10 @@ TEST_F(TelemetryTest, main_entry_certificateDoesNotExist) // NOLINT
 
     int expectedErrorCode = 1;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 class TelemetryTestVariableArgs : public TelemetryTest,
@@ -200,7 +215,10 @@ TEST_P(TelemetryTestVariableArgs, main_entry_HttpRequestReturnsFailure) // NOLIN
 
     int expectedErrorCode = 1;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
