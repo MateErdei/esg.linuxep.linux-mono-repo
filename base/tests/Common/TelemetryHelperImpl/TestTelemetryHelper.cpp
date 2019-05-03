@@ -29,12 +29,23 @@ private:
     bool m_callbackCalled = false;
 };
 
-TEST(TestTelemetryHelper, constructionAndGetInstance) // NOLINT
+TEST(TestTelemetryHelper, getInstanceReturnsSingleton) // NOLINT
 {
     TelemetryHelper& helper1 = TelemetryHelper::getInstance();
     TelemetryHelper& helper2 = TelemetryHelper::getInstance();
     ASSERT_EQ(&helper1, &helper2);
 }
+
+TEST(TestTelemetryHelper, constructionCreatesDifferentInstance) // NOLINT
+{
+    TelemetryHelper& helper1 = TelemetryHelper::getInstance();
+    TelemetryHelper helper2;
+    TelemetryHelper helper3;
+    ASSERT_NE(&helper1, &helper2);
+    ASSERT_NE(&helper2, &helper3);
+    ASSERT_NE(&helper1, &helper3);
+}
+
 
 TEST(TestTelemetryHelper, addStringTelem) // NOLINT
 {
