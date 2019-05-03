@@ -21,11 +21,11 @@ namespace Telemetry
         /// Collect all simple system telemetry items.
         /// \return Simple telemetry items, each indexed by the telemetry item's name.
         virtual std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>
-        collectObjects() = 0;
+        collectObjects() const = 0;
 
         /// Collects array of telemetry objects.
         /// \return Telemetry item arrays, each indexed by the telemetry item's name.
         virtual std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
-        collectArraysOfObjects() = 0;
+        collectArraysOfObjects() const = 0;
     };
 } // namespace Telemetry

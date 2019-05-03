@@ -6,7 +6,9 @@ add_executable(TelemetryTests
         TelemetryTests.cpp
         MockHttpSender.h
         SystemTelemetryCollectorImplTests.cpp
-        ../Common/ProcessImpl/MockProcess.h)
+        ../Common/ProcessImpl/MockProcess.h
+        MockSystemTelemetryCollector.h
+        SystemTelemetryReporterTests.cpp)
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})

@@ -23,10 +23,10 @@ void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
+    SystemTelemetryCollectorImpl collector(GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
+    SystemTelemetryReporter systemTelemetryReporter(collector);
+    auto systemTelemetryJson = systemTelemetryReporter.gatherSystemTelemetry();
 
-    SystemTelemetryCollectorImpl systemTelemetryCollector(
-        GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
-    auto systemTelemetryJson = gatherSystemTelemetry(systemTelemetryCollector);
     Common::Telemetry::TelemetryHelper::getInstance().mergeJsonIn("system-telemetry", systemTelemetryJson);
 
     // TODO gather plugin telemetry LINUXEP-7972

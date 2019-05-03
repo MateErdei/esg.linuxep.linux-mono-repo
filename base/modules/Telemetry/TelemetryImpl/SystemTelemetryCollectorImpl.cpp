@@ -29,7 +29,7 @@ namespace Telemetry
     }
 
     template<typename T>
-    std::map<std::string, T> SystemTelemetryCollectorImpl::collect(const SystemTelemetryConfig& config)
+    std::map<std::string, T> SystemTelemetryCollectorImpl::collect(const SystemTelemetryConfig& config) const
     {
         m_commandOutputCache.clear();
         std::map<std::string, T> telemetry;
@@ -65,13 +65,13 @@ namespace Telemetry
     }
 
     std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>
-    SystemTelemetryCollectorImpl::collectObjects()
+    SystemTelemetryCollectorImpl::collectObjects() const
     {
         return collect<std::vector<std::pair<std::string, std::variant<std::string, int>>>>(m_objectsConfig);
     }
 
     std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
-    SystemTelemetryCollectorImpl::collectArraysOfObjects()
+    SystemTelemetryCollectorImpl::collectArraysOfObjects() const
     {
         return collect<std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>(
             m_arraysConfig);
@@ -137,7 +137,7 @@ namespace Telemetry
         std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
         std::string& commandOutput,
         const std::string& regexp,
-        std::vector<TelemetryProperty> properties)
+        std::vector<TelemetryProperty> properties) const
     {
         std::istringstream stream(commandOutput);
         std::regex re(regexp);
@@ -190,7 +190,7 @@ namespace Telemetry
         std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
         std::string& commandOutput,
         const std::string& regexp,
-        std::vector<TelemetryProperty> properties)
+        std::vector<TelemetryProperty> properties) const
     {
         std::istringstream stream(commandOutput);
         std::string lineFromCommandOutput;

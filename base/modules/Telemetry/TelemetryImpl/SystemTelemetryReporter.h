@@ -18,15 +18,24 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    std::string gatherSystemTelemetry(ISystemTelemetryCollector& systemTelemetryCollector);
+    class SystemTelemetryReporter
+    {
+    public:
+        SystemTelemetryReporter(const ISystemTelemetryCollector& systemTelemetryCollector);
 
-    void getSimpleTelemetry(
-        Common::Telemetry::TelemetryHelper& jsonConverter,
-        const std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>&
+        std::string gatherSystemTelemetry();
+
+    private:
+        void getSimpleTelemetry(
+            Common::Telemetry::TelemetryHelper& jsonConverter,
+            const std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>&
             systemTelemetryObjects);
 
-    void getArraysTelemetry(
-        Common::Telemetry::TelemetryHelper& jsonConverter,
-        const std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>&
+        void getArraysTelemetry(
+            Common::Telemetry::TelemetryHelper& jsonConverter,
+            const std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>&
             systemTelemetryArrays);
+
+        const ISystemTelemetryCollector& m_systemTelemetryCollector;
+    };
 } // namespace Telemetry

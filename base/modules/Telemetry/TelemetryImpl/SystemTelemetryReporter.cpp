@@ -15,20 +15,25 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    std::string gatherSystemTelemetry(ISystemTelemetryCollector& systemTelemetryCollector)
+    SystemTelemetryReporter::SystemTelemetryReporter(const ISystemTelemetryCollector& systemTelemetryCollector) :
+        m_systemTelemetryCollector(systemTelemetryCollector)
+    {
+    }
+
+    std::string SystemTelemetryReporter::gatherSystemTelemetry()
     {
         Common::Telemetry::TelemetryHelper jsonConverter;
 
-        auto systemTelemetryObjects = systemTelemetryCollector.collectObjects();
+        auto systemTelemetryObjects = m_systemTelemetryCollector.collectObjects();
         getSimpleTelemetry(jsonConverter, systemTelemetryObjects);
 
-        auto systemTelemetryArrays = systemTelemetryCollector.collectArraysOfObjects();
+        auto systemTelemetryArrays = m_systemTelemetryCollector.collectArraysOfObjects();
         getArraysTelemetry(jsonConverter, systemTelemetryArrays);
 
         return jsonConverter.serialise();
     }
 
-    void getSimpleTelemetry(
+    void SystemTelemetryReporter::getSimpleTelemetry(
         Common::Telemetry::TelemetryHelper& jsonConverter,
         const std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>&
             systemTelemetryObjects)
@@ -56,7 +61,7 @@ namespace Telemetry
         }
     }
 
-    void getArraysTelemetry(
+    void SystemTelemetryReporter::getArraysTelemetry(
         Common::Telemetry::TelemetryHelper& jsonConverter,
         const std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>&
             systemTelemetryArrays)

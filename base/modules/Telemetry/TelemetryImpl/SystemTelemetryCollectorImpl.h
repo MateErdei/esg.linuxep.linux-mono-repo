@@ -24,27 +24,29 @@ namespace Telemetry
         SystemTelemetryCollectorImpl(
             Telemetry::SystemTelemetryConfig objectsConfig,
             Telemetry::SystemTelemetryConfig arraysConfig);
+
         std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>> collectObjects()
-            override;
+            const override;
+
         std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
-        collectArraysOfObjects() override;
+        collectArraysOfObjects() const override;
 
     protected:
         bool getValues(
             std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
             std::string& commandOutput,
             const std::string& regexp,
-            std::vector<TelemetryProperty> properties);
+            std::vector<TelemetryProperty> properties) const;
 
         bool getValues(
             std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
             std::string& commandOutput,
             const std::string& regexp,
-            std::vector<TelemetryProperty> properties);
+            std::vector<TelemetryProperty> properties) const;
 
     private:
         template<typename T>
-        std::map<std::string, T> collect(const SystemTelemetryConfig& config);
+        std::map<std::string, T> collect(const SystemTelemetryConfig& config) const;
 
         std::string getTelemetryItem(const std::string& command, const std::string& args) const;
         std::vector<std::string> matchSingleLine(std::istringstream& stream, const std::regex& re) const;
