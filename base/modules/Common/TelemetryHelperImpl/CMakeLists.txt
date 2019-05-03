@@ -1,5 +1,4 @@
 add_library(telemetryhelperimplobject OBJECT
-        ../TelemetryHelper/ITelemetryHelper.h
         TelemetryHelper.h
         TelemetryHelper.cpp
         TelemetryValue.cpp

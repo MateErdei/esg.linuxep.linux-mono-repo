@@ -1,3 +1,5 @@
+#include <utility>
+
 /******************************************************************************************************
 
 Copyright 2019, Sophos Limited.  All rights reserved.
@@ -12,21 +14,23 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using namespace Telemetry;
 using namespace Common::Telemetry;
 
+TelemetryProcessor::TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders)
+    : m_telemetryProviders(std::move(telemetryProviders))
+{
+}
+
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
 {
-    TelemetryHelper::getInstance().mergeJsonIn(sourceName, json);
+    m_telemetryHelper.mergeJsonIn(sourceName, json);
 }
 
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
-
-    // TODO gather plugin telemetry LINUXEP-7972
-    // TODO gather system telemetry LINUXEP-8094
-
-    // This will gather telemetry from all the various sources and merge them in one at a time.
-    std::string gatheredExampleJson = R"({"thing":2})";
-    addTelemetry("TelemetryExecutableExample", gatheredExampleJson);
+    for (const std::shared_ptr<ITelemetryProvider>& provider: m_telemetryProviders)
+    {
+        addTelemetry(provider->getName(), provider->getTelemetry());
+    }
 }
 
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
@@ -39,6 +43,5 @@ void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
 
 std::string TelemetryProcessor::getSerialisedTelemetry()
 {
-    return TelemetryHelper::getInstance().serialise();
+    return m_telemetryHelper.serialise();
 }
-

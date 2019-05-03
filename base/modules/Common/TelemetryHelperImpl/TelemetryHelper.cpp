@@ -5,10 +5,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryHelper.h"
-
 #include "TelemetrySerialiser.h"
 
 #include <functional>
+
 namespace Common::Telemetry
 {
     template<class T>
