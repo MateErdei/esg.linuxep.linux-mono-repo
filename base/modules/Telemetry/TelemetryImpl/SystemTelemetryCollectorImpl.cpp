@@ -64,17 +64,14 @@ namespace Telemetry
         return telemetry;
     }
 
-    std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>
-    SystemTelemetryCollectorImpl::collectObjects() const
+    std::map<std::string, TelemetryItem> SystemTelemetryCollectorImpl::collectObjects() const
     {
-        return collect<std::vector<std::pair<std::string, std::variant<std::string, int>>>>(m_objectsConfig);
+        return collect<TelemetryItem>(m_objectsConfig);
     }
 
-    std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
-    SystemTelemetryCollectorImpl::collectArraysOfObjects() const
+    std::map<std::string, std::vector<TelemetryItem>> SystemTelemetryCollectorImpl::collectArraysOfObjects() const
     {
-        return collect<std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>(
-            m_arraysConfig);
+        return collect<std::vector<TelemetryItem>>(m_arraysConfig);
     }
 
     std::string SystemTelemetryCollectorImpl::getTelemetryItem(const std::string& command, const std::string& args)
@@ -134,7 +131,7 @@ namespace Telemetry
     }
 
     bool SystemTelemetryCollectorImpl::getValues(
-        std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
+        TelemetryItem& values,
         std::string& commandOutput,
         const std::string& regexp,
         std::vector<TelemetryProperty> properties) const
@@ -187,7 +184,7 @@ namespace Telemetry
     }
 
     bool SystemTelemetryCollectorImpl::getValues(
-        std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
+        std::vector<TelemetryItem>& values,
         std::string& commandOutput,
         const std::string& regexp,
         std::vector<TelemetryProperty> properties) const
@@ -196,7 +193,7 @@ namespace Telemetry
         std::string lineFromCommandOutput;
         while (std::getline(stream, lineFromCommandOutput))
         {
-            std::vector<std::pair<std::string, std::variant<std::string, int>>> valuesFromLine;
+            TelemetryItem valuesFromLine;
 
             if (getValues(valuesFromLine, lineFromCommandOutput, regexp, properties))
             {

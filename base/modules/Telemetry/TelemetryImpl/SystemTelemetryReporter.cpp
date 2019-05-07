@@ -35,7 +35,7 @@ namespace Telemetry
 
     void SystemTelemetryReporter::getSimpleTelemetry(
         Common::Telemetry::TelemetryHelper& jsonConverter,
-        const std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>>&
+        const std::map<std::string, TelemetryItem>&
             systemTelemetryObjects)
     {
         for (const auto& [telemetryName, objects] : systemTelemetryObjects)
@@ -63,7 +63,7 @@ namespace Telemetry
 
     void SystemTelemetryReporter::getArraysTelemetry(
         Common::Telemetry::TelemetryHelper& jsonConverter,
-        const std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>&
+        const std::map<std::string, std::vector<TelemetryItem>>&
             systemTelemetryArrays)
     {
         for (const auto& [telemetryName, array] : systemTelemetryArrays)

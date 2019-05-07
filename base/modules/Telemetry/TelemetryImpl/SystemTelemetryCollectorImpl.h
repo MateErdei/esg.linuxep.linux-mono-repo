@@ -25,21 +25,19 @@ namespace Telemetry
             Telemetry::SystemTelemetryConfig objectsConfig,
             Telemetry::SystemTelemetryConfig arraysConfig);
 
-        std::map<std::string, std::vector<std::pair<std::string, std::variant<std::string, int>>>> collectObjects()
-            const override;
+        std::map<std::string, TelemetryItem> collectObjects() const override;
 
-        std::map<std::string, std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>>
-        collectArraysOfObjects() const override;
+        std::map<std::string, std::vector<TelemetryItem>> collectArraysOfObjects() const override;
 
     protected:
         bool getValues(
-            std::vector<std::pair<std::string, std::variant<std::string, int>>>& values,
+            TelemetryItem& values,
             std::string& commandOutput,
             const std::string& regexp,
             std::vector<TelemetryProperty> properties) const;
 
         bool getValues(
-            std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>& values,
+            std::vector<TelemetryItem>& values,
             std::string& commandOutput,
             const std::string& regexp,
             std::vector<TelemetryProperty> properties) const;

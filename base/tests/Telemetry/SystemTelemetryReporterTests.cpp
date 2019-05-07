@@ -20,17 +20,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    using simpleTelemetry = std::vector<std::pair<std::string, std::variant<std::string, int>>>;
-    using arraysTelemetry = std::vector<std::vector<std::pair<std::string, std::variant<std::string, int>>>>;
-
-    std::map<std::string, simpleTelemetry> emptySimpleObjs;
-    std::map<std::string, arraysTelemetry> emptyArrayObjs;
+    std::map<std::string, Telemetry::TelemetryItem> emptySimpleObjs;
+    std::map<std::string, std::vector<Telemetry::TelemetryItem>> emptyArrayObjs;
     std::variant<std::string, int> v = 100;
 
-    std::pair<std::string, std::variant<std::string, int>> mp = { "simple", { 100 } };
-    std::vector<std::pair<std::string, std::variant<std::string, int>>> vp = { mp, mp };
-    std::map<std::string, simpleTelemetry> simpleObjs;
-    std::map<std::string, arraysTelemetry> arrayObjs;
+    std::map<std::string, Telemetry::TelemetryItem> simpleObjs;
+    std::map<std::string, std::vector<Telemetry::TelemetryItem>> arrayObjs;
 } // namespace
 
 using ::testing::Return;
