@@ -136,6 +136,14 @@ TEST(TestTelemetryHelper, appendBool) // NOLINT
     ASSERT_EQ(R"({"array":[true,false]})", helper.serialise());
 }
 
+TEST(TestTelemetryHelper, appendObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array");
+    ASSERT_EQ(R"({"array":[{}]})", helper.serialise());
+}
+
 TEST(TestTelemetryHelper, appendCstringObject) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
