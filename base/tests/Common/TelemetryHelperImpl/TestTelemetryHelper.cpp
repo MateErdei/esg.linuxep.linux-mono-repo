@@ -197,7 +197,8 @@ TEST(TestTelemetryHelper, incNonExistantValue) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    ASSERT_THROW(helper.increment("counter", 1), std::logic_error); // NOLINT
+    helper.increment("counter", 3); // NOLINT
+    ASSERT_EQ(R"({"counter":3})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, nestedTelem) // NOLINT

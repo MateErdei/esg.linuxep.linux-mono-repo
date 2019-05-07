@@ -48,7 +48,12 @@ void TelemetryHelper::incrementInternal(const std::string& key, T value)
 {
     std::lock_guard<std::mutex> lock(m_dataLock);
     TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-    TelemetryValue telemetryValue;
+    TelemetryValue telemetryValue(0);
+
+    if (telemetryObject.getType() != TelemetryObject::Type::value)
+    {
+        telemetryObject.set(telemetryValue);
+    }
 
     TelemetryValue::Type valueType = telemetryObject.getValue().getType();
     if (valueType == TelemetryValue::Type::integer_type)
