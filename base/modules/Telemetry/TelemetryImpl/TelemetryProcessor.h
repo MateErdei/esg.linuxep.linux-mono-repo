@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <utility>
+
 using namespace Common::Telemetry;
 
 namespace Telemetry
