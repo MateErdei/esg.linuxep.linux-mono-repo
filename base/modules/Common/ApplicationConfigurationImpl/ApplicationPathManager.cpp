@@ -137,6 +137,11 @@ namespace Common
             return Common::FileSystem::join(getBaseLogDirectory(), "sophosspl");
         }
 
+        std::string ApplicationPathManager::getBaseSophossplConfigFileDirectory() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl");
+        }
+
         std::string ApplicationPathManager::getUpdateCacheCertificateFilePath() const
         {
             return Common::FileSystem::join(getUpdateCertificatesPath(), "cache_certificates.crt");

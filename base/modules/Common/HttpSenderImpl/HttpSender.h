@@ -4,6 +4,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+/**
+ * WARNING: There should only ever be a single instance of this class as it initialises libcurl on construction.
+ * TODO: Convert class to a singleton or use a factory where libcurl initilisation can be done before instance creation.
+ */
+
 #pragma once
 
 #include "CurlWrapper.h"
@@ -24,7 +29,8 @@ namespace Common::HttpSenderImpl
     private:
         curl_slist* setCurlOptions(
             CURL* curl,
-            std::shared_ptr<RequestConfig> requestConfig);
+            std::shared_ptr<RequestConfig> requestConfig,
+            std::vector<std::tuple<std::string, CURLoption, std::string>>& data);
 
         std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
     };

@@ -36,7 +36,7 @@ namespace Common::HttpSenderImpl
         m_curlWrapper->curlGlobalCleanup();
     }
 
-    curl_slist* HttpSender::setCurlOptions(CURL* curl, std::shared_ptr<RequestConfig> requestConfig)
+    curl_slist* HttpSender::setCurlOptions(CURL* curl, std::shared_ptr<RequestConfig> requestConfig, std::vector<std::tuple<std::string, CURLoption, std::string>>& curlOptions)
     {
         curl_slist* headers = nullptr;
 
@@ -48,16 +48,15 @@ namespace Common::HttpSenderImpl
         LOGINFO("Creating HTTPS " << requestConfig->getRequestTypeAsString() << " Request to " << uri);
 
         CURLcode result;
-        std::vector<std::tuple<const char*, CURLoption, const char*>> curlOptions;
 
-        curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri.c_str());
+        curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
         curlOptions.emplace_back(
-            "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig->getCertPath().c_str());
+            "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig->getCertPath());
 
         for (const auto& header : requestConfig->getAdditionalHeaders())
         {
             curl_slist* temp = nullptr;
-            temp = m_curlWrapper->curlSlistAppend(headers, header.c_str());
+            temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)
             {
                 curl_slist_free_all(headers);
@@ -75,13 +74,13 @@ namespace Common::HttpSenderImpl
         if (requestConfig->getRequestType() == RequestType::POST)
         {
             curlOptions.emplace_back(
-                "Specify data to POST to server", CURLOPT_POSTFIELDS, requestConfig->getData().c_str());
+                "Specify data to POST to server", CURLOPT_POSTFIELDS, requestConfig->getData());
         }
         else if (requestConfig->getRequestType() == RequestType::PUT)
         {
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
             curlOptions.emplace_back(
-                "Specify data to POST to server", CURLOPT_POSTFIELDS, requestConfig->getData().c_str());
+                "Specify data to POST to server", CURLOPT_POSTFIELDS, requestConfig->getData());
         }
 
         for (const auto& curlOption : curlOptions)
@@ -104,13 +103,14 @@ namespace Common::HttpSenderImpl
         CURL* curl = nullptr;
         CURLcode result;
         curl_slist* headers = nullptr;
+        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
 
         try
         {
             curl = m_curlWrapper->curlEasyInit();
             if (curl)
             {
-                headers = setCurlOptions(curl, requestConfig);
+                headers = setCurlOptions(curl, requestConfig, curlOptions);
                 result = m_curlWrapper->curlEasyPerform(curl);
 
                 if (result != CURLE_OK)

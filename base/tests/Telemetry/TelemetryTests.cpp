@@ -29,7 +29,9 @@ public:
     std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
     MockFileSystem* m_mockFileSystem = nullptr;
 
-    std::vector<std::string> m_args = {m_binaryPath, "POST", GL_defaultServer, GL_defaultCertPath, "TEST", "extraArg"};
+    std::string m_defaultCertPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(), "telemetry_cert.pem");
+
+    std::vector<std::string> m_args = {m_binaryPath, "POST", GL_defaultServer, m_defaultCertPath, "TEST", "extraArg"};
 
     std::shared_ptr<RequestConfig> m_getRequestConfig;
     std::shared_ptr<RequestConfig> m_postRequestConfig;
@@ -95,10 +97,10 @@ INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestRequestTypes, ::testing::Val
 
 TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_mockFileSystem, isFile(GL_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
-    std::vector<std::string> arguments = {m_binaryPath, GetParam(), GL_defaultServer, GL_defaultCertPath};
+    std::vector<std::string> arguments = {m_binaryPath, GetParam(), GL_defaultServer, m_defaultCertPath};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -113,7 +115,7 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_mockFileSystem, isFile(GL_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
     std::vector<std::string> arguments = {m_binaryPath, "GET"};
@@ -131,7 +133,7 @@ TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
-    EXPECT_CALL(*m_mockFileSystem, isFile(GL_defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
     std::vector<std::string> arguments = {m_binaryPath, "POST"};
@@ -164,9 +166,9 @@ TEST_F(TelemetryTest, main_InvalidHttpRequestReturnsFailure) // NOLINT
 
 TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
 {
-    EXPECT_CALL(*m_mockFileSystem, isFile(GL_defaultCertPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(false));
 
-    std::vector<std::string> arguments = {m_binaryPath, "PUT", GL_defaultServer, GL_defaultCertPath};
+    std::vector<std::string> arguments = {m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)

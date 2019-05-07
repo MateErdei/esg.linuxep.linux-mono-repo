@@ -18,14 +18,14 @@ namespace Common::HttpSenderImpl
         return curl_easy_init();
     }
 
-    CURLcode CurlWrapper::curlEasySetOpt(CURL* handle, CURLoption option, const char* parameter)
+    CURLcode CurlWrapper::curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter)
     {
-        return curl_easy_setopt(handle, option, parameter);
+        return curl_easy_setopt(handle, option, parameter.c_str());
     }
 
-    curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const char* value)
+    curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const std::string& value)
     {
-        return curl_slist_append(list, value);
+        return curl_slist_append(list, value.c_str());
     }
 
     CURLcode CurlWrapper::curlEasyPerform(CURL* handle)

@@ -10,6 +10,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "MockCurlWrapper.h"
 
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
 
 #include <gmock/gmock.h>
@@ -50,8 +52,10 @@ public:
 
         m_httpSender = std::make_shared<HttpSender>(m_curlWrapper);
 
-        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, GL_defaultCertPath, ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, GL_defaultCertPath, ResourceRoot::PROD);
+        std::string defaultCertPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(), "telemetry_cert.pem");
+
+        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, defaultCertPath, ResourceRoot::DEV);
+        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, defaultCertPath, ResourceRoot::PROD);
         m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
     }
 };

@@ -6,6 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystem.h>
+
 #include <string>
 #include <vector>
 
@@ -26,7 +29,6 @@ namespace Common::HttpSenderImpl
     };
 
     static const char* GL_defaultServer = "t1.sophosupd.com";
-    static const char* GL_defaultCertPath =  "/opt/sophos-spl/base/etc/sophosspl/telemetry_cert.pem";
     static const int GL_defaultPort = 443;
     static const ResourceRoot GL_defaultResourceRoot = ResourceRoot::PROD;
 
@@ -39,7 +41,7 @@ namespace Common::HttpSenderImpl
             std::vector<std::string> additionalHeaders,
             std::string server = GL_defaultServer,
             int port = GL_defaultPort,
-            std::string certPath = GL_defaultCertPath,
+            std::string certPath = Common::FileSystem::join(ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(), "telemetry_cert.pem"),
             ResourceRoot resourceRoot = GL_defaultResourceRoot
             );
         RequestConfig(const RequestConfig&) = delete;
