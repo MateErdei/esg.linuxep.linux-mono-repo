@@ -52,7 +52,8 @@ TEST_F(SystemTelemetryReporterTests, gatherTelemetryEmptyOK)
 
 TEST_F(SystemTelemetryReporterTests, gatherSimpleOk)
 {
-    simpleObjs["testSimple"] = { { "", { 100 } } };
+    simpleObjs["testSimpleInt"] = { { "", { 100 } } };
+    simpleObjs["testSimpleString"] = { { "", { "test-version 10.5 string" } } };
     arrayObjs["testArray"] = { { { "fstype", { "testvalue1" } }, { "free", { 201 } } },
                                { { "fstype", { "testvalue2" } }, { "free", { 202 } } } };
 
