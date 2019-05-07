@@ -59,11 +59,6 @@ namespace Common
             return m_configurationData.at(key);
         }
 
-        void ApplicationConfiguration::setConfigurationData(const configuration_data_t& m_configurationData)
-        {
-            ApplicationConfiguration::m_configurationData = m_configurationData;
-        }
-
         ApplicationConfiguration::ApplicationConfiguration()
         {
             m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();

@@ -49,15 +49,6 @@ namespace
     }
 } // namespace
 
-Common::EventTypes::ProcessEvent Common::EventTypes::createProcessEvent(
-    Common::EventTypes::ProcessEvent::EventType eventType)
-{
-    Common::EventTypes::ProcessEvent event = ProcessEvent();
-    event.setEventType(eventType);
-
-    return event;
-}
-
 namespace Common
 {
     namespace EventTypes

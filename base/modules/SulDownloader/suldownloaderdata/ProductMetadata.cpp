@@ -66,11 +66,6 @@ void ProductMetadata::setDefaultHomePath(const std::string& defaultHomeFolder)
     m_defaultHomeFolder = defaultHomeFolder;
 }
 
-const std::string& ProductMetadata::getDefaultHomePath() const
-{
-    return m_defaultHomeFolder;
-}
-
 const std::vector<Tag> ProductMetadata::tags() const
 {
     return m_tags;

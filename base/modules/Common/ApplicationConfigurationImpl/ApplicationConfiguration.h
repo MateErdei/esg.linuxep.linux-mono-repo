@@ -24,8 +24,6 @@ namespace Common
             ApplicationConfiguration();
             std::string getData(const std::string& key) const override;
 
-            void setConfigurationData(const configuration_data_t& m_configurationData);
-
             void setData(const std::string& key, const std::string& data) override;
 
         private:

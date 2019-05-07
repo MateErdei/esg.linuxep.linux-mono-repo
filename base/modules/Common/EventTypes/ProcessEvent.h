@@ -279,7 +279,6 @@ namespace Common
             std::string m_procTitle;
         };
 
-        Common::EventTypes::ProcessEvent createProcessEvent(Common::EventTypes::ProcessEvent::EventType eventType);
     } // namespace EventTypes
 
 } // namespace Common

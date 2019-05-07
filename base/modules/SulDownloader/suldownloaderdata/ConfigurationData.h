@@ -50,24 +50,6 @@ namespace SulDownloader
             bool operator!=(const ProductSubscription& rhs) const { return !operator==(rhs); }
         };
 
-        struct ProductGUID
-        {
-            std::string Name;
-            bool Primary;
-            bool Prefix;
-            std::string releaseTag;
-            std::string baseVersion;
-
-            bool operator==(const ProductGUID& rhs) const
-            {
-                return (
-                    (Name == rhs.Name) && (Primary == rhs.Primary) && (Prefix == rhs.Prefix) &&
-                    (releaseTag == rhs.releaseTag) && (baseVersion == rhs.baseVersion));
-            }
-
-            bool operator!=(const ProductGUID& rhs) const { return !operator==(rhs); }
-        };
-
         /**
          * Holds all the settings that SulDownloader needs to run which includes:
          *  - Information about connection

@@ -45,8 +45,6 @@ namespace SulDownloader
             void setFeatures(const std::vector<std::string> & features);
             const std::vector<std::string>& getFeatures() const;
 
-            const std::string& getDefaultHomePath() const;
-
         private:
             std::vector<Tag> m_tags;
             std::string m_line;
