@@ -83,20 +83,20 @@ FILER_5_BIR=NOT_FOUND
 [[ -d /mnt/filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/mnt/filer5/prodro/bir
 
 ## Find example plugin
-if [[ -d "$EXAMPLE_PLUGIN_SDDS" ]]
+if [[ -d "$EXAMPLEPLUGIN_SDDS" ]]
 then
-    export EXAMPLE_PLUGIN_SDDS
+    export EXAMPLEPLUGIN_SDDS
 else
 
     if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT" ]]
     then
-        export EXAMPLE_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT
+        export EXAMPLEPLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT
     elif [[ -d "$FILER_5_BIR/sspl-exampleplugin" ]]
     then
         DIR=$(ls -1 "$FILER_5_BIR/sspl-exampleplugin/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
-            export EXAMPLE_PLUGIN_SDDS="$DIR"
+            export EXAMPLEPLUGIN_SDDS="$DIR"
         fi
     fi
 fi
@@ -146,7 +146,7 @@ fi
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
 ## Requires sudo permissions:
-PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS
+PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLEPLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 LOG_LEVEL=TRACE
 EXCLUSION="--exclude manual --exclude WEEKLY"
 if [[ -n "${TEST_SELECTOR}" ]]
