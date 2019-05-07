@@ -48,6 +48,7 @@ public:
     void unregisterResetCallback(std::string cookie) override;
     void reset() override;
     std::string serialise();
+    std::string serialiseAndReset();
 
     // Normally with a singleton the constructor is private but here we make the constructor public
     // so that plugins can instantiate this if they want to.

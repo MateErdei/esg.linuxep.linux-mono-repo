@@ -159,6 +159,7 @@ void TelemetryHelper::unregisterResetCallback(std::string cookie)
     std::lock_guard<std::mutex> lock(m_callbackLock);
     m_callbacks.erase(cookie);
 }
+
 void TelemetryHelper::reset()
 {
     clearData();
@@ -171,8 +172,29 @@ void TelemetryHelper::reset()
         }
     }
 }
+
 void TelemetryHelper::clearData()
 {
     std::lock_guard<std::mutex> dataLock(m_dataLock);
     m_root = TelemetryObject();
+}
+
+std::string TelemetryHelper::serialiseAndReset()
+{
+    std::scoped_lock lock(m_dataLock, m_callbackLock);
+
+    // Serialise
+    std::string serialised = TelemetrySerialiser::serialise(m_root);
+
+    // Reset
+    for (const auto& callback_entry : m_callbacks)
+    {
+        if (callback_entry.second)
+        {
+            callback_entry.second();
+        }
+    }
+    m_root = TelemetryObject();
+
+    return serialised;
 }

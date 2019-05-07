@@ -6,7 +6,9 @@
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
+#include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <include/gtest/gtest.h>
+#include <thread>
 
 using namespace Common::Telemetry;
 
@@ -331,3 +333,90 @@ TEST(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) 
     ASSERT_NO_THROW(helper.unregisterResetCallback(dummy1.getCookie())); // NOLINT
     ASSERT_NO_THROW(helper.unregisterResetCallback(dummy2.getCookie())); // NOLINT
 }
+
+
+void appendLots(const std::string arrayName, int numberToAdd)
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    for (int i = 0; i < numberToAdd; ++i)
+    {
+        helper.append(arrayName, i);
+        usleep(1);
+    }
+}
+
+TEST(TestTelemetryHelper, resetAndSerialiseExecutesCallbacksAndReturnsJson) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+
+    DummyTelemetryProvider dummy("dummy1");
+    ASSERT_NO_THROW(helper.registerResetCallback(
+        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy))); // NOLINT
+
+    helper.set("a", "b");
+    std::string json = helper.serialiseAndReset();
+    ASSERT_EQ(R"({"a":"b"})", json);
+    ASSERT_TRUE(dummy.hasCallbackBeenCalled());
+    ASSERT_NO_THROW(helper.unregisterResetCallback(dummy.getCookie())); // NOLINT
+}
+
+TEST(TestTelemetryHelper, dataNotLostDuringMultiThreadedUse) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+
+    const int numberOfItemsInArray = 300;
+    const std::string arrayName = "array";
+
+    std::thread t1(appendLots, arrayName, numberOfItemsInArray);
+    usleep(100);
+    std::string part1 = helper.serialiseAndReset();
+    usleep(50);
+    std::string part2 = helper.serialiseAndReset();
+    usleep(10);
+    t1.join();
+    std::string part3 = helper.serialiseAndReset();
+
+    std::cout << part1 << std::endl;
+    std::cout << part2 << std::endl;
+    std::cout << part3 << std::endl;
+
+    TelemetryObject part1Obj =  TelemetrySerialiser::deserialise(part1);
+    TelemetryObject part2Obj =  TelemetrySerialiser::deserialise(part2);
+    TelemetryObject part3Obj =  TelemetrySerialiser::deserialise(part3);
+
+    int array1size = 0;
+    int array2size = 0;
+    int array3size = 0;
+
+    try
+    {
+        array1size = part1Obj.getChildObjects()[arrayName].getArray().size();
+    }
+    catch(...)
+    {
+        // doesn't matter
+    }
+
+    try
+    {
+        array2size = part2Obj.getChildObjects()[arrayName].getArray().size();
+    }
+    catch(...)
+    {
+        // doesn't matter
+    }
+
+    try
+    {
+        array3size = part3Obj.getChildObjects()[arrayName].getArray().size();
+    }
+    catch(...)
+    {
+        // doesn't matter
+    }
+
+    ASSERT_EQ(numberOfItemsInArray, array1size + array2size + array3size);
+}
+
