@@ -16,6 +16,7 @@ namespace Telemetry
     // Type representing a telemetry item consisting of one or more key/value pairs:
     using TelemetryItem = std::vector<std::pair<std::string, std::variant<std::string, int>>>;
 
+    // Interface for collecting system telemetry into an internal data structure.
     class ISystemTelemetryCollector
     {
     public:
@@ -25,7 +26,7 @@ namespace Telemetry
         /// \return Simple telemetry items, each indexed by the telemetry item's name.
         virtual std::map<std::string, TelemetryItem> collectObjects() const = 0;
 
-        /// Collects array of telemetry objects.
+        /// Collects array of system telemetry objects.
         /// \return Telemetry item arrays, each indexed by the telemetry item's name.
         virtual std::map<std::string, std::vector<TelemetryItem>> collectArraysOfObjects() const = 0;
     };

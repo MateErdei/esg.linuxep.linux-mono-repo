@@ -18,6 +18,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
+    // Class for collecting system telemetry into an internal data structure.
     class SystemTelemetryCollectorImpl : public ISystemTelemetryCollector
     {
     public:
