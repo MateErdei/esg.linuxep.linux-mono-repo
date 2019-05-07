@@ -104,7 +104,7 @@ fi
 ## Find audit plugin
 if [[ -d "$SSPL_AUDIT_PLUGIN_SDDS" ]]
 then
-    export $SSPL_AUDIT_PLUGIN_SDDS
+    export SSPL_AUDIT_PLUGIN_SDDS
 else
 
     if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/AuditPlugin/master/SDDS-COMPONENT" ]]
@@ -123,7 +123,7 @@ fi
 ## Find event processor plugin
 if [[ -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
 then
-    export $SSPL_PLUGIN_EVENTPROCESSOR_SDDS
+    export SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 else
 
     if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT" ]]
