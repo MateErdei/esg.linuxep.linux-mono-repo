@@ -117,6 +117,7 @@ SRC_TEST_DIR=${SRC_DIR}/tests
     exit 2
 }
 
+exclude \!../..${SRC_DIR}/thirdparty/
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
 exclude \!../..${SRC_TEST_DIR}/
