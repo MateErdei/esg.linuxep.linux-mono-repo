@@ -74,18 +74,19 @@ fi
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
+FILER_6_LINUX=NOT_FOUND
+[[ -d /mnt/filer6/linux/SSPL ]] && FILER_6_LINUX=/mnt/filer6/linux
+[[ -d /uk-filer6/linux/SSPL ]] && FILER_6_LINUX=/uk-filer6/linux
+
+FILER_5_BIR=NOT_FOUND
+[[ -d /uk-filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/uk-filer5/prodro/bir
+[[ -d /mnt/filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/mnt/filer5/prodro/bir
+
 ## Find example plugin
 if [[ -d "$EXAMPLE_PLUGIN_SDDS" ]]
 then
     export EXAMPLE_PLUGIN_SDDS
 else
-    FILER_6_LINUX=NOT_FOUND
-    [[ -d /mnt/filer6/linux/SSPL ]] && FILER_6_LINUX=/mnt/filer6/linux
-    [[ -d /uk-filer6/linux/SSPL ]] && FILER_6_LINUX=/uk-filer6/linux
-
-    FILER_5_BIR=NOT_FOUND
-    [[ -d /uk-filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/uk-filer5/prodro/bir
-    [[ -d /mnt/filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/mnt/filer5/prodro/bir
 
     if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT" ]]
     then
@@ -100,10 +101,52 @@ else
     fi
 fi
 
+## Find audit plugin
+if [[ -d "$SSPL_AUDIT_PLUGIN_SDDS" ]]
+then
+    export $SSPL_AUDIT_PLUGIN_SDDS
+else
+
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/AuditPlugin/master/SDDS-COMPONENT" ]]
+    then
+        export SSPL_AUDIT_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/AuditPlugin/master/SDDS-COMPONENT
+    elif [[ -d "$FILER_5_BIR/sspl-audit" ]]
+    then
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-audit/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SSPL_AUDIT_PLUGIN_SDDS="$DIR"
+        fi
+    fi
+fi
+
+## Find event processor plugin
+if [[ -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
+then
+    export $SSPL_PLUGIN_EVENTPROCESSOR_SDDS
+else
+
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT" ]]
+    then
+        export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT
+    elif [[ -d "$FILER_5_BIR/sspl-eventprocessor" ]]
+    then
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-eventprocessor/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="$DIR"
+        fi
+    fi
+fi
+
+
+
+
+
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
 ## Requires sudo permissions:
-PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT
+PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLE_PLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 LOG_LEVEL=TRACE
 EXCLUSION="--exclude manual --exclude WEEKLY"
 if [[ -n "${TEST_SELECTOR}" ]]
