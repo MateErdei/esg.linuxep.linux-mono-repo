@@ -46,10 +46,10 @@ namespace
 
         for (auto& e : event.Messages)
         {
-//            if (!e.PackageName.empty())
-//            {
-//                messageInsertsNode.add("insert", e.PackageName);
-//            }
+            if (!e.PackageName.empty())
+            {
+                messageInsertsNode.add("insert", e.PackageName);
+            }
             /*if( !e.ErrorDetails.empty())
             {
                 //FIXME LINUXEP-6473: Get the correct error code to send to Central.

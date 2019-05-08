@@ -85,6 +85,12 @@ namespace SulDownloader
         SulStringResource s(SU_getLogEntry(session), session);
         return s.str();
     }
+
+    bool SulSetLanguage(SU_Handle session, SU_ConstString language)
+    {
+        return SULUtils::isSuccess(SU_setLanguage(session, language));
+    }
+
     std::string SulQueryProductMetadata(SU_PHandle product, const std::string& attribute, SU_Int index)
     {
         SulStringResource s(SU_queryProductMetadata(product, attribute.c_str(), index), SU_getSession(product));

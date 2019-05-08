@@ -21,6 +21,7 @@ namespace SulDownloader
     std::string SulGetErrorDetails(SU_Handle session);
     std::string SulGetLogEntry(SU_Handle session);
     std::string SulQueryProductMetadata(SU_PHandle product, const std::string& attribute, SU_Int index);
+    bool SulSetLanguage(SU_Handle session, SU_ConstString language);
 
     std::pair<suldownloaderdata::WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session);
 

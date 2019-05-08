@@ -107,7 +107,9 @@ TEST_F(TestSerializeEvent, installFAiledTwoProducts) // NOLINT
     <message>
       <message_inserts>
         <insert>BaseName</insert>
+        <insert>Base failed to install</insert>
         <insert>PluginName</insert>
+        <insert>Plugin failed to install</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -128,7 +130,7 @@ TEST_F(TestSerializeEvent, installCaughtErrorEvent) // NOLINT
     <number>106</number>
     <message>
       <message_inserts>
-
+        <insert>Error associated to install</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -150,7 +152,9 @@ TEST_F(TestSerializeEvent, downloadFailedEvent) // NOLINT
     <message>
       <message_inserts>
         <insert>BaseName</insert>
+        <insert>Base failed to download</insert>
         <insert>PluginName</insert>
+        <insert>Plugin failed to download</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -214,7 +218,7 @@ TEST_F(TestSerializeEvent, connectionError) // NOLINT
     <number>112</number>
     <message>
       <message_inserts>
-
+        <insert>Failed to synchronize</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
