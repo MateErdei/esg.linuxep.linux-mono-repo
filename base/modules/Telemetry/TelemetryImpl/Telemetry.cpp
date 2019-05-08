@@ -71,6 +71,7 @@ namespace Telemetry
         std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
         TelemetryProcessor telemetryProcessor(telemetryProviders);
         telemetryProcessor.gatherTelemetry();
+        telemetryProcessor.saveAndSendTelemetry();
 
         return 0;
     }

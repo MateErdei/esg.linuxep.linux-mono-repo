@@ -7,9 +7,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryProcessor.h"
-#include <Telemetry/LoggerImpl/Logger.h>
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
+#include <Telemetry/LoggerImpl/Logger.h>
 
 using namespace Telemetry;
 using namespace Common::Telemetry;
@@ -33,12 +35,17 @@ void TelemetryProcessor::gatherTelemetry()
     }
 }
 
-void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)
+void TelemetryProcessor::saveAndSendTelemetry()
 {
+    Path jsonOutputFile =  Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
     LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
 
+    std::string json = getSerialisedTelemetry();
+
+    // TODO send telem LINUXEP-6637
+
     // Will overwrite data each time.
-    Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, getSerialisedTelemetry());
+    Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json);
 }
 
 std::string TelemetryProcessor::getSerialisedTelemetry()

@@ -20,7 +20,7 @@ namespace Telemetry
     public:
         explicit TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
         void gatherTelemetry();
-        void saveTelemetryToDisk(const std::string& jsonOutputFile);
+        void saveAndSendTelemetry();
         std::string getSerialisedTelemetry();
 
     private:
