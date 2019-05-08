@@ -321,12 +321,9 @@ TEST_F(TelemetryTest, telemetryProcessorDoesNotProcessLargeData) // NOLINT
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
     std::string longString = std::string(1000, 'a');
-    //std::string value = R"({"Mock":{"key":")" + longString + R"("}})";
 
     std::stringstream ss;
     ss << R"({"key":")" << longString << R"("})";
-
-    //EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, value)).Times(testing::AtLeast(1));
 
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(ss.str()));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
