@@ -29,7 +29,7 @@ void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
-    for (const std::shared_ptr<ITelemetryProvider>& provider: m_telemetryProviders)
+    for (const auto& provider: m_telemetryProviders)
     {
         addTelemetry(provider->getName(), provider->getTelemetry());
     }

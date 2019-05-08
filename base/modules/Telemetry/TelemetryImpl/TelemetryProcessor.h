@@ -26,6 +26,7 @@ namespace Telemetry
     private:
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
+
         void addTelemetry(const std::string& sourceName, const std::string& json);
     };
 
