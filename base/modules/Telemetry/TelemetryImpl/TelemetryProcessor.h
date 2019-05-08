@@ -12,7 +12,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <utility>
-
 using namespace Common::Telemetry;
 
 namespace Telemetry
@@ -20,14 +19,16 @@ namespace Telemetry
     class TelemetryProcessor
     {
     public:
-        explicit TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
+        TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders, size_t maxJsonBytes);
         void gatherTelemetry();
-        void saveTelemetryToDisk(const std::string& jsonOutputFile);
+        void saveAndSendTelemetry();
         std::string getSerialisedTelemetry();
 
     private:
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
+        size_t m_maxJsonSizeBytes;
+
         void addTelemetry(const std::string& sourceName, const std::string& json);
     };
 
