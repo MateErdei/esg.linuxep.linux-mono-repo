@@ -247,6 +247,32 @@ TEST(TelemetryProcessor, telemetryProcessorTwoProviders) // NOLINT
     ASSERT_EQ( R"({"Mock1":{"key":1},"Mock2":{"key":2}})", json);
 }
 
+TEST(TelemetryProcessor, telemetryProcessorThreeProvidersOneThrows) // NOLINT
+{
+    auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
+    auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
+    auto mockTelemetryProvider3 = std::make_shared<MockTelemetryProvider>();
+
+    EXPECT_CALL(*mockTelemetryProvider1, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider1, getName()).WillOnce(Return("Mock1"));
+
+    EXPECT_CALL(*mockTelemetryProvider2, getTelemetry()).WillOnce(Throw(std::runtime_error("badProvider")));
+
+    EXPECT_CALL(*mockTelemetryProvider3, getTelemetry()).WillOnce(Return(R"({"key":3})"));
+    EXPECT_CALL(*mockTelemetryProvider3, getName()).WillOnce(Return("Mock3"));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+
+    telemetryProviders.emplace_back(mockTelemetryProvider1);
+    telemetryProviders.emplace_back(mockTelemetryProvider2);
+    telemetryProviders.emplace_back(mockTelemetryProvider3);
+
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ( R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
+}
+
 TEST_F(TelemetryTest, telemetryProcessorWriteOutJson) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();

@@ -31,7 +31,14 @@ void TelemetryProcessor::gatherTelemetry()
     LOGINFO("Gathering telemetry");
     for (const auto& provider: m_telemetryProviders)
     {
-        addTelemetry(provider->getName(), provider->getTelemetry());
+        try
+        {
+            addTelemetry(provider->getName(), provider->getTelemetry());
+        }
+        catch(std::exception& ex)
+        {
+            LOGDEBUG("Could not get telemetry from one of the telemetry providers.");
+        }
     }
 }
 
