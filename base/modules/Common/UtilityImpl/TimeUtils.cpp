@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    class DefaultTimer : public Common::UtilityImpl::ITime
+    class TimeSource : public Common::UtilityImpl::ITime
     {
         std::time_t getCurrentTime() override
         {
@@ -20,7 +20,7 @@ namespace
 
     std::unique_ptr<Common::UtilityImpl::ITime>& static_Timer()
     {
-        static std::unique_ptr<Common::UtilityImpl::ITime> timer{new DefaultTimer{}};
+        static std::unique_ptr<Common::UtilityImpl::ITime> timer{new TimeSource{}};
         return timer;
     }
 
@@ -82,7 +82,7 @@ namespace Common
 
         ScopedReplaceITime::~ScopedReplaceITime()
         {
-            static_Timer().reset(new DefaultTimer{});
+            static_Timer().reset(new TimeSource{});
         }
     } // namespace UtilityImpl
 } // namespace Common
