@@ -27,7 +27,7 @@ namespace Common::HttpSenderImpl
 
         int doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig) override;
     private:
-        curl_slist* setCurlOptions(
+        void setCurlOptions(
             CURL* curl,
             std::shared_ptr<RequestConfig> requestConfig,
             std::vector<std::tuple<std::string, CURLoption, std::string>>& data);

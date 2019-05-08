@@ -13,6 +13,53 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <sstream>
 
+namespace
+{
+    class CurlScopeGuard
+    {
+        Common::HttpSender::ICurlWrapper & m_iCurlWrapper;
+        CURL * m_curl;
+    public:
+
+        CurlScopeGuard( CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper ):
+            m_iCurlWrapper(iCurlWrapper), m_curl(curl)
+        {
+
+        }
+        ~CurlScopeGuard()
+        {
+            m_iCurlWrapper.curlEasyCleanup(m_curl);
+        }
+
+    };
+
+    class SListScopeGuard
+    {
+        Common::HttpSender::ICurlWrapper & m_iCurlWrapper;
+        curl_slist  * m_curl_slist;
+    public:
+
+        SListScopeGuard( curl_slist * curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper ):
+        m_iCurlWrapper(iCurlWrapper), m_curl_slist (curl_slist)
+        {
+
+        }
+        ~SListScopeGuard()
+        {
+            if( m_curl_slist != nullptr)
+            {
+                m_iCurlWrapper.curlSlistFreeAll(m_curl_slist);
+            }
+
+        }
+
+    };
+
+
+}
+
+
+
 namespace Common::HttpSenderImpl
 {
     HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
@@ -36,7 +83,7 @@ namespace Common::HttpSenderImpl
         m_curlWrapper->curlGlobalCleanup();
     }
 
-    curl_slist* HttpSender::setCurlOptions(CURL* curl, std::shared_ptr<RequestConfig> requestConfig, std::vector<std::tuple<std::string, CURLoption, std::string>>& curlOptions)
+    void HttpSender::setCurlOptions(CURL* curl, std::shared_ptr<RequestConfig> requestConfig, std::vector<std::tuple<std::string, CURLoption, std::string>>& curlOptions)
     {
         curl_slist* headers = nullptr;
 
@@ -59,12 +106,12 @@ namespace Common::HttpSenderImpl
             temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)
             {
-                curl_slist_free_all(headers);
+                SListScopeGuard sListScopeGuard( headers, *m_curlWrapper);
                 throw std::runtime_error("Failed to append header to request");
             }
             headers = temp;
         }
-
+        SListScopeGuard headersScopeGuard(headers, *m_curlWrapper);
         if (headers)
         {
             curlOptions.emplace_back(
@@ -95,37 +142,30 @@ namespace Common::HttpSenderImpl
             }
         }
 
-        return headers;
     }
 
     int HttpSender::doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig)
     {
-        CURL* curl = nullptr;
         CURLcode result;
-        curl_slist* headers = nullptr;
         std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
 
         try
         {
-            curl = m_curlWrapper->curlEasyInit();
+            CURL * curl = m_curlWrapper->curlEasyInit();
             if (curl)
             {
-                headers = setCurlOptions(curl, requestConfig, curlOptions);
+                CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
+                setCurlOptions(curl, requestConfig, curlOptions);
                 result = m_curlWrapper->curlEasyPerform(curl);
 
                 if (result != CURLE_OK)
                 {
+
                     std::stringstream errorMsg;
                     errorMsg << "Failed to perform file transfer with error: "
                              << m_curlWrapper->curlEasyStrError(result);
                     throw std::runtime_error(errorMsg.str());
                 }
-
-                if (headers)
-                {
-                    m_curlWrapper->curlSlistFreeAll(headers);
-                }
-                m_curlWrapper->curlEasyCleanup(curl);
             }
             else
             {
@@ -139,11 +179,6 @@ namespace Common::HttpSenderImpl
             LOGERROR(
                 "Exception while making HTTPS " << requestConfig->getRequestTypeAsString()
                                                 << " request: " << e.what());
-            if (headers)
-            {
-                m_curlWrapper->curlSlistFreeAll(headers);
-            }
-            m_curlWrapper->curlEasyCleanup(curl);
         }
 
         return static_cast<int>(result);
