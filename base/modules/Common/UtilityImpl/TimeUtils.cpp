@@ -18,7 +18,7 @@ namespace
         }
     };
 
-    std::unique_ptr<Common::UtilityImpl::ITime>& static_Timer()
+    std::unique_ptr<Common::UtilityImpl::ITime>& staticTimeSource()
     {
         static std::unique_ptr<Common::UtilityImpl::ITime> timer{new TimeSource{}};
         return timer;
@@ -45,7 +45,7 @@ namespace Common
 
         std::time_t TimeUtils::getCurrTime()
         {
-            return static_Timer()->getCurrentTime();
+            return staticTimeSource()->getCurrentTime();
         }
 
         std::string TimeUtils::getBootTime() { return fromTime(getBootTimeAsTimet()); }
@@ -77,12 +77,12 @@ namespace Common
 
         ScopedReplaceITime::ScopedReplaceITime(std::unique_ptr<ITime> mockTimer)
         {
-            static_Timer().reset(mockTimer.release());
+            staticTimeSource().reset(mockTimer.release());
         }
 
         ScopedReplaceITime::~ScopedReplaceITime()
         {
-            static_Timer().reset(new TimeSource{});
+            staticTimeSource().reset(new TimeSource{});
         }
     } // namespace UtilityImpl
 } // namespace Common
