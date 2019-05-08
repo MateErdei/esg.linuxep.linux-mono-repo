@@ -25,12 +25,11 @@ namespace Common::HttpSenderImpl
         HttpSender& operator= (const HttpSender&) = delete;
         ~HttpSender() override;
 
-        int doHttpsRequest(std::shared_ptr<RequestConfig> requestConfig) override;
+        int doHttpsRequest(RequestConfig& requestConfig) override;
     private:
-        void setCurlOptions(
+        CURLcode setCurlOptions(
             CURL* curl,
-            std::shared_ptr<RequestConfig> requestConfig,
-            std::vector<std::tuple<std::string, CURLoption, std::string>>& data);
+            RequestConfig& requestConfig);
 
         std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
     };

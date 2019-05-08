@@ -19,6 +19,6 @@ namespace Common::HttpSender
     public:
         virtual ~IHttpSender() = default;
 
-        virtual int doHttpsRequest(std::shared_ptr<Common::HttpSenderImpl::RequestConfig> requestConfig) = 0;
+        virtual int doHttpsRequest(Common::HttpSenderImpl::RequestConfig& requestConfig) = 0;
     };
 } // namespace Common::HttpSenderImpl

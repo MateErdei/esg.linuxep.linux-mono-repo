@@ -39,10 +39,7 @@ public:
     CURLcode m_succeededResult = CURLE_OK;
     CURLcode m_failedResult = CURLE_FAILED_INIT;
     std::string m_strerror = "Test Error String";
-
-    std::shared_ptr<RequestConfig> m_getRequestConfig;
-    std::shared_ptr<RequestConfig> m_postRequestConfig;
-    std::shared_ptr<RequestConfig> m_putRequestConfig;
+    std::string m_defaultCertPath;
 
     void SetUp() override
     {
@@ -52,11 +49,7 @@ public:
 
         m_httpSender = std::make_shared<HttpSender>(m_curlWrapper);
 
-        std::string defaultCertPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(), "telemetry_cert.pem");
-
-        m_getRequestConfig =  std::make_shared<RequestConfig>("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, defaultCertPath, ResourceRoot::DEV);
-        m_postRequestConfig =  std::make_shared<RequestConfig>("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, defaultCertPath, ResourceRoot::PROD);
-        m_putRequestConfig =  std::make_shared<RequestConfig>("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+        m_defaultCertPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(), "telemetry_cert.pem");
     }
 };
 
@@ -68,7 +61,9 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_getRequestConfig), m_succeededResult);
+    RequestConfig getRequestConfig("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::DEV);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, postRequest) // NOLINT
@@ -79,7 +74,9 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_postRequestConfig), m_succeededResult);
+    RequestConfig postRequestConfig("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::PROD);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(postRequestConfig), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, putRequest) // NOLINT
@@ -90,7 +87,9 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_putRequestConfig), m_succeededResult);
+    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
@@ -105,9 +104,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
-        "GET", m_additionalHeaders
-    );
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
@@ -115,10 +112,12 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_getRequestConfig), m_failedResult);
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
@@ -130,21 +129,22 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_getRequestConfig), m_failedResult);
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
-        "GET", m_additionalHeaders
-    );
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -153,11 +153,13 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).Times(2).WillRepeatedly(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_getRequestConfig), m_failedResult);
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
 
 TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // NOLINT
@@ -173,9 +175,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
-        "GET", m_additionalHeaders
-    );
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -184,14 +184,13 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
-        "GET", m_additionalHeaders
-    );
+    RequestConfig getRequestConfig("GET", m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -209,18 +208,22 @@ TEST_F(HttpSenderTest, putRequest_SetOptFailureThrowsRuntimeError) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).Times(2).WillRepeatedly(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_putRequestConfig), m_failedResult);
+    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_failedResult);
 }
 
 TEST_F(HttpSenderTest, putRequest_EasyInitReturnsNullptrThrowsRuntimeError) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(m_putRequestConfig), m_failedResult);
+    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_failedResult);
 }
