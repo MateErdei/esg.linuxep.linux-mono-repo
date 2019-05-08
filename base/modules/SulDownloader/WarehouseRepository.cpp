@@ -229,7 +229,7 @@ namespace SulDownloader
 
             if(name.empty())
             {
-                std::string name = SulQueryProductMetadata(product, "R_Name", 0);
+                name = SulQueryProductMetadata(product, "R_Name", 0);
             }
 
             std::string productVersion = SulQueryProductMetadata(product, "VersionId", 0);
