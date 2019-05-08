@@ -98,7 +98,6 @@ public:
         std::vector<SchedulerTask::TaskType> receivedValues = getReceivedActions(*queue);
         schedulerThread.requestStop();
         schedulerThread.join();
-        (void) capturedLog;
         capturedLog = ::testing::internal::GetCapturedStderr();
         return receivedValues;
     }
