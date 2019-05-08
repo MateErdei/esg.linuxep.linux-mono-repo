@@ -17,7 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
     const int GL_kbSize = 1024 * 1024;
-    const int GL_waitTimeMilliSeconds = 50;
+    const int GL_waitTimeMilliSeconds = 100;
     const int GL_waitMaxRetries = 10;
 
     SystemTelemetryCollectorImpl::SystemTelemetryCollectorImpl(
