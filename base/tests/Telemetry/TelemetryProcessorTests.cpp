@@ -23,12 +23,12 @@ using ::testing::StrictMock;
 
 using namespace Common::HttpSenderImpl;
 
-class TelemetryTest : public ::testing::Test
+class TelemetryProcessorTest : public ::testing::Test
 {
 public:
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/var/telemetry/telemetry.json";
     MockFileSystem* m_mockFileSystem = nullptr;
-    
+
     void SetUp() override
     {
         std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
@@ -104,7 +104,7 @@ TEST(TelemetryProcessor, telemetryProcessorThreeProvidersOneThrows) // NOLINT
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
 }
 
-TEST_F(TelemetryTest, telemetryProcessorWriteOutJson) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
