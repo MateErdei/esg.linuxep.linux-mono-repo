@@ -183,7 +183,7 @@ namespace SulDownloader
             if (SulDownloader::SulSetLanguage(warehouse->session(), "en"))
             {
                 SULUtils::displayLogs(warehouse->session());
-                LOGINFO("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
+                LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
             }
 
             // for verbose it will list the entries in the warehouse

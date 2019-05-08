@@ -55,10 +55,6 @@ namespace
                 //FIXME LINUXEP-6473: Get the correct error code to send to Central.
                 addInfoNode.add("message.message_inserts.insert","CodeErrorA");
             }*/
-            if( !e.ErrorDetails.empty())
-            {
-                messageInsertsNode.add("insert", e.ErrorDetails);
-            }
         }
     }
 
