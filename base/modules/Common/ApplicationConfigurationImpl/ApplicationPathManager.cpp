@@ -175,7 +175,7 @@ namespace Common
 
         std::string ApplicationPathManager::getTelemetryOutputFilePath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/var/telemetry/telemetry.json");
+            return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/telemetry.json");
         }
 
     } // namespace ApplicationConfigurationImpl

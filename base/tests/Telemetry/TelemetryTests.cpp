@@ -29,7 +29,7 @@ public:
     std::shared_ptr<StrictMock<MockHttpSender>> m_httpSender;
     std::vector<std::string> m_additionalHeaders;
     const char* m_data = "{ telemetryKey : telemetryValue }";
-    const std::string m_jsonFilePath = "/opt/sophos-spl/base/var/telemetry/telemetry.json";
+    const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
     MockFileSystem* m_mockFileSystem = nullptr;
 

@@ -26,7 +26,7 @@ using namespace Common::HttpSenderImpl;
 class TelemetryProcessorTest : public ::testing::Test
 {
 public:
-    const std::string m_jsonFilePath = "/opt/sophos-spl/base/var/telemetry/telemetry.json";
+    const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     MockFileSystem* m_mockFileSystem = nullptr;
 
     void SetUp() override
