@@ -32,7 +32,8 @@ namespace Telemetry
     {
         try
         {
-            // TODO: [LINUXEP-6075] All argument parsing is temporary as these parameters will be read in from a configuration file
+            // TODO: LINUXEP-7991 argument parsing is temporary as these parameters will be read in from a configuration
+            // file
             if (argc == 1 || argc > g_maxArgs)
             {
                 throw std::runtime_error(
@@ -41,7 +42,7 @@ namespace Telemetry
 
             std::vector<std::string> additionalHeaders;
             additionalHeaders.emplace_back(
-                "x-amz-acl:bucket-owner-full-control"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+                "x-amz-acl:bucket-owner-full-control"); // TODO: LINUXEP-7991 get from a configuration file
 
             std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
                 argv[1], additionalHeaders
@@ -49,17 +50,17 @@ namespace Telemetry
 
             if (argc >= 3)
             {
-                requestConfig->setServer(argv[2]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+                requestConfig->setServer(argv[2]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
             if (argc >= 4)
             {
-                requestConfig->setCertPath(argv[3]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+                requestConfig->setCertPath(argv[3]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
             if (argc == g_maxArgs)
             {
-                requestConfig->setResourceRoot(argv[4]); // TODO: [LINUXEP-6075] This will be read in from a configuration file
+                requestConfig->setResourceRoot(argv[4]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(requestConfig->getCertPath()))
@@ -68,6 +69,8 @@ namespace Telemetry
             }
 
             telemetryProcessor.gatherTelemetry();
+            telemetryProcessor.saveTelemetryToDisk(
+                "telemetry.json"); // TODO: LINUXEP-7991 get path from a configuration file
             std::string telemetry = telemetryProcessor.getSerialisedTelemetry();
             requestConfig->setData(telemetry);
 

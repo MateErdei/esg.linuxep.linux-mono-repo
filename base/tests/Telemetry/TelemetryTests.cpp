@@ -99,6 +99,7 @@ TEST_P(TelemetryTestRequestTypes, main_entry_httpsRequestReturnsSuccess) // NOLI
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(Common::HttpSender::g_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(_, _)).WillOnce(Return());
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -127,6 +128,7 @@ TEST_F(TelemetryTest, main_entry_GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(Common::HttpSender::g_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(_, _)).WillOnce(Return());
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -155,6 +157,7 @@ TEST_F(TelemetryTest, main_entry_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(Common::HttpSender::g_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(_, _)).WillOnce(Return());
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
