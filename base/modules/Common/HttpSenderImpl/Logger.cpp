@@ -9,4 +9,4 @@ log4cplus::Logger& getHttpSenderImplLogger()
 {
     static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("HttpSenderImpl");
     return STATIC_LOGGER;
-}
+} // LCOV_EXCL_LINE

@@ -80,4 +80,4 @@ namespace Telemetry
         return main(argc, argv, httpSender);
     }
 
-} // namespace Telemetry
+} // LCOV_EXCL_LINE // namespace Telemetry

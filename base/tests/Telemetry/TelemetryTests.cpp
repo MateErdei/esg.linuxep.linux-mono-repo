@@ -100,7 +100,7 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
-    std::vector<std::string> arguments = {m_binaryPath, GetParam(), GL_defaultServer, m_defaultCertPath};
+    std::vector<std::string> arguments = {m_binaryPath, GetParam(), GL_defaultServer, m_defaultCertPath, "PROD"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -168,7 +168,22 @@ TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(false));
 
-    std::vector<std::string> arguments = {m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath};
+    std::vector<std::string> arguments = {m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath, "DEV"};
+
+    std::vector<char*> argv;
+    for (const auto& arg : arguments)
+    {
+        argv.emplace_back(const_cast<char*>(arg.data()));
+    }
+
+    int expectedErrorCode = 1;
+
+    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender), expectedErrorCode);
+}
+
+TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
+{
+    std::vector<std::string> arguments = {m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath, "INVALID"};
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)

@@ -35,7 +35,7 @@ public:
     std::vector<std::string> m_additionalHeaders;
 
     std::string m_curlHandle = "validCurlHandle";
-    struct curl_slist m_headers = curl_slist();
+    curl_slist m_headers = curl_slist();
     CURLcode m_succeededResult = CURLE_OK;
     CURLcode m_failedResult = CURLE_FAILED_INIT;
     std::string m_strerror = "Test Error String";
@@ -180,3 +180,47 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
 
+TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
+    EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    m_additionalHeaders.emplace_back("testHeader");
+
+    std::shared_ptr<RequestConfig> getRequestConfig = std::make_shared<RequestConfig>(
+        "GET", m_additionalHeaders
+    );
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
+}
+
+TEST_F(HttpSenderTest, HttpSender_CurlGlobalInitialisationFailureThrowsExceptionInConstructor) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_failedResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    EXPECT_THROW(std::make_shared<HttpSender>(m_curlWrapper), std::runtime_error); // NOLINT
+}
+
+TEST_F(HttpSenderTest, putRequest_SetOptFailureThrowsRuntimeError) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
+    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(m_putRequestConfig), m_failedResult);
+}
+
+TEST_F(HttpSenderTest, putRequest_EasyInitReturnsNullptrThrowsRuntimeError) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(m_putRequestConfig), m_failedResult);
+}
