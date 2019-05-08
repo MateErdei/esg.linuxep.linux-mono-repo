@@ -5,7 +5,8 @@ include(GoogleTest)
 add_executable(TelemetryTests
         TelemetryTests.cpp
         MockHttpSender.h
-        MockTelemetryProvider.h)
+        MockTelemetryProvider.h
+        TelemetryProcessorTests.cpp)
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
