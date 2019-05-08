@@ -16,8 +16,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using namespace Telemetry;
 using namespace Common::Telemetry;
 
-TelemetryProcessor::TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders)
-    : m_telemetryProviders(std::move(telemetryProviders))
+TelemetryProcessor::TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
+    m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 
@@ -29,13 +29,13 @@ void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
-    for (const auto& provider: m_telemetryProviders)
+    for (const auto& provider : m_telemetryProviders)
     {
         try
         {
             addTelemetry(provider->getName(), provider->getTelemetry());
         }
-        catch(std::exception& ex)
+        catch (std::exception& ex)
         {
             LOGDEBUG("Could not get telemetry from one of the telemetry providers.");
         }
@@ -44,7 +44,7 @@ void TelemetryProcessor::gatherTelemetry()
 
 void TelemetryProcessor::saveAndSendTelemetry()
 {
-    Path jsonOutputFile =  Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
+    Path jsonOutputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
     LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
 
     std::string json = getSerialisedTelemetry();
