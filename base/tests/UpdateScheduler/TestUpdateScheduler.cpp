@@ -410,7 +410,8 @@ TEST_F(TestUpdateScheduler, policyWithCacheConfigureSulDownloaderAndFrequency) /
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/certs/cache_certificates.crt", _));
-//    EXPECT_CALL(fileSystemMock, exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
+    //    EXPECT_CALL(fileSystemMock,
+    //    exists("/installroot/base/update/certs/cache_certificates.crt")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
 
     std::future<void> schedulerRunHandle =
@@ -456,7 +457,9 @@ TEST_F(TestUpdateScheduler, handleActionNow) // NOLINT
         Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath();
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json"))
+        .Times(2)
+        .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile(HasSubstr("/installroot/base/update/var/report")))
         .WillOnce(Return(false))  // after policy no report exist
         .WillOnce(Return(true))   // after the first report is created
@@ -650,7 +653,9 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
         std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _)).Times(2);
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json"))
+        .Times(2)
+        .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
 
     std::future<void> schedulerRunHandle =
@@ -915,21 +920,23 @@ TEST_F(TestUpdateScheduler, policyAfterInstallConfiguresSulDownloaderAndTriggers
     auto& fileSystemMock = setupFileSystemMock();
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-            m_queue,
-            std::unique_ptr<IBaseServiceApi>(api),
-            m_pluginCallback,
-            std::unique_ptr<ICronSchedulerThread>(cron),
-            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json")).WillOnce(Return(false)).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/config.json"))
+        .WillOnce(Return(false))
+        .RetiresOnSaturation();
 
     EXPECT_CALL(*runner, triggerSulDownloader());
 
     std::future<void> schedulerRunHandle =
-            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
 
@@ -938,7 +945,6 @@ TEST_F(TestUpdateScheduler, policyAfterInstallConfiguresSulDownloaderAndTriggers
 
     EXPECT_EQ(scheduledUpdate.getEnabled(), false);
 }
-
 
 TEST_F(TestUpdateScheduler, policyChangeDoesNotTriggerSulDownloaderToUpdate) // NOLINT
 {
@@ -959,11 +965,11 @@ TEST_F(TestUpdateScheduler, policyChangeDoesNotTriggerSulDownloaderToUpdate) // 
     auto& fileSystemMock = setupFileSystemMock();
 
     UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
-            m_queue,
-            std::unique_ptr<IBaseServiceApi>(api),
-            m_pluginCallback,
-            std::unique_ptr<ICronSchedulerThread>(cron),
-            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+        m_queue,
+        std::unique_ptr<IBaseServiceApi>(api),
+        m_pluginCallback,
+        std::unique_ptr<ICronSchedulerThread>(cron),
+        std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
     EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/config.json", _));
     EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/report.json")).WillOnce(Return(false));
@@ -972,7 +978,7 @@ TEST_F(TestUpdateScheduler, policyChangeDoesNotTriggerSulDownloaderToUpdate) // 
     EXPECT_CALL(*runner, triggerSulDownloader()).Times(0);
 
     std::future<void> schedulerRunHandle =
-            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+        std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, updatePolicyWithProxy });
 

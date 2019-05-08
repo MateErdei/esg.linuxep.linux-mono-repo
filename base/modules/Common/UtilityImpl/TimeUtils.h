@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <ctime>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace Common
 {
@@ -28,7 +28,7 @@ namespace Common
         {
         public:
             virtual ~ITime() = default;
-            virtual std::time_t getCurrentTime() =0;
+            virtual std::time_t getCurrentTime() = 0;
         };
 
         /**
@@ -40,12 +40,11 @@ namespace Common
         class ScopedReplaceITime
         {
         public:
-            ScopedReplaceITime( std::unique_ptr<ITime> mockTimer);
+            ScopedReplaceITime(std::unique_ptr<ITime> mockTimer);
             ~ScopedReplaceITime();
             ScopedReplaceITime(const ScopedReplaceITime&) = delete;
             ScopedReplaceITime& operator=(const ScopedReplaceITime) = delete;
             // not necessary to state the move operators as the constructor will not create them anyway.
-
         };
 
         class TimeUtils
@@ -64,7 +63,6 @@ namespace Common
              */
             static std::string fromTime(std::time_t);
             static std::string fromTime(std::tm);
-
         };
 
         class FormattedTime : public virtual IFormattedTime

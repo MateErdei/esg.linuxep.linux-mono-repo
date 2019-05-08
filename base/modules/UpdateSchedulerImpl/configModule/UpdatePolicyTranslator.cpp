@@ -102,7 +102,6 @@ namespace UpdateSchedulerImpl
 {
     namespace configModule
     {
-
         using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
 
@@ -187,11 +186,9 @@ namespace UpdateSchedulerImpl
                 std::tm scheduledUpdateTime;
                 if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
                 {
-                    scheduledUpdate.setScheduledTime(
-                            {.weekDay=scheduledUpdateTime.tm_wday,
-                             .hour=scheduledUpdateTime.tm_hour,
-                             .minute=scheduledUpdateTime.tm_min
-                             });
+                    scheduledUpdate.setScheduledTime({ .weekDay = scheduledUpdateTime.tm_wday,
+                                                       .hour = scheduledUpdateTime.tm_hour,
+                                                       .minute = scheduledUpdateTime.tm_min });
                     scheduledUpdate.setEnabled(true);
                 }
             }
@@ -218,11 +215,12 @@ namespace UpdateSchedulerImpl
             config.setInstallationRootPath(applicationPathManager().sophosInstall());
             config.setSystemSslCertificatePath(":system:");
 
-            auto cloudSubscriptions = attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions");
+            auto cloudSubscriptions =
+                attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions");
             std::vector<SulDownloader::suldownloaderdata::ProductSubscription> productsSubscription;
 
             bool ssplBaseIncluded = false;
-            for (const auto & cloudSubscription : cloudSubscriptions)
+            for (const auto& cloudSubscription : cloudSubscriptions)
             {
                 auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
                 std::string rigidName = subscriptionDetails.value("RigidName");
@@ -232,32 +230,30 @@ namespace UpdateSchedulerImpl
                         rigidName,
                         subscriptionDetails.value("BaseVersion"),
                         subscriptionDetails.value("Tag"),
-                        subscriptionDetails.value("FixVersion")
-                    ));
+                        subscriptionDetails.value("FixVersion")));
                 }
                 else
                 {
-                    config.setPrimarySubscription({
-                        rigidName,
-                        subscriptionDetails.value("BaseVersion"),
-                        subscriptionDetails.value("Tag"),
-                        subscriptionDetails.value("FixVersion")
-                    });
+                    config.setPrimarySubscription({ rigidName,
+                                                    subscriptionDetails.value("BaseVersion"),
+                                                    subscriptionDetails.value("Tag"),
+                                                    subscriptionDetails.value("FixVersion") });
                     ssplBaseIncluded = true;
                 }
-
             }
             config.setProductsSubscription(productsSubscription);
 
             if (!ssplBaseIncluded)
             {
-                LOGERROR("SSPL base product name : " << SulDownloader::suldownloaderdata::SSPLBaseName << " not in the subscription of the policy.");
+                LOGERROR(
+                    "SSPL base product name : " << SulDownloader::suldownloaderdata::SSPLBaseName
+                                                << " not in the subscription of the policy.");
             }
 
             auto features = attributesMap.entitiesThatContainPath("AUConfigurations/Features");
             std::vector<std::string> allFeatures;
             bool includesCore = false;
-            for (const auto & feature : features)
+            for (const auto& feature : features)
             {
                 auto featureDetails = attributesMap.lookup(feature);
                 std::string featureName = featureDetails.value("id");

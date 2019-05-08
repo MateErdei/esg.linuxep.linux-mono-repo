@@ -5,21 +5,22 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "CronSchedulerThread.h"
 
+#include "Logger.h"
+
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
-#include "Logger.h"
 
 #include <cassert>
 
 namespace
 {
-    int minutes( UpdateSchedulerImpl::cronModule::CronSchedulerThread::DurationTime  durationTime)
+    int minutes(UpdateSchedulerImpl::cronModule::CronSchedulerThread::DurationTime durationTime)
     {
         return std::chrono::duration_cast<std::chrono::minutes>(durationTime).count();
     }
-}
+} // namespace
 
 namespace UpdateSchedulerImpl
 {
@@ -39,10 +40,10 @@ namespace UpdateSchedulerImpl
             m_onDelayUpdateWaitTime(onDelayUpdateWaitTime),
             m_actionOnInterrupt(ActionOnInterrupt::NOTHING),
             m_scheduledUpdateOffsetInMinutes(abs(scheduledUpdateOffsetInMinutes)),
-            m_crossThreadState{.m_periodTick={repeatPeriod},
-                               .m_updateOnStartUp=true,
-                               .m_scheduledUpdate=ScheduledUpdate{},
-                               .m_changed=true},
+            m_crossThreadState{ .m_periodTick = { repeatPeriod },
+                                .m_updateOnStartUp = true,
+                                .m_scheduledUpdate = ScheduledUpdate{},
+                                .m_changed = true },
             m_inThreadState{}
         {
         }
@@ -74,21 +75,21 @@ namespace UpdateSchedulerImpl
             std::lock_guard<std::mutex> lock(m_sharedState);
             LOGDEBUG("Setting update period to " << minutes(repeatPeriod) << " minutes");
             m_crossThreadState.m_periodTick = repeatPeriod;
-            m_crossThreadState.m_changed=true;
+            m_crossThreadState.m_changed = true;
         }
 
         void CronSchedulerThread::setScheduledUpdate(ScheduledUpdate scheduledUpdate)
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
             m_crossThreadState.m_scheduledUpdate = scheduledUpdate;
-            m_crossThreadState.m_changed=true;
+            m_crossThreadState.m_changed = true;
         }
 
         void CronSchedulerThread::setUpdateOnStartUp(bool updateOnStartUp)
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
             m_crossThreadState.m_updateOnStartUp = updateOnStartUp;
-            m_crossThreadState.m_changed=true;
+            m_crossThreadState.m_changed = true;
         }
 
         void CronSchedulerThread::run()
@@ -101,18 +102,15 @@ namespace UpdateSchedulerImpl
 
             updateInThreadState();
             announceThreadStarted();
-            LOGINFO("Running with update period to " <<  minutes( m_inThreadState.m_periodTick) << " minutes");
+            LOGINFO("Running with update period to " << minutes(m_inThreadState.m_periodTick) << " minutes");
             auto poller = Common::ZeroMQWrapper::createPoller();
 
             auto pipePollerEntry = poller->addEntry(m_notifyPipe.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
-
-            if ( m_inThreadState.m_scheduledUpdate.getEnabled())
+            if (m_inThreadState.m_scheduledUpdate.getEnabled())
             {
                 reportNextUpdateTime();
             }
-
-
 
             while (true)
             {
@@ -148,7 +146,7 @@ namespace UpdateSchedulerImpl
                         if (m_inThreadState.m_scheduledUpdate.getEnabled())
                         {
                             m_inThreadState.m_scheduledUpdate.resetTimer();
-                            timeToWait =  m_onDelayUpdateWaitTime;
+                            timeToWait = m_onDelayUpdateWaitTime;
                             reportNextUpdateTime();
                         }
                     }
@@ -226,15 +224,12 @@ namespace UpdateSchedulerImpl
             LOGINFO("Next Update scheduled to: " << m_inThreadState.m_scheduledUpdate.nextUpdateTime());
         }
 
-        void CronSchedulerThread::join()
-        {
-            AbstractThread::join();
-        }
+        void CronSchedulerThread::join() { AbstractThread::join(); }
 
         void CronSchedulerThread::updateInThreadState()
         {
             std::lock_guard<std::mutex> lock(m_sharedState);
-            if( m_crossThreadState.m_changed)
+            if (m_crossThreadState.m_changed)
             {
                 m_crossThreadState.m_changed = false;
                 m_inThreadState = m_crossThreadState;

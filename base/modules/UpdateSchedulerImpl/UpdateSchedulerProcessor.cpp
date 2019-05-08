@@ -15,10 +15,10 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
+#include <Common/PluginApi/ApiException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/PluginApi/ApiException.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <csignal>
@@ -64,12 +64,12 @@ namespace UpdateSchedulerImpl
 
         m_cronThread->start();
 
-        //Request policy on startup
+        // Request policy on startup
         try
         {
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
         }
-        catch ( const Common::PluginApi::ApiException & apiException)
+        catch (const Common::PluginApi::ApiException& apiException)
         {
             std::string errorMsg(apiException.what());
             if (!errorMsg.find("No policy available"))
@@ -134,12 +134,15 @@ namespace UpdateSchedulerImpl
                 saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
             }
 
-            //Check that the policy period is within expected range and set default if not
+            // Check that the policy period is within expected range and set default if not
             long updatePeriod = settingsHolder.schedulerPeriod.count();
             constexpr long year = 365 * 24 * 60;
             if (updatePeriod < 5 || updatePeriod > year)
             {
-                LOGWARN("Invalid scheduled update period given: " << updatePeriod << ". It must be between 5 minutes and a year. Leaving update settings as previous");
+                LOGWARN(
+                    "Invalid scheduled update period given: "
+                    << updatePeriod
+                    << ". It must be between 5 minutes and a year. Leaving update settings as previous");
             }
             else
             {

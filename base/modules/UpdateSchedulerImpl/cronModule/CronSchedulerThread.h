@@ -29,7 +29,7 @@ namespace UpdateSchedulerImpl
                 DurationTime firstTick,
                 DurationTime repeatPeriod,
                 int scheduledUpdateOffsetInMinutes = 8,
-                DurationTime onDelayUpdateWaitTime=std::chrono::minutes(15));
+                DurationTime onDelayUpdateWaitTime = std::chrono::minutes(15));
 
             ~CronSchedulerThread();
 
@@ -77,7 +77,6 @@ namespace UpdateSchedulerImpl
             void updateInThreadState();
             CrossThreadState m_crossThreadState;
             CrossThreadState m_inThreadState;
-
         };
     } // namespace cronModule
 

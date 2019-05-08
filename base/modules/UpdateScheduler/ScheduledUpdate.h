@@ -33,12 +33,13 @@ namespace UpdateScheduler
         void resetTimer();
 
         WeekDayAndTimeForDelay getScheduledTime() const;
-        void setScheduledTime(const WeekDayAndTimeForDelay & time);
+        void setScheduledTime(const WeekDayAndTimeForDelay& time);
 
         bool getEnabled() const;
         void setEnabled(bool enabled);
 
         std::string nextUpdateTime();
+
     private:
         std::time_t calculateNextScheduledUpdateTime(const std::time_t& nowTime);
 

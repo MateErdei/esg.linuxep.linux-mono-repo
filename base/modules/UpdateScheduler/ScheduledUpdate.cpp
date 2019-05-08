@@ -13,29 +13,25 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 namespace UpdateScheduler
 {
-    ScheduledUpdate::ScheduledUpdate() :
-        m_enabled(false),
-        m_scheduledTime(),
-        m_nextScheduledUpdateTime(0)
-    {
-    }
+    ScheduledUpdate::ScheduledUpdate() : m_enabled(false), m_scheduledTime(), m_nextScheduledUpdateTime(0) {}
 
     bool ScheduledUpdate::timeToUpdate(int offsetInMinutes)
     {
-        if ( offsetInMinutes< 0 )
+        if (offsetInMinutes < 0)
         {
-            throw std::logic_error( "Do not use negative offset as it makes calculation of the next scheduled time complicated as the update can happens - before the delayed scheduled time. ");
+            throw std::logic_error("Do not use negative offset as it makes calculation of the next scheduled time "
+                                   "complicated as the update can happens - before the delayed scheduled time. ");
         }
         std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
 
         time_t nextScheduledUpdateTime = m_nextScheduledUpdateTime + offsetInMinutes * SecondsInMin;
 
-        return now > nextScheduledUpdateTime ;
+        return now > nextScheduledUpdateTime;
     }
 
     bool ScheduledUpdate::missedUpdate(const std::string& lastUpdate)
     {
-        if ( m_nextScheduledUpdateTime == 0)
+        if (m_nextScheduledUpdateTime == 0)
         {
             return false;
         }
@@ -50,7 +46,7 @@ namespace UpdateScheduler
         std::time_t lastUpdateTimestamp = mktime(&lastUpdateTime);
 
         // if lastUpdateTime is before a week (plus an hour ) from the next update time it must have missed an update.
-        return ( lastUpdateTimestamp + SecondsInWeek + SecondsInHour < m_nextScheduledUpdateTime );
+        return (lastUpdateTimestamp + SecondsInWeek + SecondsInHour < m_nextScheduledUpdateTime);
     }
 
     std::time_t ScheduledUpdate::calculateNextScheduledUpdateTime(const std::time_t& nowTime)
@@ -80,10 +76,9 @@ namespace UpdateScheduler
 
     ScheduledUpdate::WeekDayAndTimeForDelay ScheduledUpdate::getScheduledTime() const
     {
-        WeekDayAndTimeForDelay weekDayAndTimeForDelay{
-            .weekDay = m_scheduledTime.tm_wday,
-            .hour = m_scheduledTime.tm_hour,
-            .minute = m_scheduledTime.tm_min};
+        WeekDayAndTimeForDelay weekDayAndTimeForDelay{ .weekDay = m_scheduledTime.tm_wday,
+                                                       .hour = m_scheduledTime.tm_hour,
+                                                       .minute = m_scheduledTime.tm_min };
         return weekDayAndTimeForDelay;
     }
 
@@ -102,13 +97,13 @@ namespace UpdateScheduler
 
     std::string ScheduledUpdate::nextUpdateTime()
     {
-        if ( !getEnabled())
+        if (!getEnabled())
         {
             return std::string{};
         }
-        if( m_nextScheduledUpdateTime == 0)
+        if (m_nextScheduledUpdateTime == 0)
         {
-            (void) timeToUpdate(0);
+            (void)timeToUpdate(0);
         }
         return Common::UtilityImpl::TimeUtils::fromTime(m_nextScheduledUpdateTime);
     }
@@ -116,12 +111,9 @@ namespace UpdateScheduler
     void ScheduledUpdate::confirmUpdatedTime()
     {
         m_nextScheduledUpdateTime = 0;
-        calculateNextScheduledUpdateTime( Common::UtilityImpl::TimeUtils::getCurrTime() + 3600 );
+        calculateNextScheduledUpdateTime(Common::UtilityImpl::TimeUtils::getCurrTime() + 3600);
     }
 
-    void ScheduledUpdate::resetTimer()
-    {
-        setScheduledTime( getScheduledTime());
-    }
+    void ScheduledUpdate::resetTimer() { setScheduledTime(getScheduledTime()); }
 
 } // namespace UpdateScheduler
