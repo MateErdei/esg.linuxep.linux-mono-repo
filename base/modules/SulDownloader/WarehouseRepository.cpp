@@ -159,15 +159,18 @@ namespace SulDownloader
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
-        for (auto& connectionSetup : candidates) {
+        for (auto& connectionSetup : candidates)
+        {
             auto warehouse = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(true));
-            if (warehouse->hasError()) {
+            if (warehouse->hasError())
+            {
                 continue;
             }
             LOGINFO("Try connection: " << connectionSetup.toString());
             warehouse->setConnectionSetup(connectionSetup, configurationData);
 
-            if (warehouse->hasError()) {
+            if (warehouse->hasError())
+            {
                 SULUtils::displayLogs(warehouse->session());
                 continue;
             }
