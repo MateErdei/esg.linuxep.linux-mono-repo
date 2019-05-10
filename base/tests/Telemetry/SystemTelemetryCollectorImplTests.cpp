@@ -68,7 +68,6 @@ public:
     void TearDown() override
     {
         Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-        cleanupUnusedMocks();
     }
 
     void setupMockProcesses(size_t numberOfMockProcesses)
@@ -78,26 +77,18 @@ public:
 
         for (size_t i = 0; i < numberOfMockProcesses; ++i)
         {
-            mockProcesses_.push_back(new MockProcess());
+            mockProcesses_.emplace_back(new MockProcess());
         }
 
         Common::ProcessImpl::ProcessFactory::instance().replaceCreator([this]() {
             return (mockProcessIndex_ == mockProcesses_.size())
                        ? nullptr
-                       : std::unique_ptr<Common::Process::IProcess>(mockProcesses_[mockProcessIndex_++]);
+                                                                : std::move(mockProcesses_[mockProcessIndex_++]);
         });
     }
 
-    void cleanupUnusedMocks()
-    {
-        for (size_t i = mockProcessIndex_; i < mockProcesses_.size(); ++i)
-        {
-            delete mockProcesses_[i];
-        }
-    }
-
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-    std::vector<MockProcess*> mockProcesses_;
+    std::vector<std::unique_ptr<MockProcess>> mockProcesses_;
 
 private:
     size_t mockProcessIndex_ = 0;
@@ -108,7 +99,7 @@ private:
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
-    auto mockProcess_ = mockProcesses_[0];
+    auto& mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_lscpuTelemetryConfig, {});
 
@@ -132,7 +123,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
     };
 
     setupMockProcesses(lscpuTelemetryConfig.size());
-    auto mockProcess_ = mockProcesses_[0];
+    auto& mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(lscpuTelemetryConfig, {});
     std::string invalidLscpulines(
@@ -152,7 +143,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
-    auto mockProcess_ = mockProcesses_[0];
+    auto& mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_lscpuTelemetryConfig, {});
     std::string invalidLscpulines(
@@ -172,7 +163,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
 {
     setupMockProcesses(L_osTelemetryConfig.size());
-    auto mockProcess_ = mockProcesses_[0];
+    auto& mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_osTelemetryConfig, {});
 
@@ -194,7 +185,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMulti
     // hostnamectl command is ran only once and second check uses cache
     setupMockProcesses(2);
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_testSystemTelemetryConfig, {});
-    for (auto mockProcess : mockProcesses_)
+    for (auto& mockProcess : mockProcesses_)
     {
         EXPECT_CALL(*mockProcess, exec(_, _));
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -212,7 +203,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMulti
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
-    auto mockProcess = mockProcesses_[0];
+    auto& mockProcess = mockProcesses_[0];
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_kernelTelemetryConfig, {});
 
     EXPECT_CALL(*mockProcess, exec(_, _));
@@ -231,7 +222,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialCha
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
-    auto mockProcess = mockProcesses_[0];
+    auto& mockProcess = mockProcesses_[0];
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_kernelTelemetryConfig, {});
 
     EXPECT_CALL(*mockProcess, exec(_, _));
@@ -247,13 +238,12 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyStrin
 TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
-    auto mockProcess = mockProcesses_[0];
+    auto& mockProcess = mockProcesses_[0];
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(L_kernelTelemetryConfig, {});
 
     EXPECT_CALL(*mockProcess, exec(_, _));
     EXPECT_CALL(*mockProcess, setOutputLimit(_));
     EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-    EXPECT_CALL(*mockProcess, output()).WillOnce(Return(L_specialCharacters));
     EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(EXIT_FAILURE));
 
     auto stringValue = systemTelemetryCollectorImpl.collectObjects();
@@ -270,10 +260,8 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithT
         EXPECT_CALL(*mockProcesses_[0], setOutputLimit(_));
         EXPECT_CALL(*mockProcesses_[0], exec(_, _));
         EXPECT_CALL(*mockProcesses_[0], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-
-        EXPECT_CALL(*mockProcesses_[0], output()).WillOnce(Return(L_lscpulines));
-
         EXPECT_CALL(*mockProcesses_[0], exitCode()).WillOnce(Return(EXIT_SUCCESS));
+        EXPECT_CALL(*mockProcesses_[0], output()).WillOnce(Return(L_lscpulines));
     }
 
     { // mockProcesses_[1]
@@ -288,9 +276,8 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithT
         EXPECT_CALL(*mockProcesses_[2], exec(_, _));
         EXPECT_CALL(*mockProcesses_[2], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
 
-        EXPECT_CALL(*mockProcesses_[2], output()).WillOnce(Return(L_hostnamectllines));
-
         EXPECT_CALL(*mockProcesses_[2], exitCode()).WillOnce(Return(EXIT_SUCCESS));
+        EXPECT_CALL(*mockProcesses_[2], output()).WillOnce(Return(L_hostnamectllines));
     }
     auto multiValues = systemTelemetryCollectorImpl.collectObjects();
     ASSERT_EQ(multiValues.size(), 2);
@@ -307,16 +294,14 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithE
         EXPECT_CALL(*mockProcesses_[0], exec(_, _));
         EXPECT_CALL(*mockProcesses_[0], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
 
-        EXPECT_CALL(*mockProcesses_[0], output()).WillOnce(Return(L_lscpulines));
-
         EXPECT_CALL(*mockProcesses_[0], exitCode()).WillOnce(Return(EXIT_SUCCESS));
+        EXPECT_CALL(*mockProcesses_[0], output()).WillOnce(Return(L_lscpulines));
     }
 
     { // mockProcesses_[1]
         EXPECT_CALL(*mockProcesses_[1], setOutputLimit(_));
         EXPECT_CALL(*mockProcesses_[1], exec(_, _));
         EXPECT_CALL(*mockProcesses_[1], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-        EXPECT_CALL(*mockProcesses_[1], output()).WillOnce(Return(L_specialCharacters));
         EXPECT_CALL(*mockProcesses_[1], exitCode()).WillOnce(Return(EXIT_FAILURE));
     }
 
@@ -325,9 +310,8 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithE
         EXPECT_CALL(*mockProcesses_[2], exec(_, _));
         EXPECT_CALL(*mockProcesses_[2], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
 
-        EXPECT_CALL(*mockProcesses_[2], output()).WillOnce(Return(L_hostnamectllines));
-
         EXPECT_CALL(*mockProcesses_[2], exitCode()).WillOnce(Return(EXIT_SUCCESS));
+        EXPECT_CALL(*mockProcesses_[2], output()).WillOnce(Return(L_hostnamectllines));
     }
     auto multiValues = systemTelemetryCollectorImpl.collectObjects();
     ASSERT_EQ(multiValues.size(), 2);
@@ -345,7 +329,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
     };
 
     setupMockProcesses(multiLineTelemetryConfig.size());
-    auto mockProcess_ = mockProcesses_[0];
+    auto& mockProcess_ = mockProcesses_[0];
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl(
         multiLineTelemetryConfig, multiLineTelemetryConfig);
@@ -387,13 +371,13 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
 
     Telemetry::SystemTelemetryCollectorImpl systemTelemetryCollectorImpl({}, multiLineTestTelemetryConfig);
 
-    for (auto mockProcess : mockProcesses_)
+    for (auto& mockProcess : mockProcesses_)
     {
         EXPECT_CALL(*mockProcess, exec(_, _));
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(L_lscpulines));
         EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(L_lscpulines));
     }
 
     auto mapOfvvv = systemTelemetryCollectorImpl.collectArraysOfObjects();

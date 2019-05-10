@@ -77,9 +77,10 @@ namespace Telemetry
     std::string SystemTelemetryCollectorImpl::getTelemetryItem(const std::string& command, const std::string& args)
         const
     {
-        if (m_commandOutputCache.find((command + args)) != m_commandOutputCache.end())
+        std::string commandAndWargs(command + " " + args);
+        if (m_commandOutputCache.find(commandAndWargs) != m_commandOutputCache.end())
         {
-            return m_commandOutputCache[(command + args)];
+            return m_commandOutputCache[commandAndWargs];
         }
 
         std::istringstream argsStream(args);
@@ -95,21 +96,19 @@ namespace Telemetry
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
-            throw Common::Process::IProcessException(
-                "Process execution timed out running: '" + command + " " + args + "'");
+            throw Common::Process::IProcessException("Process execution timed out running: '" + commandAndWargs + "'");
         }
-
-        auto output = processPtr->output();
 
         int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
             std::string reason = strerror(exitCode);
             throw Common::Process::IProcessException(
-                "Process execution returned non-zero exit code, 'Exit Code: " + reason + "'");
+                "Process execution returned non-zero exit code, 'Exit Code: " + std::string(strerror(exitCode)) + "'");
         }
 
-        m_commandOutputCache[(command + args)] = output;
+        auto output = processPtr->output();
+        m_commandOutputCache[commandAndWargs] = output;
         return output;
     }
 
@@ -120,14 +119,14 @@ namespace Telemetry
         std::string line;
         while (std::getline(stream, line))
         {
-            std::smatch telemetryMatch;
-            if (std::regex_search(line, telemetryMatch, re))
+            std::smatch telemetryMatches;
+            if (std::regex_search(line, telemetryMatches, re) && telemetryMatches.size() > 1)
             {
-                // return matching groups only
-                return std::vector<std::string>(telemetryMatch.cbegin() + 1, telemetryMatch.cend());
+                // skip first sub_match element with whole line and return subexpressions groups only
+                return std::vector<std::string>(telemetryMatches.cbegin() + 1, telemetryMatches.cend());
             }
         }
-        return {};
+        return std::vector<std::string>();
     }
 
     bool SystemTelemetryCollectorImpl::getValues(
@@ -155,7 +154,7 @@ namespace Telemetry
             {
                 try
                 {
-                    value.second.emplace<1>(std::stoi(singleLineMatches[matchGroup]));
+                    value.second = std::stoi(singleLineMatches[matchGroup]);
                     values.emplace_back(value);
                 }
                 catch (const std::invalid_argument& e)
@@ -175,7 +174,7 @@ namespace Telemetry
             }
             else // default TelemetryValueType::STRING
             {
-                value.second.emplace<0>(singleLineMatches[matchGroup]);
+                value.second = singleLineMatches[matchGroup];
                 values.emplace_back(value);
             }
         }

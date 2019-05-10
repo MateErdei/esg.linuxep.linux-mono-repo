@@ -76,7 +76,7 @@ namespace Telemetry
 
             httpSender->doHttpsRequest(requestConfig);
         }
-        catch (const std::exception& e) // TODO: shouldn't catch std::exception - just let this abort the process?
+        catch (const std::exception& e)
         {
             LOGERROR("Caught exception: " << e.what());
             return 1;
