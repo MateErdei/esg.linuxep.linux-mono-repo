@@ -60,6 +60,7 @@ namespace Common::Telemetry
         void reset();
 
         std::string serialise();
+        std::string serialiseAndReset();
 
         // Normally with a singleton the constructor is private but here we make the constructor public
         // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want

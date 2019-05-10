@@ -8,33 +8,30 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/HttpSender/ICurlWrapper.h>
 
-namespace Common
+namespace Common::HttpSenderImpl
 {
-    namespace HttpSender
+    class CurlWrapper : public Common::HttpSender::ICurlWrapper
     {
-        class CurlWrapper : public ICurlWrapper
-        {
-        public:
-            CurlWrapper() = default;
-            CurlWrapper(const CurlWrapper&) = delete;
-            CurlWrapper& operator= (const CurlWrapper&) = delete;
-            ~CurlWrapper() override = default;
+    public:
+        CurlWrapper() = default;
+        CurlWrapper(const CurlWrapper&) = delete;
+        CurlWrapper& operator=(const CurlWrapper&) = delete;
+        ~CurlWrapper() override = default;
 
-            CURLcode curlGlobalInit(long flags) override;
-            CURL* curlEasyInit() override;
+        CURLcode curlGlobalInit(long flags) override;
+        CURL* curlEasyInit() override;
 
-            CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const char* parameter) override;
+        CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter) override;
 
-            curl_slist* curlSlistAppend(curl_slist* list, const char* value) override;
+        curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) override;
 
-            CURLcode curlEasyPerform(CURL* handle) override;
+        CURLcode curlEasyPerform(CURL* handle) override;
 
-            void curlSlistFreeAll(curl_slist* list) override;
+        void curlSlistFreeAll(curl_slist* list) override;
 
-            void curlEasyCleanup(CURL* handle) override;
-            void curlGlobalCleanup() override;
+        void curlEasyCleanup(CURL* handle) override;
+        void curlGlobalCleanup() override;
 
-            const char* curlEasyStrError(CURLcode errornum) override;
-        };
-    } // namespace HttpSender
-} // namespace Common
+        const char* curlEasyStrError(CURLcode errornum) override;
+    };
+} // namespace Common::HttpSenderImpl

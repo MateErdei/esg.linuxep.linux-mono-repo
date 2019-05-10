@@ -181,13 +181,7 @@ namespace SulDownloader
                 LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
                 continue;
             }
-            LOGINFO("Successfully connected to: "<< warehouse->m_connectionSetup->toString());
-
-            if (SulDownloader::SulSetLanguage(warehouse->session(), "en"))
-            {
-                SULUtils::displayLogs(warehouse->session());
-                LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
-            }
+            LOGINFO("Successfully connected to: " << warehouse->m_connectionSetup->toString());
 
             // for verbose it will list the entries in the warehouse
             SULUtils::displayLogs(warehouse->session());
@@ -229,12 +223,6 @@ namespace SulDownloader
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
             std::string name = SulQueryProductMetadata(product, "Name", 0);
-
-            if(name.empty())
-            {
-                name = SulQueryProductMetadata(product, "R_Name", 0);
-            }
-
             std::string productVersion = SulQueryProductMetadata(product, "VersionId", 0);
             std::string defaultHomePath = SulQueryProductMetadata(product, "DefaultHomeFolder", 0);
             std::string baseVersion  = SulQueryProductMetadata(product, "ReleaseTagsBaseVersion", 0);

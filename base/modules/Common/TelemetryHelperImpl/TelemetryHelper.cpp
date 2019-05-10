@@ -34,7 +34,12 @@ namespace Common::Telemetry
     {
         std::lock_guard<std::mutex> lock(m_dataLock);
         TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-        TelemetryValue telemetryValue;
+        TelemetryValue telemetryValue(0);
+
+        if (telemetryObject.getType() != TelemetryObject::Type::value)
+        {
+            telemetryObject.set(telemetryValue);
+        }
 
         TelemetryValue::Type valueType = telemetryObject.getValue().getType();
         if (valueType == TelemetryValue::Type::integer_type)
@@ -217,4 +222,23 @@ namespace Common::Telemetry
         getTelemetryObjectByKey(key) = telemetryObject;
     }
 
+    std::string TelemetryHelper::serialiseAndReset()
+    {
+        std::scoped_lock lock(m_dataLock, m_callbackLock);
+
+        // Serialise
+        std::string serialised = TelemetrySerialiser::serialise(m_root);
+
+        // Reset
+        for (const auto& callback_entry : m_callbacks)
+        {
+            if (callback_entry.second)
+            {
+                callback_entry.second();
+            }
+        }
+        m_root = TelemetryObject();
+
+        return serialised;
+    }
 }

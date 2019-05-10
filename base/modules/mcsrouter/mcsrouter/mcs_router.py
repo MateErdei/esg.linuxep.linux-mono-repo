@@ -174,6 +174,7 @@ def daemonise():
 
         os._exit(0) #pylint: disable=protected-access
 
+
 class UTCFormatter(logging.Formatter):
     """
     UTCFormatter class so all logs can show the same UTC time.
@@ -189,7 +190,7 @@ class SophosLogging(object):
         """
         __init__
         """
-        #pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals
         path_manager.INST = install_dir
         log_config = config.get_default(
             "LOGCONFIG", path_manager.log_conf_file())
@@ -216,7 +217,6 @@ class SophosLogging(object):
 
         root_logger = logging.getLogger()
         root_logger.setLevel(log_level)
-
 
         formatter = UTCFormatter(
             "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s "

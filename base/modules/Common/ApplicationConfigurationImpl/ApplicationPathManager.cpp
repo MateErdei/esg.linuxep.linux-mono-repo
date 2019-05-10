@@ -147,6 +147,10 @@ namespace Common
             return Common::FileSystem::join(getUpdateCertificatesPath(), "cache_certificates.crt");
         }
 
+        std::string ApplicationPathManager::getSulDownloaderReportPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var");
+        }
 
         std::string ApplicationPathManager::getSulDownloaderConfigFilePath() const
         {
@@ -171,11 +175,6 @@ namespace Common
         std::string ApplicationPathManager::getLogConfFilePath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/etc/logger.conf");
-        }
-
-        std::string ApplicationPathManager::getTelemetryOutputFilePath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/telemetry.json");
         }
 
     } // namespace ApplicationConfigurationImpl

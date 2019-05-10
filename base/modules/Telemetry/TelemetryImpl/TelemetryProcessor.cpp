@@ -30,13 +30,6 @@ void TelemetryProcessor::gatherTelemetry()
     {
         addTelemetry(provider->getName(), provider->getTelemetry());
     }
-
-    // TODO: move code below
-    //    SystemTelemetryCollectorImpl collector(GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
-    //    SystemTelemetryReporter systemTelemetryReporter(collector);
-    //    auto systemTelemetryJson = systemTelemetryReporter.gatherSystemTelemetry();
-    //
-    //    Common::Telemetry::TelemetryHelper::getInstance().mergeJsonIn("system-telemetry", systemTelemetryJson);
 }
 
 void TelemetryProcessor::saveTelemetryToDisk(const std::string& jsonOutputFile)

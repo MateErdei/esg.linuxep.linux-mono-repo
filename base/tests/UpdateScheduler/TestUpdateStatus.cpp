@@ -21,8 +21,9 @@ using namespace SulDownloader::suldownloaderdata;
 using namespace Common::UtilityImpl;
 using namespace ::testing;
 
-namespace {
-    //Status expected to be the same on success and fail
+namespace
+{
+    // Status expected to be the same on success and fail
     static const std::string normalStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
@@ -35,7 +36,6 @@ namespace {
     </subscriptions>
 </status>)sophos" };
 } // namespace
-
 
 class TestSerializeStatus : public ::testing::Test
 {

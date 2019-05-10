@@ -15,7 +15,7 @@ namespace Telemetry
     int main(
         int argc,
         char** argv,
-        const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender,
+        Common::HttpSender::IHttpSender& httpSender,
         Telemetry::TelemetryProcessor& telemetryProcessor);
 
     /**

@@ -49,7 +49,8 @@ namespace Telemetry
                 }
                 else
                 {
-                    jsonConverter.set(telemetryName, std::get<int>(objects[0].second));
+                    jsonConverter.set(
+                        telemetryName, std::get<int>(objects[0].second)); // TODO: cover this line with unit test
                 }
 
                 continue;

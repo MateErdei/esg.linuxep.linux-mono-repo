@@ -26,9 +26,7 @@ namespace Telemetry
 
     int main(
         int argc,
-        char** argv,
-        const std::shared_ptr<Common::HttpSender::IHttpSender>& httpSender,
-        TelemetryProcessor& telemetryProcessor)
+        char** argv, Common::HttpSender::IHttpSender& httpSender, TelemetryProcessor& telemetryProcessor)
     {
         try
         {
@@ -44,26 +42,24 @@ namespace Telemetry
             additionalHeaders.emplace_back(
                 "x-amz-acl:bucket-owner-full-control"); // TODO: LINUXEP-7991 get from a configuration file
 
-            std::shared_ptr<Common::HttpSender::RequestConfig> requestConfig = std::make_shared<Common::HttpSender::RequestConfig>(
-                argv[1], additionalHeaders
-            );
+            Common::HttpSenderImpl::RequestConfig requestConfig(argv[1], additionalHeaders);
 
             if (argc >= 3)
             {
-                requestConfig->setServer(argv[2]); // TODO: LINUXEP-7991 get from a configuration file
+                requestConfig.setServer(argv[2]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
             if (argc >= 4)
             {
-                requestConfig->setCertPath(argv[3]); // TODO: LINUXEP-7991 get from a configuration file
+                requestConfig.setCertPath(argv[3]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
             if (argc == g_maxArgs)
             {
-                requestConfig->setResourceRoot(argv[4]); // TODO: LINUXEP-7991 get from a configuration file
+                requestConfig.setResourceRoot(argv[4]); // TODO: LINUXEP-7991 get from a configuration file
             }
 
-            if (!Common::FileSystem::fileSystem()->isFile(requestConfig->getCertPath()))
+            if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
             {
                 throw std::runtime_error("Certificate is not a valid file");
             }
@@ -72,11 +68,11 @@ namespace Telemetry
             telemetryProcessor.saveTelemetryToDisk(
                 "/opt/sophos-spl/var/telemetry.json"); // TODO: LINUXEP-7991 get path from a configuration file
             std::string telemetry = telemetryProcessor.getSerialisedTelemetry();
-            requestConfig->setData(telemetry);
+            requestConfig.setData(telemetry);
 
-            httpSender->doHttpsRequest(requestConfig);
+            httpSender.doHttpsRequest(requestConfig);
         }
-        catch (const std::exception& e)
+        catch (const std::runtime_error& e)
         {
             LOGERROR("Caught exception: " << e.what());
             return 1;
@@ -89,8 +85,9 @@ namespace Telemetry
     {
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
 
-        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper = std::make_shared<Common::HttpSender::CurlWrapper>();
-        std::shared_ptr<Common::HttpSender::IHttpSender> httpSender = std::make_shared<Common::HttpSender::HttpSender>(curlWrapper);
+        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
+        Common::HttpSenderImpl::HttpSender httpSender(curlWrapper);
 
         std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
 
