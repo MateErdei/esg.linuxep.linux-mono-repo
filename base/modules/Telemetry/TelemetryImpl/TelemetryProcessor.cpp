@@ -45,7 +45,7 @@ void TelemetryProcessor::gatherTelemetry()
 void TelemetryProcessor::saveAndSendTelemetry()
 {
     Path jsonOutputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
-    LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
+    LOGINFO("Saving telemetry to file: " << jsonOutputFile);
 
     std::string json = getSerialisedTelemetry();
 
