@@ -28,6 +28,7 @@ class TelemetryProcessorTest : public ::testing::Test
 public:
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     MockFileSystem* m_mockFileSystem = nullptr;
+    const std::size_t m_maxJsonBytes = 1000;
 
     void SetUp() override
     {
@@ -39,7 +40,7 @@ public:
     void TearDown() override { Tests::restoreFileSystem(); }
 };
 
-TEST(TelemetryProcessor, telemetryProcessorOneProvider) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -50,13 +51,13 @@ TEST(TelemetryProcessor, telemetryProcessorOneProvider) // NOLINT
 
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock":{"key":1}})", json);
 }
 
-TEST(TelemetryProcessor, telemetryProcessorTwoProviders) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorTwoProviders) // NOLINT
 {
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
@@ -72,13 +73,13 @@ TEST(TelemetryProcessor, telemetryProcessorTwoProviders) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider1);
     telemetryProviders.emplace_back(mockTelemetryProvider2);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock2":{"key":2}})", json);
 }
 
-TEST(TelemetryProcessor, telemetryProcessorThreeProvidersOneThrows) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOLINT
 {
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
@@ -98,7 +99,7 @@ TEST(TelemetryProcessor, telemetryProcessorThreeProvidersOneThrows) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider2);
     telemetryProviders.emplace_back(mockTelemetryProvider3);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
@@ -115,7 +116,26 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    telemetryProcessor.gatherTelemetry();
+    telemetryProcessor.saveAndSendTelemetry();
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOLINT
+{
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
+
+    std::string longString = std::string(1000, 'a');
+
+    std::stringstream ss;
+    ss << R"({"key":")" << longString << R"("})";
+
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(ss.str()));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
     telemetryProcessor.gatherTelemetry();
     telemetryProcessor.saveAndSendTelemetry();
 }
