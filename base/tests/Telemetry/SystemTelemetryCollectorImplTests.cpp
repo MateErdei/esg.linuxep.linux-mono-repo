@@ -26,6 +26,11 @@ namespace
         "      Kernel: Linux 4.15.0-47-generic\n        Architecture: x86-6\n");
 
     const std::string L_specialCharacters{ "\t\n 平仮名\n      Kernel: ひらがな 4.15.0-47-generic\n" };
+    const std::string L_dfTLocalLines("Filesystem     Type     1K-blocks     Used Available Use% Mounted on\n"
+                                      "udev           devtmpfs   4041952        0   4041952   0% /dev\n"
+                                      "tmpfs          tmpfs       814448     1544    812904   1% /run\n"
+                                      "/dev/sda1      ext4      41020640 34176708   4730500  88% /\n"
+                                      "tmpfs          tmpfs      4072224    35724   4036500   1% /dev/shm\n");
 
     const Telemetry::SystemTelemetryConfig L_testSystemTelemetryConfig = {
         { "kernel",
@@ -96,7 +101,7 @@ private:
 
 // These tests assume that keys in SystemTelemetryConfig objects are iterated over in dictionary order.
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -115,7 +120,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK) // NOLINT
     ASSERT_EQ(std::get<int>(cpuCores->second[0].second), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
 {
     Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
         { "cpu-cores",
@@ -140,7 +145,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue) // NOLI
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -160,7 +165,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue) // NOL
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
 {
     setupMockProcesses(L_osTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -180,7 +185,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK) // NOLINT
     ASSERT_EQ(std::get<std::string>(osPretty->second[0].second), "Ubuntu 18.04.2 LTS");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues)
 {
     // hostnamectl command is ran only once and second check uses cache
     setupMockProcesses(2);
@@ -200,7 +205,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMulti
     ASSERT_EQ(multiValues.size(), L_testSystemTelemetryConfig.size());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -219,7 +224,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialCha
     ASSERT_EQ(std::get<0>(kernel->second[0].second), "ひらがな 4.15.0-47-generic");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -235,7 +240,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyStrin
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure)
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -250,7 +255,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFai
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout)
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -283,7 +288,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithT
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail)
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -317,15 +322,15 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithE
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
 {
     Telemetry::SystemTelemetryConfig multiLineTelemetryConfig = {
-        { "cpu-cores",
-          { "/usr/bin/lscpu",
-            "",
-            "^(CPU.*): (.*)$",
-            { { "key1", Telemetry::TelemetryValueType::STRING },
-              { "key2", Telemetry::TelemetryValueType::INTEGER } } } }
+        { "disks",
+          { "/bin/df",
+            "-T --local",
+            "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
+            { { "fstype", Telemetry::TelemetryValueType::STRING },
+              { "free", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTelemetryConfig.size());
@@ -337,34 +342,39 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK) /
     EXPECT_CALL(*mockProcess_, exec(_, _));
     EXPECT_CALL(*mockProcess_, setOutputLimit(_));
     EXPECT_CALL(*mockProcess_, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return(L_lscpulines));
+    EXPECT_CALL(*mockProcess_, output()).WillOnce(Return(L_dfTLocalLines));
     EXPECT_CALL(*mockProcess_, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
 
-    auto intValue = systemTelemetryCollectorImpl.collectArraysOfObjects();
-    auto cpuCores = intValue.find("cpu-cores");
-    ASSERT_NE(cpuCores, intValue.cend());
-    auto thething = cpuCores->second;
-    ASSERT_EQ(thething.size(), 2);
-    ASSERT_EQ(thething[0].size(), 2);
-    auto v0 = std::get<std::string>((thething[0])[0]);
-    ASSERT_EQ(std::get<int>((thething[0])[1].second), 32);
+    auto mapOfArrayItems = systemTelemetryCollectorImpl.collectArraysOfObjects();
+
+    auto disks = mapOfArrayItems.find("disks");
+    ASSERT_NE(disks, mapOfArrayItems.cend());
+    auto diskItemArray = disks->second;
+    ASSERT_EQ(diskItemArray.size(), 4);
+    ASSERT_EQ(diskItemArray[0].size(), 2);
+
+    // verify first elemet in L_dfTLocalLines
+    // "udev           devtmpfs   4041952        0   4041952   0% /dev\n"
+    auto fstype = std::get<std::string>((diskItemArray[0])[0].second);
+    ASSERT_EQ(fstype, std::string("devtmpfs"));
+    ASSERT_EQ(std::get<int>((diskItemArray[0])[1].second), 4041952);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) // NOLINT
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
 {
     Telemetry::SystemTelemetryConfig multiLineTestTelemetryConfig = {
-        { "cpu-cores",
-          { "/usr/bin/lscpu",
-            "",
-            "^(CPU.*): (.*)$",
-            { { "key1", Telemetry::TelemetryValueType::STRING },
-              { "key2", Telemetry::TelemetryValueType::INTEGER } } } },
-        { "test",
+        { "disks",
+          { "/bin/df",
+            "-T --local",
+            "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
+            { { "fstype", Telemetry::TelemetryValueType::STRING },
+              { "free", Telemetry::TelemetryValueType::INTEGER } } } },
+        { "Test",
           { "/usr/bin/test",
             "--testarg | testxargs",
-            "^(CPU.*): .*$",
-            { { "no-show1", Telemetry::TelemetryValueType::STRING },
-              { "no-show2", Telemetry::TelemetryValueType::INTEGER } } } }
+            "^(NoAfileSystemType.*): .*$",
+            { { "willnoteshohw", Telemetry::TelemetryValueType::STRING },
+              { "novaluewill show", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTestTelemetryConfig.size());
@@ -377,19 +387,20 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) //
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
         EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillRepeatedly(Return(EXIT_SUCCESS));
-        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(L_lscpulines));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return(L_dfTLocalLines));
     }
 
-    auto mapOfvvv = systemTelemetryCollectorImpl.collectArraysOfObjects();
+    auto mapOfArrayItems = systemTelemetryCollectorImpl.collectArraysOfObjects();
 
-    ASSERT_EQ(mapOfvvv.size(), 1);
+    auto disks = mapOfArrayItems.find("disks");
+    ASSERT_NE(disks, mapOfArrayItems.cend());
+    auto diskItemArray = disks->second;
+    ASSERT_EQ(diskItemArray.size(), 4);
+    ASSERT_EQ(diskItemArray[0].size(), 2);
 
-    auto cpuCores = mapOfvvv.find("cpu-cores");
-    ASSERT_NE(cpuCores, mapOfvvv.cend());
-
-    auto vecOfVecOfVariants = cpuCores->second;
-    ASSERT_EQ(vecOfVecOfVariants.size(), 2);
-    ASSERT_EQ(vecOfVecOfVariants[0].size(), 2);
-    auto v0 = std::get<std::string>((vecOfVecOfVariants[0])[0]);
-    ASSERT_EQ(std::get<int>((vecOfVecOfVariants[0])[1].second), 32);
+    // verify first elemet in L_dfTLocalLines
+    // "udev           devtmpfs   4041952        0   4041952   0% /dev\n"
+    auto fstype = std::get<std::string>((diskItemArray[0])[0].second);
+    ASSERT_EQ(fstype, std::string("devtmpfs"));
+    ASSERT_EQ(std::get<int>((diskItemArray[0])[1].second), 4041952);
 }
