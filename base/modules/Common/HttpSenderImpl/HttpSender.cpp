@@ -17,47 +17,45 @@ namespace
 {
     class CurlScopeGuard
     {
-        Common::HttpSender::ICurlWrapper & m_iCurlWrapper;
-        CURL * m_curl;
-    public:
+        Common::HttpSender::ICurlWrapper& m_iCurlWrapper;
+        CURL* m_curl;
 
-        CurlScopeGuard( CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper ):
-            m_iCurlWrapper(iCurlWrapper), m_curl(curl)
+    public:
+        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper)
+        : m_iCurlWrapper(iCurlWrapper)
+        , m_curl(curl)
         {
 
         }
+
         ~CurlScopeGuard()
         {
             m_iCurlWrapper.curlEasyCleanup(m_curl);
         }
-
     };
 
     class SListScopeGuard
     {
-        Common::HttpSender::ICurlWrapper & m_iCurlWrapper;
-        curl_slist  * m_curl_slist;
-    public:
+        Common::HttpSender::ICurlWrapper& m_iCurlWrapper;
+        curl_slist* m_curl_slist;
 
-        SListScopeGuard( curl_slist * curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper ):
-        m_iCurlWrapper(iCurlWrapper), m_curl_slist (curl_slist)
+    public:
+        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper)
+        : m_iCurlWrapper(iCurlWrapper)
+        , m_curl_slist (curl_slist)
         {
 
         }
+
         ~SListScopeGuard()
         {
             if( m_curl_slist != nullptr)
             {
                 m_iCurlWrapper.curlSlistFreeAll(m_curl_slist);
             }
-
         }
-
     };
-
-
 }
-
 
 
 namespace Common::HttpSenderImpl
@@ -83,9 +81,8 @@ namespace Common::HttpSenderImpl
         m_curlWrapper->curlGlobalCleanup();
     }
 
-    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig)
+    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig, curl_slist** headers)
     {
-        curl_slist* headers = nullptr;
         std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
 
         std::stringstream uriStream;
@@ -104,20 +101,20 @@ namespace Common::HttpSenderImpl
         for (const auto& header : requestConfig.getAdditionalHeaders())
         {
             curl_slist* temp = nullptr;
-            temp = m_curlWrapper->curlSlistAppend(headers, header);
+            temp = m_curlWrapper->curlSlistAppend(*headers, header);
             if (!temp)
             {
-                SListScopeGuard sListScopeGuard(headers, *m_curlWrapper);
+                SListScopeGuard sListScopeGuard(*headers, *m_curlWrapper);
                 LOGERROR("Failed to append header to request");
                 return result;
             }
-            headers = temp;
+            *headers = temp;
         }
-        SListScopeGuard headersScopeGuard(headers, *m_curlWrapper);
-        if (headers)
+
+        if (*headers)
         {
             curlOptions.emplace_back(
-                "Specify custom HTTP header(s)", CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
+                "Specify custom HTTP header(s)", CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(*headers));
         }
 
         if (requestConfig.getRequestType() == RequestType::POST)
@@ -148,6 +145,7 @@ namespace Common::HttpSenderImpl
     int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
     {
         CURLcode result;
+        curl_slist* headers = nullptr;
 
         CURL * curl = m_curlWrapper->curlEasyInit();
 
@@ -159,12 +157,14 @@ namespace Common::HttpSenderImpl
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
 
-        result = setCurlOptions(curl, requestConfig);
+        result = setCurlOptions(curl, requestConfig, &headers);
         if (result != CURLE_OK)
         {
             LOGERROR("Failed to set curl options with error: " << m_curlWrapper->curlEasyStrError(result));
             return result;
         }
+
+        SListScopeGuard headersScopeGuard(headers, *m_curlWrapper);
 
         result = m_curlWrapper->curlEasyPerform(curl);
         if (result != CURLE_OK)

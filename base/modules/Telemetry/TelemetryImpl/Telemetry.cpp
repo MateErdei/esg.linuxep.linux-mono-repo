@@ -20,6 +20,8 @@ namespace Telemetry
 
     int main(int argc, char* argv[], Common::HttpSender::IHttpSender& httpSender)
     {
+        int ret = 0;
+
         try
         {
             // TODO: [LINUXEP-6075] All argument parsing is temporary as these parameters will be read in from a configuration file
@@ -56,15 +58,15 @@ namespace Telemetry
             }
 
             requestConfig.setData("{ telemetryKey : telemetryValue }"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
-            httpSender.doHttpsRequest(requestConfig);
+            ret = httpSender.doHttpsRequest(requestConfig);
         }
         catch (const std::exception& e)
         {
             LOGERROR("Caught exception: " << e.what());
-            return 1;
+            ret = 1;
         }
 
-        return 0;
+        return ret;
     }
 
     int main_entry(int argc, char* argv[])

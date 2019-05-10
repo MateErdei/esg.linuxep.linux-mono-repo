@@ -112,7 +112,6 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
-    //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
     RequestConfig getRequestConfig("GET", m_additionalHeaders);
