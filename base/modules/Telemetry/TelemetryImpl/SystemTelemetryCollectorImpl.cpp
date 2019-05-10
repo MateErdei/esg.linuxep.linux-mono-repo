@@ -79,10 +79,11 @@ namespace Telemetry
     std::string SystemTelemetryCollectorImpl::getTelemetryItem(const std::string& command, const std::string& args)
         const
     {
-        std::string commandAndWargs(command + " " + args);
-        if (m_commandOutputCache.find(commandAndWargs) != m_commandOutputCache.end())
+        std::string commandAndArgs(command + " " + args);
+
+        if (m_commandOutputCache.find(commandAndArgs) != m_commandOutputCache.end())
         {
-            return m_commandOutputCache[commandAndWargs];
+            return m_commandOutputCache[commandAndArgs];
         }
 
         std::istringstream argsStream(args);
@@ -98,19 +99,18 @@ namespace Telemetry
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
-            throw Common::Process::IProcessException("Process execution timed out running: '" + commandAndWargs + "'");
+            throw Common::Process::IProcessException("Process execution timed out running: '" + commandAndArgs + "'");
         }
 
         int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
-            std::string reason = strerror(exitCode);
             throw Common::Process::IProcessException(
                 "Process execution returned non-zero exit code, 'Exit Code: " + std::string(strerror(exitCode)) + "'");
         }
 
         auto output = processPtr->output();
-        m_commandOutputCache[commandAndWargs] = output;
+        m_commandOutputCache[commandAndArgs] = output;
         return output;
     }
 
@@ -124,10 +124,11 @@ namespace Telemetry
             std::smatch telemetryMatches;
             if (std::regex_search(line, telemetryMatches, re) && telemetryMatches.size() > 1)
             {
-                // skip first sub_match element with whole line and return subexpressions groups only
+                // skip first match (for whole line) and return subexpression groups only
                 return std::vector<std::string>(telemetryMatches.cbegin() + 1, telemetryMatches.cend());
             }
         }
+
         return std::vector<std::string>();
     }
 
