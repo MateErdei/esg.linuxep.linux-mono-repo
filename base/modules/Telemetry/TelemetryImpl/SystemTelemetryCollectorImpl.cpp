@@ -17,6 +17,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
     const int GL_kbSize = 1024 * 1024;
+
+    // TODO: LINUXEP-7991 - consider making wait time and retries externally configurable.
     const int GL_waitTimeMilliSeconds = 100;
     const int GL_waitMaxRetries = 10;
 
