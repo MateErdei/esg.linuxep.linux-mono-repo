@@ -59,6 +59,9 @@ namespace Telemetry
             requestConfig.setData("{ telemetryKey : telemetryValue }"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
             httpSender.doHttpsRequest(requestConfig);
 
+            // TODO LINUXEP-8094, LINUXEP-7972 instantiate providers
+
+            // TODO this max number will be set via the config from ticket LINUXEP-7991
             const size_t maxJsonBytes = 1000000;
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
             TelemetryProcessor telemetryProcessor(telemetryProviders, maxJsonBytes);
