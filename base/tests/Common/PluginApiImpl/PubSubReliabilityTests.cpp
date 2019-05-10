@@ -88,9 +88,9 @@ public:
 class PubSubTests : public Tests::TestEventTypeHelper
 {
 public:
-    static std::unique_ptr<::TempDir> tempDir;
+    static std::unique_ptr<Tests::TempDir> tempDir;
 
-    static void SetUpTestCase() { tempDir = TempDir::makeTempDir(); }
+    static void SetUpTestCase() { tempDir = Tests::TempDir::makeTempDir(); }
 
     static void TearDownTestCase() { tempDir.reset(nullptr); }
 
@@ -113,7 +113,7 @@ public:
     Common::ZMQWrapperApi::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::IProxyPtr m_proxy;
 };
-std::unique_ptr<::TempDir> PubSubTests::tempDir;
+std::unique_ptr<Tests::TempDir> PubSubTests::tempDir;
 
 TEST_F(PubSubTests, PubSendsDataReceiverReceives) // NOLINT
 {
