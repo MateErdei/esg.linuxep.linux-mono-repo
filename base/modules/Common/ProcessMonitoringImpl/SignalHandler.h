@@ -7,9 +7,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Threads/NotifyPipe.h>
 
-namespace watchdog
+namespace Common
 {
-    namespace watchdogimpl
+    namespace ProcessMonitoringImpl
     {
         class SignalHandler
         {

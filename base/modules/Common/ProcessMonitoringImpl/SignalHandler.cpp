@@ -5,8 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "SignalHandler.h"
 
-using namespace watchdog::watchdogimpl;
-
 #include <csignal>
 #include <cstdlib>
 
@@ -51,42 +49,49 @@ namespace
 
 } // namespace
 
-SignalHandler::SignalHandler()
-{
-    setSignalHandler();
-}
 
-SignalHandler::~SignalHandler()
+namespace Common
 {
-    clearSignalHandler();
-}
-
-bool SignalHandler::clearSubProcessExitPipe()
-{
-    bool ret = false;
-    while (GL_CHILD_DEATH_PIPE.notified())
+    namespace ProcessMonitoringImpl
     {
-        ret = true;
-    }
-    return ret;
-}
+        SignalHandler::SignalHandler()
+        {
+            setSignalHandler();
+        }
 
-bool SignalHandler::clearTerminationPipe()
-{
-    bool ret = false;
-    while (GL_TERM_PIPE.notified())
-    {
-        ret = true;
-    }
-    return ret;
-}
+        SignalHandler::~SignalHandler()
+        {
+            clearSignalHandler();
+        }
 
-int SignalHandler::subprocessExitFileDescriptor()
-{
-    return GL_CHILD_DEATH_PIPE.readFd();
-}
+        bool SignalHandler::clearSubProcessExitPipe()
+        {
+            bool ret = false;
+            while (GL_CHILD_DEATH_PIPE.notified())
+            {
+                ret = true;
+            }
+            return ret;
+        }
 
-int SignalHandler::terminationFileDescriptor()
-{
-    return GL_TERM_PIPE.readFd();
-}
+        bool SignalHandler::clearTerminationPipe()
+        {
+            bool ret = false;
+            while (GL_TERM_PIPE.notified())
+            {
+                ret = true;
+            }
+            return ret;
+        }
+
+        int SignalHandler::subprocessExitFileDescriptor()
+        {
+            return GL_CHILD_DEATH_PIPE.readFd();
+        }
+
+        int SignalHandler::terminationFileDescriptor()
+        {
+            return GL_TERM_PIPE.readFd();
+        }
+    } // namespace ProcessMonitoringImpl
+} // namespace Common

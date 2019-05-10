@@ -5,8 +5,6 @@ add_library(watchdogimpl STATIC
         PluginProxy.h
         Watchdog.cpp
         Watchdog.h
-        SignalHandler.cpp
-        SignalHandler.h
         Logger.h
         Logger.cpp
         )
@@ -17,6 +15,7 @@ target_link_libraries(watchdogimpl PUBLIC
         threads
         processimpl
         zmqwrapperapiimpl
+        processmonitoringimpl
         ${LOG4CPLUS_LIBRARY}
         )
 

@@ -8,8 +8,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "PluginProxy.h"
-#include "SignalHandler.h"
 
+#include "Common/ProcessMonitoringImpl/SignalHandler.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -39,7 +39,7 @@ Watchdog::~Watchdog()
 
 int Watchdog::run()
 {
-    SignalHandler signalHandler;
+    Common::ProcessMonitoringImpl::SignalHandler signalHandler;
 
     PluginInfoVector pluginConfigs = read_plugin_configs();
 
