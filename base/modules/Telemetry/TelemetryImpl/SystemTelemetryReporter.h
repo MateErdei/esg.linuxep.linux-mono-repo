@@ -31,11 +31,11 @@ namespace Telemetry
         std::string getTelemetry() override;
 
     private:
-        void getSimpleTelemetry(
+        static void getSimpleTelemetry(
             Common::Telemetry::TelemetryHelper& jsonConverter,
             const std::map<std::string, TelemetryItem>& systemTelemetryObjects);
 
-        void getArraysTelemetry(
+        static void getArraysTelemetry(
             Common::Telemetry::TelemetryHelper& jsonConverter,
             const std::map<std::string, std::vector<TelemetryItem>>& systemTelemetryArrays);
 

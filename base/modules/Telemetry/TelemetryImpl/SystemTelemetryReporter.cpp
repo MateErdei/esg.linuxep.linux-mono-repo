@@ -49,14 +49,13 @@ namespace Telemetry
                 }
                 else
                 {
-                    jsonConverter.set(
-                        telemetryName, std::get<int>(objects[0].second)); // TODO: cover this line with unit test
+                    jsonConverter.set(telemetryName, std::get<int>(objects[0].second));
                 }
 
                 continue;
             }
 
-            // For now, no top-level objects are expected only values (handled above) and arrays of objects (handled
+            // For now, no top-level objects are expected, only values (handled above) and arrays of objects (handled
             // below).
             throw std::logic_error("No top-level objects are expected for the current implementation.");
         }

@@ -96,7 +96,7 @@ private:
 
 // These tests assume that keys in SystemTelemetryConfig objects are iterated over in dictionary order.
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK) // NOLINT
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -115,7 +115,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
     ASSERT_EQ(std::get<int>(cpuCores->second[0].second), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue) // NOLINT
 {
     Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
         { "cpu-cores",
@@ -140,7 +140,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue) // NOLINT
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -160,7 +160,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK) // NOLINT
 {
     setupMockProcesses(L_osTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -180,7 +180,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
     ASSERT_EQ(std::get<std::string>(osPretty->second[0].second), "Ubuntu 18.04.2 LTS");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues) // NOLINT
 {
     // hostnamectl command is ran only once and second check uses cache
     setupMockProcesses(2);
@@ -200,7 +200,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMulti
     ASSERT_EQ(multiValues.size(), L_testSystemTelemetryConfig.size());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -219,7 +219,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialCha
     ASSERT_EQ(std::get<0>(kernel->second[0].second), "ひらがな 4.15.0-47-generic");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -235,7 +235,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyStrin
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -250,7 +250,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFai
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout) // NOLINT
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -283,7 +283,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithT
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail) // NOLINT
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -317,7 +317,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithE
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK) // NOLINT
 {
     Telemetry::SystemTelemetryConfig multiLineTelemetryConfig = {
         { "cpu-cores",
@@ -350,7 +350,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
     ASSERT_EQ(std::get<int>((thething[0])[1].second), 32);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) // NOLINT
 {
     Telemetry::SystemTelemetryConfig multiLineTestTelemetryConfig = {
         { "cpu-cores",

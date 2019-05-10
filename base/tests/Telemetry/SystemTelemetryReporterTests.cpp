@@ -18,16 +18,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <utility>
 #include <vector>
 
-namespace
-{
-    std::map<std::string, Telemetry::TelemetryItem> emptySimpleObjs;
-    std::map<std::string, std::vector<Telemetry::TelemetryItem>> emptyArrayObjs;
-    std::variant<std::string, int> v = 100;
-
-    std::map<std::string, Telemetry::TelemetryItem> simpleObjs;
-    std::map<std::string, std::vector<Telemetry::TelemetryItem>> arrayObjs;
-} // namespace
-
 using ::testing::Return;
 class SystemTelemetryReporterTests : public ::testing::Test
 {
@@ -37,8 +27,11 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
-TEST_F(SystemTelemetryReporterTests, gatherTelemetryEmptyOK)
+TEST_F(SystemTelemetryReporterTests, getTelemetryEmptyOK) // NOLINT
 {
+    std::map<std::string, Telemetry::TelemetryItem> emptySimpleObjs;
+    std::map<std::string, std::vector<Telemetry::TelemetryItem>> emptyArrayObjs;
+
     MockSystemTelemetryCollector mockCollector;
     Telemetry::SystemTelemetryReporter reporter(mockCollector);
 
@@ -50,11 +43,18 @@ TEST_F(SystemTelemetryReporterTests, gatherTelemetryEmptyOK)
     ASSERT_EQ(sysTelemetryJSON, "{}");
 }
 
-TEST_F(SystemTelemetryReporterTests, gatherSimpleOk)
+TEST_F(SystemTelemetryReporterTests, getTelemetryOk) // NOLINT
 {
-    simpleObjs["testSimpleString"] = { { "", { "test-version 10.5 string" } } };
-    arrayObjs["testArray"] = { { { "fstype", { "testvalue1" } }, { "free", { 201 } } },
-                               { { "fstype", { "testvalue2" } }, { "free", { 202 } } } };
+    std::map<std::string, Telemetry::TelemetryItem> simpleObjs = {
+        { "test-simple-string", { { "", { "test-version 10.5 string" } } } },
+        { "test-simple-int", { { "", { 101 } } } }
+    };
+
+    std::map<std::string, std::vector<Telemetry::TelemetryItem>> arrayObjs = {
+        { "test-array",
+          { { { "fstype", { "testvalue1" } }, { "free", { 201 } } },
+            { { "fstype", { "testvalue2" } }, { "free", { 202 } } } } }
+    };
 
     MockSystemTelemetryCollector mockCollector;
     Telemetry::SystemTelemetryReporter reporter(mockCollector);
@@ -64,15 +64,15 @@ TEST_F(SystemTelemetryReporterTests, gatherSimpleOk)
 
     auto sysTelemetryJSON = reporter.getTelemetry();
 
-    ASSERT_TRUE(sysTelemetryJSON.find("testSimple") != std::string::npos);
-    ASSERT_TRUE(sysTelemetryJSON.find("testArray") != std::string::npos);
+    ASSERT_TRUE(sysTelemetryJSON.find("test-simple-string") != std::string::npos);
+    ASSERT_TRUE(sysTelemetryJSON.find("test-simple-int") != std::string::npos);
+    ASSERT_TRUE(sysTelemetryJSON.find("test-array") != std::string::npos);
 }
 
-TEST_F(SystemTelemetryReporterTests, gatherSimpleThrowsNoTopLevelExpectedException)
+TEST_F(SystemTelemetryReporterTests, getTelemetryThrowsButNoTopLevelExpectedException) // NOLINT
 {
-    simpleObjs["test"] = { { "simple", { 100 } } };
-    arrayObjs["testArray"] = { { { "arrayStr1", { "testvalue" } }, { "arrayint2", { 100 } } },
-                               { { "arrayStr2", { "testvalue" } }, { "arrayInt2", { 202 } } } };
+    std::map<std::string, Telemetry::TelemetryItem> simpleObjs = { { "test-unexpected-object",
+                                                                     { { "unexpected-name", { 42 } } } } };
 
     MockSystemTelemetryCollector mockCollector;
     Telemetry::SystemTelemetryReporter reporter(mockCollector);
