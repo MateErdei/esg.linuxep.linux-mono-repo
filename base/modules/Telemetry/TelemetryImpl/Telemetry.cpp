@@ -66,7 +66,7 @@ namespace Telemetry
 
             telemetryProcessor.gatherTelemetry();
             telemetryProcessor.saveTelemetryToDisk(
-                "/opt/sophos-spl/var/telemetry.json"); // TODO: LINUXEP-7991 get path from a configuration file
+                "/opt/sophos-spl/base/telemetry/var/telemetry.json"); // TODO: LINUXEP-7991 get path from a configuration file
             std::string telemetry = telemetryProcessor.getSerialisedTelemetry();
             requestConfig.setData(telemetry);
 
