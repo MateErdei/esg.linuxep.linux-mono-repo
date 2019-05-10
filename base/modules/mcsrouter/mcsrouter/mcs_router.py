@@ -174,7 +174,6 @@ def daemonise():
 
         os._exit(0) #pylint: disable=protected-access
 
-
 class UTCFormatter(logging.Formatter):
     """
     UTCFormatter class so all logs can show the same UTC time.
