@@ -5,7 +5,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Telemetry.h"
-
 #include "TelemetryProcessor.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -59,18 +58,18 @@ namespace Telemetry
 
             requestConfig.setData("{ telemetryKey : telemetryValue }"); // TODO: [LINUXEP-6075] This will be read in from a configuration file
             httpSender.doHttpsRequest(requestConfig);
+
+            const size_t maxJsonBytes = 1000000;
+            std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
+            TelemetryProcessor telemetryProcessor(telemetryProviders, maxJsonBytes);
+            telemetryProcessor.gatherTelemetry();
+            telemetryProcessor.saveAndSendTelemetry();
         }
         catch (const std::exception& e)
         {
             LOGERROR("Caught exception: " << e.what());
             return 1;
         }
-
-        const size_t maxJsonBytes = 1000000;
-        std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
-        TelemetryProcessor telemetryProcessor(telemetryProviders, maxJsonBytes);
-        telemetryProcessor.gatherTelemetry();
-        telemetryProcessor.saveAndSendTelemetry();
 
         return 0;
     }
