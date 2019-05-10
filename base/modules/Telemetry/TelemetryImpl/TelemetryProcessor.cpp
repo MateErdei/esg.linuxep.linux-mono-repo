@@ -37,7 +37,7 @@ void TelemetryProcessor::gatherTelemetry()
         }
         catch (std::exception& ex)
         {
-            LOGDEBUG("Could not get telemetry from one of the telemetry providers.");
+            LOGWARN("Could not get telemetry from one of the telemetry providers. Exception: " << ex.what());
         }
     }
 }
