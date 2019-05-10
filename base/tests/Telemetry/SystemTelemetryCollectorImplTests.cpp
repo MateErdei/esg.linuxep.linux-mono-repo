@@ -324,8 +324,8 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK) /
           { "/usr/bin/lscpu",
             "",
             "^(CPU.*): (.*)$",
-            { { "fstype", Telemetry::TelemetryValueType::STRING },
-              { "free", Telemetry::TelemetryValueType::INTEGER } } } }
+            { { "key1", Telemetry::TelemetryValueType::STRING },
+              { "key2", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTelemetryConfig.size());
@@ -357,14 +357,14 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) //
           { "/usr/bin/lscpu",
             "",
             "^(CPU.*): (.*)$",
-            { { "fstype", Telemetry::TelemetryValueType::STRING },
-              { "free", Telemetry::TelemetryValueType::INTEGER } } } },
-        { "Test",
+            { { "key1", Telemetry::TelemetryValueType::STRING },
+              { "key2", Telemetry::TelemetryValueType::INTEGER } } } },
+        { "test",
           { "/usr/bin/test",
             "--testarg | testxargs",
             "^(CPU.*): .*$",
-            { { "willnoteshohw", Telemetry::TelemetryValueType::STRING },
-              { "novaluewill show", Telemetry::TelemetryValueType::INTEGER } } } }
+            { { "no-show1", Telemetry::TelemetryValueType::STRING },
+              { "no-show2", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTestTelemetryConfig.size());
