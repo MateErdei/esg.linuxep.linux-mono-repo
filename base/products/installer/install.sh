@@ -284,8 +284,9 @@ chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 
 # Telemetry
+makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/var"
-chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry/var"
+chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry"
 
 ## Setup libraries for versionedcopy
 INSTALLER_LIB="${SOPHOS_INSTALL}/tmp/install_lib"
