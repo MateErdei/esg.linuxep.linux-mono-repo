@@ -49,7 +49,7 @@ void TelemetryProcessor::saveAndSendTelemetry()
 
     std::string json = getSerialisedTelemetry();
 
-    // TODO Sending will be added in a later ticket.
+    // TODO Sending will be added in a later ticket, LINUXEP-7991
 
     // Will overwrite data each time.
     Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json);
