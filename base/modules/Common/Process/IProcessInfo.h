@@ -6,11 +6,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Process/EnvPair.h>
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Common
 {

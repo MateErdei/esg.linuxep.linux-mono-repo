@@ -1,7 +1,5 @@
 
-add_library(processimpl SHARED
-        ../Process/EnvPair.h
-        ../Process/IProcess.h
+add_library(processimplobject OBJECT
         ProcessImpl.cpp
         ProcessImpl.h
         ArgcAndEnv.h
@@ -13,7 +11,8 @@ add_library(processimpl SHARED
         Logger.cpp
         ProcessInfo.cpp
         ProcessInfo.h)
-target_include_directories(processimpl PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(processimplobject PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+add_library(processimpl SHARED $<TARGET_OBJECTS:processimplobject> )
 
 target_link_libraries(processimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
 

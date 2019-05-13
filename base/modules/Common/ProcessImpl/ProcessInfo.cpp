@@ -110,7 +110,9 @@ namespace Common
         }
 
         std::string ProcessInfo::getExecutableUserAndGroupAsString() const
-        { return m_executableUserAndGroupAsString; }
+        {
+            return m_executableUserAndGroupAsString;
+        }
 
         std::pair<bool, uid_t> ProcessInfo::getExecutableUser() const
         {
@@ -128,8 +130,10 @@ namespace Common
 
     }
 }
-
-Common::Process::IProcessInfoPtr createEmptyProcessInfo()
+namespace Common::Process
 {
-    return Common::Process::IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo);
+    IProcessInfoPtr createEmptyProcessInfo()
+    {
+        return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo);
+    }
 }

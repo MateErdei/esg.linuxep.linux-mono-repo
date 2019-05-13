@@ -147,9 +147,10 @@ namespace Common
     } // namespace ProcessMonitoring
 } // namespace Common
 
-
-Common::ProcessMonitoring::IProcessMonitorPtr Common::ProcessMonitoring::createProcessMonitor()
+namespace Common::ProcessMonitoring
 {
-    return Common::ProcessMonitoring::IProcessMonitorPtr(
-            new Common::ProcessMonitoringImpl::ProcessMonitor());
+    IProcessMonitorPtr createProcessMonitor()
+    {
+        return IProcessMonitorPtr(new Common::ProcessMonitoringImpl::ProcessMonitor());
+    }
 }
