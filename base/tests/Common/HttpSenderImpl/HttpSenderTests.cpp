@@ -18,6 +18,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <curl/curl.h>
+#include <modules/Common/Logging/ConsoleLoggingSetup.h>
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -194,35 +195,69 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
 
-TEST_F(HttpSenderTest, HttpSender_CurlGlobalInitialisationFailureThrowsExceptionInConstructor) // NOLINT
+class FakeCurlWrapper2 : public Common::HttpSenderImpl::CurlWrapper
 {
-    EXPECT_CALL(*m_curlWrapper, curlGlobalInit(_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(m_failedResult)).WillOnce(Return(m_strerror.c_str()));
-    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+public:
+    FakeCurlWrapper2():m_answer{CURLE_OK}{}
+    CURLcode curlEasyPerform(CURL*handle) override
+    {
+        return Common::HttpSenderImpl::CurlWrapper::curlEasyPerform(handle);
+        return m_answer;
+    }
+    curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) override
+    {
+        if (value =="breakhere")
+        {
+            return nullptr;
+        }
+        return Common::HttpSenderImpl::CurlWrapper::curlSlistAppend(list, value);
+    }
 
-    EXPECT_THROW(std::make_shared<HttpSender>(m_curlWrapper), std::runtime_error); // NOLINT
-}
+    CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter) override
+    {
+        if ( parameter == "invalidcert")
+        {
+            return CURLE_BAD_CONTENT_ENCODING;
+        }
+        return Common::HttpSenderImpl::CurlWrapper::curlEasySetOpt(handle, option, parameter);
+    }
 
-TEST_F(HttpSenderTest, putRequest_SetOptFailureThrowsRuntimeError) // NOLINT
+    void setAnswer( CURLcode code)
+    {
+        m_answer = code;
+    }
+    CURLcode m_answer;
+};
+
+TEST_F(HttpSenderTest, getRequest_WithMultipleHeaders) // NOLINT
 {
-    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
-    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).Times(2).WillRepeatedly(Return(m_strerror.c_str()));
-    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+    FakeCurlWrapper2 * fk = new FakeCurlWrapper2();
+    std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWr{fk};
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+    m_httpSender = std::make_shared<HttpSender>(curlWr);
+    m_additionalHeaders.emplace_back("headr1");
+    m_additionalHeaders.emplace_back("headr2");
+    m_additionalHeaders.emplace_back("headr3");
+    m_additionalHeaders.emplace_back("headr4");
+    m_additionalHeaders.emplace_back("headr5");
+    RequestConfig req("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "defaultcert", ResourceRoot::DEV);
+    m_additionalHeaders[0][3]='k';
+    EXPECT_EQ(m_httpSender->doHttpsRequest(req), 77);
+    EXPECT_EQ(m_httpSender->doHttpsRequest(req), 77);
 
-    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
 
-    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_failedResult);
-}
-
-TEST_F(HttpSenderTest, putRequest_EasyInitReturnsNullptrThrowsRuntimeError) // NOLINT
-{
-    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(nullptr));
-    //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
-    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
-
-    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
-
-    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_failedResult);
+    RequestConfig req1("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "invalidcert", ResourceRoot::DEV);
+    EXPECT_EQ(m_httpSender->doHttpsRequest(req1), 61);
+//
+//
+    m_additionalHeaders.emplace_back("breakhere");
+    m_additionalHeaders.emplace_back("donotrunthis");
+    RequestConfig req2("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "defaultcert", ResourceRoot::DEV);
+    EXPECT_EQ(m_httpSender->doHttpsRequest(req2), CURLE_FAILED_INIT);
+//
+    m_additionalHeaders.clear();
+    fk->setAnswer(CURLE_BAD_CONTENT_ENCODING);
+    RequestConfig req3("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "defaultcert", ResourceRoot::DEV);
+    EXPECT_EQ(m_httpSender->doHttpsRequest(req3), 77);
 }
