@@ -81,9 +81,9 @@ namespace Common::HttpSenderImpl
         m_curlWrapper->curlGlobalCleanup();
     }
 
-    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig, curl_slist** headers)
+    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig, curl_slist** headers, std::vector<std::tuple<std::string, CURLoption, std::string>> &curlOptions)
     {
-        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
+
 
         std::stringstream uriStream;
         uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort()
@@ -146,7 +146,7 @@ namespace Common::HttpSenderImpl
     {
         CURLcode result;
         curl_slist* headers = nullptr;
-
+        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
         CURL * curl = m_curlWrapper->curlEasyInit();
 
         if (!curl)
@@ -157,7 +157,7 @@ namespace Common::HttpSenderImpl
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
 
-        result = setCurlOptions(curl, requestConfig, &headers);
+        result = setCurlOptions(curl, requestConfig, &headers, curlOptions);
         if (result != CURLE_OK)
         {
             LOGERROR("Failed to set curl options with error: " << m_curlWrapper->curlEasyStrError(result));

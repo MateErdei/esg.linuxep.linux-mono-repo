@@ -30,7 +30,9 @@ namespace Common::HttpSenderImpl
         CURLcode setCurlOptions(
             CURL* curl,
             RequestConfig& requestConfig,
-            curl_slist** headers);
+            curl_slist** headers,
+            std::vector<std::tuple<std::string, CURLoption, std::string>> &curlOptions
+            );
 
         std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
     };
