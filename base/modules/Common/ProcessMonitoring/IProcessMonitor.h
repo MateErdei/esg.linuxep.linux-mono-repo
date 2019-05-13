@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/ProcessMonitoring/IProcessProxy.h>
 
 #include <functional>
 

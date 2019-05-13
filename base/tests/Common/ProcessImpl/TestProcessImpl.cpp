@@ -1,11 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
+#include <Common/ProcessImpl/ProcessInfo.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -168,5 +169,26 @@ namespace
         auto process = createProcess();
         EXPECT_THROW(process->exitCode(), IProcessException); // NOLINT
     }
+
+    TEST(ProcessImpl, TestCreateEmptyProcessInfoCreatesEmptyObject) // NOLINT
+    {
+        auto processInfoPtr = Common::Process::createEmptyProcessInfo();
+
+        ASSERT_EQ(processInfoPtr->getExecutableFullPath(),"");
+        std::vector<std::string> emptyVector;
+        ASSERT_EQ(processInfoPtr->getExecutableArguments(), emptyVector);
+        Common::Process::EnvPairs emptyEnvPairs;
+        ASSERT_EQ(processInfoPtr->getExecutableEnvironmentVariables(), emptyEnvPairs);
+        ASSERT_EQ(processInfoPtr->getExecutableUserAndGroupAsString(), "");
+
+        auto groupPair = processInfoPtr->getExecutableGroup();
+        ASSERT_EQ(groupPair.first, false);
+        ASSERT_EQ(groupPair.second, -1);
+        auto userPair = processInfoPtr->getExecutableUser();
+        ASSERT_EQ(userPair.first, false);
+        ASSERT_EQ(userPair.second, -1);
+
+    }
+
 
 } // namespace

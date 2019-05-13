@@ -144,7 +144,7 @@ namespace Common
         }
 
 
-    } // namespace ProcessMonitoring
+    } // namespace ProcessMonitoringImpl
 } // namespace Common
 
 namespace Common::ProcessMonitoring

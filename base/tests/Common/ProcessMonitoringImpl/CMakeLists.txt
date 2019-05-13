@@ -1,0 +1,7 @@
+include(GoogleTest)
+add_executable(ProcessMonitoringImplTests TestProcessMonitoring.cpp TestProcessProxy.cpp)
+target_include_directories(ProcessMonitoringImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
+target_include_directories(ProcessMonitoringImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_link_libraries(ProcessMonitoringImplTests gtest gtest_main gmock)
+target_link_libraries(ProcessMonitoringImplTests processmonitoringimpl threads)
+gtest_discover_tests(ProcessMonitoringImplTests)

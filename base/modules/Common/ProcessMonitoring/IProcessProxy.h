@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <chrono>
+#include <Common/Process/IProcessInfo.h>
 
 namespace Common
 {

@@ -45,5 +45,5 @@ namespace Common
         private:
             SocketHandleFunctionList m_socketHandleFunctionList;
         };
-    } // namespace ProcessMonitoring
+    } // namespace ProcessMonitoringImpl
 } // namespace Common
