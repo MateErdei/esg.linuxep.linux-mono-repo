@@ -223,6 +223,51 @@ static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version
 </AUConfigurations>
 )sophos" };
 
+static const std::string updatePolicyWithAESCredential{ R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+  <AUConfig platform="Linux">
+    <sophos_address address="http://es-web.sophos.com/update"/>
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=" UserName="QA940267" UseSophos="true" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="2" ProxyUserPassword="CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=" ProxyUserName="TestUser" ProxyPortNumber="8080" ProxyAddress="uk-abn-wpan-1.green.sophos" AllowLocalConfig="false"/>
+    </primary_location>
+    <secondary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </secondary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
+    <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+    <bootstrap Location="" UsePrimaryServerAddress="true"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
+    </cloud_subscriptions>
+    <delay_supplements enabled="true"/>
+    <delay_updating Day="Wednesday" Time="17:00:00"/>
+  </AUConfig>
+  <Features>
+    <Feature id="APPCNTRL"/>
+    <Feature id="AV"/>
+    <Feature id="CORE"/>
+    <Feature id="DLP"/>
+    <Feature id="DVCCNTRL"/>
+    <Feature id="EFW"/>
+    <Feature id="HBT"/>
+    <Feature id="MTD"/>
+    <Feature id="NTP"/>
+    <Feature id="SAV"/>
+    <Feature id="SDU"/>
+    <Feature id="WEBCNTRL"/>
+  </Features>
+  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+  <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+</AUConfigurations>
+)sophos" };
+
+
+
 static const std::string incorrectPolicyTypeXml{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
@@ -375,8 +420,8 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
     EXPECT_EQ(settingsHolder.updateCacheCertificatesContent, cacheCertificates);
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "W2YJXI6FED");
-    EXPECT_EQ(config.getCredentials().getPassword(), "xxxxxx");
+    EXPECT_EQ(config.getCredentials().getUsername(), "c2d584eb505b6a35fbf2dd9740551fe9");
+    EXPECT_EQ(config.getCredentials().getPassword(), "c2d584eb505b6a35fbf2dd9740551fe9");
     EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
@@ -421,6 +466,18 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
+TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
+{
+    UpdatePolicyTranslator translator;
+
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithAESCredential);
+    auto config = settingsHolder.configurationData;
+
+    EXPECT_EQ(config.getCredentials().getUsername(), "2d7f952565f299f61e8ee5b713ae32dd");
+    EXPECT_EQ(config.getCredentials().getPassword(), "2d7f952565f299f61e8ee5b713ae32dd");
+}
+
+
 TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
     UpdatePolicyTranslator translator;
@@ -441,8 +498,8 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
     EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "QA940267");
-    EXPECT_EQ(config.getCredentials().getPassword(), "54m5ung");
+    EXPECT_EQ(config.getCredentials().getUsername(), "678ca7535f2722d2e633834fde894e40");
+    EXPECT_EQ(config.getCredentials().getPassword(), "678ca7535f2722d2e633834fde894e40");
     EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
@@ -592,8 +649,8 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
     EXPECT_TRUE(settingsHolder.updateCacheCertificatesContent.empty());
 
-    EXPECT_EQ(config.getCredentials().getUsername(), "CSP190408113225");
-    EXPECT_EQ(config.getCredentials().getPassword(), "password");
+    EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
+    EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
@@ -780,4 +837,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
         errorMsg,
         ::testing::HasSubstr(
             "SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
+}
+
+//updatePolicyWithAESCredential
+
+TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated)
+{
+    EXPECT_EQ( UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"), "9539d7d1f36a71bbac1259db9e868231");
 }

@@ -13,7 +13,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-
+#include <Common/sslimpl/Md5Calc.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
 #include <algorithm>
 #include <regex>
 #include <sstream>
@@ -149,8 +150,28 @@ namespace UpdateSchedulerImpl
             }
 
             SulDownloader::suldownloaderdata::ConfigurationData config(defaultLocations);
-            config.setCredentials(SulDownloader::suldownloaderdata::Credentials{
-                primaryLocation.value("UserName"), primaryLocation.value("UserPassword") });
+            std::string user{primaryLocation.value("UserName")};
+            std::string pass{primaryLocation.value("UserPassword")};
+            std::string algorithm{primaryLocation.value("Algorithm")};
+            bool requireObfuscation = true;
+            if ( algorithm == "AES256")
+            {
+                pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
+            }
+            else if (user.size() == 32 && user == pass)
+            {
+                requireObfuscation = false;
+            }
+
+            if( requireObfuscation )
+            {
+                std::string obfuscated = calculateSulObfuscated(user, pass);
+                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{obfuscated, obfuscated});
+            }
+            else
+            {
+                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{user, pass});
+            }
 
             auto updateCacheEntities =
                 attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
@@ -349,6 +370,11 @@ namespace UpdateSchedulerImpl
                 return a.priority < b.priority;
             });
             return orderedCaches;
+        }
+
+        std::string UpdatePolicyTranslator::calculateSulObfuscated(const std::string& user, const std::string& pass)
+        {
+            return Common::sslimpl::md5(user + ':' + pass );
         }
     } // namespace configModule
 } // namespace UpdateSchedulerImpl
