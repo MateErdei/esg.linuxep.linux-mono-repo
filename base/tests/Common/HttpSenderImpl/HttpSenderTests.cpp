@@ -139,7 +139,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
@@ -154,7 +154,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).WillOnce(Return(m_failedResult));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).Times(2).WillRepeatedly(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
@@ -186,7 +186,7 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
     EXPECT_CALL(*m_curlWrapper, curlSlistAppend(_,_)).WillOnce(Return(nullptr));
-    EXPECT_CALL(*m_curlWrapper, curlEasyStrError(_)).WillOnce(Return(m_strerror.c_str()));
+    EXPECT_CALL(*m_curlWrapper, curlSlistFreeAll(_));
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 

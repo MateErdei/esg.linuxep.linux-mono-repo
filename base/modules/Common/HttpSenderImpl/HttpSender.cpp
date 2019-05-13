@@ -81,9 +81,22 @@ namespace Common::HttpSenderImpl
         m_curlWrapper->curlGlobalCleanup();
     }
 
-    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig, curl_slist** headers, std::vector<std::tuple<std::string, CURLoption, std::string>> &curlOptions)
+    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
     {
+        CURLcode result;
+        curl_slist* headers = nullptr;
 
+        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
+
+        CURL * curl = m_curlWrapper->curlEasyInit();
+
+        if (!curl)
+        {
+            LOGERROR("Failed to initialise curl");
+            return CURLE_FAILED_INIT;
+        }
+
+        CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
 
         std::stringstream uriStream;
         uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort()
@@ -92,8 +105,6 @@ namespace Common::HttpSenderImpl
 
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);
 
-        CURLcode result = CURLE_FAILED_INIT;
-
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
         curlOptions.emplace_back(
             "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
@@ -101,15 +112,17 @@ namespace Common::HttpSenderImpl
         for (const auto& header : requestConfig.getAdditionalHeaders())
         {
             curl_slist* temp = nullptr;
-            temp = m_curlWrapper->curlSlistAppend(*headers, header);
+            temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)
             {
-                SListScopeGuard sListScopeGuard(*headers, *m_curlWrapper);
+                m_curlWrapper->curlSlistFreeAll(headers);
                 LOGERROR("Failed to append header to request");
-                return result;
+                return CURLE_FAILED_INIT;
             }
-            *headers = temp;
+            headers = temp;
         }
+
+        SListScopeGuard sListScopeGuard(headers, *m_curlWrapper);
 
         if (requestConfig.getRequestType() == RequestType::POST)
         {
@@ -134,44 +147,24 @@ namespace Common::HttpSenderImpl
             }
         }
 
-        if (*headers)
+        if (headers)
         {
-            result = m_curlWrapper->curlEasySetOptHeaders(curl, *headers);
+            result = m_curlWrapper->curlEasySetOptHeaders(curl, headers);
         }
-
-        return result;
-    }
-
-    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
-    {
-        CURLcode result;
-        curl_slist* headers = nullptr;
-        std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
-        CURL * curl = m_curlWrapper->curlEasyInit();
-
-        if (!curl)
-        {
-            LOGERROR("Failed to initialise curl");
-            return CURLE_FAILED_INIT;
-        }
-
-        CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
-
-        result = setCurlOptions(curl, requestConfig, &headers, curlOptions);
         if (result != CURLE_OK)
         {
-            LOGERROR("Failed to set curl options with error: " << m_curlWrapper->curlEasyStrError(result));
+            LOGERROR("Failed to set headers with error: " << m_curlWrapper->curlEasyStrError(result));
             return result;
         }
 
-        SListScopeGuard headersScopeGuard(headers, *m_curlWrapper);
-
         result = m_curlWrapper->curlEasyPerform(curl);
+
         if (result != CURLE_OK)
         {
             LOGERROR("Failed to perform file transfer with error: " << m_curlWrapper->curlEasyStrError(result));
             return result;
         }
+
         return static_cast<int>(result);
     }
 } // LCOV_EXCL_LINE // namespace Common::HttpSenderImpl

@@ -27,13 +27,6 @@ namespace Common::HttpSenderImpl
 
         int doHttpsRequest(RequestConfig& requestConfig) override;
     private:
-        CURLcode setCurlOptions(
-            CURL* curl,
-            RequestConfig& requestConfig,
-            curl_slist** headers,
-            std::vector<std::tuple<std::string, CURLoption, std::string>> &curlOptions
-            );
-
         std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
     };
 } // namespace Common::HttpSenderImpl
