@@ -111,12 +111,6 @@ namespace Common::HttpSenderImpl
             *headers = temp;
         }
 
-        if (*headers)
-        {
-            curlOptions.emplace_back(
-                "Specify custom HTTP header(s)", CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(*headers));
-        }
-
         if (requestConfig.getRequestType() == RequestType::POST)
         {
             curlOptions.emplace_back(
@@ -126,7 +120,7 @@ namespace Common::HttpSenderImpl
         {
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
             curlOptions.emplace_back(
-                "Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
+                "Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
 
         for (const auto& curlOption : curlOptions)
@@ -139,6 +133,12 @@ namespace Common::HttpSenderImpl
                 return result;
             }
         }
+
+        if (*headers)
+        {
+            result = m_curlWrapper->curlEasySetOptHeaders(curl, *headers);
+        }
+
         return result;
     }
 

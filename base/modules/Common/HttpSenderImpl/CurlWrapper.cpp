@@ -18,6 +18,11 @@ namespace Common::HttpSenderImpl
         return curl_easy_init();
     }
 
+    CURLcode CurlWrapper::curlEasySetOptHeaders(CURL* handle, curl_slist* headers)
+    {
+        return curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
+    }
+
     CURLcode CurlWrapper::curlEasySetOpt(CURL* handle, CURLoption option, const std::string& parameter)
     {
         return curl_easy_setopt(handle, option, parameter.c_str());

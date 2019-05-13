@@ -18,6 +18,8 @@ public:
 
     MOCK_METHOD0(curlEasyInit, CURL*());
 
+    MOCK_METHOD2(curlEasySetOptHeaders, CURLcode(CURL* handle, curl_slist *headers));
+
     MOCK_METHOD3(curlEasySetOpt, CURLcode(CURL* handle, CURLoption option, const std::string& parameter));
 
     MOCK_METHOD2(curlSlistAppend, curl_slist*(curl_slist* list, const std::string& value));
