@@ -216,3 +216,10 @@ namespace Common
 
     } // namespace ProcessMonitoringImpl
 } // name
+
+
+Common::ProcessMonitoring::IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr)
+{
+    return Common::ProcessMonitoring::IProcessProxyPtr(
+            new Common::ProcessMonitoringImpl::ProcessProxy(std::move(processInfoPtr)));
+}

@@ -29,7 +29,6 @@ namespace Common
 
         public:
             PluginInfo();
-            ~PluginInfo() = default;
             PluginInfo(PluginInfo&&) = default;
             PluginInfo& operator=(PluginInfo&&) = default;
 

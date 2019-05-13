@@ -8,6 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "PluginProxy.h"
 
+#include <Common/ProcessMonitoringImpl/ProcessMonitor.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
@@ -21,13 +22,12 @@ namespace watchdog
     namespace watchdogimpl
     {
         using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
-        using ProxyVector = std::vector<watchdog::watchdogimpl::PluginProxy>;
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
-        class Watchdog
+        class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
         public:
-            explicit Watchdog();
+            explicit Watchdog() = default;
             explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~Watchdog();
             int run();
@@ -55,9 +55,6 @@ namespace watchdog
              * @return BORROWED pointer to plugin, or nullptr.
              */
             PluginProxy* findPlugin(const std::string& pluginName);
-
-            Common::ZMQWrapperApi::IContextSharedPtr m_context;
-            ProxyList m_pluginProxies;
 
         private:
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;

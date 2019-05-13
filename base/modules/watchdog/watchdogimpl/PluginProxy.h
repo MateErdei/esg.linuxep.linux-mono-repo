@@ -37,7 +37,7 @@ namespace watchdog
 
         private:
             /**
-             * returns a reference to the
+             * Returns a reference to the plugin info used in the plugin proxy
              * @return
              */
             Common::PluginRegistryImpl::PluginInfo& getPluginInfo() const;

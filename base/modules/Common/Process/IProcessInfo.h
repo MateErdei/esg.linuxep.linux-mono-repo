@@ -21,6 +21,7 @@ namespace Common
         class IProcessInfo
         {
         public:
+            virtual ~IProcessInfo() = default;
             /**
              * Used to get the path of the plugin executable.
              * @return string containing the path

@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessInfo.h>
+#include <Common/ProcessMonitoring/IProcessProxy.h>
 
 #include <chrono>
 
@@ -15,11 +16,11 @@ namespace Common
 {
     namespace ProcessMonitoringImpl
     {
-        class ProcessProxy
+        class ProcessProxy : public Common::ProcessMonitoring::IProcessProxy
         {
         public:
             explicit ProcessProxy(Common::Process::IProcessInfoPtr processInfo);
-            ~ProcessProxy() noexcept;
+            ~ProcessProxy() noexcept override;
             ProcessProxy(ProcessProxy&&) noexcept;
 
             /**
@@ -36,8 +37,8 @@ namespace Common
             /**
              * Stops the process if it is running.
              */
-            void stop();
-            std::chrono::seconds checkForExit();
+            void stop() override;
+            std::chrono::seconds checkForExit() override;
 
             /**
              * If process is enabled, and is not running, and enough time has passed, start process.
@@ -46,10 +47,10 @@ namespace Common
              *
              * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
              */
-            std::chrono::seconds ensureStateMatchesOptions();
+            std::chrono::seconds ensureStateMatchesOptions() override;
 
 
-            void setEnabled(bool enabled);
+            void setEnabled(bool enabled) override;
 
         protected:
             /**

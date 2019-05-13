@@ -15,6 +15,7 @@ namespace
 {
     class TestPluginProxy : public ::testing::Test
     {
+    public:
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     };
 } // namespace

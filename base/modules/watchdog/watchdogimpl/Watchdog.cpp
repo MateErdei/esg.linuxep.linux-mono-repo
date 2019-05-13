@@ -27,9 +27,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
-Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
-
-Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) : m_context(std::move(context)) {}
+Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) : Common::ProcessMonitoringImpl::ProcessMonitor(std::move(context)) {}
 
 Watchdog::~Watchdog()
 {
@@ -43,85 +41,21 @@ int Watchdog::run()
 
     PluginInfoVector pluginConfigs = read_plugin_configs();
 
-    m_pluginProxies.clear();
-
     for (auto& info : pluginConfigs)
     {
-        m_pluginProxies.emplace_back(std::move(info));
+        addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(info))));
     }
 
     pluginConfigs.clear();
 
-    for (auto& proxy : m_pluginProxies)
-    {
-        proxy.ensureStateMatchesOptions();
-    }
-
-    bool keepRunning = true;
-
     setupSocket();
 
-    Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+    addReplierSocketAndHandleToPoll(m_socket.get(), [this](){ this->handleSocketRequest();});
 
-    Common::ZeroMQWrapper::IHasFDPtr subprocessFD = poller->addEntry(
-        signalHandler.subprocessExitFileDescriptor(), Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
-    Common::ZeroMQWrapper::IHasFDPtr terminationFD = poller->addEntry(
-        signalHandler.terminationFileDescriptor(), Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
-
-    poller->addEntry(*m_socket, Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
-
-    std::chrono::seconds timeout(10);
-
-    while (keepRunning)
-    {
-        LOGDEBUG("Calling poller at " << ::time(nullptr));
-        Common::ZeroMQWrapper::IPoller::poll_result_t active = poller->poll(std::chrono::milliseconds(timeout));
-        LOGDEBUG("Returned from poller: " << active.size() << " at " << ::time(nullptr));
-
-        for (auto& fd : active)
-        {
-            if (fd == terminationFD.get())
-            {
-                LOGWARN("Sophos watchdog exiting");
-                signalHandler.clearTerminationPipe();
-                keepRunning = false;
-                continue;
-            }
-            if (fd == subprocessFD.get())
-            {
-                // Don't log since we don't know if the exit was expected
-                signalHandler.clearSubProcessExitPipe();
-            }
-            if (fd == m_socket.get())
-            {
-                handleSocketRequest();
-            }
-        }
-
-        // Child may have exited, or socket request may have altered state.
-        timeout = std::chrono::seconds(10);
-        for (auto& proxy : m_pluginProxies)
-        {
-            auto waitPeriod = proxy.checkForExit();
-            waitPeriod = std::min(proxy.ensureStateMatchesOptions(), waitPeriod);
-            timeout = std::min(waitPeriod, timeout);
-        }
-
-        timeout = std::max(timeout, std::chrono::seconds(1)); // Ensure we wait at least 1 second
-        LOGDEBUG("timeout = " << timeout.count());
-    }
-
-    LOGINFO("Stopping processes");
-    for (auto& proxy : m_pluginProxies)
-    {
-        proxy.stop();
-    }
+    start();
 
     // Normal shutdown
-    m_pluginProxies.clear();
     m_socket.reset();
-    m_context.reset();
-
     return 0;
 }
 
@@ -194,8 +128,8 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     {
         // Not previously loaded, but now available
         assert(loadResult.second);
-        m_pluginProxies.emplace_back(std::move(loadResult.first));
-        proxy = &m_pluginProxies.back();
+        addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(loadResult.first))));
+        proxy = findPlugin(pluginName); // BORROWED pointer
     }
     else if (loadResult.second)
     {
@@ -211,12 +145,13 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     LOGINFO("Removing " << pluginName);
 
     bool found = false;
-    for (auto it = m_pluginProxies.begin(); it != m_pluginProxies.end();)
+    for (auto it = m_processProxies.begin(); it != m_processProxies.end();)
     {
-        if (pluginName == it->name())
+        auto pluginProxy = dynamic_cast<PluginProxy*>(it->get());
+        if (pluginName == pluginProxy->name())
         {
-            it->stop();
-            it = m_pluginProxies.erase(it);
+            pluginProxy->stop();
+            it = m_processProxies.erase(it);
             found = true;
         }
         else
@@ -262,11 +197,12 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
 
 PluginProxy* Watchdog::findPlugin(const std::string& pluginName)
 {
-    for (auto& proxy : m_pluginProxies)
+    for (auto& proxy : m_processProxies)
     {
-        if (proxy.name() == pluginName)
+        auto pluginProxy = dynamic_cast<PluginProxy*>(proxy.get());
+        if (pluginProxy->name() == pluginName)
         {
-            return &proxy;
+            return pluginProxy;
         }
     }
     return nullptr;

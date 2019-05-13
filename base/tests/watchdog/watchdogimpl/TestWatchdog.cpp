@@ -64,7 +64,7 @@ namespace
         {
             Common::PluginRegistryImpl::PluginInfo info;
             info.setPluginName(pluginName);
-            m_pluginProxies.emplace_back(std::move(info));
+            addProcessToMonitor(std::unique_ptr<watchdog::watchdogimpl::PluginProxy>(new watchdog::watchdogimpl::PluginProxy(std::move(info))));
         }
     };
 } // namespace

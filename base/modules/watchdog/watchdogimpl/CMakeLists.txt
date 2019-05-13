@@ -12,9 +12,6 @@ add_library(watchdogimpl STATIC
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl
         logging
-        threads
-        processimpl
-        zmqwrapperapiimpl
         processmonitoringimpl
         ${LOG4CPLUS_LIBRARY}
         )
