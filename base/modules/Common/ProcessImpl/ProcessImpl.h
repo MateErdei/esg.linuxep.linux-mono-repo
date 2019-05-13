@@ -58,7 +58,7 @@ namespace Common
 
         public:
             static ProcessFactory& instance();
-            virtual std::unique_ptr<Process::IProcess> createProcess();
+            std::unique_ptr<Process::IProcess> createProcess();
             // for tests only
             void replaceCreator(std::function<std::unique_ptr<Common::Process::IProcess>(void)> creator);
             void restoreCreator();
