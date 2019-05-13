@@ -35,34 +35,34 @@ namespace
     const Telemetry::SystemTelemetryConfig L_testSystemTelemetryConfig = {
         { "kernel",
           Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
-                                           "",
+                                           {},
                                            "^\\s*Kernel:\\s*(.*)$",
                                            { { "", Telemetry::TelemetryValueType::STRING } } } },
         { "os-pretty",
           Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
-                                           "",
+                                           {},
                                            "^ *Operating System: (.*)$",
                                            { { "", Telemetry::TelemetryValueType::STRING } } } },
         { "cpu-cores",
           Telemetry::SystemTelemetryTuple{ "/usr/bin/lscpu",
-                                           "--pretty --total",
+                                           { "--pretty", "--total" },
                                            "^CPU\\(s\\): (.*)$",
                                            { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
     const Telemetry::SystemTelemetryConfig L_kernelTelemetryConfig = {
         { "kernel",
-          { "/usr/bin/hostnamectl", "", "^ *Kernel: (.*)$", { { "", Telemetry::TelemetryValueType::STRING } } } }
+          { "/usr/bin/hostnamectl", {}, "^ *Kernel: (.*)$", { { "", Telemetry::TelemetryValueType::STRING } } } }
     };
     const Telemetry::SystemTelemetryConfig L_osTelemetryConfig = {
         { "os-pretty",
           { "/usr/bin/hostnamectl",
-            "",
+            {},
             "^ *Operating System: (.*)$",
             { { "", Telemetry::TelemetryValueType::STRING } } } }
     };
     const Telemetry::SystemTelemetryConfig L_lscpuTelemetryConfig = {
         { "cpu-cores",
-          { "/usr/bin/lscpu", "", "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
+          { "/usr/bin/lscpu", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
 } // namespace
@@ -101,7 +101,7 @@ private:
 
 // These tests assume that keys in SystemTelemetryConfig objects are iterated over in dictionary order.
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK) // NOLINT
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -120,11 +120,11 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsIntValueOK)
     ASSERT_EQ(std::get<int>(cpuCores->second[0].second), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue) // NOLINT
 {
     Telemetry::SystemTelemetryConfig lscpuTelemetryConfig = {
         { "cpu-cores",
-          { "/usr/bin/will-fail", "", "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
+          { "/usr/bin/will-fail", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(lscpuTelemetryConfig.size());
@@ -145,7 +145,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsInvalidIntValue)
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue) // NOLINT
 {
     setupMockProcesses(L_lscpuTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -165,7 +165,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsTooLargeIntValue)
     ASSERT_EQ(intValue.find("cpu-cores"), intValue.end());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK) // NOLINT
 {
     setupMockProcesses(L_osTelemetryConfig.size());
     auto& mockProcess_ = mockProcesses_[0];
@@ -185,7 +185,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsStringValueOK)
     ASSERT_EQ(std::get<std::string>(osPretty->second[0].second), "Ubuntu 18.04.2 LTS");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMultipleValues) // NOLINT
 {
     // hostnamectl command is ran only once and second check uses cache
     setupMockProcesses(2);
@@ -205,7 +205,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCachesCommandOutputMulti
     ASSERT_EQ(multiValues.size(), L_testSystemTelemetryConfig.size());
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialChars) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -224,7 +224,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsSpecialCha
     ASSERT_EQ(std::get<0>(kernel->second[0].second), "ひらがな 4.15.0-47-generic");
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyString) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -240,7 +240,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsCommandReturnsEmptyStrin
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFailure) // NOLINT
 {
     setupMockProcesses(L_kernelTelemetryConfig.size());
     auto& mockProcess = mockProcesses_[0];
@@ -255,7 +255,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplExitCodeIsFai
     ASSERT_EQ(stringValue.empty(), true);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithTimeout) // NOLINT
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -288,7 +288,7 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithT
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail)
+TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithExitCodeFail) // NOLINT
 {
     // Mock systemctl call.
     setupMockProcesses(L_testSystemTelemetryConfig.size());
@@ -322,12 +322,12 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectObjectsProcessImplMultipleWithE
     ASSERT_EQ(multiValues.size(), 2);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK) // NOLINT
 {
     Telemetry::SystemTelemetryConfig multiLineTelemetryConfig = {
         { "disks",
           { "/bin/df",
-            "-T --local",
+            { "-T", "--local" },
             "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
             { { "fstype", Telemetry::TelemetryValueType::STRING },
               { "free", Telemetry::TelemetryValueType::INTEGER } } } }
@@ -360,21 +360,21 @@ TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectStringIntValuesOK)
     ASSERT_EQ(std::get<int>((diskItemArray[0])[1].second), 4041952);
 }
 
-TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges)
+TEST_F(SystemTelemetryCollectorImplTests, CollectArrayObjectInvalidSubmerges) // NOLINT
 {
     Telemetry::SystemTelemetryConfig multiLineTestTelemetryConfig = {
         { "disks",
           { "/bin/df",
-            "-T --local",
+            { "-T", "--local" },
             "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
             { { "fstype", Telemetry::TelemetryValueType::STRING },
               { "free", Telemetry::TelemetryValueType::INTEGER } } } },
         { "Test",
           { "/usr/bin/test",
-            "--testarg | testxargs",
-            "^(NoAfileSystemType.*): .*$",
-            { { "willnoteshohw", Telemetry::TelemetryValueType::STRING },
-              { "novaluewill show", Telemetry::TelemetryValueType::INTEGER } } } }
+            { "--testarg", "--testxargs" },
+            "^(CPU.*): .*$",
+            { { "no-show1", Telemetry::TelemetryValueType::STRING },
+              { "no-show2", Telemetry::TelemetryValueType::INTEGER } } } }
     };
 
     setupMockProcesses(multiLineTestTelemetryConfig.size());

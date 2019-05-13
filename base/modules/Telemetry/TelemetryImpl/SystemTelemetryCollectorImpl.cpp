@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <string>
 #include <variant>
-
+#include <algorithm>
 namespace Telemetry
 {
     const int GL_kbSize = 1024 * 1024;
@@ -77,25 +77,24 @@ namespace Telemetry
         return collect<std::vector<TelemetryItem>>(m_arraysConfig);
     }
 
-    std::string SystemTelemetryCollectorImpl::getTelemetryItem(const std::string& command, const std::string& args)
+    std::string SystemTelemetryCollectorImpl::getTelemetryItem(
+        const std::string& command,
+        std::vector<std::string> args)
         const
     {
-        std::string commandAndArgs(command + " " + args);
+        std::string commandAndArgs(command);
+        std::for_each(args.begin(), args.end(), [&commandAndArgs] (const std::string& arg){ commandAndArgs.append(arg); });
 
         if (m_commandOutputCache.find(commandAndArgs) != m_commandOutputCache.end())
         {
             return m_commandOutputCache[commandAndArgs];
         }
 
-        std::istringstream argsStream(args);
-        std::vector<std::string> commandArgs(
-            std::istream_iterator<std::string>{ argsStream }, std::istream_iterator<std::string>());
-
         auto processPtr = Common::Process::createProcess();
         processPtr->setOutputLimit(GL_kbSize);
 
         // gather raw telemetry, ignoring failures
-        processPtr->exec(command, commandArgs);
+        processPtr->exec(command, args);
         if (processPtr->wait(Common::Process::milli(GL_waitTimeMilliSeconds), GL_waitMaxRetries) !=
             Common::Process::ProcessStatus::FINISHED)
         {

@@ -49,7 +49,7 @@ namespace Telemetry
         template<typename T>
         std::map<std::string, T> collect(const SystemTelemetryConfig& config) const;
 
-        std::string getTelemetryItem(const std::string& command, const std::string& args) const;
+        std::string getTelemetryItem(const std::string& command, std::vector<std::string> args) const;
         std::vector<std::string> matchSingleLine(std::istringstream& stream, const std::regex& re) const;
 
         Telemetry::SystemTelemetryConfig m_objectsConfig;

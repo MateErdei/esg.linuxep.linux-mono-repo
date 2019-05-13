@@ -29,7 +29,7 @@ namespace Telemetry
      * Type representing telemetry item name, command, command-arguments, regex and property.
      */
     using SystemTelemetryTuple =
-        std::tuple<const std::string, const std::string, const std::string, std::vector<TelemetryProperty>>;
+        std::tuple<const std::string, std::vector<std::string>, const std::string, std::vector<TelemetryProperty>>;
 
     using SystemTelemetryConfig = std::map<const std::string, const SystemTelemetryTuple>;
 
