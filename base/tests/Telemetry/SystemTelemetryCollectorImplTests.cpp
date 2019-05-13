@@ -86,8 +86,7 @@ public:
         }
 
         Common::ProcessImpl::ProcessFactory::instance().replaceCreator([this]() {
-            return (mockProcessIndex_ == mockProcesses_.size())
-                       ? nullptr
+            return (mockProcessIndex_ == mockProcesses_.size()) ? nullptr
                                                                 : std::move(mockProcesses_[mockProcessIndex_++]);
         });
     }
