@@ -54,7 +54,8 @@ namespace Telemetry
 
             T values;
 
-            if (getValues(values, commandOutput, regexp, properties)) // getValues used depends on T
+            if (getTelemetryValuesFromCommandOutput(
+                    values, commandOutput, regexp, properties)) // getTelemetryValuesFromCommandOutput used depends on T
             {
                 telemetry[name] = values;
                 continue;
@@ -132,7 +133,7 @@ namespace Telemetry
         return std::vector<std::string>();
     }
 
-    bool SystemTelemetryCollectorImpl::getValues(
+    bool SystemTelemetryCollectorImpl::getTelemetryValuesFromCommandOutput(
         TelemetryItem& values,
         std::string& commandOutput,
         const std::string& regexp,
@@ -185,7 +186,7 @@ namespace Telemetry
         return values.size() == properties.size();
     }
 
-    bool SystemTelemetryCollectorImpl::getValues(
+    bool SystemTelemetryCollectorImpl::getTelemetryValuesFromCommandOutput(
         std::vector<TelemetryItem>& values,
         std::string& commandOutput,
         const std::string& regexp,
@@ -197,7 +198,7 @@ namespace Telemetry
         {
             TelemetryItem valuesFromLine;
 
-            if (getValues(valuesFromLine, lineFromCommandOutput, regexp, properties))
+            if (getTelemetryValuesFromCommandOutput(valuesFromLine, lineFromCommandOutput, regexp, properties))
             {
                 values.emplace_back(valuesFromLine);
             }

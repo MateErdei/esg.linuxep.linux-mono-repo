@@ -33,13 +33,13 @@ namespace Telemetry
         std::map<std::string, std::vector<TelemetryItem>> collectArraysOfObjects() const override;
 
     protected:
-        bool getValues(
+        bool getTelemetryValuesFromCommandOutput(
             TelemetryItem& values,
             std::string& commandOutput,
             const std::string& regexp,
             std::vector<TelemetryProperty> properties) const;
 
-        bool getValues(
+        bool getTelemetryValuesFromCommandOutput(
             std::vector<TelemetryItem>& values,
             std::string& commandOutput,
             const std::string& regexp,
