@@ -202,7 +202,7 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
  * (see https://wiki.sophos.net/display/VT/Run+the+Telemetry+Executable for steps on how to set that up)
 */
 
- /*
+/*
 class FakeCurlWrapper2 : public Common::HttpSenderImpl::CurlWrapper
 {
 public:
@@ -251,24 +251,24 @@ TEST_F(HttpSenderTest, getRequest_WithMultipleHeaders) // NOLINT
     m_additionalHeaders.emplace_back("header4");
     m_additionalHeaders.emplace_back("header5");
 
-    RequestConfig req("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::TEST);
     m_additionalHeaders[0][3]='k';
     EXPECT_EQ(m_httpSender->doHttpsRequest(req), 77);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(req), 77);
 
 
-    RequestConfig req1("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req1("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::TEST);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req1), 61);
 
     m_additionalHeaders.emplace_back("breakhere");
     m_additionalHeaders.emplace_back("donotrunthis");
-    RequestConfig req2("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req2("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::TEST);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req2), CURLE_FAILED_INIT);
 
     m_additionalHeaders.clear();
     fk->setAnswer(CURLE_BAD_CONTENT_ENCODING);
-    RequestConfig req3("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req3("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::TEST);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req3), 77);
 }
 */
