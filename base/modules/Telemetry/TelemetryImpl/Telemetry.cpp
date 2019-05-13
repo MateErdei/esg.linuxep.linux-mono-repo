@@ -91,12 +91,11 @@ namespace Telemetry
 
         std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
 
-        SystemTelemetryCollectorImpl systemTelemetryCollector(
-            GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig);
-        std::shared_ptr<ITelemetryProvider> systemTelemetryReporter =
-            std::make_shared<SystemTelemetryReporter>(systemTelemetryCollector);
-        telemetryProviders.emplace_back(systemTelemetryReporter);
+        auto systemTelemetryReporter =
+            std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
+                GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig));
 
+        telemetryProviders.emplace_back(systemTelemetryReporter);
         TelemetryProcessor telemetryProcessor(telemetryProviders);
 
         return main(argc, argv, httpSender, telemetryProcessor);

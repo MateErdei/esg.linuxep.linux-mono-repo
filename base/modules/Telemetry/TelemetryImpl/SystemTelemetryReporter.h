@@ -25,7 +25,7 @@ namespace Telemetry
     class SystemTelemetryReporter : public ITelemetryProvider
     {
     public:
-        SystemTelemetryReporter(const ISystemTelemetryCollector& systemTelemetryCollector);
+        explicit SystemTelemetryReporter(std::unique_ptr<ISystemTelemetryCollector> systemTelemetryCollector);
 
         std::string getName() override { return "system-telemetry"; }
         std::string getTelemetry() override;
@@ -39,6 +39,6 @@ namespace Telemetry
             Common::Telemetry::TelemetryHelper& jsonConverter,
             const std::map<std::string, std::vector<TelemetryItem>>& systemTelemetryArrays);
 
-        const ISystemTelemetryCollector& m_systemTelemetryCollector;
+        std::unique_ptr<ISystemTelemetryCollector> m_systemTelemetryCollector;
     };
 } // namespace Telemetry

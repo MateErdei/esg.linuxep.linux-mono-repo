@@ -15,19 +15,24 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    SystemTelemetryReporter::SystemTelemetryReporter(const ISystemTelemetryCollector& systemTelemetryCollector) :
-        m_systemTelemetryCollector(systemTelemetryCollector)
+    SystemTelemetryReporter::SystemTelemetryReporter(
+        std::unique_ptr<ISystemTelemetryCollector> systemTelemetryCollector) :
+        m_systemTelemetryCollector(std::move(systemTelemetryCollector))
     {
+        if (!m_systemTelemetryCollector)
+        {
+            throw std::invalid_argument("systemTelemetryCollector null");
+        }
     }
 
     std::string SystemTelemetryReporter::getTelemetry()
     {
         Common::Telemetry::TelemetryHelper jsonConverter;
 
-        auto systemTelemetryObjects = m_systemTelemetryCollector.collectObjects();
+        auto systemTelemetryObjects = m_systemTelemetryCollector->collectObjects();
         getSimpleTelemetry(jsonConverter, systemTelemetryObjects);
 
-        auto systemTelemetryArrays = m_systemTelemetryCollector.collectArraysOfObjects();
+        auto systemTelemetryArrays = m_systemTelemetryCollector->collectArraysOfObjects();
         getArraysTelemetry(jsonConverter, systemTelemetryArrays);
 
         return jsonConverter.serialise();
