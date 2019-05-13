@@ -196,7 +196,13 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
+
 /*
+ * This test can be used to manually debug the CurlWrapper using a locally hosted http server
+ * (see https://wiki.sophos.net/display/VT/Run+the+Telemetry+Executable for steps on how to set that up)
+*/
+
+ /*
 class FakeCurlWrapper2 : public Common::HttpSenderImpl::CurlWrapper
 {
 public:
@@ -239,11 +245,11 @@ TEST_F(HttpSenderTest, getRequest_WithMultipleHeaders) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
     m_httpSender = std::make_shared<HttpSender>(curlWr);
 
-    m_additionalHeaders.emplace_back("headr1");
-    m_additionalHeaders.emplace_back("headr2");
-    m_additionalHeaders.emplace_back("headr3");
-    m_additionalHeaders.emplace_back("headr4");
-    m_additionalHeaders.emplace_back("headr5");
+    m_additionalHeaders.emplace_back("header1");
+    m_additionalHeaders.emplace_back("header2");
+    m_additionalHeaders.emplace_back("header3");
+    m_additionalHeaders.emplace_back("header4");
+    m_additionalHeaders.emplace_back("header5");
 
     RequestConfig req("GET", m_additionalHeaders, "localhost", GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
     m_additionalHeaders[0][3]='k';
@@ -252,17 +258,17 @@ TEST_F(HttpSenderTest, getRequest_WithMultipleHeaders) // NOLINT
     EXPECT_EQ(m_httpSender->doHttpsRequest(req), 77);
 
 
-    RequestConfig req1("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req1("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req1), 61);
 
     m_additionalHeaders.emplace_back("breakhere");
     m_additionalHeaders.emplace_back("donotrunthis");
-    RequestConfig req2("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
+    RequestConfig req2("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req2), CURLE_FAILED_INIT);
 
     m_additionalHeaders.clear();
     fk->setAnswer(CURLE_BAD_CONTENT_ENCODING);
-    RequestConfig req3("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "defaultcert", ResourceRoot::DEV);
+    RequestConfig req3("GET", m_additionalHeaders, localhost, GL_defaultPort, "/tmp/cert.pem", ResourceRoot::DEV);
     EXPECT_EQ(m_httpSender->doHttpsRequest(req3), 77);
 }
 */
