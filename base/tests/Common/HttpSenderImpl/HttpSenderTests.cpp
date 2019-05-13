@@ -20,7 +20,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <curl/curl.h>
 
-
 using ::testing::_;
 using ::testing::AtLeast;
 using ::testing::Return;
