@@ -26,11 +26,14 @@ namespace Telemetry
     };
 
     /**
-     * Type representing telemetry item name, command, command-arguments, regex and property.
+     * Type representing command to get telemetry data, command-arguments, regex and property.
      */
     using SystemTelemetryTuple =
         std::tuple<const std::string, std::vector<std::string>, const std::string, std::vector<TelemetryProperty>>;
 
+    /**
+     * Type representing telemetry item name and how to extract the telemetry.
+     */
     using SystemTelemetryConfig = std::map<const std::string, const SystemTelemetryTuple>;
 
     extern const SystemTelemetryConfig GL_systemTelemetryObjectsConfig;
