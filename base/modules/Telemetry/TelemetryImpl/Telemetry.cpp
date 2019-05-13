@@ -22,6 +22,7 @@ namespace Telemetry
 
     int main(int argc, char* argv[], Common::HttpSender::IHttpSender& httpSender)
     {
+
         try
         {
             // TODO: [LINUXEP-6075] All argument parsing is temporary as these parameters will be read in from a configuration file
