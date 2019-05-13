@@ -206,14 +206,12 @@ TEST_F(TelemetryTest, main_InvalidArgsReturnsFailure) // NOLINT
         argv.emplace_back(const_cast<char*>(arg.data()));
     }
 
-    int expectedErrorCode = 1;
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
@@ -228,14 +226,12 @@ TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
         argv.emplace_back(const_cast<char*>(arg.data()));
     }
 
-    int expectedErrorCode = 1;
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
@@ -248,14 +244,12 @@ TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
         argv.emplace_back(const_cast<char*>(arg.data()));
     }
 
-    int expectedErrorCode = 1;
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 class TelemetryTestVariableArgs : public TelemetryTest,
@@ -275,14 +269,12 @@ TEST_P(TelemetryTestVariableArgs, main_HttpRequestReturnsFailure) // NOLINT
         argv.emplace_back(const_cast<char*>(m_args[i].c_str()));
     }
 
-    int expectedErrorCode = 1;
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders);
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
