@@ -13,12 +13,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <curl/curl.h>
-#include <modules/Common/Logging/ConsoleLoggingSetup.h>
+
 
 using ::testing::_;
 using ::testing::AtLeast;
