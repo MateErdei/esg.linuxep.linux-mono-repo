@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryObject.h"
+
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <functional>
@@ -43,8 +44,7 @@ namespace Common::Telemetry
         void appendValue(const std::string& arrayKey, const char* value);
         void appendValue(const std::string& arrayKey, bool value);
 
-        TelemetryObject& appendObject(const std::string& arrayKey);
-
+        void appendObject(const std::string& arrayKey, const TelemetryObject& object);
         void appendObject(const std::string& arrayKey, const std::string& key, int value);
         void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value);
         void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value);
@@ -58,7 +58,6 @@ namespace Common::Telemetry
         void registerResetCallback(std::string cookie, std::function<void()> function);
         void unregisterResetCallback(std::string cookie);
         void reset();
-
         std::string serialise();
         std::string serialiseAndReset();
 
@@ -74,17 +73,78 @@ namespace Common::Telemetry
         std::map<std::string, std::function<void()>> m_callbacks;
 
         template<class T>
-        void setInternal(const std::string& key, T value);
+        void setInternal(const std::string& key, T value)
+        {
+            std::lock_guard<std::mutex> lock(m_dataLock);
+            TelemetryValue telemetryValue(value);
+            getTelemetryObjectByKey(key).set(telemetryValue);
+        }
 
         template<class T>
-        void incrementInternal(const std::string& key, T value);
+        void incrementInternal(const std::string& key, T value)
+        {
+            std::lock_guard<std::mutex> lock(m_dataLock);
+            TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
+            TelemetryValue telemetryValue(0);
+
+            if (telemetryObject.getType() != TelemetryObject::Type::value)
+            {
+                telemetryObject.set(telemetryValue);
+            }
+
+            TelemetryValue::Type valueType = telemetryObject.getValue().getType();
+            if (valueType == TelemetryValue::Type::integer_type)
+            {
+                int newValue = telemetryObject.getValue().getInteger() + value;
+                telemetryValue.set(newValue);
+            }
+            else if (valueType == TelemetryValue::Type::unsigned_integer_type)
+            {
+                unsigned int newValue = telemetryObject.getValue().getUnsignedInteger() + value;
+                telemetryValue.set(newValue);
+            }
+
+            telemetryObject.set(telemetryValue);
+        }
 
         template<class T>
-        void appendValueInternal(const std::string& key, T value);
+        void appendValueInternal(const std::string& key, T value)
+        {
+            std::lock_guard<std::mutex> lock(m_dataLock);
+            TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
+
+            // Force telemetry object to be an array, they are defaulted to object type.
+            if (telemetryObject.getType() != TelemetryObject::Type::array)
+            {
+                telemetryObject.set(std::list<TelemetryObject>());
+            }
+
+            std::list<TelemetryObject>& list = telemetryObject.getArray();
+            TelemetryValue newValue(value);
+            TelemetryObject newObj;
+            newObj.set(newValue);
+            list.emplace_back(newObj);
+        }
 
         template<class T>
-        void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value);
+        void appendObjectInternal(const std::string& arrayKey, const std::string& key, T value)
+        {
+            std::lock_guard<std::mutex> lock(m_dataLock);
+            TelemetryObject& telemetryObject = getTelemetryObjectByKey(arrayKey);
+
+            // Force telemetry object to be an array, they are defaulted to object type.
+            if (telemetryObject.getType() != TelemetryObject::Type::array)
+            {
+                telemetryObject.set(std::list<TelemetryObject>());
+            }
+
+            std::list<TelemetryObject>& list = telemetryObject.getArray();
+            TelemetryValue newValue(value);
+            TelemetryObject newObj;
+            newObj.set(key, newValue);
+            list.emplace_back(newObj);
+        }
 
         void clearData();
     };
-} // namespace Common::Telemetry
+}

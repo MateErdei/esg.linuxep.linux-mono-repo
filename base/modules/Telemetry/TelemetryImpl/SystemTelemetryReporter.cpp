@@ -70,7 +70,7 @@ namespace Telemetry
         {
             for (const auto& object : array)
             {
-                Common::Telemetry::TelemetryObject& jsonObject = jsonConverter.appendObject(telemetryName);
+                Common::Telemetry::TelemetryObject jsonObject;
 
                 for (const auto& value : object)
                 {
@@ -87,6 +87,8 @@ namespace Telemetry
 
                     jsonObject.set(value.first, jsonValue);
                 }
+
+                jsonConverter.appendObject(telemetryName, jsonObject);
             }
         }
     }
