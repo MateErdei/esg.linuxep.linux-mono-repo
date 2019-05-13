@@ -142,7 +142,8 @@ TEST(TestTelemetryHelper, appendObject) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.appendObject("array");
+    TelemetryObject telemetryObject;
+    helper.appendObject("array", telemetryObject);
     ASSERT_EQ(R"({"array":[{}]})", helper.serialise());
 }
 
