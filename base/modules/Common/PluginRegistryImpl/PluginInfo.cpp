@@ -11,21 +11,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginRegistryException.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <google/protobuf/util/json_util.h>
 
-#include <grp.h>
-#include <pwd.h>
-#include <unistd.h>
 
 namespace Common
 {
     namespace PluginRegistryImpl
     {
-        PluginInfo::PluginInfo() : m_executableUser(-1), m_executableGroup(-1) {}
 
         std::vector<std::string> PluginInfo::getPolicyAppIds() const { return m_policyAppIds; }
 
@@ -38,15 +34,6 @@ namespace Common
 
         std::string PluginInfo::getXmlTranslatorPath() const { return m_xmlTranslatorPath; }
 
-        std::vector<std::string> PluginInfo::getExecutableArguments() const { return m_executableArguments; }
-
-        PluginInfo::EnvPairs PluginInfo::getExecutableEnvironmentVariables() const
-        {
-            return m_executableEnvironmentVariables;
-        }
-
-        std::string PluginInfo::getExecutableFullPath() const { return m_executableFullPath; }
-
         void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
         void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
@@ -56,93 +43,6 @@ namespace Common
         void PluginInfo::setXmlTranslatorPath(const std::string& xmlTranslationPath)
         {
             m_xmlTranslatorPath = xmlTranslationPath;
-        }
-
-        void PluginInfo::setExecutableFullPath(const std::string& executableFullPath)
-        {
-            m_executableFullPath = executableFullPath;
-        }
-
-        void PluginInfo::setExecutableArguments(const std::vector<std::string>& executableArguments)
-        {
-            m_executableArguments = executableArguments;
-        }
-
-        void PluginInfo::addExecutableArguments(const std::string& executableArgument)
-        {
-            m_executableArguments.push_back(executableArgument);
-        }
-
-        void PluginInfo::setExecutableEnvironmentVariables(const PluginInfo::EnvPairs& executableEnvironmentVariables)
-        {
-            m_executableEnvironmentVariables = executableEnvironmentVariables;
-        }
-
-        void PluginInfo::addExecutableEnvironmentVariables(
-            const std::string& environmentName,
-            const std::string& environmentValue)
-        {
-            m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
-        }
-
-        void PluginInfo::setExecutableUserAndGroup(const std::string& executableUserAndGroup)
-        {
-            m_executableUser = -1;
-            m_executableGroup = -1;
-
-            m_executableUserAndGroupAsString = executableUserAndGroup;
-
-            size_t pos = executableUserAndGroup.find(':');
-
-            std::string userName = executableUserAndGroup.substr(0, pos);
-
-            std::string groupName;
-            if (pos != std::string::npos)
-            {
-                groupName = executableUserAndGroup.substr(pos + 1);
-            }
-
-            struct passwd* passwdStruct;
-            passwdStruct = ::getpwnam(userName.c_str());
-
-            if (passwdStruct != nullptr)
-            {
-                m_executableUser = passwdStruct->pw_uid;
-
-                if (groupName.empty())
-                {
-                    m_executableGroup = passwdStruct->pw_gid;
-                }
-                else
-                {
-                    FileSystem::FilePermissionsImpl filefunctions;
-                    try
-                    {
-                        int groupId = filefunctions.getGroupId(groupName);
-                        m_executableGroup = groupId;
-                    }
-                    catch (const Common::FileSystem::IFileSystemException& exception)
-                    {
-                        LOGERROR(exception.what());
-                    }
-                }
-            }
-        }
-
-        std::string PluginInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
-
-        std::pair<bool, uid_t> PluginInfo::getExecutableUser() const
-        {
-            uid_t userId = static_cast<uid_t>(m_executableUser);
-
-            return std::make_pair(m_executableUser != -1, userId);
-        }
-
-        std::pair<bool, gid_t> PluginInfo::getExecutableGroup() const
-        {
-            gid_t groupId = static_cast<gid_t>(m_executableGroup);
-
-            return std::make_pair(m_executableGroup != -1, groupId);
         }
 
         std::string PluginInfo::serializeToString(const PluginInfo& pluginInfo)

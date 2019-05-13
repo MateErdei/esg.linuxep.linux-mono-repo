@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/Process/IProcessInfo.h>
+#include <Common/ProcessImpl/ProcessInfo.h>
 
 #include <string>
 #include <vector>
@@ -21,14 +21,14 @@ namespace Common
 
         using PluginInfoVector = std::vector<PluginInfo>;
 
-        class PluginInfo : public Process::IProcessInfo
+        class PluginInfo : public ProcessImpl::ProcessInfo
         {
         private:
             PluginInfo(const PluginInfo&) = default;
             PluginInfo& operator=(const PluginInfo&) = default;
 
         public:
-            PluginInfo();
+            PluginInfo() = default;
             PluginInfo(PluginInfo&&) = default;
             PluginInfo& operator=(PluginInfo&&) = default;
 
@@ -66,24 +66,6 @@ namespace Common
             std::string getXmlTranslatorPath() const;
 
             /**
-             * Used to get the path of the plugin executable.
-             * @return string containing the path
-             */
-            std::string getExecutableFullPath() const override;
-
-            /**
-             * Used to get the required arguments for the plugin executable (if any)
-             * @return zero or more strings used for the executable arguments.
-             */
-            std::vector<std::string> getExecutableArguments() const override;
-
-            /**
-             * Used to get the required environment variables for the plugin executable (if any)
-             * @return zero or more strings used for the executable environment variables.
-             */
-            EnvPairs getExecutableEnvironmentVariables() const override;
-
-            /**
              * Used to store the given Policy AppIds the plugin is interested in.
              * @param list of appIDs
              */
@@ -118,65 +100,6 @@ namespace Common
              * @param xmlTranslationPath
              */
             void setXmlTranslatorPath(const std::string& xmlTranslationPath);
-
-            /**
-             * Used to store the full part to the plugin executable
-             * @param executableFullPath
-             */
-            void setExecutableFullPath(const std::string& executableFullPath) override;
-
-            /**
-             * Used to store the given arguments the plugin requires to run.
-             * @param list of executableArguments
-             */
-            void setExecutableArguments(const std::vector<std::string>& executableArguments) override;
-
-            /**
-             * Used to add the given argument to the stored list of arguments.
-             * @param executableArgument
-             */
-            void addExecutableArguments(const std::string& executableArgument) override;
-
-            /**
-             * Used to store a list of environment variables required by the plugin.
-             * @param executableEnvironmentVariables
-             */
-            void setExecutableEnvironmentVariables(const EnvPairs& executableEnvironmentVariables) override;
-
-            /**
-             * Used to add a single environment variable to the list of stored environment variables required by the
-             * plugin.
-             * @param environmentName
-             * @param environmentValue
-             */
-            void addExecutableEnvironmentVariables(
-                const std::string& environmentName,
-                const std::string& environmentValue) override;
-
-            /**
-             * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will
-             * be set.
-             * @param executableUserAndGroup string in the form "user:group" or "user"
-             */
-            void setExecutableUserAndGroup(const std::string& executableUserAndGroup) override;
-
-            /**
-             *
-             * @return Executable user and group in the form "user:group" or "user"
-             */
-            std::string getExecutableUserAndGroupAsString() const override;
-
-            /**
-             * gets user id relating to the Executable user
-             * @return pair <true, valid user id> if the user id is valid, pair <false, invalid user id> otherwise
-             */
-            std::pair<bool, uid_t> getExecutableUser() const override;
-
-            /**
-             * gets group id relating to the Executable group
-             * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
-             */
-            std::pair<bool, gid_t> getExecutableGroup() const override;
 
             /**
              * Serialize pluginInfo object into protobuf message.
@@ -240,16 +163,11 @@ namespace Common
             static std::string extractPluginNameFromFilename(const std::string& filepath);
 
         private:
-            int m_executableUser;
-            int m_executableGroup;
             std::vector<std::string> m_policyAppIds;
             std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
-            std::string m_executableFullPath;
-            std::vector<std::string> m_executableArguments;
-            EnvPairs m_executableEnvironmentVariables;
-            std::string m_executableUserAndGroupAsString;
+
         };
 
         using PluginInfoPtr = std::unique_ptr<PluginInfo>;

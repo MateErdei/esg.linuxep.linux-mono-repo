@@ -13,6 +13,7 @@ target_link_libraries(pluginregistryimpl
             utilityimpl
             filesystemimpl
             applicationconfigurationimpl
+            processimpl
             ${LOG4CPLUS_LIBRARY}
         )
 add_dependencies(pluginregistryimpl generatePluginInfoProto)
