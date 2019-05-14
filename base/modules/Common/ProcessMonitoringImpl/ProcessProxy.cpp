@@ -49,6 +49,12 @@ namespace Common
                 return;
             }
 
+            if (!FileSystem::fileSystem()->isFile(m_exe))
+            {
+                LOGINFO("Executable does not exist at : " << m_exe);
+                return;
+            }
+
             if (!userId.first || !groupId.first)
             {
                 LOGERROR("Not starting plugin: invalid user name or group name");

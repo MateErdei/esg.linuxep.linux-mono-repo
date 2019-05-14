@@ -86,7 +86,7 @@ namespace Common
                 {
                     if (fd == terminationFD.get())
                     {
-                        LOGWARN("Sophos watchdog exiting");
+                        LOGWARN("Process Monitoring Exiting");
                         signalHandler.clearTerminationPipe();
                         keepRunning = false;
                         continue;
