@@ -36,7 +36,7 @@ namespace Common::HttpSenderImpl
     {
     public:
         RequestConfig(
-            const std::string& requestTypeStr,
+            RequestType requestType,
             std::vector<std::string> additionalHeaders,
             std::string server = GL_defaultServer,
             int port = GL_defaultPort,
@@ -62,14 +62,15 @@ namespace Common::HttpSenderImpl
         std::string getRequestTypeAsString();
         int getPort();
 
+        static ResourceRoot stringToResourceRoot(const std::string& resourceRoot);
+        static RequestType stringToRequestType(const std::string& requestType);
+
         static std::string resourceRootToString(ResourceRoot resourceRoot);
         static std::string requestTypeToString(RequestType requestType);
 
     private:
         std::string m_data;
         std::vector<std::string> m_additionalHeaders;
-        static ResourceRoot stringToResourceRoot(const std::string& resourceRoot);
-        static RequestType stringToRequestType(const std::string& requestType);
 
         std::string m_server;
         int m_port;

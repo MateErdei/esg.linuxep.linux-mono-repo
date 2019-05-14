@@ -7,21 +7,21 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryProcessor.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/HttpSender/IHttpSender.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
-#include <sys/stat.h>
 #include <utility>
 
 using namespace Telemetry;
 using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
-    std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders,
-    size_t maxJsonBytes) :
-    m_telemetryProviders(std::move(telemetryProviders)),
-    m_maxJsonSizeBytes(maxJsonBytes)
+    const TelemetryConfig::Config& config,
+    std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
+    m_config(config),
+    m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 
@@ -46,25 +46,29 @@ void TelemetryProcessor::gatherTelemetry()
     }
 }
 
-void TelemetryProcessor::saveAndSendTelemetry()
+void TelemetryProcessor::saveAndSendTelemetry(Common::HttpSender::IHttpSender& httpSender)
 {
     Path jsonOutputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
-    LOGINFO("Saving telemetry to file: " << jsonOutputFile);
 
     std::string json = getSerialisedTelemetry();
 
-    if (json.length() > m_maxJsonSizeBytes)
+    Common::HttpSenderImpl::RequestConfig requestConfig(m_config.m_verb, m_config.m_headers);
+    requestConfig.setServer(m_config.m_server);
+    requestConfig.setCertPath(m_config.m_certPath);
+    requestConfig.setResourceRoot(m_config.m_resourceRoute);
+
+    if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
-        std::stringstream msg;
-        msg << "The gathered telemetry exceeds the maximum size of " << m_maxJsonSizeBytes << " bytes.";
-        throw std::invalid_argument(msg.str());
+        throw std::runtime_error("Certificate is not a valid file");
     }
 
-    // TODO: LINUXEP-7991 move sending here
+    requestConfig.setData(json);
 
-    // Will overwrite data each time.
-    Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json);
-    Common::FileSystem::filePermissions()->chmod(jsonOutputFile, S_IRUSR | S_IWUSR);
+    LOGINFO("Sending telemetry...");
+    httpSender.doHttpsRequest(requestConfig);
+
+    LOGINFO("Saving telemetry to file: " << jsonOutputFile);
+    Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json); // Will overwrite data each time.
 }
 
 std::string TelemetryProcessor::getSerialisedTelemetry()

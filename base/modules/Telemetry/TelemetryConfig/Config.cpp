@@ -5,6 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Config.h"
+
 bool Telemetry::TelemetryConfig::Config::operator==(const Telemetry::TelemetryConfig::Config & rhs) const
 {
     return m_server == rhs.m_server &&

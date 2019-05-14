@@ -12,13 +12,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockTelemetryProvider.h"
 
 #include <Telemetry/TelemetryImpl/Telemetry.h>
+#include <Telemetry/TelemetryConfig/Config.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
 using ::testing::StrictMock;
@@ -30,12 +29,10 @@ class TelemetryTest : public ::testing::Test
 public:
     StrictMock<MockHttpSender> m_httpSender;
     std::vector<std::string> m_additionalHeaders;
-    const char* m_data = R"({"mock-telemetry-provider":{"mockKey":"mockValue"}})";
+    const char* m_data = "{\"mock-telemetry-provider\":{\"mockKey\":\"mockValue\"}}";
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
-    MockFilePermissions* m_mockFilePermissions = nullptr;
     MockFileSystem* m_mockFileSystem = nullptr;
-    const std::size_t m_maxJsonBytes = 1000;
 
     std::string m_defaultCertPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
@@ -77,33 +74,29 @@ public:
         std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
         m_mockFileSystem = mockfileSystem.get();
         Tests::replaceFileSystem(std::move(mockfileSystem));
-        std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
-        m_mockFilePermissions = mockfilePermissions.get();
-        Tests::replaceFilePermissions(std::move(mockfilePermissions));
 
         m_additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control");
 
-        m_defaultRequestConfig = std::make_unique<RequestConfig>("GET", m_additionalHeaders);
+        m_defaultRequestConfig = std::make_unique<RequestConfig>(RequestType::GET, m_additionalHeaders);
         m_defaultRequestConfig->setData(m_data);
     }
 
     void TearDown() override
     {
-        Tests::restoreFilePermissions();
         Tests::restoreFileSystem();
     }
 };
 
-class TelemetryTestRequestTypes : public TelemetryTest, public ::testing::WithParamInterface<std::string>
-{
+class TelemetryTestRequestTypes : public TelemetryTest,
+                                  public ::testing::WithParamInterface<RequestType> {
+
 };
 
-INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestRequestTypes, ::testing::Values("GET", "POST", "PUT")); // NOLINT
+INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestRequestTypes, ::testing::Values(RequestType::GET, RequestType::POST, RequestType::PUT)); // NOLINT
 
 TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
-    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
@@ -111,17 +104,17 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    std::string requestType = GetParam();
+    auto requestType = GetParam();
 
-    if (requestType == "GET")
+    if (requestType == RequestType::GET)
     {
         EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareGetRequestConfig));
     }
-    else if (requestType == "POST")
+    else if (requestType == RequestType::POST)
     {
         EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::ComparePostRequestConfig));
     }
-    else if (requestType == "PUT")
+    else if (requestType == RequestType::PUT)
     {
         EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::ComparePutRequestConfig));
     }
@@ -130,28 +123,25 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
         throw std::logic_error("Invalid requestType");
     }
 
-    std::vector<std::string> arguments = { m_binaryPath, requestType, GL_defaultServer, m_defaultCertPath, "PROD" };
-
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
-
-    int expectedErrorCode = 0;
-
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = requestType;
+    config.m_server = GL_defaultServer;
+    config.m_certPath = m_defaultCertPath;
+    config.m_resourceRoute = "PROD";
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+
+    int expectedErrorCode = 0;
+
+    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
-    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
@@ -160,28 +150,21 @@ TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    std::vector<std::string> arguments = { m_binaryPath, "GET" };
-
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
-
-    int expectedErrorCode = 0;
-
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = RequestType::GET;
 
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode);
+    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+
+    int expectedErrorCode = 0;
+    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
-    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Invoke(this, &TelemetryTest::CompareRequestConfig));
 
@@ -190,104 +173,74 @@ TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    std::vector<std::string> arguments = { m_binaryPath, "POST" };
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = RequestType::POST;
 
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
 
     int expectedErrorCode = 0;
-
-    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
-    telemetryProviders.emplace_back(mockTelemetryProvider);
-
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
-
-    EXPECT_EQ(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), expectedErrorCode); // NOLINT
-}
-
-TEST_F(TelemetryTest, main_InvalidArgsReturnsFailure) // NOLINT
-{
-    std::vector<std::string> arguments = { m_binaryPath, "DANCE" };
-
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
-
-    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
-    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
-    telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
-
-    EXPECT_THROW(
-        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
 }
 
 TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(false));
 
-    std::vector<std::string> arguments = { m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath, "DEV" };
-
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = RequestType::PUT;
+    config.m_server = GL_defaultServer;
+    config.m_certPath = m_defaultCertPath;
+    config.m_resourceRoute = "DEV";
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
 
-    EXPECT_THROW(
-        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
 {
-    std::vector<std::string> arguments = { m_binaryPath, "PUT", GL_defaultServer, m_defaultCertPath, "INVALID" };
-
-    std::vector<char*> argv;
-    for (const auto& arg : arguments)
-    {
-        argv.emplace_back(const_cast<char*>(arg.data()));
-    }
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = RequestType::PUT;
+    config.m_server = GL_defaultServer;
+    config.m_certPath = m_defaultCertPath;
+    config.m_resourceRoute = "INVALID";
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
 
-    EXPECT_THROW(
-        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
-class TelemetryTestVariableArgs : public TelemetryTest, public ::testing::WithParamInterface<int>
-{
+class TelemetryTestVariableArgs : public TelemetryTest,
+        public ::testing::WithParamInterface<int> {
+
 };
 
-INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestVariableArgs, ::testing::Values(1, 6)); // NOLINT
 
-TEST_P(TelemetryTestVariableArgs, main_HttpRequestReturnsFailure) // NOLINT
+// TODO: move to different test file
+TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
 {
-    EXPECT_CALL(*m_mockFileSystem, readlink(_)).WillRepeatedly(Return(""));
-
-    std::vector<char*> argv;
-    for (int i = 0; i < GetParam(); ++i)
-    {
-        argv.emplace_back(const_cast<char*>(m_args[i].c_str()));
-    }
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
-    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
-    telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
 
-    EXPECT_THROW(
-        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    Telemetry::TelemetryConfig::Config config;
+
+    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ(R"({"Mock":{"key":1}})", json);
 }
