@@ -10,6 +10,8 @@ import logging
 import mcsrouter.adapters.adapter_base
 import mcsrouter.adapters.mcs.mcs_policy_handler
 import mcsrouter.utils.path_manager as path_manager
+import mcsrouter.utils.xml_helper
+
 
 
 LOGGER = logging.getLogger(__name__)
@@ -76,7 +78,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         _get_status_xml
         """
-        doc = xml.dom.minidom.parseString(TEMPLATE_STATUS_XML)
+        doc = self._parse_xml_string(TEMPLATE_STATUS_XML)
         mcsrouter.adapters.adapter_base.remove_blanks(doc)
 
         comp_node = doc.getElementsByTagName("csc:CompRes")[0]

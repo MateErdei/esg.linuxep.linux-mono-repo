@@ -49,7 +49,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         LOGGER.debug("Received %s policy", self.__m_app_id)
 
         try:
-            doc = xml.dom.minidom.parseString(policy)
+            doc = self._parse_xml_string(policy)
         except xml.parsers.expat.ExpatError as exception:
             LOGGER.error(
                 "Failed to parse %s policy (%s): %s",

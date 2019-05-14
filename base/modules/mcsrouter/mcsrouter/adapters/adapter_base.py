@@ -2,6 +2,8 @@
 adapter_base Module
 """
 
+import mcsrouter.utils.xml_helper
+
 import xml.dom.minidom
 
 import logging
@@ -34,6 +36,9 @@ class AdapterBase(object):
     AdapterBase class
     """
     # pylint: disable=no-self-use
+
+    def _parse_xml_string(self, s):
+        return mcsrouter.utils.xml_helper.parseString(s)
 
     def get_status_ttl(self):
         """
@@ -108,7 +113,7 @@ class AdapterBase(object):
         if status is None:
             return None
 
-        doc = xml.dom.minidom.parseString(
+        doc = self._parse_xml_string(
             TEMPLATE_STATUS_AND_CONFIGURATION_XML)
         remove_blanks(doc)
         status_node = doc.getElementsByTagName("status")[0]

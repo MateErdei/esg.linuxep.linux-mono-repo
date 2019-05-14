@@ -7,7 +7,7 @@ status_event Module
 
 from __future__ import print_function, division, unicode_literals
 
-import xml.dom.minidom
+import mcsrouter.utils.xml_helper
 
 from . import events
 
@@ -36,7 +36,7 @@ class StatusEvent(object):
         """
         xml
         """
-        doc = xml.dom.minidom.parseString(TEMPLATE_STATUS_EVENT)
+        doc = mcsrouter.utils.xml_helper.parseString(TEMPLATE_STATUS_EVENT)
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 
         for (app_id, (ttl, creation_time, adapter_status_xml)

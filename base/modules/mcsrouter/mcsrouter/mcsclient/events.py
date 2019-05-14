@@ -5,7 +5,7 @@ events Module
 
 #pylint: disable=line-too-long
 
-import xml.dom.minidom
+import mcsrouter.utils.xml_helper
 
 import logging
 LOGGER = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ class Events(object):
         """
         xml
         """
-        doc = xml.dom.minidom.parseString(EVENTS_TEMPLATE)
+        doc = mcsrouter.utils.xml_helper.parseString(EVENTS_TEMPLATE)
         events_node = doc.getElementsByTagName(u"ns:events")[0]
         for event in self.__m_events:
             LOGGER.info(

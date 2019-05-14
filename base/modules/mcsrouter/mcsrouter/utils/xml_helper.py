@@ -1,8 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 XMLHelper Module
 """
 
+from __future__ import absolute_import, print_function, division, unicode_literals
+
 import xml.dom
+import xml.dom.expatbuilder
+import xml.dom.xmlbuilder
+import xml.parsers.expat
 import codecs
 
 
@@ -35,3 +43,26 @@ def get_escaped_non_ascii_content(file_path):
         mode='r',
         errors='replace').read()
     return body.encode('ascii', 'xmlcharrefreplace')
+
+class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
+    """
+    A sub-class of xml.parsers.expat.ExpatError so that we get caught in all the same places
+    """
+    pass
+
+class NoEntityExpatBuilderNS(xml.dom.expatbuilder.ExpatBuilderNS):
+    def entity_decl_handler(self, entityName, is_parameter_entity, value,
+                            base, systemId, publicId, notationName):
+        raise NoEntitiesAllowedException("Refusing to parse Entity Declaration: "+entityName)
+
+def parseString(contents):
+    options = xml.dom.xmlbuilder.Options()
+    options.entities = True
+    options.external_parameter_entities = False
+    options.external_general_entities = False
+    options.external_dtd_subset = False
+    options.create_entity_ref_nodes = False
+    options.comments = False
+    builder = NoEntityExpatBuilderNS(options)
+    return builder.parseString(contents)
+

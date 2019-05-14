@@ -19,6 +19,7 @@ import logging
 
 import mcsrouter.mcsclient.mcs_commands  # pylint: disable=no-name-in-module, import-error
 import mcsrouter.mcsclient.mcs_exception
+import mcsrouter.utils.xml_helper
 
 from mcsrouter import sophos_https
 from mcsrouter import ip_selection
@@ -900,7 +901,7 @@ class MCSConnection(object):
             commands = commands.encode('utf-8', errors='replace')
 
         try:
-            doc = xml.dom.minidom.parseString(commands)
+            doc = mcsrouter.utils.xml_helper.parseString(commands)
         except xml.parsers.expat.ExpatError:
             LOGGER.exception("Failed to parse commands: %s", commands)
             return []

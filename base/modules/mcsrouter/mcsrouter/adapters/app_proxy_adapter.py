@@ -96,7 +96,7 @@ u'<?xml version="1.0"?>
         body = command.get("body")
 
         try:
-            doc = xml.dom.minidom.parseString(body)
+            doc = self._parse_xml_string(body)
         except xml.parsers.expat.ExpatError:
             LOGGER.exception(
                 "Unable to parse AppProxy Action: '%s' from '%s'",
