@@ -108,16 +108,28 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOL
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
 {
+    std::string defaultCertPath = Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
+        "telemetry_cert.pem");
+
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
-
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+    EXPECT_CALL(*m_mockFileSystem, isFile(defaultCertPath)).WillOnce(Return(true));
+    EXPECT_CALL(m_httpSender, doHttpsRequest(_)).WillOnce(Return(0));
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+
+    Telemetry::TelemetryConfig::Config config;
+    config.m_verb = RequestType::GET;
+    config.m_resourceRoute = "PROD";
+    config.m_certPath = defaultCertPath;
+    config.m_server = GL_defaultServer;
+
+    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     telemetryProcessor.saveAndSendTelemetry(m_httpSender);
 }

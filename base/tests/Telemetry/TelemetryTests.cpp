@@ -33,6 +33,7 @@ public:
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
     MockFileSystem* m_mockFileSystem = nullptr;
+    Telemetry::TelemetryConfig::Config m_config;
 
     std::string m_defaultCertPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
@@ -40,14 +41,14 @@ public:
 
     std::vector<std::string> m_args = { m_binaryPath, "POST", GL_defaultServer, m_defaultCertPath, "TEST", "extraArg" };
 
-    std::unique_ptr<RequestConfig> m_defaultRequestConfig;
+    std::unique_ptr<RequestConfig> m_defaultExpectedRequestConfig;
 
     int CompareRequestConfig(RequestConfig& requestConfig)
     {
-        EXPECT_EQ(requestConfig.getCertPath(), m_defaultRequestConfig->getCertPath());
-        EXPECT_EQ(requestConfig.getAdditionalHeaders(), m_defaultRequestConfig->getAdditionalHeaders());
-        EXPECT_EQ(requestConfig.getData(), m_defaultRequestConfig->getData());
-        EXPECT_EQ(requestConfig.getServer(), m_defaultRequestConfig->getServer());
+        EXPECT_EQ(requestConfig.getCertPath(), m_defaultExpectedRequestConfig->getCertPath());
+        EXPECT_EQ(requestConfig.getAdditionalHeaders(), m_defaultExpectedRequestConfig->getAdditionalHeaders());
+        EXPECT_EQ(requestConfig.getData(), m_defaultExpectedRequestConfig->getData());
+        EXPECT_EQ(requestConfig.getServer(), m_defaultExpectedRequestConfig->getServer());
         return 0;
     }
 
@@ -77,8 +78,16 @@ public:
 
         m_additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control");
 
-        m_defaultRequestConfig = std::make_unique<RequestConfig>(RequestType::GET, m_additionalHeaders);
-        m_defaultRequestConfig->setData(m_data);
+        m_defaultExpectedRequestConfig = std::make_unique<RequestConfig>(RequestType::GET, m_additionalHeaders);
+        m_defaultExpectedRequestConfig->setData(m_data);
+
+        {
+            m_config.m_verb = RequestType::GET;
+            m_config.m_resourceRoute = "PROD";
+            m_config.m_certPath = m_defaultCertPath;
+            m_config.m_headers = m_additionalHeaders;
+            m_config.m_server = GL_defaultServer;
+        }
     }
 
     void TearDown() override
@@ -126,13 +135,9 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryConfig::Config config;
-    config.m_verb = requestType;
-    config.m_server = GL_defaultServer;
-    config.m_certPath = m_defaultCertPath;
-    config.m_resourceRoute = "PROD";
+    m_config.m_verb = requestType;
 
-    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
 
     int expectedErrorCode = 0;
 
@@ -153,10 +158,8 @@ TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryConfig::Config config;
-    config.m_verb = RequestType::GET;
-
-    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+    m_config.m_verb = RequestType::GET;
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
 
     int expectedErrorCode = 0;
     EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
@@ -173,13 +176,12 @@ TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    Telemetry::TelemetryConfig::Config config;
-    config.m_verb = RequestType::POST;
+    m_config.m_verb = RequestType::POST;
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
 
     int expectedErrorCode = 0;
     EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
@@ -189,32 +191,26 @@ TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(false));
 
-    Telemetry::TelemetryConfig::Config config;
-    config.m_verb = RequestType::PUT;
-    config.m_server = GL_defaultServer;
-    config.m_certPath = m_defaultCertPath;
-    config.m_resourceRoute = "DEV";
+    m_config.m_verb = RequestType::PUT;
+    m_config.m_resourceRoute = "DEV";
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config,telemetryProviders);
 
     EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
 }
 
 TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
 {
-    Telemetry::TelemetryConfig::Config config;
-    config.m_verb = RequestType::PUT;
-    config.m_server = GL_defaultServer;
-    config.m_certPath = m_defaultCertPath;
-    config.m_resourceRoute = "INVALID";
+    m_config.m_verb = RequestType::PUT;
+    m_config.m_resourceRoute = "INVALID";
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(config,telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config,telemetryProviders);
 
     EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
 }
