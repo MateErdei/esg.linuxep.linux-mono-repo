@@ -15,21 +15,23 @@ using namespace Telemetry::TelemetryConfig;
 class TelemetryConfigTest : public ::testing::Test
 {
 public:
-    Config config;
-    MessageRelay messageRelay;
-    Proxy proxy;
+    Config m_config;
 
-    // nlohmann::json j;
+
+    nlohmann::json m_jsonObject;
 
     void SetUp() override
     {
-        config.m_server = "localhost";
-        config.m_verb  = Config::HttpVerb::GET;
-        config.m_externalProcessTimeout = 3;
-        config.m_headers = {"header1", "header2"};
-        config.m_maxJsonSize = 10;
-        config.m_port = 123;
-        config.m_resourceRoute = "TEST";
+        MessageRelay messageRelay;
+        Proxy proxy;
+
+        m_config.m_server = "localhost";
+        m_config.m_verb  = Common::HttpSenderImpl::RequestType::GET;
+        m_config.m_externalProcessTimeout = 3;
+        m_config.m_headers = {"header1", "header2"};
+        m_config.m_maxJsonSize = 10;
+        m_config.m_port = 123;
+        m_config.m_resourceRoute = "TEST";
 
         messageRelay.m_url = "relay";
         messageRelay.m_port = 456;
@@ -38,7 +40,7 @@ public:
         messageRelay.m_username = "relayuser";
         messageRelay.m_password = "relaypw";
 
-        config.m_messageRelays.push_back(messageRelay);
+        m_config.m_messageRelays.push_back(messageRelay);
 
         proxy.m_url = "proxy";
         proxy.m_port = 789;
@@ -46,38 +48,48 @@ public:
         proxy.m_username = "proxyuser";
         proxy.m_password = "proxypw";
 
-        config.m_proxies.push_back(proxy);
+        m_config.m_proxies.push_back(proxy);
 
-//        j["server"] = "localhost";
-//        j["verb"] = 0;
-//        j["externalProcessTimeout"] = 3;
-//        j["headers"] = {"header1","header2"},
-//            j["maxJsonSize"] = 10;
-//        j["port"] = 123;
-//        j["resourceRoute"] = "TEST";
-//
-//        j["messageRelays"] = { {"authentication", 1}, {"certPath", "certpath"}, {"password", "relaypw"}, {"port", 456}, {"url", "relay"}, {"username", "relayuser"} };
-//
-//        j["proxies"] = { {"authentication", 1}, {"password", "relaypw"}, {"port", 456}, {"url", "relay"}, {"username", "relayuser"} };
+        m_jsonObject["server"] = "localhost";
+        m_jsonObject["verb"] = 0;
+        m_jsonObject["externalProcessTimeout"] = 3;
+        m_jsonObject["headers"] = {"header1","header2"},
+        m_jsonObject["maxJsonSize"] = 10;
+        m_jsonObject["port"] = 123;
+        m_jsonObject["resourceRoute"] = "TEST";
+
+        m_jsonObject["messageRelays"] = {
+            {{"authentication", 1}, {"certPath", "certpath"}, {"password", "relaypw"}, {"port", 456}, {"url", "relay"}, {"username", "relayuser"}}
+        };
+
+        m_jsonObject["proxies"] = {
+            {{"authentication", 1}, {"password", "relaypw"}, {"port", 456}, {"url", "relay1"}, {"username", "relayuser"}}
+        };
     }
 };
 
-TEST_F(TelemetryConfigTest, serialiseTelemetryConfig) // NOLINT
-{
-    TelemetryConfigSerialiser serialiser;
-    std::cout << serialiser.serialise(config) << std::endl;
-}
 
-TEST_F(TelemetryConfigTest, deserialiseTelemetryConfig) // NOLINT
+TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
 {
-    TelemetryConfigSerialiser serialiser;
+    std::string originalJsonString = m_jsonObject.dump();
+    std::cout << originalJsonString;
+
+    // Convert the json string to a config object
+    Config config = TelemetryConfigSerialiser::deserialise(originalJsonString);
 
     // Convert the config object to a json string
-    std::string jsonString = serialiser.serialise(config);
-    std::cout << jsonString << std::endl;
+    std::string newJsonString = TelemetryConfigSerialiser::serialise(config);
+
+    EXPECT_EQ(originalJsonString, newJsonString);
+}
+
+TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
+{
+    // Convert the config object to a json string
+    std::string jsonString = TelemetryConfigSerialiser::serialise(m_config);
 
     // Convert the json string to a config object, then back to a json string
-    Config newConfig = serialiser.deserialise(jsonString);
+    Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
 
-    EXPECT_EQ(config, newConfig);
+    EXPECT_EQ(m_config, newConfig);
 }
