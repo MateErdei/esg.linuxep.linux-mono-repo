@@ -15,5 +15,8 @@ namespace Telemetry::TelemetryConfig
     {
     public:
         std::string m_certificatePath;
+
+        bool operator==(const MessageRelay& rhs) const;
+        bool operator!=(const MessageRelay& rhs) const;
     };
 }

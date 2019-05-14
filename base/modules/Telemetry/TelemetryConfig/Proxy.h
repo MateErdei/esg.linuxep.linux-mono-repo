@@ -24,6 +24,9 @@ namespace Telemetry::TelemetryConfig
         Authentication m_authentication;
         std::string m_username;
         std::string m_password;
+
+        bool operator==(const Proxy& rhs) const;
+        bool operator!=(const Proxy& rhs) const;
     };
 }
 

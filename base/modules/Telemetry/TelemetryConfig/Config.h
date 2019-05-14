@@ -23,9 +23,9 @@ namespace Telemetry::TelemetryConfig
             POST = 1,
             PUT = 2
         };
-
         std::string m_server;
-        std::string m_resourceRoute;
+
+        std::string m_resourceRoute; // perhaps make this an enum to match the telem exe (or remove enum from telem exe)
         unsigned int m_port;
         std::vector<std::string> m_headers;
         HttpVerb m_verb;
@@ -33,5 +33,8 @@ namespace Telemetry::TelemetryConfig
         std::vector<MessageRelay> m_messageRelays;
         unsigned int m_externalProcessTimeout;
         unsigned int m_maxJsonSize;
+
+        bool operator==(const Config& rhs) const;
+        bool operator!=(const Config& rhs) const;
     };
 }
