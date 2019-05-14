@@ -24,16 +24,14 @@ namespace Telemetry
 {
     static const int g_maxArgs = 5;
 
-    int main(
-        int argc,
-        char** argv, Common::HttpSender::IHttpSender& httpSender, TelemetryProcessor& telemetryProcessor)
+    int main(int argc, char** argv, Common::HttpSender::IHttpSender& httpSender, TelemetryProcessor& telemetryProcessor)
     {
         // TODO: LINUXEP-7991 argument parsing is temporary as these parameters will be read in from a configuration
         // file
         if (argc == 1 || argc > g_maxArgs)
         {
-            throw std::runtime_error(
-                "Telemetry executable expects the following arguments: request_type [server] [cert_path] [resource_root]");
+            throw std::runtime_error("Telemetry executable expects the following arguments: request_type [server] "
+                                     "[cert_path] [resource_root]");
         }
 
         std::vector<std::string> additionalHeaders;
@@ -62,13 +60,12 @@ namespace Telemetry
             throw std::runtime_error("Certificate is not a valid file");
         }
 
-
         telemetryProcessor.gatherTelemetry();
         try
         {
             telemetryProcessor.saveAndSendTelemetry();
         }
-        catch(std::exception& e)
+        catch (std::exception& e)
         {
             LOGERROR("Failed to save and send Telemetry:" << e.what());
             return 2;

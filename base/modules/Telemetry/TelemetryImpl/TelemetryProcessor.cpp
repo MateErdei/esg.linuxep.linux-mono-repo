@@ -16,9 +16,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using namespace Telemetry;
 using namespace Common::Telemetry;
 
-
-TelemetryProcessor::TelemetryProcessor(std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders, size_t maxJsonBytes) :
-    m_telemetryProviders(std::move(telemetryProviders)), m_maxJsonSizeBytes(maxJsonBytes)
+TelemetryProcessor::TelemetryProcessor(
+    std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders,
+    size_t maxJsonBytes) :
+    m_telemetryProviders(std::move(telemetryProviders)),
+    m_maxJsonSizeBytes(maxJsonBytes)
 {
 }
 
