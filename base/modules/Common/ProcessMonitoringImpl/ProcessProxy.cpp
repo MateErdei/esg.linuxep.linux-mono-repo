@@ -14,6 +14,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 
+#include <Common/Exceptions/Print.h>
+
 namespace Common
 {
     namespace ProcessMonitoringImpl
@@ -179,7 +181,18 @@ namespace Common
 
         ProcessProxy::~ProcessProxy() noexcept
         {
-            stop();
+            try
+            {
+                stop();
+            }
+            catch (const std::exception& ex)
+            {
+                PRINT("Exception caught while attempting to stop ProcessProxy in destructor: "<<ex.what());
+            }
+            catch(...)
+            {
+                PRINT("Non std::exception caught while attempting to stop ProcessProxy in destructor");
+            }
         }
 
         void ProcessProxy::setEnabled(bool enabled)
