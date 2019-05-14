@@ -40,6 +40,15 @@ public:
     void TearDown() override { Tests::restoreFileSystem(); }
 };
 
+TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT
+{
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ("{}", json);
+}
+
 TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
