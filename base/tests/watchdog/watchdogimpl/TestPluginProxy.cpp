@@ -102,7 +102,7 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_EQ(delay, std::chrono::hours(1));
 
     EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
-
+    delay = proxy.ensureStateMatchesOptions();
     EXPECT_EQ(delay, std::chrono::seconds(10)); // Not starting for 10 seconds
 
     Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
