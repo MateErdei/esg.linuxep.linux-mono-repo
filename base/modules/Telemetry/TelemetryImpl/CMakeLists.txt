@@ -10,7 +10,16 @@ add_library(telemetryimpl SHARED
         SystemTelemetryReporter.h
         TelemetryProcessor.cpp
         TelemetryProcessor.h
-        ITelemetryProvider.h)
+        ITelemetryProvider.h
+        ../TelemetryConfig/TelemetryConfigSerialiser.h
+        ../TelemetryConfig/TelemetryConfigSerialiser.cpp
+        ../TelemetryConfig/Proxy.h
+        ../TelemetryConfig/Proxy.cpp
+        ../TelemetryConfig/MessageRelay.h
+        ../TelemetryConfig/MessageRelay.cpp
+        ../TelemetryConfig/Config.h
+        ../TelemetryConfig/Config.cpp
+        )
 
 include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
