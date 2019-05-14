@@ -23,13 +23,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    int main(Common::HttpSender::IHttpSender& httpSender, TelemetryProcessor& telemetryProcessor)
-    {
-        telemetryProcessor.gatherTelemetry();
-        telemetryProcessor.saveAndSendTelemetry(httpSender);
-        return 0;
-    }
-
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
@@ -64,9 +57,11 @@ namespace Telemetry
                     config.m_externalProcessRetries));
 
             telemetryProviders.emplace_back(systemTelemetryReporter);
-            TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+            TelemetryProcessor telemetryProcessor(config, httpSender, telemetryProviders);
 
-            return main(httpSender, telemetryProcessor);
+            telemetryProcessor.Run();
+
+            return 0;
         }
         catch (const std::runtime_error& e)
         {

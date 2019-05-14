@@ -19,10 +19,20 @@ using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
     const TelemetryConfig::Config& config,
+    Common::HttpSender::IHttpSender& httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
     m_config(config),
+    m_httpSender(httpSender),
     m_telemetryProviders(std::move(telemetryProviders))
 {
+}
+
+void TelemetryProcessor::Run()
+{
+    gatherTelemetry();
+    std::string telemetryJson = getSerialisedTelemetry();
+    sendTelemetry(telemetryJson);
+    saveTelemetry(telemetryJson);
 }
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
@@ -46,12 +56,8 @@ void TelemetryProcessor::gatherTelemetry()
     }
 }
 
-void TelemetryProcessor::saveAndSendTelemetry(Common::HttpSender::IHttpSender& httpSender)
+void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
-    Path jsonOutputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
-
-    std::string json = getSerialisedTelemetry();
-
     Common::HttpSenderImpl::RequestConfig requestConfig(m_config.m_verb, m_config.m_headers);
     requestConfig.setServer(m_config.m_server);
     requestConfig.setCertPath(m_config.m_certPath);
@@ -59,16 +65,19 @@ void TelemetryProcessor::saveAndSendTelemetry(Common::HttpSender::IHttpSender& h
 
     if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
-        throw std::runtime_error("Certificate is not a valid file");
+        throw std::runtime_error("Certificate file is not a valid");
     }
 
-    requestConfig.setData(json);
+    requestConfig.setData(telemetryJson);
 
     LOGINFO("Sending telemetry...");
-    httpSender.doHttpsRequest(requestConfig);
-
-    LOGINFO("Saving telemetry to file: " << jsonOutputFile);
-    Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json); // Will overwrite data each time.
+    m_httpSender.doHttpsRequest(requestConfig);
+}
+void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
+{
+    Path outputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
+    LOGINFO("Saving telemetry to file: " << outputFile);
+    Common::FileSystem::fileSystem()->writeFile(outputFile, telemetryJson); // Overwrites data each time.
 }
 
 std::string TelemetryProcessor::getSerialisedTelemetry()

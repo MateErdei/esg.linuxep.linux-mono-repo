@@ -11,8 +11,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
 
-#include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <Telemetry/TelemetryConfig/Config.h>
+#include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -90,18 +90,17 @@ public:
         }
     }
 
-    void TearDown() override
-    {
-        Tests::restoreFileSystem();
-    }
+    void TearDown() override { Tests::restoreFileSystem(); }
 };
 
-class TelemetryTestRequestTypes : public TelemetryTest,
-                                  public ::testing::WithParamInterface<RequestType> {
-
+class TelemetryTestRequestTypes : public TelemetryTest, public ::testing::WithParamInterface<RequestType>
+{
 };
 
-INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestRequestTypes, ::testing::Values(RequestType::GET, RequestType::POST, RequestType::PUT)); // NOLINT
+INSTANTIATE_TEST_CASE_P(
+    TelemetryTest,
+    TelemetryTestRequestTypes,
+    ::testing::Values(RequestType::GET, RequestType::POST, RequestType::PUT)); // NOLINT
 
 TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
 {
@@ -137,11 +136,9 @@ TEST_P(TelemetryTestRequestTypes, main_httpsRequestReturnsSuccess) // NOLINT
 
     m_config.m_verb = requestType;
 
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
 
-    int expectedErrorCode = 0;
-
-    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
+    telemetryProcessor.Run();
 }
 
 TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
@@ -159,10 +156,9 @@ TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
     m_config.m_verb = RequestType::GET;
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
 
-    int expectedErrorCode = 0;
-    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
+    telemetryProcessor.Run();
 }
 
 TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
@@ -181,10 +177,9 @@ TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
 
-    int expectedErrorCode = 0;
-    EXPECT_EQ(Telemetry::main( m_httpSender, telemetryProcessor), expectedErrorCode);
+    telemetryProcessor.Run();
 }
 
 TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
@@ -197,9 +192,9 @@ TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config,telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
 
-    EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
+    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
 }
 
 TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
@@ -210,19 +205,17 @@ TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config,telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
 
-    EXPECT_THROW(Telemetry::main( m_httpSender, telemetryProcessor), std::runtime_error);
+    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
 }
 
-class TelemetryTestVariableArgs : public TelemetryTest,
-        public ::testing::WithParamInterface<int> {
-
+class TelemetryTestVariableArgs : public TelemetryTest, public ::testing::WithParamInterface<int>
+{
 };
 
-
 // TODO: move to different test file
-TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
+TEST_F(TelemetryTest, telemetryProcessor) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -235,7 +228,7 @@ TEST(TelemetryProcessor, telemetryProcessor) // NOLINT
 
     Telemetry::TelemetryConfig::Config config;
 
-    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(config, m_httpSender, telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock":{"key":1}})", json);

@@ -52,7 +52,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
 
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock":{"key":1}})", json);
@@ -74,7 +74,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorTwoProviders) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider1);
     telemetryProviders.emplace_back(mockTelemetryProvider2);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock2":{"key":2}})", json);
@@ -100,7 +100,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOL
     telemetryProviders.emplace_back(mockTelemetryProvider2);
     telemetryProviders.emplace_back(mockTelemetryProvider3);
 
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, telemetryProviders);
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
     telemetryProcessor.gatherTelemetry();
     std::string json = telemetryProcessor.getSerialisedTelemetry();
     ASSERT_EQ(R"({"Mock1":{"key":1},"Mock3":{"key":3}})", json);
@@ -129,7 +129,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
     config.m_certPath = defaultCertPath;
     config.m_server = GL_defaultServer;
 
-    Telemetry::TelemetryProcessor telemetryProcessor(config, telemetryProviders);
-    telemetryProcessor.gatherTelemetry();
-    telemetryProcessor.saveAndSendTelemetry(m_httpSender);
+    Telemetry::TelemetryProcessor telemetryProcessor(config, m_httpSender, telemetryProviders);
+    telemetryProcessor.Run();
 }
