@@ -24,7 +24,7 @@ namespace
     public:
         TestWatchdog() {}
 
-        watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return read_plugin_configs(); }
+        watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return readPluginConfigs(); }
     };
 
     using ::testing::NiceMock;

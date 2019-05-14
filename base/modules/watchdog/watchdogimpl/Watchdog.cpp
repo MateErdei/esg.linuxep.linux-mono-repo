@@ -35,11 +35,9 @@ Watchdog::~Watchdog()
     m_context.reset();
 }
 
-int Watchdog::run()
+int Watchdog::initialiseAndRun()
 {
-    Common::ProcessMonitoringImpl::SignalHandler signalHandler;
-
-    PluginInfoVector pluginConfigs = read_plugin_configs();
+    PluginInfoVector pluginConfigs = readPluginConfigs();
 
     for (auto& info : pluginConfigs)
     {
@@ -52,14 +50,14 @@ int Watchdog::run()
 
     addReplierSocketAndHandleToPoll(m_socket.get(), [this](){ this->handleSocketRequest();});
 
-    start();
+    run();
 
     // Normal shutdown
     m_socket.reset();
     return 0;
 }
 
-PluginInfoVector Watchdog::read_plugin_configs()
+PluginInfoVector Watchdog::readPluginConfigs()
 {
     return Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 }
@@ -148,6 +146,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     for (auto it = m_processProxies.begin(); it != m_processProxies.end();)
     {
         auto pluginProxy = dynamic_cast<PluginProxy*>(it->get());
+        assert(pluginProxy != nullptr);
         if (pluginName == pluginProxy->name())
         {
             pluginProxy->stop();

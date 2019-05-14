@@ -17,6 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 
@@ -42,7 +43,7 @@ namespace Common
             m_context.reset();
         }
 
-        int ProcessMonitor::start()
+        int ProcessMonitor::run()
         {
             Common::ProcessMonitoringImpl::SignalHandler signalHandler;
 
@@ -78,7 +79,7 @@ namespace Common
 
             while (keepRunning)
             {
-                LOGDEBUG("Calling poller at " << ::time(nullptr));
+                LOGDEBUG("Calling poller at " << Common::UtilityImpl::TimeUtils::getCurrTime());
                 Common::ZeroMQWrapper::IPoller::poll_result_t active = poller->poll(std::chrono::milliseconds(timeout));
                 LOGDEBUG("Returned from poller: " << active.size() << " at " << ::time(nullptr));
 

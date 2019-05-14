@@ -30,8 +30,8 @@ namespace watchdog
             explicit Watchdog() = default;
             explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~Watchdog();
-            int run();
-            PluginInfoVector read_plugin_configs();
+            int initialiseAndRun();
+            PluginInfoVector readPluginConfigs();
 
         protected:
             std::string getIPCPath();

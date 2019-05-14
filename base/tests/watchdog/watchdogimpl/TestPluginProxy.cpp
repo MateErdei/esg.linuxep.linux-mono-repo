@@ -4,14 +4,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <watchdog/watchdogimpl/PluginProxy.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <watchdog/watchdogimpl/PluginProxy.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {

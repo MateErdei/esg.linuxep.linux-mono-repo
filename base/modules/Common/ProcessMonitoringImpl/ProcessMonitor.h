@@ -35,7 +35,7 @@ namespace Common
             void addProcessToMonitor(Common::ProcessMonitoring::IProcessProxyPtr processProxyPtr) override ;
             void addReplierSocketAndHandleToPoll(Common::ZeroMQWrapper::ISocketReplier* socketReplier, std::function<void(void)> socketHandleFunction) override ;
 
-            int start() override;
+            int run() override;
 
         protected:
 

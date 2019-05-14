@@ -63,5 +63,5 @@ int watchdog_main::main(int argc, char** argv)
     }
 
     Watchdog m;
-    return m.run();
+    return m.initialiseAndRun();
 }

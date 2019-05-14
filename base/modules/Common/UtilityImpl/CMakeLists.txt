@@ -1,4 +1,4 @@
-add_library(utilityimpl SHARED
+add_library(utilityimplobject OBJECT
         MessageUtility.cpp
         MessageUtility.h
         MessageUtility.h
@@ -15,6 +15,8 @@ add_library(utilityimpl SHARED
         VectorAsSet.h)
 
 
+target_include_directories(utilityimplobject SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})
+add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject> )
 target_include_directories(utilityimpl SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})
 target_include_directories(utilityimpl PUBLIC ../../Common )
 target_link_libraries(utilityimpl PUBLIC ${Protobuf_LIBRARIES})

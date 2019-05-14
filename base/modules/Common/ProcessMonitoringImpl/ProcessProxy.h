@@ -38,6 +38,11 @@ namespace Common
              * Stops the process if it is running.
              */
             void stop() override;
+            /**
+             * If not started or process finished don't check process for 1 hour
+             * If stop requested and process still running check again in 5 seconds
+             * @return number of seconds to wait before checking processes again.
+             */
             std::chrono::seconds checkForExit() override;
 
             /**
@@ -49,7 +54,10 @@ namespace Common
              */
             std::chrono::seconds ensureStateMatchesOptions() override;
 
-
+            /**
+             * Sets m_enabled which starts or stops the process on the next call to ensureStateMatchesOptions
+             * @param enabled
+             */
             void setEnabled(bool enabled) override;
 
         protected:

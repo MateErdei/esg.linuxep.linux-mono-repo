@@ -10,14 +10,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    Common::Threads::NotifyPipe GL_CHILD_DEATH_PIPE;
+    Common::Threads::NotifyPipe GL_CHILD_PROCESS_TERMINATED_PIPE;
     Common::Threads::NotifyPipe GL_TERM_PIPE;
 
     void signal_handler(int signal)
     {
         if (signal == SIGCHLD)
         {
-            GL_CHILD_DEATH_PIPE.notify();
+            GL_CHILD_PROCESS_TERMINATED_PIPE.notify();
         }
         else if (signal == SIGINT || signal == SIGTERM)
         {
@@ -67,7 +67,7 @@ namespace Common
         bool SignalHandler::clearSubProcessExitPipe()
         {
             bool ret = false;
-            while (GL_CHILD_DEATH_PIPE.notified())
+            while (GL_CHILD_PROCESS_TERMINATED_PIPE.notified())
             {
                 ret = true;
             }
@@ -86,7 +86,7 @@ namespace Common
 
         int SignalHandler::subprocessExitFileDescriptor()
         {
-            return GL_CHILD_DEATH_PIPE.readFd();
+            return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd();
         }
 
         int SignalHandler::terminationFileDescriptor()

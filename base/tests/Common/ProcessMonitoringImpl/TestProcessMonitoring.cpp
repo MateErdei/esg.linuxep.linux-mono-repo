@@ -26,7 +26,7 @@ TEST_F(ProcessMonitoring, createProcessMonitorStartWithOutProcessRaisesError)  /
 {
     testing::internal::CaptureStderr();
     auto processMonitor = Common::ProcessMonitoring::createProcessMonitor();
-    int retCode = processMonitor->start();
+    int retCode = processMonitor->run();
     EXPECT_EQ(retCode, 1);
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("No processes to monitor!"));
