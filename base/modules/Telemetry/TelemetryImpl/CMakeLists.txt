@@ -1,16 +1,19 @@
 add_library(telemetryimpl SHARED
+        TelemetryProcessor.h
+        TelemetryProcessor.cpp
         Telemetry.cpp
         Telemetry.h
-        ISystemTelemetryCollector.h
-        SystemTelemetryCollectorImpl.cpp
-        SystemTelemetryCollectorImpl.h
-        SystemTelemetryConfig.cpp
-        SystemTelemetryConfig.h
-        SystemTelemetryReporter.cpp
-        SystemTelemetryReporter.h
-        TelemetryProcessor.cpp
-        TelemetryProcessor.h
-        ITelemetryProvider.h)
+        ITelemetryProvider.h
+
+        ../TelemetryConfig/TelemetryConfigSerialiser.h
+        ../TelemetryConfig/TelemetryConfigSerialiser.cpp
+        ../TelemetryConfig/Proxy.h
+        ../TelemetryConfig/Proxy.cpp
+        ../TelemetryConfig/MessageRelay.h
+        ../TelemetryConfig/MessageRelay.cpp
+        ../TelemetryConfig/Config.h
+        ../TelemetryConfig/Config.cpp
+        )
 
 include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
@@ -19,8 +22,6 @@ target_link_libraries(telemetryimpl PUBLIC
         telemetryloggerimpl
         httpsenderimpl
         telemetryhelperimpl
-        processimpl
-        threads
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl

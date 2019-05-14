@@ -5,18 +5,18 @@ include(GoogleTest)
 add_executable(TelemetryTests
         TelemetryTests.cpp
         MockHttpSender.h
-        SystemTelemetryCollectorImplTests.cpp
-        ../Common/ProcessImpl/MockProcess.h
-        MockSystemTelemetryCollector.h
-        SystemTelemetryReporterTests.cpp
-        MockTelemetryProvider.h)
+        MockTelemetryProvider.h
+        TelemetryProcessorTests.cpp
+        TelemetryConfigTests.cpp)
+
+
+#include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
-target_include_directories(TelemetryTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")
+target_include_directories(TelemetryTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
 target_link_libraries(TelemetryTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto telemetryimpl testhelpers)
-target_link_libraries(TelemetryTests processimpl threads)
 target_link_libraries(TelemetryTests gcov)
 gtest_discover_tests(TelemetryTests)
 
