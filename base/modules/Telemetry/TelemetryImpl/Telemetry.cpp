@@ -10,12 +10,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemTelemetryCollectorImpl.h"
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
-#include "../TelemetryConfig/Config.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+#include <Telemetry/TelemetryConfig/Config.h>
+#include <Telemetry/TelemetryConfig/TelemetryConfigSerialiser.h>
 
 #include <sstream>
 #include <string>
@@ -42,10 +43,12 @@ namespace Telemetry
 
             if (!Common::FileSystem::fileSystem()->isFile(argv[1]))
             {
-                throw std::runtime_error("Configuration file is not a valid file");
+                throw std::runtime_error("Configuration file is not accessible");
             }
 
-            TelemetryConfig::Config config;
+            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(argv[1], 1000000UL);
+
+            TelemetryConfig::Config config = TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson);
 
             std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
                 std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
