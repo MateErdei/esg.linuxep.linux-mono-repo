@@ -26,7 +26,7 @@ public:
         Proxy proxy;
 
         m_config.m_server = "localhost";
-        m_config.m_verb  = Config::HttpVerb::GET;
+        m_config.m_verb  = Common::HttpSenderImpl::RequestType::GET;
         m_config.m_externalProcessTimeout = 3;
         m_config.m_headers = {"header1", "header2"};
         m_config.m_maxJsonSize = 10;
