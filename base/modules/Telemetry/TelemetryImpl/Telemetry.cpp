@@ -61,15 +61,7 @@ namespace Telemetry
         }
 
         telemetryProcessor.gatherTelemetry();
-        try
-        {
-            telemetryProcessor.saveAndSendTelemetry();
-        }
-        catch (std::exception& e)
-        {
-            LOGERROR("Failed to save and send Telemetry:" << e.what());
-            return 2;
-        }
+        telemetryProcessor.saveAndSendTelemetry();
 
         // TODO: LINUXEP-7991 The following lines will be removed when we move sending to saveAndSendTelemetry.
         // During this ticket we need to refactor this file.
