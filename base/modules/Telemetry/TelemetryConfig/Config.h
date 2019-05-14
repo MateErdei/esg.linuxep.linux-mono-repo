@@ -27,6 +27,7 @@ namespace Telemetry::TelemetryConfig
         std::vector<Proxy> m_proxies;
         std::vector<MessageRelay> m_messageRelays;
         unsigned int m_externalProcessTimeout;
+        unsigned int m_externalProcessRetries;
         unsigned int m_maxJsonSize;
 
         std::string m_certPath;

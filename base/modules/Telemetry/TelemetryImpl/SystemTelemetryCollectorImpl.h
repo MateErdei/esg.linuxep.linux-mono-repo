@@ -26,7 +26,9 @@ namespace Telemetry
     public:
         SystemTelemetryCollectorImpl(
             Telemetry::SystemTelemetryConfig objectsConfig,
-            Telemetry::SystemTelemetryConfig arraysConfig);
+            Telemetry::SystemTelemetryConfig arraysConfig,
+            unsigned waitTimeMilliSeconds = 100,
+            unsigned waitMaxRetries = 10);
 
         std::map<std::string, TelemetryItem> collectObjects() const override;
 
@@ -54,6 +56,8 @@ namespace Telemetry
 
         Telemetry::SystemTelemetryConfig m_objectsConfig;
         Telemetry::SystemTelemetryConfig m_arraysConfig;
+        unsigned m_waitTimeMilliSeconds;
+        unsigned m_waitMaxRetries;
         mutable std::map<std::string, std::string> m_commandOutputCache;
     };
 } // namespace Telemetry

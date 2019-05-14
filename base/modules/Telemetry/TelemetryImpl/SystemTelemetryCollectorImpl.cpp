@@ -14,19 +14,20 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <variant>
 #include <algorithm>
+
 namespace Telemetry
 {
-    const int GL_kbSize = 1024 * 1024;
-
-    // TODO: LINUXEP-7991 - consider making wait time and retries externally configurable.
-    const int GL_waitTimeMilliSeconds = 100;
-    const int GL_waitMaxRetries = 10;
+    const int GL_mbSize = 1024 * 1024;
 
     SystemTelemetryCollectorImpl::SystemTelemetryCollectorImpl(
         Telemetry::SystemTelemetryConfig objectsConfig,
-        Telemetry::SystemTelemetryConfig arraysConfig) :
+        Telemetry::SystemTelemetryConfig arraysConfig,
+        unsigned waitTimeMilliSeconds,
+        unsigned waitMaxRetries) :
         m_objectsConfig(std::move(objectsConfig)),
-        m_arraysConfig(std::move(arraysConfig))
+        m_arraysConfig(std::move(arraysConfig)),
+        m_waitTimeMilliSeconds(waitTimeMilliSeconds),
+        m_waitMaxRetries(waitMaxRetries)
     {
     }
 
@@ -91,11 +92,11 @@ namespace Telemetry
         }
 
         auto processPtr = Common::Process::createProcess();
-        processPtr->setOutputLimit(GL_kbSize);
+        processPtr->setOutputLimit(GL_mbSize);
 
         // gather raw telemetry, ignoring failures
         processPtr->exec(command, args);
-        if (processPtr->wait(Common::Process::milli(GL_waitTimeMilliSeconds), GL_waitMaxRetries) !=
+        if (processPtr->wait(Common::Process::milli(m_waitTimeMilliSeconds), m_waitMaxRetries) !=
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();

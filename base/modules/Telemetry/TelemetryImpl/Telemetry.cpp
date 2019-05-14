@@ -58,7 +58,10 @@ namespace Telemetry
 
             auto systemTelemetryReporter =
                 std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
-                    GL_systemTelemetryObjectsConfig, GL_systemTelemetryArraysConfig));
+                    GL_systemTelemetryObjectsConfig,
+                    GL_systemTelemetryArraysConfig,
+                    config.m_externalProcessTimeout,
+                    config.m_externalProcessRetries));
 
             telemetryProviders.emplace_back(systemTelemetryReporter);
             TelemetryProcessor telemetryProcessor(config, telemetryProviders);
