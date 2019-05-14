@@ -52,8 +52,9 @@ void TelemetryProcessor::saveAndSendTelemetry()
 
     if (json.length() > m_maxJsonSizeBytes)
     {
-        LOGERROR("The gathered telemetry exceeds the maximum size of " << m_maxJsonSizeBytes << " bytes.");
-        return;
+        std::stringstream msg;
+        msg << "The gathered telemetry exceeds the maximum size of " << m_maxJsonSizeBytes << " bytes.";
+        throw std::invalid_argument(msg.str());
     }
 
     // TODO send telem LINUXEP-6637

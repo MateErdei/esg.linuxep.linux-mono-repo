@@ -125,7 +125,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOL
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
-    std::string longString = std::string(1000, 'a');
+    std::string longString = std::string(m_maxJsonBytes, 'a');
 
     std::stringstream ss;
     ss << R"({"key":")" << longString << R"("})";
@@ -137,5 +137,5 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOL
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
     telemetryProcessor.gatherTelemetry();
-    telemetryProcessor.saveAndSendTelemetry();
+    EXPECT_THROW(telemetryProcessor.saveAndSendTelemetry(), std::invalid_argument); // NOLINT
 }
