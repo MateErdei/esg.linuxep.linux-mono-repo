@@ -16,28 +16,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 namespace
 {
     using namespace Common::XmlUtilities;
-    class SimpleXmlParser
+
+    /** Stand-alone functions */
+
+    inline std::string rtrim(std::string s)
     {
-    public:
-        explicit SimpleXmlParser(size_t maxdepth = 10);
-
-        /** need to be public as handlers will call them indirectly **/
-        void onStartElement(const std::string& element, AttributePairCollection attributes, const std::string& id);
-        void onEndElement(const std::string& element);
-        void onTextHandler(const std::string& content);
-
-        std::unordered_map<std::string, Attributes> attributesMap() const;
-        std::vector<std::string> pathIds;
-
-    private:
-        std::string getElementPath(const std::string& currentElement, const std::string& id);
-
-        std::stack<AttributesEntry> m_stack;
-        std::unordered_map<std::string, Attributes> m_attributesMap;
-        size_t m_maxdepth;
-        std::string m_lastEntry;
-        int m_entryCount;
-    };
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](char c) { return !std::isspace(c); }).base(), s.end());
+        return s;
+    }
 
     /** general utility function **/
 
@@ -58,41 +44,42 @@ namespace
         return { attributesPair, idValue };
     }
 
-    static inline std::string rtrim(std::string s)
+    struct XMLParserHolder
     {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](char c) { return !std::isspace(c); }).base(), s.end());
-        return s;
-    }
+        XMLParserHolder() { parser = XML_ParserCreate(nullptr); }
+        XML_Parser parser;
+        ~XMLParserHolder() { XML_ParserFree(parser); }
+    };
 
-    /** call backs for lib expat **/
-
-    void startElement(void* data, const char* el, const char** attr)
+    class SimpleXmlParser
     {
-        using Common::XmlUtilities::AttributePairCollection;
-        auto parser = static_cast<SimpleXmlParser*>(data);
-        AttributePairCollection attributes;
-        std::string idValue;
-        std::tie(attributes, idValue) = extractAttributes(attr);
-        parser->onStartElement(el, attributes, idValue);
-    }
+    public:
+        explicit SimpleXmlParser(XML_Parser parser, size_t maxdepth = 10);
 
-    void endElement(void* data, const char* el)
-    {
-        auto parser = static_cast<SimpleXmlParser*>(data);
-        parser->onEndElement(el);
-    }
+        /** need to be public as handlers will call them indirectly **/
+        void onStartElement(const std::string& element, AttributePairCollection attributes, const std::string& id);
+        void onEndElement(const std::string& element);
+        void onTextHandler(const std::string& content);
 
-    void textHandler(void* data, const char* text, int len)
-    {
-        std::string textstring(text, text + len);
-        auto parser = static_cast<SimpleXmlParser*>(data);
-        parser->onTextHandler(textstring);
-    }
+        std::unordered_map<std::string, Attributes> attributesMap() const;
+        std::vector<std::string> pathIds;
+
+        XML_Parser m_parser;
+    private:
+        std::string getElementPath(const std::string& currentElement, const std::string& id);
+
+        std::stack<AttributesEntry> m_stack;
+        std::unordered_map<std::string, Attributes> m_attributesMap;
+        size_t m_maxdepth;
+        std::string m_lastEntry;
+        int m_entryCount;
+    };
 
     /** implementation of SimpleXmlParser **/
-
-    /** SimpleXmlParser **/
-    SimpleXmlParser::SimpleXmlParser(size_t maxdepth) : m_stack(), m_attributesMap(), m_maxdepth(maxdepth), m_lastEntry(""), m_entryCount(0) {}
+    SimpleXmlParser::SimpleXmlParser(XML_Parser parser, size_t maxdepth)
+        : m_parser(parser),
+        m_stack(), m_attributesMap(), m_maxdepth(maxdepth), m_lastEntry(""), m_entryCount(0)
+        {}
 
     void SimpleXmlParser::onStartElement(
         const std::string& element,
@@ -157,111 +144,140 @@ namespace
 
     std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const { return m_attributesMap; };
 
-    struct XMLParserHolder
+    /** call backs for lib expat **/
+
+    void startElement(void* data, const char* el, const char** attr)
     {
-        XMLParserHolder() { parser = XML_ParserCreate(nullptr); }
-        XML_Parser parser;
-        ~XMLParserHolder() { XML_ParserFree(parser); }
-    };
+        using Common::XmlUtilities::AttributePairCollection;
+        auto parser = static_cast<SimpleXmlParser*>(data);
+        AttributePairCollection attributes;
+        std::string idValue;
+        std::tie(attributes, idValue) = extractAttributes(attr);
+        parser->onStartElement(el, attributes, idValue);
+    }
+
+    void endElement(void* data, const char* el)
+    {
+        auto parser = static_cast<SimpleXmlParser*>(data);
+        parser->onEndElement(el);
+    }
+
+    void textHandler(void* data, const char* text, int len)
+    {
+        std::string textstring(text, text + len);
+        auto parser = static_cast<SimpleXmlParser*>(data);
+        parser->onTextHandler(textstring);
+    }
+
+    void EntityDeclHandler(void *userData,
+                           const XML_Char * entityName , int /* is_parameter_entity */,
+                           const XML_Char */*value*/, int /*value_length*/,
+                           const XML_Char */*base*/, const XML_Char */*systemId*/,
+                           const XML_Char */*publicId*/, const XML_Char */*notationName*/)
+    {
+        LOGERROR("Aborting XML parse due to entity "<<entityName);
+        auto parser = static_cast<SimpleXmlParser*>(userData);
+        XML_StopParser(parser->m_parser, XML_FALSE);
+    }
 
 } // namespace
 
-namespace Common
+namespace Common::XmlUtilities
 {
-    namespace XmlUtilities
+    /** AttributesEntry **/
+    void AttributesEntry::appendText(const std::string& appendContent)
     {
-        /** AttributesEntry **/
-        void AttributesEntry::appendText(const std::string& appendContent)
+        if (content.empty())
         {
-            if (content.empty())
+            content = appendContent;
+        }
+        else
+        {
+            content += "\n";
+            content += appendContent;
+        }
+    }
+
+    /** Attributes **/
+    const std::string Attributes::TextId("TextId");
+    Attributes::Attributes(AttributePairCollection attributes) : m_attributes(std::move(attributes)) {}
+
+    Attributes::Attributes() : m_attributes() {}
+
+    bool Attributes::empty() const { return m_attributes.empty(); }
+
+    std::string Attributes::value(const std::string& attributeName, const std::string& defaultValue) const
+    {
+        for (auto& attribute : m_attributes)
+        {
+            if (attribute.first == attributeName)
             {
-                content = appendContent;
-            }
-            else
-            {
-                content += "\n";
-                content += appendContent;
+                return attribute.second;
             }
         }
+        return defaultValue;
+    }
 
-        /** Attributes **/
-        const std::string Attributes::TextId("TextId");
-        Attributes::Attributes(AttributePairCollection attributes) : m_attributes(std::move(attributes)) {}
+    /** SimpleXml **/
+    AttributesMap::AttributesMap(
+        std::unordered_map<std::string, Attributes> attributesMap,
+        std::vector<std::string> idOrderedFullName) :
+        m_attributesMap(std::move(attributesMap)),
+        m_idOrderedFullName(std::move(idOrderedFullName))
+    {
+    }
 
-        Attributes::Attributes() : m_attributes() {}
-
-        bool Attributes::empty() const { return m_attributes.empty(); }
-
-        std::string Attributes::value(const std::string& attributeName, const std::string& defaultValue) const
+    Attributes AttributesMap::lookup(const std::string& entityFullPath) const
+    {
+        auto found = m_attributesMap.find(entityFullPath);
+        if (found == m_attributesMap.end())
         {
-            for (auto& attribute : m_attributes)
+            return Attributes();
+        }
+        return found->second;
+    }
+
+    std::vector<std::string> AttributesMap::entitiesThatContainPath(const std::string& entityPath)
+    {
+        std::vector<std::string> fullPaths;
+        for (const auto& fullPathEntry : m_idOrderedFullName)
+        {
+            if (fullPathEntry.find(entityPath) != std::string::npos)
             {
-                if (attribute.first == attributeName)
-                {
-                    return attribute.second;
-                }
+                fullPaths.push_back(fullPathEntry);
             }
-            return defaultValue;
         }
+        return fullPaths;
+    }
 
-        /** SimpleXml **/
-        AttributesMap::AttributesMap(
-            std::unordered_map<std::string, Attributes> attributesMap,
-            std::vector<std::string> idOrderedFullName) :
-            m_attributesMap(std::move(attributesMap)),
-            m_idOrderedFullName(std::move(idOrderedFullName))
+    /** parser **/
+    AttributesMap parseXml(const std::string& xmlContent, int maxdepth)
+    {
+        XMLParserHolder parserHolder;
+
+        SimpleXmlParser simpleXmlParser(parserHolder.parser, maxdepth);
+
+        XML_SetUserData(parserHolder.parser, &simpleXmlParser);
+
+        XML_SetElementHandler(parserHolder.parser, startElement, endElement);
+
+        XML_SetCharacterDataHandler(parserHolder.parser, textHandler);
+
+        XML_SetEntityDeclHandler(parserHolder.parser, EntityDeclHandler);
+
+
+        assert(xmlContent.size() < INT_MAX);
+        if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) ==
+            XML_STATUS_ERROR)
         {
+            std::stringstream errorInfoStream;
+            errorInfoStream << "Error parsing xml: ";
+            errorInfoStream << XML_ErrorString(XML_GetErrorCode(parserHolder.parser)) << "\n";
+            errorInfoStream << "XmlLine: " << XML_GetCurrentLineNumber(parserHolder.parser);
+            throw XmlUtilitiesException(errorInfoStream.str());
         }
 
-        Attributes AttributesMap::lookup(const std::string& entityFullPath) const
-        {
-            auto found = m_attributesMap.find(entityFullPath);
-            if (found == m_attributesMap.end())
-            {
-                return Attributes();
-            }
-            return found->second;
-        }
+        return AttributesMap(simpleXmlParser.attributesMap(), simpleXmlParser.pathIds);
+    }
 
-        std::vector<std::string> AttributesMap::entitiesThatContainPath(const std::string& entityPath)
-        {
-            std::vector<std::string> fullPaths;
-            for (const auto& fullPathEntry : m_idOrderedFullName)
-            {
-                if (fullPathEntry.find(entityPath) != std::string::npos)
-                {
-                    fullPaths.push_back(fullPathEntry);
-                }
-            }
-            return fullPaths;
-        }
-
-        /** parser **/
-        AttributesMap parseXml(const std::string& xmlContent, int maxdepth)
-        {
-            SimpleXmlParser simpleXmlParser(maxdepth);
-
-            XMLParserHolder parserHolder;
-
-            XML_SetUserData(parserHolder.parser, &simpleXmlParser);
-
-            XML_SetElementHandler(parserHolder.parser, startElement, endElement);
-
-            XML_SetCharacterDataHandler(parserHolder.parser, textHandler);
-
-            assert(xmlContent.size() < INT_MAX);
-            if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) ==
-                XML_STATUS_ERROR)
-            {
-                std::stringstream errorInfoStream;
-                errorInfoStream << "Error parsing xml: ";
-                errorInfoStream << XML_ErrorString(XML_GetErrorCode(parserHolder.parser)) << "\n";
-                errorInfoStream << "XmlLine: " << XML_GetCurrentLineNumber(parserHolder.parser);
-                throw XmlUtilitiesException(errorInfoStream.str());
-            }
-
-            return AttributesMap(simpleXmlParser.attributesMap(), simpleXmlParser.pathIds);
-        }
-
-    } // namespace XmlUtilities
-} // namespace Common
+} // namespace Common::XmlUtilities

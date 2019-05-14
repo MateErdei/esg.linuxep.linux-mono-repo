@@ -7,6 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gtest/gtest.h>
 #include <include/gmock/gmock-matchers.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace Common::XmlUtilities;
 
@@ -132,6 +133,15 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
 </AUConfigurations>
 )sophos" };
 
+static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
+<!ENTITY a "1234567890" >
+<!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;">
+<!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;">
+]>
+<bomb>&c;</bomb>
+)sophos" };
+
+
 TEST(TestXmlUtilities, ParsePrimaryLocationUsername) // NOLINT
 {
     auto simpleXml = parseXml(updatePolicy);
@@ -155,4 +165,18 @@ TEST(TestXmlUtilities, ConcatenateAttributesIdAndHandleText) // NOLINT
 
     ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----BEGIN CERTIFICATE-----"));
     ASSERT_THAT(attributes.value(attributes.TextId), ::testing::HasSubstr("-----END CERTIFICATE-----"));
+}
+
+TEST(TestXmlUtilities, EntitiesAreRejected) // NOLINT
+{
+    Common::Logging::ConsoleLoggingSetup loggingSetup;
+    try
+    {
+        (void)parseXml(ENTITY_XML);
+        FAIL() << "Able to parse Entity XML";
+    }
+    catch (const XmlUtilitiesException& ex)
+    {
+        // All good
+    }
 }
