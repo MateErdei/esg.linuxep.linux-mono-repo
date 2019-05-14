@@ -187,7 +187,7 @@ namespace Common
             }
             catch (const std::exception& ex)
             {
-                PRINT("Exception caught while attempting to stop ProcessProxy in destructor: "<<ex.what());
+                PRINT("Exception caught while attempting to stop ProcessProxy in destructor: " << ex.what());
             }
             catch(...)
             {

@@ -10,11 +10,19 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/PluginProxy.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
 namespace
 {
     class TestPluginProxy : public ::testing::Test
     {
+    public:
+        ~TestPluginProxy()
+        {
+            Tests::restoreFileSystem();
+        }
+    private:
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     };
 } // namespace
@@ -48,6 +56,10 @@ TEST_F(TestPluginProxy, WillStartPluginWithExecutable) // NOLINT
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
 
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
     Common::PluginRegistryImpl::PluginInfo info;
     info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
@@ -77,6 +89,10 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
 
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
     Common::PluginRegistryImpl::PluginInfo info;
     info.setExecutableUserAndGroup("root:root");
     info.setExecutableFullPath(execPath);
@@ -86,7 +102,7 @@ TEST_F(TestPluginProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
     EXPECT_EQ(delay, std::chrono::hours(1));
 
     EXPECT_NO_THROW(proxy.checkForExit()); // NOLINT
-    delay = proxy.ensureStateMatchesOptions();
+
     EXPECT_EQ(delay, std::chrono::seconds(10)); // Not starting for 10 seconds
 
     Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
@@ -114,6 +130,10 @@ TEST_F(TestPluginProxy, checkExpectedExitIsNotLogged) // NOLINT
         EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(false));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     Common::PluginRegistryImpl::PluginInfo info;
     info.setExecutableUserAndGroup("root:root");
