@@ -69,8 +69,7 @@ public:
 };
 
 
-// json string, deserialise to config obj, serialis config obj to json string an compare.
-TEST_F(TelemetryConfigTest, serialiseTelemetryConfig) // NOLINT
+TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
 {
     std::string originalJsonString = m_jsonObject.dump();
     std::cout << originalJsonString;
@@ -84,16 +83,13 @@ TEST_F(TelemetryConfigTest, serialiseTelemetryConfig) // NOLINT
     EXPECT_EQ(originalJsonString, newJsonString);
 }
 
-TEST_F(TelemetryConfigTest, deserialiseTelemetryConfig) // NOLINT
+TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
 {
-    TelemetryConfigSerialiser serialiser;
-
     // Convert the config object to a json string
-    std::string jsonString = serialiser.serialise(m_config);
-
+    std::string jsonString = TelemetryConfigSerialiser::serialise(m_config);
 
     // Convert the json string to a config object, then back to a json string
-    Config newConfig = serialiser.deserialise(jsonString);
+    Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
 
     EXPECT_EQ(m_config, newConfig);
 }
