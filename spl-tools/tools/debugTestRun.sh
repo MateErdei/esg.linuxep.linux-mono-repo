@@ -22,7 +22,7 @@ function update()
     fi
 }
 ## Sort out SSH key
-env
+env | sort
 
 update ssh://git@stash.sophos.net:7999/linuxep/everest-base.git sspl-base
 [[ -d sspl-base ]] || failure 1 "Failed to checkout Base"
