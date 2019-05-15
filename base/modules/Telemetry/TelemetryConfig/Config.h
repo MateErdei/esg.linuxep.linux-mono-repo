@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "MessageRelay.h"
 #include "Proxy.h"
+#include "Constants.h"
 
 #include "Common/HttpSenderImpl/RequestConfig.h"
 
@@ -36,8 +37,5 @@ namespace Telemetry::TelemetryConfig
         bool operator!=(const Config& rhs) const;
 
         bool isValid() const;
-
-    private:
-        const unsigned int m_maxPortNumber = 65535;
     };
 } // namespace Telemetry::TelemetryConfig

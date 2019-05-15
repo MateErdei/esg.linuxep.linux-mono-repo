@@ -44,7 +44,7 @@ bool Config::isValid() const
         }
     }
 
-    return m_port <= m_maxPortNumber &&
+    return m_port <= MAX_PORT_NUMBER &&
            (m_verb == Common::HttpSenderImpl::RequestType::GET || m_verb == Common::HttpSenderImpl::RequestType::POST ||
             m_verb == Common::HttpSenderImpl::RequestType::PUT) &&
            m_externalProcessTimeout > 0 && m_maxJsonSize > 0;

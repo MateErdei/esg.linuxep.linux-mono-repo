@@ -42,7 +42,7 @@ bool Proxy::isValidProxy() const
         }
     }
 
-    return m_port <= 65535;
+    return m_port <= MAX_PORT_NUMBER;
 }
 
 Proxy::Proxy() : m_url(""), m_port(0), m_authentication(Proxy::Authentication::none), m_username(""), m_password("") {}

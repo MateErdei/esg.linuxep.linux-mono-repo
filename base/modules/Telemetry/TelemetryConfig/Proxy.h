@@ -6,6 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "Constants.h"
+
 #include <string>
 
 namespace Telemetry::TelemetryConfig

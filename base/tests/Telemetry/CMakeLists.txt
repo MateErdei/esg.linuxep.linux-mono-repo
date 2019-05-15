@@ -16,6 +16,7 @@ add_executable(TelemetryTests
         ../../modules/Telemetry/TelemetryConfig/MessageRelay.cpp
         ../../modules/Telemetry/TelemetryConfig/Config.h
         ../../modules/Telemetry/TelemetryConfig/Config.cpp
+        ../../modules/Telemetry/TelemetryConfig/Constants.h
         )
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
