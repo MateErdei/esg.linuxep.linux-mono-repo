@@ -7,10 +7,16 @@ add_executable(TelemetryTests
         MockHttpSender.h
         MockTelemetryProvider.h
         TelemetryProcessorTests.cpp
-        TelemetryConfigTests.cpp)
-
-
-#include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+        TelemetryConfigTests.cpp
+        ../../modules/Telemetry/TelemetryConfig/TelemetryConfigSerialiser.h
+        ../../modules/Telemetry/TelemetryConfig/TelemetryConfigSerialiser.cpp
+        ../../modules/Telemetry/TelemetryConfig/Proxy.h
+        ../../modules/Telemetry/TelemetryConfig/Proxy.cpp
+        ../../modules/Telemetry/TelemetryConfig/MessageRelay.h
+        ../../modules/Telemetry/TelemetryConfig/MessageRelay.cpp
+        ../../modules/Telemetry/TelemetryConfig/Config.h
+        ../../modules/Telemetry/TelemetryConfig/Config.cpp
+        )
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
