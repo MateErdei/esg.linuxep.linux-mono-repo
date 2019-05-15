@@ -28,7 +28,7 @@ bool Config::operator!=(const Config& rhs) const
 
 bool Config::isValid() const
 {
-    for (auto& messageRelay : m_messageRelays)
+    for (const auto& messageRelay : m_messageRelays)
     {
         if (!messageRelay.isValidMessageRelay())
         {
@@ -36,7 +36,7 @@ bool Config::isValid() const
         }
     }
 
-    for (auto& proxy : m_proxies)
+    for (const auto& proxy : m_proxies)
     {
         if (!proxy.isValidProxy())
         {
@@ -44,7 +44,7 @@ bool Config::isValid() const
         }
     }
 
-    return m_port <= 65535 &&
+    return m_port <= m_maxPortNumber &&
            (m_verb == Common::HttpSenderImpl::RequestType::GET || m_verb == Common::HttpSenderImpl::RequestType::POST ||
             m_verb == Common::HttpSenderImpl::RequestType::PUT) &&
            m_externalProcessTimeout > 0 && m_maxJsonSize > 0;

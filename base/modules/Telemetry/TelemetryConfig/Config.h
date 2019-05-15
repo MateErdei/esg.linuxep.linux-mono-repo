@@ -36,5 +36,8 @@ namespace Telemetry::TelemetryConfig
         bool operator!=(const Config& rhs) const;
 
         bool isValid() const;
+
+    private:
+        const unsigned int m_maxPortNumber = 65535;
     };
 } // namespace Telemetry::TelemetryConfig
