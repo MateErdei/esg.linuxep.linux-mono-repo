@@ -18,11 +18,11 @@ using namespace Telemetry;
 using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
-    const TelemetryConfig::Config& config,
-    Common::HttpSender::IHttpSender& httpSender,
+    std::shared_ptr<const TelemetryConfig::Config> config,
+    std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
     m_config(config),
-    m_httpSender(httpSender),
+    m_httpSender(std::move(httpSender)),
     m_telemetryProviders(std::move(telemetryProviders))
 {
 }
@@ -31,6 +31,14 @@ void TelemetryProcessor::Run()
 {
     gatherTelemetry();
     std::string telemetryJson = getSerialisedTelemetry();
+
+    if (telemetryJson.length() > m_config->m_maxJsonSize)
+    {
+        std::stringstream msg;
+        msg << "The gathered telemetry exceeds the maximum size of " << m_config->m_maxJsonSize << " bytes.";
+        throw std::runtime_error(msg.str());
+    }
+
     sendTelemetry(telemetryJson);
     saveTelemetry(telemetryJson);
 }
@@ -58,10 +66,10 @@ void TelemetryProcessor::gatherTelemetry()
 
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
-    Common::HttpSenderImpl::RequestConfig requestConfig(m_config.m_verb, m_config.m_headers);
-    requestConfig.setServer(m_config.m_server);
-    requestConfig.setCertPath(m_config.m_certPath);
-    requestConfig.setResourceRoot(m_config.m_resourceRoute);
+    Common::HttpSenderImpl::RequestConfig requestConfig(m_config->m_verb, m_config->m_headers);
+    requestConfig.setServer(m_config->m_server);
+    requestConfig.setCertPath(m_config->m_certPath);
+    requestConfig.setResourceRoot(m_config->m_resourceRoute);
 
     if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
@@ -71,7 +79,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.setData(telemetryJson);
 
     LOGINFO("Sending telemetry...");
-    m_httpSender.doHttpsRequest(requestConfig);
+    m_httpSender->doHttpsRequest(requestConfig);
 }
 
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const

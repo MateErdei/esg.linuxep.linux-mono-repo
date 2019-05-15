@@ -24,8 +24,8 @@ namespace Telemetry
     {
     public:
         TelemetryProcessor(
-            const TelemetryConfig::Config& config,
-            Common::HttpSender::IHttpSender& httpSender,
+            std::shared_ptr<const TelemetryConfig::Config> config,
+            std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
 
         virtual void Run();
@@ -38,8 +38,8 @@ namespace Telemetry
         virtual void addTelemetry(const std::string& sourceName, const std::string& json);
 
     private:
-        const TelemetryConfig::Config& m_config;
-        Common::HttpSender::IHttpSender& m_httpSender;
+        std::shared_ptr<const TelemetryConfig::Config> m_config;
+        std::unique_ptr<Common::HttpSender::IHttpSender> m_httpSender;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
     };

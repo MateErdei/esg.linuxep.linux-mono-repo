@@ -41,11 +41,11 @@ namespace Telemetry
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(argv[1], 1000000UL);
 
-            TelemetryConfig::Config config = TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson);
+            auto config = std::make_shared<const TelemetryConfig::Config>(
+                TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
 
             std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
                 std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
-            Common::HttpSenderImpl::HttpSender httpSender(curlWrapper);
 
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
 
@@ -53,11 +53,12 @@ namespace Telemetry
                 std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
                     GL_systemTelemetryObjectsConfig,
                     GL_systemTelemetryArraysConfig,
-                    config.m_externalProcessTimeout,
-                    config.m_externalProcessRetries));
+                    config->m_externalProcessTimeout,
+                    config->m_externalProcessRetries));
 
             telemetryProviders.emplace_back(systemTelemetryReporter);
-            TelemetryProcessor telemetryProcessor(config, httpSender, telemetryProviders);
+            TelemetryProcessor telemetryProcessor(
+                config, std::make_unique<Common::HttpSenderImpl::HttpSender>(curlWrapper), telemetryProviders);
 
             telemetryProcessor.Run();
 

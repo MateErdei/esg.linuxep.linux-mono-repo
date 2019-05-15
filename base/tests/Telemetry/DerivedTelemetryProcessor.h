@@ -17,9 +17,12 @@ class DerivedTelemetryProcessor : public Telemetry::TelemetryProcessor
 {
 public:
     DerivedTelemetryProcessor(
-            const Telemetry::TelemetryConfig::Config& config,
-            Common::HttpSender::IHttpSender& httpSender,
-            std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders) : TelemetryProcessor(config, httpSender, telemetryProviders) {}
+        std::shared_ptr<const Telemetry::TelemetryConfig::Config> config,
+        std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
+        std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders) :
+        TelemetryProcessor(config, std::move(httpSender), telemetryProviders)
+    {
+    }
 
     void gatherTelemetry() { Telemetry::TelemetryProcessor::gatherTelemetry(); }
     std::string getSerialisedTelemetry() { return Telemetry::TelemetryProcessor::getSerialisedTelemetry(); }
