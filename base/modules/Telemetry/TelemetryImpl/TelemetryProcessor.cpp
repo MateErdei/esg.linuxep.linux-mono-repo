@@ -65,7 +65,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 
     if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
-        throw std::runtime_error("Certificate file is not a valid");
+        throw std::runtime_error("Certificate file is not valid");
     }
 
     requestConfig.setData(telemetryJson);
@@ -73,6 +73,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     LOGINFO("Sending telemetry...");
     m_httpSender.doHttpsRequest(requestConfig);
 }
+
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
 {
     Path outputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
