@@ -28,14 +28,14 @@ namespace Telemetry
             Common::HttpSender::IHttpSender& httpSender,
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
 
-        void Run();
+        virtual void Run();
 
-    public: // TODO: consider making these private or protected
-        void gatherTelemetry();
-        std::string getSerialisedTelemetry();
-        void sendTelemetry(const std::string& telemetryJson);
-        void saveTelemetry(const std::string& telemetryJson) const;
-        void addTelemetry(const std::string& sourceName, const std::string& json);
+    protected:
+        virtual void gatherTelemetry();
+        virtual std::string getSerialisedTelemetry();
+        virtual void sendTelemetry(const std::string& telemetryJson);
+        virtual void saveTelemetry(const std::string& telemetryJson) const;
+        virtual void addTelemetry(const std::string& sourceName, const std::string& json);
 
     private:
         const TelemetryConfig::Config& m_config;

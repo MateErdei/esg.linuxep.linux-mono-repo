@@ -69,5 +69,4 @@ namespace Telemetry
             return 1;
         }
     }
-
 } // namespace Telemetry

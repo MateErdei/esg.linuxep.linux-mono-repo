@@ -11,7 +11,8 @@ add_executable(TelemetryTests
         SystemTelemetryReporterTests.cpp
         MockTelemetryProvider.h
         TelemetryProcessorTests.cpp
-        TelemetryConfigTests.cpp)
+        TelemetryConfigTests.cpp
+        DerivedTelemetryProcessor.h)
 
 
 #include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
