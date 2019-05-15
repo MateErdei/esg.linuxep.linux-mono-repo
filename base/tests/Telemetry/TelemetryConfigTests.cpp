@@ -36,7 +36,7 @@ public:
         messageRelay.m_url = "relay";
         messageRelay.m_port = 456;
         messageRelay.m_authentication = MessageRelay::Authentication::basic;
-        messageRelay.m_id = 3;
+        messageRelay.m_id = "ID";
         messageRelay.m_priority = 2;
         messageRelay.m_username = "relayuser";
         messageRelay.m_password = "relaypw";
@@ -60,7 +60,8 @@ public:
         m_jsonObject["resourceRoute"] = "TEST";
 
         m_jsonObject["messageRelays"] = { { { "authentication", 1 },
-                                            { "certPath", "certpath" },
+                                            { "id", "ID" },
+                                            { "priority", 2 },
                                             { "password", "relaypw" },
                                             { "port", 456 },
                                             { "url", "relay" },

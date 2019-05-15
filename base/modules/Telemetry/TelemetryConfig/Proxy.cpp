@@ -10,6 +10,11 @@ using namespace Telemetry::TelemetryConfig;
 
 bool Proxy::operator==(const Proxy& rhs) const
 {
+    if (this == &rhs)
+    {
+        return true;
+    }
+
     return m_url == rhs.m_url && m_port == rhs.m_port && m_authentication == rhs.m_authentication &&
            m_username == rhs.m_username && m_password == rhs.m_password;
 }
