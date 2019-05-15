@@ -51,10 +51,7 @@ bool Config::isValid() const
 }
 
 Config::Config() :
-    m_server(""),
-    m_resourceRoute(""),
     m_port(0),
-    m_headers({}),
     m_verb(Common::HttpSenderImpl::RequestType::PUT),
     m_externalProcessTimeout(0),
     m_externalProcessRetries(0),
