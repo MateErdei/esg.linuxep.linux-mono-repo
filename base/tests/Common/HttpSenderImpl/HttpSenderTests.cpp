@@ -61,7 +61,7 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::DEV);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::DEV);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
@@ -74,7 +74,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig postRequestConfig("POST", m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::PROD);
+    RequestConfig postRequestConfig(RequestType::POST, m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::PROD);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(postRequestConfig), m_succeededResult);
 }
@@ -87,7 +87,7 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig putRequestConfig("PUT", m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+    RequestConfig putRequestConfig(RequestType::PUT, m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
 }
@@ -104,7 +104,7 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
@@ -115,7 +115,7 @@ TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLI
     //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -129,7 +129,7 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -144,7 +144,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -157,7 +157,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -175,7 +175,7 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -190,7 +190,7 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig("GET", m_additionalHeaders);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
