@@ -13,6 +13,8 @@ namespace Telemetry::TelemetryConfig
     class Proxy
     {
     public:
+        Proxy();
+
         enum Authentication
         {
             none = 0,
@@ -28,6 +30,6 @@ namespace Telemetry::TelemetryConfig
         bool operator==(const Proxy& rhs) const;
         bool operator!=(const Proxy& rhs) const;
 
-        bool isValid() const;
+        bool isValidProxy() const;
     };
 } // namespace Telemetry::TelemetryConfig

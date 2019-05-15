@@ -15,11 +15,13 @@ namespace Telemetry::TelemetryConfig
     class MessageRelay : public Proxy
     {
     public:
+        MessageRelay();
+
         std::string m_certificatePath;
 
         bool operator==(const MessageRelay& rhs) const;
         bool operator!=(const MessageRelay& rhs) const;
 
-        bool isValid() const;
+        bool isValidMessageRelay() const;
     };
 }

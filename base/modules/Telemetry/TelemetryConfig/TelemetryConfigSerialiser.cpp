@@ -9,8 +9,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <json.hpp>
 
-std::string Telemetry::TelemetryConfig::TelemetryConfigSerialiser::serialise(
-    const Telemetry::TelemetryConfig::Config& config)
+using namespace Telemetry::TelemetryConfig;
+
+std::string TelemetryConfigSerialiser::serialise(
+    const Config& config)
 {
     nlohmann::json j = config;
 
@@ -22,7 +24,7 @@ std::string Telemetry::TelemetryConfig::TelemetryConfigSerialiser::serialise(
     return j.dump();
 }
 
-void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Telemetry::TelemetryConfig::Config& config)
+void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config)
 {
     j = nlohmann::json{ { "server", config.m_server },
                         { "resourceRoute", config.m_resourceRoute },
@@ -36,7 +38,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Telemetry::Tel
                         { "maxJsonSize", config.m_maxJsonSize } };
 }
 
-void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Telemetry::TelemetryConfig::Proxy& proxy)
+void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
 {
     j = nlohmann::json{ { "url", proxy.m_url },
                         { "port", proxy.m_port },
@@ -47,7 +49,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Telemetry::Tel
 
 void Telemetry::TelemetryConfig::to_json(
     nlohmann::json& j,
-    const Telemetry::TelemetryConfig::MessageRelay& messageRelay)
+    const MessageRelay& messageRelay)
 {
     j = nlohmann::json{ { "certPath", messageRelay.m_certificatePath },
                         { "url", messageRelay.m_url },
@@ -57,11 +59,11 @@ void Telemetry::TelemetryConfig::to_json(
                         { "password", messageRelay.m_password } };
 }
 
-Telemetry::TelemetryConfig::Config Telemetry::TelemetryConfig::TelemetryConfigSerialiser::deserialise(
+Config TelemetryConfigSerialiser::deserialise(
     const std::string& jsonString)
 {
     nlohmann::json j = nlohmann::json::parse(jsonString);
-    Telemetry::TelemetryConfig::Config config = j;
+    Config config = j;
 
     if (!config.isValid())
     {
