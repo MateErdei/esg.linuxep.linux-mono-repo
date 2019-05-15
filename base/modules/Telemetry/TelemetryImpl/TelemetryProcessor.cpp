@@ -79,7 +79,8 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.setData(telemetryJson);
 
     LOGINFO("Sending telemetry...");
-    m_httpSender->doHttpsRequest(requestConfig);
+    auto result = m_httpSender->doHttpsRequest(requestConfig);
+    LOGINFO("HTTP request resulted in CURL result: " << result);
 }
 
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const

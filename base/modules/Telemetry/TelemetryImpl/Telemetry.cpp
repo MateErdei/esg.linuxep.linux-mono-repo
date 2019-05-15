@@ -31,7 +31,9 @@ namespace Telemetry
         {
             if (argc != 2)
             {
-                throw std::runtime_error("usage: argv[0] <configuration file path>");
+                std::stringstream msg;
+                msg << "usage:" << argv[0] << "<configuration file path>";
+                throw std::runtime_error(msg.str());
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(argv[1]))
