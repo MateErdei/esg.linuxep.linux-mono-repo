@@ -77,9 +77,10 @@ namespace Common
 
             std::chrono::seconds timeout(10);
 
+            Common::UtilityImpl::FormattedTime time;
             while (keepRunning)
             {
-                LOGDEBUG("Calling poller at " << Common::UtilityImpl::TimeUtils::getCurrTime());
+                LOGDEBUG("Calling poller at " << time.currentTime());
                 Common::ZeroMQWrapper::IPoller::poll_result_t active = poller->poll(std::chrono::milliseconds(timeout));
                 LOGDEBUG("Returned from poller: " << active.size() << " at " << ::time(nullptr));
 

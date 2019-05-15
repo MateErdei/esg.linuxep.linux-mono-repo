@@ -13,7 +13,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:telemetryhelperimplobject>
         $<TARGET_OBJECTS:processmonitoringimplobject>
         $<TARGET_OBJECTS:processimplobject>
-#        $<TARGET_OBJECTS:utilityimplobject>
+        $<TARGET_OBJECTS:utilityimplobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
