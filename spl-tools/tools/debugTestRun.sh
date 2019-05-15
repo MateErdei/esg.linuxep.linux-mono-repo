@@ -24,8 +24,15 @@ function update()
 ## Sort out SSH key
 env | sort
 
-[[ -f $GIT_SSH_KEYFILE ]] || failure 2 "Can't find git SSH keyfile: $GIT_SSH_KEYFILE"
-export GIT_SSH_COMMAND="ssh -i ${GIT_SSH_KEYFILE}"
+[[ -f "$GIT_SSH_KEYFILE" ]] || failure 2 "Can't find git SSH keyfile: $GIT_SSH_KEYFILE"
+export GIT_SSH_COMMAND="ssh -vvv -i ${GIT_SSH_KEYFILE}"
+chmod 600 "$GIT_SSH_KEYFILE"
+export GIT_TRACE=1
+echo "${GIT_SSH_COMMAND}" >/tmp/ssh-jenkins-git
+chmod 700 /tmp/ssh-jenkins-git
+export GIT_SSH=/tmp/ssh-jenkins-git
+
+git --version
 
 update ssh://git@stash.sophos.net:7999/linuxep/everest-base.git sspl-base
 [[ -d sspl-base ]] || failure 1 "Failed to checkout Base"
