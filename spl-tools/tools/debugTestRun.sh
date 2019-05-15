@@ -24,6 +24,8 @@ function update()
 ## Sort out SSH key
 env | sort
 
+[[ -f $GIT_SSH_KEYFILE ]] || failure 2 "Can't find git SSH keyfile: $GIT_SSH_KEYFILE"
+
 update ssh://git@stash.sophos.net:7999/linuxep/everest-base.git sspl-base
 [[ -d sspl-base ]] || failure 1 "Failed to checkout Base"
 update ssh://git@stash.sophos.net:7999/linuxep/thininstaller.git thininstaller
