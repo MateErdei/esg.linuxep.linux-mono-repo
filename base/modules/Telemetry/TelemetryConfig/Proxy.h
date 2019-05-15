@@ -27,6 +27,7 @@ namespace Telemetry::TelemetryConfig
 
         bool operator==(const Proxy& rhs) const;
         bool operator!=(const Proxy& rhs) const;
-    };
-}
 
+        bool isValid() const;
+    };
+} // namespace Telemetry::TelemetryConfig

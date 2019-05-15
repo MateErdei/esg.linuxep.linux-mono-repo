@@ -17,7 +17,6 @@ class TelemetryConfigTest : public ::testing::Test
 public:
     Config m_config;
 
-
     nlohmann::json m_jsonObject;
 
     void SetUp() override
@@ -28,6 +27,7 @@ public:
         m_config.m_server = "localhost";
         m_config.m_verb  = Common::HttpSenderImpl::RequestType::GET;
         m_config.m_externalProcessTimeout = 3;
+        m_config.m_externalProcessRetries = 2;
         m_config.m_headers = {"header1", "header2"};
         m_config.m_maxJsonSize = 10;
         m_config.m_port = 123;
@@ -53,6 +53,7 @@ public:
         m_jsonObject["server"] = "localhost";
         m_jsonObject["verb"] = 0;
         m_jsonObject["externalProcessTimeout"] = 3;
+        m_jsonObject["externalProcessRetries"] = 2;
         m_jsonObject["headers"] = {"header1","header2"},
         m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = 123;
@@ -72,7 +73,6 @@ public:
 TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
 {
     std::string originalJsonString = m_jsonObject.dump();
-    std::cout << originalJsonString;
 
     // Convert the json string to a config object
     Config config = TelemetryConfigSerialiser::deserialise(originalJsonString);
@@ -92,4 +92,63 @@ TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
     Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
 
     EXPECT_EQ(m_config, newConfig);
+}
+
+TEST_F(TelemetryConfigTest, invalidConfigCannotBeSerialised) // NOLINT
+{
+    Config invalidConfig = m_config;
+    invalidConfig.m_port = 65536;
+
+    // Try to convert the invalidConfig object to a json string
+    EXPECT_THROW(TelemetryConfigSerialiser::serialise(invalidConfig), std::invalid_argument); // NOLINT
+}
+
+TEST_F(TelemetryConfigTest, invalidJsonCannotBeDeserialised) // NOLINT
+{
+    nlohmann::json invalidJsonObject = m_jsonObject;
+    invalidJsonObject["port"] = 65536;
+
+    std::string invalidJsonString = invalidJsonObject.dump();
+
+    // Try to convert the invalidJsonString to a config object
+    EXPECT_THROW(TelemetryConfigSerialiser::deserialise(invalidJsonString), std::invalid_argument); // NOLINT
+}
+
+TEST_F(TelemetryConfigTest, brokenJsonCannotBeDeserialised) // NOLINT
+{
+    // Try to convert broken JSON to a config object
+    EXPECT_THROW(TelemetryConfigSerialiser::deserialise("imbroken:("), nlohmann::detail::parse_error); // NOLINT
+}
+
+TEST(MessageRelayTest, messageRelayEquality) // NOLINT
+{
+    MessageRelay a;
+    MessageRelay b;
+    a.m_port = 2;
+    ASSERT_NE(a, b);
+
+    b.m_port = 2;
+    ASSERT_EQ(a,b);
+}
+
+TEST(ProxyTest, proxyEquality) // NOLINT
+{
+    Proxy a;
+    Proxy b;
+    a.m_port = 2;
+    ASSERT_NE(a, b);
+
+    b.m_port = 2;
+    ASSERT_EQ(a,b);
+}
+
+TEST(ConfigTest, configEquality) // NOLINT
+{
+    Config a;
+    Config b;
+    a.m_server = "server";
+    ASSERT_NE(a, b);
+
+    b.m_server = "server";
+    ASSERT_EQ(a,b);
 }
