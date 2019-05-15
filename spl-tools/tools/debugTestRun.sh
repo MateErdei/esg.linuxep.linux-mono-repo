@@ -28,7 +28,7 @@ env | sort
 export GIT_SSH_COMMAND="ssh -v -i ${GIT_SSH_KEYFILE}"
 chmod 600 "$GIT_SSH_KEYFILE"
 export GIT_TRACE=1
-echo "${GIT_SSH_COMMAND}" >/tmp/ssh-jenkins-git
+echo "${GIT_SSH_COMMAND} \$*" >/tmp/ssh-jenkins-git
 chmod 700 /tmp/ssh-jenkins-git
 export GIT_SSH=/tmp/ssh-jenkins-git
 
