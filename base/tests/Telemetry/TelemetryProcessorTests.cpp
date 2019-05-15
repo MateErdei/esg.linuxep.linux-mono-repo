@@ -36,10 +36,20 @@ public:
         std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
         m_mockFileSystem = mockfileSystem.get();
         Tests::replaceFileSystem(std::move(mockfileSystem));
+        m_config.m_maxJsonSize = 1000;
     }
 
     void TearDown() override { Tests::restoreFileSystem(); }
 };
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT
+{
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ("{}", json);
+}
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorOneProvider) // NOLINT
 {
@@ -131,4 +141,23 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
 
     Telemetry::TelemetryProcessor telemetryProcessor(config, m_httpSender, telemetryProviders);
     telemetryProcessor.Run();
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOLINT
+{
+    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
+
+    std::string longString = std::string(m_config.m_maxJsonSize, 'a');
+
+    std::stringstream ss;
+    ss << R"({"key":")" << longString << R"("})";
+
+    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(ss.str()));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider);
+
+    Telemetry::TelemetryProcessor telemetryProcessor(m_config, m_httpSender, telemetryProviders);
+    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error); // NOLINT
 }
