@@ -51,7 +51,8 @@ void Telemetry::TelemetryConfig::to_json(
     nlohmann::json& j,
     const MessageRelay& messageRelay)
 {
-    j = nlohmann::json{ { "certPath", messageRelay.m_certificatePath },
+    j = nlohmann::json{ { "id", messageRelay.m_id },
+                        { "priority", messageRelay.m_priority },
                         { "url", messageRelay.m_url },
                         { "port", messageRelay.m_port },
                         { "authentication", messageRelay.m_authentication },
@@ -99,7 +100,8 @@ void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Proxy& proxy
 
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, MessageRelay& messageRelay)
 {
-    j.at("certPath").get_to(messageRelay.m_certificatePath);
+    j.at("id").get_to(messageRelay.m_id);
+    j.at("priority").get_to(messageRelay.m_priority);
     j.at("url").get_to(messageRelay.m_url);
     j.at("port").get_to(messageRelay.m_port);
     j.at("authentication").get_to(messageRelay.m_authentication);
