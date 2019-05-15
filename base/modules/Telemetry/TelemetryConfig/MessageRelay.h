@@ -17,12 +17,19 @@ namespace Telemetry::TelemetryConfig
     public:
         MessageRelay();
 
-        std::string m_id;
-        int m_priority;
+        const std::string& getId() const;
+        void setId(const std::string& id);
+        int getPriority() const;
+        void setPriority(int priority);
 
         bool operator==(const MessageRelay& rhs) const;
         bool operator!=(const MessageRelay& rhs) const;
 
         bool isValidMessageRelay() const;
+
+    private:
+        std::string m_id;
+        int m_priority;
+
     };
 }

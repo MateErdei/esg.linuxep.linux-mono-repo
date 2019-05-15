@@ -58,3 +58,102 @@ Config::Config() :
     m_maxJsonSize(0)
 {
 }
+const std::string& Config::getServer() const
+{
+    return m_server;
+}
+
+void Config::setServer(const std::string& server)
+{
+    m_server = server;
+}
+
+const std::string& Config::getResourceRoute() const
+{
+    return m_resourceRoute;
+}
+
+void Config::setResourceRoute(const std::string& resourceRoute)
+{
+    m_resourceRoute = resourceRoute;
+}
+
+unsigned int Config::getPort() const
+{
+    return m_port;
+}
+
+void Config::setPort(unsigned int port)
+{
+    m_port = port;
+}
+
+const std::vector<std::string>& Config::getHeaders() const
+{
+    return m_headers;
+}
+
+void Config::setHeaders(const std::vector<std::string>& headers)
+{
+    m_headers = headers;
+}
+
+Common::HttpSenderImpl::RequestType Config::getVerb() const
+{
+    return m_verb;
+}
+
+void Config::setVerb(Common::HttpSenderImpl::RequestType verb)
+{
+    m_verb = verb;
+}
+
+const std::vector<Proxy>& Config::getProxies() const
+{
+    return m_proxies;
+}
+
+void Config::setProxies(const std::vector<Proxy>& proxies)
+{
+    m_proxies = proxies;
+}
+
+const std::vector<MessageRelay>& Config::getMessageRelays() const
+{
+    return m_messageRelays;
+}
+
+void Config::setMessageRelays(const std::vector<MessageRelay>& messageRelays)
+{
+    m_messageRelays = messageRelays;
+}
+
+unsigned int Config::getExternalProcessTimeout() const
+{
+    return m_externalProcessTimeout;
+}
+
+void Config::setExternalProcessTimeout(unsigned int externalProcessTimeout)
+{
+    m_externalProcessTimeout = externalProcessTimeout;
+}
+
+unsigned int Config::getExternalProcessRetries() const
+{
+    return m_externalProcessRetries;
+}
+
+void Config::setExternalProcessRetries(unsigned int externalProcessRetries)
+{
+    m_externalProcessRetries = externalProcessRetries;
+}
+
+unsigned int Config::getMaxJsonSize() const
+{
+    return m_maxJsonSize;
+}
+
+void Config::setMaxJsonSize(unsigned int maxJsonSize)
+{
+    m_maxJsonSize = maxJsonSize;
+}

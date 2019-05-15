@@ -23,15 +23,31 @@ namespace Telemetry::TelemetryConfig
             basic = 1,
             digest = 2
         };
-        std::string m_url;
-        unsigned int m_port;
-        Authentication m_authentication;
-        std::string m_username;
-        std::string m_password;
+        const std::string& getUrl() const;
+        void setUrl(const std::string& url);
+
+        unsigned int getPort() const;
+        void setPort(unsigned int port);
+
+        Authentication getAuthentication() const;
+        void setAuthentication(Authentication authentication);
+
+        const std::string& getUsername() const;
+        void setUsername(const std::string& username);
+
+        const std::string& getPassword() const;
+        void setPassword(const std::string& password);
 
         bool operator==(const Proxy& rhs) const;
         bool operator!=(const Proxy& rhs) const;
 
         bool isValidProxy() const;
+
+    private:
+        std::string m_url;
+        unsigned int m_port;
+        Authentication m_authentication;
+        std::string m_username;
+        std::string m_password;
     };
 } // namespace Telemetry::TelemetryConfig

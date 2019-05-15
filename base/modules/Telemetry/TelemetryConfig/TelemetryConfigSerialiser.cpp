@@ -26,38 +26,38 @@ std::string TelemetryConfigSerialiser::serialise(
 
 void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config)
 {
-    j = nlohmann::json{ { "server", config.m_server },
-                        { "resourceRoute", config.m_resourceRoute },
-                        { "port", config.m_port },
-                        { "headers", config.m_headers },
-                        { "verb", config.m_verb },
-                        { "proxies", config.m_proxies },
-                        { "messageRelays", config.m_messageRelays },
-                        { "externalProcessTimeout", config.m_externalProcessTimeout },
-                        { "externalProcessRetries", config.m_externalProcessRetries },
-                        { "maxJsonSize", config.m_maxJsonSize } };
+    j = nlohmann::json{ { "server", config.getServer() },
+                        { "resourceRoute", config.getResourceRoute() },
+                        { "port", config.getPort() },
+                        { "headers", config.getHeaders() },
+                        { "verb", config.getVerb() },
+                        { "proxies", config.getProxies() },
+                        { "messageRelays", config.getMessageRelays() },
+                        { "externalProcessTimeout", config.getExternalProcessTimeout() },
+                        { "externalProcessRetries", config.getExternalProcessRetries() },
+                        { "maxJsonSize", config.getMaxJsonSize() } };
 }
 
 void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
 {
-    j = nlohmann::json{ { "url", proxy.m_url },
-                        { "port", proxy.m_port },
-                        { "authentication", proxy.m_authentication },
-                        { "username", proxy.m_username },
-                        { "password", proxy.m_password } };
+    j = nlohmann::json{ { "url", proxy.getUrl() },
+                        { "port", proxy.getPort() },
+                        { "authentication", proxy.getAuthentication() },
+                        { "username", proxy.getUsername() },
+                        { "password", proxy.getPassword() } };
 }
 
 void Telemetry::TelemetryConfig::to_json(
     nlohmann::json& j,
     const MessageRelay& messageRelay)
 {
-    j = nlohmann::json{ { "id", messageRelay.m_id },
-                        { "priority", messageRelay.m_priority },
-                        { "url", messageRelay.m_url },
-                        { "port", messageRelay.m_port },
-                        { "authentication", messageRelay.m_authentication },
-                        { "username", messageRelay.m_username },
-                        { "password", messageRelay.m_password } };
+    j = nlohmann::json{ { "id", messageRelay.getId() },
+                        { "priority", messageRelay.getPriority() },
+                        { "url", messageRelay.getUrl() },
+                        { "port", messageRelay.getPort() },
+                        { "authentication", messageRelay.getAuthentication() },
+                        { "username", messageRelay.getUsername() },
+                        { "password", messageRelay.getPassword() } };
 }
 
 Config TelemetryConfigSerialiser::deserialise(
@@ -76,35 +76,34 @@ Config TelemetryConfigSerialiser::deserialise(
 
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Config& config)
 {
-    j.at("server").get_to(config.m_server);
-    j.at("resourceRoute").get_to(config.m_resourceRoute);
-    j.at("port").get_to(config.m_port);
-    j.at("headers").get_to(config.m_headers);
-    j.at("verb").get_to(config.m_verb);
-    j.at("verb").get_to(config.m_verb);
-    j.at("proxies").get_to(config.m_proxies);
-    j.at("messageRelays").get_to(config.m_messageRelays);
-    j.at("externalProcessTimeout").get_to(config.m_externalProcessTimeout);
-    j.at("externalProcessRetries").get_to(config.m_externalProcessRetries);
-    j.at("maxJsonSize").get_to(config.m_maxJsonSize);
+    config.setServer(j.at("server"));
+    config.setResourceRoute(j.at("resourceRoute"));
+    config.setPort(j.at("port"));
+    config.setHeaders(j.at("headers"));
+    config.setVerb(j.at("verb"));
+    config.setProxies(j.at("proxies"));
+    config.setMessageRelays(j.at("messageRelays"));
+    config.setExternalProcessTimeout(j.at("externalProcessTimeout"));
+    config.setExternalProcessRetries(j.at("externalProcessRetries"));
+    config.setMaxJsonSize(j.at("maxJsonSize"));
 }
 
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Proxy& proxy)
 {
-    j.at("url").get_to(proxy.m_url);
-    j.at("port").get_to(proxy.m_port);
-    j.at("authentication").get_to(proxy.m_authentication);
-    j.at("username").get_to(proxy.m_username);
-    j.at("password").get_to(proxy.m_password);
+    proxy.setUrl(j.at("url"));
+    proxy.setPort(j.at("port"));
+    proxy.setAuthentication(j.at("authentication"));
+    proxy.setUsername(j.at("username"));
+    proxy.setPassword(j.at("password"));
 }
 
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, MessageRelay& messageRelay)
 {
-    j.at("id").get_to(messageRelay.m_id);
-    j.at("priority").get_to(messageRelay.m_priority);
-    j.at("url").get_to(messageRelay.m_url);
-    j.at("port").get_to(messageRelay.m_port);
-    j.at("authentication").get_to(messageRelay.m_authentication);
-    j.at("username").get_to(messageRelay.m_username);
-    j.at("password").get_to(messageRelay.m_password);
+    messageRelay.setId(j.at("id"));
+    messageRelay.setPriority(j.at("priority"));
+    messageRelay.setUrl(j.at("url"));
+    messageRelay.setPort(j.at("port"));
+    messageRelay.setAuthentication(j.at("authentication"));
+    messageRelay.setUsername(j.at("username"));
+    messageRelay.setPassword(j.at("password"));
 }

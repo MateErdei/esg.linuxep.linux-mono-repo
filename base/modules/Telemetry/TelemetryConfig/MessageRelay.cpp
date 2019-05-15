@@ -8,6 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
+MessageRelay::MessageRelay() : m_id(""), m_priority(0) {}
+
 bool MessageRelay::operator==(const MessageRelay& rhs) const
 {
     if (this == &rhs)
@@ -28,4 +30,22 @@ bool MessageRelay::isValidMessageRelay() const
     return isValidProxy();
 }
 
-MessageRelay::MessageRelay() : m_id(""), m_priority(0) {}
+const std::string& MessageRelay::getId() const
+{
+    return m_id;
+}
+
+void MessageRelay::setId(const std::string& id)
+{
+    m_id = id;
+}
+
+int MessageRelay::getPriority() const
+{
+    return m_priority;
+}
+
+void MessageRelay::setPriority(int priority)
+{
+    m_priority = priority;
+}

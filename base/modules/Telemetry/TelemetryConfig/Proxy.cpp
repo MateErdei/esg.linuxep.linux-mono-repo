@@ -8,6 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
+Proxy::Proxy() : m_url(""), m_port(0), m_authentication(Proxy::Authentication::none), m_username(""), m_password("") {}
+
 bool Proxy::operator==(const Proxy& rhs) const
 {
     if (this == &rhs)
@@ -45,4 +47,52 @@ bool Proxy::isValidProxy() const
     return m_port <= MAX_PORT_NUMBER;
 }
 
-Proxy::Proxy() : m_url(""), m_port(0), m_authentication(Proxy::Authentication::none), m_username(""), m_password("") {}
+const std::string& Proxy::getUrl() const
+{
+    return m_url;
+}
+
+void Proxy::setUrl(const std::string& url)
+{
+    m_url = url;
+}
+
+unsigned int Proxy::getPort() const
+{
+    return m_port;
+}
+
+void Proxy::setPort(unsigned int port)
+{
+    m_port = port;
+}
+
+Proxy::Authentication Proxy::getAuthentication() const
+{
+    return m_authentication;
+}
+
+void Proxy::setAuthentication(Proxy::Authentication authentication)
+{
+    m_authentication = authentication;
+}
+
+const std::string& Proxy::getUsername() const
+{
+    return m_username;
+}
+
+void Proxy::setUsername(const std::string& username)
+{
+    m_username = username;
+}
+
+const std::string& Proxy::getPassword() const
+{
+    return m_password;
+}
+
+void Proxy::setPassword(const std::string& password)
+{
+    m_password = password;
+}

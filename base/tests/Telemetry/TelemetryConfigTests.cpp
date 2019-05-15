@@ -24,32 +24,32 @@ public:
         MessageRelay messageRelay;
         Proxy proxy;
 
-        m_config.m_server = "localhost";
-        m_config.m_verb = Common::HttpSenderImpl::RequestType::GET;
-        m_config.m_externalProcessTimeout = 3;
-        m_config.m_externalProcessRetries = 2;
-        m_config.m_headers = { "header1", "header2" };
-        m_config.m_maxJsonSize = 10;
-        m_config.m_port = 123;
-        m_config.m_resourceRoute = "TEST";
+        m_config.setServer("localhost");
+        m_config.setVerb(Common::HttpSenderImpl::RequestType::GET);
+        m_config.setExternalProcessTimeout(3);
+        m_config.setExternalProcessRetries(2);
+        m_config.setHeaders({ "header1", "header2" });
+        m_config.setMaxJsonSize(10);
+        m_config.setPort(123);
+        m_config.setResourceRoute("TEST");
 
-        messageRelay.m_url = "relay";
-        messageRelay.m_port = 456;
-        messageRelay.m_authentication = MessageRelay::Authentication::basic;
-        messageRelay.m_id = "ID";
-        messageRelay.m_priority = 2;
-        messageRelay.m_username = "relayuser";
-        messageRelay.m_password = "relaypw";
+        messageRelay.setUrl("relay");
+        messageRelay.setPort(456);
+        messageRelay.setAuthentication(MessageRelay::Authentication::basic);
+        messageRelay.setId("ID");
+        messageRelay.setPriority(2);
+        messageRelay.setUsername("relayuser");
+        messageRelay.setPassword("relaypw");
 
-        m_config.m_messageRelays.push_back(messageRelay);
+        m_config.setMessageRelays({messageRelay});
 
-        proxy.m_url = "proxy";
-        proxy.m_port = 789;
-        proxy.m_authentication = MessageRelay::Authentication::basic;
-        proxy.m_username = "proxyuser";
-        proxy.m_password = "proxypw";
+        proxy.setUrl("proxy");
+        proxy.setPort(789);
+        proxy.setAuthentication(MessageRelay::Authentication::basic);
+        proxy.setUsername("proxyuser");
+        proxy.setPassword("proxypw");
 
-        m_config.m_proxies.push_back(proxy);
+        m_config.setProxies({proxy});
 
         m_jsonObject["server"] = "localhost";
         m_jsonObject["verb"] = 0;
@@ -102,7 +102,7 @@ TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
 TEST_F(TelemetryConfigTest, invalidConfigCannotBeSerialised) // NOLINT
 {
     Config invalidConfig = m_config;
-    invalidConfig.m_port = 65536;
+    invalidConfig.setPort(65536);
 
     // Try to convert the invalidConfig object to a json string
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(invalidConfig), std::invalid_argument); // NOLINT
@@ -128,14 +128,14 @@ TEST_F(TelemetryConfigTest, brokenJsonCannotBeDeserialised) // NOLINT
 TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_proxies.clear();
+    customConfig.setProxies({});
     Proxy customProxy;
 
-    customProxy.m_url = "proxy";
-    customProxy.m_port = 789;
-    customProxy.m_authentication = Proxy::Authentication::none;
+    customProxy.setUrl("proxy");
+    customProxy.setPort(789);
+    customProxy.setAuthentication(Proxy::Authentication::none);
 
-    customConfig.m_proxies.push_back(customProxy);
+    customConfig.setProxies({customProxy});
 
     std::string jsonString = TelemetryConfigSerialiser::serialise(customConfig);
     Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
@@ -146,16 +146,16 @@ TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT
 TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_proxies.clear();
+    customConfig.setProxies({});
     Proxy customProxy;
 
-    customProxy.m_url = "proxy";
-    customProxy.m_port = 789;
-    customProxy.m_authentication = Proxy::Authentication::none;
-    customProxy.m_username = "proxyuser";
-    customProxy.m_password = "proxypw";
+    customProxy.setUrl("proxy");
+    customProxy.setPort(789);
+    customProxy.setAuthentication(Proxy::Authentication::none);
+    customProxy.setUsername("proxyuser");
+    customProxy.setPassword("proxypw");
 
-    customConfig.m_proxies.push_back(customProxy);
+    customConfig.setProxies({customProxy});
 
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -163,16 +163,16 @@ TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithCredentials) // NOLINT
 TEST_F(TelemetryConfigTest, AuthenticatedProxyWithCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_proxies.clear();
+    customConfig.setProxies({});
     Proxy customProxy;
 
-    customProxy.m_url = "proxy";
-    customProxy.m_port = 789;
-    customProxy.m_authentication = Proxy::Authentication::digest;
-    customProxy.m_username = "proxyuser";
-    customProxy.m_password = "proxypw";
+    customProxy.setUrl("proxy");
+    customProxy.setPort(789);
+    customProxy.setAuthentication(Proxy::Authentication::digest);
+    customProxy.setUsername("proxyuser");
+    customProxy.setPassword("proxypw");
 
-    customConfig.m_proxies.push_back(customProxy);
+    customConfig.setProxies({customProxy});
 
     std::string jsonString = TelemetryConfigSerialiser::serialise(customConfig);
     Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
@@ -183,14 +183,14 @@ TEST_F(TelemetryConfigTest, AuthenticatedProxyWithCredentials) // NOLINT
 TEST_F(TelemetryConfigTest, AuthenticatedProxyWithoutCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_proxies.clear();
+    customConfig.setProxies({});
     Proxy customProxy;
 
-    customProxy.m_url = "proxy";
-    customProxy.m_port = 789;
-    customProxy.m_authentication = Proxy::Authentication::digest;
+    customProxy.setUrl("proxy");
+    customProxy.setPort(789);
+    customProxy.setAuthentication(Proxy::Authentication::digest);
 
-    customConfig.m_proxies.push_back(customProxy);
+    customConfig.setProxies({customProxy});
 
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -198,14 +198,14 @@ TEST_F(TelemetryConfigTest, AuthenticatedProxyWithoutCredentials) // NOLINT
 TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithoutCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_messageRelays.clear();
+    customConfig.setMessageRelays({});
     MessageRelay messageRelay;
 
-    messageRelay.m_url = "proxy";
-    messageRelay.m_port = 789;
-    messageRelay.m_authentication = MessageRelay::Authentication::none;
+    messageRelay.setUrl("proxy");
+    messageRelay.setPort(789);
+    messageRelay.setAuthentication(MessageRelay::Authentication::none);
 
-    customConfig.m_messageRelays.push_back(messageRelay);
+    customConfig.setMessageRelays({messageRelay});
 
     std::string jsonString = TelemetryConfigSerialiser::serialise(customConfig);
     Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
@@ -216,16 +216,16 @@ TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithoutCredentials) // NO
 TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_messageRelays.clear();
+    customConfig.setMessageRelays({});
     MessageRelay messageRelay;
 
-    messageRelay.m_url = "proxy";
-    messageRelay.m_port = 789;
-    messageRelay.m_authentication = MessageRelay::Authentication::none;
-    messageRelay.m_username = "proxyuser";
-    messageRelay.m_password = "proxypw";
+    messageRelay.setUrl("proxy");
+    messageRelay.setPort(789);
+    messageRelay.setAuthentication(MessageRelay::Authentication::none);
+    messageRelay.setUsername("proxyuser");
+    messageRelay.setPassword("proxypw");
 
-    customConfig.m_messageRelays.push_back(messageRelay);
+    customConfig.setMessageRelays({messageRelay});
 
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -233,16 +233,16 @@ TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithCredentials) // NOLIN
 TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_messageRelays.clear();
+    customConfig.setMessageRelays({});
     MessageRelay messageRelay;
 
-    messageRelay.m_url = "proxy";
-    messageRelay.m_port = 789;
-    messageRelay.m_authentication = MessageRelay::Authentication::digest;
-    messageRelay.m_username = "proxyuser";
-    messageRelay.m_password = "proxypw";
+    messageRelay.setUrl("proxy");
+    messageRelay.setPort(789);
+    messageRelay.setAuthentication(MessageRelay::Authentication::digest);
+    messageRelay.setUsername("proxyuser");
+    messageRelay.setPassword("proxypw");
 
-    customConfig.m_messageRelays.push_back(messageRelay);
+    customConfig.setMessageRelays({messageRelay});
 
     std::string jsonString = TelemetryConfigSerialiser::serialise(customConfig);
     Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
@@ -253,14 +253,14 @@ TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithCredentials) // NOLINT
 TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithoutCredentials) // NOLINT
 {
     Config customConfig = m_config;
-    customConfig.m_messageRelays.clear();
+    customConfig.setMessageRelays({});
     MessageRelay messageRelay;
 
-    messageRelay.m_url = "proxy";
-    messageRelay.m_port = 789;
-    messageRelay.m_authentication = MessageRelay::Authentication::digest;
+    messageRelay.setUrl("proxy");
+    messageRelay.setPort(789);
+    messageRelay.setAuthentication(MessageRelay::Authentication::digest);
 
-    customConfig.m_messageRelays.push_back(messageRelay);
+    customConfig.setMessageRelays({messageRelay});
 
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -269,10 +269,10 @@ TEST(MessageRelayTest, messageRelayEquality) // NOLINT
 {
     MessageRelay a;
     MessageRelay b;
-    a.m_port = 2;
+    a.setPort(2);
     ASSERT_NE(a, b);
 
-    b.m_port = 2;
+    b.setPort(2);
     ASSERT_EQ(a, b);
 }
 
@@ -280,10 +280,10 @@ TEST(ProxyTest, proxyEquality) // NOLINT
 {
     Proxy a;
     Proxy b;
-    a.m_port = 2;
+    a.setPort(2);
     ASSERT_NE(a, b);
 
-    b.m_port = 2;
+    b.setPort(2);
     ASSERT_EQ(a, b);
 }
 
@@ -292,9 +292,9 @@ TEST(ConfigTest, configEquality) // NOLINT
     Config a;
     Config b;
 
-    a.m_server = "server";
+    a.setServer("server");
     ASSERT_NE(a, b);
 
-    b.m_server = "server";
+    b.setServer("server");
     ASSERT_EQ(a, b);
 }
