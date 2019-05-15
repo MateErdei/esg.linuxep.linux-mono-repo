@@ -24,6 +24,7 @@ namespace Telemetry::TelemetryConfig
         unsigned int m_port;
         std::vector<std::string> m_headers;
         Common::HttpSenderImpl::RequestType m_verb;
+        std::string m_certPath;
         std::vector<Proxy> m_proxies;
         std::vector<MessageRelay> m_messageRelays;
         unsigned int m_externalProcessTimeout;
