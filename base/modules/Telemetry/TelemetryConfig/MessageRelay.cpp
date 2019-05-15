@@ -15,9 +15,7 @@ bool MessageRelay::operator==(const MessageRelay& rhs) const
         return true;
     }
 
-    return m_url == rhs.m_url && m_port == rhs.m_port && m_authentication == rhs.m_authentication &&
-           m_username == rhs.m_username && m_password == rhs.m_password && m_id == rhs.m_id &&
-           m_priority == rhs.m_priority;
+    return Proxy::operator==(rhs) && m_id == rhs.m_id && m_priority == rhs.m_priority;
 }
 
 bool MessageRelay::operator!=(const MessageRelay& rhs) const
