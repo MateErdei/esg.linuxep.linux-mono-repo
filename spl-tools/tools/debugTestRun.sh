@@ -25,7 +25,7 @@ function update()
 env | sort
 
 [[ -f "$GIT_SSH_KEYFILE" ]] || failure 2 "Can't find git SSH keyfile: $GIT_SSH_KEYFILE"
-export GIT_SSH_COMMAND="ssh -vvv -i ${GIT_SSH_KEYFILE}"
+export GIT_SSH_COMMAND="ssh -v -i ${GIT_SSH_KEYFILE}"
 chmod 600 "$GIT_SSH_KEYFILE"
 export GIT_TRACE=1
 echo "${GIT_SSH_COMMAND}" >/tmp/ssh-jenkins-git
