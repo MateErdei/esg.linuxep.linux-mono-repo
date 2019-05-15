@@ -35,13 +35,12 @@ namespace Telemetry
         std::string getSerialisedTelemetry();
         void sendTelemetry(const std::string& telemetryJson);
         void saveTelemetry(const std::string& telemetryJson) const;
+        void addTelemetry(const std::string& sourceName, const std::string& json);
 
     private:
         const TelemetryConfig::Config& m_config;
         Common::HttpSender::IHttpSender& m_httpSender;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
-
-        void addTelemetry(const std::string& sourceName, const std::string& json);
     };
 }
