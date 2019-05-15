@@ -69,7 +69,7 @@ pipeline {
                 }
             }
             steps {
-                buildAndTest(${params.debugFlag})
+                buildAndTest("${params.debugFlag}")
             }
             post {
                 success {
