@@ -25,10 +25,10 @@ public:
         Proxy proxy;
 
         m_config.m_server = "localhost";
-        m_config.m_verb  = Common::HttpSenderImpl::RequestType::GET;
+        m_config.m_verb = Common::HttpSenderImpl::RequestType::GET;
         m_config.m_externalProcessTimeout = 3;
         m_config.m_externalProcessRetries = 2;
-        m_config.m_headers = {"header1", "header2"};
+        m_config.m_headers = { "header1", "header2" };
         m_config.m_maxJsonSize = 10;
         m_config.m_port = 123;
         m_config.m_resourceRoute = "TEST";
@@ -55,21 +55,24 @@ public:
         m_jsonObject["verb"] = 0;
         m_jsonObject["externalProcessTimeout"] = 3;
         m_jsonObject["externalProcessRetries"] = 2;
-        m_jsonObject["headers"] = {"header1","header2"},
-        m_jsonObject["maxJsonSize"] = 10;
+        m_jsonObject["headers"] = { "header1", "header2" }, m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = 123;
         m_jsonObject["resourceRoute"] = "TEST";
 
-        m_jsonObject["messageRelays"] = {
-            {{"authentication", 1}, {"certPath", "certpath"}, {"password", "relaypw"}, {"port", 456}, {"url", "relay"}, {"username", "relayuser"}}
-        };
+        m_jsonObject["messageRelays"] = { { { "authentication", 1 },
+                                            { "certPath", "certpath" },
+                                            { "password", "relaypw" },
+                                            { "port", 456 },
+                                            { "url", "relay" },
+                                            { "username", "relayuser" } } };
 
-        m_jsonObject["proxies"] = {
-            {{"authentication", 1}, {"password", "relaypw"}, {"port", 456}, {"url", "relay1"}, {"username", "relayuser"}}
-        };
+        m_jsonObject["proxies"] = { { { "authentication", 1 },
+                                      { "password", "relaypw" },
+                                      { "port", 456 },
+                                      { "url", "relay1" },
+                                      { "username", "relayuser" } } };
     }
 };
-
 
 TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
 {
@@ -156,7 +159,6 @@ TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithCredentials) // NOLINT
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
 
-
 TEST_F(TelemetryConfigTest, AuthenticatedProxyWithCredentials) // NOLINT
 {
     Config customConfig = m_config;
@@ -226,7 +228,6 @@ TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithCredentials) // NOLIN
 
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
-
 
 TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithCredentials) // NOLINT
 {

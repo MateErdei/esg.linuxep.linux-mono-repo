@@ -81,15 +81,11 @@ public:
         m_defaultRequestConfig->setData(m_data);
     }
 
-    void TearDown() override
-    {
-        Tests::restoreFileSystem();
-    }
+    void TearDown() override { Tests::restoreFileSystem(); }
 };
 
-class TelemetryTestRequestTypes : public TelemetryTest,
-                                  public ::testing::WithParamInterface<std::string> {
-
+class TelemetryTestRequestTypes : public TelemetryTest, public ::testing::WithParamInterface<std::string>
+{
 };
 
 INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestRequestTypes, ::testing::Values("GET", "POST", "PUT")); // NOLINT
@@ -152,7 +148,7 @@ TEST_F(TelemetryTest, main_GetRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    std::vector<std::string> arguments = {m_binaryPath, "GET"};
+    std::vector<std::string> arguments = { m_binaryPath, "GET" };
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -181,7 +177,7 @@ TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    std::vector<std::string> arguments = {m_binaryPath, "POST"};
+    std::vector<std::string> arguments = { m_binaryPath, "POST" };
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -201,7 +197,7 @@ TEST_F(TelemetryTest, main_PostRequestWithOneArgReturnsSuccess) // NOLINT
 
 TEST_F(TelemetryTest, main_InvalidArgsReturnsFailure) // NOLINT
 {
-    std::vector<std::string> arguments = {m_binaryPath, "DANCE"};
+    std::vector<std::string> arguments = { m_binaryPath, "DANCE" };
 
     std::vector<char*> argv;
     for (const auto& arg : arguments)
@@ -214,7 +210,8 @@ TEST_F(TelemetryTest, main_InvalidArgsReturnsFailure) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
 
-    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(
+        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
 }
 
 TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
@@ -234,7 +231,8 @@ TEST_F(TelemetryTest, main_certificateDoesNotExist) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
 
-    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(
+        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
 }
 
 TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
@@ -252,22 +250,22 @@ TEST_F(TelemetryTest, main_invalidResourceRoot) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
 
-    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(
+        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
 }
 
-class TelemetryTestVariableArgs : public TelemetryTest,
-        public ::testing::WithParamInterface<int> {
-
+class TelemetryTestVariableArgs : public TelemetryTest, public ::testing::WithParamInterface<int>
+{
 };
 
-INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestVariableArgs, ::testing::Values(1,6)); // NOLINT
+INSTANTIATE_TEST_CASE_P(TelemetryTest, TelemetryTestVariableArgs, ::testing::Values(1, 6)); // NOLINT
 
 TEST_P(TelemetryTestVariableArgs, main_HttpRequestReturnsFailure) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, readlink(_)).WillRepeatedly(Return(""));
 
     std::vector<char*> argv;
-    for (int i=0; i < GetParam(); ++i)
+    for (int i = 0; i < GetParam(); ++i)
     {
         argv.emplace_back(const_cast<char*>(m_args[i].c_str()));
     }
@@ -277,5 +275,6 @@ TEST_P(TelemetryTestVariableArgs, main_HttpRequestReturnsFailure) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
     Telemetry::TelemetryProcessor telemetryProcessor(telemetryProviders, m_maxJsonBytes);
 
-    EXPECT_THROW(Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
+    EXPECT_THROW(
+        Telemetry::main(argv.size(), argv.data(), m_httpSender, telemetryProcessor), std::runtime_error); // NOLINT
 }
