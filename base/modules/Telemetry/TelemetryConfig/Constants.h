@@ -6,6 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <string>
+
 const unsigned int MAX_PORT_NUMBER = 65535;
 const unsigned int MAX_RETRIES = 100;
 const unsigned int DEFAULT_RETRIES = 3;
@@ -23,3 +25,5 @@ const unsigned int MIN_MAX_JSON_SIZE = 10;
 
 // 1MB
 const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000;
+
+const std::string DEFAULT_VERB = "PUT";

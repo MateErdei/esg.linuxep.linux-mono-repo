@@ -34,8 +34,8 @@ namespace Telemetry::TelemetryConfig
         const std::vector<std::string>& getHeaders() const;
         void setHeaders(const std::vector<std::string>& headers);
 
-        Common::HttpSenderImpl::RequestType getVerb() const;
-        void setVerb(Common::HttpSenderImpl::RequestType verb);
+        std::string getVerb() const;
+        void setVerb(std::string verb);
 
         const std::vector<Proxy>& getProxies() const;
         void setProxies(const std::vector<Proxy>& proxies);
@@ -65,7 +65,7 @@ namespace Telemetry::TelemetryConfig
         std::string m_resourceRoute;
         unsigned int m_port{};
         std::vector<std::string> m_headers;
-        Common::HttpSenderImpl::RequestType m_verb;
+        std::string m_verb;
         std::vector<Proxy> m_proxies;
         std::vector<MessageRelay> m_messageRelays;
         unsigned int m_externalProcessTimeout{};

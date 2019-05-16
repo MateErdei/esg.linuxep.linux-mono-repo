@@ -10,7 +10,7 @@ using namespace Telemetry::TelemetryConfig;
 
 Config::Config() :
     m_port(0),
-    m_verb(Common::HttpSenderImpl::RequestType::PUT),
+    m_verb(DEFAULT_VERB),
     m_externalProcessTimeout(DEFAULT_TIMEOUT),
     m_externalProcessRetries(DEFAULT_RETRIES),
     m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
@@ -122,12 +122,12 @@ void Config::setHeaders(const std::vector<std::string>& headers)
     m_headers = headers;
 }
 
-Common::HttpSenderImpl::RequestType Config::getVerb() const
+std::string Config::getVerb() const
 {
     return m_verb;
 }
 
-void Config::setVerb(Common::HttpSenderImpl::RequestType verb)
+void Config::setVerb(std::string verb)
 {
     m_verb = verb;
 }

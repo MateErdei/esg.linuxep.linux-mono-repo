@@ -28,7 +28,7 @@ public:
         Proxy proxy;
 
         m_config.setServer("localhost");
-        m_config.setVerb(Common::HttpSenderImpl::RequestType::GET);
+        m_config.setVerb("GET");
         m_config.setExternalProcessTimeout(3);
         m_config.setExternalProcessRetries(2);
         m_config.setHeaders({ "header1", "header2" });
@@ -87,6 +87,7 @@ TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
     EXPECT_EQ(DEFAULT_MAX_JSON_SIZE, c.getMaxJsonSize());
     EXPECT_EQ(DEFAULT_RETRIES, c.getExternalProcessRetries());
     EXPECT_EQ(DEFAULT_TIMEOUT, c.getExternalProcessTimeout());
+    EXPECT_EQ(DEFAULT_VERB, c.getVerb());
 }
 
 TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
