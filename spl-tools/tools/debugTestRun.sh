@@ -65,11 +65,11 @@ cd thininstaller
 cd ..
 
 cd sspl-base
-./build.sh --debug
+./build.sh --debug --noclean
 cd ..
 
 cd sspl-plugin-mdr-component
-./build.sh --debug
+./build.sh --debug --noclean
 cd ..
 
 cd sspl-plugin-mdr-componentsuite
@@ -82,6 +82,13 @@ export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
 export OUTPUT=${STARTING_DIR}/sspl-base/output
 
 cd sspl-systemtests
-sudo -E robot --exclude MANUAL --loglevel TRACE tests
+sudo -E robot \
+    --exclude MANUAL \
+    --exclude EXAMPLE_PLUGIN \
+    --exclude EVENT_PLUGIN \
+    --exclude AUDIT_PLUGIN \
+    --exclude PUB_SUB \
+    --loglevel TRACE \
+    tests
 cd ..
 sudo chown -R jenkins: .
