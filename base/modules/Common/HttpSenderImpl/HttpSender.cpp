@@ -78,7 +78,7 @@ namespace Common::HttpSenderImpl
         std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
 
         std::stringstream uriStream;
-        uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort()
+        uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort() << "/"
                   << requestConfig.getResourceRoot();
         std::string uri = uriStream.str();
 
