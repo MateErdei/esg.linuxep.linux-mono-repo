@@ -13,6 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <utility>
+#include <curl.h>
 
 using namespace Telemetry;
 using namespace Common::Telemetry;
@@ -83,7 +84,14 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 
     LOGINFO("Sending telemetry...");
     auto result = m_httpSender->doHttpsRequest(requestConfig);
-    LOGINFO("HTTP request resulted in CURL result: " << result);
+    LOGDEBUG("HTTP request resulted in CURL result: " << result);
+
+    if (result != CURLE_OK)
+    {
+        std::stringstream msg;
+        msg << "HTTP request failed with CURL result " << result;
+        throw std::runtime_error(msg.str());
+    }
 }
 
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
