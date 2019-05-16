@@ -21,6 +21,7 @@ public:
 
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
+    const std::string m_jsonString = R"({"externalProcessRetries":2,"externalProcessTimeout":3,"headers":["header1","header2"],"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"relaypw","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"proxypw","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoute":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
 
     void SetUp() override
     {
@@ -92,28 +93,21 @@ TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
     ASSERT_TRUE(c.isValid());
 }
 
-TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
+TEST_F(TelemetryConfigTest, serialise) // NOLINT
 {
-    std::string originalJsonString = m_jsonObject.dump();
-
-    // Convert the json string to a config object
-    Config config = TelemetryConfigSerialiser::deserialise(originalJsonString);
-
-    // Convert the config object to a json string
-    std::string newJsonString = TelemetryConfigSerialiser::serialise(config);
-
-    EXPECT_EQ(originalJsonString, newJsonString);
+    std::string jsonString = TelemetryConfigSerialiser::serialise(m_config);
+    EXPECT_EQ(m_jsonString, jsonString);
 }
 
-TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
+TEST_F(TelemetryConfigTest, deserialise) // NOLINT
 {
-    // Convert the config object to a json string
-    std::string jsonString = TelemetryConfigSerialiser::serialise(m_config);
+    Config c = TelemetryConfigSerialiser::deserialise(m_jsonString);
+    EXPECT_EQ(m_config, c);
+}
 
-    // Convert the json string to a config object, then back to a json string
-    Config newConfig = TelemetryConfigSerialiser::deserialise(jsonString);
-
-    EXPECT_EQ(m_config, newConfig);
+TEST_F(TelemetryConfigTest, serialiseAndDeserialise) // NOLINT
+{
+    ASSERT_EQ(m_config, TelemetryConfigSerialiser::deserialise(TelemetryConfigSerialiser::serialise(m_config)));
 }
 
 TEST_F(TelemetryConfigTest, invalidConfigCannotBeSerialised) // NOLINT
