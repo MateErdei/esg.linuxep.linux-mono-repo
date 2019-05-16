@@ -71,7 +71,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.setCertPath(m_config->m_certPath);
     requestConfig.setResourceRoot(m_config->m_resourceRoute);
 
-    if (!Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
+    if (!requestConfig.getCertPath().empty() && !Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
         throw std::runtime_error("Certificate file is not valid");
     }
