@@ -26,4 +26,6 @@ const unsigned int MIN_MAX_JSON_SIZE = 10;
 // 1MB
 const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000;
 
-const std::string DEFAULT_VERB = "PUT";
+const std::string VERB_PUT = "PUT";
+const std::string VERB_GET = "GET";
+const std::string VERB_POST = "POST";

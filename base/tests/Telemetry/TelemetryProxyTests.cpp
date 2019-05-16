@@ -23,9 +23,14 @@ public:
         m_proxy.setPort(789);
         m_proxy.setAuthentication(MessageRelay::Authentication::basic);
         m_proxy.setUsername("proxyuser");
-        m_proxy.setPassword("proxypw");
+        m_proxy.setPassword("CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
     }
 };
+
+TEST_F(TelemetryProxyTest, passwordObfuscation) // NOLINT
+{
+    ASSERT_EQ(m_proxy.getPassword(), "password");
+}
 
 TEST_F(TelemetryProxyTest, proxyEqualitySameObject) // NOLINT
 {

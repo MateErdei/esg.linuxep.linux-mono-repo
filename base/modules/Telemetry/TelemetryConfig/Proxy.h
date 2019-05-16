@@ -8,6 +8,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Constants.h"
 
+#include <modules/Common/ObfuscationImpl/SecureCollection.h>
+#include <Common/ObfuscationImpl/Obscurity.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
+
 #include <string>
 
 namespace Telemetry::TelemetryConfig
@@ -35,8 +39,8 @@ namespace Telemetry::TelemetryConfig
         const std::string& getUsername() const;
         void setUsername(const std::string& username);
 
-        const std::string& getPassword() const;
-        void setPassword(const std::string& password);
+        const Common::ObfuscationImpl::SecureString getPassword() const;
+        void setPassword(const std::string& obfuscatedPassword);
 
         bool operator==(const Proxy& rhs) const;
         bool operator!=(const Proxy& rhs) const;
@@ -48,6 +52,6 @@ namespace Telemetry::TelemetryConfig
         unsigned int m_port;
         Authentication m_authentication;
         std::string m_username;
-        std::string m_password;
+        std::string m_obfuscatedPassword;
     };
 } // namespace Telemetry::TelemetryConfig

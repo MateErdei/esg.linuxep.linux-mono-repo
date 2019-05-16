@@ -18,7 +18,7 @@ bool Proxy::operator==(const Proxy& rhs) const
     }
 
     return m_url == rhs.m_url && m_port == rhs.m_port && m_authentication == rhs.m_authentication &&
-           m_username == rhs.m_username && m_password == rhs.m_password;
+           m_username == rhs.m_username && m_obfuscatedPassword == rhs.m_obfuscatedPassword;
 }
 
 bool Proxy::operator!=(const Proxy& rhs) const
@@ -30,7 +30,7 @@ bool Proxy::isValidProxy() const
 {
     if (m_authentication == Proxy::Authentication::none)
     {
-        if (!m_username.empty() || !m_password.empty())
+        if (!m_username.empty() || !m_obfuscatedPassword.empty())
         {
             return false;
         }
@@ -38,7 +38,7 @@ bool Proxy::isValidProxy() const
 
     if (m_authentication == Proxy::Authentication::basic || m_authentication == Proxy::Authentication::digest)
     {
-        if (m_username.empty() || m_password.empty())
+        if (m_username.empty() || m_obfuscatedPassword.empty())
         {
             return false;
         }
@@ -87,12 +87,12 @@ void Proxy::setUsername(const std::string& username)
     m_username = username;
 }
 
-const std::string& Proxy::getPassword() const
+const Common::ObfuscationImpl::SecureString Proxy::getPassword() const
 {
-    return m_password;
+    return Common::ObfuscationImpl::SECDeobfuscate(m_obfuscatedPassword);
 }
 
-void Proxy::setPassword(const std::string& password)
+void Proxy::setPassword(const std::string& obfuscatedPassword)
 {
-    m_password = password;
+    m_obfuscatedPassword = obfuscatedPassword;
 }

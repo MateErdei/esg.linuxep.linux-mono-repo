@@ -88,7 +88,7 @@ TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
     EXPECT_EQ(DEFAULT_MAX_JSON_SIZE, c.getMaxJsonSize());
     EXPECT_EQ(DEFAULT_RETRIES, c.getExternalProcessRetries());
     EXPECT_EQ(DEFAULT_TIMEOUT, c.getExternalProcessTimeout());
-    EXPECT_EQ(DEFAULT_VERB, c.getVerb());
+    EXPECT_EQ(VERB_PUT, c.getVerb());
 
     ASSERT_TRUE(c.isValid());
 }

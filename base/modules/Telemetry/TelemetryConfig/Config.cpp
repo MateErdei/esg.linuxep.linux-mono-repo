@@ -10,7 +10,7 @@ using namespace Telemetry::TelemetryConfig;
 
 Config::Config() :
     m_port(0),
-    m_verb(DEFAULT_VERB),
+    m_verb(VERB_PUT),
     m_externalProcessTimeout(DEFAULT_TIMEOUT),
     m_externalProcessRetries(DEFAULT_RETRIES),
     m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
@@ -69,6 +69,11 @@ bool Config::isValid() const
     }
 
     if (m_maxJsonSize < MIN_MAX_JSON_SIZE || m_maxJsonSize > MAX_MAX_JSON_SIZE)
+    {
+        return false;
+    }
+
+    if (m_verb != VERB_PUT && m_verb != VERB_POST && m_verb != VERB_GET)
     {
         return false;
     }
