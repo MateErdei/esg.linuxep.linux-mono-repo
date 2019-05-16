@@ -56,7 +56,7 @@ public:
         m_jsonObject["headers"] = {"header1","header2"},
         m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = 123;
-        m_jsonObject["resourceRoute"] = "TEST";
+        m_jsonObject["resourceRoot"] = "TEST";
 
         m_jsonObject["messageRelays"] = {
             {{"authentication", 1}, {"certPath", "certpath"}, {"password", "relaypw"}, {"port", 456}, {"url", "relay"}, {"username", "relayuser"}}

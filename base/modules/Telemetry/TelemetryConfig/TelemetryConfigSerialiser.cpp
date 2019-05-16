@@ -27,7 +27,7 @@ std::string TelemetryConfigSerialiser::serialise(
 void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config)
 {
     j = nlohmann::json{ { "server", config.m_server },
-                        { "resourceRoute", config.m_resourceRoot },
+                        { "resourceRoot", config.m_resourceRoot },
                         { "port", config.m_port },
                         { "headers", config.m_headers },
                         { "verb", config.m_verb },
@@ -76,7 +76,7 @@ Config TelemetryConfigSerialiser::deserialise(
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Config& config)
 {
     j.at("server").get_to(config.m_server);
-    j.at("resourceRoute").get_to(config.m_resourceRoot);
+    j.at("resourceRoot").get_to(config.m_resourceRoot);
     j.at("port").get_to(config.m_port);
     j.at("headers").get_to(config.m_headers);
     j.at("verb").get_to(config.m_verb);
