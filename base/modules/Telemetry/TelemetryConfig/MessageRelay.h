@@ -19,6 +19,7 @@ namespace Telemetry::TelemetryConfig
 
         const std::string& getId() const;
         void setId(const std::string& id);
+
         int getPriority() const;
         void setPriority(int priority);
 
@@ -30,6 +31,5 @@ namespace Telemetry::TelemetryConfig
     private:
         std::string m_id;
         int m_priority;
-
     };
 }
