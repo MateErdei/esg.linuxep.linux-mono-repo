@@ -51,15 +51,19 @@ then
     export LD_LIBRARY_PATH=/build/input/gcc/lib:/build/input/gcc/lib64:$LD_LIBRARY_PATH
 fi
 
+if [[ -d /redist/binaries/linux11/input/cmake ]]
+then
+    export PATH=/redist/binaries/linux11/input/cmake/bin:$PATH
+fi
+
 STARTING_DIR=$(pwd)
+
+cd thininstaller
+./buildLinux.sh
+cd ..
 
 cd sspl-base
 ./build.sh --debug
-cd ..
-
-## other builds
-cd thininstaller
-./buildLinux.sh
 cd ..
 
 cd sspl-plugin-mdr-component
