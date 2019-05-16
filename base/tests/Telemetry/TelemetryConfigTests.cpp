@@ -19,6 +19,9 @@ public:
 
     nlohmann::json m_jsonObject;
 
+    const unsigned int m_validPort = 300;
+    const unsigned int m_invalidPort = 70000;
+
     void SetUp() override
     {
         MessageRelay messageRelay;
@@ -30,11 +33,12 @@ public:
         m_config.setExternalProcessRetries(2);
         m_config.setHeaders({ "header1", "header2" });
         m_config.setMaxJsonSize(10);
-        m_config.setPort(123);
+        m_config.setPort(m_validPort);
         m_config.setResourceRoute("TEST");
+        m_config.setTelemetryServerCertificatePath("some/path");
 
         messageRelay.setUrl("relay");
-        messageRelay.setPort(456);
+        messageRelay.setPort(m_validPort);
         messageRelay.setAuthentication(MessageRelay::Authentication::basic);
         messageRelay.setId("ID");
         messageRelay.setPriority(2);
@@ -44,7 +48,7 @@ public:
         m_config.setMessageRelays({messageRelay});
 
         proxy.setUrl("proxy");
-        proxy.setPort(789);
+        proxy.setPort(m_validPort);
         proxy.setAuthentication(MessageRelay::Authentication::basic);
         proxy.setUsername("proxyuser");
         proxy.setPassword("proxypw");
@@ -56,20 +60,21 @@ public:
         m_jsonObject["externalProcessTimeout"] = 3;
         m_jsonObject["externalProcessRetries"] = 2;
         m_jsonObject["headers"] = { "header1", "header2" }, m_jsonObject["maxJsonSize"] = 10;
-        m_jsonObject["port"] = 123;
+        m_jsonObject["port"] = m_validPort;
         m_jsonObject["resourceRoute"] = "TEST";
+        m_jsonObject["telemetryServerCertificatePath"] = "some/path";
 
         m_jsonObject["messageRelays"] = { { { "authentication", 1 },
                                             { "id", "ID" },
                                             { "priority", 2 },
                                             { "password", "relaypw" },
-                                            { "port", 456 },
+                                            { "port", m_validPort },
                                             { "url", "relay" },
                                             { "username", "relayuser" } } };
 
         m_jsonObject["proxies"] = { { { "authentication", 1 },
                                       { "password", "relaypw" },
-                                      { "port", 456 },
+                                      { "port", m_validPort },
                                       { "url", "relay1" },
                                       { "username", "relayuser" } } };
     }
@@ -102,7 +107,7 @@ TEST_F(TelemetryConfigTest, serialiseDeserialise) // NOLINT
 TEST_F(TelemetryConfigTest, invalidConfigCannotBeSerialised) // NOLINT
 {
     Config invalidConfig = m_config;
-    invalidConfig.setPort(65536);
+    invalidConfig.setPort(m_invalidPort);
 
     // Try to convert the invalidConfig object to a json string
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(invalidConfig), std::invalid_argument); // NOLINT
@@ -111,7 +116,7 @@ TEST_F(TelemetryConfigTest, invalidConfigCannotBeSerialised) // NOLINT
 TEST_F(TelemetryConfigTest, invalidJsonCannotBeDeserialised) // NOLINT
 {
     nlohmann::json invalidJsonObject = m_jsonObject;
-    invalidJsonObject["port"] = 65536;
+    invalidJsonObject["port"] = m_invalidPort;
 
     std::string invalidJsonString = invalidJsonObject.dump();
 
@@ -132,7 +137,7 @@ TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT
     Proxy customProxy;
 
     customProxy.setUrl("proxy");
-    customProxy.setPort(789);
+    customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::none);
 
     customConfig.setProxies({customProxy});
@@ -150,7 +155,7 @@ TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithCredentials) // NOLINT
     Proxy customProxy;
 
     customProxy.setUrl("proxy");
-    customProxy.setPort(789);
+    customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::none);
     customProxy.setUsername("proxyuser");
     customProxy.setPassword("proxypw");
@@ -167,7 +172,7 @@ TEST_F(TelemetryConfigTest, AuthenticatedProxyWithCredentials) // NOLINT
     Proxy customProxy;
 
     customProxy.setUrl("proxy");
-    customProxy.setPort(789);
+    customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::digest);
     customProxy.setUsername("proxyuser");
     customProxy.setPassword("proxypw");
@@ -187,7 +192,7 @@ TEST_F(TelemetryConfigTest, AuthenticatedProxyWithoutCredentials) // NOLINT
     Proxy customProxy;
 
     customProxy.setUrl("proxy");
-    customProxy.setPort(789);
+    customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::digest);
 
     customConfig.setProxies({customProxy});
@@ -202,7 +207,7 @@ TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithoutCredentials) // NO
     MessageRelay messageRelay;
 
     messageRelay.setUrl("proxy");
-    messageRelay.setPort(789);
+    messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::none);
 
     customConfig.setMessageRelays({messageRelay});
@@ -220,7 +225,7 @@ TEST_F(TelemetryConfigTest, UnauthenticatedMessageRelayWithCredentials) // NOLIN
     MessageRelay messageRelay;
 
     messageRelay.setUrl("proxy");
-    messageRelay.setPort(789);
+    messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::none);
     messageRelay.setUsername("proxyuser");
     messageRelay.setPassword("proxypw");
@@ -237,7 +242,7 @@ TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithCredentials) // NOLINT
     MessageRelay messageRelay;
 
     messageRelay.setUrl("proxy");
-    messageRelay.setPort(789);
+    messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::digest);
     messageRelay.setUsername("proxyuser");
     messageRelay.setPassword("proxypw");
@@ -257,7 +262,7 @@ TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithoutCredentials) // NOLI
     MessageRelay messageRelay;
 
     messageRelay.setUrl("proxy");
-    messageRelay.setPort(789);
+    messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::digest);
 
     customConfig.setMessageRelays({messageRelay});
@@ -268,7 +273,7 @@ TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithoutCredentials) // NOLI
 TEST_F(TelemetryConfigTest, InvalidPort) // NOLINT
 {
     Config c = m_config;
-    c.setPort(9999999);
+    c.setPort(m_invalidPort);
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
@@ -276,13 +281,6 @@ TEST_F(TelemetryConfigTest, InvalidTimeout) // NOLINT
 {
     Config c = m_config;
     c.setExternalProcessTimeout(0);
-    EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
-}
-
-TEST_F(TelemetryConfigTest, InvalidRetries) // NOLINT
-{
-    Config c = m_config;
-    c.setExternalProcessRetries(0);
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 

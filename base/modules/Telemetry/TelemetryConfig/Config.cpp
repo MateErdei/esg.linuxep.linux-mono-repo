@@ -157,3 +157,11 @@ void Config::setMaxJsonSize(unsigned int maxJsonSize)
 {
     m_maxJsonSize = maxJsonSize;
 }
+const std::string& Config::getTelemetryServerCertificatePath() const
+{
+    return m_telemetryServerCertificatePath;
+}
+void Config::setTelemetryServerCertificatePath(const std::string& telemetryServerCertificatePath)
+{
+    Config::m_telemetryServerCertificatePath = telemetryServerCertificatePath;
+}

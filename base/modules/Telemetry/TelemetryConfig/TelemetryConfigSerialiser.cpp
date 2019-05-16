@@ -34,7 +34,8 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config
                         { "messageRelays", config.getMessageRelays() },
                         { "externalProcessTimeout", config.getExternalProcessTimeout() },
                         { "externalProcessRetries", config.getExternalProcessRetries() },
-                        { "maxJsonSize", config.getMaxJsonSize() } };
+                        { "maxJsonSize", config.getMaxJsonSize() },
+                        { "telemetryServerCertificatePath", config.getTelemetryServerCertificatePath() } };
 }
 
 void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
@@ -82,6 +83,7 @@ void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Config& conf
     config.setExternalProcessTimeout(j.at("externalProcessTimeout"));
     config.setExternalProcessRetries(j.at("externalProcessRetries"));
     config.setMaxJsonSize(j.at("maxJsonSize"));
+    config.setTelemetryServerCertificatePath(j.at("telemetryServerCertificatePath"));
 }
 
 void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Proxy& proxy)

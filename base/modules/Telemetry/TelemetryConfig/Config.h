@@ -52,6 +52,9 @@ namespace Telemetry::TelemetryConfig
         unsigned int getMaxJsonSize() const;
         void setMaxJsonSize(unsigned int maxJsonSize);
 
+        const std::string& getTelemetryServerCertificatePath() const;
+        void setTelemetryServerCertificatePath(const std::string& telemetryServerCertificatePath);
+
         bool operator==(const Config& rhs) const;
         bool operator!=(const Config& rhs) const;
 
@@ -68,5 +71,6 @@ namespace Telemetry::TelemetryConfig
         unsigned int m_externalProcessTimeout{};
         unsigned int m_externalProcessRetries{};
         unsigned int m_maxJsonSize{};
+        std::string m_telemetryServerCertificatePath;
     };
 } // namespace Telemetry::TelemetryConfig
