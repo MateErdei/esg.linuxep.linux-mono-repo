@@ -8,6 +8,8 @@ add_executable(TelemetryTests
         MockTelemetryProvider.h
         TelemetryProcessorTests.cpp
         TelemetryConfigTests.cpp
+        TelemetryProxyTests.cpp
+        TelemetryMessageRelayTests.cpp
         ../../modules/Telemetry/TelemetryConfig/TelemetryConfigSerialiser.h
         ../../modules/Telemetry/TelemetryConfig/TelemetryConfigSerialiser.cpp
         ../../modules/Telemetry/TelemetryConfig/Proxy.h

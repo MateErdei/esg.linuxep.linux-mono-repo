@@ -265,26 +265,25 @@ TEST_F(TelemetryConfigTest, AuthenticatedMessageRelayWithoutCredentials) // NOLI
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
 
-TEST(MessageRelayTest, messageRelayEquality) // NOLINT
+TEST_F(TelemetryConfigTest, InvalidPort) // NOLINT
 {
-    MessageRelay a;
-    MessageRelay b;
-    a.setPort(2);
-    ASSERT_NE(a, b);
-
-    b.setPort(2);
-    ASSERT_EQ(a, b);
+    Config c = m_config;
+    c.setPort(9999999);
+    EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST(ProxyTest, proxyEquality) // NOLINT
+TEST_F(TelemetryConfigTest, InvalidTimeout) // NOLINT
 {
-    Proxy a;
-    Proxy b;
-    a.setPort(2);
-    ASSERT_NE(a, b);
+    Config c = m_config;
+    c.setExternalProcessTimeout(0);
+    EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
+}
 
-    b.setPort(2);
-    ASSERT_EQ(a, b);
+TEST_F(TelemetryConfigTest, InvalidRetries) // NOLINT
+{
+    Config c = m_config;
+    c.setExternalProcessRetries(0);
+    EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
 TEST(ConfigTest, configEquality) // NOLINT
