@@ -217,20 +217,3 @@ TEST_F(TelemetryProcessorRunTests, certificateDoesNotExist) // NOLINT
 
     EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
 }
-
-TEST_F(TelemetryProcessorRunTests, invalidResourceRoot) // NOLINT
-{
-    auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
-
-    EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
-    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
-
-    m_config->m_verb = RequestType::PUT;
-    m_config->m_resourceRoot = "INVALID";
-
-    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
-    telemetryProviders.emplace_back(mockTelemetryProvider);
-    Telemetry::TelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
-
-    EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
-}

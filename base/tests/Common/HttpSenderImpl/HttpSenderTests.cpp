@@ -31,6 +31,7 @@ class HttpSenderTest : public ::testing::Test
 public:
     const char* m_defaultServer = "t1.sophosupd.com";
     const int m_defaultPort = 443;
+    const std::string m_defaultResourceRoot = "linux/prod";
 
     std::shared_ptr<StrictMock<MockCurlWrapper>> m_curlWrapper;
     std::shared_ptr<HttpSender> m_httpSender;
@@ -90,7 +91,13 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig putRequestConfig(RequestType::PUT, m_additionalHeaders, m_defaultServer, m_defaultPort, "/nonDefaultCertPath");
+    RequestConfig putRequestConfig(
+        RequestType::PUT,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        "/nonDefaultCertPath",
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
 }
@@ -107,7 +114,13 @@ TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
@@ -118,7 +131,13 @@ TEST_F(HttpSenderTest, getRequest_EasyInitFailureStillDoesGlobalCleanup) // NOLI
     //EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -132,7 +151,13 @@ TEST_F(HttpSenderTest, getRequest_FailureReturnsCorrectCurlCode) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -147,7 +172,13 @@ TEST_F(HttpSenderTest, getRequest_FailsToAppendHeader) // NOLINT
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -160,7 +191,13 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillDoesGlobalCleanup) /
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -178,7 +215,13 @@ TEST_F(HttpSenderTest, getRequest_FailsToSetCurlOptionsStillFreesAllHeaders) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
@@ -193,7 +236,13 @@ TEST_F(HttpSenderTest, getRequest_curlSlistAppendReturnsNullThrowsException) // 
 
     m_additionalHeaders.emplace_back("testHeader");
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders);
+    RequestConfig getRequestConfig(
+        RequestType::GET,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        m_defaultCertPath,
+        m_defaultResourceRoot);
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_failedResult);
 }
