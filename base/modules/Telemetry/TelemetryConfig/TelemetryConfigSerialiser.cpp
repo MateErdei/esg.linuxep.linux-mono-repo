@@ -13,12 +13,12 @@ using namespace Telemetry::TelemetryConfig;
 
 std::string TelemetryConfigSerialiser::serialise(const Config& config)
 {
-    nlohmann::json j = config;
-
     if (!config.isValid())
     {
         throw std::invalid_argument("Configuration input is invalid and cannot be serialised");
     }
+
+    nlohmann::json j = config;
 
     return j.dump();
 }
