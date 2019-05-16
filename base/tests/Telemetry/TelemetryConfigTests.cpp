@@ -21,7 +21,7 @@ public:
 
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
-    const std::string m_jsonString = R"({"externalProcessRetries":2,"externalProcessTimeout":3,"headers":["header1","header2"],"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"proxypw","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoute":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
+    const std::string m_jsonString = R"({"externalProcessRetries":2,"externalProcessTimeout":3,"headers":["header1","header2"],"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoute":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
 
     void SetUp() override
     {
