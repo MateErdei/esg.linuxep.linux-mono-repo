@@ -125,7 +125,7 @@ std::string Config::getVerb() const
     return m_verb;
 }
 
-void Config::setVerb(std::string verb)
+void Config::setVerb(const std::string& verb)
 {
     m_verb = verb;
 }

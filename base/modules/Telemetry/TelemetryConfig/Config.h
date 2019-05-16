@@ -35,7 +35,7 @@ namespace Telemetry::TelemetryConfig
         void setHeaders(const std::vector<std::string>& headers);
 
         std::string getVerb() const;
-        void setVerb(std::string verb);
+        void setVerb(const std::string& verb);
 
         const std::vector<Proxy>& getProxies() const;
         void setProxies(const std::vector<Proxy>& proxies);
