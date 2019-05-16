@@ -46,6 +46,8 @@ namespace Telemetry
             auto config = std::make_shared<const TelemetryConfig::Config>(
                 TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
 
+            LOGDEBUG("Using configuration: " << TelemetryConfig::TelemetryConfigSerialiser::serialise(*config));
+
             std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
                 std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
 
