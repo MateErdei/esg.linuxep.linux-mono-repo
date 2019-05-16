@@ -46,6 +46,12 @@ mkdir -p /redist
 [[ -d /redist/binaries ]] || mount -t nfs allegro.eng.sophos:/redist  /redist
 
 
+if [[ -d /build/input/gcc ]]
+then
+    export PATH=/build/input/gcc/bin:$PATH
+    export LD_LIBRARY_PATH=/build/input/gcc/lib:/build/input/gcc/lib64:$LD_LIBRARY_PATH
+fi
+
 cd sspl-base
 ./build.sh --debug
 cd ..
