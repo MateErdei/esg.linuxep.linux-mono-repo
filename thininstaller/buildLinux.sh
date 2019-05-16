@@ -107,6 +107,7 @@ function prepare_dependencies()
     then
         echo "WARNING: No input available; using system or /redist files"
         REDIST=$ALLEGRO_REDIST
+        addpath "$REDIST/cmake/bin"
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
     fi
