@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Telemetry::TelemetryConfig
+namespace Telemetry::TelemetryConfigImpl
 {
     class MessageRelay : public Proxy
     {

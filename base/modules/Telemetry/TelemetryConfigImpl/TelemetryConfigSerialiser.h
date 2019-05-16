@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <json.hpp>
 #include <string>
 
-namespace Telemetry::TelemetryConfig
+namespace Telemetry::TelemetryConfigImpl
 {
     class TelemetryConfigSerialiser
     {

@@ -6,11 +6,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/Telemetry/TelemetryConfig/Config.h>
-#include <modules/Telemetry/TelemetryConfig/TelemetryConfigSerialiser.h>
+#include <modules/Telemetry/TelemetryConfigImpl/Config.h>
+#include <modules/Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
 
 using ::testing::StrictMock;
-using namespace Telemetry::TelemetryConfig;
+using namespace Telemetry::TelemetryConfigImpl;
 
 class TelemetryMessageRelayTest : public ::testing::Test
 {

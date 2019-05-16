@@ -12,12 +12,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Common/HttpSenderImpl/RequestConfig.h"
 
-#include <modules/Common/ObfuscationImpl/SecureCollection.h>
+//#include <modules/Common/ObfuscationImpl/SecureCollection.h>
 
 #include <string>
 #include <vector>
 
-namespace Telemetry::TelemetryConfig
+namespace Telemetry::TelemetryConfigImpl
 {
     class Config
     {

@@ -9,7 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <json.hpp>
 
-using namespace Telemetry::TelemetryConfig;
+using namespace Telemetry::TelemetryConfigImpl;
 
 std::string TelemetryConfigSerialiser::serialise(const Config& config)
 {
@@ -23,7 +23,7 @@ std::string TelemetryConfigSerialiser::serialise(const Config& config)
     return j.dump();
 }
 
-void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config)
+void Telemetry::TelemetryConfigImpl::to_json(nlohmann::json& j, const Config& config)
 {
     j = nlohmann::json{ { "server", config.getServer() },
                         { "resourceRoute", config.getResourceRoute() },
@@ -38,7 +38,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Config& config
                         { "telemetryServerCertificatePath", config.getTelemetryServerCertificatePath() } };
 }
 
-void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
+void Telemetry::TelemetryConfigImpl::to_json(nlohmann::json& j, const Proxy& proxy)
 {
     j = nlohmann::json{ { "url", proxy.getUrl() },
                         { "port", proxy.getPort() },
@@ -47,7 +47,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
                         { "password", proxy.getObfuscatedPassword() } };
 }
 
-void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const MessageRelay& messageRelay)
+void Telemetry::TelemetryConfigImpl::to_json(nlohmann::json& j, const MessageRelay& messageRelay)
 {
     j = nlohmann::json{ { "id", messageRelay.getId() },
                         { "priority", messageRelay.getPriority() },
@@ -71,7 +71,7 @@ Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)
     return config;
 }
 
-void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Config& config)
+void Telemetry::TelemetryConfigImpl::from_json(const nlohmann::json& j, Config& config)
 {
     config.setServer(j.at("server"));
     config.setResourceRoute(j.at("resourceRoute"));
@@ -86,7 +86,7 @@ void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Config& conf
     config.setTelemetryServerCertificatePath(j.at("telemetryServerCertificatePath"));
 }
 
-void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Proxy& proxy)
+void Telemetry::TelemetryConfigImpl::from_json(const nlohmann::json& j, Proxy& proxy)
 {
     proxy.setUrl(j.at("url"));
     proxy.setPort(j.at("port"));
@@ -95,7 +95,7 @@ void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, Proxy& proxy
     proxy.setPassword(j.at("password"));
 }
 
-void Telemetry::TelemetryConfig::from_json(const nlohmann::json& j, MessageRelay& messageRelay)
+void Telemetry::TelemetryConfigImpl::from_json(const nlohmann::json& j, MessageRelay& messageRelay)
 {
     messageRelay.setId(j.at("id"));
     messageRelay.setPriority(j.at("priority"));
