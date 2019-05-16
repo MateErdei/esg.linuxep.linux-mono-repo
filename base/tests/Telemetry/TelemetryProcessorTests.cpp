@@ -41,7 +41,7 @@ public:
         Tests::replaceFileSystem(std::move(mockfileSystem));
 
         m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
-        m_config->m_maxJsonSize = 1000;
+        m_config->setMaxJsonSize(1000);
     }
 
     void TearDown() override { Tests::restoreFileSystem(); }
@@ -139,11 +139,11 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
     auto config = std::make_shared<Telemetry::TelemetryConfig::Config>();
-    config->m_verb = RequestType::GET;
-    config->m_resourceRoot = "PROD";
-    config->m_certPath = defaultCertPath;
-    config->m_server = m_defaultServer;
-    config->m_maxJsonSize = 1000;
+    config->setVerb(RequestType::GET);
+    config->setResourceRoot("PROD");
+    config->setTelemetryServerCertificatePath(defaultCertPath);
+    config->setServer(m_defaultServer);
+    config->setMaxJsonSize(1000);
 
     DerivedTelemetryProcessor telemetryProcessor(config, std::move(m_httpSender), telemetryProviders);
     telemetryProcessor.Run();
@@ -153,7 +153,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOL
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
-    std::string longString = std::string(m_config->m_maxJsonSize, 'a');
+    std::string longString = std::string(m_config->getMaxJsonSize(), 'a');
 
     std::stringstream ss;
     ss << R"({"key":")" << longString << R"("})";

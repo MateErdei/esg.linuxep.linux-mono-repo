@@ -90,15 +90,13 @@ public:
 
         m_defaultExpectedRequestConfig->setData(m_data);
 
-        {
-            m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
-            m_config->m_verb = RequestType::GET;
-            m_config->m_resourceRoot = "PROD";
-            m_config->m_certPath = m_defaultCertPath;
-            m_config->m_headers = m_additionalHeaders;
-            m_config->m_server = m_defaultServer;
-            m_config->m_maxJsonSize = 1000;
-        }
+        m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
+        m_config->setVerb(RequestType::GET);
+        m_config->setResourceRoot("PROD");
+        m_config->setTelemetryServerCertificatePath(m_defaultCertPath);
+        m_config->setHeaders(m_additionalHeaders);
+        m_config->setServer(m_defaultServer);
+        m_config->setMaxJsonSize(1000);
     }
 
     void TearDown() override { Tests::restoreFileSystem(); }
@@ -149,7 +147,7 @@ TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOL
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    m_config->m_verb = requestType;
+    m_config->setVerb(requestType);
 
     Telemetry::TelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
 
@@ -171,7 +169,7 @@ TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    m_config->m_verb = RequestType::GET;
+    m_config->setVerb(RequestType::GET);
     Telemetry::TelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
 
     telemetryProcessor.Run();
@@ -189,7 +187,7 @@ TEST_F(TelemetryProcessorRunTests, PostRequestWithOneArgReturnsSuccess) // NOLIN
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    m_config->m_verb = RequestType::POST;
+    m_config->setVerb(RequestType::POST);
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
@@ -208,8 +206,8 @@ TEST_F(TelemetryProcessorRunTests, certificateDoesNotExist) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
-    m_config->m_verb = RequestType::PUT;
-    m_config->m_resourceRoot = "DEV";
+    m_config->setVerb(RequestType::PUT);
+    m_config->setResourceRoot("DEV");
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);

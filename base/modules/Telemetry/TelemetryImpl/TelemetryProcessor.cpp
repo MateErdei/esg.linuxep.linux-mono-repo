@@ -32,10 +32,10 @@ void TelemetryProcessor::Run()
     gatherTelemetry();
     std::string telemetryJson = getSerialisedTelemetry();
 
-    if (telemetryJson.length() > m_config->m_maxJsonSize)
+    if (telemetryJson.length() > m_config->getMaxJsonSize())
     {
         std::stringstream msg;
-        msg << "The gathered telemetry exceeds the maximum size of " << m_config->m_maxJsonSize << " bytes.";
+        msg << "The gathered telemetry exceeds the maximum size of " << m_config->getMaxJsonSize() << " bytes.";
         throw std::runtime_error(msg.str());
     }
 
@@ -67,12 +67,12 @@ void TelemetryProcessor::gatherTelemetry()
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
     Common::HttpSenderImpl::RequestConfig requestConfig(
-        m_config->m_verb,
-        m_config->m_headers,
-        m_config->m_server,
-        m_config->m_port,
-        m_config->m_certPath,
-        m_config->m_resourceRoot);
+        m_config->getVerb(),
+        m_config->getHeaders(),
+        m_config->getServer(),
+        m_config->getPort(),
+        m_config->getTelemetryServerCertificatePath(),
+        m_config->getResourceRoot());
 
     if (!requestConfig.getCertPath().empty() && !Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
