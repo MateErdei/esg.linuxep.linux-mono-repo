@@ -36,12 +36,16 @@ namespace Telemetry
                 throw std::runtime_error(msg.str());
             }
 
-            if (!Common::FileSystem::fileSystem()->isFile(argv[1]))
+            std::string configFilePath(argv[1]);
+
+            if (!Common::FileSystem::fileSystem()->isFile(configFilePath))
             {
-                throw std::runtime_error("Configuration file is not accessible");
+                std::stringstream msg;
+                msg << "Configuration file '" << configFilePath << "' is not accessible";
+                throw std::runtime_error(msg.str());
             }
 
-            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(argv[1], 1000000UL);
+            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
 
             auto config = std::make_shared<const TelemetryConfig::Config>(
                 TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
