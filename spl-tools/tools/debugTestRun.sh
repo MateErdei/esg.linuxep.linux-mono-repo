@@ -82,6 +82,6 @@ export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
 export OUTPUT=${STARTING_DIR}/sspl-base/output
 
 cd sspl-systemtests
-sudo robot --exclude MANUAL --loglevel TRACE tests
+sudo -E robot --exclude MANUAL --loglevel TRACE tests
 cd ..
 sudo chown -R jenkins: .
