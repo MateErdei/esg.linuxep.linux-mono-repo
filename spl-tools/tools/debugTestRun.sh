@@ -84,6 +84,7 @@ export OUTPUT=${STARTING_DIR}/sspl-base/output
 cd sspl-systemtests
 sudo -E robot \
     --exclude MANUAL \
+    --exclude WEEKLY \
     --exclude EXAMPLE_PLUGIN \
     --exclude EVENT_PLUGIN \
     --exclude AUDIT_PLUGIN \
