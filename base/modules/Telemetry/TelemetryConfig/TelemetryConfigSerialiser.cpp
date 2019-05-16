@@ -11,8 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
-std::string TelemetryConfigSerialiser::serialise(
-    const Config& config)
+std::string TelemetryConfigSerialiser::serialise(const Config& config)
 {
     nlohmann::json j = config;
 
@@ -47,9 +46,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
                         { "password", proxy.getPassword() } };
 }
 
-void Telemetry::TelemetryConfig::to_json(
-    nlohmann::json& j,
-    const MessageRelay& messageRelay)
+void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const MessageRelay& messageRelay)
 {
     j = nlohmann::json{ { "id", messageRelay.getId() },
                         { "priority", messageRelay.getPriority() },
@@ -60,8 +57,7 @@ void Telemetry::TelemetryConfig::to_json(
                         { "password", messageRelay.getPassword() } };
 }
 
-Config TelemetryConfigSerialiser::deserialise(
-    const std::string& jsonString)
+Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)
 {
     nlohmann::json j = nlohmann::json::parse(jsonString);
     Config config = j;
