@@ -24,6 +24,7 @@ function update()
     then
         pushd $2
         git checkout -f $3
+        popd
     fi
 }
 ## Sort out SSH key
@@ -67,28 +68,28 @@ fi
 
 STARTING_DIR=$(pwd)
 
-cd thininstaller
+pushd thininstaller
 ./buildLinux.sh
-cd ..
+popd
 
-cd sspl-base
+pushd sspl-base
 ./build.sh --debug --noclean
-cd ..
+popd
 
-cd sspl-plugin-mdr-component
+pushd sspl-plugin-mdr-component
 ./build.sh --debug --noclean
-cd ..
+popd
 
-cd sspl-plugin-mdr-componentsuite
+pushd sspl-plugin-mdr-componentsuite
 ## TODO setup input
 ./build.sh
-cd ..
+popd
 
 ## Run system tests
 export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
 export OUTPUT=${STARTING_DIR}/sspl-base/output
 
-cd sspl-systemtests
+pushd sspl-systemtests
 sudo -E robot \
     --exclude MANUAL \
     --exclude WEEKLY \
@@ -98,5 +99,5 @@ sudo -E robot \
     --exclude PUB_SUB \
     --loglevel TRACE \
     tests
-cd ..
+popd
 sudo chown -R jenkins: .
