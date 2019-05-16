@@ -44,7 +44,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const Proxy& proxy)
                         { "port", proxy.getPort() },
                         { "authentication", proxy.getAuthentication() },
                         { "username", proxy.getUsername() },
-                        { "password", proxy.getPassword() } };
+                        { "password", proxy.getObfuscatedPassword() } };
 }
 
 void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const MessageRelay& messageRelay)
@@ -55,7 +55,7 @@ void Telemetry::TelemetryConfig::to_json(nlohmann::json& j, const MessageRelay& 
                         { "port", messageRelay.getPort() },
                         { "authentication", messageRelay.getAuthentication() },
                         { "username", messageRelay.getUsername() },
-                        { "password", messageRelay.getPassword() } };
+                        { "password", messageRelay.getObfuscatedPassword() } };
 }
 
 Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)

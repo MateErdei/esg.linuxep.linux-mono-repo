@@ -29,7 +29,8 @@ public:
 
 TEST_F(TelemetryProxyTest, passwordObfuscation) // NOLINT
 {
-    ASSERT_EQ(m_proxy.getPassword(), "password");
+    ASSERT_EQ(m_proxy.getDeobfuscatedPassword(), "password");
+    ASSERT_EQ(m_proxy.getObfuscatedPassword(), "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
 }
 
 TEST_F(TelemetryProxyTest, proxyEqualitySameObject) // NOLINT
