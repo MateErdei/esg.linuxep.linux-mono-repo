@@ -15,10 +15,6 @@ Config::Config() :
     m_externalProcessRetries(DEFAULT_RETRIES),
     m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
 {
-    if (!isValid())
-    {
-        throw std::runtime_error("Config constructed with bad values.");
-    }
 }
 
 bool Config::operator==(const Config& rhs) const
