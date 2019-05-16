@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
-Proxy::Proxy() : m_url(""), m_port(0), m_authentication(Proxy::Authentication::none), m_username(""), m_password("") {}
+Proxy::Proxy() : m_port(0), m_authentication(Proxy::Authentication::none) {}
 
 bool Proxy::operator==(const Proxy& rhs) const
 {

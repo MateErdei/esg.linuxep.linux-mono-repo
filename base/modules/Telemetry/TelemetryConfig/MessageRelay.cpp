@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
-MessageRelay::MessageRelay() : m_id(""), m_priority(0) {}
+MessageRelay::MessageRelay() : m_priority(0) {}
 
 bool MessageRelay::operator==(const MessageRelay& rhs) const
 {
