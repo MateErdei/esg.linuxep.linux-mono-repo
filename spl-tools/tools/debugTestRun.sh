@@ -71,7 +71,8 @@ cd sspl-plugin-mdr-component
 cd ..
 
 cd sspl-plugin-mdr-componentsuite
-./build.sh --debug
+## TODO setup input
+./build.sh
 cd ..
 
 ## Run system tests
