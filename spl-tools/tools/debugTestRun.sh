@@ -41,6 +41,8 @@ update ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git ss
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git sspl-plugin-mdr-component
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git sspl-plugin-mdr-componentsuite
 
+sudo chown -R jenkins: .
+
 mkdir -p /redist
 [[ -d /redist/binaries ]] || mount -t nfs allegro.eng.sophos:/redist  /redist
 
@@ -80,5 +82,6 @@ export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
 export OUTPUT=${STARTING_DIR}/sspl-base/output
 
 cd sspl-systemtests
-robot --exclude MANUAL tests
+sudo robot --exclude MANUAL --loglevel TRACE tests
 cd ..
+sudo chown -R jenkins: .
