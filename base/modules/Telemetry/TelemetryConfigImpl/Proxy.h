@@ -39,7 +39,7 @@ namespace Telemetry::TelemetryConfigImpl
         const std::string& getUsername() const;
         void setUsername(const std::string& username);
 
-        const Common::ObfuscationImpl::SecureString getDeobfuscatedPassword() const;
+        Common::ObfuscationImpl::SecureString getDeobfuscatedPassword() const;
         const std::string getObfuscatedPassword() const;
         void setPassword(const std::string& obfuscatedPassword);
 

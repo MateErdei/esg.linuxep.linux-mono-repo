@@ -11,9 +11,9 @@ add_executable(TelemetryTests
         SystemTelemetryReporterTests.cpp
         MockTelemetryProvider.h
         TelemetryProcessorTests.cpp
-        TelemetryConfigTests.cpp
-        TelemetryProxyTests.cpp
-        TelemetryMessageRelayTests.cpp
+        TelemetryConfigImpl/TelemetryConfigTests.cpp
+        TelemetryConfigImpl/TelemetryProxyTests.cpp
+        TelemetryConfigImpl/TelemetryMessageRelayTests.cpp
         )
 
 target_include_directories(TelemetryTests PUBLIC ${PROTOBUF_INCLUDE_DIR})

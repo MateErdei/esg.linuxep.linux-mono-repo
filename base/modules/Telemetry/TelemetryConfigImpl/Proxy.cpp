@@ -87,7 +87,7 @@ void Proxy::setUsername(const std::string& username)
     m_username = username;
 }
 
-const Common::ObfuscationImpl::SecureString Proxy::getDeobfuscatedPassword() const
+Common::ObfuscationImpl::SecureString Proxy::getDeobfuscatedPassword() const
 {
     return Common::ObfuscationImpl::SECDeobfuscate(m_obfuscatedPassword);
 }
