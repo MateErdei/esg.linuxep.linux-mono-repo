@@ -56,7 +56,7 @@ public:
         m_config.setProxies({proxy});
 
         m_jsonObject["server"] = "localhost";
-        m_jsonObject["verb"] = 0;
+        m_jsonObject["verb"] = "PUT";
         m_jsonObject["externalProcessTimeout"] = 3;
         m_jsonObject["externalProcessRetries"] = 2;
         m_jsonObject["headers"] = { "header1", "header2" }, m_jsonObject["maxJsonSize"] = 10;
