@@ -29,6 +29,9 @@ using namespace Common::HttpSenderImpl;
 class HttpSenderTest : public ::testing::Test
 {
 public:
+    const char* m_defaultServer = "t1.sophosupd.com";
+    const int m_defaultPort = 443;
+
     std::shared_ptr<StrictMock<MockCurlWrapper>> m_curlWrapper;
     std::shared_ptr<HttpSender> m_httpSender;
 
@@ -61,7 +64,7 @@ TEST_F(HttpSenderTest, getRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::DEV);
+    RequestConfig getRequestConfig(RequestType::GET, m_additionalHeaders, m_defaultServer, m_defaultPort, m_defaultCertPath, "linux/dev");
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(getRequestConfig), m_succeededResult);
 }
@@ -74,7 +77,7 @@ TEST_F(HttpSenderTest, postRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig postRequestConfig(RequestType::POST, m_additionalHeaders, GL_defaultServer, GL_defaultPort, m_defaultCertPath, ResourceRoot::PROD);
+    RequestConfig postRequestConfig(RequestType::POST, m_additionalHeaders, m_defaultServer, m_defaultPort, m_defaultCertPath, "linux/prod");
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(postRequestConfig), m_succeededResult);
 }
@@ -87,7 +90,7 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
     EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
 
-    RequestConfig putRequestConfig(RequestType::PUT, m_additionalHeaders, GL_defaultServer, GL_defaultPort, "/nonDefaultCertPath");
+    RequestConfig putRequestConfig(RequestType::PUT, m_additionalHeaders, m_defaultServer, m_defaultPort, "/nonDefaultCertPath");
 
     EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
 }

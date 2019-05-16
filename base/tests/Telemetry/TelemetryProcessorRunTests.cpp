@@ -27,11 +27,15 @@ using namespace Common::HttpSenderImpl;
 class TelemetryProcessorRunTests : public ::testing::Test
 {
 public:
-    std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
-    std::vector<std::string> m_additionalHeaders;
+    const char* m_defaultServer = "t1.sophosupd.com";
+    const int m_defaultPort = 443;
+    const std::string m_defaultResourceRoot = "linux/prod";
     const char* m_data = "{\"mock-telemetry-provider\":{\"mockKey\":\"mockValue\"}}";
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
-    std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
+    const std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
+
+    std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
+    std::vector<std::string> m_additionalHeaders;
     MockFileSystem* m_mockFileSystem = nullptr;
     std::shared_ptr<Telemetry::TelemetryConfig::Config> m_config;
 
@@ -76,16 +80,23 @@ public:
 
         m_additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control");
 
-        m_defaultExpectedRequestConfig = std::make_unique<RequestConfig>(RequestType::GET, m_additionalHeaders);
+        m_defaultExpectedRequestConfig = std::make_unique<RequestConfig>(
+            RequestType::GET,
+            m_additionalHeaders,
+            m_defaultServer,
+            m_defaultPort,
+            m_defaultCertPath,
+            m_defaultResourceRoot);
+
         m_defaultExpectedRequestConfig->setData(m_data);
 
         {
             m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
             m_config->m_verb = RequestType::GET;
-            m_config->m_resourceRoute = "PROD";
+            m_config->m_resourceRoot = "PROD";
             m_config->m_certPath = m_defaultCertPath;
             m_config->m_headers = m_additionalHeaders;
-            m_config->m_server = GL_defaultServer;
+            m_config->m_server = m_defaultServer;
             m_config->m_maxJsonSize = 1000;
         }
     }
@@ -198,7 +209,7 @@ TEST_F(TelemetryProcessorRunTests, certificateDoesNotExist) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
     m_config->m_verb = RequestType::PUT;
-    m_config->m_resourceRoute = "DEV";
+    m_config->m_resourceRoot = "DEV";
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
@@ -215,7 +226,7 @@ TEST_F(TelemetryProcessorRunTests, invalidResourceRoot) // NOLINT
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
 
     m_config->m_verb = RequestType::PUT;
-    m_config->m_resourceRoute = "INVALID";
+    m_config->m_resourceRoot = "INVALID";
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);

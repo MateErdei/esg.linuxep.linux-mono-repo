@@ -16,7 +16,7 @@ namespace Common::HttpSenderImpl
         std::string server,
         int port,
         std::string certPath,
-        ResourceRoot resourceRoot)
+        std::string resourceRoot)
     : m_additionalHeaders(std::move(additionalHeaders))
     , m_server(std::move(server))
     , m_port(port)
@@ -24,43 +24,6 @@ namespace Common::HttpSenderImpl
     , m_certPath(std::move(certPath))
     , m_resourceRoot(resourceRoot)
     {
-    }
-
-    std::string RequestConfig::resourceRootToString(ResourceRoot resourceRoot)
-    {
-        switch(resourceRoot)
-        {
-            case ResourceRoot::PROD:
-                return "/linux/sspl/prod";
-            case ResourceRoot::DEV:
-                return "/linux/sspl/dev";
-            case ResourceRoot::TEST:
-                return "";
-            default:
-                throw std::logic_error("Unknown resource root");
-        }
-    }
-
-    ResourceRoot RequestConfig::stringToResourceRoot(const std::string& resourceRoot)
-    {
-        if (resourceRoot == "PROD")
-        {
-            return ResourceRoot::PROD;
-        }
-        else if (resourceRoot == "DEV")
-        {
-            return ResourceRoot::DEV;
-        }
-        else if (resourceRoot == "TEST")
-        {
-            return ResourceRoot::TEST;
-        }
-        else
-        {
-            std::stringstream ss;
-            ss << "Unknown resource root: " << resourceRoot;
-            throw std::range_error(ss.str());
-        }
     }
 
     std::string RequestConfig::requestTypeToString(RequestType requestType)
@@ -117,7 +80,7 @@ namespace Common::HttpSenderImpl
 
     void RequestConfig::setResourceRoot(const std::string& resourceRoot)
     {
-        m_resourceRoot = stringToResourceRoot(resourceRoot);
+        m_resourceRoot = resourceRoot;
     }
 
     RequestType RequestConfig::getRequestType()
@@ -150,9 +113,9 @@ namespace Common::HttpSenderImpl
         return requestTypeToString(m_requestType);
     }
 
-    std::string RequestConfig::getResourceRootAsString()
+    std::string RequestConfig::getResourceRoot()
     {
-        return resourceRootToString(m_resourceRoot);
+        return m_resourceRoot;
     }
 
     int RequestConfig::getPort()

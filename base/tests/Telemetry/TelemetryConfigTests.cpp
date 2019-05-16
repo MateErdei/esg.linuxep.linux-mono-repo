@@ -31,7 +31,7 @@ public:
         m_config.m_headers = {"header1", "header2"};
         m_config.m_maxJsonSize = 10;
         m_config.m_port = 123;
-        m_config.m_resourceRoute = "TEST";
+        m_config.m_resourceRoot = "TEST";
 
         messageRelay.m_url = "relay";
         messageRelay.m_port = 456;

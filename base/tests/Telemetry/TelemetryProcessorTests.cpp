@@ -27,7 +27,9 @@ using namespace Common::HttpSenderImpl;
 class TelemetryProcessorTest : public ::testing::Test
 {
 public:
+    const char* m_defaultServer = "t1.sophosupd.com";
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
+
     MockFileSystem* m_mockFileSystem = nullptr;
     std::shared_ptr<Telemetry::TelemetryConfig::Config> m_config;
     std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
@@ -138,9 +140,9 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
 
     auto config = std::make_shared<Telemetry::TelemetryConfig::Config>();
     config->m_verb = RequestType::GET;
-    config->m_resourceRoute = "PROD";
+    config->m_resourceRoot = "PROD";
     config->m_certPath = defaultCertPath;
-    config->m_server = GL_defaultServer;
+    config->m_server = m_defaultServer;
     config->m_maxJsonSize = 1000;
 
     DerivedTelemetryProcessor telemetryProcessor(config, std::move(m_httpSender), telemetryProviders);

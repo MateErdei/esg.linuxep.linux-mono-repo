@@ -21,31 +21,19 @@ namespace Common::HttpSenderImpl
         PUT
     };
 
-    enum class ResourceRoot
-    {
-        PROD,
-        DEV,
-        TEST
-    };
-
-    static const char* GL_defaultServer = "t1.sophosupd.com";
-    static const int GL_defaultPort = 443;
-    static const ResourceRoot GL_defaultResourceRoot = ResourceRoot::PROD;
-
     class RequestConfig
     {
     public:
         RequestConfig(
             RequestType requestType,
             std::vector<std::string> additionalHeaders,
-            std::string server = GL_defaultServer,
-            int port = GL_defaultPort,
-            std::string certPath = Common::FileSystem::join(
-                ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
-                "telemetry_cert.pem"),
-            ResourceRoot resourceRoot = GL_defaultResourceRoot);
+            std::string server,
+            int port,
+            std::string certPath,
+            std::string resourceRoot);
+
         RequestConfig(const RequestConfig&) = delete;
-        RequestConfig& operator=(const RequestConfig&) = delete;
+        RequestConfig& operator= (const RequestConfig&) = delete;
         ~RequestConfig() = default;
 
         void setData(const std::string& data);
@@ -58,14 +46,11 @@ namespace Common::HttpSenderImpl
         RequestType getRequestType();
         const std::string& getCertPath();
         std::string getServer();
-        std::string getResourceRootAsString();
+        std::string getResourceRoot();
         std::string getRequestTypeAsString();
         int getPort();
 
-        static ResourceRoot stringToResourceRoot(const std::string& resourceRoot);
         static RequestType stringToRequestType(const std::string& requestType);
-
-        static std::string resourceRootToString(ResourceRoot resourceRoot);
         static std::string requestTypeToString(RequestType requestType);
 
     private:
@@ -76,6 +61,6 @@ namespace Common::HttpSenderImpl
         int m_port;
         RequestType m_requestType;
         std::string m_certPath;
-        ResourceRoot m_resourceRoot;
+        std::string m_resourceRoot;
     };
 } // namespace Common::HttpSenderImpl

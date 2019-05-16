@@ -66,10 +66,13 @@ void TelemetryProcessor::gatherTelemetry()
 
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
-    Common::HttpSenderImpl::RequestConfig requestConfig(m_config->m_verb, m_config->m_headers);
-    requestConfig.setServer(m_config->m_server);
-    requestConfig.setCertPath(m_config->m_certPath);
-    requestConfig.setResourceRoot(m_config->m_resourceRoute);
+    Common::HttpSenderImpl::RequestConfig requestConfig(
+        m_config->m_verb,
+        m_config->m_headers,
+        m_config->m_server,
+        m_config->m_port,
+        m_config->m_certPath,
+        m_config->m_resourceRoot);
 
     if (!requestConfig.getCertPath().empty() && !Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {
