@@ -20,6 +20,11 @@ function update()
     else
         git clone "$1" "$2"
     fi
+    if [[ -n $3 ]]
+    then
+        pushd $2
+        git checkout -f $3
+    fi
 }
 ## Sort out SSH key
 env | sort
@@ -37,9 +42,11 @@ git --version
 update ssh://git@stash.sophos.net:7999/linuxep/everest-base.git sspl-base
 [[ -d sspl-base ]] || failure 1 "Failed to checkout Base"
 update ssh://git@stash.sophos.net:7999/linuxep/thininstaller.git thininstaller
-update ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git sspl-systemtests
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git sspl-plugin-mdr-component
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git sspl-plugin-mdr-componentsuite
+
+
+update ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git sspl-systemtests ${SYSTEM_TEST_BRANCH:master}
 
 sudo chown -R jenkins: .
 
