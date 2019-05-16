@@ -88,6 +88,8 @@ TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
     EXPECT_EQ(DEFAULT_RETRIES, c.getExternalProcessRetries());
     EXPECT_EQ(DEFAULT_TIMEOUT, c.getExternalProcessTimeout());
     EXPECT_EQ(DEFAULT_VERB, c.getVerb());
+
+    ASSERT_TRUE(c.isValid());
 }
 
 TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
