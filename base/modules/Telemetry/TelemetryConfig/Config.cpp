@@ -80,8 +80,6 @@ bool Config::isValid() const
     return true;
 }
 
-
-
 const std::string& Config::getServer() const
 {
     return m_server;

@@ -6,9 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "Constants.h"
 #include "MessageRelay.h"
 #include "Proxy.h"
-#include "Constants.h"
 
 #include "Common/HttpSenderImpl/RequestConfig.h"
 
