@@ -8,6 +8,19 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Telemetry::TelemetryConfig;
 
+Config::Config() :
+    m_port(0),
+    m_verb(Common::HttpSenderImpl::RequestType::PUT),
+    m_externalProcessTimeout(DEFAULT_TIMEOUT),
+    m_externalProcessRetries(DEFAULT_RETRIES),
+    m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
+{
+    if (!isValid())
+    {
+        throw std::runtime_error("Config constructed with bad values.");
+    }
+}
+
 bool Config::operator==(const Config& rhs) const
 {
     if (this == &rhs)
@@ -44,20 +57,31 @@ bool Config::isValid() const
         }
     }
 
-    return m_port <= MAX_PORT_NUMBER &&
-           (m_verb == Common::HttpSenderImpl::RequestType::GET || m_verb == Common::HttpSenderImpl::RequestType::POST ||
-            m_verb == Common::HttpSenderImpl::RequestType::PUT) &&
-           m_externalProcessTimeout > 0 && m_maxJsonSize > 0;
+    if (m_port > MAX_PORT_NUMBER)
+    {
+        return false;
+    }
+
+    if (m_externalProcessTimeout < 1 || m_externalProcessTimeout > MAX_TIMEOUT)
+    {
+        return false;
+    }
+
+    if (m_externalProcessRetries > MAX_RETRIES)
+    {
+        return false;
+    }
+
+    if (m_maxJsonSize < MIN_MAX_JSON_SIZE || m_maxJsonSize > MAX_MAX_JSON_SIZE)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-Config::Config() :
-    m_port(0),
-    m_verb(Common::HttpSenderImpl::RequestType::PUT),
-    m_externalProcessTimeout(0),
-    m_externalProcessRetries(0),
-    m_maxJsonSize(0)
-{
-}
+
+
 const std::string& Config::getServer() const
 {
     return m_server;

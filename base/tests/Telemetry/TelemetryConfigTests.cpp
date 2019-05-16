@@ -80,6 +80,15 @@ public:
     }
 };
 
+TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
+{
+    Config c;
+
+    EXPECT_EQ(DEFAULT_MAX_JSON_SIZE, c.getMaxJsonSize());
+    EXPECT_EQ(DEFAULT_RETRIES, c.getExternalProcessRetries());
+    EXPECT_EQ(DEFAULT_TIMEOUT, c.getExternalProcessTimeout());
+}
+
 TEST_F(TelemetryConfigTest, deserialiseStringToConfigAndBackToString) // NOLINT
 {
     std::string originalJsonString = m_jsonObject.dump();
