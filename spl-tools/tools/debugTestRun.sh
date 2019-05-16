@@ -77,6 +77,7 @@ cd ..
 
 ## Run system tests
 export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
+export OUTPUT=${STARTING_DIR}/sspl-base/output
 
 cd sspl-systemtests
 robot --exclude MANUAL tests
