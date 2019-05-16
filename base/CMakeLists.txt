@@ -165,7 +165,7 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry.json)
+set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
