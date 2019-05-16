@@ -47,6 +47,12 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
+        <package buildtype="dev" name="sspl-telemetry-config" dest="src/telemetry">
+            <include src="telemetry-dev.json" dest="telemetry.json" />
+        </package>
+        <package buildtype="prod" name="sspl-telemetry-config" dest="src/telemetry">
+            <include src="telemetry-prod.json" dest="telemetry.json" />
+        </package>
     </inputs>
     <buildcommands>
         <command>
