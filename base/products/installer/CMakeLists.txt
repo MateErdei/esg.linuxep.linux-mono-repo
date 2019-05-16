@@ -55,3 +55,8 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/licenses.txt
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ
         )
+
+install(FILES ${TELEMETRY_CONFIG_FILE}
+        DESTINATION files/base/etc
+        PERMISSIONS OWNER_READ
+        )
