@@ -39,7 +39,6 @@ update ssh://git@stash.sophos.net:7999/linuxep/everest-base.git sspl-base
 update ssh://git@stash.sophos.net:7999/linuxep/thininstaller.git thininstaller
 update ssh://git@stash.sophos.net:7999/linuxep/everest-systemproducttests.git sspl-systemtests
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git sspl-plugin-mdr-component
-update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git sspl-plugin-mdr-component
 update ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git sspl-plugin-mdr-componentsuite
 
 mkdir -p /redist
@@ -52,14 +51,27 @@ then
     export LD_LIBRARY_PATH=/build/input/gcc/lib:/build/input/gcc/lib64:$LD_LIBRARY_PATH
 fi
 
+STARTING_DIR=$(pwd)
+
 cd sspl-base
 ./build.sh --debug
 cd ..
 
 ## other builds
+cd thininstaller
+./buildLinux.sh
+cd ..
 
+cd sspl-plugin-mdr-component
+./build.sh --debug
+cd ..
+
+cd sspl-plugin-mdr-componentsuite
+./build.sh --debug
+cd ..
 
 ## Run system tests
+export SYSTEM_PRODUCT_TEST_OUTPUT=${STARTING_DIR}/sspl-base/output
 
 cd sspl-systemtests
 robot --exclude MANUAL tests
