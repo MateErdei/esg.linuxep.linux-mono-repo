@@ -19,6 +19,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Telemetry/TelemetryConfigImpl/Config.h>
 #include <Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
 
+#include <json.hpp>
 #include <sstream>
 #include <string>
 
@@ -62,7 +63,12 @@ namespace Telemetry
         }
         catch (const std::runtime_error& e)
         {
-            LOGERROR("Caught exception: " << e.what());
+            LOGERROR("Caught runtime exception: " << e.what());
+            return 1;
+        }
+        catch (const nlohmann::detail::parse_error& e)
+        {
+            LOGERROR("Caught JSON parse error: " << e.what());
             return 1;
         }
     }
