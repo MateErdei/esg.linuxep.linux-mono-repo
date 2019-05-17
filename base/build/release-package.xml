@@ -48,9 +48,10 @@
             <include src="capnproto.tar" dest="."/>
         </package>
         <package buildtype="dev" name="sspl-telemetry-config" version="1.0" dest="input/telemetry">
+            <include src="telemetry-dev.json" dest="." />
         </package>
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0\EES-9377" dest="input/telemetry">
-            <include src="telemetry-prod.json" dest="telemetry-config.json" />
+            <include src="telemetry-prod.json" dest="." />
         </package>
     </inputs>
     <buildcommands>
