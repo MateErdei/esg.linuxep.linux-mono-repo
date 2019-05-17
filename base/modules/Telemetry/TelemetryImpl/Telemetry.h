@@ -6,10 +6,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "TelemetryProcessor.h"
-
-#include <Common/HttpSenderImpl/HttpSender.h>
-
 namespace Telemetry
 {
     /**

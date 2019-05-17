@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 
+#include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
