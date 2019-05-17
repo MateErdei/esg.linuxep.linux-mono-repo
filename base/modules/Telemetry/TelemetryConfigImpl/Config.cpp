@@ -11,8 +11,8 @@ using namespace Telemetry::TelemetryConfigImpl;
 Config::Config() :
     m_port(0),
     m_verb(VERB_PUT),
-    m_externalProcessTimeout(DEFAULT_TIMEOUT),
-    m_externalProcessRetries(DEFAULT_RETRIES),
+    m_externalProcessWaitTime(DEFAULT_PROCESS_WAIT_TIME),
+    m_externalProcessWaitRetries(DEFAULT_PROCESS_WAIT_RETRIES),
     m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
 {
 }
@@ -26,8 +26,8 @@ bool Config::operator==(const Config& rhs) const
 
     return m_server == rhs.m_server && m_resourceRoute == rhs.m_resourceRoute && m_port == rhs.m_port &&
            m_headers == rhs.m_headers && m_verb == rhs.m_verb && m_proxies == rhs.m_proxies &&
-           m_messageRelays == rhs.m_messageRelays && m_externalProcessTimeout == rhs.m_externalProcessTimeout &&
-           m_externalProcessRetries == rhs.m_externalProcessRetries && m_maxJsonSize == rhs.m_maxJsonSize;
+           m_messageRelays == rhs.m_messageRelays && m_externalProcessWaitTime == rhs.m_externalProcessWaitTime &&
+           m_externalProcessWaitRetries == rhs.m_externalProcessWaitRetries && m_maxJsonSize == rhs.m_maxJsonSize;
 }
 
 bool Config::operator!=(const Config& rhs) const
@@ -58,12 +58,12 @@ bool Config::isValid() const
         return false;
     }
 
-    if (m_externalProcessTimeout < 1 || m_externalProcessTimeout > MAX_TIMEOUT)
+    if (m_externalProcessWaitTime < 1 || m_externalProcessWaitTime > MAX_PROCESS_WAIT_TIMEOUT)
     {
         return false;
     }
 
-    if (m_externalProcessRetries > MAX_RETRIES)
+    if (m_externalProcessWaitRetries > MAX_PROCESS_WAIT_RETRIES)
     {
         return false;
     }
@@ -151,24 +151,24 @@ void Config::setMessageRelays(const std::vector<MessageRelay>& messageRelays)
     m_messageRelays = messageRelays;
 }
 
-unsigned int Config::getExternalProcessTimeout() const
+unsigned int Config::getExternalProcessWaitTime() const
 {
-    return m_externalProcessTimeout;
+    return m_externalProcessWaitTime;
 }
 
-void Config::setExternalProcessTimeout(unsigned int externalProcessTimeout)
+void Config::setExternalProcessWaitTime(unsigned int externalProcessWaitTime)
 {
-    m_externalProcessTimeout = externalProcessTimeout;
+    m_externalProcessWaitTime = externalProcessWaitTime;
 }
 
-unsigned int Config::getExternalProcessRetries() const
+unsigned int Config::getExternalProcessWaitRetries() const
 {
-    return m_externalProcessRetries;
+    return m_externalProcessWaitRetries;
 }
 
-void Config::setExternalProcessRetries(unsigned int externalProcessRetries)
+void Config::setExternalProcessWaitRetries(unsigned int externalProcessWaitRetries)
 {
-    m_externalProcessRetries = externalProcessRetries;
+    m_externalProcessWaitRetries = externalProcessWaitRetries;
 }
 
 unsigned int Config::getMaxJsonSize() const

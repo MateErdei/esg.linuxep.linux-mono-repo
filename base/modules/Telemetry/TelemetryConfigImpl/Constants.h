@@ -10,22 +10,16 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry::TelemetryConfigImpl
 {
     const unsigned int MAX_PORT_NUMBER = 65535;
-    const unsigned int MAX_RETRIES = 100;
-    const unsigned int DEFAULT_RETRIES = 3;
 
-    // 10 Minutes
-    const unsigned int MAX_TIMEOUT = 600000;
-    // 5 Seconds
-    const unsigned int DEFAULT_TIMEOUT = 5000;
+    const unsigned int MAX_PROCESS_WAIT_RETRIES = 100;
+    const unsigned int DEFAULT_PROCESS_WAIT_RETRIES = 10;
 
-    // 10MB
-    const unsigned int MAX_MAX_JSON_SIZE = 10000000;
+    const unsigned int MAX_PROCESS_WAIT_TIMEOUT = 600000; // 10 minutes
+    const unsigned int DEFAULT_PROCESS_WAIT_TIME = 100; // 100 ms
 
-    // 10B
+    const unsigned int MAX_MAX_JSON_SIZE = 10000000; // 10MB
     const unsigned int MIN_MAX_JSON_SIZE = 10;
-
-    // 1MB
-    const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000;
+    const unsigned int DEFAULT_MAX_JSON_SIZE = 1000000; // 1MB
 
     const std::string VERB_PUT = "PUT";
     const std::string VERB_GET = "GET";

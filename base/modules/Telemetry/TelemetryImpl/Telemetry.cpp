@@ -85,8 +85,8 @@ namespace Telemetry
             std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
                 GL_systemTelemetryObjectsConfig,
                 GL_systemTelemetryArraysConfig,
-                telemetryConfig->getExternalProcessTimeout(),
-                telemetryConfig->getExternalProcessRetries()));
+                telemetryConfig->getExternalProcessWaitTime(),
+                telemetryConfig->getExternalProcessWaitRetries()));
 
         telemetryProviders.emplace_back(systemTelemetryReporter);
 

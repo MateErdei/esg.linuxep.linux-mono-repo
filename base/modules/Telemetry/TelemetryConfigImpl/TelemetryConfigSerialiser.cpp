@@ -49,8 +49,8 @@ namespace Telemetry::TelemetryConfigImpl
                             { "verb", config.getVerb() },
                             { "proxies", config.getProxies() },
                             { "messageRelays", config.getMessageRelays() },
-                            { "externalProcessTimeout", config.getExternalProcessTimeout() },
-                            { "externalProcessRetries", config.getExternalProcessRetries() },
+                            { "externalProcessWaitTime", config.getExternalProcessWaitTime() },
+                            { "externalProcessWaitRetries", config.getExternalProcessWaitRetries() },
                             { "maxJsonSize", config.getMaxJsonSize() },
                             { "telemetryServerCertificatePath", config.getTelemetryServerCertificatePath() } };
     }
@@ -84,8 +84,8 @@ namespace Telemetry::TelemetryConfigImpl
         config.setVerb(j.at("verb"));
         config.setProxies(j.at("proxies"));
         config.setMessageRelays(j.at("messageRelays"));
-        config.setExternalProcessTimeout(j.at("externalProcessTimeout"));
-        config.setExternalProcessRetries(j.at("externalProcessRetries"));
+        config.setExternalProcessWaitTime(j.at("externalProcessWaitTime"));
+        config.setExternalProcessWaitRetries(j.at("externalProcessWaitRetries"));
         config.setMaxJsonSize(j.at("maxJsonSize"));
         config.setTelemetryServerCertificatePath(j.at("telemetryServerCertificatePath"));
     }

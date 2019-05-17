@@ -42,11 +42,11 @@ namespace Telemetry::TelemetryConfigImpl
         const std::vector<MessageRelay>& getMessageRelays() const;
         void setMessageRelays(const std::vector<MessageRelay>& messageRelays);
 
-        unsigned int getExternalProcessTimeout() const;
-        void setExternalProcessTimeout(unsigned int externalProcessTimeout);
+        unsigned int getExternalProcessWaitTime() const;
+        void setExternalProcessWaitTime(unsigned int externalProcessWaitTime);
 
-        unsigned int getExternalProcessRetries() const;
-        void setExternalProcessRetries(unsigned int externalProcessRetries);
+        unsigned int getExternalProcessWaitRetries() const;
+        void setExternalProcessWaitRetries(unsigned int externalProcessWaitRetries);
 
         unsigned int getMaxJsonSize() const;
         void setMaxJsonSize(unsigned int maxJsonSize);
@@ -67,8 +67,8 @@ namespace Telemetry::TelemetryConfigImpl
         std::string m_verb;
         std::vector<Proxy> m_proxies;
         std::vector<MessageRelay> m_messageRelays;
-        unsigned int m_externalProcessTimeout{};
-        unsigned int m_externalProcessRetries{};
+        unsigned int m_externalProcessWaitTime{};
+        unsigned int m_externalProcessWaitRetries{};
         unsigned int m_maxJsonSize{};
         std::string m_telemetryServerCertificatePath;
     };

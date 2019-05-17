@@ -22,7 +22,7 @@ public:
 
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
-    const std::string m_jsonString = R"({"externalProcessRetries":2,"externalProcessTimeout":3,"headers":["header1","header2"],"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoute":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
+    const std::string m_jsonString = R"({"externalProcessWaitRetries":2,"externalProcessWaitTime":3,"headers":["header1","header2"],"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoot":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
 
     void SetUp() override
     {
@@ -31,12 +31,12 @@ public:
 
         m_config.setServer("localhost");
         m_config.setVerb("GET");
-        m_config.setExternalProcessTimeout(3);
-        m_config.setExternalProcessRetries(2);
+        m_config.setExternalProcessWaitTime(3);
+        m_config.setExternalProcessWaitRetries(2);
         m_config.setHeaders({ "header1", "header2" });
         m_config.setMaxJsonSize(10);
         m_config.setPort(m_validPort);
-        m_config.setResourceRoute("TEST");
+        m_config.setResourceRoot("TEST");
         m_config.setTelemetryServerCertificatePath("some/path");
 
         messageRelay.setUrl("relay");
@@ -59,11 +59,11 @@ public:
 
         m_jsonObject["server"] = "localhost";
         m_jsonObject["verb"] = "PUT";
-        m_jsonObject["externalProcessTimeout"] = 3;
-        m_jsonObject["externalProcessRetries"] = 2;
+        m_jsonObject["externalProcessWaitTime"] = 3;
+        m_jsonObject["externalProcessWaitRetries"] = 2;
         m_jsonObject["headers"] = { "header1", "header2" }, m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = m_validPort;
-        m_jsonObject["resourceRoute"] = "TEST";
+        m_jsonObject["resourceRoot"] = "TEST";
         m_jsonObject["telemetryServerCertificatePath"] = "some/path";
 
         m_jsonObject["messageRelays"] = { { { "authentication", 1 },
@@ -87,8 +87,8 @@ TEST_F(TelemetryConfigTest, defaultConstrutor) // NOLINT
     Config c;
 
     EXPECT_EQ(DEFAULT_MAX_JSON_SIZE, c.getMaxJsonSize());
-    EXPECT_EQ(DEFAULT_RETRIES, c.getExternalProcessRetries());
-    EXPECT_EQ(DEFAULT_TIMEOUT, c.getExternalProcessTimeout());
+    EXPECT_EQ(DEFAULT_PROCESS_WAIT_RETRIES, c.getExternalProcessWaitRetries());
+    EXPECT_EQ(DEFAULT_PROCESS_WAIT_TIME, c.getExternalProcessWaitTime());
     EXPECT_EQ(VERB_PUT, c.getVerb());
 
     ASSERT_TRUE(c.isValid());
@@ -287,7 +287,7 @@ TEST_F(TelemetryConfigTest, InvalidPort) // NOLINT
 TEST_F(TelemetryConfigTest, InvalidTimeout) // NOLINT
 {
     Config c = m_config;
-    c.setExternalProcessTimeout(0);
+    c.setExternalProcessWaitTime(0);
     EXPECT_THROW(TelemetryConfigSerialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
