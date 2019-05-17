@@ -51,7 +51,7 @@
             <include src="telemetry-config.json" dest="." />
         </package>
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0\EES-9377" dest="input/telemetry">
-            <include src="telemetry-prod.json" dest="telemetry-config.json" />
+            <include src="telemetry-config.json" dest="." />
         </package>
     </inputs>
     <buildcommands>
