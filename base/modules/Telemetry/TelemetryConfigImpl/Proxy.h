@@ -8,7 +8,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Constants.h"
 
-//#include <modules/Common/ObfuscationImpl/SecureCollection.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/ObfuscationImpl/Obscurity.h>
 
