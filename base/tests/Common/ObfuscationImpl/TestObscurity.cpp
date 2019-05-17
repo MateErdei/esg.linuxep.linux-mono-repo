@@ -36,4 +36,7 @@ TEST(TestObscurity, obscurityRevealsPassword) // NOLINT
 TEST(TestObscurity, SECDeobfuscate) // NOLINT
 {
     EXPECT_EQ(Common::ObfuscationImpl::SECDeobfuscate("CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM="), "");
+    EXPECT_EQ(Common::ObfuscationImpl::SECDeobfuscate("CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E="), "regrABC123pass");
+    // regruser:regrABC123pass  -  9539d7d1f36a71bbac1259db9e868231
+
 }
