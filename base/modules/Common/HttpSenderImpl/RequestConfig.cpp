@@ -13,10 +13,10 @@ namespace Common::HttpSenderImpl
     RequestConfig::RequestConfig(
         RequestType requestType,
         std::vector<std::string> additionalHeaders,
-        std::string server,
+        const std::string &server,
         int port,
-        std::string certPath,
-        std::string resourceRoot)
+        const std::string &certPath,
+        const std::string &resourceRoot)
     : m_additionalHeaders(std::move(additionalHeaders))
     , m_server(std::move(server))
     , m_port(port)
@@ -103,7 +103,7 @@ namespace Common::HttpSenderImpl
         return m_additionalHeaders;
     }
 
-    std::string RequestConfig::getServer()
+    const std::string & RequestConfig::getServer()
     {
         return m_server;
     }
@@ -113,7 +113,7 @@ namespace Common::HttpSenderImpl
         return requestTypeToString(m_requestType);
     }
 
-    std::string RequestConfig::getResourceRoot()
+    const std::string & RequestConfig::getResourceRoot()
     {
         return m_resourceRoot;
     }

@@ -27,10 +27,10 @@ namespace Common::HttpSenderImpl
         RequestConfig(
             RequestType requestType,
             std::vector<std::string> additionalHeaders,
-            std::string server,
+            const std::string& server,
             int port,
-            std::string certPath,
-            std::string resourceRoot);
+            const std::string& certPath,
+            const std::string& resourceRoot);
 
         RequestConfig(const RequestConfig&) = delete;
         RequestConfig& operator= (const RequestConfig&) = delete;
@@ -45,8 +45,8 @@ namespace Common::HttpSenderImpl
         std::vector<std::string> getAdditionalHeaders();
         RequestType getRequestType();
         const std::string& getCertPath();
-        std::string getServer();
-        std::string getResourceRoot();
+        const std::string& getServer();
+        const std::string& getResourceRoot();
         std::string getRequestTypeAsString();
         int getPort();
 
