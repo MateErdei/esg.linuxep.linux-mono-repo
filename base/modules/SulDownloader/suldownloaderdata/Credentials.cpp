@@ -19,7 +19,21 @@ Credentials::Credentials(const std::string& username, const std::string& passwor
 {
     if (!m_password.empty() && m_username.empty())
     {
-        throw SulDownloaderException("Invalid credentials");
+        bool throwInvalid = true;
+        try
+        {
+            auto deobfuscated = Common::ObfuscationImpl::SECDeobfuscate(password);
+            // if deobfuscated is empty, we have a username and password as empty, which is valid.
+            throwInvalid = !deobfuscated.empty();
+        }
+        catch (std::exception&)
+        {
+        }
+
+        if (throwInvalid)
+        {
+            throw SulDownloaderException("Invalid credentials");
+        }
     }
 }
 

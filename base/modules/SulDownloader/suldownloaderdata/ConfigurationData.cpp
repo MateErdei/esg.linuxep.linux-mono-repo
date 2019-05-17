@@ -16,8 +16,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <google/protobuf/util/json_util.h>
 
 #include <ConfigurationSettings.pb.h>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 namespace
 {
@@ -25,13 +25,12 @@ namespace
 
     bool hasEnvironmentProxy()
     {
-        return (
-            secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr ||
-            secure_getenv("http_proxy") != nullptr || secure_getenv("HTTP_PROXY") != nullptr);
+        return (secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr);
     }
 
-    void setProtobufEntries( const ProductSubscription & subscription,
-                             SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription )
+    void setProtobufEntries(
+        const ProductSubscription& subscription,
+        SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription)
     {
         proto_subscription->set_rigidname(subscription.rigidName());
         proto_subscription->set_baseversion(subscription.baseVersion());
@@ -39,17 +38,19 @@ namespace
         proto_subscription->set_fixversion(subscription.fixVersion());
     }
 
-    ProductSubscription getSubscription(const SulDownloaderProto::ConfigurationSettings_Subscription & proto_subscription)
+    ProductSubscription getSubscription(
+        const SulDownloaderProto::ConfigurationSettings_Subscription& proto_subscription)
     {
-        return ProductSubscription( proto_subscription.rigidname(),
-                                    proto_subscription.baseversion(),
-                                    proto_subscription.tag(),
-                                    proto_subscription.fixversion());
+        return ProductSubscription(
+            proto_subscription.rigidname(),
+            proto_subscription.baseversion(),
+            proto_subscription.tag(),
+            proto_subscription.fixversion());
     }
 
-    bool isProductSubscriptionValid( const ProductSubscription & productSubscription)
+    bool isProductSubscriptionValid(const ProductSubscription& productSubscription)
     {
-        if( productSubscription.rigidName().empty() )
+        if (productSubscription.rigidName().empty())
         {
             LOGWARN("Invalid Settings: Empty RigidName.");
             return false;
@@ -62,7 +63,6 @@ namespace
         return true;
     }
 } // namespace
-
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
@@ -243,33 +243,32 @@ bool ConfigurationData::verifySettingsAreValid()
         return false;
     }
 
-    if( !isProductSubscriptionValid(getPrimarySubscription()))
+    if (!isProductSubscriptionValid(getPrimarySubscription()))
     {
         LOGERROR("Invalid Settings: No primary product provided.");
         return false;
     }
 
-    for( auto & productSubscription: getProductsSubscription())
+    for (auto& productSubscription : getProductsSubscription())
     {
-        if( !isProductSubscriptionValid(productSubscription))
+        if (!isProductSubscriptionValid(productSubscription))
         {
             return false;
         }
     }
 
     auto features = getFeatures();
-    if( features.empty())
+    if (features.empty())
     {
         LOGERROR("Empty feature set");
         return false;
     }
 
-    if ( std::find(features.begin(), features.end(), "CORE") == features.end())
+    if (std::find(features.begin(), features.end(), "CORE") == features.end())
     {
-        LOGERROR( "CORE feature not in the feature set. ");
+        LOGERROR("CORE feature not in the feature set. ");
         return false;
     }
-
 
     auto fileSystem = Common::FileSystem::fileSystem();
 
@@ -426,12 +425,12 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     ProductSubscription primary = getSubscription(settings.primarysubscription());
     std::vector<ProductSubscription> products;
-    for( auto & ProtoSubscription : settings.products())
+    for (auto& ProtoSubscription : settings.products())
     {
-        products.emplace_back( getSubscription(ProtoSubscription));
+        products.emplace_back(getSubscription(ProtoSubscription));
     }
     std::vector<std::string> features;
-    for( auto & feature: settings.features())
+    for (auto& feature : settings.features())
     {
         features.emplace_back(feature);
     }
@@ -509,8 +508,6 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     return options;
 }
 
-
-
 std::string ConfigurationData::toJsonSettings(const ConfigurationData& configurationData)
 {
     using namespace google::protobuf::util;
@@ -541,13 +538,13 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.set_certificatepath(configurationData.getCertificatePath());
     settings.set_installationrootpath(configurationData.getInstallationRootPath());
 
-    const auto & primarySubscription = configurationData.getPrimarySubscription();
+    const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
-    for( auto & product : configurationData.getProductsSubscription())
+    for (auto& product : configurationData.getProductsSubscription())
     {
         setProtobufEntries(product, settings.add_products());
     }
-    for ( auto feature : configurationData.getFeatures())
+    for (auto feature : configurationData.getFeatures())
     {
         settings.add_features(feature);
     }
@@ -581,9 +578,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
 
 void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)
 {
-
     m_primarySubscription = productSubscription;
-
 }
 
 void ConfigurationData::setProductsSubscription(const std::vector<ProductSubscription>& productsSubscriptions)
@@ -606,14 +601,15 @@ void ConfigurationData::setFeatures(const std::vector<std::string>& features)
     m_features = features;
 }
 
-const std::vector<std::string> & ConfigurationData::getFeatures() const
+const std::vector<std::string>& ConfigurationData::getFeatures() const
 {
     return m_features;
 }
 
 const std::string ProductSubscription::toString() const
 {
-    std::stringstream  s;
-    s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag << " fixversion = " << m_fixVersion;
+    std::stringstream s;
+    s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag
+      << " fixversion = " << m_fixVersion;
     return s.str();
 }

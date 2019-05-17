@@ -18,6 +18,7 @@ namespace SulDownloader
         {
         public:
             static const std::string NoProxy;
+            static const std::string EnvironmentProxy;
 
             explicit Proxy(
                 std::string url = "",
@@ -26,6 +27,7 @@ namespace SulDownloader
             const suldownloaderdata::ProxyCredentials& getCredentials() const;
 
             const std::string& getUrl() const;
+            std::string getProxyUrlAsSulRequires() const;
 
             bool empty() const;
 

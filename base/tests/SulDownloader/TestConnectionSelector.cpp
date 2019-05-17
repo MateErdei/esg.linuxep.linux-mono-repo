@@ -4,10 +4,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ConfigurationDataBase.h"
+
 #include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include "ConfigurationDataBase.h"
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
@@ -51,7 +52,8 @@ public:
 
     ConfigurationData configFromJson(const std::string& oldPartString, const std::string& newPartString)
     {
-        return ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString(oldPartString, newPartString));
+        return ConfigurationData::fromJsonSettings(
+            ConfigurationDataBase::createJsonString(oldPartString, newPartString));
     }
 };
 
@@ -216,6 +218,83 @@ TEST_F( // NOLINT
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
+}
+
+TEST_F( // NOLINT
+    ConnectionSelectorTest,
+    shouldHandleSimpleProxyWithObfuscatedPassword)
+{
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+    std::string newString = R"("proxy": {
+                               "url": "http://testproxy.com",
+                               "credential": {
+                               "username": "",
+                               "password": "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=",
+                               "proxyType": "2"
+                                }
+                               },)";
+
+    suldownloaderdata::ConfigurationData configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+
+    // connectionCandidates should be ordered. With cache updates first.
+    ASSERT_EQ(connectionCandidates.size(), 3);
+
+    auto proxyConfig = connectionCandidates[1].getProxy();
+
+    EXPECT_EQ(proxyConfig.getUrl(), "http://testproxy.com");
+    EXPECT_EQ(proxyConfig.getCredentials().getUsername(), "");
+    EXPECT_EQ(proxyConfig.getCredentials().getDeobfuscatedPassword(), "");
+}
+
+TEST_F( // NOLINT
+    ConnectionSelectorTest,
+    shouldPrependhttp)
+{
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+    std::string newString = R"("proxy": {
+                               "url": "testproxy.com",
+                               "credential": {
+                               "username": "",
+                               "password": "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=",
+                               "proxyType": "2"
+                                }
+                               },)";
+
+    suldownloaderdata::ConfigurationData configurationData =
+        suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    ConnectionSelector selector;
+    auto connectionCandidates = selector.getConnectionCandidates(configurationData);
+
+    // connectionCandidates should be ordered. With cache updates first.
+    ASSERT_EQ(connectionCandidates.size(), 3);
+
+    auto proxyConfig = connectionCandidates[1].getProxy();
+
+    EXPECT_EQ(proxyConfig.getUrl(), "testproxy.com");
+    EXPECT_EQ(proxyConfig.getProxyUrlAsSulRequires(), "http://testproxy.com");
+    EXPECT_EQ(proxyConfig.getCredentials().getUsername(), "");
+    EXPECT_EQ(proxyConfig.getCredentials().getDeobfuscatedPassword(), "");
 }
 
 TEST_F( // NOLINT

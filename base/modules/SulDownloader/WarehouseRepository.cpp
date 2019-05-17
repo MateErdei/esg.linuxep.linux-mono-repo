@@ -48,30 +48,30 @@ namespace
         return tags;
     }
 
-    std::vector<std::string> getFeatures(SU_PHandle & product)
+    std::vector<std::string> getFeatures(SU_PHandle& product)
     {
         std::vector<std::string> features;
         int index = 0;
         while (true)
         {
-            std::string feature = SulDownloader::SulQueryProductMetadata(product, "R_Features", index );
-            if( feature.empty())
+            std::string feature = SulDownloader::SulQueryProductMetadata(product, "R_Features", index);
+            if (feature.empty())
             {
                 break;
             }
             features.emplace_back(feature);
-            index ++;
+            index++;
         }
         return features;
     }
 
-    std::string joinEntries(const std::vector<std::string> & entries)
+    std::string joinEntries(const std::vector<std::string>& entries)
     {
         std::stringstream ss;
         bool isfirst = true;
-        for( auto & entry: entries)
+        for (auto& entry : entries)
         {
-            if ( isfirst )
+            if (isfirst)
             {
                 ss << entry;
             }
@@ -103,26 +103,24 @@ namespace
         for (auto& attribute : attributes)
         {
             std::stringstream all_attributes;
-            for( int i = 0; i< 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 std::string attribute_value = SulDownloader::SulQueryProductMetadata(product, attribute, i);
-                if( attribute_value.empty())
+                if (attribute_value.empty())
                 {
                     break;
                 }
                 all_attributes << " " << attribute_value;
             }
-            LOGDEBUG(  "Tag: " << attribute << " value:"
-                               << all_attributes.str());
-
+            LOGDEBUG("Tag: " << attribute << " value:" << all_attributes.str());
         }
 
-        LOGDEBUG("Tag: features value: " << joinEntries( getFeatures(product) ));
+        LOGDEBUG("Tag: features value: " << joinEntries(getFeatures(product)));
 
         std::vector<Tag> tags(getTags(product));
-        for( auto & tag: tags)
+        for (auto& tag : tags)
         {
-           LOGDEBUG( "Product tag: label=" << tag.label << " baseversion=" << tag.baseversion << " tag=" << tag.tag);
+            LOGDEBUG("Product tag: label=" << tag.label << " baseversion=" << tag.baseversion << " tag=" << tag.tag);
         }
         LOGDEBUG("\n");
     }
@@ -147,7 +145,6 @@ namespace
               "Resubscriptions",
               "ResubscriptionsVersion" });
     }
-
 
 } // namespace
 
@@ -182,6 +179,12 @@ namespace SulDownloader
                 continue;
             }
             LOGINFO("Successfully connected to: " << warehouse->m_connectionSetup->toString());
+
+            if (SulDownloader::SulSetLanguage(warehouse->session(), "en"))
+            {
+                SULUtils::displayLogs(warehouse->session());
+                LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
+            }
 
             // for verbose it will list the entries in the warehouse
             SULUtils::displayLogs(warehouse->session());
@@ -223,16 +226,22 @@ namespace SulDownloader
 
             std::string line = SulQueryProductMetadata(product, "R_Line", 0);
             std::string name = SulQueryProductMetadata(product, "Name", 0);
+
+            if (name.empty())
+            {
+                name = SulQueryProductMetadata(product, "R_Name", 0);
+            }
+
             std::string productVersion = SulQueryProductMetadata(product, "VersionId", 0);
             std::string defaultHomePath = SulQueryProductMetadata(product, "DefaultHomeFolder", 0);
-            std::string baseVersion  = SulQueryProductMetadata(product, "ReleaseTagsBaseVersion", 0);
+            std::string baseVersion = SulQueryProductMetadata(product, "ReleaseTagsBaseVersion", 0);
             std::vector<Tag> tags(getTags(product));
 
             productInformation.setLine(line);
             productInformation.setName(name);
             productInformation.setTags(tags);
             productInformation.setVersion(productVersion);
-            productInformation.setFeatures( getFeatures(product) );
+            productInformation.setFeatures(getFeatures(product));
             productInformation.setBaseVersion(baseVersion);
             productInformation.setDefaultHomePath(defaultHomePath);
 
@@ -500,12 +509,14 @@ namespace SulDownloader
             Common::ObfuscationImpl::SecureString deobfuscatedPassword =
                 connectionSetup.getProxy().getCredentials().getDeobfuscatedPassword();
 
+            std::string proxyUrlToSul = connectionSetup.getProxy().getProxyUrlAsSulRequires();
+
             if (!SULUtils::isSuccess(SU_addUpdateSource(
                     session(),
                     updateSource.c_str(),
                     connectionSetup.getCredentials().getUsername().c_str(),
                     connectionSetup.getCredentials().getPassword().c_str(),
-                    connectionSetup.getProxy().getUrl().c_str(),
+                    proxyUrlToSul.c_str(),
                     connectionSetup.getProxy().getCredentials().getUsername().c_str(),
                     deobfuscatedPassword.c_str())))
             {
