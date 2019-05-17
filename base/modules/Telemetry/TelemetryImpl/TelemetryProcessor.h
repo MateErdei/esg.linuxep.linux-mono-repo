@@ -10,9 +10,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "../TelemetryConfig/Config.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Telemetry/TelemetryConfigImpl/Config.h>
 
 #include <utility>
 
@@ -43,4 +44,4 @@ namespace Telemetry
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
     };
-}
+} // namespace Telemetry
