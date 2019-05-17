@@ -11,19 +11,22 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
 
-#include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
-#include <Telemetry/TelemetryConfig/Config.h>
-#include <Telemetry/TelemetryConfig/TelemetryConfigSerialiser.h>
+#include <Telemetry/TelemetryConfigImpl/Config.h>
+#include <Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
 
 #include <sstream>
 #include <string>
 
 namespace Telemetry
 {
+    std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
+        std::shared_ptr<TelemetryConfigImpl::Config> telemetryConfig);
+
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::FileLoggingSetup loggerSetup("telemetry", true);
@@ -47,29 +50,13 @@ namespace Telemetry
             }
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
+            auto telemetryConfig = std::make_shared<TelemetryConfigImpl::Config>(
+                TelemetryConfigImpl::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
+            LOGDEBUG("Using configuration: " << TelemetryConfigImpl::TelemetryConfigSerialiser::serialise(*telemetryConfig));
 
-            auto config = std::make_shared<const TelemetryConfig::Config>(
-                TelemetryConfig::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
+            std::unique_ptr<TelemetryProcessor> telemetryProcessor = initialiseTelemetryProcessor(telemetryConfig);
 
-            LOGDEBUG("Using configuration: " << TelemetryConfig::TelemetryConfigSerialiser::serialise(*config));
-
-            std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
-                std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
-
-            std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
-
-            auto systemTelemetryReporter =
-                std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
-                    GL_systemTelemetryObjectsConfig,
-                    GL_systemTelemetryArraysConfig,
-                    config->getExternalProcessTimeout(),
-                    config->getExternalProcessRetries()));
-
-            telemetryProviders.emplace_back(systemTelemetryReporter);
-            TelemetryProcessor telemetryProcessor(
-                config, std::make_unique<Common::HttpSenderImpl::HttpSender>(curlWrapper), telemetryProviders);
-
-            telemetryProcessor.Run();
+            telemetryProcessor->Run();
 
             return 0;
         }
@@ -78,5 +65,28 @@ namespace Telemetry
             LOGERROR("Caught exception: " << e.what());
             return 1;
         }
+    }
+
+    std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
+        std::shared_ptr<TelemetryConfigImpl::Config> telemetryConfig)
+    {
+        std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::HttpSenderImpl::CurlWrapper>();
+
+        std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders;
+
+        auto systemTelemetryReporter =
+            std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
+                GL_systemTelemetryObjectsConfig,
+                GL_systemTelemetryArraysConfig,
+                telemetryConfig->getExternalProcessTimeout(),
+                telemetryConfig->getExternalProcessRetries()));
+
+        telemetryProviders.emplace_back(systemTelemetryReporter);
+
+        std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(
+            telemetryConfig, std::make_unique<Common::HttpSenderImpl::HttpSender>(curlWrapper), telemetryProviders);
+
+        return telemetryProcessor;
     }
 } // namespace Telemetry
