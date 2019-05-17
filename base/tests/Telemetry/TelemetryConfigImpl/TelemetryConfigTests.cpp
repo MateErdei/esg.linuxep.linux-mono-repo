@@ -6,9 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/Telemetry/TelemetryConfigImpl/Config.h>
-#include <modules/Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
-#include "json.hpp"
+#include <Telemetry/TelemetryConfigImpl/Config.h>
+#include <Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
+#include <json.hpp>
 
 using ::testing::StrictMock;
 using namespace Telemetry::TelemetryConfigImpl;

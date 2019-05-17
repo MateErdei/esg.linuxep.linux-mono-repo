@@ -53,8 +53,6 @@ namespace Common::Telemetry
 
         void mergeJsonIn(const std::string& key, const std::string& json);
 
-        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
-
         void registerResetCallback(std::string cookie, std::function<void()> function);
         void unregisterResetCallback(std::string cookie);
         void reset();
@@ -145,6 +143,7 @@ namespace Common::Telemetry
             list.emplace_back(newObj);
         }
 
+        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
         void clearData();
     };
 }
