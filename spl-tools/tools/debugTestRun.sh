@@ -81,7 +81,8 @@ pushd sspl-plugin-mdr-component
 popd
 
 pushd sspl-plugin-mdr-componentsuite
-## TODO setup input
+mkdir input
+ln -s ${STARTING_DIR}/sspl-plugin-mdr-component/output input/mdr_plugin
 ./build.sh
 popd
 
