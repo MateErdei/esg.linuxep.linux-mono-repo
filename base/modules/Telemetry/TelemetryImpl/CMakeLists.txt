@@ -30,6 +30,7 @@ target_link_libraries(telemetryimpl PUBLIC
         telemetryhelperimpl
         processimpl
         threads
+        telemetryconfigimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl
