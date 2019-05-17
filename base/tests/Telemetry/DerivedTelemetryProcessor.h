@@ -20,7 +20,7 @@ public:
         std::shared_ptr<const Telemetry::TelemetryConfig::Config> config,
         std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
         std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders) :
-        TelemetryProcessor(config, std::move(httpSender), telemetryProviders)
+        TelemetryProcessor(std::move(config), std::move(httpSender), std::move(telemetryProviders))
     {
     }
 
