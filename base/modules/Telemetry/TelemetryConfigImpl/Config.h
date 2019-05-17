@@ -9,10 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Constants.h"
 #include "MessageRelay.h"
 #include "Proxy.h"
-
 #include "Common/HttpSenderImpl/RequestConfig.h"
-
-//#include <modules/Common/ObfuscationImpl/SecureCollection.h>
 
 #include <string>
 #include <vector>
