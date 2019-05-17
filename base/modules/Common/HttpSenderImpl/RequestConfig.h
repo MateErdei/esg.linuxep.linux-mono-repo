@@ -33,7 +33,7 @@ namespace Common::HttpSenderImpl
             const std::string& resourceRoot);
 
         RequestConfig(const RequestConfig&) = delete;
-        RequestConfig& operator= (const RequestConfig&) = delete;
+        RequestConfig& operator=(const RequestConfig&) = delete;
         ~RequestConfig() = default;
 
         void setData(const std::string& data);
