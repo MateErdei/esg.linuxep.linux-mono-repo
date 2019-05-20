@@ -24,9 +24,8 @@ function update()
     if [[ -n $3 ]]
     then
         git checkout -f $3
-    else
-        git pull
     fi
+    git pull
     popd
 }
 ## Sort out SSH key
