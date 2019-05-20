@@ -15,17 +15,19 @@ function update()
     if [[ -d $2/.git ]]
     then
         pushd $2
-        git pull
+        git fetch
         popd
     else
         git clone "$1" "$2"
     fi
+    pushd $2
     if [[ -n $3 ]]
     then
-        pushd $2
         git checkout -f $3
-        popd
+    else
+        git pull
     fi
+    popd
 }
 ## Sort out SSH key
 env | sort
