@@ -38,9 +38,7 @@ namespace Common
             int run() override;
 
         protected:
-
             ProxyList m_processProxies;
-
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
         private:
             SocketHandleFunctionList m_socketHandleFunctionList;
