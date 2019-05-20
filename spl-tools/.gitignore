@@ -10,7 +10,8 @@ thininstaller
 .vagrant
 .idea
 tmpscript.sh
-auditd-output/amazon_linux
-auditd-output/centos
-auditd-output/rhel
-auditd-output/ubuntu
+auditd-output/
+FlameGraph/
+osquery/
+production_certificates/
+profiling/

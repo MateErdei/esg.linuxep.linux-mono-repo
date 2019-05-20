@@ -54,6 +54,7 @@ sudo chown -R jenkins: .
 mkdir -p /redist
 [[ -d /redist/binaries ]] || mount -t nfs allegro.eng.sophos:/redist  /redist
 
+ALLEGRO_INPUT=/redist/binaries/linux11/input
 
 if [[ -d /build/input/gcc ]]
 then
@@ -63,7 +64,7 @@ fi
 
 if [[ -d /redist/binaries/linux11/input/cmake ]]
 then
-    export PATH=/redist/binaries/linux11/input/cmake/bin:$PATH
+    export PATH=${ALLEGRO_INPUT}/cmake/bin:$PATH
 fi
 
 STARTING_DIR=$(pwd)
@@ -82,7 +83,9 @@ popd
 
 pushd sspl-plugin-mdr-componentsuite
 mkdir input
-ln -s ${STARTING_DIR}/sspl-plugin-mdr-component/output input/mdr_plugin
+ln -snf ${STARTING_DIR}/sspl-plugin-mdr-component/output input/mdr_plugin
+ln -snf ${ALLEGRO_INPUT}/dbos input/dbos
+ln -snf ${ALLEGRO_INPUT}/osquery input/osquery
 ./build.sh
 popd
 
