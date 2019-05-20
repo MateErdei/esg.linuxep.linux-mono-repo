@@ -84,7 +84,7 @@ pushd sspl-plugin-mdr-component
 popd
 
 pushd sspl-plugin-mdr-componentsuite
-mkdir input
+mkdir -p input
 ln -snf ${STARTING_DIR}/sspl-plugin-mdr-component/output input/mdr_plugin
 ln -snf ${ALLEGRO_INPUT}/dbos input/dbos
 ln -snf ${ALLEGRO_INPUT}/osquery input/osquery
