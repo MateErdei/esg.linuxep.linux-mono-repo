@@ -102,7 +102,18 @@ namespace Common
                     {
                         if (fd == socketHandleFunction.first)
                         {
-                            socketHandleFunction.second();
+                            try
+                            {
+                                socketHandleFunction.second();
+                            }
+                            catch(const std::exception & exception)
+                            {
+                                LOGERROR("Unexpected error occurred when handling socket communication: " << exception.what());
+                            }
+                            catch(...)
+                            {
+                                LOGERROR("Unknown error occurred when handling socket communication.");
+                            }
                         }
                     }
 
