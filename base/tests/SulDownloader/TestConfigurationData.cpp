@@ -358,6 +358,47 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
+        ConfigurationDataTest,
+        shouldRejectInvalidProxy)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("proxy": {
+                               "url": "noproxy:",
+                               "credential": {
+                               "username": "",
+                               "password": "",
+                               "proxyType": ""
+                                }
+                               },)";
+
+    // no username but password that does not translate to empty
+    std::string newString = R"("proxy": {
+                                "url": "http://dummyurl.com",
+                                "credential": {
+                                "username": "",
+                                "password": "password",
+                                "proxyType": "2"
+                                }
+                                },)";
+
+    EXPECT_THROW(ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)), SulDownloaderException);
+    // no username and password translate to empty
+    newString = R"("proxy": {
+                                "url": "http://dummyurl.com",
+                                "credential": {
+                                "username": "",
+                                "password": "CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=",
+                                "proxyType": "2"
+                                }
+                                },)";
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+
+    EXPECT_TRUE(configurationData.verifySettingsAreValid());
+
+}
+
+
+TEST_F( // NOLINT
     ConfigurationDataTest,
     fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyAndEnvironmentProxyShouldReturnValidObject)
 {
