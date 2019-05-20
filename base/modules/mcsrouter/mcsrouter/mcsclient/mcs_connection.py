@@ -631,6 +631,11 @@ class MCSConnection(object):
             self.close()
             return None
 
+        except MCSHttpException:
+            # Immediately raise HTTP errors, since these are coming
+            # directly from Central, so we shouldn't consider alternative routes
+            raise
+
         # Failed to get a response from the server, or the connection failed.
         # Close the connection.
         except Exception as exception:  # pylint: disable=broad-except
