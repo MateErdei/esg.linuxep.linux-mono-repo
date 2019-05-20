@@ -99,6 +99,12 @@ namespace UpdateSchedulerImpl
         {
             std::string timestamp = iFormattedTime.currentTime();
             std::string updateSource = iMapHostCacheId.cacheID(updateEvent.UpdateSource);
+            if (updateSource.empty())
+            {
+                // https://wiki.sophos.net/display/SophosCloud/EMP%3A+event-alc
+                // setting to Sophos as stated in the wiki page above
+                updateSource = "Sophos";
+            }
             std::string messageNumber = std::to_string(updateEvent.MessageNumber);
 
             return eventXML(updateEvent, timestamp, messageNumber, updateSource);

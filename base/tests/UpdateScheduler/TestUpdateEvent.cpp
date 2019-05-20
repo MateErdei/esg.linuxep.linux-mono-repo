@@ -41,8 +41,15 @@ public:
     std::unique_ptr<MockMapHostCacheId> hostCacheId()
     {
         std::unique_ptr<MockMapHostCacheId> mockRevId(new ::testing::StrictMock<MockMapHostCacheId>());
-        EXPECT_CALL(*mockRevId, cacheID(SophosURL)).WillOnce(Return("Sophos"));
+        // by default the maptoCache will return empty as the url is not an update cache.
+        EXPECT_CALL(*mockRevId, cacheID(SophosURL)).WillOnce(Return(""));
         return mockRevId;
+    }
+
+    void replaceMapHostCacheIdMock( MockMapHostCacheId * newMock)
+    {
+        (void) m_hostCacheId->cacheID(SophosURL);
+        m_hostCacheId.reset(newMock);
     }
 
     std::unique_ptr<MockFormattedTime> formattedTime()
@@ -96,6 +103,29 @@ TEST_F(TestSerializeEvent, SuccessEvent) // NOLINT
     UpdateEvent event = getEvent(DownloadReportTestBuilder::goodReport());
     runTest(event, successEventXML);
 }
+
+TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
+{
+    static const std::string successEventXML{ R"sophos(<?xml version="1.0"?>
+<event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
+  <timestamp>20180816 083654</timestamp>
+  <appInfo>
+    <number>0</number>
+  <updateSource>12345</updateSource>
+  </appInfo>
+  <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
+</event>)sophos" };
+
+    MockMapHostCacheId * mockRevId{new ::testing::StrictMock<MockMapHostCacheId>()};
+    EXPECT_CALL(*mockRevId, cacheID("cache.com:8182")).WillOnce(Return("12345"));
+    replaceMapHostCacheIdMock(mockRevId);
+    DownloadReport goodReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later,
+            true,"cache.com:8182" );
+
+    UpdateEvent event = getEvent(goodReport);
+    runTest(event, successEventXML);
+}
+
 
 TEST_F(TestSerializeEvent, installFAiledTwoProducts) // NOLINT
 {
