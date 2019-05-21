@@ -37,7 +37,7 @@ namespace Telemetry
             if (argc != 2)
             {
                 std::stringstream msg;
-                msg << "usage:" << argv[0] << "<configuration file path>";
+                msg << "usage: " << argv[0] << " <configuration file path>";
                 throw std::runtime_error(msg.str());
             }
 
@@ -64,11 +64,6 @@ namespace Telemetry
         catch (const std::runtime_error& e)
         {
             LOGERROR("Caught runtime exception: " << e.what());
-            return 1;
-        }
-        catch (const nlohmann::detail::parse_error& e)
-        {
-            LOGERROR("Caught JSON parse error: " << e.what());
             return 1;
         }
     }

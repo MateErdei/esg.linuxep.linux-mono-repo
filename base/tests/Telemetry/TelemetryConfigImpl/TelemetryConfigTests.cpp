@@ -128,13 +128,13 @@ TEST_F(TelemetryConfigTest, invalidJsonCannotBeDeserialised) // NOLINT
     std::string invalidJsonString = invalidJsonObject.dump();
 
     // Try to convert the invalidJsonString to a config object
-    EXPECT_THROW(TelemetryConfigSerialiser::deserialise(invalidJsonString), std::invalid_argument); // NOLINT
+    EXPECT_THROW(TelemetryConfigSerialiser::deserialise(invalidJsonString), std::runtime_error); // NOLINT
 }
 
 TEST_F(TelemetryConfigTest, brokenJsonCannotBeDeserialised) // NOLINT
 {
     // Try to convert broken JSON to a config object
-    EXPECT_THROW(TelemetryConfigSerialiser::deserialise("imbroken:("), nlohmann::detail::parse_error); // NOLINT
+    EXPECT_THROW(TelemetryConfigSerialiser::deserialise("imbroken:("), std::runtime_error); // NOLINT
 }
 
 TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT

@@ -104,12 +104,18 @@ namespace Telemetry::TelemetryConfigImpl
 
     Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)
     {
-        nlohmann::json j = nlohmann::json::parse(jsonString);
+        nlohmann::json j = nlohmann::json::parse(jsonString, nullptr, false);
+
+        if (j.is_discarded())
+        {
+            throw std::runtime_error("Configuration JSON is invalid");
+        }
+
         Config config = j;
 
         if (!config.isValid())
         {
-            throw std::invalid_argument("Configuration output from deserialised JSON is invalid");
+            throw std::runtime_error("Configuration output from deserialised JSON is invalid");
         }
 
         return config;
