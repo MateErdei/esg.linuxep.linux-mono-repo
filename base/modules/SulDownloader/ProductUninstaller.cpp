@@ -64,7 +64,7 @@ namespace SulDownloader
             if (productItr == downloadedProducts.end())
             {
                 LOGWARN("Uninstalling plugin " << productLine << " since it was removed from warehouse");
-                LOGWARN("Downloaded products: " << getLines(downloadedProducts));
+                LOGINFO("Downloaded products: " << getLines(downloadedProducts));
 
                 suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
