@@ -137,6 +137,40 @@ TEST_F(TelemetryConfigTest, brokenJsonCannotBeDeserialised) // NOLINT
     EXPECT_THROW(TelemetryConfigSerialiser::deserialise("imbroken:("), std::runtime_error); // NOLINT
 }
 
+TEST_F(TelemetryConfigTest, parseValidConfigJsonDirectly) // NOLINT
+{
+    const std::string validTelemetryJson = R"(
+    {
+        "telemetryServerCertificatePath": "",
+        "externalProcessWaitRetries": 10,
+        "externalProcessWaitTime": 100,
+        "headers": ["x-amz-acl: bucket-owner-full-control"],
+        "maxJsonSize": 100000,
+        "messageRelays": [],
+        "port": 443,
+        "proxies": [],
+        "resourceRoot": "linux/dev",
+        "server": "localhost",
+        "verb": "PUT"
+    })";
+
+    TelemetryConfigSerialiser::deserialise(validTelemetryJson);
+}
+
+TEST_F(TelemetryConfigTest, parseIncompleteConfigJsonDirectly) // NOLINT
+{
+    const std::string incompleteTelemetryJson = R"(
+    {
+        "port": 443,
+        "proxies": [],
+        "resourceRoot": "linux/dev",
+        "server": "localhost",
+        "verb": "PUT"
+    })";
+
+    EXPECT_THROW(TelemetryConfigSerialiser::deserialise(incompleteTelemetryJson), std::runtime_error); // NOLINT
+}
+
 TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT
 {
     Config customConfig = m_config;

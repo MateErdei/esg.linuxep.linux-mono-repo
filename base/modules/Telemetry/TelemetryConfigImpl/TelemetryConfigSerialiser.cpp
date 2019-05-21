@@ -6,6 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryConfigSerialiser.h"
 
+#include <Telemetry/LoggerImpl/Logger.h>
+
 #include <iostream>
 #include <json.hpp>
 
@@ -104,18 +106,25 @@ namespace Telemetry::TelemetryConfigImpl
 
     Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)
     {
-        nlohmann::json j = nlohmann::json::parse(jsonString, nullptr, false);
+        Config config;
 
-        if (j.is_discarded())
+        try
         {
-            throw std::runtime_error("Configuration JSON is invalid");
+            nlohmann::json j = nlohmann::json::parse(jsonString);
+            config = j;
         }
-
-        Config config = j;
+        // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
+        catch (nlohmann::detail::exception& e)
+        {
+            std::stringstream msg;
+            msg << "Configuration JSON is invalid: " << e.what();
+            LOGERROR(msg.str());
+            throw std::runtime_error(msg.str());
+        }
 
         if (!config.isValid())
         {
-            throw std::runtime_error("Configuration output from deserialised JSON is invalid");
+            throw std::runtime_error("Configuration from deserialised JSON is invalid");
         }
 
         return config;
