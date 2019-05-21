@@ -44,7 +44,10 @@ class CommandCheckInterval(object):
     """
     CommandCheckInterval
     """
-    DEFAULT_COMMAND_POLLING_INTERVAL = 20
+    # seconds*minutes
+    DEFAULT_MAX_POLLING_INTERVAL = 60*30
+    DEFAULT_MIN_POLLING_INTERVAL = 20
+
 
     def __init__(self, config):
         """
@@ -75,7 +78,7 @@ class CommandCheckInterval(object):
         """
         interval_min = self.__m_config.get_int(
             "COMMAND_CHECK_INTERVAL_MINIMUM",
-            self.DEFAULT_COMMAND_POLLING_INTERVAL)
+            self.DEFAULT_MIN_POLLING_INTERVAL)
         if self.__m_command_check_interval_minimum != interval_min:
             self.__m_command_check_interval_minimum = interval_min
             LOGGER.debug("COMMAND_CHECK_INTERVAL_MINIMUM=%d", interval_min)
@@ -87,7 +90,7 @@ class CommandCheckInterval(object):
         """
         interval_max = self.__m_config.get_int(
             "COMMAND_CHECK_INTERVAL_MAXIMUM",
-            self.DEFAULT_COMMAND_POLLING_INTERVAL)
+            self.DEFAULT_MAX_POLLING_INTERVAL)
         if self.__m_command_check_interval_maximum != interval_max:
             self.__m_command_check_interval_maximum = interval_max
             LOGGER.debug("COMMAND_CHECK_INTERVAL_MAXIMUM=%d", interval_max)
@@ -117,7 +120,8 @@ class CommandCheckInterval(object):
         set_on_error
         """
         max_retry_number = self.__m_command_check_maximum_retry_number
-        retry_number = min(error_count + 1, max_retry_number)
+        number_of_retries = min(error_count -1, max_retry_number)
+
         if transient:
             base_retry_delay = self.__m_command_check_base_retry_delay
         else:
@@ -130,11 +134,13 @@ class CommandCheckInterval(object):
         ###     retry_delay = random(base_retry_delay * 2 ^ (retry_number - 1))
         # Where random is a function that generates a random number in the
         # range 0 to the value of its parameter
+        delay_upper_bound = base_retry_delay * (2 ** (number_of_retries))
+        delay_lower_bound = base_retry_delay * (2 ** (number_of_retries -1))
         retry_delay = random.uniform(
-            0, base_retry_delay * (2 ** (retry_number - 1)))
+            delay_lower_bound, delay_upper_bound)
         self.set(retry_delay)
-        LOGGER.info("[backoff] waiting %fs after %d failures",
-                    self.__m_command_check_interval, error_count)
+        LOGGER.info("[backoff] waiting up to %fs after %d failures",
+                    delay_upper_bound, error_count)
 
 
 class MCS(object):
@@ -352,7 +358,7 @@ class MCS(object):
         # pylint: disable=too-many-nested-blocks
         try:
             while running:
-                timeout = self.__m_command_check_interval.get()
+                timeoutCompensation = 0
                 before_time = time.time()
 
                 try:
@@ -423,7 +429,8 @@ class MCS(object):
                             "Next command check in %.2f s",
                             self.__m_command_check_interval.get())
 
-                    timeout = self.__m_command_check_interval.get() - (time.time() - last_commands)
+                    timeoutCompensation = self.__m_command_check_interval.get() - (time.time() - last_commands)
+
 
                     # Check to see if any adapters have new status
                     if self.__m_computer.has_status_changed() \
@@ -542,6 +549,9 @@ class MCS(object):
                     timeout = min(
                         self.__m_status_timer.relative_time(), timeout)
                     timeout = min(events_timer.relative_time(), timeout)
+                else:
+                    timeout = self.__m_command_check_interval.get()
+                    timeout -= timeoutCompensation
 
                 # Avoid busy looping and negative timeouts
                 timeout = max(0.5, timeout)
@@ -555,7 +565,7 @@ class MCS(object):
                             [],
                             [],
                             timeout)
-                    # pylint: enable=unused-variable
+                # pylint: enable=unused-variable
                     after = time.time()
                 except select.error as exception:
                     if exception.args[0] == errno.EINTR:
