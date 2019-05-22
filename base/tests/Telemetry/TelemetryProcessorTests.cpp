@@ -43,7 +43,11 @@ public:
         Tests::replaceFileSystem(std::move(mockfileSystem));
     }
 
-    void TearDown() override { Tests::restoreFileSystem(); }
+    void TearDown() override
+    {
+        Tests::restoreFilePermissions();
+        Tests::restoreFileSystem();
+    }
 };
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT

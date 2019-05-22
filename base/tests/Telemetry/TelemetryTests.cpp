@@ -30,7 +30,7 @@ class TelemetryTest : public ::testing::Test
 public:
     StrictMock<MockHttpSender> m_httpSender;
     std::vector<std::string> m_additionalHeaders;
-    const char* m_data = R"("{"mock-telemetry-provider":{"mockKey":"mockValue"}}")";
+    const char* m_data = R"({"mock-telemetry-provider":{"mockKey":"mockValue"}})";
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
     std::string m_binaryPath = "/opt/sophos-spl/base/bin/telemetry";
     MockFilePermissions* m_mockFilePermissions = nullptr;
@@ -87,7 +87,11 @@ public:
         m_defaultRequestConfig->setData(m_data);
     }
 
-    void TearDown() override { Tests::restoreFileSystem(); }
+    void TearDown() override
+    {
+        Tests::restoreFilePermissions();
+        Tests::restoreFileSystem();
+    }
 };
 
 class TelemetryTestRequestTypes : public TelemetryTest, public ::testing::WithParamInterface<std::string>
