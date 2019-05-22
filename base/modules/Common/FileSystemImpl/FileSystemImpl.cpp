@@ -391,7 +391,7 @@ namespace Common
                 );
             }
             {
-                std::ifstream ifs(src);
+                std::ifstream ifs(src, std::ios::binary);
                 if (!ifs.good())
                 {
                     throw IFileSystemException(
@@ -399,7 +399,7 @@ namespace Common
                     );
                 }
 
-                std::ofstream ofs(dest);
+                std::ofstream ofs(dest, std::ios::binary);
                 ofs << ifs.rdbuf();
             }
             if (!fileSystem->exists(dest))
@@ -408,7 +408,7 @@ namespace Common
                         "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created."
                 );
             }
-            if ((fileSystem->fileSize(src) != fileSystem->fileSize(dest)))
+            if (fileSystem->fileSize(src) != 0 && fileSystem->fileSize(dest) == 0)
             {
                 fileSystem->removeFile(dest);
                 throw IFileSystemException(

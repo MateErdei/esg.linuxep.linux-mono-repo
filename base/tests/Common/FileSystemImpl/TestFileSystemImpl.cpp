@@ -476,7 +476,7 @@ namespace
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
-        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));  //NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
