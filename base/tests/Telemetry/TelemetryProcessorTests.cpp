@@ -35,12 +35,12 @@ public:
 
     void SetUp() override
     {
-        std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
-        m_mockFileSystem = mockfileSystem.get();
-        Tests::replaceFileSystem(std::move(mockfileSystem));
         std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
         m_mockFilePermissions = mockfilePermissions.get();
         Tests::replaceFilePermissions(std::move(mockfilePermissions));
+        std::unique_ptr<MockFileSystem> mockfileSystem(new StrictMock<MockFileSystem>());
+        m_mockFileSystem = mockfileSystem.get();
+        Tests::replaceFileSystem(std::move(mockfileSystem));
     }
 
     void TearDown() override { Tests::restoreFileSystem(); }
@@ -129,7 +129,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWriteOutJson) // NOLINT
 
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
-
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
