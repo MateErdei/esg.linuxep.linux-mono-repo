@@ -1,5 +1,3 @@
-#include <utility>
-
 /******************************************************************************************************
 
 Copyright 2019, Sophos Limited.  All rights reserved.
@@ -12,6 +10,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+
+#include <sys/stat.h>
+#include <utility>
 
 using namespace Telemetry;
 using namespace Common::Telemetry;
@@ -40,7 +41,7 @@ void TelemetryProcessor::gatherTelemetry()
         }
         catch (std::exception& ex)
         {
-            LOGDEBUG("Could not get telemetry from one of the telemetry providers.");
+            LOGWARN("Could not get telemetry from one of the telemetry providers. Exception: " << ex.what());
         }
     }
 }
@@ -48,7 +49,7 @@ void TelemetryProcessor::gatherTelemetry()
 void TelemetryProcessor::saveAndSendTelemetry()
 {
     Path jsonOutputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
-    LOGDEBUG("Saving telemetry to file: " << jsonOutputFile);
+    LOGINFO("Saving telemetry to file: " << jsonOutputFile);
 
     std::string json = getSerialisedTelemetry();
 
@@ -59,10 +60,11 @@ void TelemetryProcessor::saveAndSendTelemetry()
         throw std::invalid_argument(msg.str());
     }
 
-    // TODO send telem LINUXEP-6637
+    // TODO: LINUXEP-7991 move sending here
 
     // Will overwrite data each time.
     Common::FileSystem::fileSystem()->writeFile(jsonOutputFile, json);
+    Common::FileSystem::filePermissions()->chmod(jsonOutputFile, S_IRUSR | S_IWUSR);
 }
 
 std::string TelemetryProcessor::getSerialisedTelemetry()

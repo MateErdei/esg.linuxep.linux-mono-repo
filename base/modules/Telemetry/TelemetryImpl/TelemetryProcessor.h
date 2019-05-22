@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ITelemetryProvider.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
