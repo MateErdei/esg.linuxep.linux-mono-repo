@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 
@@ -102,7 +103,14 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
         std::string errorMessage = "Request policies failed with error: ";
         errorMessage += reply.m_error;
         LOGERROR(errorMessage);
-        throw Common::PluginApi::ApiException(errorMessage);
+        if (reply.m_error.find("No policy available"))
+        {
+            throw Common::PluginApi::NoPolicyAvailableException(errorMessage);
+        }
+        else
+        {
+            throw Common::PluginApi::ApiException(errorMessage);
+        }
     }
 
     LOGSUPPORT("Received policy from management agent for AppId: " << appId);

@@ -23,6 +23,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <csignal>
 #include <thread>
+#include <Common/PluginApi/NoPolicyAvailableException.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -69,9 +70,14 @@ namespace UpdateSchedulerImpl
         {
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
         }
+        catch (const Common::PluginApi::NoPolicyAvailableException& )
+        {
+            // Ignore no Policy Available errors
+        }
         catch (const Common::PluginApi::ApiException& apiException)
         {
             std::string errorMsg(apiException.what());
+            assert(!errorMsg.find("No policy available"));
             if (!errorMsg.find("No policy available"))
             {
                 LOGERROR("Unexpected error when requesting policy: " << apiException.what());
