@@ -496,8 +496,11 @@ namespace
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
-        tempdir.createFile("A", "FOOBAR");
-        Common::FileSystem::filePermissions()->chmod(A, S_IWUSR); //write only permissions
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        //With wrong permissions file will exist but not open
+        EXPECT_CALL(*mockFileSystem, exists(A)).WillOnce(Return(true));
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
         copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', reading file failed.");
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
@@ -514,11 +517,12 @@ namespace
 
     TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent)  // NOLINT
     {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path src = tempdir.absPath("A");
         Path dest = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
+
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*mockFileSystem, exists(src)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, exists(dest)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, fileSize(src)).WillOnce(Return(1));
