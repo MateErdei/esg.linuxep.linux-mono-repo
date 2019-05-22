@@ -53,7 +53,7 @@ namespace
         {
             try
             {
-                m_fileSystem->copyFile(src, dest); // NOLINT
+                m_fileSystem->copyFile(src, dest);
                 FAIL();
             }
             catch ( const IFileSystemException& ex )

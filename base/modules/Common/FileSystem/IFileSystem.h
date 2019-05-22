@@ -236,5 +236,3 @@ namespace Common
         IFileSystem* fileSystem();
     } // namespace FileSystem
 } // namespace Common
-
-
