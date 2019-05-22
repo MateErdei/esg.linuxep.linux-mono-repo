@@ -50,4 +50,5 @@ public:
     MOCK_CONST_METHOD1(makedirs, void(const Path& path));
     MOCK_CONST_METHOD1(makeAbsolute, Path(const Path& path));
     MOCK_CONST_METHOD1(readlink, Path(const Path& path));
+    MOCK_CONST_METHOD1(fileSize, off_t(const Path& path));
 };

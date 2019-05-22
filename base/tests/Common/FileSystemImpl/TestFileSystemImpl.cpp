@@ -5,10 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TempDir.h>
 
 #include <fstream>
 
@@ -35,11 +38,29 @@ namespace
         ASSERT_EQ(ret, 0);
     }
 
+
     class FileSystemImplTest : public ::testing::Test
     {
     public:
+        ~FileSystemImplTest()
+        {
+            Tests::restoreFileSystem();
+        }
         std::unique_ptr<IFileSystem> m_fileSystem;
         void SetUp() override { m_fileSystem.reset(new FileSystemImpl()); }
+
+        void copyFileAndExpectThrow(const Path & src, const Path & dest, const std::string & message)
+        {
+            try
+            {
+                m_fileSystem->copyFile(src, dest); // NOLINT
+                FAIL();
+            }
+            catch ( const IFileSystemException& ex )
+            {
+                EXPECT_EQ(ex.what(), message);
+            }
+        }
     };
 
     TEST_F(FileSystemImplTest, basenameReturnsCorrectMatchingValue) // NOLINT
@@ -455,7 +476,7 @@ namespace
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
-        m_fileSystem->copyFile(A, B);
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
@@ -466,7 +487,18 @@ namespace
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
-        EXPECT_ANY_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
+        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', source file does not exist.");; // NOLINT
+        EXPECT_FALSE(m_fileSystem->exists(B));
+    }
+
+    TEST_F(FileSystemImplTest, copyFileWrongPermissions) // NOLINT
+    {
+        Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
+        Path A = tempdir.absPath("A");
+        Path B = tempdir.absPath("B");
+        tempdir.createFile("A", "FOOBAR");
+        Common::FileSystem::filePermissions()->chmod(A, S_IWUSR); //write only permissions
+        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', reading file failed.");
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
@@ -475,8 +507,27 @@ namespace
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = Common::FileSystem::join("NotADirectory", "NotAFile");
-        EXPECT_ANY_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
+        tempdir.createFile("A", "FOOBAR");
+        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', dest file was not created.");
         EXPECT_FALSE(m_fileSystem->exists(B));
+    }
+
+    TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent)  // NOLINT
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
+        Path src = tempdir.absPath("A");
+        Path dest = tempdir.absPath("B");
+        tempdir.createFile("A", "FOOBAR");
+        EXPECT_CALL(*mockFileSystem, exists(src)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, exists(dest)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, fileSize(src)).WillOnce(Return(1));
+        EXPECT_CALL(*mockFileSystem, fileSize(dest)).WillOnce(Return(2));
+        EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+        copyFileAndExpectThrow(src, dest, "Failed to copy file: '" + src + "' to '" + dest +
+                                          "', contents failed to copy. Check space available on device.");
     }
 
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT

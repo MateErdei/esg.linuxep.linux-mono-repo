@@ -383,26 +383,38 @@ namespace Common
 
         void FileSystemImpl::copyFile(const Path& src, const Path& dest) const
         {
-            if (!FileSystem::fileSystem()->exists(src))
+            auto* fileSystem = FileSystem::fileSystem();
+            if (!fileSystem->exists(src))
             {
                 throw IFileSystemException(
-                    "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
+                        "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist."
+                );
             }
             {
                 std::ifstream ifs(src);
                 if (!ifs.good())
                 {
                     throw IFileSystemException(
-                        "Failed to copy file: '" + src + "' to '" + dest + "', ifstream had errors.");
+                            "Failed to copy file: '" + src + "' to '" + dest + "', reading file failed."
+                    );
                 }
 
                 std::ofstream ofs(dest);
                 ofs << ifs.rdbuf();
             }
-            if (!FileSystem::fileSystem()->exists(dest))
+            if (!fileSystem->exists(dest))
             {
                 throw IFileSystemException(
-                    "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
+                        "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created."
+                );
+            }
+            if ((fileSystem->fileSize(src) != fileSystem->fileSize(dest)))
+            {
+                fileSystem->removeFile(dest);
+                throw IFileSystemException(
+                        "Failed to copy file: '" + src + "' to '" + dest +
+                        "', contents failed to copy. Check space available on device."
+                );
             }
         }
 
@@ -532,7 +544,7 @@ namespace Common
             removeFile(dir);
         }
 
-        Path FileSystemImpl::make_absolute(const Path& path) const
+        Path FileSystemImpl::makeAbsolute(const Path& path) const
         {
             if (path[0] == '/')
             {
@@ -591,6 +603,30 @@ namespace Common
             (void)closedir(directoryPtr);
 
             return dirs;
+        }
+
+        Path FileSystemImpl::readlink(const Path& path) const
+        {
+            char linkPath[PATH_MAX + 1];
+            ssize_t ret = ::readlink(path.c_str(), linkPath, PATH_MAX);
+            if (ret > 0)
+            {
+                linkPath[ret] = 0;
+                linkPath[PATH_MAX] = 0;
+                return makeAbsolute(linkPath);
+            }
+            return Path();
+        }
+
+        off_t FileSystemImpl::fileSize(const Path & path ) const
+        {
+            struct stat statbuf; // NOLINT
+            int ret = stat(path.c_str(), &statbuf);
+            if (ret != 0)
+            { // if it does not exists, it is not executable
+                return -1;
+            }
+            return statbuf.st_size;
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()

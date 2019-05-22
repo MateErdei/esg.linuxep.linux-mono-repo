@@ -217,6 +217,13 @@ namespace Common
              * @return pathLinkedTo
              */
             virtual Path readlink(const Path& path) const = 0;
+
+            /**
+             * Return the size in bytes of the file at path location
+             * @param path
+             * @return
+             */
+            virtual off_t fileSize(const Path & path ) const = 0;
         };
 
         /**
@@ -229,3 +236,5 @@ namespace Common
         IFileSystem* fileSystem();
     } // namespace FileSystem
 } // namespace Common
+
+

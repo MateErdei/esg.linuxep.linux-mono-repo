@@ -34,7 +34,7 @@ namespace Common
              */
             virtual bool isSymlink(const Path& path) const override;
 
-            Path make_absolute(const Path& path) const override;
+            Path makeAbsolute(const Path& path) const override;
 
             Path currentWorkingDirectory() const override;
 
@@ -64,7 +64,9 @@ namespace Common
 
             void removeFileOrDirectory(const Path& path) const override;
 
+            Path readlink(const Path& path) const override;
 
+            off_t fileSize(const Path & path ) const override;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();
