@@ -137,7 +137,7 @@ TEST_F(TelemetryConfigTest, brokenJsonCannotBeDeserialised) // NOLINT
     EXPECT_THROW(TelemetryConfigSerialiser::deserialise("imbroken:("), std::runtime_error); // NOLINT
 }
 
-TEST_F(TelemetryConfigTest, parseValidConfigJsonDirectly) // NOLINT
+TEST_F(TelemetryConfigTest, parseValidConfigJsonDirectlySucceeds) // NOLINT
 {
     const std::string validTelemetryJson = R"(
     {
@@ -157,9 +157,9 @@ TEST_F(TelemetryConfigTest, parseValidConfigJsonDirectly) // NOLINT
     TelemetryConfigSerialiser::deserialise(validTelemetryJson);
 }
 
-TEST_F(TelemetryConfigTest, parseIncompleteConfigJsonDirectly) // NOLINT
+TEST_F(TelemetryConfigTest, parseSubsetConfigJsonDirectlySucceeds) // NOLINT
 {
-    const std::string incompleteTelemetryJson = R"(
+    const std::string subsetTelemetryJson = R"(
     {
         "port": 443,
         "proxies": [],
@@ -168,7 +168,28 @@ TEST_F(TelemetryConfigTest, parseIncompleteConfigJsonDirectly) // NOLINT
         "verb": "PUT"
     })";
 
-    EXPECT_THROW(TelemetryConfigSerialiser::deserialise(incompleteTelemetryJson), std::runtime_error); // NOLINT
+    TelemetryConfigSerialiser::deserialise(subsetTelemetryJson);
+}
+
+TEST_F(TelemetryConfigTest, parseSupersetConfigJsonDirectlySucceeds) // NOLINT
+{
+    const std::string supersetTelemetryJson = R"(
+    {
+        "telemetryServerCertificatePath": "",
+        "externalProcessWaitRetries": 10,
+        "externalProcessWaitTime": 100,
+        "headers": ["x-amz-acl: bucket-owner-full-control"],
+        "maxJsonSize": 100000,
+        "messageRelays": [],
+        "CURRENTLY_UNKNOWN" : "extra",
+        "port": 443,
+        "proxies": [],
+        "resourceRoot": "linux/dev",
+        "server": "localhost",
+        "verb": "PUT"
+    })";
+
+    TelemetryConfigSerialiser::deserialise(supersetTelemetryJson);
 }
 
 TEST_F(TelemetryConfigTest, UnauthenticatedProxyWithoutCredentials) // NOLINT

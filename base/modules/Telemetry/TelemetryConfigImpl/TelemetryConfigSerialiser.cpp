@@ -45,7 +45,7 @@ namespace Telemetry::TelemetryConfigImpl
     void to_json(nlohmann::json& j, const Config& config)
     {
         j = nlohmann::json{ { "server", config.getServer() },
-                            { "resourceRoute", config.getResourceRoute() },
+                            { "resourceRoot", config.getResourceRoot() },
                             { "port", config.getPort() },
                             { "headers", config.getHeaders() },
                             { "verb", config.getVerb() },
@@ -79,17 +79,17 @@ namespace Telemetry::TelemetryConfigImpl
 
     void from_json(const nlohmann::json& j, Config& config)
     {
-        config.setServer(j.at("server"));
-        config.setResourceRoute(j.at("resourceRoute"));
-        config.setPort(j.at("port"));
-        config.setHeaders(j.at("headers"));
-        config.setVerb(j.at("verb"));
-        config.setProxies(j.at("proxies"));
-        config.setMessageRelays(j.at("messageRelays"));
-        config.setExternalProcessWaitTime(j.at("externalProcessWaitTime"));
-        config.setExternalProcessWaitRetries(j.at("externalProcessWaitRetries"));
-        config.setMaxJsonSize(j.at("maxJsonSize"));
-        config.setTelemetryServerCertificatePath(j.at("telemetryServerCertificatePath"));
+        if (j.contains("server")) config.setServer(j.at("server"));
+        if (j.contains("resourceRoot")) config.setResourceRoot(j.at("resourceRoot"));
+        if (j.contains("port")) config.setPort(j.at("port"));
+        if (j.contains("headers")) config.setHeaders(j.at("headers"));
+        if (j.contains("verb")) config.setVerb(j.at("verb"));
+        if (j.contains("proxies")) config.setProxies(j.at("proxies"));
+        if (j.contains("messageRelays")) config.setMessageRelays(j.at("messageRelays"));
+        if (j.contains("externalProcessWaitTime")) config.setExternalProcessWaitTime(j.at("externalProcessWaitTime"));
+        if (j.contains("externalProcessWaitRetries")) config.setExternalProcessWaitRetries(j.at("externalProcessWaitRetries"));
+        if (j.contains("maxJsonSize")) config.setMaxJsonSize(j.at("maxJsonSize"));
+        if (j.contains("telemetryServerCertificatePath")) config.setTelemetryServerCertificatePath(j.at("telemetryServerCertificatePath"));
     }
 
     std::string TelemetryConfigSerialiser::serialise(const Config& config)
