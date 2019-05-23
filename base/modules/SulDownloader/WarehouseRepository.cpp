@@ -178,9 +178,8 @@ namespace SulDownloader
                 LOGINFO("Failed to connect to: " << warehouse->m_connectionSetup->toString());
                 continue;
             }
-            LOGINFO("Successfully connected to: " << warehouse->m_connectionSetup->toString());
 
-            if (SulDownloader::SulSetLanguage(warehouse->session(), "en"))
+            if (!SulDownloader::SulSetLanguage(warehouse->session(), "en"))
             {
                 SULUtils::displayLogs(warehouse->session());
                 LOGWARN("Failed to set language for warehouse session: " << warehouse->m_connectionSetup->toString());
@@ -188,6 +187,7 @@ namespace SulDownloader
 
             // for verbose it will list the entries in the warehouse
             SULUtils::displayLogs(warehouse->session());
+            LOGINFO("Successfully connected to: "<< warehouse->m_connectionSetup->toString());
             warehouse->m_state = State::Connected;
 
             // store values from configuration data for later use.
