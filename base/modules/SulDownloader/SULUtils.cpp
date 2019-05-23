@@ -111,7 +111,7 @@ namespace SulDownloader
 
         for (auto& log : SulLogs(ses))
         {
-            LOGINFO(log);
+            LOGSUPPORT(log);
         }
     }
 
