@@ -5,6 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TelemetryScheduler.h"
+
+#include <Common/Logging/FileLoggingSetup.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <stdexcept>
@@ -13,6 +15,8 @@ namespace TelemetrySchedulerImpl
 {
     int main_entry()
     {
+        Common::Logging::FileLoggingSetup loggerSetup("telemetryScheduler", true);
+
         try
         {
             LOGINFO("Telemetry Scheduler running...");
