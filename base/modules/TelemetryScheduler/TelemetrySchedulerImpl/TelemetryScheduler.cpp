@@ -9,7 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <stdexcept>
 
-namespace TelemetryScheduler
+namespace TelemetrySchedulerImpl
 {
     int main_entry()
     {
