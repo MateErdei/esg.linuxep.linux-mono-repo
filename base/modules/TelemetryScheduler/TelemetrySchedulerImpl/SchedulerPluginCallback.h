@@ -16,7 +16,7 @@ namespace TelemetrySchedulerImpl
     class SchedulerPluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
     public:
-        explicit SchedulerPluginCallback();
+        explicit SchedulerPluginCallback(); // TODO: pass in task queue - see UpdateScheduler for example
 
         void applyNewPolicy(const std::string& policyXml) override;
 

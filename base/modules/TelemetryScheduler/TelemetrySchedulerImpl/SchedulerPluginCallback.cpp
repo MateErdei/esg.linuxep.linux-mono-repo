@@ -13,6 +13,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
+    // TODO: add task queue use - see UpdateScheduler for example
+
     SchedulerPluginCallback::SchedulerPluginCallback() :
         m_statusInfo(),
         m_shutdownReceived(false)

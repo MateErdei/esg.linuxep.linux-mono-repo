@@ -28,12 +28,16 @@ namespace TelemetrySchedulerImpl
             std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
                 Common::PluginApi::createPluginResourceManagement();
 
+            // TODO: create task queue
+            
             auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>();
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
 
             try
             {
                 // baseService = resourceManagement->createPluginAPI("tscheduler", sharedPluginCallBack);
+
+                // add TelemetrySchedulerProcessor initialisation
             }
             catch (const Common::PluginApi::ApiException& apiException)
             {
