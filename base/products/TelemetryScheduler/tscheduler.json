@@ -1,0 +1,7 @@
+{
+  "policyAppIds": [],
+  "statusAppIds": [],
+  "pluginName": "tscheduler",
+  "executableFullPath": "base/bin/TScheduler",
+  "executableUserAndGroup": "root:root"
+}
