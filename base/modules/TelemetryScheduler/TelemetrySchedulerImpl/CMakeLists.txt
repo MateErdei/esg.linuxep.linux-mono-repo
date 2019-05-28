@@ -1,9 +1,13 @@
 add_library(telemetryschedulerimpl SHARED
-        TelemetryScheduler.cpp
-        TelemetryScheduler.h
-        SchedulerPluginCallback.cpp
-        SchedulerPluginCallback.h
-        )
+        Scheduler.cpp
+        Scheduler.h
+        PluginCallback.cpp
+        PluginCallback.h
+        SchedulerProcessor.cpp
+        SchedulerProcessor.h
+        SchedulerTask.h
+        TaskQueue.cpp
+        TaskQueue.h)
 
 include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR})
 

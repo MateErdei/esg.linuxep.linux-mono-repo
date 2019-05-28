@@ -1,22 +1,23 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2019 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
+#include "TaskQueue.h"
+
 #include <Common/PluginApi/IPluginCallbackApi.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <atomic>
 
-namespace TelemetrySchedulerImpl
+namespace SchedulerImpl
 {
-    class SchedulerPluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
+    class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
     public:
-        explicit SchedulerPluginCallback(); // TODO: pass in task queue - see UpdateScheduler for example
+        explicit PluginCallback(std::shared_ptr<TaskQueue> taskQueue);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
@@ -32,7 +33,8 @@ namespace TelemetrySchedulerImpl
         bool shutdownReceived();
 
     private:
-        Common::PluginApi::StatusInfo m_statusInfo;
         std::atomic<bool> m_shutdownReceived;
+        std::shared_ptr<TaskQueue> m_taskQueue;
+        Common::PluginApi::StatusInfo m_statusInfo;
     };
-}; // namespace TelemetrySchedulerImpl
+} // namespace TelemetrySchedulerImpl

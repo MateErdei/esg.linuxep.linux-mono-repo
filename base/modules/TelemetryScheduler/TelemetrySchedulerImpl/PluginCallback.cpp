@@ -1,0 +1,60 @@
+/******************************************************************************************************
+
+Copyright 2019 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "PluginCallback.h"
+
+#include <Common/PluginApi/ApiException.h>
+#include <TelemetryScheduler/LoggerImpl/Logger.h>
+
+#include <utility>
+
+namespace SchedulerImpl
+{
+    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> taskQueue) :
+        m_shutdownReceived(false),
+        m_taskQueue(std::move(taskQueue)),
+        m_statusInfo()
+    {
+        LOGDEBUG("Plugin callback started");
+    }
+
+    void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
+    {
+        LOGSUPPORT("Not applying unexpected new policy");
+    }
+
+    void PluginCallback::queueAction(const std::string& /*actionXml*/)
+    {
+        LOGSUPPORT("Received unexpected action");
+    }
+
+    void PluginCallback::onShutdown()
+    {
+        LOGSUPPORT("Shutdown signal received");
+        m_shutdownReceived = true;
+        m_taskQueue->push(Task { Task::TaskType::ShutdownReceived });
+    }
+
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)
+    {
+        LOGSUPPORT("Received unexpected get status request");
+        return m_statusInfo;
+    }
+
+    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
+    {
+        LOGSUPPORT("Setting status");
+        m_statusInfo = std::move(statusInfo);
+    }
+
+    std::string PluginCallback::getTelemetry()
+    {
+        LOGSUPPORT("Received telemetry request");
+        return std::string(); // TODO: LINUXEP-7988
+    }
+
+    bool PluginCallback::shutdownReceived() { return m_shutdownReceived; }
+} // namespace TelemetrySchedulerImpl

@@ -4,18 +4,22 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TelemetryScheduler.h"
+#include "Scheduler.h"
 
-#include "SchedulerPluginCallback.h"
+#include "PluginCallback.h"
+#include "SchedulerProcessor.h"
+#include "TaskQueue.h"
 
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
+#include <Common/TaskQueue/ITaskQueue.h>
+#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <stdexcept>
 
-namespace TelemetrySchedulerImpl
+namespace SchedulerImpl
 {
     int main_entry()
     {
@@ -28,22 +32,12 @@ namespace TelemetrySchedulerImpl
             std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
                 Common::PluginApi::createPluginResourceManagement();
 
-            // TODO: create task queue
-            
-            auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>();
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
+            auto taskQueue = std::make_shared<TaskQueue>();
+            auto pluginCallBack = std::make_shared<PluginCallback>(taskQueue);
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI("tscheduler", pluginCallBack);
 
-            try
-            {
-                // baseService = resourceManagement->createPluginAPI("tscheduler", sharedPluginCallBack);
-
-                // add TelemetrySchedulerProcessor initialisation
-            }
-            catch (const Common::PluginApi::ApiException& apiException)
-            {
-                LOGERROR(apiException.what());
-                throw;
-            }
+            SchedulerProcessor telemetrySchedulerProcessor(taskQueue, std::move(baseService), pluginCallBack);
+            telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");
         }
