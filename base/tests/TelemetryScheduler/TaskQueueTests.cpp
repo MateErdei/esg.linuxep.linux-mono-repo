@@ -55,9 +55,9 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     TaskQueue queue;
     Task taskOut;
     milliseconds measuredDelay(0);
+    steady_clock::time_point start = steady_clock::now();
 
     std::thread popThread([&] {
-      steady_clock::time_point start = steady_clock::now();
       taskOut = queue.pop();
       measuredDelay = duration_cast<milliseconds>(steady_clock::now() - start);
     });
