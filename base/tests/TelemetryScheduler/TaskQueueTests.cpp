@@ -30,7 +30,7 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const std::vector<Task> tasksIn = { Task::ShutdownReceived, Task::WaitToRunTelemetry, Task::RunTelemetry };
+    const std::vector<Task> tasksIn = { Task::Shutdown, Task::WaitToRunTelemetry, Task::RunTelemetry };
 
     for (auto task : tasksIn)
     {
@@ -72,4 +72,20 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     EXPECT_EQ(taskOut, taskIn);
     EXPECT_GE(measuredDelay.count(), delay.count());
+}
+
+TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
+{
+    TaskQueue queue;
+    const Task priorityTask = Task::Shutdown;
+    const Task normalTask = Task::WaitToRunTelemetry;
+
+    queue.push(normalTask);
+    queue.pushPriority(priorityTask);
+
+    Task taskOut1 = queue.pop();
+    EXPECT_EQ(taskOut1, priorityTask);
+
+    Task taskOut2 = queue.pop();
+    EXPECT_EQ(taskOut2, normalTask);
 }

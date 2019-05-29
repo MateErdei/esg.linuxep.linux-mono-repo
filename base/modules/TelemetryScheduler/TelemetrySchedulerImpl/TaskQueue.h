@@ -19,6 +19,7 @@ namespace TelemetrySchedulerImpl
     {
     public:
         void push(Task);
+        void pushPriority(Task);
         Task pop();
 
     private:

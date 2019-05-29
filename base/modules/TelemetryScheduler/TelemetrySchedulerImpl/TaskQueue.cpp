@@ -15,6 +15,13 @@ namespace TelemetrySchedulerImpl
         m_cond.notify_one();
     }
 
+    void TaskQueue::pushPriority(Task task)
+    {
+        std::lock_guard<std::mutex> lck(m_mutex);
+        m_list.push_front(task);
+        m_cond.notify_one();
+    }
+
     Task TaskQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);

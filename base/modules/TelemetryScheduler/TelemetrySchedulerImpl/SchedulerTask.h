@@ -12,7 +12,7 @@ namespace TelemetrySchedulerImpl
 {
     enum class Task
     {
-        ShutdownReceived,
+        Shutdown,
         WaitToRunTelemetry,
         RunTelemetry
     };

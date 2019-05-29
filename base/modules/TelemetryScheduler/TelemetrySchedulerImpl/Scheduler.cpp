@@ -36,7 +36,7 @@ namespace TelemetrySchedulerImpl
             auto pluginCallBack = std::make_shared<PluginCallback>(taskQueue);
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI("tscheduler", pluginCallBack);
 
-            SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pluginCallBack);
+            SchedulerProcessor telemetrySchedulerProcessor(taskQueue);
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

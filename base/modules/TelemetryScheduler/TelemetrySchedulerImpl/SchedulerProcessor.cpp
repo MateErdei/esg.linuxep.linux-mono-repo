@@ -10,11 +10,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    SchedulerProcessor::SchedulerProcessor(
-        std::shared_ptr<TaskQueue> taskQueue,
-        std::shared_ptr<PluginCallback> pluginCallback) :
-        m_taskQueue(std::move(taskQueue)),
-        m_pluginCallback(std::move(pluginCallback))
+    SchedulerProcessor::SchedulerProcessor(std::shared_ptr<TaskQueue> taskQueue) :
+        m_taskQueue(std::move(taskQueue))
     {
     }
 
@@ -26,8 +23,14 @@ namespace TelemetrySchedulerImpl
 
             switch (task)
             {
-                case Task::ShutdownReceived:
-                    continue;
+                case Task::WaitToRunTelemetry:
+                    break; // TODO: LINUXEP-6639 handle scheduling of next run of telelmetry executable
+
+                case Task::RunTelemetry:
+                    break; // TODO: LINUXEP-7984 run telelmetry executable
+
+                case Task::Shutdown:
+                    return;
 
                 default:
                     throw std::logic_error("unexpected task type");
