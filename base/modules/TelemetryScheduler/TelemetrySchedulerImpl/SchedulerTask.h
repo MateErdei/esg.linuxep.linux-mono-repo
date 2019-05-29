@@ -10,13 +10,10 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    struct Task
+    enum class Task
     {
-        enum class TaskType
-        {
-            ShutdownReceived
-        };
-
-        TaskType taskType;
+        ShutdownReceived,
+        WaitToRunTelemetry,
+        RunTelemetry
     };
 } // namespace TelemetrySchedulerImpl

@@ -35,7 +35,7 @@ namespace TelemetrySchedulerImpl
     {
         LOGSUPPORT("Shutdown signal received");
         m_shutdownReceived = true;
-        m_taskQueue->push(Task { Task::TaskType::ShutdownReceived });
+        m_taskQueue->push(Task { Task::ShutdownReceived });
     }
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)

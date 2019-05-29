@@ -26,9 +26,9 @@ namespace TelemetrySchedulerImpl
         {
             auto task = m_taskQueue->pop();
 
-            switch (task.taskType)
+            switch (task)
             {
-                case Task::TaskType::ShutdownReceived:
+                case Task::ShutdownReceived:
                     continue;
 
                 default:
