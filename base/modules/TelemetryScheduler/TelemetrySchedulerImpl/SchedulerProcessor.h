@@ -19,16 +19,12 @@ namespace TelemetrySchedulerImpl
     class SchedulerProcessor
     {
     public:
-        SchedulerProcessor(
-            std::shared_ptr<TaskQueue> taskQueue,
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-            std::shared_ptr<PluginCallback> callback);
+        SchedulerProcessor(std::shared_ptr<TaskQueue> taskQueue, std::shared_ptr<PluginCallback> pluginCallback);
 
         void run();
 
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_pluginCallback;
     };
 } // namespace TelemetrySchedulerImpl

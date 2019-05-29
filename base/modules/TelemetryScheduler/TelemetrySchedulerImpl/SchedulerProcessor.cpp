@@ -12,10 +12,8 @@ namespace TelemetrySchedulerImpl
 {
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<TaskQueue> taskQueue,
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> pluginCallback) :
         m_taskQueue(std::move(taskQueue)),
-        m_baseService(std::move(baseService)),
         m_pluginCallback(std::move(pluginCallback))
     {
     }
