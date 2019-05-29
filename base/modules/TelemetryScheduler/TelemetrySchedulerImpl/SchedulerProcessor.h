@@ -7,14 +7,14 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "PluginCallback.h"
+#include "TaskQueue.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
-#include <Common/TaskQueue/ITaskQueue.h>
 
 #include <atomic>
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     class SchedulerProcessor
     {

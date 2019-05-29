@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerTask.h"
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<TaskQueue> taskQueue,

@@ -12,7 +12,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <atomic>
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {

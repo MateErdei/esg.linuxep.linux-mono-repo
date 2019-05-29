@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     /**
      * To be used when parsing arguments from argv as received in int main( int argc, char * argv[]).

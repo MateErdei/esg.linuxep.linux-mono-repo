@@ -13,7 +13,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <mutex>
 #include <string>
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     class TaskQueue
     {

@@ -6,7 +6,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include "TaskQueue.h"
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     void TaskQueue::push(Task task)
     {

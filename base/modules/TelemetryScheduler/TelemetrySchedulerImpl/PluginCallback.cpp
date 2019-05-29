@@ -11,7 +11,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <utility>
 
-namespace SchedulerImpl
+namespace TelemetrySchedulerImpl
 {
     PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> taskQueue) :
         m_shutdownReceived(false),
