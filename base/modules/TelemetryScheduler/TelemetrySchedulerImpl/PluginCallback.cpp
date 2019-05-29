@@ -49,6 +49,4 @@ namespace TelemetrySchedulerImpl
         LOGSUPPORT("Received telemetry request");
         return std::string(); // TODO: LINUXEP-7988
     }
-
-    bool PluginCallback::shutdownReceived() { return m_shutdownReceived; }
 } // namespace TelemetrySchedulerImpl
