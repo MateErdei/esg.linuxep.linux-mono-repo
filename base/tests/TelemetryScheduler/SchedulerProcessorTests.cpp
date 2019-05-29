@@ -43,9 +43,10 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
     });
 
     processor.run();
-    stopAfterDelay.join();
     steady_clock::time_point end = steady_clock::now();
     milliseconds measuredDelay = duration_cast<milliseconds>(end - start);
+
+    stopAfterDelay.join();
 
     EXPECT_GE(measuredDelay.count(), delay.count());
 }

@@ -54,13 +54,12 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     TaskQueue queue;
     Task taskOut;
-    steady_clock::time_point start = steady_clock::now();
-    steady_clock::time_point end = start;
     milliseconds measuredDelay(0);
 
     std::thread popThread([&] {
+      steady_clock::time_point start = steady_clock::now();
       taskOut = queue.pop();
-      end = steady_clock::now();
+      measuredDelay = duration_cast<milliseconds>(steady_clock::now() - start);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -68,7 +67,6 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     queue.push(taskIn);
 
     popThread.join();
-    measuredDelay = duration_cast<milliseconds>(end - start);
 
     EXPECT_EQ(taskOut, taskIn);
     EXPECT_GE(measuredDelay.count(), delay.count());
