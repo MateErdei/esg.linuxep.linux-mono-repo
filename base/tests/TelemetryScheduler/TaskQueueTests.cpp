@@ -18,15 +18,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using TelemetrySchedulerImpl::Task;
 using TelemetrySchedulerImpl::TaskQueue;
 
-class TaskQueueTests : public ::testing::Test
-{
-public:
-    void SetUp() override {}
-
-    void TearDown() override {}
-};
-
-TEST_F(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
+TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 {
     TaskQueue queue;
     const Task taskIn = Task::WaitToRunTelemetry;
@@ -35,7 +27,7 @@ TEST_F(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
     EXPECT_EQ(taskOut, taskIn);
 }
 
-TEST_F(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
+TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     TaskQueue queue;
     const std::vector<Task> tasksIn = { Task::ShutdownReceived, Task::WaitToRunTelemetry, Task::RunTelemetry };
@@ -55,7 +47,7 @@ TEST_F(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
     EXPECT_EQ(tasksOut, tasksIn);
 }
 
-TEST_F(TaskQueueTests, popWaitsForPush) // NOLINT
+TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 {
     using namespace std::chrono;
     const milliseconds delay(100);
