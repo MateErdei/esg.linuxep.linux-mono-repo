@@ -39,7 +39,7 @@ namespace UpdateSchedulerImpl
         void processUpdateNow(const std::string& actionXml);
         void processScheduleUpdate();
         void processShutdownReceived();
-        std::string processSulDownloaderFinished(const std::string& reportFileLocation);
+        std::string processSulDownloaderFinished(const std::string& reportFileLocation, const bool processLatestReport=false);
         void processSulDownloaderFailedToStart(const std::string& errorMessage);
         void processSulDownloaderTimedOut();
         void processSulDownloaderMonitorDetached();
@@ -56,6 +56,7 @@ namespace UpdateSchedulerImpl
         std::unique_ptr<UpdateScheduler::ICronSchedulerThread> m_cronThread;
         std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> m_sulDownloaderRunner;
         configModule::UpdatePolicyTranslator m_policyTranslator;
+        std::string m_updateVarPath;
         std::string m_reportfilePath;
         std::string m_configfilePath;
         std::string m_machineID;

@@ -14,6 +14,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/Process/IProcess.h>
@@ -46,6 +47,7 @@ namespace UpdateSchedulerImpl
         m_cronThread(std::move(cronThread)),
         m_sulDownloaderRunner(std::move(sulDownloaderRunner)),
         m_policyTranslator(),
+        m_updateVarPath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath()),
         m_reportfilePath(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportGeneratedFilePath()),
         m_configfilePath(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath()),
@@ -208,6 +210,42 @@ namespace UpdateSchedulerImpl
                 m_pendingUpdate = false;
                 processScheduleUpdate();
             }
+            else
+            {
+                // get the previous report and send status if one exists and call processSulDownloaderFinished.
+                // to force sending new status if any back to central.
+                // if a report.json file exists, an update is in progress, so do not force re-processing the previous report.
+
+                std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(m_updateVarPath);
+                std::string startPattern("report");
+                std::string endPattern(".json");
+                std::string unprocessedReport("report.json");
+                bool newReportFound = false;
+                bool oldReportFound = false;
+
+                for (auto& file : filesInReportDirectory)
+                {
+                    std::string fileName = Common::FileSystem::basename(file);
+
+                    // make sure file name begins with 'report' and ends with .'json'
+                    if (fileName != unprocessedReport &&
+                       (fileName.find(startPattern) == 0 &&
+                        fileName.find(endPattern) == (fileName.length() - endPattern.length())))
+                    {
+                        oldReportFound = true;
+                    }
+                    else if (fileName == unprocessedReport)
+                    {
+                        newReportFound = true;
+                        break;
+                    }
+                }
+
+                if (!newReportFound && oldReportFound)
+                {
+                    std::string rc = processSulDownloaderFinished("", true);
+                }
+            }
         }
         catch (UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
         {
@@ -262,11 +300,17 @@ namespace UpdateSchedulerImpl
         m_queueTask->pushStop();
     }
 
-    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/)
+    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/, const bool processLatestReport)
     {
         auto iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
-        if (iFileSystem->isFile(m_reportfilePath))
+
+        if (processLatestReport)
+        {
+            LOGINFO("Re-processing latest report to generate current status message information.");
+            remainingReportToProcess = true;
+        }
+        else if (iFileSystem->isFile(m_reportfilePath))
         {
             LOGINFO("SulDownloader Finished.");
             safeMoveDownloaderReportFile(m_reportfilePath);
@@ -285,7 +329,7 @@ namespace UpdateSchedulerImpl
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
         {
             if (reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] ==
-                configModule::ReportCollectionResult::SignificantReportMark::RedundantReport)
+                configModule::ReportCollectionResult::SignificantReportMark::RedundantReport && !processLatestReport)
             {
                 LOGSUPPORT("Remove File: " << reportAndFiles.sortedFilePaths[i]);
                 iFileSystem->removeFile(reportAndFiles.sortedFilePaths[i]);
