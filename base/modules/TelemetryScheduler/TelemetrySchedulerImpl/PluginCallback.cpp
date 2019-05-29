@@ -14,9 +14,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 namespace TelemetrySchedulerImpl
 {
     PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> taskQueue) :
-        m_shutdownReceived(false),
-        m_taskQueue(std::move(taskQueue)),
-        m_statusInfo()
+        m_taskQueue(std::move(taskQueue))
     {
         LOGDEBUG("Plugin callback started");
     }
@@ -34,14 +32,13 @@ namespace TelemetrySchedulerImpl
     void PluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
-        m_shutdownReceived = true;
         m_taskQueue->pushPriority(Task { Task::Shutdown });
     }
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)
     {
         LOGSUPPORT("Received unexpected get status request");
-        return m_statusInfo;
+        return Common::PluginApi::StatusInfo {};
     }
 
     std::string PluginCallback::getTelemetry()

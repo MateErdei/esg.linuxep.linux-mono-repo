@@ -30,8 +30,6 @@ namespace TelemetrySchedulerImpl
         std::string getTelemetry() override;
 
     private:
-        std::atomic<bool> m_shutdownReceived;
         std::shared_ptr<TaskQueue> m_taskQueue;
-        Common::PluginApi::StatusInfo m_statusInfo;
     };
 } // namespace TelemetrySchedulerImpl
