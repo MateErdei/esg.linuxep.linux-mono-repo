@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 static int telemetry_scheduler_main()
 {
-    return SchedulerImpl::main_entry();
+    return TelemetrySchedulerImpl::main_entry();
 }
 
 MAIN(telemetry_scheduler_main());
