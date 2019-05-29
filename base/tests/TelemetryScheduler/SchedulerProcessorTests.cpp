@@ -19,6 +19,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using TelemetrySchedulerImpl::Task;
 using TelemetrySchedulerImpl::TaskQueue;
 using TelemetrySchedulerImpl::SchedulerProcessor;
+using TelemetrySchedulerImpl::PluginCallback;
 
 class SchedulerProcessorTests : public ::testing::Test
 {
@@ -49,4 +50,14 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
     stopAfterDelay.join();
 
     EXPECT_GE(measuredDelay.count(), delay.count());
+}
+
+TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
+{
+    auto queue = std::make_shared<TaskQueue>();
+    SchedulerProcessor processor(queue);
+    PluginCallback pluginCallback(queue);
+
+    pluginCallback.onShutdown();
+    processor.run();
 }
