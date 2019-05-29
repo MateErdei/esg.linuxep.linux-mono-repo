@@ -177,6 +177,21 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/etc/logger.conf");
         }
 
+        std::string ApplicationPathManager::getTelemetryOutputFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/telemetry.json");
+        }
+
+        std::string ApplicationPathManager::getTelemetrySchedulerConfigFilePath() const
+        {
+            return Common::FileSystem::join(getPluginRegistryPath(), "tscheduler.json");
+        }
+
+        std::string ApplicationPathManager::getTelemetrySupplementaryFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/telemetry-config.json");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration
