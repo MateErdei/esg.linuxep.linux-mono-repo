@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <atomic>
 #include <chrono>
 #include <thread>
 
@@ -50,26 +51,28 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 {
     using namespace std::chrono;
-    const milliseconds delay(100);
+    const milliseconds delay(10);
 
     TaskQueue queue;
     Task taskOut;
-    milliseconds measuredDelay(0);
-    steady_clock::time_point start = steady_clock::now();
+    std::atomic<bool> done(false);
 
     std::thread popThread([&] {
-      taskOut = queue.pop();
-      measuredDelay = duration_cast<milliseconds>(steady_clock::now() - start);
+        taskOut = queue.pop();
+        done = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+    EXPECT_FALSE(done);
+
     const Task taskIn = Task::WaitToRunTelemetry;
     queue.push(taskIn);
+    std::this_thread::sleep_for(milliseconds(delay));
+
+    EXPECT_TRUE(done);
 
     popThread.join();
 
     EXPECT_EQ(taskOut, taskIn);
-    EXPECT_GE(measuredDelay.count(), delay.count());
 }
 
 TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT

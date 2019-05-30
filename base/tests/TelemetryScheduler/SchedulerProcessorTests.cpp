@@ -16,10 +16,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <chrono>
 #include <thread>
 
+using TelemetrySchedulerImpl::PluginCallback;
+using TelemetrySchedulerImpl::SchedulerProcessor;
 using TelemetrySchedulerImpl::Task;
 using TelemetrySchedulerImpl::TaskQueue;
-using TelemetrySchedulerImpl::SchedulerProcessor;
-using TelemetrySchedulerImpl::PluginCallback;
 
 class SchedulerProcessorTests : public ::testing::Test
 {
@@ -32,24 +32,30 @@ public:
 TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 {
     using namespace std::chrono;
-    const milliseconds delay(100);
+    const milliseconds delay(10);
 
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue);
-    steady_clock::time_point start = steady_clock::now();
+    std::atomic<bool> done(false);
 
-    std::thread stopAfterDelay([&] {
-      std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-      queue->push(Task::Shutdown);
+    std::thread processorThread([&] {
+        processor.run();
+        done = true;
     });
 
-    processor.run();
-    steady_clock::time_point end = steady_clock::now();
-    milliseconds measuredDelay = duration_cast<milliseconds>(end - start);
+    EXPECT_FALSE(done);
 
-    stopAfterDelay.join();
+    queue->push(Task::WaitToRunTelemetry);
+    std::this_thread::sleep_for(milliseconds(delay));
 
-    EXPECT_GE(measuredDelay.count(), delay.count());
+    EXPECT_FALSE(done);
+
+    queue->push(Task::Shutdown);
+    std::this_thread::sleep_for(milliseconds(delay));
+
+    EXPECT_TRUE(done);
+
+    processorThread.join();
 }
 
 TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
