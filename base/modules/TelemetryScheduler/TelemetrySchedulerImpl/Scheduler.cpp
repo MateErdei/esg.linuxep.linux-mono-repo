@@ -43,7 +43,7 @@ namespace TelemetrySchedulerImpl
         }
         catch (const std::runtime_error& e)
         {
-            LOGERROR("Caught exception: " << e.what());
+            LOGERROR("Error: " << e.what());
             return 1;
         }
 

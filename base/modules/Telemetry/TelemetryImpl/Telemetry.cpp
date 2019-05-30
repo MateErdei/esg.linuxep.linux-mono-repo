@@ -63,7 +63,7 @@ namespace Telemetry
         }
         catch (const std::runtime_error& e)
         {
-            LOGERROR("Caught runtime exception: " << e.what());
+            LOGERROR("Error: " << e.what());
             return 1;
         }
     }
