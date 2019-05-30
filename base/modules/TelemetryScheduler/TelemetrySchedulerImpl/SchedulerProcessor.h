@@ -19,11 +19,20 @@ namespace TelemetrySchedulerImpl
     class SchedulerProcessor
     {
     public:
-        SchedulerProcessor(std::shared_ptr<TaskQueue> taskQueue);
+        SchedulerProcessor(
+            std::shared_ptr<TaskQueue> taskQueue,
+            const std::string& supplementaryConfigFilepath,
+            const std::string& telemetryExeConfigFilepath);
 
         void run();
 
     private:
+        void ProcessRunTelemetry();
+
+    private:
         std::shared_ptr<TaskQueue> m_taskQueue;
+        std::string m_telemetryExeConfigFilepath;
+        std::string m_supplementaryConfigFilepath;
+        unsigned int m_interval;
     };
 } // namespace TelemetrySchedulerImpl

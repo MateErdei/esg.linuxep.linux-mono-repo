@@ -52,4 +52,6 @@ public:
 
     MOCK_CONST_METHOD0(getTelemetrySchedulerConfigFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTelemetrySupplementaryFilePath, std::string(void));
+
+    MOCK_CONST_METHOD0(getTelemetryExeConfigFilePath, std::string(void));
 };

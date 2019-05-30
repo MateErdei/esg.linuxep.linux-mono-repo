@@ -8,8 +8,7 @@ add_library(telemetryschedulerimpl SHARED
         SchedulerTask.h
         TaskQueue.cpp
         TaskQueue.h
-        SchedulerConfig.cpp
-        SchedulerConfig.h)
+        )
 
 include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 

@@ -10,6 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SchedulerProcessor.h"
 #include "TaskQueue.h"
 
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
@@ -34,9 +35,17 @@ namespace TelemetrySchedulerImpl
 
             auto taskQueue = std::make_shared<TaskQueue>();
             auto pluginCallBack = std::make_shared<PluginCallback>(taskQueue);
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService = resourceManagement->createPluginAPI("tscheduler", pluginCallBack);
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService =
+                resourceManagement->createPluginAPI("tscheduler", pluginCallBack);
 
-            SchedulerProcessor telemetrySchedulerProcessor(taskQueue);
+            std::string supplementaryConfigFilePath(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySupplementaryFilePath());
+
+            std::string telemetryExeConfigFilepath(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetryExeConfigFilePath());
+
+            SchedulerProcessor telemetrySchedulerProcessor(
+                taskQueue, supplementaryConfigFilePath, telemetryExeConfigFilepath);
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

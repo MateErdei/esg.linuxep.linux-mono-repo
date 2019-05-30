@@ -52,6 +52,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getTelemetrySchedulerConfigFilePath() const override;
         std::string getTelemetrySupplementaryFilePath() const override;
+        std::string getTelemetryExeConfigFilePath() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;
