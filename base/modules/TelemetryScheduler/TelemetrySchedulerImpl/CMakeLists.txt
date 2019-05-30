@@ -12,7 +12,6 @@ add_library(telemetryschedulerimpl SHARED
 include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR})
 
 target_link_libraries(telemetryschedulerimpl PUBLIC
-        ${LOG4CPLUS_LIBRARY}
         telemetryschedulerloggerimpl
         pluginapiimpl
         )
