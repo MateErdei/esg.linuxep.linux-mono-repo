@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerTask.h"
 
-#include <../Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
+#include <../Telemetry/TelemetryExeConfigImpl/Serialiser.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
