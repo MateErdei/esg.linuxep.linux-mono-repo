@@ -13,6 +13,10 @@ namespace TelemetrySchedulerImpl
     SchedulerProcessor::SchedulerProcessor(std::shared_ptr<TaskQueue> taskQueue) :
         m_taskQueue(std::move(taskQueue))
     {
+        if (!m_taskQueue)
+        {
+            throw std::invalid_argument("precondition: taskQueue is not null failed");
+        }
     }
 
     void SchedulerProcessor::run()

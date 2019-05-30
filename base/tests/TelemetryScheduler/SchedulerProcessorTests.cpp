@@ -29,6 +29,19 @@ public:
     void TearDown() override {}
 };
 
+TEST_F(SchedulerProcessorTests, CanBeConstructed) // NOLINT
+{
+    auto queue = std::make_shared<TaskQueue>();
+    SchedulerProcessor processor(queue);
+}
+
+TEST_F(SchedulerProcessorTests, ConstructionWithNullQueue) // NOLINT
+{
+    std::shared_ptr<TaskQueue> queue;
+
+    EXPECT_THROW(SchedulerProcessor processor(queue), std::invalid_argument); // NOLINT
+}
+
 TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 {
     using namespace std::chrono;
