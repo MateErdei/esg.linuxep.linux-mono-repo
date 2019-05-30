@@ -60,10 +60,25 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 
 TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
 {
+    using namespace std::chrono;
+    const milliseconds delay(10);
+
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue);
     PluginCallback pluginCallback(queue);
+    std::atomic<bool> done(false);
+
+    std::thread processorThread([&] {
+        processor.run();
+        done = true;
+    });
+
+    EXPECT_FALSE(done);
 
     pluginCallback.onShutdown();
-    processor.run();
+    std::this_thread::sleep_for(milliseconds(delay));
+
+    EXPECT_TRUE(done);
+
+    processorThread.join();
 }
