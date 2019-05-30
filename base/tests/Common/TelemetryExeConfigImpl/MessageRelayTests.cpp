@@ -4,15 +4,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryExeConfigImpl/Serialiser.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <Telemetry/TelemetryConfigImpl/Config.h>
-#include <Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
 
 using ::testing::StrictMock;
 using namespace Telemetry::TelemetryConfigImpl;
 
-class TelemetryMessageRelayTest : public ::testing::Test
+class MessageRelayTests : public ::testing::Test
 {
 public:
     MessageRelay m_messageRelay;
@@ -29,19 +29,19 @@ public:
     }
 };
 
-TEST_F(TelemetryMessageRelayTest, proxyEqualitySameObject) // NOLINT
+TEST_F(MessageRelayTests, proxyEqualitySameObject) // NOLINT
 {
     ASSERT_EQ(m_messageRelay, m_messageRelay);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyEqualityDiffObject) // NOLINT
+TEST_F(MessageRelayTests, proxyEqualityDiffObject) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
     ASSERT_EQ(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyNotEqualPort) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualPort) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -49,7 +49,7 @@ TEST_F(TelemetryMessageRelayTest, proxyNotEqualPort) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyNotEqualUrl) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualUrl) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -57,7 +57,7 @@ TEST_F(TelemetryMessageRelayTest, proxyNotEqualUrl) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyNotEqualAuth) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualAuth) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -65,7 +65,7 @@ TEST_F(TelemetryMessageRelayTest, proxyNotEqualAuth) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyNotEqualUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualUsername) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -73,7 +73,7 @@ TEST_F(TelemetryMessageRelayTest, proxyNotEqualUsername) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyNotEqualPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyNotEqualPassword) // NOLINT
 {
     MessageRelay a = m_messageRelay;
     MessageRelay b = m_messageRelay;
@@ -81,19 +81,19 @@ TEST_F(TelemetryMessageRelayTest, proxyNotEqualPassword) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyValid) // NOLINT
+TEST_F(MessageRelayTests, proxyValid) // NOLINT
 {
     ASSERT_TRUE(m_messageRelay.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidPort) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidPort) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setPort(5000000);
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthNoneWithUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithUsername) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -102,7 +102,7 @@ TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthNoneWithUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthNoneWithPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthNoneWithPassword) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -111,7 +111,7 @@ TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthNoneWithPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthBasicWithoutUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -120,7 +120,7 @@ TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthBasicWithoutUsername) // NOLIN
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthBasicWithoutPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -129,7 +129,7 @@ TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthBasicWithoutPassword) // NOLIN
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthDigestWithoutUsername) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);
@@ -138,7 +138,7 @@ TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthDigestWithoutUsername) // NOLI
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryMessageRelayTest, proxyInvalidAuthDigestWithoutPassword) // NOLINT
+TEST_F(MessageRelayTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
 {
     MessageRelay p = m_messageRelay;
     p.setAuthentication(Proxy::Authentication::none);

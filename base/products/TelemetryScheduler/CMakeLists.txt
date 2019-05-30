@@ -1,7 +1,7 @@
 add_executable(tscheduler main.cpp)
 target_include_directories(tscheduler PUBLIC ${PROJECT_SOURCE_DIR}/modules/TelemetryScheduler)
 
-target_link_libraries(tscheduler PUBLIC telemetryschedulerimpl)
+target_link_libraries(tscheduler PUBLIC telemetryschedulerimpl telemetryexeconfigimpl)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/tscheduler.json
         DESTINATION installer/plugins

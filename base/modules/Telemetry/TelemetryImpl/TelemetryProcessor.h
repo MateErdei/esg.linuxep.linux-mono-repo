@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Telemetry/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryExeConfigImpl/Config.h>
 
 #include <utility>
 

@@ -1,4 +1,5 @@
 include(GoogleTest)
+
 add_executable(TestTelemetryHelperImpl
         TestTelemetryValue.cpp
         TestTelemetrySerialiser.cpp

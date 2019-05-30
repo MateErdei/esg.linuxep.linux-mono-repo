@@ -14,10 +14,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <Common/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryExeConfigImpl/Serialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
-#include <Telemetry/TelemetryExeConfigImpl/Config.h>
-#include <Telemetry/TelemetryExeConfigImpl/Serialiser.h>
 
 #include <json.hpp>
 #include <sstream>

@@ -26,10 +26,10 @@ include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE
 target_link_libraries(telemetryimpl PUBLIC
         telemetryloggerimpl
         httpsenderimpl
+        telemetryexeconfigimpl
         telemetryhelperimpl
         processimpl
         threads
-        telemetryconfigimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl

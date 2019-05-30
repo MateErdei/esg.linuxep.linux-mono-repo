@@ -24,7 +24,7 @@ bool Config::operator==(const Config& rhs) const
         return true;
     }
 
-    return m_server == rhs.m_server && m_resourceRoute == rhs.m_resourceRoute && m_port == rhs.m_port &&
+    return m_server == rhs.m_server && m_resourceRoot == rhs.m_resourceRoot && m_port == rhs.m_port &&
            m_headers == rhs.m_headers && m_verb == rhs.m_verb && m_proxies == rhs.m_proxies &&
            m_messageRelays == rhs.m_messageRelays && m_externalProcessWaitTime == rhs.m_externalProcessWaitTime &&
            m_externalProcessWaitRetries == rhs.m_externalProcessWaitRetries && m_maxJsonSize == rhs.m_maxJsonSize;
@@ -91,14 +91,14 @@ void Config::setServer(const std::string& server)
     m_server = server;
 }
 
-const std::string& Config::getResourceRoute() const
+const std::string& Config::getResourceRoot() const
 {
-    return m_resourceRoute;
+    return m_resourceRoot;
 }
 
-void Config::setResourceRoute(const std::string& resourceRoute)
+void Config::setResourceRoot(const std::string& resourceRoot)
 {
-    m_resourceRoute = resourceRoute;
+    m_resourceRoot = resourceRoot;
 }
 
 unsigned int Config::getPort() const

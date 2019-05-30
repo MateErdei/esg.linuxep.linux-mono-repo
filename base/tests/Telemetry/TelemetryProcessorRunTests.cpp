@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
 
-#include <Telemetry/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryExeConfigImpl/Config.h>
 #include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

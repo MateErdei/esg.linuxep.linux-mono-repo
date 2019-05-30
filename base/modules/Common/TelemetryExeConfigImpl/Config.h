@@ -24,8 +24,8 @@ namespace Telemetry::TelemetryConfigImpl
         const std::string& getServer() const;
         void setServer(const std::string& server);
 
-        const std::string& getResourceRoute() const;
-        void setResourceRoute(const std::string& resourceRoute);
+        const std::string& getResourceRoot() const;
+        void setResourceRoot(const std::string& resourceRoot);
 
         unsigned int getPort() const;
         void setPort(unsigned int port);
@@ -61,7 +61,7 @@ namespace Telemetry::TelemetryConfigImpl
 
     private:
         std::string m_server;
-        std::string m_resourceRoute;
+        std::string m_resourceRoot;
         unsigned int m_port{};
         std::vector<std::string> m_headers;
         std::string m_verb;
