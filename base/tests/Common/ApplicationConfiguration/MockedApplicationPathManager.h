@@ -49,4 +49,7 @@ public:
     MOCK_CONST_METHOD0(getSulDownloaderLockFilePath, std::string(void));
 
     MOCK_CONST_METHOD0(getSavedEnvironmentProxyFilePath, std::string(void));
+
+    MOCK_CONST_METHOD0(getTelemetrySchedulerConfigFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getTelemetrySupplementaryFilePath, std::string(void));
 };
