@@ -14,7 +14,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/Process/IProcess.h>
@@ -228,22 +227,22 @@ namespace UpdateSchedulerImpl
                     std::string fileName = Common::FileSystem::basename(file);
 
                     // make sure file name begins with 'report' and ends with .'json'
-                    if (fileName != unprocessedReport &&
-                       (fileName.find(startPattern) == 0 &&
-                        fileName.find(endPattern) == (fileName.length() - endPattern.length())))
-                    {
-                        oldReportFound = true;
-                    }
-                    else if (fileName == unprocessedReport)
+                    if (fileName == unprocessedReport)
                     {
                         newReportFound = true;
                         break;
                     }
+                    else if (fileName.find(startPattern) == 0 &&
+                        fileName.find(endPattern) == (fileName.length() - endPattern.length()))
+                    {
+                        oldReportFound = true;
+                    }
+
                 }
 
                 if (!newReportFound && oldReportFound)
                 {
-                    std::string rc = processSulDownloaderFinished("", true);
+                    processSulDownloaderFinished("", true);
                 }
             }
         }
@@ -308,7 +307,6 @@ namespace UpdateSchedulerImpl
         if (processLatestReport)
         {
             LOGINFO("Re-processing latest report to generate current status message information.");
-            remainingReportToProcess = true;
         }
         else if (iFileSystem->isFile(m_reportfilePath))
         {
