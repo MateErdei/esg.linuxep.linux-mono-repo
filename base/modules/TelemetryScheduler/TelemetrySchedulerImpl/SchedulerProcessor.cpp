@@ -6,7 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerProcessor.h"
 
+#include "SchedulerConfig.h"
 #include "SchedulerTask.h"
+#include "Serialiser.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -24,11 +26,11 @@ namespace TelemetrySchedulerImpl
 
     void CreateTelemetryConfigJsonFile(
         const std::string& supplementaryJsonString,
-        const std::string& configJasonFilepath)
+        const std::string& configJsonFilepath)
     {
         Telemetry::TelemetryConfigImpl::Config config;
         Common::FileSystem::fileSystem()->writeFile(
-            configJasonFilepath,
+            configJsonFilepath,
             Telemetry::TelemetryConfigImpl::Serialiser::serialise(
                 Telemetry::TelemetryConfigImpl::Serialiser::deserialise(supplementaryJsonString)));
     }
@@ -47,19 +49,37 @@ namespace TelemetrySchedulerImpl
         m_supplementaryConfigFilepath(supplementaryConfigFilepath)
 
     {
+        if (!m_taskQueue)
+        {
+            throw std::invalid_argument("precondition: taskQueue is not null failed");
+        }
     }
 
     void SchedulerProcessor::run()
     {
-        if (!Common::FileSystem::fileSystem()->isFile(m_supplementaryConfigFilepath))
+        SchedulerConfig schedulerConfig;
+        if (!Common::FileSystem::fileSystem()->isFile(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath()))
         {
-            LOGINFO("Supplementary file '" << m_supplementaryConfigFilepath << "' is not accessible");
+            if (!Common::FileSystem::fileSystem()->isFile(m_supplementaryConfigFilepath))
+            {
+                LOGINFO("Supplementary file '" << m_supplementaryConfigFilepath << "' is not accessible");
+            }
+            else
+            {
+                std::string supplementaryConfigJson =
+                    Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilepath, 1000000UL);
+                m_interval = GetIntervalFromSupplementaryJson(nlohmann::json::parse(supplementaryConfigJson));
+            }
+            // SchedulerConfig schedulerConfig(time() + m_interval);
         }
         else
         {
-            std::string supplementaryConfigJson =
-                Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilepath, 1000000UL);
-            m_interval = GetIntervalFromSupplementaryJson(nlohmann::json::parse(supplementaryConfigJson));
+            std::string statusJsonString = Common::FileSystem::fileSystem()->readFile(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
+                1000000UL);
+
+            schedulerConfig = Serialiser::deserialise(statusJsonString);
         }
 
         while (true)
@@ -69,7 +89,7 @@ namespace TelemetrySchedulerImpl
             switch (task)
             {
                 case Task::WaitToRunTelemetry:
-                    waitToRunTelemetry(m_interval);
+                    waitToRunTelemetry(schedulerConfig.getTelemetryScheduledTime());
                     break;
 
                 case Task::RunTelemetry:
