@@ -11,13 +11,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
 
-#include <Telemetry/TelemetryConfig/Config.h>
+#include <Telemetry/TelemetryExeConfigImpl/Config.h>
 #include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
 using ::testing::StrictMock;
@@ -37,7 +39,8 @@ public:
     std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
     std::vector<std::string> m_additionalHeaders;
     MockFileSystem* m_mockFileSystem = nullptr;
-    std::shared_ptr<Telemetry::TelemetryConfig::Config> m_config;
+    MockFilePermissions* m_mockFilePermissions = nullptr;
+    std::shared_ptr<Telemetry::TelemetryConfigImpl::Config> m_config;
 
     std::string m_defaultCertPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
@@ -78,6 +81,10 @@ public:
         m_mockFileSystem = mockfileSystem.get();
         Tests::replaceFileSystem(std::move(mockfileSystem));
 
+        std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
+        m_mockFilePermissions = mockfilePermissions.get();
+        Tests::replaceFilePermissions(std::move(mockfilePermissions));
+
         m_additionalHeaders.emplace_back("x-amz-acl:bucket-owner-full-control");
 
         m_defaultExpectedRequestConfig = std::make_unique<RequestConfig>(
@@ -90,7 +97,7 @@ public:
 
         m_defaultExpectedRequestConfig->setData(m_data);
 
-        m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
+        m_config = std::make_shared<Telemetry::TelemetryConfigImpl::Config>();
         m_config->setVerb("PUT");
         m_config->setResourceRoot("PROD");
         m_config->setTelemetryServerCertificatePath(m_defaultCertPath);
@@ -99,7 +106,11 @@ public:
         m_config->setMaxJsonSize(1000);
     }
 
-    void TearDown() override { Tests::restoreFileSystem(); }
+    void TearDown() override
+    {
+        Tests::restoreFilePermissions();
+        Tests::restoreFileSystem();
+    }
 };
 
 class TelemetryProcessorRunTestRequestTypes : public TelemetryProcessorRunTests,
@@ -115,6 +126,7 @@ INSTANTIATE_TEST_CASE_P(
 TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
@@ -156,6 +168,7 @@ TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOL
 TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
         .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));
@@ -177,6 +190,7 @@ TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
 TEST_F(TelemetryProcessorRunTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
         .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));
@@ -199,6 +213,7 @@ TEST_F(TelemetryProcessorRunTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
 TEST_F(TelemetryProcessorRunTests, PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, _)).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
         .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));

@@ -16,8 +16,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
-#include <Telemetry/TelemetryConfigImpl/Config.h>
-#include <Telemetry/TelemetryConfigImpl/TelemetryConfigSerialiser.h>
+#include <Telemetry/TelemetryExeConfigImpl/Config.h>
+#include <Telemetry/TelemetryExeConfigImpl/Serialiser.h>
 
 #include <json.hpp>
 #include <sstream>
@@ -52,8 +52,8 @@ namespace Telemetry
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
             auto telemetryConfig = std::make_shared<TelemetryConfigImpl::Config>(
-                TelemetryConfigImpl::TelemetryConfigSerialiser::deserialise(telemetryConfigJson));
-            LOGDEBUG("Using configuration: " << TelemetryConfigImpl::TelemetryConfigSerialiser::serialise(*telemetryConfig));
+                TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
+            LOGDEBUG("Using configuration: " << TelemetryConfigImpl::Serialiser::serialise(*telemetryConfig));
 
             std::unique_ptr<TelemetryProcessor> telemetryProcessor = initialiseTelemetryProcessor(telemetryConfig);
 

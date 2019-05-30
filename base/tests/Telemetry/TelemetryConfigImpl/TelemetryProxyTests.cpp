@@ -12,7 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 using ::testing::StrictMock;
 using namespace Telemetry::TelemetryConfigImpl;
 
-class TelemetryProxyTest : public ::testing::Test
+class ProxyTests : public ::testing::Test
 {
 public:
     Proxy m_proxy;
@@ -27,18 +27,18 @@ public:
     }
 };
 
-TEST_F(TelemetryProxyTest, passwordObfuscation) // NOLINT
+TEST_F(ProxyTests, passwordObfuscation) // NOLINT
 {
     ASSERT_EQ(m_proxy.getDeobfuscatedPassword(), "password");
     ASSERT_EQ(m_proxy.getObfuscatedPassword(), "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
 }
 
-TEST_F(TelemetryProxyTest, proxyEqualitySameObject) // NOLINT
+TEST_F(ProxyTests, proxyEqualitySameObject) // NOLINT
 {
     ASSERT_EQ(m_proxy, m_proxy);
 }
 
-TEST_F(TelemetryProxyTest, proxyEqualityDiffObject) // NOLINT
+TEST_F(ProxyTests, proxyEqualityDiffObject) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -46,7 +46,7 @@ TEST_F(TelemetryProxyTest, proxyEqualityDiffObject) // NOLINT
     ASSERT_EQ(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyNotEqualPort) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualPort) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -54,7 +54,7 @@ TEST_F(TelemetryProxyTest, proxyNotEqualPort) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyNotEqualUrl) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualUrl) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -62,7 +62,7 @@ TEST_F(TelemetryProxyTest, proxyNotEqualUrl) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyNotEqualAuth) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualAuth) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -70,7 +70,7 @@ TEST_F(TelemetryProxyTest, proxyNotEqualAuth) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyNotEqualUsername) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualUsername) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -78,7 +78,7 @@ TEST_F(TelemetryProxyTest, proxyNotEqualUsername) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyNotEqualPassword) // NOLINT
+TEST_F(ProxyTests, proxyNotEqualPassword) // NOLINT
 {
     Proxy a = m_proxy;
     Proxy b = m_proxy;
@@ -86,19 +86,19 @@ TEST_F(TelemetryProxyTest, proxyNotEqualPassword) // NOLINT
     ASSERT_NE(a, b);
 }
 
-TEST_F(TelemetryProxyTest, proxyValid) // NOLINT
+TEST_F(ProxyTests, proxyValid) // NOLINT
 {
     ASSERT_TRUE(m_proxy.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidPort) // NOLINT
+TEST_F(ProxyTests, proxyInvalidPort) // NOLINT
 {
     Proxy p = m_proxy;
     p.setPort(5000000);
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthNoneWithUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthNoneWithUsername) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -107,7 +107,7 @@ TEST_F(TelemetryProxyTest, proxyInvalidAuthNoneWithUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthNoneWithPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthNoneWithPassword) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -116,7 +116,7 @@ TEST_F(TelemetryProxyTest, proxyInvalidAuthNoneWithPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthBasicWithoutUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutUsername) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -125,7 +125,7 @@ TEST_F(TelemetryProxyTest, proxyInvalidAuthBasicWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthBasicWithoutPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthBasicWithoutPassword) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -134,7 +134,7 @@ TEST_F(TelemetryProxyTest, proxyInvalidAuthBasicWithoutPassword) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthDigestWithoutUsername) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutUsername) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);
@@ -143,7 +143,7 @@ TEST_F(TelemetryProxyTest, proxyInvalidAuthDigestWithoutUsername) // NOLINT
     ASSERT_FALSE(p.isValidProxy());
 }
 
-TEST_F(TelemetryProxyTest, proxyInvalidAuthDigestWithoutPassword) // NOLINT
+TEST_F(ProxyTests, proxyInvalidAuthDigestWithoutPassword) // NOLINT
 {
     Proxy p = m_proxy;
     p.setAuthentication(Proxy::Authentication::none);

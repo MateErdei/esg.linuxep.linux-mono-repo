@@ -1,3 +1,3 @@
 add_subdirectory(LoggerImpl)
 add_subdirectory(TelemetryImpl)
-add_subdirectory(TelemetryConfigImpl)
+add_subdirectory(TelemetryExeConfigImpl)

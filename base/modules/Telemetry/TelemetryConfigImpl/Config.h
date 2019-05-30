@@ -72,4 +72,4 @@ namespace Telemetry::TelemetryConfigImpl
         unsigned int m_maxJsonSize{};
         std::string m_telemetryServerCertificatePath;
     };
-} // namespace Telemetry::TelemetryConfigImpl
+} // namespace Telemetry::TelemetryExeConfigImpl

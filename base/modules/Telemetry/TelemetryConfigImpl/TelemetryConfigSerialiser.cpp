@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TelemetryConfigSerialiser.h"
+#include "Serialiser.h"
 
 #include <Telemetry/LoggerImpl/Logger.h>
 
@@ -161,7 +161,7 @@ namespace Telemetry::TelemetryConfigImpl
         }
     }
 
-    std::string TelemetryConfigSerialiser::serialise(const Config& config)
+    std::string Serialiser::serialise(const Config& config)
     {
         if (!config.isValid())
         {
@@ -173,7 +173,7 @@ namespace Telemetry::TelemetryConfigImpl
         return j.dump();
     }
 
-    Config TelemetryConfigSerialiser::deserialise(const std::string& jsonString)
+    Config Serialiser::deserialise(const std::string& jsonString)
     {
         Config config;
 

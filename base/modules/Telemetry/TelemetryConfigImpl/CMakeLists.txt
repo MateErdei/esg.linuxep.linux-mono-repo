@@ -1,7 +1,7 @@
 add_library(telemetryconfigimpl SHARED
         Constants.h
-        TelemetryConfigSerialiser.h
-        TelemetryConfigSerialiser.cpp
+        Serialiser.h
+        Serialiser.cpp
         Config.h
         Config.cpp
         Proxy.h

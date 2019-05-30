@@ -12,7 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry::TelemetryConfigImpl
 {
-    class TelemetryConfigSerialiser
+    class Serialiser
     {
     public:
         static std::string serialise(const Config& config);
