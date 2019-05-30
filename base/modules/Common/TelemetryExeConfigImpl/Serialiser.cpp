@@ -187,7 +187,6 @@ namespace Telemetry::TelemetryConfigImpl
         {
             std::stringstream msg;
             msg << "Configuration JSON is invalid: " << e.what();
-            LOGERROR(msg.str());
             throw std::runtime_error(msg.str());
         }
 

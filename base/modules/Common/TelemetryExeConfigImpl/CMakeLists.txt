@@ -12,7 +12,7 @@ add_library(telemetryexeconfigimpl SHARED
 
 include_directories(telemetryexeconfigimpl BEFORE ../../../thirdparty/nlohmann-json)
 
-target_link_libraries(telemetryexeconfigimpl PUBLIC obfuscationimpl)
+target_link_libraries(telemetryexeconfigimpl PUBLIC obfuscationimpl logging)
 
 SET_TARGET_PROPERTIES(telemetryexeconfigimpl
         PROPERTIES

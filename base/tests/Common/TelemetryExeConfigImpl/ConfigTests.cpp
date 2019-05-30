@@ -346,7 +346,7 @@ TEST_F(ConfigTests, InvalidTimeout) // NOLINT
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST(ConfigTest, configEquality) // NOLINT
+TEST_F(ConfigTests, configEquality) // NOLINT
 {
     Config a;
     Config b;
