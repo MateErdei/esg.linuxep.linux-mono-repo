@@ -25,11 +25,11 @@ namespace TelemetrySchedulerImpl
         const std::string& supplementaryJsonString,
         const std::string& configJsonFilepath)
     {
-        Telemetry::TelemetryConfigImpl::Config config;
+        Common::TelemetryExeConfigImpl::Config config;
         Common::FileSystem::fileSystem()->writeFile(
             configJsonFilepath,
-            Telemetry::TelemetryConfigImpl::Serialiser::serialise(
-                Telemetry::TelemetryConfigImpl::Serialiser::deserialise(supplementaryJsonString)));
+            Common::TelemetryExeConfigImpl::Serialiser::serialise(
+                Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryJsonString)));
     }
 
     SchedulerProcessor::SchedulerProcessor(

@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Telemetry::TelemetryConfigImpl
+namespace Common::TelemetryExeConfigImpl
 {
     class Config
     {

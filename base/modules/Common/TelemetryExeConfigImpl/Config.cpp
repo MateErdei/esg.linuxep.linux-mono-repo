@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Config.h"
 
-using namespace Telemetry::TelemetryConfigImpl;
+using namespace Common::TelemetryExeConfigImpl;
 
 Config::Config() :
     m_port(0),

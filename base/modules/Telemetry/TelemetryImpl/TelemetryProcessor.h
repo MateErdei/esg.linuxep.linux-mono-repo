@@ -7,8 +7,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ITelemetryProvider.h"
-#include "../TelemetryConfig/Config.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
@@ -18,6 +18,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <utility>
 
 using namespace Common::Telemetry;
+using namespace Common::TelemetryExeConfigImpl;
 
 namespace Telemetry
 {
@@ -25,7 +26,7 @@ namespace Telemetry
     {
     public:
         TelemetryProcessor(
-            std::shared_ptr<const TelemetryConfig::Config> config,
+            std::shared_ptr<const Config> config,
             std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
 
@@ -39,7 +40,7 @@ namespace Telemetry
         virtual void addTelemetry(const std::string& sourceName, const std::string& json);
 
     private:
-        std::shared_ptr<const TelemetryConfig::Config> m_config;
+        std::shared_ptr<const Config> m_config;
         std::unique_ptr<Common::HttpSender::IHttpSender> m_httpSender;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;

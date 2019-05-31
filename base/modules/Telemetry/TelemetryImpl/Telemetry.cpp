@@ -26,7 +26,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
     std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
-        std::shared_ptr<TelemetryConfigImpl::Config> telemetryConfig);
+        std::shared_ptr<Common::TelemetryExeConfigImpl::Config> telemetryConfig);
 
     int main_entry(int argc, char* argv[])
     {
@@ -51,9 +51,9 @@ namespace Telemetry
             }
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
-            auto telemetryConfig = std::make_shared<TelemetryConfigImpl::Config>(
+            auto telemetryConfig = std::make_shared<TelemetryExeConfigImpl::Config>(
                 TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
-            LOGDEBUG("Using configuration: " << TelemetryConfigImpl::Serialiser::serialise(*telemetryConfig));
+            LOGDEBUG("Using configuration: " << TelemetryExeConfigImpl::Serialiser::serialise(*telemetryConfig));
 
             std::unique_ptr<TelemetryProcessor> telemetryProcessor = initialiseTelemetryProcessor(telemetryConfig);
 

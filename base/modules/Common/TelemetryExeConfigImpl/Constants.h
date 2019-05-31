@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Telemetry::TelemetryConfigImpl
+namespace Common::TelemetryExeConfigImpl
 {
     const unsigned int MAX_PORT_NUMBER = 65535;
 
