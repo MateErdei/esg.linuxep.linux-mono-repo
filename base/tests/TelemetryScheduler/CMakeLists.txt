@@ -5,14 +5,13 @@ include(GoogleTest)
 
 add_executable(TelemetrySchedulerTests
         TaskQueueTests.cpp
-        SchedulerProcessorTests.cpp
-        DerivedSchedulerProcessor.h)
+        SchedulerProcessorTests.cpp SchedulerStatusTests.cpp)
 
 target_include_directories(TelemetrySchedulerTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TelemetrySchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(TelemetrySchedulerTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(TelemetrySchedulerTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers telemetryschedulerimpl gcov)
+target_link_libraries(TelemetrySchedulerTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto telemetryschedulerimpl gcov)
 
 gtest_discover_tests(TelemetrySchedulerTests)
 

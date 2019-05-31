@@ -24,13 +24,10 @@ namespace TelemetrySchedulerImpl
 
     bool SchedulerStatus::operator!=(const SchedulerStatus& rhs) const { return !(rhs == *this); }
 
-    bool SchedulerStatus::isValid() const {
-        return true;
-    }
+    bool SchedulerStatus::isValid() const { return m_telemetryScheduledTime >= 0; }
 
-    size_t SchedulerStatus::getTelemetryScheduledTime() const { return m_telemetryScheduledTime; }
+    int SchedulerStatus::getTelemetryScheduledTime() const { return m_telemetryScheduledTime; }
 
-    void SchedulerStatus::setTelemetryScheduledTime(size_t scheduledTime) {
-        m_telemetryScheduledTime = scheduledTime;
+    void SchedulerStatus::setTelemetryScheduledTime(int scheduledTime) { m_telemetryScheduledTime = scheduledTime;
     }
 } // namespace TelemetrySchedulerImpl

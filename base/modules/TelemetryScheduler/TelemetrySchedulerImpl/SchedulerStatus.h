@@ -17,8 +17,8 @@ namespace TelemetrySchedulerImpl
     public:
         SchedulerStatus();
 
-        size_t getTelemetryScheduledTime() const;
-        void setTelemetryScheduledTime(size_t scheduledTime);
+        int getTelemetryScheduledTime() const;
+        void setTelemetryScheduledTime(int scheduledTime);
 
         bool operator==(const SchedulerStatus& rhs) const;
         bool operator!=(const SchedulerStatus& rhs) const;
@@ -26,6 +26,6 @@ namespace TelemetrySchedulerImpl
         bool isValid() const;
 
     private:
-        size_t m_telemetryScheduledTime{};
+        int m_telemetryScheduledTime{};
     };
 } // namespace TelemetrySchedulerImpl
