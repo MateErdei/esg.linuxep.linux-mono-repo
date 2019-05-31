@@ -11,17 +11,19 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
+    const std::string TELEMETRY_SCHEDULED_TIME_KEY = "ScheduledTime";
+
     void to_json(nlohmann::json& j, const SchedulerConfig& config);
     void from_json(const nlohmann::json& j, SchedulerConfig& config);
 
     void to_json(nlohmann::json& j, const SchedulerConfig& config)
     {
-        j = nlohmann::json{ { "ScheduledTime", config.getTelemetryScheduledTime() } };
+        j = nlohmann::json{ { TELEMETRY_SCHEDULED_TIME_KEY, config.getTelemetryScheduledTime() } };
     }
 
     void from_json(const nlohmann::json& j, SchedulerConfig& config)
     {
-        config.setTelemetryScheduledTime(j.at("ScheduledTime"));
+        config.setTelemetryScheduledTime(j.at(TELEMETRY_SCHEDULED_TIME_KEY));
     }
 
     std::string Serialiser::serialise(const SchedulerConfig& config)

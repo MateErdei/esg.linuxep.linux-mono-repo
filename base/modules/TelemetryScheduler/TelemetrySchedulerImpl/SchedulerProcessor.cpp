@@ -66,12 +66,7 @@ namespace TelemetrySchedulerImpl
                 LOGINFO("Supplementary file '" << m_supplementaryConfigFilepath << "' is not accessible");
             }
             else
-            {
-                std::string supplementaryConfigJson =
-                    Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilepath, 1000000UL);
-                m_interval = GetIntervalFromSupplementaryJson(nlohmann::json::parse(supplementaryConfigJson));
-            }
-            // SchedulerConfig schedulerConfig(time() + m_interval);
+                m_interval = GetIntervalFromSupplementaryJson();
         }
         else
         {
@@ -103,6 +98,13 @@ namespace TelemetrySchedulerImpl
                     throw std::logic_error("unexpected task type");
             }
         }
+    }
+    unsigned int SchedulerProcessor::GetIntervalFromSupplementaryJson()
+    {
+        std::string supplementaryConfigJson =
+            Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilepath, 1000000UL);
+        nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
+        return j.contains("interval") ? (unsigned int)j.at("Interval") : 0;
     }
 
     void SchedulerProcessor::ProcessRunTelemetry()

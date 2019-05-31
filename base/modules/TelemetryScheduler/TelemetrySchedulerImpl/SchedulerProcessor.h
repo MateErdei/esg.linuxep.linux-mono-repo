@@ -34,5 +34,6 @@ namespace TelemetrySchedulerImpl
         std::string m_telemetryExeConfigFilepath;
         std::string m_supplementaryConfigFilepath;
         unsigned int m_interval;
+        unsigned int GetIntervalFromSupplementaryJson();
     };
 } // namespace TelemetrySchedulerImpl
