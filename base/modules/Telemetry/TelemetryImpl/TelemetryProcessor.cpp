@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
+#include <sys/stat.h>
 #include <utility>
 #include <curl.h>
 
@@ -19,7 +20,7 @@ using namespace Telemetry;
 using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
-    std::shared_ptr<const TelemetryConfig::Config> config,
+    std::shared_ptr<const Common::TelemetryExeConfigImpl::Config> config,
     std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
     m_config(config),
@@ -68,7 +69,7 @@ void TelemetryProcessor::gatherTelemetry()
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
     Common::HttpSenderImpl::RequestConfig requestConfig(
-        m_config->getVerb(),
+        Common::HttpSenderImpl::RequestConfig::stringToRequestType(m_config->getVerb()),
         m_config->getHeaders(),
         m_config->getServer(),
         m_config->getPort(),
@@ -99,6 +100,7 @@ void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
     Path outputFile = Common::ApplicationConfiguration::applicationPathManager().getTelemetryOutputFilePath();
     LOGINFO("Saving telemetry to file: " << outputFile);
     Common::FileSystem::fileSystem()->writeFile(outputFile, telemetryJson); // Overwrites data each time.
+    Common::FileSystem::filePermissions()->chmod(outputFile, S_IRUSR | S_IWUSR);
 }
 
 std::string TelemetryProcessor::getSerialisedTelemetry()

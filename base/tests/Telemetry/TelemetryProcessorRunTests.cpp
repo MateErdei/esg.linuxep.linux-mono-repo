@@ -40,7 +40,7 @@ public:
     std::vector<std::string> m_additionalHeaders;
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
-    std::shared_ptr<Telemetry::TelemetryConfigImpl::Config> m_config;
+    std::shared_ptr<Common::TelemetryExeConfigImpl::Config> m_config;
 
     std::string m_defaultCertPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
@@ -97,7 +97,7 @@ public:
 
         m_defaultExpectedRequestConfig->setData(m_data);
 
-        m_config = std::make_shared<Telemetry::TelemetryConfigImpl::Config>();
+        m_config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
         m_config->setVerb("PUT");
         m_config->setResourceRoot("PROD");
         m_config->setTelemetryServerCertificatePath(m_defaultCertPath);

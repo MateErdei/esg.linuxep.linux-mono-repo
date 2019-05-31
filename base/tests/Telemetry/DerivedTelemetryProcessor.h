@@ -11,13 +11,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
 #include <modules/Telemetry/TelemetryImpl/ITelemetryProvider.h>
 
-using namespace ::testing;
-
 class DerivedTelemetryProcessor : public Telemetry::TelemetryProcessor
 {
 public:
     DerivedTelemetryProcessor(
-        std::shared_ptr<const Telemetry::TelemetryConfig::Config> config,
+        std::shared_ptr<const Common::TelemetryExeConfigImpl::Config> config,
         std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
         std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders) :
         TelemetryProcessor(std::move(config), std::move(httpSender), std::move(telemetryProviders))

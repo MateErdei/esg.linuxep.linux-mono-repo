@@ -51,9 +51,9 @@ namespace Telemetry
             }
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
-            auto telemetryConfig = std::make_shared<TelemetryExeConfigImpl::Config>(
-                TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
-            LOGDEBUG("Using configuration: " << TelemetryExeConfigImpl::Serialiser::serialise(*telemetryConfig));
+            auto telemetryConfig = std::make_shared<Common::TelemetryExeConfigImpl::Config>(
+                Common::TelemetryExeConfigImpl::Serialiser::deserialise(telemetryConfigJson));
+            LOGDEBUG("Using configuration: " << Common::TelemetryExeConfigImpl::Serialiser::serialise(*telemetryConfig));
 
             std::unique_ptr<TelemetryProcessor> telemetryProcessor = initialiseTelemetryProcessor(telemetryConfig);
 
@@ -69,7 +69,7 @@ namespace Telemetry
     }
 
     std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
-        std::shared_ptr<TelemetryConfigImpl::Config> telemetryConfig)
+        std::shared_ptr<Common::TelemetryExeConfigImpl::Config> telemetryConfig)
     {
         std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
             std::make_shared<Common::HttpSenderImpl::CurlWrapper>();

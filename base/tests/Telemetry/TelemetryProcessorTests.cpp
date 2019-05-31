@@ -17,7 +17,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
 using ::testing::StrictMock;
@@ -31,7 +33,8 @@ public:
     const std::string m_jsonFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry.json";
 
     MockFileSystem* m_mockFileSystem = nullptr;
-    std::shared_ptr<Telemetry::TelemetryConfig::Config> m_config;
+    MockFilePermissions* m_mockFilePermissions = nullptr;
+    std::shared_ptr<Common::TelemetryExeConfigImpl::Config> m_config;
     std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
 
     void SetUp() override
@@ -40,11 +43,19 @@ public:
         m_mockFileSystem = mockfileSystem.get();
         Tests::replaceFileSystem(std::move(mockfileSystem));
 
-        m_config = std::make_shared<Telemetry::TelemetryConfig::Config>();
+        std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
+        m_mockFilePermissions = mockfilePermissions.get();
+        Tests::replaceFilePermissions(std::move(mockfilePermissions));
+
+        m_config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
         m_config->setMaxJsonSize(1000);
     }
 
-    void TearDown() override { Tests::restoreFileSystem(); }
+    void TearDown() override
+    {
+        Tests::restoreFilePermissions();
+        Tests::restoreFileSystem();
+    }
 };
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorNoProviders) // NOLINT
@@ -130,6 +141,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_jsonFilePath, R"({"Mock":{"key":1}})")).Times(testing::AtLeast(1));
+    EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
     EXPECT_CALL(*m_mockFileSystem, isFile(defaultCertPath)).WillOnce(Return(true));
@@ -138,8 +150,8 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    auto config = std::make_shared<Telemetry::TelemetryConfig::Config>();
-    config->setVerb(RequestType::GET);
+    auto config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
+    config->setVerb("GET");
     config->setResourceRoot("PROD");
     config->setTelemetryServerCertificatePath(defaultCertPath);
     config->setServer(m_defaultServer);
