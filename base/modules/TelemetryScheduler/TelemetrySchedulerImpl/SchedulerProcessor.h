@@ -25,14 +25,13 @@ namespace TelemetrySchedulerImpl
             const std::string& telemetryExeConfigFilePath,
             const std::string& telemetryStatusFilePath);
 
-        void run();
+        virtual void run();
 
-    private:
-        void waitToRunTelemetry();
-        void runTelemetry();
-        void scheduleTelemetryRunFromSupplementaryFile();
-        size_t getIntervalFromSupplementaryFile();
-        size_t getScheduledTimeUsingSupplementaryFile();
+    protected:
+        virtual void waitToRunTelemetry();
+        virtual void runTelemetry();
+        virtual size_t getIntervalFromSupplementaryFile();
+        virtual size_t getScheduledTimeUsingSupplementaryFile();
 
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;

@@ -100,11 +100,22 @@ namespace TelemetrySchedulerImpl
 
     size_t SchedulerProcessor::getIntervalFromSupplementaryFile()
     {
+        std::string supplementaryConfigJson;
+
+        try
+        {
+            supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
+                m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("File access error reading " << m_supplementaryConfigFilePath << " : " << e.what());
+            return 0;
+        }
+
         try
         {
             const std::string intervalKey = "interval";
-            std::string supplementaryConfigJson =
-                Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
             nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
             return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
         }
