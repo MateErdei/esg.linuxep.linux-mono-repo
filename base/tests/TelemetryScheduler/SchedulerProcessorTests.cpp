@@ -58,12 +58,11 @@ public:
 
     EXPECT_FALSE(done);
 
-    queue->push(Task::WaitToRunTelemetry);
     std::this_thread::sleep_for(milliseconds(delay));
 
     EXPECT_FALSE(done);
 
-    queue->push(Task::Shutdown);
+    queue->pushPriority(Task::Shutdown);
     std::this_thread::sleep_for(milliseconds(delay));
 
     EXPECT_TRUE(done);
