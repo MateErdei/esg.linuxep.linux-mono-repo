@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryExeConfigImpl/Serialiser.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
@@ -66,12 +67,12 @@ namespace TelemetrySchedulerImpl
     {
         if (!Common::FileSystem::fileSystem()->isFile(m_supplementaryConfigFilePath))
         {
-            LOGINFO("Supplementary file '" << m_supplementaryConfigFilePath << "' is not accessible");
+            LOGERROR("Supplementary file '" << m_supplementaryConfigFilePath << "' is not accessible");
             m_taskQueue->push(Task::WaitToRunTelemetry);
             return 0;
         }
 
-        size_t interval = getIntervalFromSupplementaryJson();
+        size_t interval = getIntervalFromSupplementaryFile();
         size_t scheduledTimeInSecondsSinceEpoch = 0;
 
         if (interval > 0)
@@ -82,20 +83,38 @@ namespace TelemetrySchedulerImpl
             SchedulerStatus schedulerConfig;
             schedulerConfig.setTelemetryScheduledTime(scheduledTimeInSecondsSinceEpoch);
 
-            Common::FileSystem::fileSystem()->writeFile(
-                m_telemetryStatusFilePath, SchedulerStatusSerialiser::serialise(schedulerConfig));
+            try
+            {
+                Common::FileSystem::fileSystem()->writeFile(
+                    m_telemetryStatusFilePath, SchedulerStatusSerialiser::serialise(schedulerConfig));
+            }
+            catch (const Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("File access error writing " << m_telemetryExeConfigFilePath << " : " << e.what());
+                // TODO: attempt to remove status file?
+            }
         }
 
         return scheduledTimeInSecondsSinceEpoch;
     }
 
-    size_t SchedulerProcessor::getIntervalFromSupplementaryJson()
+    size_t SchedulerProcessor::getIntervalFromSupplementaryFile()
     {
-        const std::string intervalKey = "interval";
-        std::string supplementaryConfigJson =
-            Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
-        nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
-        return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
+        try
+        {
+            const std::string intervalKey = "interval";
+            std::string supplementaryConfigJson =
+                Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+            nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
+            return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
+        }
+        // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
+        catch (nlohmann::detail::exception& e)
+        {
+            std::stringstream msg;
+            LOGERROR("Supplementary file " << m_supplementaryConfigFilePath << " JSON is invalid: " << e.what(););
+            return 0;
+        }
     }
 
     void SchedulerProcessor::waitToRunTelemetry()
@@ -108,9 +127,19 @@ namespace TelemetrySchedulerImpl
         }
         else
         {
-            std::string statusJsonString = Common::FileSystem::fileSystem()->readFile(
-                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
-                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+            std::string statusJsonString;
+
+            try
+            {
+                statusJsonString = Common::FileSystem::fileSystem()->readFile(
+                    Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
+                    Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+            }
+            catch (const Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("File access error reading " << m_telemetryStatusFilePath << " : " << e.what());
+                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+            }
 
             SchedulerStatus schedulerConfig;
 
@@ -121,8 +150,16 @@ namespace TelemetrySchedulerImpl
             catch (const std::runtime_error& e)
             {
                 // invalid status file, so remove it then regenerate
-                Common::FileSystem::fileSystem()->removeFile(m_telemetryStatusFilePath);
-                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+
+                try
+                {
+                    Common::FileSystem::fileSystem()->removeFile(m_telemetryStatusFilePath);
+                }
+                catch (const Common::FileSystem::IFileSystemException& e)
+                {
+                    LOGERROR("File access error removing " << m_telemetryStatusFilePath << " : " << e.what());
+                    scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+                }
             }
 
             scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();

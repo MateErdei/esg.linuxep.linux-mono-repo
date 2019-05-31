@@ -31,7 +31,7 @@ namespace TelemetrySchedulerImpl
         void waitToRunTelemetry();
         void runTelemetry();
         void scheduleTelemetryRunFromSupplementaryFile();
-        size_t getIntervalFromSupplementaryJson();
+        size_t getIntervalFromSupplementaryFile();
         size_t getScheduledTimeUsingSupplementaryFile();
 
     private:
