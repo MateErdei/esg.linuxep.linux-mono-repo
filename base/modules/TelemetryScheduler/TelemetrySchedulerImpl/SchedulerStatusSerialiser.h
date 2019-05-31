@@ -4,15 +4,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SchedulerConfig.h"
+#include "SchedulerStatus.h"
 
 namespace TelemetrySchedulerImpl
 {
-    class Serialiser
+    class SchedulerStatusSerialiser
     {
     public:
-        static std::string serialise(const SchedulerConfig& config);
-        static SchedulerConfig deserialise(const std::string& jsonString);
+        static std::string serialise(const SchedulerStatus& config);
+        static SchedulerStatus deserialise(const std::string& jsonString);
     };
 
 } // namespace TelemetrySchedulerImpl

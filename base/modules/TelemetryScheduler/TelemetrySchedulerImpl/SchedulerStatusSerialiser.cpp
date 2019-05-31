@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Serialiser.h"
+#include "SchedulerStatusSerialiser.h"
 
 #include <json.hpp>
 #include <sstream>
@@ -13,20 +13,20 @@ namespace TelemetrySchedulerImpl
 {
     const std::string TELEMETRY_SCHEDULED_TIME_KEY = "ScheduledTime";
 
-    void to_json(nlohmann::json& j, const SchedulerConfig& config);
-    void from_json(const nlohmann::json& j, SchedulerConfig& config);
+    void to_json(nlohmann::json& j, const SchedulerStatus& config);
+    void from_json(const nlohmann::json& j, SchedulerStatus& config);
 
-    void to_json(nlohmann::json& j, const SchedulerConfig& config)
+    void to_json(nlohmann::json& j, const SchedulerStatus& config)
     {
         j = nlohmann::json{ { TELEMETRY_SCHEDULED_TIME_KEY, config.getTelemetryScheduledTime() } };
     }
 
-    void from_json(const nlohmann::json& j, SchedulerConfig& config)
+    void from_json(const nlohmann::json& j, SchedulerStatus& config)
     {
         config.setTelemetryScheduledTime(j.at(TELEMETRY_SCHEDULED_TIME_KEY));
     }
 
-    std::string Serialiser::serialise(const SchedulerConfig& config)
+    std::string SchedulerStatusSerialiser::serialise(const SchedulerStatus& config)
     {
         if (!config.isValid())
         {
@@ -38,9 +38,9 @@ namespace TelemetrySchedulerImpl
         return j.dump();
     }
 
-    SchedulerConfig Serialiser::deserialise(const std::string& jsonString)
+    SchedulerStatus SchedulerStatusSerialiser::deserialise(const std::string& jsonString)
     {
-        SchedulerConfig config;
+        SchedulerStatus config;
 
         try
         {

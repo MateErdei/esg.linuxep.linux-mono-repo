@@ -12,20 +12,20 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    class SchedulerConfig
+    class SchedulerStatus
     {
     public:
-        SchedulerConfig();
+        SchedulerStatus();
 
-        unsigned int getTelemetryScheduledTime() const;
-        void setTelemetryScheduledTime(unsigned int scheduledTime);
+        size_t getTelemetryScheduledTime() const;
+        void setTelemetryScheduledTime(size_t scheduledTime);
 
-        bool operator==(const SchedulerConfig& rhs) const;
-        bool operator!=(const SchedulerConfig& rhs) const;
+        bool operator==(const SchedulerStatus& rhs) const;
+        bool operator!=(const SchedulerStatus& rhs) const;
 
         bool isValid() const;
 
     private:
-        unsigned int m_telemetryScheduledTime{};
+        size_t m_telemetryScheduledTime{};
     };
 } // namespace TelemetrySchedulerImpl

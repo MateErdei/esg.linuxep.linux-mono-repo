@@ -21,19 +21,23 @@ namespace TelemetrySchedulerImpl
     public:
         SchedulerProcessor(
             std::shared_ptr<TaskQueue> taskQueue,
-            const std::string& supplementaryConfigFilepath,
-            const std::string& telemetryExeConfigFilepath);
+            const std::string& supplementaryConfigFilePath,
+            const std::string& telemetryExeConfigFilePath,
+            const std::string& telemetryStatusFilePath);
 
         void run();
 
     private:
-        void ProcessRunTelemetry();
+        void waitToRunTelemetry();
+        void runTelemetry();
+        void scheduleTelemetryRunFromSupplementaryFile();
+        size_t getIntervalFromSupplementaryJson();
+        size_t getScheduledTimeUsingSupplementaryFile();
 
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
-        std::string m_telemetryExeConfigFilepath;
-        std::string m_supplementaryConfigFilepath;
-        unsigned int m_interval;
-        unsigned int GetIntervalFromSupplementaryJson();
+        std::string m_telemetryExeConfigFilePath;
+        std::string m_supplementaryConfigFilePath;
+        std::string m_telemetryStatusFilePath;
     };
 } // namespace TelemetrySchedulerImpl

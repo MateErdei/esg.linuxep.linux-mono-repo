@@ -41,11 +41,14 @@ namespace TelemetrySchedulerImpl
             std::string supplementaryConfigFilePath(
                 Common::ApplicationConfiguration::applicationPathManager().getTelemetrySupplementaryFilePath());
 
-            std::string telemetryExeConfigFilepath(
+            std::string telemetryExeConfigFilePath(
                 Common::ApplicationConfiguration::applicationPathManager().getTelemetryExeConfigFilePath());
 
+            std::string telemetryStatusFilePath(
+                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath());
+
             SchedulerProcessor telemetrySchedulerProcessor(
-                taskQueue, supplementaryConfigFilePath, telemetryExeConfigFilepath);
+                taskQueue, supplementaryConfigFilePath, telemetryExeConfigFilePath, telemetryStatusFilePath);
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");
