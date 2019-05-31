@@ -22,9 +22,9 @@ public:
     {
     }
 
-    void gatherTelemetry() { Telemetry::TelemetryProcessor::gatherTelemetry(); }
-    std::string getSerialisedTelemetry() { return Telemetry::TelemetryProcessor::getSerialisedTelemetry(); }
-    void sendTelemetry(const std::string& telemetryJson) { Telemetry::TelemetryProcessor::sendTelemetry(telemetryJson); }
-    void saveTelemetry(const std::string& telemetryJson) const { Telemetry::TelemetryProcessor::saveTelemetry(telemetryJson); }
-    void addTelemetry(const std::string& sourceName, const std::string& json) { Telemetry::TelemetryProcessor::addTelemetry(sourceName, json); }
+    void gatherTelemetry() override { Telemetry::TelemetryProcessor::gatherTelemetry(); }
+    std::string getSerialisedTelemetry() override { return Telemetry::TelemetryProcessor::getSerialisedTelemetry(); }
+    void sendTelemetry(const std::string& telemetryJson) override { Telemetry::TelemetryProcessor::sendTelemetry(telemetryJson); }
+    void saveTelemetry(const std::string& telemetryJson) const override { Telemetry::TelemetryProcessor::saveTelemetry(telemetryJson); }
+    void addTelemetry(const std::string& sourceName, const std::string& json) override { Telemetry::TelemetryProcessor::addTelemetry(sourceName, json); }
 };

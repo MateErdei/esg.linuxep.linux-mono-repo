@@ -4,9 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-/**
- * Component tests for Telemetry Scheduler
- */
+#include "DerivedSchedulerProcessor.h"
 
 #include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
 #include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
@@ -93,4 +91,76 @@ public:
     EXPECT_TRUE(done);
 
     processorThread.join();
+}
+
+// TODO: it might be better to test the following cases via run() or waitToRunTelemetry()!
+
+TEST_F(SchedulerProcessorTests, getScheduledTimeUsingSupplementaryFile_ValidSupplementaryFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, getScheduledTimeUsingSupplementaryFile_InvalidSupplementaryFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, getScheduledTimeUsingSupplementaryFile_ZeroInterval)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, getIntervalFromSupplementaryFile_ValidSupplementaryFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, getIntervalFromSupplementaryFile_InvalidSupplementaryFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, getIntervalFromSupplementaryFile_MissingSupplementaryFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile)
+{
+    // TODO: complete test!
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, "", "", "");
 }
