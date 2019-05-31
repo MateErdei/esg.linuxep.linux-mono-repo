@@ -19,19 +19,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    const size_t maxJsonSize = 1000000UL;
-
-    void createTelemetryConfigJsonFile(
-        const std::string& supplementaryJsonString,
-        const std::string& configJsonFilepath)
-    {
-        Common::TelemetryExeConfigImpl::Config config;
-        Common::FileSystem::fileSystem()->writeFile(
-            configJsonFilepath,
-            Common::TelemetryExeConfigImpl::Serialiser::serialise(
-                Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryJsonString)));
-    }
-
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<TaskQueue> taskQueue,
         const std::string& supplementaryConfigFilePath,
@@ -106,7 +93,7 @@ namespace TelemetrySchedulerImpl
     {
         const std::string intervalKey = "interval";
         std::string supplementaryConfigJson =
-            Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilePath, maxJsonSize);
+            Common::FileSystem::fileSystem()->readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
         nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
         return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
     }
@@ -123,7 +110,7 @@ namespace TelemetrySchedulerImpl
         {
             std::string statusJsonString = Common::FileSystem::fileSystem()->readFile(
                 Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
-                maxJsonSize);
+                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
 
             SchedulerStatus schedulerConfig;
 
@@ -153,9 +140,15 @@ namespace TelemetrySchedulerImpl
     void SchedulerProcessor::runTelemetry()
     {
         std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-            m_supplementaryConfigFilePath, maxJsonSize); // error checking here
+            m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
 
-        createTelemetryConfigJsonFile(supplementaryConfigJson, m_telemetryExeConfigFilePath);
+        Common::TelemetryExeConfigImpl::Config config;
+
+        Common::FileSystem::fileSystem()->writeFile(
+            m_telemetryExeConfigFilePath,
+            Common::TelemetryExeConfigImpl::Serialiser::serialise(
+                Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
+
         // TODO: LINUXEP-7984 run telemetry executable
     }
 } // namespace TelemetrySchedulerImpl
