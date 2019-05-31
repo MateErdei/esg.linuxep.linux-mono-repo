@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryExeConfigImpl/Serialiser.h>
 
 using ::testing::StrictMock;
-using namespace Telemetry::TelemetryConfigImpl;
+using namespace Common::TelemetryExeConfigImpl;
 
 class ProxyTests : public ::testing::Test
 {

@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 using ::testing::StrictMock;
-using namespace Telemetry::TelemetryConfigImpl;
+using namespace Common::TelemetryExeConfigImpl;
 
 class MessageRelayTests : public ::testing::Test
 {

@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <json.hpp>
 
 using ::testing::StrictMock;
-using namespace Telemetry::TelemetryConfigImpl;
+using namespace Common::TelemetryExeConfigImpl;
 
 class ConfigTests : public ::testing::Test
 {
