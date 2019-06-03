@@ -72,6 +72,16 @@ public:
     SchedulerProcessor processor(queue, m_mockPathManager);
     std::atomic<bool> done(false);
 
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath()).WillRepeatedly(Return(m_telemetryStatusFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
+            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath()).WillRepeatedly(Return(m_supplementaryConfigFilePath));
+
     std::thread processorThread([&] {
         processor.run();
         done = true;
@@ -100,6 +110,16 @@ public:
     SchedulerProcessor processor(queue, m_mockPathManager);
     PluginCallback pluginCallback(queue);
     std::atomic<bool> done(false);
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath()).WillRepeatedly(Return(m_telemetryStatusFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
+            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath()).WillRepeatedly(Return(m_supplementaryConfigFilePath));
 
     std::thread processorThread([&] {
         processor.run();
