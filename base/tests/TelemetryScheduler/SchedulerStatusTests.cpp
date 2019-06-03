@@ -25,17 +25,17 @@ public:
 
     const unsigned int m_scheduledTimeValue = 123456;
     const std::string m_invalidscheduledTimeValueType = "dfhk56gh";
-    const std::string m_statusJsonString = R"({"ScheduledTime":123456})";
+    const std::string m_statusJsonString = R"({"scheduled-time":123456})";
 
     void SetUp() override
     {
         m_schedulerStatus.setTelemetryScheduledTime(m_scheduledTimeValue);
-        m_jsonObject["ScheduledTime"] = m_scheduledTimeValue;
+        m_jsonObject["scheduled-time"] = m_scheduledTimeValue;
 
-        m_jsonObjectExtraKeys["ScheduledTime"] = m_scheduledTimeValue;
+        m_jsonObjectExtraKeys["scheduled-time"] = m_scheduledTimeValue;
         m_jsonObjectExtraKeys["SomeOtherunExpected"] = "Unexpected";
 
-        m_jsonObjectInvalidValue["ScheduledTime"] = m_invalidscheduledTimeValueType;
+        m_jsonObjectInvalidValue["scheduled-time"] = m_invalidscheduledTimeValueType;
     }
 };
 
@@ -98,7 +98,7 @@ TEST_F(SchedulerStatusTests, parseSupersetConfigJsonDirectlySucceeds) // NOLINT
     const std::string supersetTelemetryJson = R"(
         {
             "ExtraKey": "08546",
-            "ScheduledTime": 1237,
+            "scheduled-time": 1237,
             "AnotherExtraKey": 199797
             })";
     SchedulerStatus schedulerStatus =
@@ -110,7 +110,7 @@ TEST_F(SchedulerStatusTests, parseInvalidValueThrows) // NOLINT
 {
     const std::string supersetTelemetryJson = R"(
         {
-            "ScheduledTime": -1237
+            "scheduled-time": -1237
             })";
     EXPECT_THROW(
         TelemetrySchedulerImpl::SchedulerStatusSerialiser::deserialise(supersetTelemetryJson), std::runtime_error);
