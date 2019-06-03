@@ -65,7 +65,6 @@ namespace TelemetrySchedulerImpl
         {
             LOGERROR(
                 "Supplementary file '" << m_pathManager.getTelemetrySupplementaryFilePath() << "' is not accessible");
-            m_taskQueue->push(Task::WaitToRunTelemetry);
             return 0;
         }
 
