@@ -11,6 +11,8 @@ import mcsrouter.utils.timestamp
 import mcsrouter.utils.target_system_manager
 import mcsrouter.utils.path_manager as path_manager
 
+import os
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -149,10 +151,23 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         get_status_xml
         """
+        target_system = self.__target_system()
+        if target_system.detect_is_ec2_instance():
+
+            return "".join((
+                self.get_status_header(),
+                self.get_common_status_xml(),
+                self.get_aws_status(),
+                self.get_platform_status(),
+                self.get_policy_status(),
+                self.get_status_footer()
+            ))
+
         return "".join((
             self.get_status_header(),
             self.get_common_status_xml(),
             self.get_platform_status(),
+            self.get_policy_status(),
             self.get_status_footer()
         ))
 
@@ -225,3 +240,45 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             "<osName>%s</osName>" % os_name,
             "<kernelVersion>%s</kernelVersion>" % kernel,
             "</posixPlatformDetails>"))
+
+    def get_aws_status(self):
+        """
+        get_aws_status
+        """
+        target_system = self.__target_system()
+        awsInfo = target_system.detect_instance_info()
+
+        region = awsInfo["region"]
+        account_id = awsInfo["accountId"]
+        instance_id = awsInfo["instanceId"]
+
+        return "".join((
+            "<aws>",
+            "<region>%s</region>" % region,
+            "<accountId>%s</accountId>" % account_id,
+            "<instanceId>%s</instanceId>" % instance_id,
+            "</aws>"))
+
+    def get_policy_status(self):
+        """
+        get_policy_status
+        """
+
+        entries = []
+        latest_timestamp = 0.0
+        policy_folder_path = os.join(path_manager.INST, "base/mcs/policy")
+        policy_list = os.listdir(policy_folder_path)
+
+        for path in policy_list:
+            if os.isFile(path):
+                epoch_timestamp = os.path.getmtime(path)
+                # Policies have three letter acronyms
+                policy_name = os.basename(path)[:3]
+
+                if epoch_timestamp > latest_timestamp:
+                    latest_timestamp = epoch_timestamp
+                entries.append("<policy app=\"{}\" latest=\"{}\" />".format(policy_name, mcsrouter.utils.timestamp.timestamp(epoch_timestamp)))
+
+        entries.append("</policy-status>")
+
+        return "<policy-status latest={}>".format(latest_timestamp).join(entries)
