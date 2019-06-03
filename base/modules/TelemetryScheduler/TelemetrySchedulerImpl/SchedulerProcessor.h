@@ -11,6 +11,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <atomic>
 
@@ -21,9 +22,7 @@ namespace TelemetrySchedulerImpl
     public:
         SchedulerProcessor(
             std::shared_ptr<TaskQueue> taskQueue,
-            const std::string& supplementaryConfigFilePath,
-            const std::string& telemetryExeConfigFilePath,
-            const std::string& telemetryStatusFilePath);
+            const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
 
         virtual void run();
 
@@ -35,8 +34,6 @@ namespace TelemetrySchedulerImpl
 
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
-        std::string m_telemetryExeConfigFilePath;
-        std::string m_supplementaryConfigFilePath;
-        std::string m_telemetryStatusFilePath;
+        const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
     };
 } // namespace TelemetrySchedulerImpl

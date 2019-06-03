@@ -38,17 +38,9 @@ namespace TelemetrySchedulerImpl
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService =
                 resourceManagement->createPluginAPI("tscheduler", pluginCallBack);
 
-            std::string supplementaryConfigFilePath(
-                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySupplementaryFilePath());
+            Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
-            std::string telemetryExeConfigFilePath(
-                Common::ApplicationConfiguration::applicationPathManager().getTelemetryExeConfigFilePath());
-
-            std::string telemetryStatusFilePath(
-                Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath());
-
-            SchedulerProcessor telemetrySchedulerProcessor(
-                taskQueue, supplementaryConfigFilePath, telemetryExeConfigFilePath, telemetryStatusFilePath);
+            SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pathManager);
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

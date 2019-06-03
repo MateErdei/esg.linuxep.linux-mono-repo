@@ -184,7 +184,7 @@ namespace Common
 
         std::string ApplicationPathManager::getTelemetrySchedulerConfigFilePath() const
         {
-            return Common::FileSystem::join(getPluginRegistryPath(), "tscheduler.json");
+            return Common::FileSystem::join(sophosInstall(), "base/telemetry/var/tscheduler-status.json");
         }
 
         std::string ApplicationPathManager::getTelemetrySupplementaryFilePath() const

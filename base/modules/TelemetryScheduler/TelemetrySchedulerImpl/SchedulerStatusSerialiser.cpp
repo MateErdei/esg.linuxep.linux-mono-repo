@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    const std::string TELEMETRY_SCHEDULED_TIME_KEY = "ScheduledTime";
+    const std::string TELEMETRY_SCHEDULED_TIME_KEY = "scheduled-time";
 
     void to_json(nlohmann::json& j, const SchedulerStatus& config);
     void from_json(const nlohmann::json& j, SchedulerStatus& config);

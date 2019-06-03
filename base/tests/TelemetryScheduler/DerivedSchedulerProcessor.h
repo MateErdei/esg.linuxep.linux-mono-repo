@@ -10,16 +10,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/TelemetryExeConfigImpl/Config.h>
 #include <modules/TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
 #include <modules/TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 class DerivedSchedulerProcessor : public TelemetrySchedulerImpl::SchedulerProcessor
 {
 public:
     DerivedSchedulerProcessor(
         std::shared_ptr<TelemetrySchedulerImpl::TaskQueue> taskQueue,
-        const std::string& supplementaryConfigFilePath,
-        const std::string& telemetryExeConfigFilePath,
-        const std::string& telemetryStatusFilePath) :
-        SchedulerProcessor(std::move(taskQueue), supplementaryConfigFilePath, telemetryExeConfigFilePath, telemetryStatusFilePath)
+        const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
+        SchedulerProcessor(std::move(taskQueue), pathManager)
     {
     }
 
