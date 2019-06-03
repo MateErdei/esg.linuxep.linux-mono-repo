@@ -91,7 +91,6 @@ namespace TelemetrySchedulerImpl
                 LOGERROR(
                     "File access error writing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
                                                  << e.what());
-                // TODO: attempt to remove status file?
             }
         }
 
@@ -105,11 +104,13 @@ namespace TelemetrySchedulerImpl
         try
         {
             supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-                m_pathManager.getTelemetrySupplementaryFilePath(), Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+                m_pathManager.getTelemetrySupplementaryFilePath(),
+                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " : " << e.what());
+            LOGERROR(
+                "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " : " << e.what());
             return 0;
         }
 
@@ -123,7 +124,8 @@ namespace TelemetrySchedulerImpl
         catch (nlohmann::detail::exception& e)
         {
             std::stringstream msg;
-            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()<< " JSON is invalid: " << e.what(););
+            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
+                                           << " JSON is invalid: " << e.what(););
             return 0;
         }
     }
@@ -139,28 +141,27 @@ namespace TelemetrySchedulerImpl
         else
         {
             std::string statusJsonString;
+            SchedulerStatus schedulerConfig;
 
             try
             {
                 statusJsonString = Common::FileSystem::fileSystem()->readFile(
                     Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
                     Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+                schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
+                scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();
             }
             catch (const Common::FileSystem::IFileSystemException& e)
             {
-                LOGERROR("File access error reading " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : " << e.what());
+                LOGERROR(
+                    "File access error reading " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
+                                                 << e.what());
                 scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
-            }
-
-            SchedulerStatus schedulerConfig;
-
-            try
-            {
-                schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
             }
             catch (const std::runtime_error& e)
             {
-                // invalid status file, so remove it then regenerate
+                LOGERROR(
+                    "Invalid status file " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : " << e.what());
 
                 try
                 {
@@ -168,12 +169,14 @@ namespace TelemetrySchedulerImpl
                 }
                 catch (const Common::FileSystem::IFileSystemException& e)
                 {
-                    LOGERROR("File access error removing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : " << e.what());
-                    scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+                    LOGERROR(
+                        "File access error removing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
+                                                      << e.what());
                 }
-            }
 
-            scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();
+                scheduledTimeInSecondsSinceEpoch =
+                    getScheduledTimeUsingSupplementaryFile(); // should regenerate status file
+            }
         }
 
         LOGDEBUG("Scheduled telemetry time: " << scheduledTimeInSecondsSinceEpoch);
@@ -188,7 +191,8 @@ namespace TelemetrySchedulerImpl
     void SchedulerProcessor::runTelemetry()
     {
         std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-            m_pathManager.getTelemetrySupplementaryFilePath(), Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
+            m_pathManager.getTelemetrySupplementaryFilePath(),
+            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
 
         Common::TelemetryExeConfigImpl::Config config;
 
