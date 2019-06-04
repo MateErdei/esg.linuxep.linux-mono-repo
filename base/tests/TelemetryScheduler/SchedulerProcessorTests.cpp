@@ -17,6 +17,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
+#include <chrono>
+#include <thread>
+
 using TelemetrySchedulerImpl::PluginCallback;
 using TelemetrySchedulerImpl::SchedulerProcessor;
 using TelemetrySchedulerImpl::Task;
@@ -62,45 +65,53 @@ TEST_F(SchedulerProcessorTests, ConstructionWithNullQueue) // NOLINT
 
 TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 {
+    const std::chrono::milliseconds delay(10);
+
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
+    std::atomic<bool> done(false);
 
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
-        .WillRepeatedly(Return(m_telemetryStatusFilePath));
-    EXPECT_CALL(
-        *m_mockFileSystem,
-        readFile(
-            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
-            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
-    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
-        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    std::thread processorThread([&] {
+      processor.run();
+      done = true;
+    });
+
+    EXPECT_FALSE(done);
+
+    std::this_thread::sleep_for(delay); // attempt to allow processor to run
+
+    EXPECT_FALSE(done);
 
     queue->pushPriority(Task::Shutdown);
-    processor.run();
+    std::this_thread::sleep_for(delay); // attempt to allow processor to run
+
+    EXPECT_TRUE(done);
+
+    processorThread.join();
 }
 
 TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
 {
+    const std::chrono::milliseconds delay(10);
+
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
     PluginCallback pluginCallback(queue);
+    std::atomic<bool> done(false);
 
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
-        .WillRepeatedly(Return(m_telemetryStatusFilePath));
-    EXPECT_CALL(
-        *m_mockFileSystem,
-        readFile(
-            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
-            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
-    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
-        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    std::thread processorThread([&] {
+      processor.run();
+      done = true;
+    });
+
+    EXPECT_FALSE(done);
 
     pluginCallback.onShutdown();
-    processor.run();
+    std::this_thread::sleep_for(delay); // attempt to allow processor to run
+
+    EXPECT_TRUE(done);
+
+    processorThread.join();
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInPast) // NOLINT
@@ -118,8 +129,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     auto task = queue->pop();
     EXPECT_EQ(task, Task::RunTelemetry);
@@ -148,8 +158,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -177,8 +186,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -202,8 +210,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -230,8 +237,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -256,8 +262,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -276,8 +281,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndMissingSu
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -300,8 +304,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotReadSu
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -324,8 +327,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndSupplemen
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -348,8 +350,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidSu
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -378,8 +379,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
 
-    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
-    processor.run();
+    processor.waitToRunTelemetry();
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());

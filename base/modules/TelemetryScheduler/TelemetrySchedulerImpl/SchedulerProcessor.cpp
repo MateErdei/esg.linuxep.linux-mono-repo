@@ -39,8 +39,6 @@ namespace TelemetrySchedulerImpl
 
     void SchedulerProcessor::run()
     {
-        waitToRunTelemetry();
-
         while (true)
         {
             auto task = m_taskQueue->pop();
