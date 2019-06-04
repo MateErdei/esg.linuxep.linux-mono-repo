@@ -237,6 +237,10 @@ function build()
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
         untar_or_link_to_redist protobuf
         untar_or_link_to_redist capnproto
+        untar_or_link_to_redist python
+        untar_or_link_to_redist python-watchdog
+        untar_or_link_to_redist python-pathtools
+        untar_or_link_to_redist pycrypto
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 

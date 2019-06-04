@@ -18,8 +18,14 @@ export INST_DIR
 
 BIN_DIR=${BASE_DIR}/bin
 
+pythonzip=$BASE_DIR/lib64/python27.zip
 mcsrouterzip=$BASE_DIR/lib64/mcsrouter.zip
+pythonExecutable=$BASE_DIR/bin/python
 
-export PYTHONPATH=$mcsrouterzip
+export PYTHONPATH=$pythonzip:$mcsrouterzip
+export PYTHONHOME=$INST_DIR/base/
 
-exec python -m mcsrouter.register_central "$@"
+LD_LIBRARY_PATH=$INSTDIR/base/lib:$INSTDIR/base/lib64
+export LD_LIBRARY_PATH
+
+exec $pythonExecutable -m mcsrouter.register_central "$@"

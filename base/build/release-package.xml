@@ -53,6 +53,24 @@
         <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
+        <package name="pythonlinux10" version="2-7-16/214473/pythonlinux10" dest="input">
+            <include src="python.tar" dest="." />
+        </package>
+        <package buildtype="dev" name="python-watchdog" version="%LASTGOODCOMPONENTBUILD%\python-watchdog/0.9.0/watchdog/" dest="input">
+            <include src="python-watchdog.tar" dest="." />
+        </package>
+        <package buildtype="prod" name="watchdog" version="2-7-16/214473/python-watchdog" dest="input">
+            <include src="python-watchdog.tar" dest="." />
+        </package>
+        <package buildtype="dev" name="python-pathtools" version="%LASTGOODCOMPONENTBUILD%\python-pathtools/0.1.1/pathtools/" dest="input">
+            <include src="python-pathtools.tar" dest="." />
+        </package>
+        <package buildtype="prod" name="pathtools" version="2-7-16/214473/python-pathtools" dest="input">
+            <include src="python-pathtools.tar" dest="." />
+        </package>
+        <package name="pycrypto" version="2-6-1/214596/pycryptolinux10/" dest="input">
+            <include src="pycrypto.tar" dest="." />
+        </package>
     </inputs>
     <buildcommands>
         <command>
@@ -68,6 +86,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
+        <publishbranches>master,feature/LINUXEP-7805-re-build-python2</publishbranches>
     </publish>
 </package>

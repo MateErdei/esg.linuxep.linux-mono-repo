@@ -165,6 +165,32 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
+
+## Allow this to be redirected for python development
+if(NOT DEFINED PYTHON_INPUT)
+    set( PYTHON_INPUT ${INPUT}/python)
+endif()
+
+## Allow this to be redirected for pathtools development
+if(NOT DEFINED WATCHDOG_INPUT)
+    set( WATCHDOG_INPUT ${INPUT}/watchdog)
+endif()
+
+## Allow this to be redirected for watchdog development
+if(NOT DEFINED PATHTOOLS_INPUT)
+    set( PATHTOOLS_INPUT ${INPUT}/pathtools)
+endif()
+
+## Allow this to be redirected for pycryptodome development
+if(NOT DEFINED PYCRYPTODOME_INPUT)
+    set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
+endif()
+
+## Allow this to be redirected for pycryptodome development
+if(NOT DEFINED PYCRYPTO_INPUT)
+    set( PYCRYPTO_INPUT ${INPUT}/pycrypto)
+endif()
+
 set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
