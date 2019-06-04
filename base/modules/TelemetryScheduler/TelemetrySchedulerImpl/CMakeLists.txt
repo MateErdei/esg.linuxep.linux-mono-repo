@@ -17,6 +17,7 @@ include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../..
 target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryschedulerloggerimpl
         pluginapiimpl
+        processimpl
         telemetryexeconfigimpl
         )
 

@@ -13,6 +13,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/Process/IProcess.h>
+#include <Common/Process/IProcessException.h>
 #include <Common/TelemetryExeConfigImpl/Serialiser.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
@@ -201,5 +203,31 @@ namespace TelemetrySchedulerImpl
                 Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
 
         // TODO: LINUXEP-7984 run telemetry executable
+        try
+        {
+            auto processPtr = Common::Process::createProcess();
+            processPtr->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
+            processPtr->exec(
+                m_pathManager.getTelemetryExeConfigFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
+            if (processPtr->wait(
+                    Common::Process::milli(Common::TelemetryExeConfigImpl::ONE_MINUTE_PROCESS_WAIT),
+                    Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES) !=
+                Common::Process::ProcessStatus::FINISHED)
+            {
+                processPtr->kill();
+                throw Common::Process::IProcessException("Collect and send telemetry process timed out");
+            }
+            int exitCode = processPtr->exitCode();
+            if (exitCode != 0)
+            {
+                throw Common::Process::IProcessException(
+                    "Collect and send telemetry process returned non-zero exit code, 'Exit code: " +
+                    std::string(strerror(exitCode)) + "'");
+            }
+        }
+        catch (const Common::Process::IProcessException& processException)
+        {
+            LOGERROR("Failed to send telemetry. Reason: " << processException.what());
+        }
     }
 } // namespace TelemetrySchedulerImpl
