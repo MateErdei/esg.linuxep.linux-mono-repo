@@ -56,13 +56,13 @@
         <package name="pythonlinux10" version="2-7-16/214473/pythonlinux10" dest="input">
             <include src="python.tar" dest="." />
         </package>
-        <package buildtype="dev" name="python-watchdog" version="%LASTGOODCOMPONENTBUILD%\python-watchdog/0.9.0/watchdog/" dest="input">
+        <package buildtype="dev" name="python-watchdog" version="master/%LASTGOODCOMPONENTBUILD%/python-watchdog/0.9.0/watchdog/" dest="input">
             <include src="python-watchdog.tar" dest="." />
         </package>
         <package buildtype="prod" name="watchdog" version="2-7-16/214473/python-watchdog" dest="input">
             <include src="python-watchdog.tar" dest="." />
         </package>
-        <package buildtype="dev" name="python-pathtools" version="%LASTGOODCOMPONENTBUILD%\python-pathtools/0.1.1/pathtools/" dest="input">
+        <package buildtype="dev" name="python-pathtools" version="master/%LASTGOODCOMPONENTBUILD%/python-pathtools/0.1.1/pathtools/" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
         <package buildtype="prod" name="pathtools" version="2-7-16/214473/python-pathtools" dest="input">
