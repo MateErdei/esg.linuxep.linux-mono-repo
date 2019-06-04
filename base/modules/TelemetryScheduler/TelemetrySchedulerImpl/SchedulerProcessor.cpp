@@ -28,8 +28,8 @@ namespace TelemetrySchedulerImpl
         const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
         m_taskQueue(std::move(taskQueue)),
         m_pathManager(pathManager),
-        m_delayBeforeCheckingConfigurationState(false),
-        m_delayBeforeRunningTelemetryState(false)
+        m_delayBeforeRunningTelemetryState(false),
+        m_delayBeforeCheckingConfigurationState(false)
     {
         if (!m_taskQueue)
         {

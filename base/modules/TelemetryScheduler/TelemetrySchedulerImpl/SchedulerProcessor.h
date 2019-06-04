@@ -26,6 +26,9 @@ namespace TelemetrySchedulerImpl
 
         virtual void run();
 
+        bool delayingTelemetryRun() { return m_delayBeforeRunningTelemetryState; }
+        bool delayingConfigurationCheck() { return m_delayBeforeCheckingConfigurationState; }
+
     protected:
         virtual void waitToRunTelemetry();
         virtual void runTelemetry();
@@ -36,7 +39,7 @@ namespace TelemetrySchedulerImpl
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
-        std::atomic<bool> m_delayBeforeCheckingConfigurationState;
         std::atomic<bool> m_delayBeforeRunningTelemetryState;
+        std::atomic<bool> m_delayBeforeCheckingConfigurationState;
     };
 } // namespace TelemetrySchedulerImpl

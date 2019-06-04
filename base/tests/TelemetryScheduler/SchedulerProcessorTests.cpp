@@ -103,9 +103,7 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     processor.run();
 }
 
-// TODO: it might be better to test the following cases via run() or waitToRunTelemetry()!
-
-TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFile) // NOLINT
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileScheduleInPast) // NOLINT
 {
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
@@ -123,7 +121,38 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFile) // NOLINT
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is queued
+    auto task = queue->pop();
+    EXPECT_EQ(task, Task::RunTelemetry);
+
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileScheduleInFuture) // NOLINT
+{
+    auto future = std::chrono::system_clock::now() + std::chrono::seconds(2);;
+    size_t futureInSecondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(future.time_since_epoch()).count();
+    std::stringstream statusFileContents;
+    statusFileContents << R"({"scheduled-time":)" << futureInSecondsSinceEpoch << "}";
+
+    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
+        .WillRepeatedly(Return(m_telemetryStatusFilePath));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
+            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(statusFileContents.str()));
+
+    auto queue = std::make_shared<TaskQueue>();
+    SchedulerProcessor processor(queue, m_mockPathManager);
+
+    queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
+    processor.run();
+
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
@@ -151,7 +180,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
@@ -175,7 +205,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NOLINT
@@ -202,7 +233,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrite) // NOLINT
@@ -227,7 +259,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndMissingSupplementaryFile) // NOLINT
@@ -246,7 +279,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndMissingSu
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed - short delay, not default interval!
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_TRUE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotReadSupplementaryFile) // NOLINT
@@ -269,7 +303,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotReadSu
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed - short delay, not default interval!
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_TRUE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndSupplementaryFileWithMissingInterval) // NOLINT
@@ -292,7 +327,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndSupplemen
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed - short delay, not default interval!
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_TRUE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidSupplementaryFile) // NOLINT
@@ -315,7 +351,8 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidSu
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed - short delay, not default interval!
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_TRUE(processor.delayingConfigurationCheck());
 }
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove) // NOLINT
@@ -344,5 +381,6 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     queue->pushPriority(Task::Shutdown); // schedule telemetry then stop
     processor.run();
 
-    // TODO: LINUXEP-6639 add check that RunTelemetry is delayed
+    EXPECT_TRUE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
