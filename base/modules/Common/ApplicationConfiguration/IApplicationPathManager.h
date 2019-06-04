@@ -66,6 +66,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getTelemetrySchedulerConfigFilePath() const = 0;
         virtual std::string getTelemetrySupplementaryFilePath() const = 0;
         virtual std::string getTelemetryExeConfigFilePath() const = 0;
+        virtual std::string getTelemetryExecutableFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

@@ -254,7 +254,7 @@ namespace TelemetrySchedulerImpl
         {
             m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
             m_telemetryExeProcess->exec(
-                m_pathManager.getTelemetryExeConfigFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
+                m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
             delayBeforeQueueingTask(300, m_delayBeforeCheckingExeState, Task::CheckExecutableFinished);
         }
