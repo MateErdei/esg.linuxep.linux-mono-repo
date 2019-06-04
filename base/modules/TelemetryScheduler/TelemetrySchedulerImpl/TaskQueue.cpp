@@ -30,4 +30,10 @@ namespace TelemetrySchedulerImpl
         m_list.pop_front();
         return task;
     }
+
+    bool TaskQueue::stopReceived()
+    {
+        std::lock_guard<std::mutex> lck(m_mutex);
+        return m_list.front() == Task::Shutdown;
+    }
 } // namespace TelemetrySchedulerImpl

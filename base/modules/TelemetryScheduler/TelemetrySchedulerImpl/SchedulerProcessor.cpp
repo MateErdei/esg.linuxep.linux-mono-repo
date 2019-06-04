@@ -19,6 +19,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <json.hpp>
+#include <thread>
 
 namespace TelemetrySchedulerImpl
 {
@@ -203,26 +204,40 @@ namespace TelemetrySchedulerImpl
                 Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
 
         // TODO: LINUXEP-7984 run telemetry executable
+        auto processPtr = Common::Process::createProcess();
+        int exitCode = 0;
+        unsigned int retries = 0;
+
         try
         {
-            auto processPtr = Common::Process::createProcess();
             processPtr->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
             processPtr->exec(
                 m_pathManager.getTelemetryExeConfigFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
-            if (processPtr->wait(
-                    Common::Process::milli(Common::TelemetryExeConfigImpl::ONE_MINUTE_PROCESS_WAIT),
-                    Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES) !=
-                Common::Process::ProcessStatus::FINISHED)
+            while (!m_taskQueue->stopReceived() &&
+                   retries < Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES)
             {
-                processPtr->kill();
-                throw Common::Process::IProcessException("Collect and send telemetry process timed out");
-            }
-            int exitCode = processPtr->exitCode();
-            if (exitCode != 0)
-            {
-                throw Common::Process::IProcessException(
-                    "Collect and send telemetry process returned non-zero exit code, 'Exit code: " +
-                    std::string(strerror(exitCode)) + "'");
+                if (processPtr->wait(
+                        Common::Process::milli(Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_TIME),
+                        Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES) !=
+                    Common::Process::ProcessStatus::FINISHED)
+                {
+                    std::this_thread::sleep_for(std::chrono::seconds(30));
+                    ++retries;
+                    continue;
+                }
+
+                if (processPtr->getStatus() != Common::Process::ProcessStatus::FINISHED)
+                {
+                    processPtr->kill();
+                    throw Common::Process::IProcessException("Process execution timed out");
+                }
+
+                exitCode = processPtr->exitCode();
+                if (exitCode != 0)
+                {
+                    throw Common::Process::IProcessException(
+                        "Process returned non-zero exit code, 'Exit code: " + std::string(strerror(exitCode)) + "'");
+                }
             }
         }
         catch (const Common::Process::IProcessException& processException)

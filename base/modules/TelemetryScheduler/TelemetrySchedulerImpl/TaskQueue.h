@@ -21,6 +21,7 @@ namespace TelemetrySchedulerImpl
         void push(Task);
         void pushPriority(Task);
         Task pop();
+        bool stopReceived();
 
     private:
         std::mutex m_mutex;
