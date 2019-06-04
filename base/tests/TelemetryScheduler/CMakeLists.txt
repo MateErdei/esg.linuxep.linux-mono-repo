@@ -6,6 +6,7 @@ include(GoogleTest)
 add_executable(TelemetrySchedulerTests
         TaskQueueTests.cpp
         SchedulerProcessorTests.cpp
+        DerivedSchedulerProcessor.h
         SchedulerStatusTests.cpp)
 
 target_include_directories(TelemetrySchedulerTests PUBLIC ${PROTOBUF_INCLUDE_DIR})

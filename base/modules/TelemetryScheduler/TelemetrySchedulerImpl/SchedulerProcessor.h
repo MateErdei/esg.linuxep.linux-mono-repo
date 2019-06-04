@@ -30,15 +30,14 @@ namespace TelemetrySchedulerImpl
          */
         virtual void run();
 
-        // Direct access to task processing functions, intended to simplify testing:
+    protected:
         virtual void waitToRunTelemetry();
         virtual void runTelemetry();
         virtual void checkExecutableFinished();
 
-        bool delayingTelemetryRun() { return m_delayBeforeRunningTelemetryState; }
-        bool delayingConfigurationCheck() { return m_delayBeforeCheckingConfigurationState; }
+        virtual bool delayingTelemetryRun() { return m_delayBeforeRunningTelemetryState; }
+        virtual bool delayingConfigurationCheck() { return m_delayBeforeCheckingConfigurationState; }
 
-    protected:
         size_t getIntervalFromSupplementaryFile();
         size_t getScheduledTimeUsingSupplementaryFile();
         void delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task);
