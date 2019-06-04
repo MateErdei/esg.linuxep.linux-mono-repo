@@ -103,7 +103,7 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     processor.run();
 }
 
-TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileScheduleInPast) // NOLINT
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInPast) // NOLINT
 {
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
@@ -128,7 +128,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileScheduleInPast
     EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
-TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileScheduleInFuture) // NOLINT
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInFuture) // NOLINT
 {
     auto future = std::chrono::system_clock::now() + std::chrono::seconds(2);;
     size_t futureInSecondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(future.time_since_epoch()).count();
