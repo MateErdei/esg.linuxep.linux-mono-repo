@@ -25,6 +25,8 @@ namespace TelemetrySchedulerImpl
             std::shared_ptr<TaskQueue> taskQueue,
             const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
 
+        ~SchedulerProcessor();
+
         /**
          * Start the processor's main loop, processing tasks until Task::Shutdown is received.
          */

@@ -37,6 +37,11 @@ namespace TelemetrySchedulerImpl
         }
     }
 
+    SchedulerProcessor::~SchedulerProcessor()
+    {
+        // TODO: terminate any running delay threads!
+    }
+
     void SchedulerProcessor::run()
     {
         while (true)
@@ -138,6 +143,7 @@ namespace TelemetrySchedulerImpl
 
     void SchedulerProcessor::delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task)
     {
+        // TODO: consider using separate SleepyThread class based on AbstractThread, so that thread can be terminated early. Will need support to see if running as here.
         if (runningState)
         {
             return; // already running, so don't run another of these delay threads
@@ -146,12 +152,12 @@ namespace TelemetrySchedulerImpl
         runningState = true;
 
         std::thread delayThread([&] {
-          std::this_thread::sleep_for(std::chrono::seconds(delayInSeconds));
+          std::this_thread::sleep_for(std::chrono::seconds(delayInSeconds)); // TODO: need sleep in loop to check for termination from destructor!
           m_taskQueue->push(task);
           runningState = false;
         });
 
-        delayThread.detach();
+        delayThread.detach(); // TODO: do need to allow thread to be joined when destructing!
     }
 
     void SchedulerProcessor::waitToRunTelemetry()
