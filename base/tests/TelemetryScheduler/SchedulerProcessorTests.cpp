@@ -6,6 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/TelemetryExeConfigImpl/Constants.h>
 #include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
 #include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
@@ -16,6 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
 
 #include <chrono>
 #include <thread>
@@ -31,6 +33,7 @@ public:
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
     MockedApplicationPathManager m_mockPathManager;
+    std::unique_ptr<MockProcess> m_mockProcess;
 
     const std::string m_supplementaryConfigFilePath = "/opt/sophos-spl/base/etc/telemetry-config.json";
     const std::string m_telemetryExeConfigFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry-exe.json";
@@ -45,6 +48,14 @@ public:
         std::unique_ptr<MockFilePermissions> mockfilePermissions(new StrictMock<MockFilePermissions>());
         m_mockFilePermissions = mockfilePermissions.get();
         Tests::replaceFilePermissions(std::move(mockfilePermissions));
+
+        setupMockProcess();
+    }
+
+    void setupMockProcess()
+    {
+        m_mockProcess.reset(new StrictMock<MockProcess>());
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([this]() { return std::move(m_mockProcess); });
     }
 
     void TearDown() override {}
@@ -140,8 +151,9 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInFuture) // NOLINT
 {
-    auto future = std::chrono::system_clock::now() + std::chrono::seconds(2);;
-    size_t futureInSecondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(future.time_since_epoch()).count();
+    auto future = std::chrono::system_clock::now() + std::chrono::seconds(2);
+    size_t futureInSecondsSinceEpoch =
+        std::chrono::duration_cast<std::chrono::seconds>(future.time_since_epoch()).count();
     std::stringstream statusFileContents;
     statusFileContents << R"({"scheduled-time":)" << futureInSecondsSinceEpoch << "}";
 
