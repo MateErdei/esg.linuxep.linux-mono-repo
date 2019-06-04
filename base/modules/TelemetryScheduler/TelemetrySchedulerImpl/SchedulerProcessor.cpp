@@ -263,7 +263,7 @@ namespace TelemetrySchedulerImpl
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Failed to send telemetry. Reason: " << processException.what());
-            // TODO: schedule next run
+            m_taskQueue->push(Task::WaitToRunTelemetry);
         }
     }
 
@@ -283,7 +283,7 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        // TODO: schedule next run
+        m_taskQueue->push(Task::WaitToRunTelemetry);
     }
 
 } // namespace TelemetrySchedulerImpl
