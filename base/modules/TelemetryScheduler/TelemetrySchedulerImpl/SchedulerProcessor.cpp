@@ -260,7 +260,7 @@ namespace TelemetrySchedulerImpl
         }
         catch (const Common::Process::IProcessException& processException)
         {
-            LOGERROR("Failed to send telemetry. Reason: " << processException.what());
+            LOGERROR("Failed to send telemetry: " << processException.what());
             m_taskQueue->push(Task::WaitToRunTelemetry);
         }
     }
