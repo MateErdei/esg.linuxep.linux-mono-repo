@@ -9,9 +9,10 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "TaskQueue.h"
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/Process/IProcess.h>
 
 #include <atomic>
 
@@ -32,6 +33,8 @@ namespace TelemetrySchedulerImpl
     protected:
         virtual void waitToRunTelemetry();
         virtual void runTelemetry();
+        virtual void checkExecutableFinished();
+
         size_t getIntervalFromSupplementaryFile();
         size_t getScheduledTimeUsingSupplementaryFile();
         void delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task);
@@ -41,5 +44,7 @@ namespace TelemetrySchedulerImpl
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
         std::atomic<bool> m_delayBeforeRunningTelemetryState;
         std::atomic<bool> m_delayBeforeCheckingConfigurationState;
+        std::atomic<bool> m_delayBeforeCheckingExeState;
+        std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
     };
 } // namespace TelemetrySchedulerImpl

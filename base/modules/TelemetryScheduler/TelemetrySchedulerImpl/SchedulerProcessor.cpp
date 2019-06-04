@@ -53,7 +53,11 @@ namespace TelemetrySchedulerImpl
 
                 case Task::RunTelemetry:
                     runTelemetry();
-                    break; // TODO: LINUXEP-7984 run telelmetry executable
+                    break;
+
+                case Task::CheckExecutableFinished:
+                    checkExecutableFinished();
+                    break;
 
                 case Task::Shutdown:
                     return;
@@ -246,46 +250,40 @@ namespace TelemetrySchedulerImpl
             Common::TelemetryExeConfigImpl::Serialiser::serialise(
                 Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
 
-        // TODO: LINUXEP-7984 run telemetry executable
-        auto processPtr = Common::Process::createProcess();
-        int exitCode = 0;
-        unsigned int retries = 0;
+        m_telemetryExeProcess = Common::Process::createProcess();
 
         try
         {
-            processPtr->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
-            processPtr->exec(
+            m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
+            m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExeConfigFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
-            while (!m_taskQueue->stopReceived() &&
-                   retries < Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES)
-            {
-                if (processPtr->wait(
-                        Common::Process::milli(Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_TIME),
-                        Common::TelemetryExeConfigImpl::DEFAULT_PROCESS_WAIT_RETRIES) !=
-                    Common::Process::ProcessStatus::FINISHED)
-                {
-                    std::this_thread::sleep_for(std::chrono::seconds(30));
-                    ++retries;
-                    continue;
-                }
 
-                if (processPtr->getStatus() != Common::Process::ProcessStatus::FINISHED)
-                {
-                    processPtr->kill();
-                    throw Common::Process::IProcessException("Process execution timed out");
-                }
-
-                exitCode = processPtr->exitCode();
-                if (exitCode != 0)
-                {
-                    throw Common::Process::IProcessException(
-                        "Process returned non-zero exit code, 'Exit code: " + std::string(strerror(exitCode)) + "'");
-                }
-            }
+            delayBeforeQueueingTask(300, m_delayBeforeCheckingExeState, Task::CheckExecutableFinished);
         }
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Failed to send telemetry. Reason: " << processException.what());
+            // TODO: schedule next run
         }
     }
+
+    void SchedulerProcessor::checkExecutableFinished()
+    {
+        if (m_telemetryExeProcess->getStatus() != Common::Process::ProcessStatus::FINISHED)
+        {
+            m_telemetryExeProcess->kill();
+            LOGERROR("Running telemetry executable timed out");
+        }
+        else
+        {
+            int exitCode = m_telemetryExeProcess->exitCode();
+            if (exitCode != 0)
+            {
+                LOGERROR("Telemetry executable failed with exit code " << exitCode);
+            }
+        }
+
+        // TODO: schedule next run
+    }
+
 } // namespace TelemetrySchedulerImpl

@@ -14,6 +14,7 @@ namespace TelemetrySchedulerImpl
     {
         Shutdown,
         WaitToRunTelemetry,
-        RunTelemetry
+        RunTelemetry,
+        CheckExecutableFinished
     };
 } // namespace TelemetrySchedulerImpl
