@@ -265,20 +265,26 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
 
         entries = []
-        latest_timestamp = 0.0
-        policy_folder_path = os.join(path_manager.INST, "base/mcs/policy")
+        latest_timestamp = mcsrouter.utils.timestamp.timestamp(0.0)
+        policy_folder_path = os.path.join(path_manager.INST, "base/mcs/policy")
         policy_list = os.listdir(policy_folder_path)
 
-        for path in policy_list:
-            if os.isFile(path):
-                epoch_timestamp = os.path.getmtime(path)
+        for filename in policy_list:
+            filepath = os.path.join(policy_folder_path, filename)
+            if os.path.isfile(filepath):
+                epoch_timestamp = os.path.getmtime(filepath)
+                windows_timestamp = mcsrouter.utils.timestamp.timestamp(epoch_timestamp)
                 # Policies have three letter acronyms
-                policy_name = os.basename(path)[:3]
+                filename = filename[:3]
 
-                if epoch_timestamp > latest_timestamp:
-                    latest_timestamp = epoch_timestamp
-                entries.append("<policy app=\"{}\" latest=\"{}\" />".format(policy_name, mcsrouter.utils.timestamp.timestamp(epoch_timestamp)))
+                if latest_timestamp > epoch_timestamp:
+                    latest_timestamp = windows_timestamp
+                entries.append("<policy app=\"{}\" latest=\"{}\" />".format(filename, windows_timestamp))
 
+        if len(entries) == 0:
+            return ""
+
+        entries.insert(0, "<policy-status latest=\"{}\">".format(latest_timestamp))
         entries.append("</policy-status>")
 
-        return "<policy-status latest={}>".format(latest_timestamp).join(entries)
+        return "".join(entries)
