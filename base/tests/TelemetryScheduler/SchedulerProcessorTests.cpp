@@ -17,9 +17,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
-#include <chrono>
-#include <thread>
-
 using TelemetrySchedulerImpl::PluginCallback;
 using TelemetrySchedulerImpl::SchedulerProcessor;
 using TelemetrySchedulerImpl::Task;
@@ -65,12 +62,8 @@ TEST_F(SchedulerProcessorTests, ConstructionWithNullQueue) // NOLINT
 
 TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 {
-    using namespace std::chrono;
-    const milliseconds delay(100);
-
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
-    std::atomic<bool> done(false);
 
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
@@ -84,34 +77,15 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_supplementaryConfigFilePath));
 
-    std::thread processorThread([&] {
-        processor.run();
-        done = true;
-    });
-
-    EXPECT_FALSE(done);
-
-    std::this_thread::sleep_for(milliseconds(delay));
-
-    EXPECT_FALSE(done);
-
     queue->pushPriority(Task::Shutdown);
-    std::this_thread::sleep_for(milliseconds(delay));
-
-    EXPECT_TRUE(done);
-
-    processorThread.join();
+    processor.run();
 }
 
 TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
 {
-    using namespace std::chrono;
-    const milliseconds delay(100);
-
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
     PluginCallback pluginCallback(queue);
-    std::atomic<bool> done(false);
 
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
@@ -125,19 +99,8 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_supplementaryConfigFilePath));
 
-    std::thread processorThread([&] {
-        processor.run();
-        done = true;
-    });
-
-    EXPECT_FALSE(done);
-
     pluginCallback.onShutdown();
-    std::this_thread::sleep_for(milliseconds(delay));
-
-    EXPECT_TRUE(done);
-
-    processorThread.join();
+    processor.run();
 }
 
 // TODO: it might be better to test the following cases via run() or waitToRunTelemetry()!

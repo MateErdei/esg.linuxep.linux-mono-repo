@@ -27,7 +27,9 @@ namespace TelemetrySchedulerImpl
         std::shared_ptr<TaskQueue> taskQueue,
         const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
         m_taskQueue(std::move(taskQueue)),
-        m_pathManager(pathManager)
+        m_pathManager(pathManager),
+        m_delayBeforeCheckingConfigurationState(false),
+        m_delayBeforeRunningTelemetryState(false)
     {
         if (!m_taskQueue)
         {
@@ -132,6 +134,24 @@ namespace TelemetrySchedulerImpl
         }
     }
 
+    void SchedulerProcessor::delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task)
+    {
+        if (runningState)
+        {
+            return; // already running, so don't run another of these delay threads
+        }
+
+        runningState = true;
+
+        std::thread delayThread([&] {
+          std::this_thread::sleep_for(std::chrono::seconds(delayInSeconds));
+          m_taskQueue->push(task);
+          runningState = false;
+        });
+
+        delayThread.detach();
+    }
+
     void SchedulerProcessor::waitToRunTelemetry()
     {
         size_t scheduledTimeInSecondsSinceEpoch = 0;
@@ -183,11 +203,34 @@ namespace TelemetrySchedulerImpl
 
         LOGDEBUG("Scheduled telemetry time: " << scheduledTimeInSecondsSinceEpoch);
 
-        // TODO: LINUXEP-6639 if scheduledTimeInSecondsSinceEpoch == 0 then delay (diff delay than below, 1 hour say)
-        // then send WaitToRunTelemetry
-        // TODO: LINUXEP-6639 if scheduledTimeInSecondsSinceEpoch in past, send RunTelemetry now
-        // TODO: LINUXEP-6639 if scheduledTimeInSecondsSinceEpoch in future, delay to scheduled time before sending
-        // RunTelemetry
+        if (scheduledTimeInSecondsSinceEpoch == 0)
+        {
+            const size_t recheckConfigurationDelayInSeconds = 3600UL; // TODO: breakout as configuration option?
+            LOGINFO(
+                "Telemetry reporting is currently disabled - will check again in " << recheckConfigurationDelayInSeconds
+                                                                                   << " seconds");
+            delayBeforeQueueingTask(
+                recheckConfigurationDelayInSeconds, m_delayBeforeCheckingConfigurationState, Task::WaitToRunTelemetry);
+            return;
+        }
+
+        auto now = std::chrono::system_clock::now();
+        size_t nowInSecondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+        if (scheduledTimeInSecondsSinceEpoch > nowInSecondsSinceEpoch)
+        {
+            size_t delay = scheduledTimeInSecondsSinceEpoch - nowInSecondsSinceEpoch;
+            LOGINFO("Telemetry reporting is scheduled to in " << delay << " seconds");
+            delayBeforeQueueingTask(
+                delay,
+                m_delayBeforeRunningTelemetryState,
+                Task::RunTelemetry);
+        }
+        else
+        {
+            LOGINFO("Telemetry reporting is scheduled to run now");
+            m_taskQueue->push(Task::RunTelemetry);
+        }
     }
 
     void SchedulerProcessor::runTelemetry()

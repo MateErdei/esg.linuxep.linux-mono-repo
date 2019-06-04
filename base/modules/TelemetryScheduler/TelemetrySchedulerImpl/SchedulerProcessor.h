@@ -29,11 +29,14 @@ namespace TelemetrySchedulerImpl
     protected:
         virtual void waitToRunTelemetry();
         virtual void runTelemetry();
-        virtual size_t getIntervalFromSupplementaryFile();
-        virtual size_t getScheduledTimeUsingSupplementaryFile();
+        size_t getIntervalFromSupplementaryFile();
+        size_t getScheduledTimeUsingSupplementaryFile();
+        void delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task);
 
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
+        std::atomic<bool> m_delayBeforeCheckingConfigurationState;
+        std::atomic<bool> m_delayBeforeRunningTelemetryState;
     };
 } // namespace TelemetrySchedulerImpl
