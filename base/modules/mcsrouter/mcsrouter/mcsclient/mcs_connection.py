@@ -883,15 +883,23 @@ class MCSConnection(object):
         """
         send_status_event
         """
-        status_xml = status.xmlStatus()
-        self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
+        try:
+            status_xml = status.xmlStatus()
+            self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
+        except RuntimeError as ex:
+            if (ex.message!="Refusing to parse, size of status exceeds character limit"):
+                raise
 
     def send_events(self, events):
         """
         send_events
         """
-        events_xml = events.xmlEvent()
-        self.send_message_with_id("/events/endpoint/", events_xml, "POST")
+        try:
+            events_xml = events.xmlEvent()
+            self.send_message_with_id("/events/endpoint/", events_xml, "POST")
+        except RuntimeError as ex:
+            if (ex.message!="Refusing to parse, size of status exceeds size limit"):
+                raise
 
     def query_commands(self, app_ids=None):
         """

@@ -13,7 +13,8 @@ import xml.dom.xmlbuilder
 import xml.parsers.expat
 import codecs
 
-
+import logging
+LOGGER = logging.getLogger("mcsrouter")
 def get_text_from_element(element):
     """
     get_text_from_element
@@ -79,7 +80,9 @@ def parseStringForStatuses(contents):
     max_size = 256 * 1024  # maximum number of characters
 
     if len(contents) > max_size:
-        raise RuntimeError("Refusing to parse, size of status exceeds character limit")
+        err_msg = "Refusing to parse, size of status exceeds character limit"
+        LOGGER.warning(err_msg)
+        raise RuntimeError(err_msg)
 
     return parseStringAndRejectScriptElements(contents)
 
@@ -88,7 +91,9 @@ def parseStringForEvents(contents):
     max_size = 5 * 1000 * 1000  # maximum size in bytes
 
     if len(contents.encode('utf-8')) > max_size:
-        raise RuntimeError("Refusing to parse, size of status exceeds size limit")
+        err_msg = "Refusing to parse, size of status exceeds size limit"
+        LOGGER.warning(err_msg)
+        raise RuntimeError(err_msg)
 
     return parseStringAndRejectScriptElements(contents)
 
