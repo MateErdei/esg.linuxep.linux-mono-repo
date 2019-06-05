@@ -4,10 +4,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-/**
- * Component tests for Telemetry Scheduler
- */
-
 #include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

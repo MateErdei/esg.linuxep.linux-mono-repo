@@ -6,8 +6,9 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ITaskQueue.h"
 #include "PluginCallback.h"
+#include "SleepyThread.h"
+#include "TaskQueue.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
@@ -22,10 +23,8 @@ namespace TelemetrySchedulerImpl
     {
     public:
         SchedulerProcessor(
-            std::shared_ptr<ITaskQueue> taskQueue,
+            std::shared_ptr<TaskQueue> taskQueue,
             const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
-
-        ~SchedulerProcessor();
 
         /**
          * Start the processor's main loop, processing tasks until Task::Shutdown is received.
@@ -37,19 +36,30 @@ namespace TelemetrySchedulerImpl
         virtual void runTelemetry();
         virtual void checkExecutableFinished();
 
-        virtual bool delayingTelemetryRun() { return m_delayBeforeRunningTelemetryState; }
-        virtual bool delayingConfigurationCheck() { return m_delayBeforeCheckingConfigurationState; }
+        virtual bool delayingTelemetryRun()
+        {
+            return m_delayBeforeRunningTelemetry && !m_delayBeforeRunningTelemetry->finished();
+        }
+
+        virtual bool delayingTelemetryExeCheck()
+        {
+            return m_delayBeforeCheckingExe && !m_delayBeforeCheckingExe->finished();
+        }
+
+        virtual bool delayingConfigurationCheck()
+        {
+            return m_delayBeforeCheckingConfiguration && !m_delayBeforeCheckingConfiguration->finished();
+        }
 
         size_t getIntervalFromSupplementaryFile();
         size_t getScheduledTimeUsingSupplementaryFile();
-        void delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task);
 
     private:
-        std::shared_ptr<ITaskQueue> m_taskQueue;
+        std::shared_ptr<TaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
-        std::atomic<bool> m_delayBeforeRunningTelemetryState;
-        std::atomic<bool> m_delayBeforeCheckingConfigurationState;
-        std::atomic<bool> m_delayBeforeCheckingExeState;
+        std::unique_ptr<SleepyThread> m_delayBeforeRunningTelemetry;
+        std::unique_ptr<SleepyThread> m_delayBeforeCheckingConfiguration;
+        std::unique_ptr<SleepyThread> m_delayBeforeCheckingExe;
         std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
     };
 } // namespace TelemetrySchedulerImpl
