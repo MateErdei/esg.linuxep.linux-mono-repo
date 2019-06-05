@@ -117,6 +117,20 @@ namespace
                 break;
         }
 
+        // if any product has changed the event is relevant to send.
+        for( const auto & product: report.getProducts())
+        {
+            switch (product.productStatus)
+            {
+                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded:
+                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled:
+                        event.IsRelevantToSend = true;
+                        break;
+                default:
+                    break;
+            }
+        }
+
         event.UpdateSource = report.getSourceURL();
 
         return event;
@@ -134,7 +148,10 @@ namespace
 
         for (auto& product : report.getProducts())
         {
-            status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion);
+            if ( product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+            {
+                status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion);
+            }
         }
         return status;
     }
@@ -302,13 +319,15 @@ namespace UpdateSchedulerImpl
             // there is at least two elements.
             int previousIndex = lastIndex - 1;
             // if previous one was an error, send event, otherwise do not send.
-            collectionResult.SchedulerEvent.IsRelevantToSend =
+            collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getStatus() !=
                 SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
 
             // if previous one had source url different from current, send event
-            collectionResult.SchedulerEvent.IsRelevantToSend =
+            collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
+
+
 
             return collectionResult;
         }
