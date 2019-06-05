@@ -134,11 +134,18 @@ namespace SulDownloader
             }
             else
             {
-                // given that the product has been removed. We change a file in the distribution folder to make
-                // sure that if it is downloaded again, it will be distributed and installed -
-                std::string installerPath = uninstallProduct.second.installerPath();
-                LOGSUPPORT("Mark product uninstalled by removing the installer: " << installerPath);
-                Common::FileSystem::fileSystem()->removeFile(installerPath);
+                // given that the product has been removed. We also remove the copies in the distributed path.
+                // This ensures that if the product were to appear again in the licence it will be installed.
+                std::string distributePath = uninstallProduct.second.distributePath();
+                LOGSUPPORT("Mark product uninstalled by removing distributed path: " << distributePath);
+                try
+                {
+                    Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);
+                }catch ( std::exception & ex)
+                {
+                    LOGWARN("Failed to remove path. Reason: " << ex.what());
+                }
+
             }
 
 

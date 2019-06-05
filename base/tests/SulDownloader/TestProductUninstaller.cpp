@@ -137,7 +137,7 @@ TEST_F(                     // NOLINT
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
-    EXPECT_CALL(*m_fileSystemMock, removeFile(_)).Times(1);
+    EXPECT_CALL(*m_fileSystemMock, removeFileOrDirectory(_)).Times(1);
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {

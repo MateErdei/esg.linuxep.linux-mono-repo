@@ -520,7 +520,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, removeFile("productRemove1/install.sh")).Times(1);
+    EXPECT_CALL(fileSystemMock, removeFileOrDirectory("productRemove1")).Times(1);
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
