@@ -86,6 +86,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,feature/LINUXEP-7805-re-build-python2</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>
