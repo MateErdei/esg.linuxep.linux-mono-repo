@@ -13,8 +13,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> taskQueue) :
-        m_taskQueue(std::move(taskQueue))
+    PluginCallback::PluginCallback(std::shared_ptr<ITaskQueue> taskQueue) : m_taskQueue(std::move(taskQueue))
     {
         LOGDEBUG("Plugin callback started");
     }

@@ -17,4 +17,14 @@ namespace TelemetrySchedulerImpl
         RunTelemetry,
         CheckExecutableFinished
     };
+
+    class ITaskQueue
+    {
+    public:
+        virtual void push(Task) = 0;
+        virtual void pushPriority(Task) = 0;
+        virtual Task pop() = 0;
+    };
+
 } // namespace TelemetrySchedulerImpl
+

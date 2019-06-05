@@ -6,18 +6,19 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "TaskQueue.h"
+#include "ITaskQueue.h"
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
 #include <atomic>
+#include <memory>
 
 namespace TelemetrySchedulerImpl
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
     public:
-        explicit PluginCallback(std::shared_ptr<TaskQueue> taskQueue);
+        explicit PluginCallback(std::shared_ptr<ITaskQueue> taskQueue);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
@@ -30,6 +31,6 @@ namespace TelemetrySchedulerImpl
         std::string getTelemetry() override;
 
     private:
-        std::shared_ptr<TaskQueue> m_taskQueue;
+        std::shared_ptr<ITaskQueue> m_taskQueue;
     };
 } // namespace TelemetrySchedulerImpl

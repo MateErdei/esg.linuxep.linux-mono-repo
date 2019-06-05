@@ -6,8 +6,8 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ITaskQueue.h"
 #include "PluginCallback.h"
-#include "TaskQueue.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
@@ -22,7 +22,7 @@ namespace TelemetrySchedulerImpl
     {
     public:
         SchedulerProcessor(
-            std::shared_ptr<TaskQueue> taskQueue,
+            std::shared_ptr<ITaskQueue> taskQueue,
             const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
 
         ~SchedulerProcessor();
@@ -45,7 +45,7 @@ namespace TelemetrySchedulerImpl
         void delayBeforeQueueingTask(size_t delayInSeconds, std::atomic<bool>& runningState, Task task);
 
     private:
-        std::shared_ptr<TaskQueue> m_taskQueue;
+        std::shared_ptr<ITaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
         std::atomic<bool> m_delayBeforeRunningTelemetryState;
         std::atomic<bool> m_delayBeforeCheckingConfigurationState;

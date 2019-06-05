@@ -6,9 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerProcessor.h"
 
+#include "ITaskQueue.h"
 #include "SchedulerStatus.h"
 #include "SchedulerStatusSerialiser.h"
-#include "SchedulerTask.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -24,7 +24,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace TelemetrySchedulerImpl
 {
     SchedulerProcessor::SchedulerProcessor(
-        std::shared_ptr<TaskQueue> taskQueue,
+        std::shared_ptr<ITaskQueue> taskQueue,
         const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
         m_taskQueue(std::move(taskQueue)),
         m_pathManager(pathManager),
@@ -176,7 +176,7 @@ namespace TelemetrySchedulerImpl
             try
             {
                 statusJsonString = Common::FileSystem::fileSystem()->readFile(
-                    Common::ApplicationConfiguration::applicationPathManager().getTelemetrySchedulerStatusFilePath(),
+                    m_pathManager.getTelemetrySchedulerStatusFilePath(),
                     Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
                 schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
                 scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();
