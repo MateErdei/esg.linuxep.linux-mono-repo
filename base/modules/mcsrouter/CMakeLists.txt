@@ -57,6 +57,7 @@ add_custom_command(OUTPUT watchdog
 add_custom_command(OUTPUT pycrypto
         WORKING_DIRECTORY ${INPUT}
         COMMAND cp -r ${INPUT}/pycrypto/Crypto64 ${CMAKE_BINARY_DIR}
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/Crypto
         COMMAND mv ${CMAKE_BINARY_DIR}/Crypto64 ${CMAKE_BINARY_DIR}/Crypto
         )
 
