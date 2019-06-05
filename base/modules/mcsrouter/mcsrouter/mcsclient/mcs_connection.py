@@ -883,14 +883,14 @@ class MCSConnection(object):
         """
         send_status_event
         """
-        status_xml = status.xml()
+        status_xml = status.xmlStatus()
         self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
 
     def send_events(self, events):
         """
         send_events
         """
-        events_xml = events.xml()
+        events_xml = events.xmlEvent()
         self.send_message_with_id("/events/endpoint/", events_xml, "POST")
 
     def query_commands(self, app_ids=None):

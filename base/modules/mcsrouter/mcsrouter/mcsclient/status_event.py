@@ -32,11 +32,25 @@ class StatusEvent(object):
         """
         self.__m_adapters[app_id] = (ttl, creation_time, adapter_status_xml)
 
-    def xml(self):
+    def xmlStatus(self):
         """
-        xml
+        xmlStatus
+        """
+        doc = mcsrouter.utils.xml_helper.parseStringForStatuses(TEMPLATE_STATUS_EVENT)
+        xml = self.xmlBuilder(doc)
+        return mcsrouter.utils.xml_helper.parseStringForStatuses(xml)
+
+
+    def xmlEvent(self):
+        """
+        xmlEvent
         """
         doc = mcsrouter.utils.xml_helper.parseString(TEMPLATE_STATUS_EVENT)
+        xml = self.xmlBuilder(doc)
+        return mcsrouter.utils.xml_helper.parseStringForEvents(xml)
+
+
+    def xmlBuilder(self, doc):
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 
         for (app_id, (ttl, creation_time, adapter_status_xml)

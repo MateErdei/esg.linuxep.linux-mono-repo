@@ -5,6 +5,8 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import unittest
 
 import PathManager
+
+import mcsrouter.mcsclient.status_event
 import mcsrouter.utils.xml_helper
 
 class TestXmlHelper(unittest.TestCase):
@@ -41,7 +43,7 @@ class TestXmlHelper(unittest.TestCase):
             doc.unlink()
             self.fail("Able to parse entities")
         except Exception as ex:
-            pass
+            assert(ex.message=="Refusing to parse Entity Declaration: lol")
 
     def testMissingClosingTagXMLThrows(self):
         TEST_DOC="""<?xml version="1.0"?>
@@ -57,7 +59,7 @@ class TestXmlHelper(unittest.TestCase):
             assert(ex.message=="no element found: line 4, column 8")
 
 
-    def testbrokenXMLThrows(self):
+    def testBrokenXMLThrows(self):
         TEST_DOC="""<?xml version="1.0"?>
         <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
         <stuff></ns:computerStatus></stuff>
@@ -69,6 +71,46 @@ class TestXmlHelper(unittest.TestCase):
             self.fail("should not be able to parse")
         except Exception as ex:
             assert(ex.message=="mismatched tag: line 3, column 17")
+
+
+    def testXMLWithXhtmlScriptTagThrows(self):
+        TEST_DOC="""<xhtml:script xmlns:xhtml="http://www.sophos.com/xml/mcs/computerstatus"
+        src="file.js"
+        type="application/javascript"/>"""
+
+        try:
+            doc = mcsrouter.utils.xml_helper.parseStringAndRejectScriptElements(TEST_DOC)
+            doc.unlink()
+            self.fail("should not be able to parse")
+        except Exception as ex:
+            assert(ex.message=="Refusing to parse Script Element")
+
+
+    def testXMLWithScriptTagThrows(self):
+        TEST_DOC="""<script xmlns="http://www.sophos.com/xml/mcs/computerstatus" src="file.js"></script>"""
+
+        try:
+            doc = mcsrouter.utils.xml_helper.parseStringAndRejectScriptElements(TEST_DOC)
+            doc.unlink()
+            self.fail("should not be able to parse")
+        except Exception as ex:
+            assert(ex.message=="Refusing to parse Script Element")
+
+
+    def testValidStatusXmlDoesntThrow(self):
+        try:
+            status = mcsrouter.mcsclient.status_event.StatusEvent()
+            status.xmlStatus()
+        except Exception as ex:
+            self.fail(ex)
+
+
+    def testValidEventXmlDoesntThrow(self):
+        try:
+            event = mcsrouter.mcsclient.status_event.StatusEvent()
+            event.xmlEvent()
+        except Exception as ex:
+            self.fail(ex)
 
 
 if __name__ == '__main__':
