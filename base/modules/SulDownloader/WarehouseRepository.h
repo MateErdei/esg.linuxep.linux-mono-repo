@@ -125,6 +125,8 @@ namespace SulDownloader
 
         std::string getSourceURL() const override;
 
+        std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
+
     private:
         enum class State
         {

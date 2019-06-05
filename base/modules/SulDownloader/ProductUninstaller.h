@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
-
+#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -26,7 +26,8 @@ namespace SulDownloader
          * @return List of products that have been uninstalled
          */
         std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(
-            const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts);
+            const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
+                SulDownloader::suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();

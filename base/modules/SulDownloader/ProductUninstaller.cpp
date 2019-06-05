@@ -44,7 +44,8 @@ namespace
 namespace SulDownloader
 {
     std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
-        const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts)
+        const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
+        SulDownloader::suldownloaderdata::IWarehouseRepository& iWarehouseRepository)
     {
         std::vector<std::string> installedProducts = getInstalledProductPathsList();
         std::map<std::string, suldownloaderdata::DownloadedProduct> productsToRemove;
@@ -69,6 +70,7 @@ namespace SulDownloader
                 suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
                 suldownloaderdata::DownloadedProduct product(metadata);
+                product.setDistributePath( iWarehouseRepository.getProductDistributionPath(product) );
                 productsToRemove.insert(
                     std::pair<std::string, suldownloaderdata::DownloadedProduct>(installedProduct, product));
             }
@@ -130,6 +132,15 @@ namespace SulDownloader
                 uninstallProduct.second.setError(error);
                 LOGERROR(errorMessage.str());
             }
+            else
+            {
+                // given that the product has been removed. We change a file in the distribution folder to make
+                // sure that if it is downloaded again, it will be distributed and installed -
+                std::string installerPath = uninstallProduct.second.installerPath();
+                LOGSUPPORT("Mark product uninstalled by removing the installer: " << installerPath);
+                Common::FileSystem::fileSystem()->removeFile(installerPath);
+            }
+
 
             productsRemoved.push_back(uninstallProduct.second);
         }

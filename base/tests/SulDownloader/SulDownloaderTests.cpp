@@ -485,6 +485,8 @@ TEST_F(                // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
+MATCHER_P( isProduct, pname, "" ){*result_listener << "whose getLine() is " << arg.getLine(); return (arg.getLine()==pname);}
+
 TEST_F(                // NOLINT
     SULDownloaderTest, 
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
@@ -501,6 +503,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -517,6 +520,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, removeFile("productRemove1/install.sh")).Times(1);
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
@@ -562,6 +566,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));

@@ -39,6 +39,8 @@ namespace SulDownloader
             virtual std::vector<suldownloaderdata::DownloadedProduct> getProducts() const = 0;
 
             virtual std::string getSourceURL() const = 0;
+
+            virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

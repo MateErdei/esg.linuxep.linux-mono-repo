@@ -162,7 +162,7 @@ namespace SulDownloader
         // a warehouse error should have been generated, preventing getting this far, therefore preventing
         // un-installation of all products.
         SulDownloader::ProductUninstaller uninstallManager;
-        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.removeProductsNotDownloaded(products);
+        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
         for (auto& uninstalledProduct : uninstalledProducts)
         {
             products.push_back(uninstalledProduct);
@@ -283,12 +283,21 @@ namespace SulDownloader
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
 
         auto result = configAndRunDownloader(settingsString, previousReportData);
+        int exitCode = std::get<0>(result);
+        if( exitCode ==  0)
+        {
+            LOGINFO("Update success");
+        }
+        else
+        {
+            LOGWARN("Update failed, with code: " << exitCode);
+        }
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-        LOGSUPPORT("Generating the report file in: " << outputParentPath);
+        LOGINFO("Generating the report file in: " << outputParentPath);
 
         fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), tempDir);
 
-        return std::get<0>(result);
+        return exitCode;
     }
 
     int main_entry(int argc, char* argv[])

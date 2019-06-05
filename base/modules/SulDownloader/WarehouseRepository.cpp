@@ -336,8 +336,8 @@ namespace SulDownloader
 
         for (auto& productPair : m_products)
         {
-            std::string distributePath = getRootDistributionPath();
-            distributePath = Common::FileSystem::join(distributePath, productPair.second.getLine());
+
+            std::string distributePath = getProductDistributionPath(productPair.second);
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
         }
@@ -616,6 +616,11 @@ namespace SulDownloader
         {
             return "";
         }
+    }
+
+    std::string WarehouseRepository::getProductDistributionPath(const suldownloaderdata::DownloadedProduct& product) const
+    {
+        return Common::FileSystem::join(m_rootDistributionPath, product.getLine());
     }
 
 } // namespace SulDownloader

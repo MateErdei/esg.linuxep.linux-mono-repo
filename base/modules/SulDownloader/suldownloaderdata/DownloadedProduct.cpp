@@ -58,7 +58,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
 
     auto fileSystem = ::Common::FileSystem::fileSystem();
 
-    std::string installShFile = Common::FileSystem::join(m_distributePath, "install.sh");
+    std::string installShFile = installerPath();
 
     if (fileSystem->exists(installShFile) && !fileSystem->isDirectory(installShFile))
     {
@@ -188,4 +188,9 @@ void DownloadedProduct::setForceProductReinstall(bool forceReinstall)
 bool DownloadedProduct::forceProductReinstall() const
 {
     return m_forceProductReinstall;
+}
+
+std::string DownloadedProduct::installerPath() const
+{
+    return  Common::FileSystem::join(m_distributePath, "install.sh");
 }

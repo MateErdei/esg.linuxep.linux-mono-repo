@@ -49,6 +49,8 @@ namespace SulDownloader
              */
             void install(const std::vector<std::string>& installArgs);
 
+            std::string installerPath() const;
+
             /**
              *
              * @return true if any error was set for the DownloadedProduct
