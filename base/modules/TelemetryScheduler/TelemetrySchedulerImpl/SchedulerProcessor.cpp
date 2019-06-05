@@ -21,8 +21,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    const std::chrono::seconds configurationCheckDelay(3600); // TODO: breakout as configuration option?
-    const std::chrono::seconds checkTelemetryExeStateDelay(60); // TODO: breakout as configuration option?
+    using namespace std::chrono;
+
+    const seconds configurationCheckDelay(3600); // TODO: breakout as configuration option?
+    const seconds checkTelemetryExeStateDelay(60); // TODO: breakout as configuration option?
 
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<ITaskQueue> taskQueue,
@@ -104,26 +106,21 @@ namespace TelemetrySchedulerImpl
 
     size_t SchedulerProcessor::getIntervalFromSupplementaryFile()
     {
-        std::string supplementaryConfigJson;
-
         try
         {
-            supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
+            std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                 m_pathManager.getTelemetrySupplementaryFilePath(),
                 Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+
+            const std::string intervalKey = "interval";
+            nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
+            return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGERROR(
                 "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " : " << e.what());
             return 0;
-        }
-
-        try
-        {
-            const std::string intervalKey = "interval";
-            nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
-            return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
         }
         // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
         catch (nlohmann::detail::exception& e)
@@ -136,7 +133,7 @@ namespace TelemetrySchedulerImpl
     }
 
     void SchedulerProcessor::delayBeforeQueueingTask(
-        size_t delayUntilSecondsSinceEpoch,
+        system_clock::time_point delayUntil,
         std::unique_ptr<SleepyThread>& delayThread,
         Task task)
     {
@@ -145,7 +142,7 @@ namespace TelemetrySchedulerImpl
             return; // already running, so don't restart thread
         }
 
-        delayThread = std::make_unique<SleepyThread>(delayUntilSecondsSinceEpoch, task, m_taskQueue);
+        delayThread = std::make_unique<SleepyThread>(delayUntil, task, m_taskQueue);
         delayThread->start();
     }
 
@@ -204,17 +201,14 @@ namespace TelemetrySchedulerImpl
 
         if (scheduledTimeInSecondsSinceEpoch == 0)
         {
-            const auto now = std::chrono::system_clock::now();
-            const auto timeToCheckConfiguration = now + configurationCheckDelay;
-            const size_t timeToCheckConfigurationInSecondsSinceEpoch =
-                std::chrono::duration_cast<std::chrono::seconds>(timeToCheckConfiguration.time_since_epoch()).count();
+            const auto timeToCheckConfiguration = system_clock::now() + configurationCheckDelay;
 
             LOGINFO(
-                "Telemetry reporting is currently disabled - will check again at "
-                    << timeToCheckConfigurationInSecondsSinceEpoch << " seconds since epoch");
+                "Telemetry reporting is currently disabled - will check again in " << configurationCheckDelay.count()
+                                                                                   << " seconds");
 
             delayBeforeQueueingTask(
-                timeToCheckConfigurationInSecondsSinceEpoch,
+                timeToCheckConfiguration,
                 m_delayBeforeCheckingConfiguration,
                 Task::WaitToRunTelemetry);
         }
@@ -223,8 +217,9 @@ namespace TelemetrySchedulerImpl
             LOGINFO(
                 "Telemetry reporting is scheduled to run at " << scheduledTimeInSecondsSinceEpoch
                                                               << " seconds since epoch");
-            delayBeforeQueueingTask(
-                scheduledTimeInSecondsSinceEpoch, m_delayBeforeRunningTelemetry, Task::RunTelemetry);
+            auto duration = system_clock::duration(seconds(scheduledTimeInSecondsSinceEpoch));
+            system_clock::time_point scheduledTime(duration);
+            delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, Task::RunTelemetry);
         }
     }
 
@@ -251,15 +246,10 @@ namespace TelemetrySchedulerImpl
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
-            const auto now = std::chrono::system_clock::now();
-            const auto timeToCheckExeState = now + checkTelemetryExeStateDelay;
-            const size_t timeToCheckExeStateInSecondsSinceEpoch =
-                std::chrono::duration_cast<std::chrono::seconds>(
-                    timeToCheckExeState.time_since_epoch())
-                    .count();
-
-            delayBeforeQueueingTask(
-                timeToCheckExeStateInSecondsSinceEpoch, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
+            LOGINFO(
+                "Telemetry executable's state will be checked in " << checkTelemetryExeStateDelay.count() << " seconds");
+            const auto timeToCheckExeState = system_clock::now() + checkTelemetryExeStateDelay;
+            delayBeforeQueueingTask(timeToCheckExeState, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
         }
         catch (const Common::Process::IProcessException& processException)
         {

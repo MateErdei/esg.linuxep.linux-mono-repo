@@ -54,7 +54,7 @@ namespace TelemetrySchedulerImpl
         size_t getIntervalFromSupplementaryFile();
         size_t getScheduledTimeUsingSupplementaryFile();
         void delayBeforeQueueingTask(
-            size_t delayUntilSecondsSinceEpoch,
+            std::chrono::system_clock::time_point delayUntil,
             std::unique_ptr<SleepyThread>& delayThread,
             Task task);
 

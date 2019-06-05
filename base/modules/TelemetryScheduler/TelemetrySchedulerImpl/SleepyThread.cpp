@@ -8,7 +8,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    SleepyThread::SleepyThread(size_t sleepUntil, Task task, std::shared_ptr<ITaskQueue> queue) :
+    SleepyThread::SleepyThread(std::chrono::system_clock::time_point sleepUntil, Task task, std::shared_ptr<ITaskQueue> queue) :
         m_sleepUntil(sleepUntil),
         m_task(task),
         m_queue(std::move(queue)),
@@ -22,10 +22,7 @@ namespace TelemetrySchedulerImpl
 
         while (!stopRequested())
         {
-            auto now = std::chrono::system_clock::now();
-            size_t nowInSecondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-
-            if (nowInSecondsSinceEpoch >= m_sleepUntil)
+            if (std::chrono::system_clock::now() >= m_sleepUntil)
             {
                 m_finished = true;
                 m_queue->push(m_task);
