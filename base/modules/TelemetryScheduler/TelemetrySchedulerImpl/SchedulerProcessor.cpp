@@ -132,6 +132,20 @@ namespace TelemetrySchedulerImpl
         }
     }
 
+    void SchedulerProcessor::delayBeforeQueueingTask(
+        size_t delayUntilSecondsSinceEpoch,
+        std::unique_ptr<SleepyThread>& delayThread,
+        Task task)
+    {
+        if (delayThread && !delayThread->finished())
+        {
+            return; // already running, so don't restart thread
+        }
+
+        delayThread = std::make_unique<SleepyThread>(delayUntilSecondsSinceEpoch, task, m_taskQueue);
+        delayThread->start();
+    }
+
     void SchedulerProcessor::waitToRunTelemetry()
     {
         size_t scheduledTimeInSecondsSinceEpoch = 0;
@@ -185,35 +199,29 @@ namespace TelemetrySchedulerImpl
 
         if (scheduledTimeInSecondsSinceEpoch == 0)
         {
-            // Only run delay if not currently running.
-            if (!m_delayBeforeCheckingConfiguration || m_delayBeforeCheckingConfiguration->finished())
-            {
-                using namespace std::chrono_literals;
-                const std::chrono::seconds delay = 3600s; // TODO: breakout as configuration option?
-                const auto now = std::chrono::system_clock::now();
-                const auto timeToCheckConfiguration = now + delay;
-                const size_t timeToCheckConfigurationSecondsSinceEpoch =
-                    std::chrono::duration_cast<std::chrono::seconds>(timeToCheckConfiguration.time_since_epoch())
-                        .count();
-                LOGINFO(
-                    "Telemetry reporting is currently disabled - will check again at "
+            using namespace std::chrono_literals;
+            const std::chrono::seconds delay = 3600s; // TODO: breakout as configuration option?
+            const auto now = std::chrono::system_clock::now();
+            const auto timeToCheckConfiguration = now + delay;
+            const size_t timeToCheckConfigurationSecondsSinceEpoch =
+                std::chrono::duration_cast<std::chrono::seconds>(timeToCheckConfiguration.time_since_epoch()).count();
+
+            LOGINFO(
+                "Telemetry reporting is currently disabled - will check again at "
                     << timeToCheckConfigurationSecondsSinceEpoch << " seconds since epoch");
 
-                m_delayBeforeCheckingConfiguration = std::make_unique<SleepyThread>(
-                    timeToCheckConfigurationSecondsSinceEpoch, Task::WaitToRunTelemetry, m_taskQueue);
-                m_delayBeforeCheckingConfiguration->start();
-            }
+            delayBeforeQueueingTask(
+                timeToCheckConfigurationSecondsSinceEpoch,
+                m_delayBeforeCheckingConfiguration,
+                Task::WaitToRunTelemetry);
         }
-        else if (!m_delayBeforeRunningTelemetry || m_delayBeforeRunningTelemetry->finished())
+        else
         {
-            // Only run delay if not currently running.
             LOGINFO(
                 "Telemetry reporting is scheduled to run at " << scheduledTimeInSecondsSinceEpoch
                                                               << " seconds since epoch");
-            // For simplicity here, queue Task::RunTelemetry via delaying thread even if scheduled time is in the past.
-            m_delayBeforeRunningTelemetry =
-                std::make_unique<SleepyThread>(scheduledTimeInSecondsSinceEpoch, Task::RunTelemetry, m_taskQueue);
-            m_delayBeforeRunningTelemetry->start();
+            delayBeforeQueueingTask(
+                scheduledTimeInSecondsSinceEpoch, m_delayBeforeRunningTelemetry, Task::RunTelemetry);
         }
     }
 
@@ -236,26 +244,21 @@ namespace TelemetrySchedulerImpl
 
         try
         {
-            m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::ONE_KBYTE_SIZE);
+            m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::MAX_OUTPUT_SIZE);
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
-            // Only run delay if not currently running.
-            if (!m_delayBeforeCheckingConfiguration || m_delayBeforeCheckingConfiguration->finished())
-            {
-                using namespace std::chrono_literals;
-                const std::chrono::seconds delay = 60s; // TODO: breakout as configuration option?
-                const auto now = std::chrono::system_clock::now();
-                const auto timeToCheckExeState = now + delay;
-                const size_t timeToCheckExeStateSecondsSinceEpoch =
-                    std::chrono::duration_cast<std::chrono::seconds>(
-                        timeToCheckExeState.time_since_epoch())
-                        .count();
+            using namespace std::chrono_literals;
+            const std::chrono::seconds delay = 60s; // TODO: breakout as configuration option?
+            const auto now = std::chrono::system_clock::now();
+            const auto timeToCheckExeState = now + delay;
+            const size_t timeToCheckExeStateSecondsSinceEpoch =
+                std::chrono::duration_cast<std::chrono::seconds>(
+                    timeToCheckExeState.time_since_epoch())
+                    .count();
 
-                m_delayBeforeCheckingExe = std::make_unique<SleepyThread>(
-                    timeToCheckExeStateSecondsSinceEpoch, Task::CheckExecutableFinished, m_taskQueue);
-                m_delayBeforeCheckingExe->start();
-            }
+            delayBeforeQueueingTask(
+                timeToCheckExeStateSecondsSinceEpoch, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
         }
         catch (const Common::Process::IProcessException& processException)
         {
