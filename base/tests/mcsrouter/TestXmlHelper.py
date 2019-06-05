@@ -43,6 +43,33 @@ class TestXmlHelper(unittest.TestCase):
         except Exception as ex:
             pass
 
+    def testMissingClosingTagXMLThrows(self):
+        TEST_DOC="""<?xml version="1.0"?>
+        <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
+        <stuff></stuff>
+        """
+
+        try:
+            doc = mcsrouter.utils.xml_helper.parseString(TEST_DOC)
+            doc.unlink()
+            self.fail("should not be able to parse")
+        except Exception as ex:
+            assert(ex.message=="no element found: line 4, column 8")
+
+
+    def testbrokenXMLThrows(self):
+        TEST_DOC="""<?xml version="1.0"?>
+        <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
+        <stuff></ns:computerStatus></stuff>
+        """
+
+        try:
+            doc = mcsrouter.utils.xml_helper.parseString(TEST_DOC)
+            doc.unlink()
+            self.fail("should not be able to parse")
+        except Exception as ex:
+            assert(ex.message=="mismatched tag: line 3, column 17")
+
 
 if __name__ == '__main__':
     unittest.main()
