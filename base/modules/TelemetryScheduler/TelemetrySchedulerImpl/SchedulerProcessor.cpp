@@ -21,6 +21,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
+    const std::chrono::seconds configurationCheckDelay(3600); // TODO: breakout as configuration option?
+    const std::chrono::seconds checkTelemetryExeStateDelay(60); // TODO: breakout as configuration option?
+
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<ITaskQueue> taskQueue,
         const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
@@ -148,6 +151,8 @@ namespace TelemetrySchedulerImpl
 
     void SchedulerProcessor::waitToRunTelemetry()
     {
+        // Always re-read values from configuration and status files in case they've been externally updated.
+
         size_t scheduledTimeInSecondsSinceEpoch = 0;
 
         if (!Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()))
@@ -199,19 +204,17 @@ namespace TelemetrySchedulerImpl
 
         if (scheduledTimeInSecondsSinceEpoch == 0)
         {
-            using namespace std::chrono_literals;
-            const std::chrono::seconds delay = 3600s; // TODO: breakout as configuration option?
             const auto now = std::chrono::system_clock::now();
-            const auto timeToCheckConfiguration = now + delay;
-            const size_t timeToCheckConfigurationSecondsSinceEpoch =
+            const auto timeToCheckConfiguration = now + configurationCheckDelay;
+            const size_t timeToCheckConfigurationInSecondsSinceEpoch =
                 std::chrono::duration_cast<std::chrono::seconds>(timeToCheckConfiguration.time_since_epoch()).count();
 
             LOGINFO(
                 "Telemetry reporting is currently disabled - will check again at "
-                    << timeToCheckConfigurationSecondsSinceEpoch << " seconds since epoch");
+                    << timeToCheckConfigurationInSecondsSinceEpoch << " seconds since epoch");
 
             delayBeforeQueueingTask(
-                timeToCheckConfigurationSecondsSinceEpoch,
+                timeToCheckConfigurationInSecondsSinceEpoch,
                 m_delayBeforeCheckingConfiguration,
                 Task::WaitToRunTelemetry);
         }
@@ -248,17 +251,15 @@ namespace TelemetrySchedulerImpl
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
-            using namespace std::chrono_literals;
-            const std::chrono::seconds delay = 60s; // TODO: breakout as configuration option?
             const auto now = std::chrono::system_clock::now();
-            const auto timeToCheckExeState = now + delay;
-            const size_t timeToCheckExeStateSecondsSinceEpoch =
+            const auto timeToCheckExeState = now + checkTelemetryExeStateDelay;
+            const size_t timeToCheckExeStateInSecondsSinceEpoch =
                 std::chrono::duration_cast<std::chrono::seconds>(
                     timeToCheckExeState.time_since_epoch())
                     .count();
 
             delayBeforeQueueingTask(
-                timeToCheckExeStateSecondsSinceEpoch, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
+                timeToCheckExeStateInSecondsSinceEpoch, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
         }
         catch (const Common::Process::IProcessException& processException)
         {
