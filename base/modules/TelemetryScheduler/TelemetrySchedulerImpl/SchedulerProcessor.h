@@ -23,7 +23,7 @@ namespace TelemetrySchedulerImpl
     {
     public:
         SchedulerProcessor(
-            std::shared_ptr<TaskQueue> taskQueue,
+            std::shared_ptr<ITaskQueue> taskQueue,
             const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
 
         /**
@@ -55,11 +55,12 @@ namespace TelemetrySchedulerImpl
         size_t getScheduledTimeUsingSupplementaryFile();
 
     private:
-        std::shared_ptr<TaskQueue> m_taskQueue;
+        std::shared_ptr<ITaskQueue> m_taskQueue;
         const Common::ApplicationConfiguration::IApplicationPathManager& m_pathManager;
         std::unique_ptr<SleepyThread> m_delayBeforeRunningTelemetry;
         std::unique_ptr<SleepyThread> m_delayBeforeCheckingConfiguration;
         std::unique_ptr<SleepyThread> m_delayBeforeCheckingExe;
         std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
+        ;
     };
 } // namespace TelemetrySchedulerImpl

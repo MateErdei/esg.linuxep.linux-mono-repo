@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <TelemetryScheduler/TelemetrySchedulerImpl/SleepyThread.h>
-
+#include <TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

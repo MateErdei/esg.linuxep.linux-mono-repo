@@ -5,7 +5,6 @@ add_library(telemetryschedulerimpl SHARED
         PluginCallback.h
         SchedulerProcessor.cpp
         SchedulerProcessor.h
-        SchedulerTask.h
         TaskQueue.cpp
         TaskQueue.h
         SchedulerStatus.cpp

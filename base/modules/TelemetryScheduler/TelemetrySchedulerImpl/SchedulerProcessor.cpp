@@ -5,8 +5,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SchedulerProcessor.h"
-
-#include "ITaskQueue.h"
 #include "SchedulerStatus.h"
 #include "SchedulerStatusSerialiser.h"
 

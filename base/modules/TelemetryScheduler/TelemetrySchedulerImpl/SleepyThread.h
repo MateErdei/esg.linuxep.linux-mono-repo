@@ -6,8 +6,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "SchedulerTask.h"
-#include "TaskQueue.h"
+#include "ITaskQueue.h"
 
 #include <Common/Threads/AbstractThread.h>
 
@@ -25,7 +24,7 @@ namespace TelemetrySchedulerImpl
           * @param task task to queue after delay
           * @param queue queue to add task to
           */
-        SleepyThread(size_t sleepUntil, Task task, std::shared_ptr<TaskQueue> queue);
+        SleepyThread(size_t sleepUntil, Task task, std::shared_ptr<ITaskQueue> queue);
 
         void run() override;
 
@@ -34,7 +33,7 @@ namespace TelemetrySchedulerImpl
     private:
         size_t m_sleepUntil;
         Task m_task;
-        std::shared_ptr<TaskQueue> m_queue;
+        std::shared_ptr<ITaskQueue> m_queue;
         std::atomic<bool> m_finished;
     };
 } // namespace TelemetrySchedulerImpl
