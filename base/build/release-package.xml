@@ -68,7 +68,7 @@
         <package buildtype="prod" name="pathtools" version="2-7-16/214473/python-pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycrypto" version="2-6-1/214596/pycryptolinux10/" dest="input">
+        <package name="pycryptolinux10" version="2-6-1/214596/pycryptolinux10/" dest="input">
             <include src="pycrypto.tar" dest="." />
         </package>
     </inputs>
