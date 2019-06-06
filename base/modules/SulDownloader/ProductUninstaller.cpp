@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
@@ -17,7 +18,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <map>
 #include <sstream>
-#include <Common/FileSystem/IFileSystemException.h>
 
 namespace
 {
@@ -71,7 +71,7 @@ namespace SulDownloader
                 suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
                 suldownloaderdata::DownloadedProduct product(metadata);
-                product.setDistributePath( iWarehouseRepository.getProductDistributionPath(product) );
+                product.setDistributePath(iWarehouseRepository.getProductDistributionPath(product));
                 productsToRemove.insert(
                     std::pair<std::string, suldownloaderdata::DownloadedProduct>(installedProduct, product));
             }
@@ -141,19 +141,21 @@ namespace SulDownloader
                 LOGSUPPORT("Mark product uninstalled by removing distributed path: " << distributePath);
                 try
                 {
-                    std::string localDistributionRepository =Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
-                    if (distributePath.find( localDistributionRepository ) == std::string::npos)
+                    std::string localDistributionRepository =
+                        Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
+                    if (distributePath.find(localDistributionRepository) == std::string::npos)
                     {
-                        throw std::logic_error( "Received a path to remove that is not in the local distribution repository: " + distributePath);
+                        throw std::logic_error(
+                            "Received a path to remove that is not in the local distribution repository: " +
+                            distributePath);
                     }
                     Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);
-                }catch ( Common::FileSystem::IFileSystemException & ex)
+                }
+                catch (Common::FileSystem::IFileSystemException& ex)
                 {
                     LOGWARN("Failed to remove path. Reason: " << ex.what());
                 }
-
             }
-
 
             productsRemoved.push_back(uninstallProduct.second);
         }
