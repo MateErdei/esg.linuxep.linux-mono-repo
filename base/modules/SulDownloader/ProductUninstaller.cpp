@@ -46,7 +46,7 @@ namespace SulDownloader
 {
     std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
         const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
-        SulDownloader::suldownloaderdata::IWarehouseRepository& iWarehouseRepository)
+        suldownloaderdata::IWarehouseRepository& iWarehouseRepository)
     {
         std::vector<std::string> installedProducts = getInstalledProductPathsList();
         std::map<std::string, suldownloaderdata::DownloadedProduct> productsToRemove;

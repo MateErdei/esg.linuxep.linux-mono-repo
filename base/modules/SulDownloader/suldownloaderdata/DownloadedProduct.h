@@ -49,6 +49,11 @@ namespace SulDownloader
              */
             void install(const std::vector<std::string>& installArgs);
 
+            /**
+             * Return the full path of the install.sh related to this product. In order to work correctly, it requires
+             * that ::setDistributePath was executed before calling this method.
+             * @return Full path of the install.sh
+             */
             std::string installerPath() const;
 
             /**

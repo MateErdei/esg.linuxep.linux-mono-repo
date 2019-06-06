@@ -32,7 +32,7 @@ namespace SulDownloader
 
             virtual WarehouseError getError() const = 0;
 
-            virtual void synchronize(ProductSelection& productSelection) = 0;
+            virtual void synchronize(ProductSelection& ) = 0;
 
             virtual void distribute() = 0;
 
