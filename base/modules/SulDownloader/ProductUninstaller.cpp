@@ -17,6 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <Common/FileSystem/IFileSystemException.h>
 
 namespace
 {
@@ -141,7 +142,7 @@ namespace SulDownloader
                 try
                 {
                     Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);
-                }catch ( std::exception & ex)
+                }catch ( Common::FileSystem::IFileSystemException & ex)
                 {
                     LOGWARN("Failed to remove path. Reason: " << ex.what());
                 }

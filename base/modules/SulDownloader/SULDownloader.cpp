@@ -121,10 +121,12 @@ namespace SulDownloader
         {
             bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);
 
-            if ( forceReinstallAllProducts || forceReinstallThisProduct)
+            if (forceReinstallAllProducts || forceReinstallThisProduct)
             {
-                LOGSUPPORT("Mark product to be reinstalled. Reason: AllProducts: " << forceReinstallAllProducts
-                << ", This Product: " << forceReinstallThisProduct << ". Product = " << product.getLine());
+                LOGSUPPORT(
+                    "Mark product to be reinstalled. Reason: AllProducts: "
+                    << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
+                    << ". Product = " << product.getLine());
                 product.setForceProductReinstall(true);
             }
         }
@@ -162,7 +164,8 @@ namespace SulDownloader
         // a warehouse error should have been generated, preventing getting this far, therefore preventing
         // un-installation of all products.
         SulDownloader::ProductUninstaller uninstallManager;
-        std::vector<DownloadedProduct> uninstalledProducts = uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
+        std::vector<DownloadedProduct> uninstalledProducts =
+            uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
         for (auto& uninstalledProduct : uninstalledProducts)
         {
             products.push_back(uninstalledProduct);
@@ -281,10 +284,11 @@ namespace SulDownloader
         }
 
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
+        int exitCode;
+        std::string jsonReport;
+        std::tie(exitCode, jsonReport) = configAndRunDownloader(settingsString, previousReportData);
 
-        auto result = configAndRunDownloader(settingsString, previousReportData);
-        int exitCode = std::get<0>(result);
-        if( exitCode ==  0)
+        if (exitCode == 0)
         {
             LOGINFO("Update success");
         }
@@ -295,7 +299,7 @@ namespace SulDownloader
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
-        fileSystem->writeFileAtomically(outputFilePath, std::get<1>(result), tempDir);
+        fileSystem->writeFileAtomically(outputFilePath, jsonReport, tempDir);
 
         return exitCode;
     }
