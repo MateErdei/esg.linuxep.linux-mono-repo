@@ -319,19 +319,28 @@ class MCSPolicyHandler(object):
             policy_nodes = dom.getElementsByTagName("policy")
             if len(policy_nodes) != 1:
                 LOGGER.error("MCS Policy doesn't have one policy node")
-                return
+                raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
 
             policy_node = policy_nodes[0]
 
             nodes = policy_node.getElementsByTagName("csc:Comp")
             if len(nodes) == 1:
                 node = nodes[0]
-                policy_type = node.getAttribute("policy_type")
+
+                policy_type = node.getAttribute("policyType")
+                if policy_type == "":
+                    LOGGER.error("MCS policy did not contain policy type")
+                    raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
+
                 rev_id = node.getAttribute("RevID")
+                if rev_id == "":
+                    LOGGER.error("MCS policy did not contain revID")
+                    raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
+
                 compliance = (policy_type, rev_id)
             else:
                 LOGGER.error("MCS Policy didn't contain one compliance node")
-                compliance = None
+
 
             LOGGER.info(
                 "Applying %s %s policy %s",
@@ -362,6 +371,10 @@ class MCSPolicyHandler(object):
             if save:
                 # Save successfully applied policy
                 self.__save_policy()
+
+        except mcsrouter.utils.xml_helper.XMLException:
+            return
+
         finally:
             dom.unlink()
 
