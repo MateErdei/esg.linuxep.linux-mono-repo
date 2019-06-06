@@ -887,6 +887,7 @@ class MCSConnection(object):
             status_xml = status.xml()
             self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
         except mcsrouter.utils.xml_helper.XMLException:
+            LOGGER.warn("Status xml rejected")
             pass
 
     def send_events(self, events):
@@ -897,6 +898,7 @@ class MCSConnection(object):
             events_xml = events.xml()
             self.send_message_with_id("/events/endpoint/", events_xml, "POST")
         except mcsrouter.utils.xml_helper.XMLException:
+            LOGGER.warn("Event xml rejected")
             pass
 
     def query_commands(self, app_ids=None):
