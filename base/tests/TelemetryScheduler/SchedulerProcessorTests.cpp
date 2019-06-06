@@ -45,6 +45,19 @@ public:
     const std::string m_supplementaryConfigFilePath = "/opt/sophos-spl/base/etc/telemetry-config.json";
     const std::string m_telemetryExeConfigFilePath = "/opt/sophos-spl/base/telemetry/var/telemetry-exe.json";
     const std::string m_telemetryStatusFilePath = "/opt/sophos-spl/base/telemetry/var/tscheduler-status.json";
+    const std::string m_telemetryExecutableFilePath = "/opt/sophos-spl/base/bin/telemetry";
+
+    // TODO: headers or additionalHeaders ?!
+    const std::string m_validTelemetryConfigJson = R"(
+    {
+        "server": "localhost",
+        "port": 443,
+        "verb": "PUT",
+        "headers": ["x-amz-acl: bucket-owner-full-control"],
+        "resourceRoot": "linux/dev",
+        "interval": 3600
+    })";
+
 
     void SetUp() override
     {
@@ -403,4 +416,35 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
+}
+
+TEST_F(SchedulerProcessorTests, runTelemetryExecutableSuccessfully) // NOLINT
+{
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
+        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExeConfigFilePath())
+        .WillRepeatedly(Return(m_telemetryExeConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExecutableFilePath())
+        .WillRepeatedly(Return(m_telemetryExecutableFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)); // TODO: check content?
+
+    EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
+    EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+    EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
+
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+
+    processor.runTelemetry();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+
+    processor.checkExecutableFinished();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
 }

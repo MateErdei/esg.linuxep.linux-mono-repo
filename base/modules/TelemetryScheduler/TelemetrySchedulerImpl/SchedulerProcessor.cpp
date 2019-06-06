@@ -25,14 +25,15 @@ namespace TelemetrySchedulerImpl
 {
     using namespace std::chrono;
 
-    const seconds configurationCheckDelay(3600);   // TODO: breakout as configuration option?
-    const seconds checkTelemetryExeStateDelay(60); // TODO: breakout as configuration option?
-
     SchedulerProcessor::SchedulerProcessor(
         std::shared_ptr<ITaskQueue> taskQueue,
-        const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
+        const Common::ApplicationConfiguration::IApplicationPathManager& pathManager,
+        seconds configurationCheckDelay,
+        seconds telemetryExeCheckDelay) :
         m_taskQueue(std::move(taskQueue)),
-        m_pathManager(pathManager)
+        m_pathManager(pathManager),
+        m_configurationCheckDelay(configurationCheckDelay),
+        m_telemetryExeCheckDelay(telemetryExeCheckDelay)
     {
         if (!m_taskQueue)
         {
@@ -203,10 +204,10 @@ namespace TelemetrySchedulerImpl
 
         if (scheduledTimeInSecondsSinceEpoch == 0)
         {
-            const auto timeToCheckConfiguration = system_clock::now() + configurationCheckDelay;
+            const auto timeToCheckConfiguration = system_clock::now() + m_configurationCheckDelay;
 
             LOGINFO(
-                "Telemetry reporting is currently disabled - will check again in " << configurationCheckDelay.count()
+                "Telemetry reporting is currently disabled - will check again in " << m_configurationCheckDelay.count()
                                                                                    << " seconds");
 
             delayBeforeQueueingTask(
@@ -227,35 +228,50 @@ namespace TelemetrySchedulerImpl
     {
         LOGINFO("Telemetry reporting is about to run");
 
-        std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-            m_pathManager.getTelemetrySupplementaryFilePath(),
-            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
-
-        Common::TelemetryExeConfigImpl::Config config;
-
-        Common::FileSystem::fileSystem()->writeFile(
-            m_pathManager.getTelemetryExeConfigFilePath(),
-            Common::TelemetryExeConfigImpl::Serialiser::serialise(
-                Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
-
-        m_telemetryExeProcess = Common::Process::createProcess();
-
         try
         {
+            std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
+                m_pathManager.getTelemetrySupplementaryFilePath(),
+                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
+
+            Common::TelemetryExeConfigImpl::Config config;
+
+            Common::FileSystem::fileSystem()->writeFile(
+                m_pathManager.getTelemetryExeConfigFilePath(),
+                Common::TelemetryExeConfigImpl::Serialiser::serialise(
+                    Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
+
+            m_telemetryExeProcess = Common::Process::createProcess();
+
             m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::MAX_OUTPUT_SIZE);
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
             LOGINFO(
-                "Telemetry executable's state will be checked in " << checkTelemetryExeStateDelay.count()
+                "Telemetry executable's state will be checked in " << m_telemetryExeCheckDelay.count()
                                                                    << " seconds");
-            const auto timeToCheckExeState = system_clock::now() + checkTelemetryExeStateDelay;
+            const auto timeToCheckExeState = system_clock::now() + m_telemetryExeCheckDelay;
             delayBeforeQueueingTask(
                 timeToCheckExeState, m_delayBeforeCheckingExe, SchedulerTask::CheckExecutableFinished);
         }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR(
+                "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " or writing "
+                                             << m_pathManager.getTelemetrySupplementaryFilePath() << ": " << e.what());
+            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+        }
+        // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
+        catch (nlohmann::detail::exception& e)
+        {
+            std::stringstream msg;
+            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
+                                           << " JSON is invalid: " << e.what(););
+            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+        }
         catch (const Common::Process::IProcessException& processException)
         {
-            LOGERROR("Failed to send telemetry: " << processException.what());
+            LOGERROR("Running telemetry executable failed: " << processException.what());
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
     }

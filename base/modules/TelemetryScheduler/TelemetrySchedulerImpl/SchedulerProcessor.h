@@ -16,15 +16,21 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 
 #include <atomic>
+#include <chrono>
 
 namespace TelemetrySchedulerImpl
 {
+    using namespace std::chrono;
+    using namespace std::chrono_literals;
+
     class SchedulerProcessor
     {
     public:
         SchedulerProcessor(
             std::shared_ptr<ITaskQueue> taskQueue,
-            const Common::ApplicationConfiguration::IApplicationPathManager& pathManager);
+            const Common::ApplicationConfiguration::IApplicationPathManager& pathManager,
+            seconds configurationCheckDelay = 3600s,
+            seconds telemetryExeCheckDelay = 60s);
 
         /**
          * Start the processor's main loop, processing tasks until Task::Shutdown is received.
@@ -65,6 +71,7 @@ namespace TelemetrySchedulerImpl
         std::unique_ptr<SleepyThread> m_delayBeforeCheckingConfiguration;
         std::unique_ptr<SleepyThread> m_delayBeforeCheckingExe;
         std::unique_ptr<Common::Process::IProcess> m_telemetryExeProcess;
-        ;
+        const seconds m_configurationCheckDelay;
+        const seconds m_telemetryExeCheckDelay;
     };
 } // namespace TelemetrySchedulerImpl

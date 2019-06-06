@@ -12,13 +12,18 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <modules/TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
 class DerivedSchedulerProcessor : public TelemetrySchedulerImpl::SchedulerProcessor
 {
 public:
     DerivedSchedulerProcessor(
         std::shared_ptr<TelemetrySchedulerImpl::TaskQueue> taskQueue,
-        const Common::ApplicationConfiguration::IApplicationPathManager& pathManager) :
-        SchedulerProcessor(std::move(taskQueue), pathManager)
+        const Common::ApplicationConfiguration::IApplicationPathManager& pathManager,
+        seconds configurationCheckDelay = 3600s,
+        seconds telemetryExeCheckDelay = 60s) :
+        SchedulerProcessor(std::move(taskQueue), pathManager, configurationCheckDelay, telemetryExeCheckDelay)
     {
     }
 
