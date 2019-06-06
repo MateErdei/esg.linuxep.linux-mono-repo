@@ -15,12 +15,22 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
+        struct ProductKey
+        {
+            std::string m_line;
+            std::string m_version;
+        };
+
+        using SubProducts = std::vector<ProductKey>;
+
         /**
-         * Product meatadata from the warehouse.
+         * Product metadata from the warehouse.
          */
         class ProductMetadata
         {
         public:
+            static SubProducts extractSubProductsFromSulSubComponents( const std::vector<std::string>&  sulSubComponents);
+            static ProductKey extractProductKeyFromSubComponent( const std::string & sulSubComponent);
             const std::string& getLine() const;
 
             void setLine(const std::string& line);
@@ -45,6 +55,10 @@ namespace SulDownloader
             void setFeatures(const std::vector<std::string> & features);
             const std::vector<std::string>& getFeatures() const;
 
+            void setSubProduts( const SubProducts & subProducts);
+            const SubProducts& subProducts() const;
+
+
         private:
             std::vector<Tag> m_tags;
             std::string m_line;
@@ -53,6 +67,7 @@ namespace SulDownloader
             std::string m_baseVersion;
             std::string m_defaultHomeFolder;
             std::vector<std::string> m_features;
+            SubProducts m_subProducts;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

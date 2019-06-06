@@ -17,7 +17,7 @@ add_executable(SulDownloaderTests
         TestProxy.cpp
         TestProductUninstaller.cpp
         ConfigurationDataBase.h
-        )
+        TestProductMetadata.cpp)
 
 target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")

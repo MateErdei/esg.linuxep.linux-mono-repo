@@ -4,8 +4,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ProductMetadata.h"
-
+#include "Logger.h"
 #include <cassert>
+#include <stdexcept>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -84,4 +85,49 @@ void ProductMetadata::setFeatures(const std::vector<std::string>& features)
 const std::vector<std::string>& ProductMetadata::getFeatures() const
 {
     return  m_features;
+}
+
+SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::vector<std::string>& sulSubComponents)
+{
+    SulDownloader::suldownloaderdata::SubProducts subProducts;
+    for( auto & sulSubComponent: sulSubComponents)
+    {
+        try
+        {
+            subProducts.push_back( extractProductKeyFromSubComponent(sulSubComponent) );
+        }
+        catch ( std::invalid_argument & )
+        {
+            LOGWARN( "SubComponent received from Sul is not as expected. Received: " << sulSubComponent);
+        }
+
+    }
+    return subProducts;
+}
+
+void ProductMetadata::setSubProduts(const SubProducts& subProducts)
+{
+    m_subProducts = subProducts;
+}
+
+const SubProducts& ProductMetadata::subProducts() const
+{
+    return m_subProducts;
+}
+
+ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string& sulSubComponent)
+{
+    std::string::size_type pos =  sulSubComponent.rfind(";");
+    if( pos == std::string::npos)
+    {
+        throw std::invalid_argument( "Missing ;");
+    }
+    if( sulSubComponent == ";")
+    {
+        throw std::invalid_argument("Empty rigidname is not valid");
+    }
+    std::string rigidName = sulSubComponent.substr(0,pos);
+    std::string version = sulSubComponent.substr(pos+1);
+
+    return   {rigidName, version};
 }

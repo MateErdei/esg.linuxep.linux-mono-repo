@@ -48,6 +48,24 @@ namespace
         return tags;
     }
 
+    SubProducts getSubComponents(SU_PHandle& product)
+    {
+        std::vector<std::string> sulComponents;
+        int index = 0;
+
+        while (true)
+        {
+            std::string sulComponent = SulDownloader::SulQueryProductMetadata(product, "R_SubComponent", index);
+            if (sulComponent.empty())
+            {
+                break;
+            }
+            sulComponents.push_back(sulComponent);
+            index++;
+        }
+        return ProductMetadata::extractSubProductsFromSulSubComponents(sulComponents);
+    }
+
     std::vector<std::string> getFeatures(SU_PHandle& product)
     {
         std::vector<std::string> features;
@@ -245,6 +263,7 @@ namespace SulDownloader
             productInformation.setFeatures(getFeatures(product));
             productInformation.setBaseVersion(baseVersion);
             productInformation.setDefaultHomePath(defaultHomePath);
+            productInformation.setSubProduts( getSubComponents(product) );
 
             productInformationList.emplace_back(product, productInformation);
         }
