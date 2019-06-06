@@ -44,7 +44,7 @@ class TestXmlHelper(unittest.TestCase):
             doc.unlink()
             self.fail("Able to parse entities")
         except Exception as ex:
-            assert(ex.message=="Refusing to parse Entity Declaration: lol")
+            assert(ex.message == "Refusing to parse Entity Declaration: lol")
 
     def testMissingClosingTagXMLThrows(self):
         TEST_DOC="""<?xml version="1.0"?>
@@ -57,7 +57,7 @@ class TestXmlHelper(unittest.TestCase):
             doc.unlink()
             self.fail("should not be able to parse")
         except Exception as ex:
-            assert(ex.message=="no element found: line 4, column 8")
+            assert(ex.message == "no element found: line 4, column 8")
 
 
     def testBrokenXMLThrows(self):
@@ -71,7 +71,7 @@ class TestXmlHelper(unittest.TestCase):
             doc.unlink()
             self.fail("should not be able to parse")
         except Exception as ex:
-            assert(ex.message=="mismatched tag: line 3, column 17")
+            assert(ex.message == "mismatched tag: line 3, column 17")
 
 
     def testXMLWithXhtmlScriptTagThrows(self):
@@ -83,7 +83,7 @@ class TestXmlHelper(unittest.TestCase):
             mcsrouter.utils.xml_helper.check_xml_has_no_script_tags(TEST_DOC)
             self.fail("should not be able to parse")
         except Exception as ex:
-            assert(ex.message=="Refusing to parse Script Element")
+            assert(ex.message == "Refusing to parse Script Element")
 
 
     def testXMLWithScriptTagThrows(self):
@@ -93,7 +93,7 @@ class TestXmlHelper(unittest.TestCase):
             mcsrouter.utils.xml_helper.check_xml_has_no_script_tags(TEST_DOC)
             self.fail("should not be able to parse")
         except Exception as ex:
-            assert(ex.message=="Refusing to parse Script Element")
+            assert(ex.message == "Refusing to parse Script Element")
 
 
     def testValidStatusXmlDoesntThrow(self):

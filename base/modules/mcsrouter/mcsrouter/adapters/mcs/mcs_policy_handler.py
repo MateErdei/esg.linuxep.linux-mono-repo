@@ -307,7 +307,7 @@ class MCSPolicyHandler(object):
 
         policy_xml = self.__m_policy_xml
         try:
-            dom = mcsrouter.utils.xml_helper.parseStringAndRejectScriptElements(policy_xml)
+            dom = mcsrouter.utils.xml_helper.parseString(policy_xml)
         except xml.parsers.expat.ExpatError as exception:
             LOGGER.error(
                 "Failed to parse MCS policy (%s): %s",

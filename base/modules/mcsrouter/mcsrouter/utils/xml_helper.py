@@ -51,6 +51,9 @@ class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
     """
     pass
 
+class XMLException(Exception):
+    pass
+
 class NoEntityExpatBuilderNS(xml.dom.expatbuilder.ExpatBuilderNS):
     def entity_decl_handler(self, entityName, is_parameter_entity, value,
                             base, systemId, publicId, notationName):
@@ -67,12 +70,11 @@ def parseString(contents):
     builder = NoEntityExpatBuilderNS(options)
     return builder.parseString(contents)
 
-def check_xml_has_no_script_tags(xmlString):
-
-    if any(x in xmlString for x in ["<xhtml:script", "<script"]):
+def check_xml_has_no_script_tags(xml_string):
+    if any(x in xml_string for x in ["<xhtml:script", "<script"]):
         err_msg = "Refusing to parse Script Element"
         LOGGER.warning(err_msg)
-        raise RuntimeError(err_msg)
+        raise XMLException(err_msg)
 
 def check_string_length_for_statuses(contents):
     max_size = 256 * 1024  # maximum number of characters
@@ -80,7 +82,7 @@ def check_string_length_for_statuses(contents):
     if len(contents) > max_size:
         err_msg = "Refusing to parse, size of status exceeds character limit"
         LOGGER.warning(err_msg)
-        raise RuntimeError(err_msg)
+        raise XMLException(err_msg)
 
 def check_string_size_for_events(contents):
     max_size = 5 * 1000 * 1000  # maximum size in bytes
@@ -88,6 +90,6 @@ def check_string_size_for_events(contents):
     if len(contents.encode('utf-8')) > max_size:
         err_msg = "Refusing to parse, size of status exceeds size limit"
         LOGGER.warning(err_msg)
-        raise RuntimeError(err_msg)
+        raise XMLException(err_msg)
 
 

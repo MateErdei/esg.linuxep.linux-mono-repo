@@ -109,16 +109,16 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         except OSError:
             pass
         try:
-            statusXml = xml_helper.get_escaped_non_ascii_content(
+            status_xml = xml_helper.get_escaped_non_ascii_content(
                 status_path)
         except IOError:
             return None
         try:
-            xml_helper.check_xml_has_no_script_tags(statusXml)
+            xml_helper.check_xml_has_no_script_tags(status_xml)
         except RuntimeError:
             return None
 
-        return statusXml
+        return status_xml
 
     def _has_new_status(self):
         """
