@@ -340,6 +340,7 @@ class MCSPolicyHandler(object):
                 compliance = (policy_type, rev_id)
             else:
                 LOGGER.error("MCS Policy didn't contain one compliance node")
+                raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
 
 
             LOGGER.info(
