@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <Common/TelemetryExeConfigImpl/Constants.h>
 #include <TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
@@ -601,7 +602,7 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
 
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }))
-        .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
+        .WillOnce(Throw(Common::Process::IProcessException("error")));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
