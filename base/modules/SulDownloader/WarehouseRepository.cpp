@@ -143,7 +143,8 @@ namespace
               "SAVLine",
               "ResubscriptionsLine",
               "Resubscriptions",
-              "ResubscriptionsVersion" });
+              "ResubscriptionsVersion",
+              "SubComponent"});
     }
 
 } // namespace
