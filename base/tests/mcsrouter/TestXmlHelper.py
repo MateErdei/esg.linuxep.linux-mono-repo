@@ -80,8 +80,7 @@ class TestXmlHelper(unittest.TestCase):
         type="application/javascript"/>"""
 
         try:
-            doc = mcsrouter.utils.xml_helper.parseStringAndRejectScriptElements(TEST_DOC)
-            doc.unlink()
+            mcsrouter.utils.xml_helper.check_xml_has_no_script_tags(TEST_DOC)
             self.fail("should not be able to parse")
         except Exception as ex:
             assert(ex.message=="Refusing to parse Script Element")
@@ -91,8 +90,7 @@ class TestXmlHelper(unittest.TestCase):
         TEST_DOC="""<script xmlns="http://www.sophos.com/xml/mcs/computerstatus" src="file.js"></script>"""
 
         try:
-            doc = mcsrouter.utils.xml_helper.parseStringAndRejectScriptElements(TEST_DOC)
-            doc.unlink()
+            mcsrouter.utils.xml_helper.check_xml_has_no_script_tags(TEST_DOC)
             self.fail("should not be able to parse")
         except Exception as ex:
             assert(ex.message=="Refusing to parse Script Element")

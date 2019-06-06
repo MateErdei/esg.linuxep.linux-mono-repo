@@ -67,16 +67,14 @@ def parseString(contents):
     builder = NoEntityExpatBuilderNS(options)
     return builder.parseString(contents)
 
-def parseStringAndRejectScriptElements(contents):
-    xml = parseString(contents)
+def check_xml_has_no_script_tags(xmlString):
 
-    if (len(xml.getElementsByTagName('xhtml:script')) != 0) or (len(xml.getElementsByTagName('script')) != 0):
-        raise RuntimeError("Refusing to parse Script Element")
+    if any(x in xmlString for x in ["<xhtml:script", "<script"]):
+        err_msg = "Refusing to parse Script Element"
+        LOGGER.warning(err_msg)
+        raise RuntimeError(err_msg)
 
-    return xml
-
-
-def checkStringSizeForStatuses(contents):
+def check_string_length_for_statuses(contents):
     max_size = 256 * 1024  # maximum number of characters
 
     if len(contents) > max_size:
@@ -84,8 +82,7 @@ def checkStringSizeForStatuses(contents):
         LOGGER.warning(err_msg)
         raise RuntimeError(err_msg)
 
-
-def checkStringLengthForEvents(contents):
+def check_string_size_for_events(contents):
     max_size = 5 * 1000 * 1000  # maximum size in bytes
 
     if len(contents.encode('utf-8')) > max_size:

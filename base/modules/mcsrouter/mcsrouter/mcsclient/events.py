@@ -111,7 +111,7 @@ class Events(object):
         xml
         """
         xml = self.xmlBuilder()
-        mcsrouter.utils.xml_helper.checkStringLengthForEvents(xml)
+        mcsrouter.utils.xml_helper.check_string_size_for_events(xml)
         return xml
 
     def xmlBuilder(self):

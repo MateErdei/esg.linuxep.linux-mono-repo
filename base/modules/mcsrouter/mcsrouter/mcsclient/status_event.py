@@ -37,7 +37,7 @@ class StatusEvent(object):
         xml
         """
         xml = self.xmlBuilder()
-        mcsrouter.utils.xml_helper.checkStringSizeForStatuses(xml)
+        mcsrouter.utils.xml_helper.check_string_length_for_statuses(xml)
 
         return xml
 
