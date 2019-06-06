@@ -148,6 +148,10 @@ ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string&
     return   {rigidName, version};
 }
 
+// This method is meant to extract the components or the first level subcomponents that will eventually
+// go to the ALC status/products https://wiki.sophos.net/display/SophosCloud/EMP%3A+status-alc
+// hence, if the product does not have subProducts it will be considered as top level component,
+// when it has subProducts, it will be considered component Suite.
 SubProducts ProductMetadata::combineSubProducts(const std::vector<ProductMetadata>& productsMetadata)
 {
     Common::UtilityImpl::OrderedSet<ProductKey> orderedProducts;
@@ -156,11 +160,14 @@ SubProducts ProductMetadata::combineSubProducts(const std::vector<ProductMetadat
         SubProducts subProducts = productMetadata.subProducts();
         if( subProducts.empty())
         {
-            subProducts.push_back( ProductKey{ productMetadata.getLine(), productMetadata.getVersion() } );
+            orderedProducts.addElement(ProductKey{ productMetadata.getLine(), productMetadata.getVersion() });
         }
-        for( auto & subProduct: subProducts)
+        else
         {
-            orderedProducts.addElement(subProduct);
+            for( auto & subProduct: subProducts)
+            {
+                orderedProducts.addElement(subProduct);
+            }
         }
     }
     return orderedProducts.orderedElements();
