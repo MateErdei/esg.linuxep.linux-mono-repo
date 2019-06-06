@@ -110,6 +110,14 @@ class Events(object):
         """
         xml
         """
+        xml = self.xmlBuilder()
+        mcsrouter.utils.xml_helper.checkStringLengthForEvents(xml)
+        return xml
+
+    def xmlBuilder(self):
+        """
+        xmlBuilder
+        """
         doc = mcsrouter.utils.xml_helper.parseString(EVENTS_TEMPLATE)
         events_node = doc.getElementsByTagName(u"ns:events")[0]
         for event in self.__m_events:

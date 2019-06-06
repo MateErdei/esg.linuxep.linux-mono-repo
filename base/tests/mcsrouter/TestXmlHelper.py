@@ -7,6 +7,7 @@ import unittest
 import PathManager
 
 import mcsrouter.mcsclient.status_event
+import mcsrouter.mcsclient.events
 import mcsrouter.utils.xml_helper
 
 class TestXmlHelper(unittest.TestCase):
@@ -100,15 +101,15 @@ class TestXmlHelper(unittest.TestCase):
     def testValidStatusXmlDoesntThrow(self):
         try:
             status = mcsrouter.mcsclient.status_event.StatusEvent()
-            status.xmlStatus()
+            status.xml()
         except Exception as ex:
             self.fail(ex)
 
 
     def testValidEventXmlDoesntThrow(self):
         try:
-            event = mcsrouter.mcsclient.status_event.StatusEvent()
-            event.xmlEvent()
+            event = mcsrouter.mcsclient.events.Events()
+            event.xml()
         except Exception as ex:
             self.fail(ex)
 

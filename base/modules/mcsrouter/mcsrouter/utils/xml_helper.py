@@ -76,7 +76,7 @@ def parseStringAndRejectScriptElements(contents):
     return xml
 
 
-def parseStringForStatuses(contents):
+def checkStringSizeForStatuses(contents):
     max_size = 256 * 1024  # maximum number of characters
 
     if len(contents) > max_size:
@@ -84,17 +84,13 @@ def parseStringForStatuses(contents):
         LOGGER.warning(err_msg)
         raise RuntimeError(err_msg)
 
-    return parseStringAndRejectScriptElements(contents)
 
-
-def parseStringForEvents(contents):
+def checkStringLengthForEvents(contents):
     max_size = 5 * 1000 * 1000  # maximum size in bytes
 
     if len(contents.encode('utf-8')) > max_size:
         err_msg = "Refusing to parse, size of status exceeds size limit"
         LOGGER.warning(err_msg)
         raise RuntimeError(err_msg)
-
-    return parseStringAndRejectScriptElements(contents)
 
 

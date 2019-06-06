@@ -884,10 +884,11 @@ class MCSConnection(object):
         send_status_event
         """
         try:
-            status_xml = status.xmlStatus()
+            status_xml = status.xml()
             self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
         except RuntimeError as ex:
             if (ex.message!="Refusing to parse, size of status exceeds character limit"):
+                LOGGER.error("Cannot parse status: " + ex.message)
                 raise
 
     def send_events(self, events):
@@ -895,10 +896,11 @@ class MCSConnection(object):
         send_events
         """
         try:
-            events_xml = events.xmlEvent()
+            events_xml = events.xml()
             self.send_message_with_id("/events/endpoint/", events_xml, "POST")
         except RuntimeError as ex:
             if (ex.message!="Refusing to parse, size of status exceeds size limit"):
+                LOGGER.error("Cannot parse event: " + ex.message)
                 raise
 
     def query_commands(self, app_ids=None):
