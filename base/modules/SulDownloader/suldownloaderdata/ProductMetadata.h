@@ -21,6 +21,8 @@ namespace SulDownloader
             std::string m_version;
         };
 
+        bool operator==(const ProductKey& lh, const ProductKey & rh);
+
         using SubProducts = std::vector<ProductKey>;
 
         /**
@@ -31,6 +33,7 @@ namespace SulDownloader
         public:
             static SubProducts extractSubProductsFromSulSubComponents( const std::vector<std::string>&  sulSubComponents);
             static ProductKey extractProductKeyFromSubComponent( const std::string & sulSubComponent);
+            static SubProducts combineSubProducts( const std::vector<ProductMetadata>& );
             const std::string& getLine() const;
 
             void setLine(const std::string& line);
@@ -69,5 +72,6 @@ namespace SulDownloader
             std::vector<std::string> m_features;
             SubProducts m_subProducts;
         };
+
     } // namespace suldownloaderdata
 } // namespace SulDownloader

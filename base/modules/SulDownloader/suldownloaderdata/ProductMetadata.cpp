@@ -5,8 +5,24 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "ProductMetadata.h"
 #include "Logger.h"
+#include <Common/UtilityImpl/OrderedSet.h>
 #include <cassert>
 #include <stdexcept>
+
+namespace std
+{
+    template<> struct hash<SulDownloader::suldownloaderdata::ProductKey>
+    {
+        typedef  SulDownloader::suldownloaderdata::ProductKey argument_type;
+        typedef std::size_t result_type;
+        result_type operator()(const argument_type& productKey) const noexcept
+        {
+            result_type const h1 ( std::hash<std::string>{}(productKey.m_line) );
+            result_type const h2 ( std::hash<std::string>{}(productKey.m_version) );
+            return h1 ^ h2;
+        }
+    };
+}
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -130,4 +146,27 @@ ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string&
     std::string version = sulSubComponent.substr(pos+1);
 
     return   {rigidName, version};
+}
+
+SubProducts ProductMetadata::combineSubProducts(const std::vector<ProductMetadata>& productsMetadata)
+{
+    Common::UtilityImpl::OrderedSet<ProductKey> orderedProducts;
+    for( auto & productMetadata: productsMetadata)
+    {
+        SubProducts subProducts = productMetadata.subProducts();
+        if( subProducts.empty())
+        {
+            subProducts.push_back( ProductKey{ productMetadata.getLine(), productMetadata.getVersion() } );
+        }
+        for( auto & subProduct: subProducts)
+        {
+            orderedProducts.addElement(subProduct);
+        }
+    }
+    return orderedProducts.orderedElements();
+}
+
+bool SulDownloader::suldownloaderdata::operator==(const ProductKey& lh, const ProductKey& rh)
+{
+    return lh.m_line == rh.m_line && lh.m_version == rh.m_version;
 }

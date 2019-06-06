@@ -12,13 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-void verifyEquality( const ProductKey& calculated, const ProductKey & expectedProductKey)
-{
-    EXPECT_EQ(calculated.m_line, expectedProductKey.m_line);
-    EXPECT_EQ(calculated.m_version, expectedProductKey.m_version);
-}
-
-
 TEST(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
 {
     auto subComponents = ProductMetadata::extractSubProductsFromSulSubComponents({});
@@ -38,7 +31,7 @@ TEST( TestProductMetadata, extractSulComponentShouldProduceValidProductKey)
     {
         std::string expectedSulSubComponent = expectedProductKey.m_line + ";" + expectedProductKey.m_version;
         ProductKey calculated = ProductMetadata::extractProductKeyFromSubComponent(expectedSulSubComponent);
-        verifyEquality(calculated,expectedProductKey);
+        EXPECT_EQ(calculated, expectedProductKey);
     }
 }
 
@@ -46,7 +39,7 @@ TEST( TestProductMetadata, rigidNameWithDotDashShouldBeConsideredValid)
 {
     ProductKey expectedProductKey{ "name-with-;-is-ok","10.0.5"};
     ProductKey calculated = ProductMetadata::extractProductKeyFromSubComponent("name-with-;-is-ok;10.0.5");
-    verifyEquality(calculated,expectedProductKey);
+    EXPECT_EQ(calculated, expectedProductKey);
 }
 
 
@@ -71,9 +64,12 @@ TEST( TestProductMetadata, extractSulComponentsHandleGracefullyInvalidArguments)
 {
     std::vector<std::string> entries = {"rig;1.0.0","invalid","name2;5.9"};
     SubProducts subProducts = ProductMetadata::extractSubProductsFromSulSubComponents(entries);
-    EXPECT_EQ( subProducts.size(), 2 );
-    verifyEquality( subProducts[0], {"rig", "1.0.0"});
-    verifyEquality( subProducts[1], {"name2", "5.9"});
+
+    SubProducts expected{
+            {"rig","1.0.0"},
+            {"name2","5.9"}
+    };
+    EXPECT_EQ(subProducts, expected);
 }
 
 TEST( TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
@@ -83,8 +79,76 @@ TEST( TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
     ProductMetadata productMetadata;
     productMetadata.setSubProduts(ProductMetadata::extractSubProductsFromSulSubComponents(entries));
     SubProducts subProducts = productMetadata.subProducts();
-    EXPECT_EQ( subProducts.size(), 2 );
-    verifyEquality( subProducts[0], {"rig", "1.0.0"});
-    verifyEquality( subProducts[1], {"name2", "5.9"});
+
+    SubProducts expected{
+            {"rig","1.0.0"},
+            {"name2","5.9"}
+    };
+    EXPECT_EQ(subProducts, expected);
+}
+
+
+TEST( TestProductMetadata, combineSubProductsShouldReturnOwnRigidNameAndVersionForEmptySubComponents)
+{
+    ProductMetadata productMetadata;
+    productMetadata.setLine("line");
+    productMetadata.setVersion("1");
+    SubProducts subProducts = ProductMetadata::combineSubProducts( std::vector<ProductMetadata>{productMetadata});
+
+
+    SubProducts expected{
+            {"line","1"}
+    };
+
+    EXPECT_EQ(subProducts, expected);
+}
+
+TEST( TestProductMetadata, combineSubProductsShouldReturnTheSubComponentsWhenNotEmpty)
+{
+    ProductMetadata productMetadata;
+    productMetadata.setLine("line");
+    productMetadata.setVersion("1");
+    SubProducts line1subProd{
+            {"sub1", "2"},
+            {"sub2","3"}
+    };
+    productMetadata.setSubProduts( line1subProd);
+    SubProducts subProducts = ProductMetadata::combineSubProducts( std::vector<ProductMetadata>{productMetadata});
+
+
+    SubProducts expected = line1subProd;
+
+    EXPECT_EQ(subProducts, expected);
+}
+
+
+TEST( TestProductMetadata, combineSubProductsShouldNotRepeatProducts)
+{
+    ProductMetadata productMetadata;
+    productMetadata.setLine("line");
+    productMetadata.setVersion("1");
+    SubProducts line1subProd{
+            {"sub1", "2"},
+            {"sub2","3"}
+    };
+    productMetadata.setSubProduts( line1subProd);
+
+    ProductMetadata productMetadata2;
+    productMetadata2.setLine("line");
+    productMetadata2.setVersion("2");
+    SubProducts line2subProd{
+            {"sub3", "2"},
+            {"sub2","3"}
+    };
+    productMetadata2.setSubProduts( line2subProd);
+    SubProducts subProducts = ProductMetadata::combineSubProducts( std::vector<ProductMetadata>{productMetadata, productMetadata2});
+
+    SubProducts expected{
+            {"sub1", "2"},
+            {"sub2","3"},
+            {"sub3","2"}
+    };
+
+    EXPECT_EQ(subProducts, expected);
 }
 
