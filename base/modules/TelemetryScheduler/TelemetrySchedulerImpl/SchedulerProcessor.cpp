@@ -126,7 +126,7 @@ namespace TelemetrySchedulerImpl
             return 0;
         }
         // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
-        catch (nlohmann::detail::exception& e)
+        catch (const nlohmann::detail::exception& e)
         {
             std::stringstream msg;
             LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
@@ -261,17 +261,16 @@ namespace TelemetrySchedulerImpl
                                              << m_pathManager.getTelemetrySupplementaryFilePath() << ": " << e.what());
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
-        // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
-        catch (nlohmann::detail::exception& e)
-        {
-            std::stringstream msg;
-            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
-                                           << " JSON is invalid: " << e.what(););
-            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
-        }
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Running telemetry executable failed: " << processException.what());
+            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+        }
+        catch (const std::runtime_error& e)
+        {
+            std::stringstream msg;
+            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
+                                           << " is invalid: " << e.what(););
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
     }
