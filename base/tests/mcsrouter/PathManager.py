@@ -7,6 +7,9 @@ import os
 import sys
 import errno
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def appendPath(d):
     if d not in sys.path:
@@ -33,3 +36,65 @@ def safeDelete(path):
             raise
 
 appendPath(get_mcs_router_dir())
+
+class FakePolicyCommand(object):
+    def __init__(self, policy):
+        self.m_policy = policy
+        self.m_complete = False
+
+    def getPolicy(self):
+        return self.m_policy
+
+    def complete(self):
+        self.m_complete = True
+
+    def __str__(self):
+        return "FakePolicyCommand"
+
+
+class FakeConfigManager(object):
+    def __init__(self):
+        self.m_config = {}
+        self.m_used = False
+
+    def openAndLockConnection(self):
+        pass
+
+    def unlockAndCloseConnection(self):
+        pass
+
+    def set(self, savPath, savValue, lock=True, flags=0):
+        assert isinstance(savValue,basestring) or isinstance(savValue,list)
+        self.m_config[savPath] = savValue
+        self.m_used = True
+        logger.info("Set %s to %s",savPath,str(savValue))
+
+
+    def delete(self, savPath):
+        self.m_config.pop(savPath,"")
+        self.m_used = True
+        logger.info("Deleting %s",savPath)
+
+    def sendEvent(self, event):
+        self.m_used = True
+        logger.info("Sending event")
+
+
+    def queryList(self, savPath):
+        self.m_used = True
+        logger.info("queryList")
+        return []
+
+    def add(self, savPath, savValue):
+        self.m_used = True
+        logger.info("Add %s to %s",str(savValue),savPath)
+        self.m_config.setdefault(savPath,[]).append(savValue)
+
+
+def setFakeConfigManager():
+    configManager = FakeConfigManager()
+    mcsrouter.adapters.ConfigManager.gGlobalConfigManager = configManager
+    return configManager
+
+def resetConfigManager():
+    mcsrouter.adapters.ConfigManager.gGlobalConfigManager = None
