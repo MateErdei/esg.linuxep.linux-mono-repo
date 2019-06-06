@@ -12,29 +12,31 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <chrono>
 #include <thread>
 
-using TelemetrySchedulerImpl::Task;
+using TelemetrySchedulerImpl::SchedulerTask;
 using TelemetrySchedulerImpl::TaskQueue;
 
 TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const Task taskIn = Task::WaitToRunTelemetry;
+    const SchedulerTask taskIn = SchedulerTask::WaitToRunTelemetry;
     queue.push(taskIn);
-    Task taskOut = queue.pop();
+    SchedulerTask taskOut = queue.pop();
     EXPECT_EQ(taskOut, taskIn);
 }
 
 TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const std::vector<Task> tasksIn = { Task::Shutdown, Task::WaitToRunTelemetry, Task::RunTelemetry };
+    const std::vector<SchedulerTask> tasksIn = { SchedulerTask::Shutdown,
+                                                 SchedulerTask::WaitToRunTelemetry,
+                                                 SchedulerTask::RunTelemetry };
 
     for (auto task : tasksIn)
     {
         queue.push(task);
     }
 
-    std::vector<Task> tasksOut;
+    std::vector<SchedulerTask> tasksOut;
 
     for (size_t i = 0; i < tasksIn.size(); ++i)
     {
@@ -50,7 +52,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     const milliseconds delay(10);
 
     TaskQueue queue;
-    Task taskOut;
+    SchedulerTask taskOut;
     std::atomic<bool> done(false);
 
     std::thread popThread([&] {
@@ -60,7 +62,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     EXPECT_FALSE(done);
 
-    const Task taskIn = Task::WaitToRunTelemetry;
+    const SchedulerTask taskIn = SchedulerTask::WaitToRunTelemetry;
     queue.push(taskIn);
     std::this_thread::sleep_for(milliseconds(delay));
 
@@ -74,15 +76,15 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
 {
     TaskQueue queue;
-    const Task priorityTask = Task::Shutdown;
-    const Task normalTask = Task::WaitToRunTelemetry;
+    const SchedulerTask priorityTask = SchedulerTask::Shutdown;
+    const SchedulerTask normalTask = SchedulerTask::WaitToRunTelemetry;
 
     queue.push(normalTask);
     queue.pushPriority(priorityTask);
 
-    Task taskOut1 = queue.pop();
+    SchedulerTask taskOut1 = queue.pop();
     EXPECT_EQ(taskOut1, priorityTask);
 
-    Task taskOut2 = queue.pop();
+    SchedulerTask taskOut2 = queue.pop();
     EXPECT_EQ(taskOut2, normalTask);
 }

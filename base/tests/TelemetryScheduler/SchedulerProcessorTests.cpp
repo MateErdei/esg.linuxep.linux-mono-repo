@@ -28,7 +28,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using TelemetrySchedulerImpl::PluginCallback;
 using TelemetrySchedulerImpl::SchedulerProcessor;
-using TelemetrySchedulerImpl::Task;
+using TelemetrySchedulerImpl::SchedulerTask;
 using TelemetrySchedulerImpl::TaskQueue;
 
 using ::testing::DefaultValue;
@@ -101,7 +101,7 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 
     EXPECT_FALSE(done);
 
-    queue->pushPriority(Task::Shutdown);
+    queue->pushPriority(SchedulerTask::Shutdown);
     std::this_thread::sleep_for(delay); // attempt to allow processor to run
 
     EXPECT_TRUE(done);
@@ -118,14 +118,14 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     PluginCallback pluginCallback(mockQueue);
     std::atomic<bool> done(false);
 
-    EXPECT_CALL(*mockQueue, pushPriority(TelemetrySchedulerImpl::Task::Shutdown));
-    EXPECT_CALL(*mockQueue, pop()).WillOnce(Return(TelemetrySchedulerImpl::Task::Shutdown));
+    EXPECT_CALL(*mockQueue, pushPriority(TelemetrySchedulerImpl::SchedulerTask::Shutdown));
+    EXPECT_CALL(*mockQueue, pop()).WillOnce(Return(TelemetrySchedulerImpl::SchedulerTask::Shutdown));
 
     pluginCallback.onShutdown();
 
     std::thread processorThread([&] {
-      processor.run();
-      done = true;
+        processor.run();
+        done = true;
     });
 
     processorThread.join();
@@ -151,7 +151,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     processor.waitToRunTelemetry();
 
     auto task = queue->pop();
-    EXPECT_EQ(task, Task::RunTelemetry);
+    EXPECT_EQ(task, SchedulerTask::RunTelemetry);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());

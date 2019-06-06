@@ -18,14 +18,14 @@ namespace TelemetrySchedulerImpl
     class TaskQueue : public ITaskQueue
     {
     public:
-        void push(Task) override;
-        void pushPriority(Task) override;
-        Task pop() override;
+        void push(SchedulerTask) override;
+        void pushPriority(SchedulerTask) override;
+        SchedulerTask pop() override;
 
     private:
         std::mutex m_mutex;
         std::condition_variable m_cond;
-        std::list<Task> m_list;
+        std::list<SchedulerTask> m_list;
     };
 
 } // namespace TelemetrySchedulerImpl

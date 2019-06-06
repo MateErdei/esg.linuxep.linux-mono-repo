@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "SchedulerProcessor.h"
 #include "TaskQueue.h"
+#include "SchedulerTask.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
@@ -41,7 +42,7 @@ namespace TelemetrySchedulerImpl
             Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
             SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pathManager);
-            taskQueue->push(Task::WaitToRunTelemetry); // initialise processor
+            taskQueue->push(SchedulerTask::WaitToRunTelemetry); // initialise processor
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

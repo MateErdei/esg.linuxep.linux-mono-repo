@@ -5,8 +5,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SchedulerProcessor.h"
+
 #include "SchedulerStatus.h"
 #include "SchedulerStatusSerialiser.h"
+#include "SchedulerTask.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -23,7 +25,7 @@ namespace TelemetrySchedulerImpl
 {
     using namespace std::chrono;
 
-    const seconds configurationCheckDelay(3600); // TODO: breakout as configuration option?
+    const seconds configurationCheckDelay(3600);   // TODO: breakout as configuration option?
     const seconds checkTelemetryExeStateDelay(60); // TODO: breakout as configuration option?
 
     SchedulerProcessor::SchedulerProcessor(
@@ -46,19 +48,19 @@ namespace TelemetrySchedulerImpl
 
             switch (task)
             {
-                case Task::WaitToRunTelemetry:
+                case SchedulerTask::WaitToRunTelemetry:
                     waitToRunTelemetry();
                     break;
 
-                case Task::RunTelemetry:
+                case SchedulerTask::RunTelemetry:
                     runTelemetry();
                     break;
 
-                case Task::CheckExecutableFinished:
+                case SchedulerTask::CheckExecutableFinished:
                     checkExecutableFinished();
                     break;
 
-                case Task::Shutdown:
+                case SchedulerTask::Shutdown:
                     return;
 
                 default:
@@ -135,7 +137,7 @@ namespace TelemetrySchedulerImpl
     void SchedulerProcessor::delayBeforeQueueingTask(
         system_clock::time_point delayUntil,
         std::unique_ptr<SleepyThread>& delayThread,
-        Task task)
+        SchedulerTask task)
     {
         if (delayThread && !delayThread->finished())
         {
@@ -208,9 +210,7 @@ namespace TelemetrySchedulerImpl
                                                                                    << " seconds");
 
             delayBeforeQueueingTask(
-                timeToCheckConfiguration,
-                m_delayBeforeCheckingConfiguration,
-                Task::WaitToRunTelemetry);
+                timeToCheckConfiguration, m_delayBeforeCheckingConfiguration, SchedulerTask::WaitToRunTelemetry);
         }
         else
         {
@@ -219,7 +219,7 @@ namespace TelemetrySchedulerImpl
                                                               << " seconds since epoch");
             auto duration = system_clock::duration(seconds(scheduledTimeInSecondsSinceEpoch));
             system_clock::time_point scheduledTime(duration);
-            delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, Task::RunTelemetry);
+            delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
         }
     }
 
@@ -247,14 +247,16 @@ namespace TelemetrySchedulerImpl
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
             LOGINFO(
-                "Telemetry executable's state will be checked in " << checkTelemetryExeStateDelay.count() << " seconds");
+                "Telemetry executable's state will be checked in " << checkTelemetryExeStateDelay.count()
+                                                                   << " seconds");
             const auto timeToCheckExeState = system_clock::now() + checkTelemetryExeStateDelay;
-            delayBeforeQueueingTask(timeToCheckExeState, m_delayBeforeCheckingExe, Task::CheckExecutableFinished);
+            delayBeforeQueueingTask(
+                timeToCheckExeState, m_delayBeforeCheckingExe, SchedulerTask::CheckExecutableFinished);
         }
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Failed to send telemetry: " << processException.what());
-            m_taskQueue->push(Task::WaitToRunTelemetry);
+            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
     }
 
@@ -274,7 +276,7 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        m_taskQueue->push(Task::WaitToRunTelemetry);
+        m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
     }
 
 } // namespace TelemetrySchedulerImpl

@@ -56,7 +56,7 @@ namespace TelemetrySchedulerImpl
         void delayBeforeQueueingTask(
             std::chrono::system_clock::time_point delayUntil,
             std::unique_ptr<SleepyThread>& delayThread,
-            Task task);
+            SchedulerTask task);
 
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
