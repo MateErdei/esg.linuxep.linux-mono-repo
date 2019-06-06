@@ -23,7 +23,7 @@ class TestXmlHelper(unittest.TestCase):
         doc.unlink()
 
     def testEntitiesAreIgnored(self):
-        TEST_DOC="""<?xml version="1.0"?>
+        TEST_DOC = """<?xml version="1.0"?>
         <!DOCTYPE lolz [
          <!ENTITY lol "lol">
          <!ELEMENT lolz (#PCDATA)>
@@ -47,7 +47,7 @@ class TestXmlHelper(unittest.TestCase):
             assert(ex.message == "Refusing to parse Entity Declaration: lol")
 
     def testMissingClosingTagXMLThrows(self):
-        TEST_DOC="""<?xml version="1.0"?>
+        TEST_DOC = """<?xml version="1.0"?>
         <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
         <stuff></stuff>
         """
@@ -61,7 +61,7 @@ class TestXmlHelper(unittest.TestCase):
 
 
     def testBrokenXMLThrows(self):
-        TEST_DOC="""<?xml version="1.0"?>
+        TEST_DOC = """<?xml version="1.0"?>
         <ns:computerStatus xmlns:ns="http://www.sophos.com/xml/mcs/computerstatus">
         <stuff></ns:computerStatus></stuff>
         """
@@ -74,8 +74,19 @@ class TestXmlHelper(unittest.TestCase):
             assert(ex.message == "mismatched tag: line 3, column 17")
 
 
+    def testEmptyXMLThrows(self):
+        TEST_DOC = """"""
+
+        try:
+            doc = mcsrouter.utils.xml_helper.parseString(TEST_DOC)
+            doc.unlink()
+            self.fail("should not be able to parse")
+        except Exception as ex:
+            assert(ex.message == "no element found: line 1, column 0")
+
+
     def testXMLWithXhtmlScriptTagThrows(self):
-        TEST_DOC="""<xhtml:script xmlns:xhtml="http://www.sophos.com/xml/mcs/computerstatus"
+        TEST_DOC = """<xhtml:script xmlns:xhtml="http://www.sophos.com/xml/mcs/computerstatus"
         src="file.js"
         type="application/javascript"/>"""
 
@@ -87,7 +98,7 @@ class TestXmlHelper(unittest.TestCase):
 
 
     def testXMLWithScriptTagThrows(self):
-        TEST_DOC="""<script xmlns="http://www.sophos.com/xml/mcs/computerstatus" src="file.js"></script>"""
+        TEST_DOC = """<script xmlns="http://www.sophos.com/xml/mcs/computerstatus" src="file.js"></script>"""
 
         try:
             mcsrouter.utils.xml_helper.check_xml_has_no_script_tags(TEST_DOC)
