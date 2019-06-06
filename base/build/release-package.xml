@@ -56,16 +56,10 @@
         <package name="pythonlinux10" version="2-7-16/214473/pythonlinux10" dest="input">
             <include src="python.tar" dest="." />
         </package>
-        <package buildtype="dev" name="python-watchdog" version="master/%LASTGOODCOMPONENTBUILD%/python-watchdog/0.9.0/watchdog/" dest="input">
+        <package name="python-watchdog" version="0-9-0-7/216280/watchdog" dest="input">
             <include src="python-watchdog.tar" dest="." />
         </package>
-        <package buildtype="prod" name="python-watchdog" version="0-9-0-7/216280/watchdog" dest="input">
-            <include src="python-watchdog.tar" dest="." />
-        </package>
-        <package buildtype="dev" name="python-pathtools" version="master/%LASTGOODCOMPONENTBUILD%/python-pathtools/0.1.1/pathtools/" dest="input">
-            <include src="python-pathtools.tar" dest="." />
-        </package>
-        <package buildtype="prod" name="python-pathtools" version="0-1-1-9/216281/pathtools/" dest="input">
+        <package name="python-pathtools" version="0-1-1-9/216281/pathtools/" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
         <package name="pycryptolinux10" version="2-6-1/214596/pycryptolinux10/" dest="input">
