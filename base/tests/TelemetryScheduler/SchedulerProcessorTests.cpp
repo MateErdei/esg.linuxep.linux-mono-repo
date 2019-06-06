@@ -416,7 +416,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
-TEST_F(SchedulerProcessorTests, runTelemetryExecutableSuccessfully) // NOLINT
+TEST_F(SchedulerProcessorTests, runningTelemetryExecutableIsSuccessfull) // NOLINT
 {
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_supplementaryConfigFilePath));
@@ -434,6 +434,68 @@ TEST_F(SchedulerProcessorTests, runTelemetryExecutableSuccessfully) // NOLINT
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
     EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
     EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(0));
+
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+
+    processor.runTelemetry();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+
+    processor.checkExecutableFinished();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+}
+
+TEST_F(SchedulerProcessorTests, runningTelemetryExecutableTimesOut) // NOLINT
+{
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
+        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExeConfigFilePath())
+        .WillRepeatedly(Return(m_telemetryExeConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExecutableFilePath())
+        .WillRepeatedly(Return(m_telemetryExecutableFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
+
+    EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
+    EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
+    EXPECT_CALL(*m_mockProcess, kill());
+
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+
+    processor.runTelemetry();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::CheckExecutableFinished);
+
+    processor.checkExecutableFinished();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+}
+
+TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLINT
+{
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
+        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExeConfigFilePath())
+        .WillRepeatedly(Return(m_telemetryExeConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExecutableFilePath())
+        .WillRepeatedly(Return(m_telemetryExecutableFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
+
+    EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
+    EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
+    EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+    EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(1));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
