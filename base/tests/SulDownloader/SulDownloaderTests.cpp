@@ -503,7 +503,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
+    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("/installroot/base/update/cache/primary/productRemove1"));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -520,7 +520,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, removeFileOrDirectory("productRemove1")).Times(1);
+    EXPECT_CALL(fileSystemMock, removeFileOrDirectory(_)).Times(1);
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
