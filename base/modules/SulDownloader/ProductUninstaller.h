@@ -27,7 +27,7 @@ namespace SulDownloader
          */
         std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(
             const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
-                SulDownloader::suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
+                suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();
