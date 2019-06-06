@@ -5,6 +5,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 
 import os
 import sys
+import errno
 
 
 def appendPath(d):
@@ -21,5 +22,14 @@ def get_modules_dir():
 
 def get_mcs_router_dir():
     return os.path.join(get_modules_dir(), "mcsrouter")
+
+def safeDelete(path):
+    try:
+        os.unlink(path)
+    except EnvironmentError as e:
+        if e.errno == errno.ENOENT:
+            return
+        else:
+            raise
 
 appendPath(get_mcs_router_dir())
