@@ -30,7 +30,7 @@ namespace Common::TelemetryExeConfigImpl
     const std::string SERVER_CONFIG_KEY = "server";
     const std::string RESOURCE_CONFIG_KEY = "resourceRoot";
     const std::string PORT_CONFIG_KEY = "port";
-    const std::string HEADERS_CONFIG_KEY = "headers";
+    const std::string HEADERS_CONFIG_KEY = "additionalHeaders";
     const std::string VERB_CONFIG_KEY = "verb";
     const std::string PROXIES_CONFIG_KEY = "proxies";
     const std::string MR_CONFIG_KEY = "messageRelays";

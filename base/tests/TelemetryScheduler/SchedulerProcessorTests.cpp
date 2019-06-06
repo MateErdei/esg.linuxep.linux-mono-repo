@@ -47,17 +47,15 @@ public:
     const std::string m_telemetryStatusFilePath = "/opt/sophos-spl/base/telemetry/var/tscheduler-status.json";
     const std::string m_telemetryExecutableFilePath = "/opt/sophos-spl/base/bin/telemetry";
 
-    // TODO: headers or additionalHeaders ?!
     const std::string m_validTelemetryConfigJson = R"(
     {
         "server": "localhost",
         "port": 443,
         "verb": "PUT",
-        "headers": ["x-amz-acl: bucket-owner-full-control"],
+        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
         "resourceRoot": "linux/dev",
         "interval": 3600
     })";
-
 
     void SetUp() override
     {
@@ -430,7 +428,7 @@ TEST_F(SchedulerProcessorTests, runTelemetryExecutableSuccessfully) // NOLINT
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
-    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _)); // TODO: check content?
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
 
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
