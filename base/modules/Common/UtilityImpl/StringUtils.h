@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <string>
 #include <vector>
+#include <string.h>
 
 namespace Common
 {
@@ -96,6 +97,17 @@ namespace Common
                 result.emplace_back(originalstring.substr(beginPos));
 
                 return result;
+            }
+
+            // coverity [ +tainted_string_sanitize_content : arg-0 ]
+            static std::string checkAndConstruct(const char  * untaintedCString  , size_t maxLen=10000)
+            {
+
+                if( ::strnlen( untaintedCString , maxLen) == maxLen)
+                {
+                    throw std::invalid_argument{"Input c-string exceeds a reasonable limit "};
+                }
+                return std::string{untaintedCString};
             }
 
             using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;

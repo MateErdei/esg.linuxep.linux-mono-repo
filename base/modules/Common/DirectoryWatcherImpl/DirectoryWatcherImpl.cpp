@@ -18,6 +18,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <thread>
 #include <unistd.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 namespace Common
 {
@@ -164,7 +165,7 @@ namespace Common
                                 auto listenerMapIter = m_listenerMap.find(event->wd);
                                 if (listenerMapIter != m_listenerMap.end())
                                 {
-                                    listenerMapIter->second->fileMoved(event->name);
+                                    listenerMapIter->second->fileMoved( Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
                                 }
                             }
                         }
