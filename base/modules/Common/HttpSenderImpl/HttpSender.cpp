@@ -87,8 +87,12 @@ namespace Common::HttpSenderImpl
         CURLcode result = CURLE_FAILED_INIT;
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
-        curlOptions.emplace_back(
-            "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
+
+        if (requestConfig.getCertPath() != "")
+        {
+            curlOptions.emplace_back(
+                "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
+        }
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
         {
