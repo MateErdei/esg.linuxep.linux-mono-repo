@@ -78,8 +78,8 @@ namespace UpdateSchedulerImpl
         catch (const Common::PluginApi::ApiException& apiException)
         {
             std::string errorMsg(apiException.what());
-            assert(!errorMsg.find("No policy available"));
-            if (!errorMsg.find("No policy available"))
+            assert(errorMsg.find("No policy available") == std::string::npos);
+            if (errorMsg.find("No policy available") == std::string::npos)
             {
                 LOGERROR("Unexpected error when requesting policy: " << apiException.what());
             }
