@@ -532,15 +532,20 @@ TEST_F(                 // NOLINT
 
     TimeTracker timeTracker = createTimeTracker();
 
+    std::vector<ProductInfo> warehouseComponents;
+    warehouseComponents.push_back( ProductInfo{downloadedProduct.getLine(), downloadedProduct.getProductMetadata().getName(), downloadedProduct.getProductMetadata().getVersion() } );
     auto report =
-        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, warehouseComponents, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
+
     EXPECT_STREQ(report.getDescription().c_str(), "");
 
     EXPECT_EQ(report.getProducts().size(), 3);
 
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
+
+    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, warehouseComponents, report.getWarehouseComponents());
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -661,4 +666,46 @@ TEST_F(                 // NOLINT
     std::string jsonString = std::get<1>(jsonReport);
 
     checkJsonOutput(report, jsonString);
+}
+
+
+TEST_F( DownloadReportTest, shouldExtractTheWarehouseSubComponents)
+{
+    std::string serializedReportWithSubComponents{ R"sophos({
+    "finishTime": "20180822 121220",
+    "status": "SUCCESS",
+    "sulError": "",
+    "products": [
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Base",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Base#0.5.0"
+        },
+        {
+            "errorDescription": "",
+            "rigidName": "ServerProtectionLinux-Plugin",
+            "downloadVersion": "0.5.0",
+            "productStatus": "UPTODATE",
+            "productName": "ServerProtectionLinux-Plugin#0.5"
+        }
+    ],
+    "warehouseComponents":[
+        { "rigidName" : "rn1", "productName": "p1", "installedVersion":"v1"},
+        { "rigidName" : "rn2", "productName": "p2", "installedVersion":"v2"}
+    ],
+    "startTime": "20180822 121220",
+    "errorDescription": "",
+    "urlSource": "Sophos",
+    "syncTime": "20180821 121220"
+})sophos" };
+    DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
+    std::vector<suldownloaderdata::ProductInfo> warehouseComponents =  report.getWarehouseComponents();
+    EXPECT_EQ( warehouseComponents.size(), 2);
+    std::vector<suldownloaderdata::ProductInfo> expected = { {"rn1", "p1", "v1"}, {"rn2", "p2", "v2"} };
+    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, warehouseComponents);
+    std::string reSerialize = DownloadReport::fromReport(report);
+    DownloadReport reportAgain = DownloadReport::toReport(reSerialize);
+    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, reportAgain.getWarehouseComponents());
 }

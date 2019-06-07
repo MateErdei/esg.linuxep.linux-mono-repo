@@ -96,6 +96,8 @@ namespace SulDownloader
 
             const std::vector<ProductReport>& getProducts() const;
 
+            const std::vector<ProductInfo>& getWarehouseComponents() const;
+
             const std::string getSourceURL() const;
 
             int getExitCode() const;
@@ -110,6 +112,7 @@ namespace SulDownloader
             std::string m_urlSource;
 
             std::vector<ProductReport> m_productReport;
+            std::vector<ProductInfo> m_warehouseComponents;
 
             void setProductsInfo(
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,

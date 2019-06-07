@@ -4,12 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "TestWarehouseHelper.h"
 #include <SulDownloader/suldownloaderdata/ProductMetadata.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <modules/SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <modules/SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 
 using namespace SulDownloader;
@@ -111,52 +112,6 @@ public:
         return CatalogueInfo::calculatedListProducts( downloaded, m_catalogueInfo);
     }
 
-    ::testing::AssertionResult productInfoIsEquivalent(
-            const char* m_expr,
-            const char* n_expr,
-            const suldownloaderdata::ProductInfo & expected,
-            const suldownloaderdata::ProductInfo & resulted)
-    {
-        std::stringstream s;
-        s << m_expr << " and " << n_expr << " failed: ";
-        if ( expected.m_productName != resulted.m_productName)
-        {
-            return ::testing::AssertionFailure() << s.str() << "product name differs. Expected: " << expected.m_productName << " received: " << resulted.m_productName;
-        }
-        if ( expected.m_version != resulted.m_version)
-        {
-            return ::testing::AssertionFailure() << s.str() << "version differs. Expected: " << expected.m_version << " received: " << resulted.m_version;
-        }
-        if ( expected.m_rigidName != resulted.m_rigidName)
-        {
-            return ::testing::AssertionFailure() << s.str() << "product rigidname differs. Expected: " << expected.m_rigidName << " received: " << resulted.m_rigidName;
-        }
-        return ::testing::AssertionSuccess();
-    }
-
-
-    ::testing::AssertionResult listProductInfoIsEquivalent(
-            const char* m_expr,
-            const char* n_expr,
-            const std::vector<suldownloaderdata::ProductInfo> & expected,
-            const std::vector<suldownloaderdata::ProductInfo> & resulted)
-    {
-        std::stringstream s;
-        s << m_expr << " and " << n_expr << " failed: ";
-        if( expected.size() != resulted.size())
-        {
-            return ::testing::AssertionFailure() << s.str() << " Expected " << expected.size() << " elements. Received: " << resulted.size() << " elements.";
-        }
-        for( size_t i=0; i<expected.size(); i++)
-        {
-            auto ret = productInfoIsEquivalent(m_expr, n_expr, expected[i], resulted[i]);
-            if (!ret)
-            {
-                return ret;
-            }
-        }
-        return ::testing::AssertionSuccess();
-    }
 
 };
 

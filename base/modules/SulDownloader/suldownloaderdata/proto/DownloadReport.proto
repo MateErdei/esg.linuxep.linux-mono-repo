@@ -24,6 +24,13 @@ message ProductStatusReport
     optional ProductStatus productStatus = 9 [default=UPTODATE];
 }
 
+message WarehouseComponent
+{
+    optional string rigidName = 1;
+    optional string productName = 2;
+    optional string installedVersion = 3;
+}
+
 //FIXME LINUXEP-6537: add information about the purpose of these entries.
 
 message DownloadStatusReport
@@ -36,5 +43,5 @@ message DownloadStatusReport
    optional string errorDescription = 6;
    optional string urlSource = 7;
    repeated ProductStatusReport products = 8;
-
+   repeated WarehouseComponent warehouseComponents = 9;
 }

@@ -43,6 +43,7 @@ struct SimplifiedDownloadReport
     std::string Description;
     std::vector<ProductReport> Products;
     bool shouldContainSyncTime;
+    std::vector<ProductInfo> WarehouseComponents;
 };
 
 namespace
@@ -265,7 +266,8 @@ public:
             }
         }
 
-        return ::testing::AssertionSuccess();
+        return listProductInfoIsEquivalent( m_expr, n_expr, expected.WarehouseComponents, resulted.getWarehouseComponents());
+
     }
 
     std::string productsToString(const ProductReportVector& productsReport)
@@ -692,7 +694,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false };
+    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -725,7 +727,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false };
+    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -775,7 +777,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
 
-    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false };
+    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
     auto configurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
@@ -815,7 +817,8 @@ TEST_F(                // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     SimplifiedDownloadReport expectedDownloadReport{
-        SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true
+        SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true,
+        productsInfo({products[0], products[1]})
     };
 
     auto configurationData = configData(defaultSettings());
@@ -889,7 +892,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{
-        SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false
+        SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false, {}
     };
 
     expectedDownloadReport.Products[1].errorDescription = "Product Everest-Plugins-A failed signature verification";
@@ -971,7 +974,8 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     SimplifiedDownloadReport expectedDownloadReport{
-        SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false
+        SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false,
+            productsInfo({products[0], products[1]})
     };
 
     auto configurationData = configData(defaultSettings());
@@ -1053,7 +1057,8 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
     SimplifiedDownloadReport expectedDownloadReport{
-        SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true
+        SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true,
+            productsInfo({products[0], products[1]})
     };
 
     auto configurationData = configData(defaultSettings());
