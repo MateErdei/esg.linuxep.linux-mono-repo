@@ -155,7 +155,7 @@ TEST_F(SchedulerProcessorTests, CanBeStoppedViaPlugin) // NOLINT
     EXPECT_TRUE(done);
 }
 
-TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInPast) // NOLINT
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithScheduleInPast) // NOLINT
 {
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
@@ -179,7 +179,39 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     EXPECT_FALSE(processor.delayingConfigurationCheck());
 }
 
-TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInFuture) // NOLINT
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_RescheduleWithValidStatusFileWithScheduleInPast) // NOLINT
+{
+    EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
+        .WillRepeatedly(Return(m_telemetryStatusFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
+        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(
+            m_mockPathManager.getTelemetrySchedulerStatusFilePath(),
+            Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(R"({"scheduled-time":1559556823})"));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_supplementaryConfigFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(m_supplementaryConfigFilePath, Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(R"({"interval":1})"));
+    EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
+
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, m_mockPathManager);
+
+    processor.waitToRunTelemetry(false);
+
+    auto task = queue->pop();
+    EXPECT_EQ(task, SchedulerTask::RunTelemetry);
+
+    EXPECT_FALSE(processor.delayingTelemetryRun());
+    EXPECT_FALSE(processor.delayingConfigurationCheck());
+}
+
+TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithScheduleInFuture) // NOLINT
 {
     auto inTheFuture = std::chrono::system_clock::now() + std::chrono::seconds(2);
     size_t inTheFutureInSecondsSinceEpoch =

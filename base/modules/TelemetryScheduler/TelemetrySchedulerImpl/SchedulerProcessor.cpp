@@ -221,8 +221,6 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        LOGDEBUG("Scheduled telemetry time: " << scheduledTimeInSecondsSinceEpoch);
-
         if (scheduledTimeInSecondsSinceEpoch == 0)
         {
             const auto timeToCheckConfiguration = system_clock::now() + m_configurationCheckDelay;
