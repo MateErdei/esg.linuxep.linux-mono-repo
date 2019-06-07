@@ -25,6 +25,7 @@ pythonExecutable=$BASE_DIR/bin/python
 export PYTHONPATH=$pythonzip:$mcsrouterzip
 export PYTHONHOME=$INST_DIR/base/
 
-export LD_LIBRARY_PATH=$INST_DIR/base/lib:$INST_DIR/base/lib64
+LD_LIBRARY_PATH=$INSTDIR/base/lib:$INSTDIR/base/lib64
+export $LD_LIBRARY_PATH
 
 exec $pythonExecutable -m mcsrouter.register_central "$@"
