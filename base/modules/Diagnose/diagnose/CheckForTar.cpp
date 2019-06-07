@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 
 #include <stdlib.h>
+#include <cstring>
 
 namespace
 {
@@ -28,7 +29,20 @@ namespace
         }
         return elements;
     }
+    // coverity [ +tainted_string_sanitize_content : arg-0 ]
+    std::string checkAndConstruct(char * untaintedCString )
+    {
+        constexpr  int MAXLEN = 10000;
+        if( ::strnlen( untaintedCString , MAXLEN) == MAXLEN)
+        {
+            throw std::invalid_argument{"Input c-string exceeds a reasonable limit "};
+        }
+        return std::string{untaintedCString};
+    }
+
 }
+
+
 
 bool diagnose::CheckForTar::isTarAvailable(const std::string& PATH)
 {
@@ -60,5 +74,5 @@ bool diagnose::CheckForTar::isTarAvailable()
         std::cerr << "No PATH specified in environment" << std::endl;
         return false;
     }
-    return isTarAvailable(PATH);
+    return isTarAvailable(checkAndConstruct(PATH));
 }
