@@ -147,6 +147,10 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     {
         auto pluginProxy = dynamic_cast<PluginProxy*>(it->get());
         assert(pluginProxy != nullptr);
+        if (pluginProxy == nullptr) // necessary for release build.
+        {
+            break;
+        }
         if (pluginName == pluginProxy->name())
         {
             pluginProxy->stop();
