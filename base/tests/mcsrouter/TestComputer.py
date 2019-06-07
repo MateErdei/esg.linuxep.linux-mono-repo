@@ -15,54 +15,71 @@ import mcsrouter.adapters.agent_adapter
 
 def getTargetSystem():
     import mcsrouter.targetsystem
-    return targetsystem.TargetSystem()
+    return mcsrouter.targetsystem.TargetSystem()
 
 class TestcomputerCommonStatus(unittest.TestCase):
-    def testEqualsOperator(self):
-        ts1 = getTargetSystem()
-        ts2 = getTargetSystem()
-        ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
-        ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
-        self.assertEqual(ccs1, ccs2)
+    # def testEqualsOperator(self):
+    #     ts1 = getTargetSystem()
+    #     ts2 = getTargetSystem()
+    #     ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
+    #     ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
+    #     self.assertEqual(ccs1, ccs2)
+    #
+    # ## the above and below tests don't make sense. They test the inbuilt unit test methods.
+    #
+    # def testNotEqualsOperator(self):
+    #     ## old
+    #     ts1 = getTargetSystem()
+    #     ts2 = getTargetSystem()
+    #     ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
+    #     ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
+    #     ccs2.computerName = "Something different"
+    #     self.assertNotEqual(ccs1, ccs2)
+    #
+    #     ## in progress new
+    #     # adapter1 = mcsrouter.adapters.agent_adapter.AgentAdapter()
+    #     # status_xml1 = adapter1.get_common_status_xml()
+    #     # adapter2 = mcsrouter.adapters.agent_adapter.AgentAdapter()
+    #     # status_xml2 = adapter2.get_common_status_xml()
+    #     # self.assertNotEqual(status_xml1, status_xml2)
 
-    def testNotEqualsOperator(self):
-        ts1 = getTargetSystem()
-        ts2 = getTargetSystem()
-        ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
-        ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
-        ccs2.computerName = "Something different"
-        self.assertNotEqual(ccs1, ccs2)
+
+
 
     def testCommonStatusXml(self):
-        ts = getTargetSystem()
-        ccs = mcsrouter.computer.ComputerCommonStatus(ts)
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
 
         ## Verify XML is valid
-        doc = xml.dom.minidom.parseString(ccs.toStatusXml())
+        doc = xml.dom.minidom.parseString(status_xml)
         doc.unlink()
 
 class TestComputer(unittest.TestCase):
     def testStatusXml(self):
-        ts = getTargetSystem()
-        if not ts.isLinux:
-            return
-
+        # ts = getTargetSystem()
+        # if not ts.is_linux:
+        #     return
+        #
         c = mcsrouter.computer.Computer()
+        #
+        # computerStatus = c.getCommonStatusXml()
 
-        computerStatus = c.getCommonStatusXml()
-        logger.debug(computerStatus)
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
+
+        logger.debug(status_xml)
 
         ## Verify it is XML
-        doc = xml.dom.minidom.parseString(computerStatus)
+        doc = xml.dom.minidom.parseString(status_xml)
         doc.unlink()
 
-        platformStatus = c.getPlatformStatus()
+        platformStatus = adapter.get_platform_status()
         logger.debug(platformStatus)
         doc = xml.dom.minidom.parseString(platformStatus)
         doc.unlink()
 
         ## Header isn't valid XML on its own
-        logger.debug(c.getStatusHeader())
+        logger.debug(adapter.get_status_header())
 
     def testFormatIPv6(self):
         self.assertEqual(mcsrouter.adapters.agent_adapter.format_ipv6("00010000000000000000000000000000"),"1::")

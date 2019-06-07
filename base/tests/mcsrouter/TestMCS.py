@@ -3,8 +3,11 @@ from __future__ import absolute_import,print_function,division,unicode_literals
 
 import os
 import unittest
+import mock
+
 import sys
 import json
+import __builtin__
 
 import logging
 logger = logging.getLogger("TestMCS")
@@ -24,16 +27,19 @@ import mcsrouter.utils.config
 class EscapeException(Exception):
     pass
 
+def pass_function(*args, **kwargs):
+    pass
+
 class FakeMCSConnection(object):
     m_token = None
     m_status = None
     send401 = False
 
-    def __init__(self, config, productVersion="unknown",installDir=".."):
+    def __init__(self, config, product_version="unknown",install_dir=".."):
         self.m_send401 = False
         pass
 
-    def setUserAgent(self, agent):
+    def set_user_agent(self, agent):
         pass
 
     def capabilities(self):
@@ -44,13 +50,13 @@ class FakeMCSConnection(object):
         FakeMCSConnection.m_status = status
         return ("newID","newPassword")
 
-    def getId(self):
+    def get_id(self):
         return "FOO"
 
-    def getPassword(self):
+    def get_password(self):
         return "BAR"
 
-    def queryCommands(self, appIds):
+    def query_commands(self, appIds):
         if FakeMCSConnection.send401 and not self.m_send401:
             self.m_send401 = True
             headers = {
@@ -62,21 +68,25 @@ class FakeMCSConnection(object):
             raise EscapeException()
         return []
 
-    def sendStatusEvent(self, status):
+    def send_status_event(self, status):
         raise EscapeException()
 
     def close(self):
         pass
 
+
 class TestMCS(unittest.TestCase):
-    def createMCS(self,config=None):
+    @mock.patch('os.listdir', return_value=["dummyplugin.json"])
+    def createMCS(self,config=None, *mockarg):
         global INSTALL_DIR
         if config is None:
             config = mcsrouter.utils.config.Config()
         return mcsrouter.mcs.MCS(config,INSTALL_DIR)
 
+
     def setUp(self):
         ## Monkey patch the MCSConnection
+        __builtin__.__dict__['REGISTER_MCS'] = False
         mcsrouter.mcsclient.mcs_connection.MCSConnection = FakeMCSConnection
         FakeMCSConnection.m_token = None
         FakeMCSConnection.m_status = None
@@ -86,6 +96,7 @@ class TestMCS(unittest.TestCase):
     def tearDown(self):
         mcsrouter.mcsclient.mcs_connection.MCSConnection = ORIGINAL_MCS_CONNECTION
 
+    # @mock.patch('mcsrouter.utils.plugin_registry.get_app_ids_from_directory', return_value=(set(),{}))
     def testConstruction(self):
         m = self.createMCS()
 
@@ -93,20 +104,25 @@ class TestMCS(unittest.TestCase):
         m = self.createMCS()
         m.startup()
 
+    # @mock.patch('mcsrouter.utils.config.Config.get_default', return_value=None)
     def testMCSIDNotSet(self):
-        m = self.createMCS()
+        m = self.createMCS(None)
         ret = m.run()
         self.assertEqual(ret,1)
 
     def testMCSPasswordNotSet(self):
         config = mcsrouter.utils.config.Config()
         config.set("MCSID","FOO")
-        self.assertNotEqual(config.getDefault("MCSID"),None)
+        self.assertNotEqual(config.get_default("MCSID"),None)
         m = self.createMCS(config)
         ret = m.run()
         self.assertEqual(ret,2)
 
-    def testReregistration(self):
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value=[])
+    def testReregistration(self, *mockargs):
+        __builtin__.__dict__['REGISTER_MCS'] = True
         config = mcsrouter.utils.config.Config()
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","reregister")
@@ -119,7 +135,10 @@ class TestMCS(unittest.TestCase):
             pass
         self.assertEqual(FakeMCSConnection.m_token,"MCSTOKEN") ## Verifies register called
 
-    def test401Handling(self):
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value="dummyplugin.json")
+    def test401Handling(self, *mockargs):
         FakeMCSConnection.send401 = True
         config = mcsrouter.utils.config.Config()
         config.set("MCSToken","MCSTOKEN")
