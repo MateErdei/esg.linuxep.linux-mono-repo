@@ -89,7 +89,7 @@ namespace UpdateSchedulerImpl
             autoUpdate.put("<xmlattr>.version", versionId);
             autoUpdate.put("endpoint.<xmlattr>.id", machineId);
 
-            addSubscriptionElements(status.Products, statusNode.get_child("subscriptions"));
+            addSubscriptionElements(status.Subscriptions, statusNode.get_child("subscriptions"));
 
             return toString(tree);
         }

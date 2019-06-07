@@ -34,6 +34,9 @@ namespace
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
         <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
     </subscriptions>
+    <products>
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+    </products>
 </status>)sophos" };
 } // namespace
 

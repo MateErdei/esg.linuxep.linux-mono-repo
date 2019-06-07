@@ -40,7 +40,7 @@ namespace UpdateSchedulerImpl
             int LastResult;
             std::string FirstFailedTime;
 
-            std::vector<ProductStatus> Products;
+            std::vector<ProductStatus> Subscriptions;
         };
 
         std::string SerializeUpdateStatus(

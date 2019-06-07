@@ -186,7 +186,7 @@ public:
                    << ", received: " << resulted.FirstFailedTime;
         }
 
-        return productsAreEquivalent(m_expr, n_expr, expected.Products, resulted.Products);
+        return productsAreEquivalent(m_expr, n_expr, expected.Subscriptions, resulted.Subscriptions);
     }
 
     UpdateEvent upgradeEvent()
@@ -213,7 +213,7 @@ public:
         //        std::string ProductName;
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
-        status.Products = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
+        status.Subscriptions = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
         return status;
     }
 
@@ -323,7 +323,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = StartTimeTest;
-    expectedStatus.Products.clear();
+    expectedStatus.Subscriptions.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -668,8 +668,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Products.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
-    expectedStatus.Products.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -740,9 +740,9 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     expectedStatus.LastSyncTime = "20180821 121220";
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Products.push_back(
+    expectedStatus.Subscriptions.push_back(
         ProductStatus{ "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0" });
-    expectedStatus.Products.push_back(
+    expectedStatus.Subscriptions.push_back(
         ProductStatus{ "ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0" });
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
