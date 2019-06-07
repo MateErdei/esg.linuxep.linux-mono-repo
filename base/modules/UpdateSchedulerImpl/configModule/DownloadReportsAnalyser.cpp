@@ -136,6 +136,10 @@ namespace
         {
             status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
         }
+        for( auto & whComponent: report.getWarehouseComponents())
+        {
+            status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
+        }
         return status;
     }
 
@@ -155,15 +159,34 @@ namespace UpdateSchedulerImpl
 
             const SulDownloader::suldownloaderdata::DownloadReport& lastReport =
                 reportCollection.at(reportCollection.size() - 1);
-
+            ReportCollectionResult collectionResult;
             if (lastReport.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
-                return handleSuccessReports(reportCollection);
+                 collectionResult = handleSuccessReports(reportCollection);
             }
             else
             {
-                return handleFailureReports(reportCollection);
+                collectionResult = handleFailureReports(reportCollection);
             }
+
+            // special case is required for the status to report the list of waherousecomponents because
+            // it is necessary to look for previous report when no product is listed.
+            if ( collectionResult.SchedulerStatus.Products.empty())
+            {
+                // reverse iteration to find the latest report with non empty products
+                // skipping the latest one that has already been checked
+                for( int i = static_cast<int>(reportCollection.size())-2; i >= 0; i--)
+                {
+
+                    UpdateStatus lastStatus = extractStatusFromSingleReport(reportCollection[i], collectionResult.SchedulerEvent);
+                    if ( !lastStatus.Products.empty())
+                    {
+                        collectionResult.SchedulerStatus.Products = lastStatus.Products;
+                        break;
+                    }
+                }
+            }
+            return collectionResult;
         }
 
         ReportAndFiles DownloadReportsAnalyser::processReports()

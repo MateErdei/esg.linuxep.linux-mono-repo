@@ -37,6 +37,27 @@ namespace
         }
     }
 
+    /**
+     * Insert add product nodes:
+     * <products>
+     *  <product rigidname="" version="" displayVersion="" productName=""/>
+     * </products>
+     * @param products
+     * @param productsNode
+     */
+    void addProductsElements(const std::vector<ProductStatus>& products, pt::ptree& subscriptionsNode)
+    {
+        for (auto& product : products)
+        {
+            pt::ptree subNode;
+            subNode.put("<xmlattr>.rigidName", product.RigidName);
+            subNode.put("<xmlattr>.productName", product.ProductName);
+            subNode.put("<xmlattr>.downloadedVersion", product.DownloadedVersion);
+            subNode.put("<xmlattr>.installedVersion", product.DownloadedVersion);
+            subscriptionsNode.add_child("product", subNode);
+        }
+    }
+
     // static void dump(const boost::property_tree::ptree& t, const std::string& indent="")
     //{
     //    if (!t.data().empty())
@@ -73,6 +94,8 @@ namespace UpdateSchedulerImpl
     </autoUpdate>
     <subscriptions><!-- @@subscriptionsElement@@ -->
     </subscriptions>
+    <products><!-- @@productsElement@@ -->
+    </products>
 </status>)sophos" };
 
             namespace pt = boost::property_tree;
@@ -90,6 +113,7 @@ namespace UpdateSchedulerImpl
             autoUpdate.put("endpoint.<xmlattr>.id", machineId);
 
             addSubscriptionElements(status.Subscriptions, statusNode.get_child("subscriptions"));
+            addProductsElements(status.Products, statusNode.get_child("products"));
 
             return toString(tree);
         }

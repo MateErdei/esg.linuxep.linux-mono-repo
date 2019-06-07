@@ -104,6 +104,14 @@ namespace SulDownloader
                         product.productStatus = ProductReport::ProductStatus::UpToDate;
                     }
                 }
+
+                ProductReport baseMetadata = report.m_productReport[0];
+                ProductInfo productInfo;
+                productInfo.m_productName = baseMetadata.name;
+                productInfo.m_version = baseMetadata.downloadedVersion;
+                productInfo.m_rigidName = baseMetadata.rigidName;
+                report.m_warehouseComponents.push_back(productInfo);
+
                 return report;
             }
 
