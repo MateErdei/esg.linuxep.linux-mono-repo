@@ -212,7 +212,7 @@ class FragmentedPolicyCommand(PolicyCommand):
             except EnvironmentError:
                 pass
 
-        data = self._m_connection.get_policyFragment(
+        data = self._m_connection.get_policy_fragment(
             self.get_app_id(), fragment_id)
         FragmentedPolicyCommand.FRAGMENT_CACHE[fragment_id] = data
 

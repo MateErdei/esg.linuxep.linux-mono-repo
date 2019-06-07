@@ -26,14 +26,37 @@ def get_modules_dir():
 def get_mcs_router_dir():
     return os.path.join(get_modules_dir(), "mcsrouter")
 
-def safeDelete(path):
+def safeRmtree(path):
     try:
-        os.unlink(path)
-    except EnvironmentError as e:
+        shutil.rmtree(path,ignore_errors=True)
+    except EnvironmentError,e:
         if e.errno == errno.ENOENT:
             return
         else:
             raise
+
+def safeDelete(path):
+    try:
+        os.unlink(path)
+    except EnvironmentError, e:
+        if e.errno == errno.ENOENT:
+            return
+        else:
+            raise
+
+def safeMkdir(path, perm=0700):
+    try:
+        os.makedirs(path)
+        os.chmod(path,perm)
+    except EnvironmentError,e:
+        if e.errno == errno.EEXIST:
+            return
+        else:
+            raise
+
+def writeFile(path,content,perm=0600):
+    open(path,"w").write(content)
+    os.chmod(path,perm)
 
 appendPath(get_mcs_router_dir())
 
@@ -42,7 +65,7 @@ class FakePolicyCommand(object):
         self.m_policy = policy
         self.m_complete = False
 
-    def getPolicy(self):
+    def get_policy(self):
         return self.m_policy
 
     def complete(self):
