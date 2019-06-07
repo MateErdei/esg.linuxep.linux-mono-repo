@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "WarehouseError.h"
-
+#include "IWarehouseRepository.h"
 #include <ctime>
 #include <string>
 #include <vector>
@@ -16,7 +16,6 @@ namespace SulDownloader
     namespace suldownloaderdata
     {
         class DownloadedProduct;
-        class IWarehouseRepository;
         class TimeTracker;
 
         struct ProductReport
@@ -71,6 +70,7 @@ namespace SulDownloader
             static DownloadReport Report(
                 const std::string& sourceURL,
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,
+                const std::vector<suldownloaderdata::ProductInfo> & componentsToALCStatus,
                 TimeTracker* timeTracker,
                 VerifyState verify);
 

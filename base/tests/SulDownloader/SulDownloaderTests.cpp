@@ -141,6 +141,22 @@ public:
         return products;
     }
 
+    std::vector<suldownloaderdata::ProductInfo> productsInfo(const DownloadedProductVector & products)
+    {
+        std::vector<suldownloaderdata::ProductInfo> info;
+        for( auto & product: products)
+        {
+            ProductInfo pInfo;
+            ProductMetadata metadata = product.getProductMetadata();
+            pInfo.m_rigidName = metadata.getLine();
+            pInfo.m_productName = metadata.getName();
+            pInfo.m_version = metadata.getVersion();
+            info.push_back(pInfo);
+        }
+        return info;
+    }
+
+
     std::vector<SulDownloader::suldownloaderdata::ProductMetadata> defaultMetadata()
     {
         SulDownloader::suldownloaderdata::ProductMetadata base;
@@ -327,6 +343,7 @@ TEST_F(                // NOLINT
     products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     std::vector<std::string> emptyFileList;
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
@@ -395,12 +412,13 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport downloadReport =
-        DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
     std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
@@ -447,12 +465,13 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport downloadReport =
-        DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
     std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = {
@@ -485,8 +504,6 @@ TEST_F(                // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-MATCHER_P( isProduct, pname, "" ){*result_listener << "whose getLine() is " << arg.getLine(); return (arg.getLine()==pname);}
-
 TEST_F(                // NOLINT
     SULDownloaderTest, 
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
@@ -503,13 +520,13 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("/installroot/base/update/cache/primary/productRemove1"));
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport downloadReport =
-        DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
     std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
@@ -520,7 +537,6 @@ TEST_F(                // NOLINT
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, removeFileOrDirectory(_)).Times(1);
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
@@ -566,13 +582,13 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport downloadReport =
-        DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
     std::string previousReportFilename = "report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
@@ -791,6 +807,7 @@ TEST_F(                // NOLINT
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/installroot/base/update/var/installedproducts";
@@ -808,7 +825,7 @@ TEST_F(                // NOLINT
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
     DownloadReport previousDownloadReport =
-        DownloadReport::Report("", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_PRED_FORMAT2(
         downloadReportSimilar,
@@ -951,6 +968,7 @@ TEST_F(                // NOLINT
     products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
 
     SimplifiedDownloadReport expectedDownloadReport{
         SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false
@@ -1033,7 +1051,7 @@ TEST_F(                // NOLINT
     products[1].setDistributePath("/installroot/base/update/cache/primary/everest-plugin-a");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
-
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({products[0], products[1]})));
     SimplifiedDownloadReport expectedDownloadReport{
         SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS, "", productReports, true
     };

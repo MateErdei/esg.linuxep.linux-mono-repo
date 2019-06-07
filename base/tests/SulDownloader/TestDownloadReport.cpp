@@ -316,7 +316,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -416,7 +416,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -461,7 +461,7 @@ TEST_F( // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -484,7 +484,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
     std::vector<DownloadedProduct> products;
 
     auto report =
-        DownloadReport::Report("sourceurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sourceurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
 
@@ -533,7 +533,7 @@ TEST_F(                 // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sophosurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
     EXPECT_STREQ(report.getDescription().c_str(), "");
@@ -589,7 +589,7 @@ TEST_F(                 // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sophosurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
@@ -645,7 +645,7 @@ TEST_F(                 // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     auto report =
-        DownloadReport::Report("sophosurl", products, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("sophosurl", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");

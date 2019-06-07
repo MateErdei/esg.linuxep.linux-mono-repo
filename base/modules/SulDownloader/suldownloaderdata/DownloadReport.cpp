@@ -101,10 +101,12 @@ namespace SulDownloader
     DownloadReport DownloadReport::Report(
         const std::string& sourceURL,
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
+        const std::vector<suldownloaderdata::ProductInfo> & ,
         TimeTracker* timeTracker,
         VerifyState verifyState)
     {
         assert(timeTracker != nullptr);
+
         DownloadReport report;
 
         report.m_status = WarehouseStatus::SUCCESS;
