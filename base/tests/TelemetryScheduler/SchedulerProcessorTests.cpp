@@ -170,7 +170,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     auto task = queue->pop();
     EXPECT_EQ(task, SchedulerTask::RunTelemetry);
@@ -200,7 +200,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -228,7 +228,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -252,7 +252,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -279,7 +279,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -304,7 +304,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());
@@ -323,7 +323,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndMissingSu
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -346,7 +346,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotReadSu
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -369,7 +369,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndSupplemen
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -392,7 +392,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidSu
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_FALSE(processor.delayingTelemetryRun());
     EXPECT_TRUE(processor.delayingConfigurationCheck());
@@ -421,7 +421,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
 
-    processor.waitToRunTelemetry();
+    processor.waitToRunTelemetry(true);
 
     EXPECT_TRUE(processor.delayingTelemetryRun());
     EXPECT_FALSE(processor.delayingConfigurationCheck());

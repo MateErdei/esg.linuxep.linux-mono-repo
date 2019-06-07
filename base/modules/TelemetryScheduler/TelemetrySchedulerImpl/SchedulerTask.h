@@ -13,6 +13,7 @@ namespace TelemetrySchedulerImpl
     enum class SchedulerTask
     {
         Shutdown,
+        InitialWaitToRunTelemetry,
         WaitToRunTelemetry,
         RunTelemetry,
         CheckExecutableFinished

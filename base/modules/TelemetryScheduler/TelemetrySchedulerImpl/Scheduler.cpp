@@ -42,7 +42,7 @@ namespace TelemetrySchedulerImpl
             Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
             SchedulerProcessor telemetrySchedulerProcessor(taskQueue, pathManager);
-            taskQueue->push(SchedulerTask::WaitToRunTelemetry); // initialise processor
+            taskQueue->push(SchedulerTask::InitialWaitToRunTelemetry);
             telemetrySchedulerProcessor.run();
 
             LOGINFO("Telemetry Scheduler finished");

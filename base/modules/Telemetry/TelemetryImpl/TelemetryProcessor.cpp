@@ -72,6 +72,9 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     Common::OSUtilitiesImpl::SXLMachineID sxlMachineId;
     std::string machineId = sxlMachineId.getMachineID();
 
+    // TODO: probably ought to get resource via a configuration setting and let the Telemetry Scheduler determine the
+    // value to use!
+
     if (machineId.empty())
     {
         throw std::runtime_error("No machine id so not sending telemetry");

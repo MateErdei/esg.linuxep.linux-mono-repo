@@ -27,7 +27,11 @@ public:
     {
     }
 
-    void waitToRunTelemetry() override { SchedulerProcessor::waitToRunTelemetry(); }
+    void waitToRunTelemetry(bool runPastScheduledRunNow) override
+    {
+        SchedulerProcessor::waitToRunTelemetry(runPastScheduledRunNow);
+    }
+
     void runTelemetry() override { SchedulerProcessor::runTelemetry(); }
     void checkExecutableFinished() override { SchedulerProcessor::checkExecutableFinished(); }
 

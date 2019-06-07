@@ -18,7 +18,7 @@ using TelemetrySchedulerImpl::TaskQueue;
 TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 {
     TaskQueue queue;
-    const SchedulerTask taskIn = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
     queue.push(taskIn);
     SchedulerTask taskOut = queue.pop();
     EXPECT_EQ(taskOut, taskIn);
@@ -28,7 +28,7 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     TaskQueue queue;
     const std::vector<SchedulerTask> tasksIn = { SchedulerTask::Shutdown,
-                                                 SchedulerTask::WaitToRunTelemetry,
+                                                 SchedulerTask::InitialWaitToRunTelemetry,
                                                  SchedulerTask::RunTelemetry };
 
     for (auto task : tasksIn)
@@ -62,7 +62,7 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     EXPECT_FALSE(done);
 
-    const SchedulerTask taskIn = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
     queue.push(taskIn);
     std::this_thread::sleep_for(milliseconds(delay));
 
@@ -77,7 +77,7 @@ TEST(TaskQueueTests, pushedPriorityTaskIsPoppedFirst) // NOLINT
 {
     TaskQueue queue;
     const SchedulerTask priorityTask = SchedulerTask::Shutdown;
-    const SchedulerTask normalTask = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask normalTask = SchedulerTask::InitialWaitToRunTelemetry;
 
     queue.push(normalTask);
     queue.pushPriority(priorityTask);

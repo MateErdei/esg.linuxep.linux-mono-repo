@@ -23,7 +23,7 @@ TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInTheFuture) // NOLINT
     using namespace std::chrono_literals;
 
     auto queue = std::make_shared<TaskQueue>();
-    const SchedulerTask task = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask task = SchedulerTask::InitialWaitToRunTelemetry;
 
     const std::chrono::seconds delay = 2s;
     const auto now = std::chrono::system_clock::now();
@@ -42,7 +42,7 @@ TEST_F(SleepyThreadTests, threadCompletesWhenTimeIsInThePast) // NOLINT
     using namespace std::chrono_literals;
 
     auto queue = std::make_shared<TaskQueue>();
-    const SchedulerTask task = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask task = SchedulerTask::InitialWaitToRunTelemetry;
 
     const std::chrono::seconds offset = 3600s;
     const auto now = std::chrono::system_clock::now();
@@ -61,7 +61,7 @@ TEST_F(SleepyThreadTests, createAndStopBeforeFinished) // NOLINT
     using namespace std::chrono_literals;
 
     auto queue = std::make_shared<TaskQueue>();
-    const SchedulerTask task = SchedulerTask::WaitToRunTelemetry;
+    const SchedulerTask task = SchedulerTask::InitialWaitToRunTelemetry;
 
     const std::chrono::seconds delay = 3600s;
     const auto now = std::chrono::system_clock::now();

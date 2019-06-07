@@ -50,8 +50,12 @@ namespace TelemetrySchedulerImpl
 
             switch (task)
             {
+                case SchedulerTask::InitialWaitToRunTelemetry:
+                    waitToRunTelemetry(true);
+                    break;
+
                 case SchedulerTask::WaitToRunTelemetry:
-                    waitToRunTelemetry();
+                    waitToRunTelemetry(false);
                     break;
 
                 case SchedulerTask::RunTelemetry:
@@ -71,7 +75,8 @@ namespace TelemetrySchedulerImpl
         }
     }
 
-    size_t SchedulerProcessor::getScheduledTimeUsingSupplementaryFile()
+    size_t SchedulerProcessor::getScheduledTimeUsingIntervalFromSupplementaryFile(
+        size_t previousTelemetryRunTimeInSecondsSinceEpoch)
     {
         if (!Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySupplementaryFilePath()))
         {
@@ -81,28 +86,38 @@ namespace TelemetrySchedulerImpl
         }
 
         size_t interval = getIntervalFromSupplementaryFile();
-        size_t scheduledTimeInSecondsSinceEpoch = 0;
 
-        if (interval > 0)
+        if (interval <= 0)
         {
-            auto scheduledTime = std::chrono::system_clock::now() + std::chrono::seconds(interval);
-            scheduledTimeInSecondsSinceEpoch =
-                std::chrono::duration_cast<std::chrono::seconds>(scheduledTime.time_since_epoch()).count();
-            SchedulerStatus schedulerConfig;
-            schedulerConfig.setTelemetryScheduledTime(scheduledTimeInSecondsSinceEpoch);
+            return 0;
+        }
 
-            try
-            {
-                Common::FileSystem::fileSystem()->writeFile(
-                    m_pathManager.getTelemetrySchedulerStatusFilePath(),
-                    SchedulerStatusSerialiser::serialise(schedulerConfig));
-            }
-            catch (const Common::FileSystem::IFileSystemException& e)
-            {
-                LOGERROR(
-                    "File access error writing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
-                                                 << e.what());
-            }
+        auto duration = system_clock::duration(seconds(previousTelemetryRunTimeInSecondsSinceEpoch));
+        system_clock::time_point previousScheduledTime(duration);
+
+        system_clock::time_point scheduledTime = previousScheduledTime + seconds(interval);
+
+        if (scheduledTime < system_clock::now())
+        {
+            scheduledTime = system_clock::now() + seconds(interval);
+        }
+
+        size_t scheduledTimeInSecondsSinceEpoch =
+            duration_cast<seconds>(scheduledTime.time_since_epoch()).count();
+        SchedulerStatus schedulerConfig;
+        schedulerConfig.setTelemetryScheduledTime(scheduledTimeInSecondsSinceEpoch);
+
+        try
+        {
+            Common::FileSystem::fileSystem()->writeFile(
+                m_pathManager.getTelemetrySchedulerStatusFilePath(),
+                SchedulerStatusSerialiser::serialise(schedulerConfig));
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR(
+                "File access error writing " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
+                                             << e.what());
         }
 
         return scheduledTimeInSecondsSinceEpoch;
@@ -150,7 +165,7 @@ namespace TelemetrySchedulerImpl
         delayThread->start();
     }
 
-    void SchedulerProcessor::waitToRunTelemetry()
+    void SchedulerProcessor::waitToRunTelemetry(bool runScheduledInPastNow)
     {
         // Always re-read values from configuration and status files in case they've been externally updated.
 
@@ -158,7 +173,7 @@ namespace TelemetrySchedulerImpl
 
         if (!Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()))
         {
-            scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+            scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
         }
         else
         {
@@ -172,13 +187,19 @@ namespace TelemetrySchedulerImpl
                     Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
                 schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
                 scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();
+
+                if (!runScheduledInPastNow)
+                {
+                    scheduledTimeInSecondsSinceEpoch =
+                        getScheduledTimeUsingIntervalFromSupplementaryFile(scheduledTimeInSecondsSinceEpoch);
+                }
             }
             catch (const Common::FileSystem::IFileSystemException& e)
             {
                 LOGERROR(
                     "File access error reading " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
                                                  << e.what());
-                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingSupplementaryFile();
+                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
             }
             catch (const std::runtime_error& e)
             {
@@ -196,8 +217,7 @@ namespace TelemetrySchedulerImpl
                                                       << e.what());
                 }
 
-                scheduledTimeInSecondsSinceEpoch =
-                    getScheduledTimeUsingSupplementaryFile(); // should regenerate status file
+                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
             }
         }
 
@@ -212,14 +232,17 @@ namespace TelemetrySchedulerImpl
                                                                                    << " seconds");
 
             delayBeforeQueueingTask(
-                timeToCheckConfiguration, m_delayBeforeCheckingConfiguration, SchedulerTask::WaitToRunTelemetry);
+                timeToCheckConfiguration, m_delayBeforeCheckingConfiguration, SchedulerTask::InitialWaitToRunTelemetry);
         }
         else
         {
+            // Do this whether the time scheduled is in the past or in the future.
+
             auto duration = system_clock::duration(seconds(scheduledTimeInSecondsSinceEpoch));
             system_clock::time_point scheduledTime(duration);
 
-            std::string formattedScheduledTime = Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
+            std::string formattedScheduledTime =
+                Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
             LOGINFO("Telemetry reporting is scheduled to run at " << formattedScheduledTime);
 
             delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
@@ -297,5 +320,4 @@ namespace TelemetrySchedulerImpl
 
         m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
     }
-
 } // namespace TelemetrySchedulerImpl

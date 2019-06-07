@@ -38,7 +38,7 @@ namespace TelemetrySchedulerImpl
         virtual void run();
 
     protected:
-        virtual void waitToRunTelemetry();
+        virtual void waitToRunTelemetry(bool runScheduledInPastNow);
         virtual void runTelemetry();
         virtual void checkExecutableFinished();
 
@@ -58,7 +58,7 @@ namespace TelemetrySchedulerImpl
         }
 
         size_t getIntervalFromSupplementaryFile();
-        size_t getScheduledTimeUsingSupplementaryFile();
+        size_t getScheduledTimeUsingIntervalFromSupplementaryFile(size_t previousTelemetryRunTimeInSecondsSinceEpoch);
         void delayBeforeQueueingTask(
             std::chrono::system_clock::time_point delayUntil,
             std::unique_ptr<SleepyThread>& delayThread,
