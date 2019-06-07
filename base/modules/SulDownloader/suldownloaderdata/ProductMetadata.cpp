@@ -9,20 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <stdexcept>
 
-namespace std
-{
-    template<> struct hash<SulDownloader::suldownloaderdata::ProductKey>
-    {
-        typedef  SulDownloader::suldownloaderdata::ProductKey argument_type;
-        typedef std::size_t result_type;
-        result_type operator()(const argument_type& productKey) const noexcept
-        {
-            result_type const h1 ( std::hash<std::string>{}(productKey.m_line) );
-            result_type const h2 ( std::hash<std::string>{}(productKey.m_version) );
-            return h1 ^ h2;
-        }
-    };
-}
 
 using namespace SulDownloader::suldownloaderdata;
 

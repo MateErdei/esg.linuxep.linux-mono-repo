@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 #include <SulDownloader/suldownloaderdata/Tag.h>
 #include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 
 extern "C"
 {
@@ -123,6 +124,8 @@ namespace SulDownloader
          */
         std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override;
 
+        std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override ;
+
         std::string getSourceURL() const override;
 
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
@@ -160,6 +163,7 @@ namespace SulDownloader
         std::unique_ptr<SULSession> m_session;
         std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;
         std::string m_rootDistributionPath;
+        suldownloaderdata::CatalogueInfo m_catalogueInfo;
     };
 
 } // namespace SulDownloader
