@@ -103,7 +103,7 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
         std::string errorMessage = "Request policies failed with error: ";
         errorMessage += reply.m_error;
         LOGERROR(errorMessage);
-        if (reply.m_error.find("No policy available"))
+        if (reply.m_error.find("No policy available") != std::string::npos)
         {
             throw Common::PluginApi::NoPolicyAvailableException(errorMessage);
         }
