@@ -181,11 +181,11 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleIn
 
 TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ValidStatusFileWithScheduleInFuture) // NOLINT
 {
-    auto future = std::chrono::system_clock::now() + std::chrono::seconds(2);
-    size_t futureInSecondsSinceEpoch =
-        std::chrono::duration_cast<std::chrono::seconds>(future.time_since_epoch()).count();
+    auto inTheFuture = std::chrono::system_clock::now() + std::chrono::seconds(2);
+    size_t inTheFutureInSecondsSinceEpoch =
+        std::chrono::duration_cast<std::chrono::seconds>(inTheFuture.time_since_epoch()).count();
     std::stringstream statusFileContents;
-    statusFileContents << R"({"scheduled-time":)" << futureInSecondsSinceEpoch << "}";
+    statusFileContents << R"({"scheduled-time":)" << inTheFutureInSecondsSinceEpoch << "}";
 
     EXPECT_CALL(m_mockPathManager, getTelemetrySchedulerStatusFilePath())
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
@@ -507,6 +507,7 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLIN
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
     EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
     EXPECT_CALL(*m_mockProcess, exitCode()).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockProcess, output()).WillOnce(Return("stdout and stderr output"));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);

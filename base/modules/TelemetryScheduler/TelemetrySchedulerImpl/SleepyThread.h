@@ -27,15 +27,15 @@ namespace TelemetrySchedulerImpl
           */
         SleepyThread(std::chrono::system_clock::time_point sleepUntil, SchedulerTask task, std::shared_ptr<ITaskQueue> queue);
 
+        bool finished() { return m_finished; }
+
+    private:
         /**
          * Run thread so that it sleeps until it's time to queue the task.
          * If time is in the past, then the thread queues the task immediately.
          */
         void run() override;
 
-        bool finished() { return m_finished; }
-
-    private:
         std::chrono::system_clock::time_point m_sleepUntil;
         SchedulerTask m_task;
         std::shared_ptr<ITaskQueue> m_queue;

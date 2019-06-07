@@ -20,6 +20,7 @@ target_link_libraries(telemetryschedulerimpl PUBLIC
         pluginapiimpl
         processimpl
         telemetryexeconfigimpl
+        utilityimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryschedulerimpl

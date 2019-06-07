@@ -16,6 +16,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/TelemetryExeConfigImpl/Serialiser.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <json.hpp>
@@ -215,11 +216,12 @@ namespace TelemetrySchedulerImpl
         }
         else
         {
-            LOGINFO(
-                "Telemetry reporting is scheduled to run at " << scheduledTimeInSecondsSinceEpoch
-                                                              << " seconds since epoch");
             auto duration = system_clock::duration(seconds(scheduledTimeInSecondsSinceEpoch));
             system_clock::time_point scheduledTime(duration);
+
+            std::string formattedScheduledTime = Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
+            LOGINFO("Telemetry reporting is scheduled to run at " << formattedScheduledTime);
+
             delayBeforeQueueingTask(scheduledTime, m_delayBeforeRunningTelemetry, SchedulerTask::RunTelemetry);
         }
     }
@@ -285,9 +287,11 @@ namespace TelemetrySchedulerImpl
         else
         {
             int exitCode = m_telemetryExeProcess->exitCode();
+
             if (exitCode != 0)
             {
                 LOGERROR("Telemetry executable failed with exit code " << exitCode);
+                LOGERROR("Telemetry executable output: " << m_telemetryExeProcess->output());
             }
         }
 
