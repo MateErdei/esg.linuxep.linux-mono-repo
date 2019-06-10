@@ -6,11 +6,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Config.h"
 
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 Config::Config() :
     m_port(0),
     m_verb(VERB_PUT),
+    m_interval(0),
     m_externalProcessWaitTime(DEFAULT_PROCESS_WAIT_TIME),
     m_externalProcessWaitRetries(DEFAULT_PROCESS_WAIT_RETRIES),
     m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
@@ -24,9 +25,10 @@ bool Config::operator==(const Config& rhs) const
         return true;
     }
 
-    return m_server == rhs.m_server && m_resourceRoot == rhs.m_resourceRoot && m_port == rhs.m_port &&
-           m_headers == rhs.m_headers && m_verb == rhs.m_verb && m_proxies == rhs.m_proxies &&
-           m_messageRelays == rhs.m_messageRelays && m_externalProcessWaitTime == rhs.m_externalProcessWaitTime &&
+    return m_server == rhs.m_server && m_resourceRoot == rhs.m_resourceRoot && m_resourcePath == rhs.m_resourcePath &&
+           m_port == rhs.m_port && m_headers == rhs.m_headers && m_verb == rhs.m_verb && m_interval == rhs.m_interval &&
+           m_proxies == rhs.m_proxies && m_messageRelays == rhs.m_messageRelays &&
+           m_externalProcessWaitTime == rhs.m_externalProcessWaitTime &&
            m_externalProcessWaitRetries == rhs.m_externalProcessWaitRetries && m_maxJsonSize == rhs.m_maxJsonSize;
 }
 
@@ -101,6 +103,16 @@ void Config::setResourceRoot(const std::string& resourceRoot)
     m_resourceRoot = resourceRoot;
 }
 
+void Config::setResourcePath(const std::string& resourcePath)
+{
+    m_resourcePath = resourcePath;
+}
+
+const std::string& Config::getResourcePath() const
+{
+    return m_resourcePath;
+}
+
 unsigned int Config::getPort() const
 {
     return m_port;
@@ -129,6 +141,16 @@ std::string Config::getVerb() const
 void Config::setVerb(const std::string& verb)
 {
     m_verb = verb;
+}
+
+unsigned int Config::getInterval() const
+{
+    return m_interval;
+}
+
+void Config::setInterval(unsigned int interval)
+{
+    m_interval = interval;
 }
 
 const std::vector<Proxy>& Config::getProxies() const
@@ -180,10 +202,12 @@ void Config::setMaxJsonSize(unsigned int maxJsonSize)
 {
     m_maxJsonSize = maxJsonSize;
 }
+
 const std::string& Config::getTelemetryServerCertificatePath() const
 {
     return m_telemetryServerCertificatePath;
 }
+
 void Config::setTelemetryServerCertificatePath(const std::string& telemetryServerCertificatePath)
 {
     Config::m_telemetryServerCertificatePath = telemetryServerCertificatePath;

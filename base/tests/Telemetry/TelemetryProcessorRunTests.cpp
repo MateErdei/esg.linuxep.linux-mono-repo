@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
 
-#include <Common/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Config.h>
 #include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -40,7 +40,7 @@ public:
     std::vector<std::string> m_additionalHeaders;
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
-    std::shared_ptr<Common::TelemetryExeConfigImpl::Config> m_config;
+    std::shared_ptr<Common::TelemetryConfigImpl::Config> m_config;
 
     std::string m_defaultCertPath = Common::FileSystem::join(
         Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
@@ -97,7 +97,7 @@ public:
 
         m_defaultExpectedRequestConfig->setData(m_data);
 
-        m_config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
+        m_config = std::make_shared<Common::TelemetryConfigImpl::Config>();
         m_config->setVerb("PUT");
         m_config->setResourceRoot("PROD");
         m_config->setTelemetryServerCertificatePath(m_defaultCertPath);

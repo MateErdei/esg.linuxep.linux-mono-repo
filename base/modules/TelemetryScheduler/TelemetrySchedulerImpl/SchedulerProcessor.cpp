@@ -15,7 +15,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
-#include <Common/TelemetryExeConfigImpl/Serialiser.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
@@ -127,7 +127,7 @@ namespace TelemetrySchedulerImpl
         {
             std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                 m_pathManager.getTelemetrySupplementaryFilePath(),
-                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+                Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE);
 
             const std::string intervalKey = "interval";
             nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
@@ -183,7 +183,7 @@ namespace TelemetrySchedulerImpl
             {
                 statusJsonString = Common::FileSystem::fileSystem()->readFile(
                     m_pathManager.getTelemetrySchedulerStatusFilePath(),
-                    Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
+                    Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE);
                 schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
                 auto previousScheduledTime = schedulerConfig.getTelemetryScheduledTime();
 
@@ -254,18 +254,18 @@ namespace TelemetrySchedulerImpl
         {
             std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                 m_pathManager.getTelemetrySupplementaryFilePath(),
-                Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
+                Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
 
-            Common::TelemetryExeConfigImpl::Config config;
+            Common::TelemetryConfigImpl::Config config;
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(),
-                Common::TelemetryExeConfigImpl::Serialiser::serialise(
-                    Common::TelemetryExeConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
+                Common::TelemetryConfigImpl::Serialiser::serialise(
+                    Common::TelemetryConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
 
             m_telemetryExeProcess = Common::Process::createProcess();
 
-            m_telemetryExeProcess->setOutputLimit(Common::TelemetryExeConfigImpl::MAX_OUTPUT_SIZE);
+            m_telemetryExeProcess->setOutputLimit(Common::TelemetryConfigImpl::MAX_OUTPUT_SIZE);
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 

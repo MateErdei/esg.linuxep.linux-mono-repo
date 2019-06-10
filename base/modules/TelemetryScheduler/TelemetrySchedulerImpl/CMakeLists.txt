@@ -19,7 +19,7 @@ target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryschedulerloggerimpl
         pluginapiimpl
         processimpl
-        telemetryexeconfigimpl
+        telemetryconfigimpl
         utilityimpl
         )
 

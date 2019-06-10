@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <json.hpp>
 
-namespace Common::TelemetryExeConfigImpl
+namespace Common::TelemetryConfigImpl
 {
     const std::string URL_PROXY_KEY = "url";
     const std::string PORT_PROXY_KEY = "port";

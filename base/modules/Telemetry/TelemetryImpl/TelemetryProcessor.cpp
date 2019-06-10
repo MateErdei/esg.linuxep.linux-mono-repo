@@ -21,7 +21,7 @@ using namespace Telemetry;
 using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
-    std::shared_ptr<const Common::TelemetryExeConfigImpl::Config> config,
+    std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
     std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
     m_config(config),

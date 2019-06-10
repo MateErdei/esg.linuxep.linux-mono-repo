@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "Common/TelemetryExeConfigImpl/Constants.h"
+#include "Common/TelemetryConfigImpl/Constants.h"
 
 #include <chrono>
 #include <string>

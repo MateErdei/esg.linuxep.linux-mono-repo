@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "MessageRelay.h"
 
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 MessageRelay::MessageRelay() : m_priority(0) {}
 

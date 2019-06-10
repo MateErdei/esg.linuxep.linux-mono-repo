@@ -13,12 +13,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/TelemetryExeConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Config.h>
 
 #include <utility>
 
 using namespace Common::Telemetry;
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 namespace Telemetry
 {

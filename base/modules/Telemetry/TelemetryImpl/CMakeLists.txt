@@ -26,7 +26,7 @@ include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE
 target_link_libraries(telemetryimpl PUBLIC
         telemetryloggerimpl
         httpsenderimpl
-        telemetryexeconfigimpl
+        telemetryconfigimpl
         telemetryhelperimpl
         processimpl
         threads

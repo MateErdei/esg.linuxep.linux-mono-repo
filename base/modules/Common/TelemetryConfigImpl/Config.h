@@ -13,8 +13,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace Common::TelemetryExeConfigImpl
+namespace Common::TelemetryConfigImpl
 {
+    /**
+     * This configuration is using for external configuration of SSPL telemetry via a warehouse file,
+     * as well as internal configuration of the Telemetry Executable by the Telemetry Scheduler via the former's
+     * configuration file. Consequently, some settings are used by both and some by only one of these configuration
+     * files.
+     */
     class Config
     {
     public:
@@ -26,6 +32,9 @@ namespace Common::TelemetryExeConfigImpl
         const std::string& getResourceRoot() const;
         void setResourceRoot(const std::string& resourceRoot);
 
+        const std::string& getResourcePath() const;
+        void setResourcePath(const std::string& resourceRoot);
+
         unsigned int getPort() const;
         void setPort(unsigned int port);
 
@@ -34,6 +43,9 @@ namespace Common::TelemetryExeConfigImpl
 
         std::string getVerb() const;
         void setVerb(const std::string& verb);
+
+        unsigned int getInterval() const;
+        void setInterval(unsigned int externalProcessWaitTime);
 
         const std::vector<Proxy>& getProxies() const;
         void setProxies(const std::vector<Proxy>& proxies);
@@ -61,9 +73,11 @@ namespace Common::TelemetryExeConfigImpl
     private:
         std::string m_server;
         std::string m_resourceRoot;
+        std::string m_resourcePath;
         unsigned int m_port{};
         std::vector<std::string> m_headers;
         std::string m_verb;
+        unsigned int m_interval{};
         std::vector<Proxy> m_proxies;
         std::vector<MessageRelay> m_messageRelays;
         unsigned int m_externalProcessWaitTime{};
@@ -71,4 +85,4 @@ namespace Common::TelemetryExeConfigImpl
         unsigned int m_maxJsonSize{};
         std::string m_telemetryServerCertificatePath;
     };
-} // namespace Telemetry::TelemetryExeConfigImpl
+} // namespace Telemetry::TelemetryConfigImpl

@@ -6,11 +6,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <Common/TelemetryExeConfigImpl/Config.h>
-#include <Common/TelemetryExeConfigImpl/Serialiser.h>
+#include <Common/TelemetryConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
 
 using ::testing::StrictMock;
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 class ProxyTests : public ::testing::Test
 {

@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common::TelemetryExeConfigImpl
+namespace Common::TelemetryConfigImpl
 {
     class Serialiser
     {
@@ -19,4 +19,4 @@ namespace Common::TelemetryExeConfigImpl
         static Config deserialise(const std::string& jsonString);
     };
 
-} // namespace Telemetry::TelemetryExeConfigImpl
+} // namespace Telemetry::TelemetryConfigImpl

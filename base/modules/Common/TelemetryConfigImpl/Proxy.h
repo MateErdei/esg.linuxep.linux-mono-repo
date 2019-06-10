@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-namespace Common::TelemetryExeConfigImpl
+namespace Common::TelemetryConfigImpl
 {
     class Proxy
     {
@@ -54,4 +54,4 @@ namespace Common::TelemetryExeConfigImpl
         std::string m_username;
         std::string m_obfuscatedPassword;
     };
-} // namespace Telemetry::TelemetryExeConfigImpl
+} // namespace Telemetry::TelemetryConfigImpl

@@ -14,8 +14,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/Logging/FileLoggingSetup.h>
-#include <Common/TelemetryExeConfigImpl/Config.h>
-#include <Common/TelemetryExeConfigImpl/Serialiser.h>
+#include <Common/TelemetryConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
@@ -26,7 +26,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
     std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
-        std::shared_ptr<Common::TelemetryExeConfigImpl::Config> telemetryConfig);
+        std::shared_ptr<Common::TelemetryConfigImpl::Config> telemetryConfig);
 
     int main_entry(int argc, char* argv[])
     {
@@ -51,9 +51,9 @@ namespace Telemetry
             }
 
             std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, 1000000UL);
-            auto telemetryConfig = std::make_shared<Common::TelemetryExeConfigImpl::Config>(
-                Common::TelemetryExeConfigImpl::Serialiser::deserialise(telemetryConfigJson));
-            LOGDEBUG("Using configuration: " << Common::TelemetryExeConfigImpl::Serialiser::serialise(*telemetryConfig));
+            auto telemetryConfig = std::make_shared<Common::TelemetryConfigImpl::Config>(
+                Common::TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
+            LOGDEBUG("Using configuration: " << Common::TelemetryConfigImpl::Serialiser::serialise(*telemetryConfig));
 
             std::unique_ptr<TelemetryProcessor> telemetryProcessor = initialiseTelemetryProcessor(telemetryConfig);
 
@@ -69,7 +69,7 @@ namespace Telemetry
     }
 
     std::unique_ptr<TelemetryProcessor> initialiseTelemetryProcessor(
-        std::shared_ptr<Common::TelemetryExeConfigImpl::Config> telemetryConfig)
+        std::shared_ptr<Common::TelemetryConfigImpl::Config> telemetryConfig)
     {
         std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper =
             std::make_shared<Common::HttpSenderImpl::CurlWrapper>();

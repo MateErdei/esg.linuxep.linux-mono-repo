@@ -1,4 +1,4 @@
-add_library(telemetryexeconfigimpl SHARED
+add_library(telemetryconfigimpl SHARED
         Constants.h
         Serialiser.h
         Serialiser.cpp
@@ -10,17 +10,17 @@ add_library(telemetryexeconfigimpl SHARED
         MessageRelay.cpp
         )
 
-include_directories(telemetryexeconfigimpl BEFORE ../../../thirdparty/nlohmann-json)
+include_directories(telemetryconfigimpl BEFORE ../../../thirdparty/nlohmann-json)
 
-target_link_libraries(telemetryexeconfigimpl PUBLIC obfuscationimpl logging)
+target_link_libraries(telemetryconfigimpl PUBLIC obfuscationimpl logging)
 
-SET_TARGET_PROPERTIES(telemetryexeconfigimpl
+SET_TARGET_PROPERTIES(telemetryconfigimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-install(TARGETS telemetryexeconfigimpl
+install(TARGETS telemetryconfigimpl
         LIBRARY DESTINATION files/base/lib64)
 
-add_dependencies(telemetryexeconfigimpl copy_libs)
+add_dependencies(telemetryconfigimpl copy_libs)

@@ -34,7 +34,7 @@ public:
 
     MockFileSystem* m_mockFileSystem = nullptr;
     MockFilePermissions* m_mockFilePermissions = nullptr;
-    std::shared_ptr<Common::TelemetryExeConfigImpl::Config> m_config;
+    std::shared_ptr<Common::TelemetryConfigImpl::Config> m_config;
     std::unique_ptr<MockHttpSender> m_httpSender = std::make_unique<StrictMock<MockHttpSender>>();
 
     void SetUp() override
@@ -47,7 +47,7 @@ public:
         m_mockFilePermissions = mockfilePermissions.get();
         Tests::replaceFilePermissions(std::move(mockfilePermissions));
 
-        m_config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
+        m_config = std::make_shared<Common::TelemetryConfigImpl::Config>();
         m_config->setMaxJsonSize(1000);
     }
 
@@ -152,7 +152,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
-    auto config = std::make_shared<Common::TelemetryExeConfigImpl::Config>();
+    auto config = std::make_shared<Common::TelemetryConfigImpl::Config>();
     config->setVerb("GET");
     config->setResourceRoot("PROD");
     config->setTelemetryServerCertificatePath(defaultCertPath);

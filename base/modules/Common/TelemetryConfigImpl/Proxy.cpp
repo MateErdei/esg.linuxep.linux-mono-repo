@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Proxy.h"
 
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 Proxy::Proxy() : m_port(0), m_authentication(Proxy::Authentication::none) {}
 
