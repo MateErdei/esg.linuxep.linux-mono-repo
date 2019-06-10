@@ -10,11 +10,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/sslimpl/Md5Calc.h>
+#include <sys/stat.h>
 
 #include <iostream>
 #include <sstream>
 #include <string>
+
 namespace Common
 {
     namespace OSUtilitiesImpl
@@ -39,6 +42,8 @@ namespace Common
             std::string md5hash = Common::sslimpl::md5(content.str());
             std::string re_hash = Common::sslimpl::md5(md5hash);
             Common::FileSystem::fileSystem()->writeFile(machineIDPath(), re_hash);
+            Common::FileSystem::filePermissions()->chmod(machineIDPath(), S_IRUSR | S_IWUSR | S_IRGRP); // NOLINT
+            Common::FileSystem::filePermissions()->chown(machineIDPath(), "root", "sophos-spl-group");
         }
 
         std::string SXLMachineID::machineIDPath() const
