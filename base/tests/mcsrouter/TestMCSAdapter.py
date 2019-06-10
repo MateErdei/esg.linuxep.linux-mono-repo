@@ -269,29 +269,30 @@ class TestMCSAdapter(unittest.TestCase):
     #     self.assertEqual(res,"Diff")
     #     self.assertEqual(revID,"6f9cb63e8cb1eaa98df9efbf5d218056668f5f34392ba53cf206af03d7eb6614")
 
-#     def testExtraCommandPollingDelayTagIgnored(self):
-#         TEST_POLICY="""<?xml version="1.0"?>
-# <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
-# <configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
-#     <commandPollingDelay default="123"/>
-#     <bogus>
-#     <commandPollingDelay default="321"/>
-#     </bogus>
-# </configuration>
-# </policy>"""
-#         policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
-#
-#         policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
-#         policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
-#
-#         adapter = createAdapter(policy_config)
-#
-#         command = FakePolicyCommand(TEST_POLICY)
-#         adapter.process_command(command)
-#         self.assertTrue(command.m_complete)
-#
-#         self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM",0),123)
-#         self.assertEqual(policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM",0),123)
+    def testExtraCommandPollingDelayTagIgnored(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+    <csc:Comp RevID="5" policyType="25"/>
+    <commandPollingDelay default="123"/>
+    <bogus>
+    <commandPollingDelay default="321"/>
+    </bogus>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+
+        policy_config.set("COMMAND_CHECK_INTERVAL_MINIMUM","15")
+        policy_config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","15")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MINIMUM", 0))
+        self.assertEqual(123, policy_config.get_int("COMMAND_CHECK_INTERVAL_MAXIMUM", 0))
 
     def testNoAttributeInPollingElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
@@ -379,25 +380,25 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_default("mcs_policy_url2",None),"https://mcs2.sandbox.sophos/sophos/management/ep")
         self.assertEqual(policy_config.get_default("MCSURL",None),"FOOBAR")
 
-#     def testNoProxyInProxiesElement(self):
-#         TEST_POLICY="""<?xml version="1.0"?>
-# <policy xmlns:csc="com.sophos\msys\csc" type="mcs">
-# <configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
-#      <proxies>
-#     </proxies>
-# </configuration>
-# </policy>"""
-#         policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
-#
-#         policy_config.set("mcs_policy_proxy","FOOBAR")
-#
-#         adapter = createAdapter(policy_config)
-#
-#         command = FakePolicyCommand(TEST_POLICY)
-#         policy_config = adapter.process_command(command)
-#         self.assertTrue(command.m_complete)
-#
-#         self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),None)
+    def testNoProxyInProxiesElement(self):
+        TEST_POLICY="""<?xml version="1.0"?>
+<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+<configuration xmlns:auto-ns1="com.sophos\mansys\policy" xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd">
+     <proxies>
+    </proxies>
+</configuration>
+</policy>"""
+        policy_config = mcsrouter.utils.config.Config("install/etc/sophosav/mcs_policy.config")
+
+        policy_config.set("mcs_policy_proxy","FOOBAR")
+
+        adapter = createAdapter(policy_config)
+
+        command = FakePolicyCommand(TEST_POLICY)
+        policy_config = adapter.process_command(command)
+        self.assertTrue(command.m_complete)
+
+        self.assertEqual(policy_config.get_default("mcs_policy_proxy",None),None)
 
     def testMultipleProxyInProxiesElement(self):
         TEST_POLICY="""<?xml version="1.0"?>
