@@ -20,22 +20,23 @@ TEST(OrderedSet, shouldKeepTheOrderAndReturnOnlyUniqueValues) // NOLINT
     std::vector<int> expected{1,2,3,4};
     EXPECT_EQ( orderedSet.orderedElements(), expected);
 }
-struct MyStc
+// demonstrating that user struct can be used as long as user defines operator == and specializes hash. 
+struct ExampleOfUserProvidedStruct
 {
     std::string a;
     std::string b;
 };
 
 // a class can use OrderedSet as long as defines an equality operator and a hash function as below
-bool operator==(const MyStc & lh, const MyStc & rh)
+bool operator==(const ExampleOfUserProvidedStruct & lh, const ExampleOfUserProvidedStruct & rh)
 {
     return lh.a == rh.a && lh.b == rh.b;
 }
 namespace std
 {
-    template<> struct hash<MyStc>
+    template<> struct hash<ExampleOfUserProvidedStruct>
     {
-        typedef  MyStc argument_type;
+        typedef  ExampleOfUserProvidedStruct argument_type;
         typedef std::size_t result_type;
         result_type operator()(const argument_type& myStc) const noexcept
         {
@@ -50,17 +51,17 @@ namespace std
 TEST(OrderedSet, canBeAppliedToCustomStruct) // NOLINT
 {
 
-    std::vector<MyStc> inputEntries = {
+    std::vector<ExampleOfUserProvidedStruct> inputEntries = {
             {"a","b"},
             {"b","c"},
             {"a","b"}
     };
-    OrderedSet<MyStc> orderedSet;
+    OrderedSet<ExampleOfUserProvidedStruct> orderedSet;
     for( auto & e: inputEntries)
     {
         orderedSet.addElement(e);
     }
-    std::vector<MyStc> calculated = orderedSet.orderedElements();
+    std::vector<ExampleOfUserProvidedStruct> calculated = orderedSet.orderedElements();
 
     EXPECT_EQ(calculated.size(), 2);
 
