@@ -24,6 +24,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
+    using namespace Common::TelemetryConfigImpl;
     using namespace std::chrono;
 
     SchedulerProcessor::SchedulerProcessor(
@@ -102,14 +103,14 @@ namespace TelemetrySchedulerImpl
             scheduledTime = system_clock::now() + seconds(interval);
         }
 
-        SchedulerStatus schedulerConfig;
-        schedulerConfig.setTelemetryScheduledTime(scheduledTime);
+        SchedulerStatus schedulerStatus;
+        schedulerStatus.setTelemetryScheduledTime(scheduledTime);
 
         try
         {
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetrySchedulerStatusFilePath(),
-                SchedulerStatusSerialiser::serialise(schedulerConfig));
+                SchedulerStatusSerialiser::serialise(schedulerStatus));
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
@@ -126,12 +127,9 @@ namespace TelemetrySchedulerImpl
         try
         {
             std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-                m_pathManager.getTelemetrySupplementaryFilePath(),
-                Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE);
-
-            const std::string intervalKey = "interval";
-            nlohmann::json j = nlohmann::json::parse(supplementaryConfigJson);
-            return j.contains(intervalKey) ? (size_t)j.at(intervalKey) : 0;
+                m_pathManager.getTelemetrySupplementaryFilePath(), DEFAULT_MAX_JSON_SIZE);
+            Config supplementaryConfig = Serialiser::deserialise(supplementaryConfigJson);
+            return supplementaryConfig.getInterval();
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
@@ -139,8 +137,7 @@ namespace TelemetrySchedulerImpl
                 "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " : " << e.what());
             return 0;
         }
-        // As well as basic JSON parsing errors, building config object can also fail, so catch all JSON exceptions.
-        catch (const nlohmann::detail::exception& e)
+        catch (const std::runtime_error& e)
         {
             std::stringstream msg;
             LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
@@ -177,15 +174,14 @@ namespace TelemetrySchedulerImpl
         else
         {
             std::string statusJsonString;
-            SchedulerStatus schedulerConfig;
+            SchedulerStatus schedulerStatus;
 
             try
             {
                 statusJsonString = Common::FileSystem::fileSystem()->readFile(
-                    m_pathManager.getTelemetrySchedulerStatusFilePath(),
-                    Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE);
-                schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
-                auto previousScheduledTime = schedulerConfig.getTelemetryScheduledTime();
+                    m_pathManager.getTelemetrySchedulerStatusFilePath(), DEFAULT_MAX_JSON_SIZE);
+                schedulerStatus = SchedulerStatusSerialiser::deserialise(statusJsonString);
+                auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
 
                 if (previousScheduledTime < system_clock::now() && !runScheduledInPastNow)
                 {
@@ -254,24 +250,22 @@ namespace TelemetrySchedulerImpl
         {
             std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                 m_pathManager.getTelemetrySupplementaryFilePath(),
-                Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE); // error checking here
+                DEFAULT_MAX_JSON_SIZE); // error checking here
 
-            Common::TelemetryConfigImpl::Config config;
+            Config config;
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(),
-                Common::TelemetryConfigImpl::Serialiser::serialise(
-                    Common::TelemetryConfigImpl::Serialiser::deserialise(supplementaryConfigJson)));
+                Serialiser::serialise(Serialiser::deserialise(supplementaryConfigJson)));
 
             m_telemetryExeProcess = Common::Process::createProcess();
 
-            m_telemetryExeProcess->setOutputLimit(Common::TelemetryConfigImpl::MAX_OUTPUT_SIZE);
+            m_telemetryExeProcess->setOutputLimit(MAX_OUTPUT_SIZE);
             m_telemetryExeProcess->exec(
                 m_pathManager.getTelemetryExecutableFilePath(), { m_pathManager.getTelemetryExeConfigFilePath() });
 
             LOGINFO(
-                "Telemetry executable's state will be checked in " << m_telemetryExeCheckDelay.count()
-                                                                   << " seconds");
+                "Telemetry executable's state will be checked in " << m_telemetryExeCheckDelay.count() << " seconds");
             const auto timeToCheckExeState = system_clock::now() + m_telemetryExeCheckDelay;
             delayBeforeQueueingTask(
                 timeToCheckExeState, m_delayBeforeCheckingExe, SchedulerTask::CheckExecutableFinished);

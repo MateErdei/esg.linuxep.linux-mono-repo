@@ -28,10 +28,12 @@ namespace Common::TelemetryConfigImpl
     const std::string PASSWORD_MR_KEY = "password";
 
     const std::string SERVER_CONFIG_KEY = "server";
-    const std::string RESOURCE_CONFIG_KEY = "resourceRoot";
+    const std::string RESOURCE_ROOT_CONFIG_KEY = "resourceRoot";
+    const std::string RESOURCE_PATH_CONFIG_KEY = "resourcePath";
     const std::string PORT_CONFIG_KEY = "port";
     const std::string HEADERS_CONFIG_KEY = "additionalHeaders";
     const std::string VERB_CONFIG_KEY = "verb";
+    const std::string INTERVAL_CONFIG_KEY = "interval";
     const std::string PROXIES_CONFIG_KEY = "proxies";
     const std::string MR_CONFIG_KEY = "messageRelays";
     const std::string EPWT_CONFIG_KEY = "externalProcessWaitTime";
@@ -71,10 +73,12 @@ namespace Common::TelemetryConfigImpl
     void to_json(nlohmann::json& j, const Config& config)
     {
         j = nlohmann::json{ { SERVER_CONFIG_KEY, config.getServer() },
-                            { RESOURCE_CONFIG_KEY, config.getResourceRoot() },
+                            { RESOURCE_ROOT_CONFIG_KEY, config.getResourceRoot() },
+                            { RESOURCE_PATH_CONFIG_KEY, config.getResourcePath() },
                             { PORT_CONFIG_KEY, config.getPort() },
                             { HEADERS_CONFIG_KEY, config.getHeaders() },
                             { VERB_CONFIG_KEY, config.getVerb() },
+                            { INTERVAL_CONFIG_KEY, config.getInterval() },
                             { PROXIES_CONFIG_KEY, config.getProxies() },
                             { MR_CONFIG_KEY, config.getMessageRelays() },
                             { EPWT_CONFIG_KEY, config.getExternalProcessWaitTime() },
@@ -110,9 +114,14 @@ namespace Common::TelemetryConfigImpl
             config.setServer(j.at(SERVER_CONFIG_KEY));
         }
 
-        if (j.contains(RESOURCE_CONFIG_KEY))
+        if (j.contains(RESOURCE_ROOT_CONFIG_KEY))
         {
-            config.setResourceRoot(j.at(RESOURCE_CONFIG_KEY));
+            config.setResourceRoot(j.at(RESOURCE_ROOT_CONFIG_KEY));
+        }
+
+        if (j.contains(RESOURCE_PATH_CONFIG_KEY))
+        {
+            config.setResourcePath(j.at(RESOURCE_PATH_CONFIG_KEY));
         }
 
         if (j.contains(PORT_CONFIG_KEY))
@@ -128,6 +137,11 @@ namespace Common::TelemetryConfigImpl
         if (j.contains(VERB_CONFIG_KEY))
         {
             config.setVerb(j.at(VERB_CONFIG_KEY));
+        }
+
+        if (j.contains(INTERVAL_CONFIG_KEY))
+        {
+            config.setInterval(j.at(INTERVAL_CONFIG_KEY));
         }
 
         if (j.contains(PROXIES_CONFIG_KEY))
