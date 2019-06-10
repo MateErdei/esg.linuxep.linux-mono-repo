@@ -12,7 +12,8 @@ add_library(utilityimplobject OBJECT
         UniformIntDistribution.h
         Main.h
         VectorAsSet.cpp
-        VectorAsSet.h OrderedSet.h)
+        VectorAsSet.h
+        OrderedSet.h)
 
 
 target_include_directories(utilityimplobject SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})
