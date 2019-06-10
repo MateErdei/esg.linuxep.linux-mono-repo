@@ -13,6 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using ::testing::StrictMock;
 using namespace TelemetrySchedulerImpl;
+using namespace std::chrono;
 
 class SchedulerStatusTests : public ::testing::Test
 {
@@ -29,7 +30,7 @@ public:
 
     void SetUp() override
     {
-        m_schedulerStatus.setTelemetryScheduledTime(m_scheduledTimeValue);
+        m_schedulerStatus.setTelemetryScheduledTimeInSecondsSinceEpoch(m_scheduledTimeValue);
         m_jsonObject["scheduled-time"] = m_scheduledTimeValue;
 
         m_jsonObjectExtraKeys["scheduled-time"] = m_scheduledTimeValue;
@@ -43,7 +44,7 @@ TEST_F(SchedulerStatusTests, defaultConstrutor) // NOLINT
 {
     SchedulerStatus schedulerStatus;
 
-    EXPECT_EQ(0, schedulerStatus.getTelemetryScheduledTime());
+    EXPECT_EQ(0, schedulerStatus.getTelemetryScheduledTimeInSecondsSinceEpoch());
 
     ASSERT_TRUE(schedulerStatus.isValid());
 }
@@ -101,9 +102,8 @@ TEST_F(SchedulerStatusTests, parseSupersetConfigJsonDirectlySucceeds) // NOLINT
             "scheduled-time": 1237,
             "AnotherExtraKey": 199797
             })";
-    SchedulerStatus schedulerStatus =
-        TelemetrySchedulerImpl::SchedulerStatusSerialiser::deserialise(supersetTelemetryJson);
-    EXPECT_EQ(1237UL, schedulerStatus.getTelemetryScheduledTime());
+    SchedulerStatus schedulerStatus = SchedulerStatusSerialiser::deserialise(supersetTelemetryJson);
+    EXPECT_EQ(1237UL, schedulerStatus.getTelemetryScheduledTimeInSecondsSinceEpoch());
 }
 
 TEST_F(SchedulerStatusTests, parseInvalidValueThrows) // NOLINT
@@ -119,8 +119,8 @@ TEST_F(SchedulerStatusTests, parseInvalidValueThrows) // NOLINT
 TEST_F(SchedulerStatusTests, serialiseInvalidValueThrows) // NOLINT
 {
     SchedulerStatus schedulerStatus;
-    schedulerStatus.setTelemetryScheduledTime(-12345);
-    EXPECT_THROW(TelemetrySchedulerImpl::SchedulerStatusSerialiser::serialise(schedulerStatus), std::invalid_argument);
+    schedulerStatus.setTelemetryScheduledTimeInSecondsSinceEpoch(-12345);
+    EXPECT_THROW(SchedulerStatusSerialiser::serialise(schedulerStatus), std::invalid_argument);
 }
 
 TEST_F(SchedulerStatusTests, SchedulerStatusEquality) // NOLINT
@@ -128,10 +128,38 @@ TEST_F(SchedulerStatusTests, SchedulerStatusEquality) // NOLINT
     SchedulerStatus a;
     SchedulerStatus b;
 
-    a.setTelemetryScheduledTime(m_scheduledTimeValue);
+    a.setTelemetryScheduledTimeInSecondsSinceEpoch(m_scheduledTimeValue);
     ASSERT_EQ(a, a);
     ASSERT_NE(a, b);
 
-    b.setTelemetryScheduledTime(m_scheduledTimeValue);
+    b.setTelemetryScheduledTimeInSecondsSinceEpoch(m_scheduledTimeValue);
     ASSERT_EQ(a, b);
+}
+
+TEST_F(SchedulerStatusTests, systemClockValueTranslatedCorrectly)
+{
+    SchedulerStatus statusIn;
+    auto timeIn = system_clock::now();
+    statusIn.setTelemetryScheduledTime(timeIn);
+    std::string json = SchedulerStatusSerialiser::serialise(statusIn);
+    SchedulerStatus statusOut = SchedulerStatusSerialiser::deserialise(json);
+    auto timeOut = statusOut.getTelemetryScheduledTime();
+
+    EXPECT_EQ(
+            duration_cast<seconds>(timeIn.time_since_epoch()).count(),
+            duration_cast<seconds>(timeOut.time_since_epoch()).count());
+}
+TEST_F(SchedulerStatusTests, epochTranslatedCorrectly)
+{
+    SchedulerStatus statusIn;
+    statusIn.setTelemetryScheduledTimeInSecondsSinceEpoch(0);
+    std::string json = SchedulerStatusSerialiser::serialise(statusIn);
+    SchedulerStatus statusOut = SchedulerStatusSerialiser::deserialise(json);
+    auto timeOut = statusOut.getTelemetryScheduledTime();
+
+    system_clock::time_point epoch;
+
+    EXPECT_EQ(
+            duration_cast<seconds>(epoch.time_since_epoch()).count(),
+            duration_cast<seconds>(timeOut.time_since_epoch()).count());
 }

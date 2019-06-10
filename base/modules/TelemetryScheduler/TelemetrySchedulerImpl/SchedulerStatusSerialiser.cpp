@@ -18,12 +18,12 @@ namespace TelemetrySchedulerImpl
 
     void to_json(nlohmann::json& j, const SchedulerStatus& config)
     {
-        j = nlohmann::json{ { TELEMETRY_SCHEDULED_TIME_KEY, config.getTelemetryScheduledTime() } };
+        j = nlohmann::json{ { TELEMETRY_SCHEDULED_TIME_KEY, config.getTelemetryScheduledTimeInSecondsSinceEpoch() } };
     }
 
     void from_json(const nlohmann::json& j, SchedulerStatus& config)
     {
-        config.setTelemetryScheduledTime(j.at(TELEMETRY_SCHEDULED_TIME_KEY));
+        config.setTelemetryScheduledTimeInSecondsSinceEpoch(j.at(TELEMETRY_SCHEDULED_TIME_KEY));
     }
 
     std::string SchedulerStatusSerialiser::serialise(const SchedulerStatus& config)

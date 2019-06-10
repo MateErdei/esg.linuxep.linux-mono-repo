@@ -26,8 +26,22 @@ namespace TelemetrySchedulerImpl
 
     bool SchedulerStatus::isValid() const { return m_telemetryScheduledTime >= 0; }
 
-    int SchedulerStatus::getTelemetryScheduledTime() const { return m_telemetryScheduledTime; }
+    system_clock::time_point SchedulerStatus::getTelemetryScheduledTime() const
+    {
+        auto duration = system_clock::duration(seconds(m_telemetryScheduledTime));
+        system_clock::time_point scheduledTime(duration);
+        return scheduledTime;
+    }
 
-    void SchedulerStatus::setTelemetryScheduledTime(int scheduledTime) { m_telemetryScheduledTime = scheduledTime;
+    void SchedulerStatus::setTelemetryScheduledTime(system_clock::time_point scheduledTime)
+    {
+        m_telemetryScheduledTime = duration_cast<seconds>(scheduledTime.time_since_epoch()).count();
+    }
+
+    int SchedulerStatus::getTelemetryScheduledTimeInSecondsSinceEpoch() const { return m_telemetryScheduledTime; }
+
+    void SchedulerStatus::setTelemetryScheduledTimeInSecondsSinceEpoch(int scheduledTime)
+    {
+        m_telemetryScheduledTime = scheduledTime;
     }
 } // namespace TelemetrySchedulerImpl

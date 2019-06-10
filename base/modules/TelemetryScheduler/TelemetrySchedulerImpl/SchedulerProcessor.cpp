@@ -75,37 +75,35 @@ namespace TelemetrySchedulerImpl
         }
     }
 
-    size_t SchedulerProcessor::getScheduledTimeUsingIntervalFromSupplementaryFile(
-        size_t previousTelemetryRunTimeInSecondsSinceEpoch)
+    system_clock::time_point SchedulerProcessor::getScheduledTimeUsingIntervalFromSupplementaryFile(
+        system_clock::time_point previousScheduledTime)
     {
+        const system_clock::time_point epoch;
+        system_clock::time_point scheduledTime = epoch;
+
         if (!Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySupplementaryFilePath()))
         {
             LOGERROR(
                 "Supplementary file '" << m_pathManager.getTelemetrySupplementaryFilePath() << "' is not accessible");
-            return 0;
+            return epoch;
         }
 
         size_t interval = getIntervalFromSupplementaryFile();
 
         if (interval <= 0)
         {
-            return 0;
+            return epoch;
         }
 
-        auto duration = system_clock::duration(seconds(previousTelemetryRunTimeInSecondsSinceEpoch));
-        system_clock::time_point previousScheduledTime(duration);
-
-        system_clock::time_point scheduledTime = previousScheduledTime + seconds(interval);
+        scheduledTime = previousScheduledTime + seconds(interval);
 
         if (scheduledTime < system_clock::now())
         {
             scheduledTime = system_clock::now() + seconds(interval);
         }
 
-        size_t scheduledTimeInSecondsSinceEpoch =
-            duration_cast<seconds>(scheduledTime.time_since_epoch()).count();
         SchedulerStatus schedulerConfig;
-        schedulerConfig.setTelemetryScheduledTime(scheduledTimeInSecondsSinceEpoch);
+        schedulerConfig.setTelemetryScheduledTime(scheduledTime);
 
         try
         {
@@ -120,7 +118,7 @@ namespace TelemetrySchedulerImpl
                                              << e.what());
         }
 
-        return scheduledTimeInSecondsSinceEpoch;
+        return scheduledTime;
     }
 
     size_t SchedulerProcessor::getIntervalFromSupplementaryFile()
@@ -169,11 +167,12 @@ namespace TelemetrySchedulerImpl
     {
         // Always re-read values from configuration and status files in case they've been externally updated.
 
-        size_t scheduledTimeInSecondsSinceEpoch = 0;
+        const system_clock::time_point epoch;
+        system_clock::time_point scheduledTime = epoch;
 
         if (!Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()))
         {
-            scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
+            scheduledTime = getScheduledTimeUsingIntervalFromSupplementaryFile(epoch);
         }
         else
         {
@@ -186,12 +185,15 @@ namespace TelemetrySchedulerImpl
                     m_pathManager.getTelemetrySchedulerStatusFilePath(),
                     Common::TelemetryExeConfigImpl::DEFAULT_MAX_JSON_SIZE);
                 schedulerConfig = SchedulerStatusSerialiser::deserialise(statusJsonString);
-                scheduledTimeInSecondsSinceEpoch = schedulerConfig.getTelemetryScheduledTime();
+                auto previousScheduledTime = schedulerConfig.getTelemetryScheduledTime();
 
-                if (!runScheduledInPastNow)
+                if (previousScheduledTime < system_clock::now() && !runScheduledInPastNow)
                 {
-                    scheduledTimeInSecondsSinceEpoch =
-                        getScheduledTimeUsingIntervalFromSupplementaryFile(scheduledTimeInSecondsSinceEpoch);
+                    scheduledTime = getScheduledTimeUsingIntervalFromSupplementaryFile(previousScheduledTime);
+                }
+                else
+                {
+                    scheduledTime = previousScheduledTime;
                 }
             }
             catch (const Common::FileSystem::IFileSystemException& e)
@@ -199,7 +201,7 @@ namespace TelemetrySchedulerImpl
                 LOGERROR(
                     "File access error reading " << m_pathManager.getTelemetrySchedulerStatusFilePath() << " : "
                                                  << e.what());
-                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
+                scheduledTime = getScheduledTimeUsingIntervalFromSupplementaryFile(epoch);
             }
             catch (const std::runtime_error& e)
             {
@@ -217,11 +219,11 @@ namespace TelemetrySchedulerImpl
                                                       << e.what());
                 }
 
-                scheduledTimeInSecondsSinceEpoch = getScheduledTimeUsingIntervalFromSupplementaryFile(0);
+                scheduledTime = getScheduledTimeUsingIntervalFromSupplementaryFile(epoch);
             }
         }
 
-        if (scheduledTimeInSecondsSinceEpoch == 0)
+        if (scheduledTime == epoch)
         {
             const auto timeToCheckConfiguration = system_clock::now() + m_configurationCheckDelay;
 
@@ -235,9 +237,6 @@ namespace TelemetrySchedulerImpl
         else
         {
             // Do this whether the time scheduled is in the past or in the future.
-
-            auto duration = system_clock::duration(seconds(scheduledTimeInSecondsSinceEpoch));
-            system_clock::time_point scheduledTime(duration);
 
             std::string formattedScheduledTime =
                 Common::UtilityImpl::TimeUtils::fromTime(system_clock::to_time_t(scheduledTime));
