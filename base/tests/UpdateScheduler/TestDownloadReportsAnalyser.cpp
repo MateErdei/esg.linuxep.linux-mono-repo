@@ -758,11 +758,12 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
                 "urlSource": "https://localhost:1233",
                 "products": [
                 { "rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
     std::string lastReport{ R"sophos({ "startTime": "20190604 144207", "finishTime": "20190604 144207", "syncTime": "20190604 144207", "status": "SUCCESS", "sulError": "", "errorDescription": "",
                 "urlSource": "https://localhost:1233",
                 "products": [
-                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
+                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" },
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
     suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
     suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
 
@@ -782,8 +783,11 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     expectedStatus.LastSyncTime = "20190604 144207";
     expectedStatus.LastInstallStartedTime = "20190604 144145";
     expectedStatus.FirstFailedTime.clear();
+    expectedStatus.Subscriptions.push_back(
+            ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
     expectedStatus.Products.push_back(
             ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
+
     // Plugin is not Reported, as it has been Uninstalled.
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
