@@ -20,7 +20,7 @@ TEST(OrderedSet, shouldKeepTheOrderAndReturnOnlyUniqueValues) // NOLINT
     std::vector<int> expected{1,2,3,4};
     EXPECT_EQ( orderedSet.orderedElements(), expected);
 }
-// demonstrating that user struct can be used as long as user defines operator == and specializes hash. 
+// demonstrating that user struct can be used as long as user defines operator == and specializes hash.
 struct ExampleOfUserProvidedStruct
 {
     std::string a;
