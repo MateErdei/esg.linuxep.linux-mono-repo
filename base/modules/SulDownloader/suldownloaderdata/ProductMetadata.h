@@ -21,7 +21,7 @@ namespace SulDownloader
             std::string m_version;
         };
 
-        bool operator==(const ProductKey& lh, const ProductKey & rh);
+        bool operator==(const ProductKey& lhs, const ProductKey & rhs);
 
         using SubProducts = std::vector<ProductKey>;
 

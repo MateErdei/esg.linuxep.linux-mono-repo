@@ -161,7 +161,7 @@ SubProducts ProductMetadata::combineSubProducts(const std::vector<ProductMetadat
     return orderedProducts.orderedElements();
 }
 
-bool SulDownloader::suldownloaderdata::operator==(const ProductKey& lh, const ProductKey& rh)
+bool SulDownloader::suldownloaderdata::operator==(const ProductKey& lhs, const ProductKey& rhs)
 {
-    return lh.m_line == rh.m_line && lh.m_version == rh.m_version;
+    return lhs.m_line == rhs.m_line && lhs.m_version == rhs.m_version;
 }
