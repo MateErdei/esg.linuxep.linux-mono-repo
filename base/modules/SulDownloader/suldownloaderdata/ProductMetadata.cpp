@@ -98,9 +98,10 @@ SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::v
         {
             subProducts.push_back( extractProductKeyFromSubComponent(sulSubComponent) );
         }
-        catch ( std::invalid_argument & )
+        catch ( std::invalid_argument & ex)
         {
             LOGWARN( "SubComponent received from Sul is not as expected. Received: " << sulSubComponent);
+            LOGSUPPORT("Error message: " << ex.what()); // not significant to make to a LOGERROR.
         }
 
     }
@@ -122,7 +123,7 @@ ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string&
     std::string::size_type pos =  sulSubComponent.rfind(";");
     if( pos == std::string::npos)
     {
-        throw std::invalid_argument( "Missing ;");
+        throw std::invalid_argument( "Missing ';' in the answer from SUL related to the components. Expected <rigidname>;<version>");
     }
     if( sulSubComponent == ";")
     {
