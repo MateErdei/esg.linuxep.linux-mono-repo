@@ -359,3 +359,17 @@ TEST_F(ConfigTests, configEquality) // NOLINT
     b.setServer("server");
     ASSERT_EQ(a, b);
 }
+
+TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
+{
+    const std::string resourceName = "name";
+    Config exeConfig = Config::buildExeConfigFromSupplementaryConfig(m_config, resourceName);
+    EXPECT_EQ(m_config.getServer(), exeConfig.getServer());
+    EXPECT_EQ(m_config.getPort(), exeConfig.getPort());
+    EXPECT_EQ(m_config.getVerb(), exeConfig.getVerb());
+    EXPECT_EQ(m_config.getHeaders(), exeConfig.getHeaders());
+    EXPECT_EQ(m_config.getResourceRoot() + "/" + resourceName, exeConfig.getResourcePath());
+
+    EXPECT_EQ("", exeConfig.getResourceRoot());
+    EXPECT_NE(m_config.getInterval(), exeConfig.getInterval());
+}
