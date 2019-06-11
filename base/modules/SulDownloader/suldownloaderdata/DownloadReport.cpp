@@ -101,7 +101,7 @@ namespace SulDownloader
     DownloadReport DownloadReport::Report(
         const std::string& sourceURL,
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
-        const std::vector<suldownloaderdata::ProductInfo> & warehouseComponents,
+        const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents,
         TimeTracker* timeTracker,
         VerifyState verifyState)
     {
@@ -271,12 +271,12 @@ namespace SulDownloader
             productReport->set_productstatus(convert(product.productStatus));
         }
 
-        for( auto & warehouseComponent: report.getWarehouseComponents())
+        for (auto& warehouseComponent : report.getWarehouseComponents())
         {
-            SulDownloaderProto::WarehouseComponent * warehouseComponentProto = protoReport.add_warehousecomponents();
-            warehouseComponentProto->set_productname( warehouseComponent.m_productName);
-            warehouseComponentProto->set_rigidname( warehouseComponent.m_rigidName);
-            warehouseComponentProto->set_installedversion( warehouseComponent.m_version);
+            SulDownloaderProto::WarehouseComponent* warehouseComponentProto = protoReport.add_warehousecomponents();
+            warehouseComponentProto->set_productname(warehouseComponent.m_productName);
+            warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
+            warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
         }
 
         return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
@@ -319,7 +319,7 @@ namespace SulDownloader
             report.m_productReport.push_back(productReport);
         }
 
-        for( auto & warehouseComponentProto: protoReport.warehousecomponents())
+        for (auto& warehouseComponentProto : protoReport.warehousecomponents())
         {
             ProductInfo productInfo;
             productInfo.m_productName = warehouseComponentProto.productname();
@@ -339,10 +339,7 @@ namespace SulDownloader
 
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
-    const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const
-    {
-        return m_warehouseComponents;
-    }
+    const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
 
     std::string ProductReport::statusToString() const
     {
