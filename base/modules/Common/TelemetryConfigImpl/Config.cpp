@@ -18,6 +18,26 @@ Config::Config() :
 {
 }
 
+Config Config::buildExeConfigFromSupplementaryConfig(const Config& supplementaryConfig, const std::string& resourceName)
+{
+    Config exeConfig;
+    exeConfig.setServer(supplementaryConfig.getServer());
+    exeConfig.setPort(supplementaryConfig.getPort());
+    exeConfig.setVerb(supplementaryConfig.getVerb());
+    exeConfig.setHeaders(supplementaryConfig.getHeaders());
+
+    std::string resourceRoot = supplementaryConfig.getResourceRoot();
+
+    if (resourceRoot.back() != '/')
+    {
+        resourceRoot.push_back('/');
+    }
+
+    exeConfig.setResourcePath(resourceRoot + resourceName);
+
+    return exeConfig;
+}
+
 bool Config::operator==(const Config& rhs) const
 {
     if (this == &rhs)

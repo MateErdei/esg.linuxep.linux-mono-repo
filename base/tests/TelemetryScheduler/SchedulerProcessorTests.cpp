@@ -471,8 +471,9 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableIsSuccessfull) // NOLI
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
-
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
     EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
@@ -503,7 +504,8 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableTimesOut) // NOLINT
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
-
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
     EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
@@ -534,7 +536,8 @@ TEST_F(SchedulerProcessorTests, runningTelemetryExecutableGivesFailure) // NOLIN
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
-
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{m_telemetryExeConfigFilePath}));
     EXPECT_CALL(*m_mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
@@ -607,6 +610,8 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorWritingExeConfig) // NOLINT
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
     EXPECT_CALL(
         *m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
@@ -631,8 +636,9 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ErrorAttemptingToRunExe) // NOLINT
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
         .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryExeConfigFilePath, _));
-
     EXPECT_CALL(*m_mockProcess, setOutputLimit(_));
     EXPECT_CALL(*m_mockProcess, exec(m_telemetryExecutableFilePath, std::vector{ m_telemetryExeConfigFilePath }))
         .WillOnce(Throw(Common::Process::IProcessException("error")));

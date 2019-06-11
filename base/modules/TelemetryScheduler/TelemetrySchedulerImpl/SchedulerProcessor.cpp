@@ -13,13 +13,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
-#include <json.hpp>
 #include <thread>
 
 namespace TelemetrySchedulerImpl
@@ -221,14 +221,13 @@ namespace TelemetrySchedulerImpl
 
         if (scheduledTime == epoch)
         {
-            const auto timeToCheckConfiguration = system_clock::now() + m_configurationCheckDelay;
-
             LOGINFO(
                 "Telemetry reporting is currently disabled - will check again in " << m_configurationCheckDelay.count()
                                                                                    << " seconds");
-
             delayBeforeQueueingTask(
-                timeToCheckConfiguration, m_delayBeforeCheckingConfiguration, SchedulerTask::InitialWaitToRunTelemetry);
+                system_clock::now() + m_configurationCheckDelay,
+                m_delayBeforeCheckingConfiguration,
+                SchedulerTask::InitialWaitToRunTelemetry);
         }
         else
         {
@@ -250,13 +249,36 @@ namespace TelemetrySchedulerImpl
         {
             std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                 m_pathManager.getTelemetrySupplementaryFilePath(),
-                DEFAULT_MAX_JSON_SIZE); // error checking here
+                DEFAULT_MAX_JSON_SIZE);
 
-            Config config;
+            Config supplementaryConfig = Serialiser::deserialise(supplementaryConfigJson);
+
+            Common::OSUtilitiesImpl::SXLMachineID sxlMachineId;
+            std::string machineId = sxlMachineId.getMachineID();
+
+            if (machineId.empty())
+            {
+                LOGINFO(
+                    "No machine id for reporting telemetry - will check again in " << m_configurationCheckDelay.count()
+                                                                                   << " seconds");
+                delayBeforeQueueingTask(
+                    system_clock::now() + m_configurationCheckDelay,
+                    m_delayBeforeCheckingConfiguration,
+                    SchedulerTask::InitialWaitToRunTelemetry);
+            }
+
+            machineId.erase(
+                std::remove_if(machineId.begin(), machineId.end(), [](auto const& c) -> bool { return !std::isalnum(c); }),
+                machineId.end());
+
+            std::string resourceName = machineId + ".json";
+
+            Config telemetryExeConfig = Common::TelemetryConfigImpl::Config::buildExeConfigFromSupplementaryConfig(
+                supplementaryConfig, resourceName);
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(),
-                Serialiser::serialise(Serialiser::deserialise(supplementaryConfigJson)));
+                Serialiser::serialise(telemetryExeConfig));
 
             m_telemetryExeProcess = Common::Process::createProcess();
 
@@ -274,7 +296,7 @@ namespace TelemetrySchedulerImpl
         {
             LOGERROR(
                 "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " or writing "
-                                             << m_pathManager.getTelemetrySupplementaryFilePath() << ": " << e.what());
+                                             << m_pathManager.getTelemetryExeConfigFilePath() << ": " << e.what());
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
         catch (const Common::Process::IProcessException& processException)

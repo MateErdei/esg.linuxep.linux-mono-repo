@@ -19,7 +19,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
-#include <json.hpp>
 #include <sstream>
 #include <string>
 
