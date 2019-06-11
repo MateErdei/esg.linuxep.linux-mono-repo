@@ -17,6 +17,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <atomic>
 #include <chrono>
+#include <tuple>
 
 namespace TelemetrySchedulerImpl
 {
@@ -57,10 +58,14 @@ namespace TelemetrySchedulerImpl
             return m_delayBeforeCheckingConfiguration && !m_delayBeforeCheckingConfiguration->finished();
         }
 
-        size_t getIntervalFromSupplementaryFile();
+        std::tuple<system_clock::time_point, bool> getScheduledTimeFromStatusFile() const;
+        std::tuple<size_t, bool> getIntervalFromSupplementaryFile() const;
 
-        system_clock::time_point getScheduledTimeUsingIntervalFromSupplementaryFile(
-            system_clock::time_point previousTelemetryRunTime);
+        void updateStatusFile(const system_clock::time_point& scheduledTime) const;
+
+        system_clock::time_point getNextScheduledTime(
+            system_clock::time_point previousScheduledTime,
+            size_t intervalSeconds) const;
 
         void delayBeforeQueueingTask(
             std::chrono::system_clock::time_point delayUntil,
