@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <sstream>
+#include <string.h>
 #include <string>
 #include <vector>
-#include <string.h>
 
 namespace Common
 {
@@ -100,14 +100,13 @@ namespace Common
             }
 
             // coverity [ +tainted_string_sanitize_content : arg-0 ]
-            static std::string checkAndConstruct(const char  * untaintedCString  , size_t maxLen=10000)
+            static std::string checkAndConstruct(const char* untaintedCString, size_t maxLen = 10000)
             {
-
-                if( ::strnlen( untaintedCString , maxLen) == maxLen)
+                if (::strnlen(untaintedCString, maxLen) == maxLen)
                 {
-                    throw std::invalid_argument{"Input c-string exceeds a reasonable limit "};
+                    throw std::invalid_argument{ "Input c-string exceeds a reasonable limit " };
                 }
-                return std::string{untaintedCString};
+                return std::string{ untaintedCString };
             }
 
             using KeyValueCollection = std::vector<std::pair<std::string, std::string>>;
