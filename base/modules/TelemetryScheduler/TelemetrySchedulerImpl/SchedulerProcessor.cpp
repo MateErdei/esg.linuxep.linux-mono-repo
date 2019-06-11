@@ -169,11 +169,6 @@ namespace TelemetrySchedulerImpl
         const system_clock::time_point epoch;
         system_clock::time_point scheduledTime = epoch;
 
-        if (intervalSeconds <= 0)
-        {
-            return epoch;
-        }
-
         scheduledTime = previousScheduledTime + seconds(intervalSeconds);
 
         if (scheduledTime < system_clock::now())
@@ -266,6 +261,7 @@ namespace TelemetrySchedulerImpl
                     system_clock::now() + m_configurationCheckDelay,
                     m_delayBeforeCheckingConfiguration,
                     SchedulerTask::InitialWaitToRunTelemetry);
+                return;
             }
 
             machineId.erase(

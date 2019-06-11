@@ -55,7 +55,7 @@ public:
         "verb": "PUT",
         "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
         "resourceRoot": "linux/dev",
-        "interval": 3600
+        "interval": 1
     })";
 
     const std::string m_invalidTelemetryConfigJson = R"(
@@ -65,8 +65,8 @@ public:
         "verb": "PUT",
         "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
         "resourceRoot": "linux/dev",
-        "interval": 3600
-    )"; // missing closing brace
+        "interval": "1"
+    })"; // interval as string
 
     void SetUp() override
     {
@@ -172,7 +172,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
     EXPECT_CALL(
             *m_mockFileSystem,
             readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":1})"));
+            .WillOnce(Return(m_validTelemetryConfigJson));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
@@ -203,7 +203,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_RescheduleWithValidStatusFile
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":1})"));
+        .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -241,7 +241,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
     EXPECT_CALL(
             *m_mockFileSystem,
             readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-            .WillOnce(Return(R"({"interval":1})"));
+            .WillOnce(Return(m_validTelemetryConfigJson));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
@@ -267,7 +267,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":1})"));
+        .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -290,7 +290,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":1})"));
+        .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -316,7 +316,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":1})"));
+        .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -339,7 +339,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":1})"));
+        .WillOnce(Return(m_validTelemetryConfigJson));
     EXPECT_CALL(*m_mockFileSystem, writeFile(m_telemetryStatusFilePath, _))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
 
@@ -425,7 +425,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidSu
     EXPECT_CALL(
         *m_mockFileSystem,
         readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
-        .WillOnce(Return(R"({"interval":"1"})"));
+        .WillOnce(Return(m_invalidTelemetryConfigJson));
 
     auto queue = std::make_shared<TaskQueue>();
     DerivedSchedulerProcessor processor(queue, m_mockPathManager);
@@ -601,6 +601,29 @@ TEST_F(SchedulerProcessorTests, runTelemetry_ConfigHasInvalidJson) // NOLINT
     processor.runTelemetry();
 
     EXPECT_EQ(queue->pop(), SchedulerTask::WaitToRunTelemetry);
+}
+
+TEST_F(SchedulerProcessorTests, runTelemetry_NoMachineId) // NOLINT
+{
+    EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
+        .WillRepeatedly(Return(m_supplementaryConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExeConfigFilePath())
+        .WillRepeatedly(Return(m_telemetryExeConfigFilePath));
+    EXPECT_CALL(m_mockPathManager, getTelemetryExecutableFilePath())
+        .WillRepeatedly(Return(m_telemetryExecutableFilePath));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        readFile(m_supplementaryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
+        .WillOnce(Return(m_validTelemetryConfigJson));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(""));
+
+    auto queue = std::make_shared<TaskQueue>();
+    DerivedSchedulerProcessor processor(queue, m_mockPathManager, 0s, 0s);
+
+    processor.runTelemetry();
+
+    EXPECT_EQ(queue->pop(), SchedulerTask::InitialWaitToRunTelemetry);
 }
 
 TEST_F(SchedulerProcessorTests, runTelemetry_ErrorWritingExeConfig) // NOLINT
