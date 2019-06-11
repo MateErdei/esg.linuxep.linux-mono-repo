@@ -31,7 +31,7 @@ namespace SulDownloader
         class ProductMetadata
         {
         public:
-            static SubProducts extractSubProductsFromSulSubComponents( const std::vector<std::string>&  sulSubComponents);
+            static SubProducts extractSubProductsFromSulSubComponents( const std::string & sulComponentName, const std::vector<std::string>&  sulSubComponents);
             static ProductKey extractProductKeyFromSubComponent( const std::string & sulSubComponent);
             static SubProducts combineSubProducts( const std::vector<ProductMetadata>& );
             const std::string& getLine() const;

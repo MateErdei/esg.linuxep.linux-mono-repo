@@ -89,7 +89,7 @@ const std::vector<std::string>& ProductMetadata::getFeatures() const
     return  m_features;
 }
 
-SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::vector<std::string>& sulSubComponents)
+SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::string & sulComponentName, const std::vector<std::string>& sulSubComponents)
 {
     SulDownloader::suldownloaderdata::SubProducts subProducts;
     for( auto & sulSubComponent: sulSubComponents)
@@ -100,7 +100,8 @@ SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::v
         }
         catch ( std::invalid_argument & ex)
         {
-            LOGWARN( "SubComponent received from Sul is not as expected. Received: " << sulSubComponent);
+            LOGWARN( "SubComponent list received from Sul is not as expected. Received: " << sulSubComponent
+                      << ". Component name: " << sulComponentName);
             LOGSUPPORT("Error message: " << ex.what()); // not significant to make to a LOGERROR.
         }
 

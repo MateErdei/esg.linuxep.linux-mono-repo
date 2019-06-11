@@ -14,7 +14,7 @@ using namespace SulDownloader::suldownloaderdata;
 
 TEST(TestProductMetadata, extractSulComponentsWorkForEmptyComponent) // NOLINT
 {
-    auto subComponents = ProductMetadata::extractSubProductsFromSulSubComponents({});
+    auto subComponents = ProductMetadata::extractSubProductsFromSulSubComponents("", {});
     EXPECT_TRUE(subComponents.empty());
     ProductMetadata p;
     p.subProducts();
@@ -63,7 +63,7 @@ TEST( TestProductMetadata, invalidCombinationIsRejected)
 TEST( TestProductMetadata, extractSulComponentsHandleGracefullyInvalidArguments)
 {
     std::vector<std::string> entries = {"rig;1.0.0","invalid","name2;5.9"};
-    SubProducts subProducts = ProductMetadata::extractSubProductsFromSulSubComponents(entries);
+    SubProducts subProducts = ProductMetadata::extractSubProductsFromSulSubComponents("", entries);
 
     SubProducts expected{
             {"rig","1.0.0"},
@@ -77,7 +77,7 @@ TEST( TestProductMetadata, ProductMetadataHandleCorrectlySettingSubComponents)
 
     std::vector<std::string> entries = {"rig;1.0.0","name2;5.9"};
     ProductMetadata productMetadata;
-    productMetadata.setSubProduts(ProductMetadata::extractSubProductsFromSulSubComponents(entries));
+    productMetadata.setSubProduts(ProductMetadata::extractSubProductsFromSulSubComponents("", entries));
     SubProducts subProducts = productMetadata.subProducts();
 
     SubProducts expected{
