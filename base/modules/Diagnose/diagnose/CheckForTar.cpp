@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "CheckForTar.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-
+#include <Common/UtilityImpl/StringUtils.h>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -29,17 +29,6 @@ namespace
         }
         return elements;
     }
-    // coverity [ +tainted_string_sanitize_content : arg-0 ]
-    std::string checkAndConstruct(char * untaintedCString )
-    {
-        constexpr  int MAXLEN = 10000;
-        if( ::strnlen( untaintedCString , MAXLEN) == MAXLEN)
-        {
-            throw std::invalid_argument{"Input c-string exceeds a reasonable limit "};
-        }
-        return std::string{untaintedCString};
-    }
-
 }
 
 
@@ -74,5 +63,5 @@ bool diagnose::CheckForTar::isTarAvailable()
         std::cerr << "No PATH specified in environment" << std::endl;
         return false;
     }
-    return isTarAvailable(checkAndConstruct(PATH));
+    return isTarAvailable( Common::UtilityImpl::StringUtils::checkAndConstruct(PATH));
 }

@@ -12,4 +12,5 @@ add_library(diagnoseimpl STATIC
             $<TARGET_OBJECTS:applicationconfigurationimplobject>
             ../../Common/UtilityImpl/TimeUtils.cpp
             ../../Common/UtilityImpl/TimeUtils.h
+            ../../Common/UtilityImpl/StringUtils.h
         )
