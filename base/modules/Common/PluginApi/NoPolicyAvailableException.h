@@ -21,10 +21,5 @@ namespace Common
             static const std::string NoPolicyAvailable;
             explicit NoPolicyAvailableException() : ApiException( NoPolicyAvailable) {}
         };
-        class NoACKReplyException : public ApiException
-        {
-        public:
-            using ApiException::ApiException;
-        };
     } // namespace PluginApi
 } // namespace Common

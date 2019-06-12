@@ -3,14 +3,22 @@
 Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "NoPolicyAvailableException.h"
+#pragma once
+
+#include "ApiException.h"
 
 
 namespace Common
 {
     namespace PluginApi
     {
-        const std::string NoPolicyAvailableException::NoPolicyAvailable{"No Policy Available"}; // nolint
+        /**
+         * Exception class to report that ACK has not been sent from the replier to the requester.
+         */
+        class NoACKReplyException : public ApiException
+        {
+        public:
+            using ApiException::ApiException;
+        };
     } // namespace PluginApi
 } // namespace Common
-

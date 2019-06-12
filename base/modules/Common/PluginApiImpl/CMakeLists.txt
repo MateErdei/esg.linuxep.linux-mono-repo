@@ -26,7 +26,8 @@ add_library(pluginapiobjects OBJECT
         Logger.cpp
         Logger.h
         ../PluginApi/ErrorCodes.h
-        ../PluginApi/NoPolicyAvailableException.cpp)
+        ../PluginApi/NoPolicyAvailableException.cpp
+        ../PluginApi/NoACKReplyException.h)
 
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
