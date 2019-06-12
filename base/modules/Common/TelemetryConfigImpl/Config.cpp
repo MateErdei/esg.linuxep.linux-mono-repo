@@ -18,7 +18,7 @@ Config::Config() :
 {
 }
 
-Config Config::buildExeConfigFromSupplementaryConfig(const Config& supplementaryConfig, const std::string& resourceName)
+Config Config::buildExeConfigFromTelemetryConfig(const Config& supplementaryConfig, const std::string& resourceName)
 {
     Config exeConfig;
     exeConfig.setServer(supplementaryConfig.getServer());

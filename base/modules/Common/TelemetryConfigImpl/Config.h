@@ -26,7 +26,7 @@ namespace Common::TelemetryConfigImpl
     public:
         Config();
 
-        static Config buildExeConfigFromSupplementaryConfig(
+        static Config buildExeConfigFromTelemetryConfig(
             const Config& supplementaryConfig,
             const std::string& resourceName);
 

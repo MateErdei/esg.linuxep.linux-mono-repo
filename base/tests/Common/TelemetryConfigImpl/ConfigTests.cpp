@@ -363,7 +363,7 @@ TEST_F(ConfigTests, configEquality) // NOLINT
 TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
 {
     const std::string resourceName = "name";
-    Config exeConfig = Config::buildExeConfigFromSupplementaryConfig(m_config, resourceName);
+    Config exeConfig = Config::buildExeConfigFromTelemetryConfig(m_config, resourceName);
     EXPECT_EQ(m_config.getServer(), exeConfig.getServer());
     EXPECT_EQ(m_config.getPort(), exeConfig.getPort());
     EXPECT_EQ(m_config.getVerb(), exeConfig.getVerb());

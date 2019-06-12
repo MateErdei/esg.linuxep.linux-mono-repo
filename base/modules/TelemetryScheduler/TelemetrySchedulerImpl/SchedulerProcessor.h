@@ -61,7 +61,7 @@ namespace TelemetrySchedulerImpl
         }
 
         std::tuple<SchedulerStatus, bool> getStatusFromFile() const;
-        std::tuple<Common::TelemetryConfigImpl::Config, bool> getConfigFromSupplementaryFile() const;
+        std::tuple<Common::TelemetryConfigImpl::Config, bool> getConfigFromFile() const;
 
         void updateStatusFile(const system_clock::time_point& scheduledTime) const;
 
@@ -78,7 +78,7 @@ namespace TelemetrySchedulerImpl
             const system_clock::time_point& previousScheduledTime,
             bool statusFileValid,
             size_t interval,
-            bool supplementaryFileValid);
+            bool configFileValid);
 
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
