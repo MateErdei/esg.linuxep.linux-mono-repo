@@ -95,22 +95,10 @@ void Common::PluginApiImpl::BaseServiceAPI::registerWithManagementAgent() const
 void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& appId) const
 {
     LOGSUPPORT("Request policy message for AppId: " << appId);
-    try
+    Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestCurrentPolicyMessage(appId));
+    if (!m_messageBuilder.hasAck(reply))
     {
-        Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestCurrentPolicyMessage(appId));
-        if (!m_messageBuilder.hasAck(reply))
-        {
-            throw Common::PluginApi::NoACKReplyException("No ack received for the request of policy for appId: " + appId);
-        }
-    }
-    catch (Common::PluginApi::ApiException& ex)
-    {
-        std::string error = ex.what();
-        if (error.find( Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) != std::string::npos)
-        {
-            throw Common::PluginApi::NoPolicyAvailableException(error);
-        }
-        throw;
+        throw Common::PluginApi::NoACKReplyException("No ack received for the request of policy for appId: " + appId);
     }
 
     LOGSUPPORT("Received policy from management agent for AppId: " << appId);
@@ -143,6 +131,10 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
     if (!reply.m_error.empty())
     {
+        if ( reply.m_error == Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable)
+        {
+            throw Common::PluginApi::NoPolicyAvailableException( );
+        }
         std::string errorMessage("Invalid reply, error: " + reply.m_error);
         LOGSUPPORT(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);

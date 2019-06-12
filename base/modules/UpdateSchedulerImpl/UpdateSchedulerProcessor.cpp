@@ -73,6 +73,7 @@ namespace UpdateSchedulerImpl
         }
         catch (const Common::PluginApi::NoPolicyAvailableException& )
         {
+            LOGINFO("No policy available right now for app: " << UpdateSchedulerProcessor::ALC_API);
             // Ignore no Policy Available errors
         }
         catch (const Common::PluginApi::ApiException& apiException)

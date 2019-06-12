@@ -19,7 +19,7 @@ namespace Common
         {
         public:
             static const std::string NoPolicyAvailable;
-            explicit NoPolicyAvailableException(const std::string& what) : ApiException(what) {}
+            explicit NoPolicyAvailableException() : ApiException( NoPolicyAvailable) {}
         };
         class NoACKReplyException : public ApiException
         {
