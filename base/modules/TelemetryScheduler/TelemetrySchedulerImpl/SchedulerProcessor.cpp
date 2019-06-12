@@ -6,7 +6,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SchedulerProcessor.h"
 
-#include "SchedulerStatus.h"
 #include "SchedulerStatusSerialiser.h"
 #include "SchedulerTask.h"
 
@@ -74,10 +73,8 @@ namespace TelemetrySchedulerImpl
         }
     }
 
-    std::tuple<system_clock::time_point, bool> SchedulerProcessor::getScheduledTimeFromStatusFile() const
+    std::tuple<SchedulerStatus, bool> SchedulerProcessor::getStatusFromFile() const
     {
-        const system_clock::time_point epoch;
-
         if (Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()))
         {
             try
@@ -85,8 +82,7 @@ namespace TelemetrySchedulerImpl
                 std::string statusJsonString = Common::FileSystem::fileSystem()->readFile(
                     m_pathManager.getTelemetrySchedulerStatusFilePath(), DEFAULT_MAX_JSON_SIZE);
                 SchedulerStatus schedulerStatus = SchedulerStatusSerialiser::deserialise(statusJsonString);
-                auto scheduledTime = schedulerStatus.getTelemetryScheduledTime();
-                return std::make_tuple(scheduledTime, true);
+                return std::make_tuple(schedulerStatus, true);
             }
             catch (const Common::FileSystem::IFileSystemException& e)
             {
@@ -112,10 +108,10 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        return std::make_tuple(epoch, false);
+        return std::make_tuple(SchedulerStatus{}, false);
     }
 
-    std::tuple<size_t, bool> SchedulerProcessor::getIntervalFromSupplementaryFile() const
+    std::tuple<Config, bool> SchedulerProcessor::getConfigFromSupplementaryFile() const
     {
         if (Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySupplementaryFilePath()))
         {
@@ -124,7 +120,7 @@ namespace TelemetrySchedulerImpl
                 std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
                     m_pathManager.getTelemetrySupplementaryFilePath(), DEFAULT_MAX_JSON_SIZE);
                 Config supplementaryConfig = Serialiser::deserialise(supplementaryConfigJson);
-                return std::make_tuple(supplementaryConfig.getInterval(), true);
+                return std::make_tuple(supplementaryConfig, true);
             }
             catch (const Common::FileSystem::IFileSystemException& e)
             {
@@ -140,7 +136,7 @@ namespace TelemetrySchedulerImpl
             }
         }
 
-        return std::make_tuple(0, false);
+        return std::make_tuple(Config{}, false);
     }
 
     void SchedulerProcessor::updateStatusFile(const system_clock::time_point& scheduledTime) const
@@ -193,17 +189,31 @@ namespace TelemetrySchedulerImpl
         delayThread->start();
     }
 
+    bool SchedulerProcessor::isTelemetryDisabled(
+        const system_clock::time_point& previousScheduledTime,
+        bool statusFileValid,
+        size_t interval,
+        bool supplementaryFileValid)
+    {
+        // Telemetry can be disabled remotely by setting the interval to zero. Telemetry can be disabled locally be
+        // setting the scheduled time in the status file to the epoch.
+
+        const system_clock::time_point epoch;
+
+        return (statusFileValid && previousScheduledTime == epoch) || !supplementaryFileValid || interval == 0;
+    }
+
     void SchedulerProcessor::waitToRunTelemetry(bool runScheduledInPastNow)
     {
         // Always re-read values from the telemetry supplementary configuration and status files in case they've been
-        // externally updated. Telemetry can be disabled remotely by setting the interval to zero. Telemetry can be
-        // disabled locally be setting the scheduled time in the status file to the epoch.
+        // externally updated.
 
-        const system_clock::time_point epoch;
-        auto const& [previousScheduledTime, statusFileValid] = getScheduledTimeFromStatusFile();
-        auto const& [interval, supplementaryFileValid] = getIntervalFromSupplementaryFile();
+        auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
+        auto const& [telemetryConfig, supplementaryFileValid] = getConfigFromSupplementaryFile();
+        auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
+        auto interval = telemetryConfig.getInterval();
 
-        if ((statusFileValid && previousScheduledTime == epoch) || !supplementaryFileValid || interval == 0)
+        if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, supplementaryFileValid))
         {
             LOGINFO(
                 "Telemetry reporting is currently disabled - will check again in " << m_configurationCheckDelay.count()
@@ -215,8 +225,10 @@ namespace TelemetrySchedulerImpl
             return;
         }
 
-        system_clock::time_point scheduledTime = epoch;
+        const system_clock::time_point epoch;
+        system_clock::time_point scheduledTime;
 
+        // This logic is dependent on the logic that checks whether telemetry is disabled.
         if (statusFileValid && (previousScheduledTime > system_clock::now() || runScheduledInPastNow))
         {
             scheduledTime = previousScheduledTime;
@@ -240,15 +252,24 @@ namespace TelemetrySchedulerImpl
 
     void SchedulerProcessor::runTelemetry()
     {
+        // Always re-read values from the telemetry supplementary configuration and status files in case they've been
+        // externally updated.
+
+        auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
+        auto const& [telemetryConfig, supplementaryFileValid] = getConfigFromSupplementaryFile();
+        auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
+        auto interval = telemetryConfig.getInterval();
+
+        if (isTelemetryDisabled(previousScheduledTime, statusFileValid, interval, supplementaryFileValid))
+        {
+            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
+            return;
+        }
+
         LOGINFO("Telemetry reporting is about to run");
 
         try
         {
-            std::string supplementaryConfigJson = Common::FileSystem::fileSystem()->readFile(
-                m_pathManager.getTelemetrySupplementaryFilePath(), DEFAULT_MAX_JSON_SIZE);
-
-            Config supplementaryConfig = Serialiser::deserialise(supplementaryConfigJson);
-
             Common::OSUtilitiesImpl::SXLMachineID sxlMachineId;
             std::string machineId = sxlMachineId.getMachineID();
 
@@ -272,7 +293,7 @@ namespace TelemetrySchedulerImpl
             std::string resourceName = machineId + ".json";
 
             Config telemetryExeConfig = Common::TelemetryConfigImpl::Config::buildExeConfigFromSupplementaryConfig(
-                supplementaryConfig, resourceName);
+                telemetryConfig, resourceName);
 
             Common::FileSystem::fileSystem()->writeFile(
                 m_pathManager.getTelemetryExeConfigFilePath(), Serialiser::serialise(telemetryExeConfig));

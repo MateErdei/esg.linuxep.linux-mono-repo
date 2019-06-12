@@ -6,14 +6,16 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "ITaskQueue.h"
 #include "PluginCallback.h"
+#include "SchedulerStatus.h"
 #include "SleepyThread.h"
-#include "TaskQueue.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <Common/Process/IProcess.h>
+#include <Common/TelemetryConfigImpl/Config.h>
 
 #include <atomic>
 #include <chrono>
@@ -58,8 +60,8 @@ namespace TelemetrySchedulerImpl
             return m_delayBeforeCheckingConfiguration && !m_delayBeforeCheckingConfiguration->finished();
         }
 
-        std::tuple<system_clock::time_point, bool> getScheduledTimeFromStatusFile() const;
-        std::tuple<size_t, bool> getIntervalFromSupplementaryFile() const;
+        std::tuple<SchedulerStatus, bool> getStatusFromFile() const;
+        std::tuple<Common::TelemetryConfigImpl::Config, bool> getConfigFromSupplementaryFile() const;
 
         void updateStatusFile(const system_clock::time_point& scheduledTime) const;
 
@@ -71,6 +73,12 @@ namespace TelemetrySchedulerImpl
             std::chrono::system_clock::time_point delayUntil,
             std::unique_ptr<SleepyThread>& delayThread,
             SchedulerTask task);
+
+        bool isTelemetryDisabled(
+            const system_clock::time_point& previousScheduledTime,
+            bool statusFileValid,
+            size_t interval,
+            bool supplementaryFileValid);
 
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
