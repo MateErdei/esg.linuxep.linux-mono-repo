@@ -312,21 +312,12 @@ namespace TelemetrySchedulerImpl
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR(
-                "File access error reading " << m_pathManager.getTelemetrySupplementaryFilePath() << " or writing "
-                                             << m_pathManager.getTelemetryExeConfigFilePath() << ": " << e.what());
+            LOGERROR("File access error writing " << m_pathManager.getTelemetryExeConfigFilePath() << ": " << e.what());
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
         catch (const Common::Process::IProcessException& processException)
         {
             LOGERROR("Running telemetry executable failed: " << processException.what());
-            m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::stringstream msg;
-            LOGERROR("Supplementary file " << m_pathManager.getTelemetrySupplementaryFilePath()
-                                           << " is invalid: " << e.what(););
             m_taskQueue->push(SchedulerTask::WaitToRunTelemetry);
         }
     }
