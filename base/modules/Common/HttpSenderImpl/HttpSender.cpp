@@ -79,7 +79,7 @@ namespace Common::HttpSenderImpl
 
         std::stringstream uriStream;
         uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort() << "/"
-                  << requestConfig.getResourceRoot();
+                  << requestConfig.getResourcePath();
         std::string uri = uriStream.str();
 
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);

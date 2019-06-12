@@ -30,7 +30,7 @@ namespace Common::HttpSenderImpl
             const std::string& server,
             int port,
             const std::string& certPath,
-            const std::string& resourceRoot);
+            const std::string& resourcePath);
 
         RequestConfig(const RequestConfig&) = delete;
         RequestConfig& operator=(const RequestConfig&) = delete;
@@ -39,14 +39,14 @@ namespace Common::HttpSenderImpl
         void setData(const std::string& data);
         void setServer(const std::string& server);
         void setCertPath(const std::string& certPath);
-        void setResourceRoot(const std::string& resourceRoot);
+        void setResourcePath(const std::string& resourcePath);
 
         const std::string& getData();
         std::vector<std::string> getAdditionalHeaders();
         RequestType getRequestType();
         const std::string& getCertPath();
         const std::string& getServer();
-        const std::string& getResourceRoot();
+        const std::string& getResourcePath();
         std::string getRequestTypeAsString();
         int getPort();
 
@@ -61,6 +61,6 @@ namespace Common::HttpSenderImpl
         int m_port;
         RequestType m_requestType;
         std::string m_certPath;
-        std::string m_resourceRoot;
+        std::string m_resourcePath;
     };
 } // namespace Common::HttpSenderImpl
