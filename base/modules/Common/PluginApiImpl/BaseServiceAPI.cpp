@@ -95,22 +95,22 @@ void Common::PluginApiImpl::BaseServiceAPI::registerWithManagementAgent() const
 void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& appId) const
 {
     LOGSUPPORT("Request policy message for AppId: " << appId);
-
-    Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestCurrentPolicyMessage(appId));
-
-    if (!m_messageBuilder.hasAck(reply))
+    try
     {
-        std::string errorMessage = "Request policies failed with error: ";
-        errorMessage += reply.m_error;
-        LOGERROR(errorMessage);
-        if (reply.m_error.find("No policy available") != std::string::npos)
+        Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestCurrentPolicyMessage(appId));
+        if (!m_messageBuilder.hasAck(reply))
         {
-            throw Common::PluginApi::NoPolicyAvailableException(errorMessage);
+            throw Common::PluginApi::NoACKReplyException("No ack received for the request of policy for appId: " + appId);
         }
-        else
+    }
+    catch (Common::PluginApi::ApiException& ex)
+    {
+        std::string error = ex.what();
+        if (error.find( Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) != std::string::npos)
         {
-            throw Common::PluginApi::ApiException(errorMessage);
+            throw Common::PluginApi::NoPolicyAvailableException(error);
         }
+        throw;
     }
 
     LOGSUPPORT("Received policy from management agent for AppId: " << appId);
@@ -150,4 +150,3 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
     return reply;
 }
-

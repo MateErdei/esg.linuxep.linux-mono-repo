@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginServerCallback.h"
 
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/NoPolicyAvailableException.h>
 
 #include <cassert>
 
@@ -48,7 +49,8 @@ namespace ManagementAgent
                         }
                         else
                         {
-                            return m_messageBuilder.replySetErrorIfEmpty(request, "No policy available");
+                            return m_messageBuilder.replySetErrorIfEmpty(request,
+                                    Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable);
                         }
                     }
                     case Commands::PLUGIN_SEND_REGISTER:
