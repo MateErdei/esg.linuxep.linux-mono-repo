@@ -282,6 +282,7 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
 
 chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 
 # Telemetry
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
@@ -333,8 +334,10 @@ chmod g+r "${SOPHOS_INSTALL}/base/lib64"/*
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
+chmod 710 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
+chmod 710 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 
 chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
 chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib64/python27.zip"*
