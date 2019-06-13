@@ -34,10 +34,10 @@ namespace
 #ifdef OPEN_MAX
         for (fd = 3; fd < OPEN_MAX; fd++)
 #else
-        for (fd = 3; fd < 256; fd++)
+        for (fd = 3; fd < 256; ++fd)
 #endif
         {
-            if (std::find(keepFds.begin(), keepFds.begin(), fd) == keepFds.end())
+            if (std::find(keepFds.begin(), keepFds.end(), fd) == keepFds.end())
             {
                 close(fd);
             }
