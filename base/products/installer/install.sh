@@ -337,11 +337,12 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
-chmod 710 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 
-chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib64/python27.zip"*
-chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python"*
+chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
+chmod -R 750 "${SOPHOS_INSTALL}/base/lib"
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python"*
+chmod 710 "${SOPHOS_INSTALL}/base/bin/python"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
