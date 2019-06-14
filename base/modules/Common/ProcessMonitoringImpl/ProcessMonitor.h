@@ -14,7 +14,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <Common/ProcessMonitoring/IProcessMonitor.h>
-
+#include <atomic>
 #include <list>
 
 namespace Common
@@ -36,6 +36,7 @@ namespace Common
             void addReplierSocketAndHandleToPoll(Common::ZeroMQWrapper::ISocketReplier* socketReplier, std::function<void(void)> socketHandleFunction) override ;
 
             int run() override;
+            void requestStop() override ;
 
         protected:
 
@@ -43,6 +44,7 @@ namespace Common
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
         private:
             SocketHandleFunctionList m_socketHandleFunctionList;
+            std::atomic<bool> m_keepRunning;
         };
     } // namespace ProcessMonitoringImpl
 } // namespace Common

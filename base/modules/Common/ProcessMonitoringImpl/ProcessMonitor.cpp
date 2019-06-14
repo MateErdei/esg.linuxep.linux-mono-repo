@@ -35,7 +35,7 @@ namespace Common
         {}
 
         ProcessMonitor::ProcessMonitor(Common::ZMQWrapperApi::IContextSharedPtr context)
-                : m_context(std::move(context))
+                : m_context(std::move(context)), m_keepRunning{true}
         {}
 
         ProcessMonitor::~ProcessMonitor()
@@ -45,6 +45,10 @@ namespace Common
 
         int ProcessMonitor::run()
         {
+            if ( !m_keepRunning)
+            {
+                return 0;
+            }
             Common::ProcessMonitoringImpl::SignalHandler signalHandler;
 
             if (m_processProxies.empty())
@@ -58,7 +62,6 @@ namespace Common
                 proxy->ensureStateMatchesOptions();
             }
 
-            bool keepRunning = true;
 
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
@@ -78,7 +81,7 @@ namespace Common
             std::chrono::seconds timeout(10);
 
             Common::UtilityImpl::FormattedTime time;
-            while (keepRunning)
+            while (m_keepRunning)
             {
                 LOGDEBUG("Calling poller at " << time.currentTime());
                 Common::ZeroMQWrapper::IPoller::poll_result_t active = poller->poll(std::chrono::milliseconds(timeout));
@@ -90,7 +93,7 @@ namespace Common
                     {
                         LOGWARN("Process Monitoring Exiting");
                         signalHandler.clearTerminationPipe();
-                        keepRunning = false;
+                        m_keepRunning = false;
                         continue;
                     }
                     if (fd == subprocessFD.get())
@@ -154,6 +157,11 @@ namespace Common
         void ProcessMonitor::addReplierSocketAndHandleToPoll(Common::ZeroMQWrapper::ISocketReplier* socketReplier, std::function<void(void)> socketHandleFunction)
         {
             m_socketHandleFunctionList.push_back(SocketHandleFunctionPair(socketReplier,socketHandleFunction));
+        }
+
+        void ProcessMonitor::requestStop()
+        {
+            m_keepRunning = false;
         }
 
 

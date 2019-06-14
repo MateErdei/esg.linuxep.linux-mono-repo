@@ -40,6 +40,12 @@ namespace Common
              */
             virtual int run() = 0;
 
+            /**
+             * From a different thread, request the processMonitor to shutdown itself.
+             * The processMonitor is allowed to take sometime to respond to this request.
+             */
+            virtual void requestStop() = 0;
+
         };
         using IProcessMonitorPtr = std::unique_ptr<IProcessMonitor>;
         extern IProcessMonitorPtr createProcessMonitor();

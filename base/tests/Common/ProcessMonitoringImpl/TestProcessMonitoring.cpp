@@ -17,6 +17,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <future>
 #include <thread>
 #include <signal.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <pwd.h>
 
 
 namespace
@@ -236,5 +238,43 @@ TEST_F(ProcessMonitoring, createProcessMonitorAndCheckSIGCHLDSignalIsHandled)  /
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Process Monitoring Exiting"));
     EXPECT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("ERROR")));
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Stopping processes"));
+
+}
+
+// disable just because by default it takes more than 10 seconds to run
+TEST_F(ProcessMonitoring, DISABLED_processMonitorCanBeAskedToStop)  //NOLINT
+{
+    auto context = Common::ZMQWrapperApi::createContext();
+    auto processMonitorPtr = Common::ProcessMonitoring::IProcessMonitorPtr(
+            new Common::ProcessMonitoringImpl::ProcessMonitor(context));
+    auto processInfoPtr = Common::Process::createEmptyProcessInfo();
+    struct passwd *pw;
+    uid_t uid;
+    std::string username;
+    uid = ::geteuid ();
+    pw = ::getpwuid (uid);
+    if (pw)
+    {
+        username = std::string(pw->pw_name);
+    }
+    else
+    {
+        ASSERT_TRUE(false) << "Failed to recover user name";
+    }
+
+    processInfoPtr->setExecutableUserAndGroup(username+':'+username);
+    processInfoPtr->setExecutableFullPath("/bin/sleep");
+    processInfoPtr->setExecutableArguments({"50"});
+    auto proxyPtr = Common::ProcessMonitoring::createProcessProxy(std::move(processInfoPtr));
+    processMonitorPtr->addProcessToMonitor(std::move(proxyPtr));
+    auto startTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+    auto f = std::async(std::launch::async, [&processMonitorPtr](){
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        processMonitorPtr->requestStop();});
+    processMonitorPtr->run();
+    auto endTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+    auto diffTime = endTime - startTime;
+
+    EXPECT_LE(diffTime, 30);
 
 }
