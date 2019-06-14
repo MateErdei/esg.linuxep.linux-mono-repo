@@ -368,7 +368,7 @@ function build()
             }
         fi
     fi
-    make install || exitFailure 17 "Failed to install $PRODUCT"
+    make -j${NPROC} install || exitFailure 17 "Failed to install $PRODUCT"
     make dist || exitFailure 18 "Failed to create distribution"
     cd ..
 
