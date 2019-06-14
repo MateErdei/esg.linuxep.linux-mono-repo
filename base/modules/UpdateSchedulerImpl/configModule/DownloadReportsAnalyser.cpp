@@ -117,6 +117,20 @@ namespace
                 break;
         }
 
+        // if any product has changed the event is relevant to send.
+        for( const auto & product: report.getProducts())
+        {
+            switch (product.productStatus)
+            {
+                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded:
+                case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled:
+                        event.IsRelevantToSend = true;
+                        break;
+                default:
+                    break;
+            }
+        }
+
         event.UpdateSource = report.getSourceURL();
 
         return event;
@@ -134,11 +148,10 @@ namespace
 
         for (auto& product : report.getProducts())
         {
-            status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
-        }
-        for( auto & whComponent: report.getWarehouseComponents())
-        {
-            status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
+            if ( product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+            {
+                status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion);
+            }
         }
         return status;
     }
@@ -159,34 +172,15 @@ namespace UpdateSchedulerImpl
 
             const SulDownloader::suldownloaderdata::DownloadReport& lastReport =
                 reportCollection.at(reportCollection.size() - 1);
-            ReportCollectionResult collectionResult;
+
             if (lastReport.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
-                 collectionResult = handleSuccessReports(reportCollection);
+                return handleSuccessReports(reportCollection);
             }
             else
             {
-                collectionResult = handleFailureReports(reportCollection);
+                return handleFailureReports(reportCollection);
             }
-
-            // special case is required for the status to report the list of waherousecomponents because
-            // it is necessary to look for previous report when no product is listed.
-            if ( collectionResult.SchedulerStatus.Products.empty())
-            {
-                // reverse iteration to find the latest report with non empty products
-                // skipping the latest one that has already been checked
-                for( int i = static_cast<int>(reportCollection.size())-2; i >= 0; i--)
-                {
-
-                    UpdateStatus lastStatus = extractStatusFromSingleReport(reportCollection[i], collectionResult.SchedulerEvent);
-                    if ( !lastStatus.Products.empty())
-                    {
-                        collectionResult.SchedulerStatus.Products = lastStatus.Products;
-                        break;
-                    }
-                }
-            }
-            return collectionResult;
         }
 
         ReportAndFiles DownloadReportsAnalyser::processReports()
@@ -325,13 +319,15 @@ namespace UpdateSchedulerImpl
             // there is at least two elements.
             int previousIndex = lastIndex - 1;
             // if previous one was an error, send event, otherwise do not send.
-            collectionResult.SchedulerEvent.IsRelevantToSend =
+            collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getStatus() !=
                 SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
 
             // if previous one had source url different from current, send event
-            collectionResult.SchedulerEvent.IsRelevantToSend =
+            collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
+
+
 
             return collectionResult;
         }
@@ -402,11 +398,11 @@ namespace UpdateSchedulerImpl
 
             // if the current report does not report products, we still need to list them, but we can do it only if
             // there is at least one LastGoodSync
-            if (collectionResult.SchedulerStatus.Subscriptions.empty() && indexOfLastGoodSync != -1)
+            if (collectionResult.SchedulerStatus.Products.empty() && indexOfLastGoodSync != -1)
             {
                 auto statusWithProducts =
                     extractStatusFromSingleReport(reportCollection.at(indexOfLastGoodSync), previousEvent);
-                collectionResult.SchedulerStatus.Subscriptions = statusWithProducts.Subscriptions;
+                collectionResult.SchedulerStatus.Products = statusWithProducts.Products;
             }
 
             return collectionResult;

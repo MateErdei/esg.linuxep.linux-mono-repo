@@ -18,34 +18,6 @@ def getTargetSystem():
     return mcsrouter.targetsystem.TargetSystem()
 
 class TestcomputerCommonStatus(unittest.TestCase):
-    # def testEqualsOperator(self):
-    #     ts1 = getTargetSystem()
-    #     ts2 = getTargetSystem()
-    #     ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
-    #     ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
-    #     self.assertEqual(ccs1, ccs2)
-    #
-    # ## the above and below tests don't make sense. They test the inbuilt unit test methods.
-    #
-    # def testNotEqualsOperator(self):
-    #     ## old
-    #     ts1 = getTargetSystem()
-    #     ts2 = getTargetSystem()
-    #     ccs1 = mcsrouter.computer.ComputerCommonStatus(ts1)
-    #     ccs2 = mcsrouter.computer.ComputerCommonStatus(ts2)
-    #     ccs2.computerName = "Something different"
-    #     self.assertNotEqual(ccs1, ccs2)
-    #
-    #     ## in progress new
-    #     # adapter1 = mcsrouter.adapters.agent_adapter.AgentAdapter()
-    #     # status_xml1 = adapter1.get_common_status_xml()
-    #     # adapter2 = mcsrouter.adapters.agent_adapter.AgentAdapter()
-    #     # status_xml2 = adapter2.get_common_status_xml()
-    #     # self.assertNotEqual(status_xml1, status_xml2)
-
-
-
-
     def testCommonStatusXml(self):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()

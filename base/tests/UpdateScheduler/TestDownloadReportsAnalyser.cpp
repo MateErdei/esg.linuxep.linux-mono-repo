@@ -186,7 +186,7 @@ public:
                    << ", received: " << resulted.FirstFailedTime;
         }
 
-        return productsAreEquivalent(m_expr, n_expr, expected.Subscriptions, resulted.Subscriptions);
+        return productsAreEquivalent(m_expr, n_expr, expected.Products, resulted.Products);
     }
 
     UpdateEvent upgradeEvent()
@@ -213,7 +213,7 @@ public:
         //        std::string ProductName;
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
-        status.Subscriptions = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
+        status.Products = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
         return status;
     }
 
@@ -323,7 +323,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = StartTimeTest;
-    expectedStatus.Subscriptions.clear();
+    expectedStatus.Products.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -668,8 +668,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
-    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
+    expectedStatus.Products.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
+    expectedStatus.Products.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -740,9 +740,9 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     expectedStatus.LastSyncTime = "20180821 121220";
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Subscriptions.push_back(
+    expectedStatus.Products.push_back(
         ProductStatus{ "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0" });
-    expectedStatus.Subscriptions.push_back(
+    expectedStatus.Products.push_back(
         ProductStatus{ "ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0" });
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
@@ -758,12 +758,11 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
                 "urlSource": "https://localhost:1233",
                 "products": [
                 { "rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
     std::string lastReport{ R"sophos({ "startTime": "20190604 144207", "finishTime": "20190604 144207", "syncTime": "20190604 144207", "status": "SUCCESS", "sulError": "", "errorDescription": "",
                 "urlSource": "https://localhost:1233",
                 "products": [
-                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
+                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
     suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
     suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
 
@@ -783,11 +782,8 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     expectedStatus.LastSyncTime = "20190604 144207";
     expectedStatus.LastInstallStartedTime = "20190604 144145";
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Subscriptions.push_back(
-            ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
     expectedStatus.Products.push_back(
             ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
-
     // Plugin is not Reported, as it has been Uninstalled.
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);

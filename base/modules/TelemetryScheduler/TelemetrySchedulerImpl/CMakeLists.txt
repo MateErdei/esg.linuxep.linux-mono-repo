@@ -11,7 +11,8 @@ add_library(telemetryschedulerimpl SHARED
         SchedulerStatusSerialiser.cpp
         SchedulerStatusSerialiser.h
         SleepyThread.cpp
-        SleepyThread.h)
+        SleepyThread.h
+        ITaskQueue.h)
 
 include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
@@ -19,9 +20,8 @@ target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryschedulerloggerimpl
         pluginapiimpl
         processimpl
-        telemetryconfigimpl
+        telemetryexeconfigimpl
         utilityimpl
-        osutilitiesimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryschedulerimpl

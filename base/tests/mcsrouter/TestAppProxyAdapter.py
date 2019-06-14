@@ -133,7 +133,6 @@ class FakeCommand(object):
 
 class TestAppProxyAdapter(unittest.TestCase):
     def setUp(self):
-        os.chdir(TEST_DIR)
         PathManager.safeMkdir(os.path.join(BUILD_DIR,"install","var", "cache", "mcs_fragmented_policies"))
 
     def tearDown(self):

@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/HttpSender/IHttpSender.h>
+#include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -20,7 +21,7 @@ using namespace Telemetry;
 using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
-    std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
+    std::shared_ptr<const Common::TelemetryExeConfigImpl::Config> config,
     std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
     m_config(config),
@@ -68,13 +69,37 @@ void TelemetryProcessor::gatherTelemetry()
 
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
+    Common::OSUtilitiesImpl::SXLMachineID sxlMachineId;
+    std::string machineId = sxlMachineId.getMachineID();
+
+    // TODO: probably ought to get resource via a configuration setting and let the Telemetry Scheduler determine the
+    // value to use!
+
+    if (machineId.empty())
+    {
+        throw std::runtime_error("No machine id so not sending telemetry");
+    }
+
+    machineId.erase(
+        std::remove_if(machineId.begin(), machineId.end(), [](auto const& c) -> bool { return !std::isalnum(c); }),
+        machineId.end());
+
+    std::string resourceRoot = m_config->getResourceRoot();
+
+    if (resourceRoot.back() != '/')
+    {
+        resourceRoot.push_back('/');
+    }
+
+    std::string resourcePath = resourceRoot + machineId + ".json";
+
     Common::HttpSenderImpl::RequestConfig requestConfig(
         Common::HttpSenderImpl::RequestConfig::stringToRequestType(m_config->getVerb()),
         m_config->getHeaders(),
         m_config->getServer(),
         m_config->getPort(),
         m_config->getTelemetryServerCertificatePath(),
-        m_config->getResourcePath());
+        resourcePath);
 
     if (!requestConfig.getCertPath().empty() && !Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
     {

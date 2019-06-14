@@ -6,20 +6,17 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ITaskQueue.h"
 #include "PluginCallback.h"
-#include "SchedulerStatus.h"
 #include "SleepyThread.h"
+#include "ITaskQueue.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <Common/Process/IProcess.h>
-#include <Common/TelemetryConfigImpl/Config.h>
 
 #include <atomic>
 #include <chrono>
-#include <tuple>
 
 namespace TelemetrySchedulerImpl
 {
@@ -60,25 +57,15 @@ namespace TelemetrySchedulerImpl
             return m_delayBeforeCheckingConfiguration && !m_delayBeforeCheckingConfiguration->finished();
         }
 
-        std::tuple<SchedulerStatus, bool> getStatusFromFile() const;
-        std::tuple<Common::TelemetryConfigImpl::Config, bool> getConfigFromFile() const;
+        size_t getIntervalFromSupplementaryFile();
 
-        void updateStatusFile(const system_clock::time_point& scheduledTime) const;
-
-        system_clock::time_point getNextScheduledTime(
-            system_clock::time_point previousScheduledTime,
-            size_t intervalSeconds) const;
+        system_clock::time_point getScheduledTimeUsingIntervalFromSupplementaryFile(
+            system_clock::time_point previousTelemetryRunTime);
 
         void delayBeforeQueueingTask(
             std::chrono::system_clock::time_point delayUntil,
             std::unique_ptr<SleepyThread>& delayThread,
             SchedulerTask task);
-
-        bool isTelemetryDisabled(
-            const system_clock::time_point& previousScheduledTime,
-            bool statusFileValid,
-            size_t interval,
-            bool configFileValid);
 
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;

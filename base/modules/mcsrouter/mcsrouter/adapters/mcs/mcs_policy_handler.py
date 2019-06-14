@@ -8,6 +8,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import os
 
 import xml.dom.minidom
+
 import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import logging
@@ -43,8 +44,6 @@ class MCSPolicyHandler(object):
         path_manager.INST = install_dir
         self.__m_policy_config = policy_config
         self.__m_applied_config = applied_config
-        self.__m_mcsPolicyNs = {"csc":"com.sophos\msys\csc",
-                                "mcs":"http://www.sophos.com/xml/msys/mcspolicy.xsd"}
         #REGISTER_MCS is set in register_central.py or mcs_router.py
         if not REGISTER_MCS:  # pylint: disable=undefined-variable
             self.__load_policy()
@@ -92,20 +91,29 @@ class MCSPolicyHandler(object):
         """
         __get_element
         """
-        # nodes = dom.getElementsByTagName(element_name)
+        # in sspl dom has been converted from an elementTree object to a dom.
+        # using an elementTree we can perform the xpath findall("./mcs:configuration/mcs:" + elementName,...)
+        # as is done in SAV.
+        # The change below is mimicking this search as xpath not available for dom object.
+
+        parent_node_name = "configuration"
         nodes = dom.getElementsByTagName(element_name)
-        # nodes = dom.findall("./mcs:configuration/mcs:" + element_name)
-        if len(nodes) != 1:
-            # valid_nodes = []
-            # for node in nodes:
-            #     if node.parentNode.tagName == u'configuration':
-            #         valid_nodes.append(node)
-            # if len(valid_nodes) == 1:
-            #     return valid_nodes[0]
-            # else:
-            #     return None
+
+        valid_nodes = []
+        for node in nodes:
+            if node.parentNode.tagName == parent_node_name:
+                valid_nodes.append(node)
+
+        if len(valid_nodes) == 1:
+            return valid_nodes[0]
+        else:
             return None
-        return nodes[0]
+
+
+        #
+        # if len(nodes) != 1:
+        #     return None
+        # return nodes[0]
 
     def __apply_policy_setting(
             self,
@@ -276,14 +284,22 @@ class MCSPolicyHandler(object):
         __apply_proxy_options
         """
         proxies_node = self.__get_element(dom, "proxies")
+
+        def cleanupProxy():
+            self.__m_policy_config.remove("mcs_policy_proxy")
+            self.__m_policy_config.remove("mcs_policy_proxy_credentials")
+
         if proxies_node is None:
-            # Don't apply credentials unless we have a proxy
+            ## Remove any existing proxy configuration
+            cleanupProxy()
             return False
 
         proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
 
         if not proxies:
             LOGGER.error("MCS Policy has no proxy nodes in proxies element")
+            ## Remove any existing proxy configuration
+            cleanupProxy()
             return False
 
         if len(proxies) > 1:
@@ -331,19 +347,29 @@ class MCSPolicyHandler(object):
             policy_nodes = dom.getElementsByTagName("policy")
             if len(policy_nodes) != 1:
                 LOGGER.error("MCS Policy doesn't have one policy node")
-                return
+                raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
 
             policy_node = policy_nodes[0]
 
             nodes = policy_node.getElementsByTagName("csc:Comp")
             if len(nodes) == 1:
                 node = nodes[0]
-                policy_type = node.getAttribute("policy_type")
+
+                policy_type = node.getAttribute("policyType")
+                if policy_type == "":
+                    LOGGER.error("MCS policy did not contain policy type")
+                    raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
+
                 rev_id = node.getAttribute("RevID")
+                if rev_id == "":
+                    LOGGER.error("MCS policy did not contain revID")
+                    raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
+
                 compliance = (policy_type, rev_id)
             else:
                 LOGGER.error("MCS Policy didn't contain one compliance node")
-                compliance = None
+                raise mcsrouter.utils.xml_helper.XMLException("Rejecting policy")
+
 
             LOGGER.info(
                 "Applying %s %s policy %s",
@@ -374,8 +400,10 @@ class MCSPolicyHandler(object):
             if save:
                 # Save successfully applied policy
                 self.__save_policy()
-        except Exception as e:
-            print(e)
+
+        # except mcsrouter.utils.xml_helper.XMLException:
+        #     return
+
         finally:
             dom.unlink()
 

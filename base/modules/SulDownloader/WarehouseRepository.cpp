@@ -48,24 +48,6 @@ namespace
         return tags;
     }
 
-    SubProducts getSubComponents(const std::string & componentName, SU_PHandle& product)
-    {
-        std::vector<std::string> sulComponents;
-        int index = 0;
-
-        while (true)
-        {
-            std::string sulComponent = SulDownloader::SulQueryProductMetadata(product, "R_SubComponent", index);
-            if (sulComponent.empty())
-            {
-                break;
-            }
-            sulComponents.push_back(sulComponent);
-            index++;
-        }
-        return ProductMetadata::extractSubProductsFromSulSubComponents(componentName, sulComponents);
-    }
-
     std::vector<std::string> getFeatures(SU_PHandle& product)
     {
         std::vector<std::string> features;
@@ -161,8 +143,7 @@ namespace
               "SAVLine",
               "ResubscriptionsLine",
               "Resubscriptions",
-              "ResubscriptionsVersion",
-              "SubComponent"});
+              "ResubscriptionsVersion" });
     }
 
 } // namespace
@@ -263,8 +244,7 @@ namespace SulDownloader
             productInformation.setFeatures(getFeatures(product));
             productInformation.setBaseVersion(baseVersion);
             productInformation.setDefaultHomePath(defaultHomePath);
-            productInformation.setSubProduts( getSubComponents(line, product) );
-            m_catalogueInfo.addInfo( line, productVersion, name);
+
             productInformationList.emplace_back(product, productInformation);
         }
         std::vector<ProductMetadata> productMetadataList;
@@ -356,8 +336,8 @@ namespace SulDownloader
 
         for (auto& productPair : m_products)
         {
-            std::string distributePath = getRootDistributionPath();
-            distributePath = Common::FileSystem::join(distributePath, productPair.second.getLine());
+
+            std::string distributePath = getProductDistributionPath(productPair.second);
             LOGSUPPORT("Distribution path: " << distributePath);
             distributeProduct(productPair, distributePath);
         }
@@ -638,10 +618,9 @@ namespace SulDownloader
         }
     }
 
-    std::vector<suldownloaderdata::ProductInfo> WarehouseRepository::listInstalledProducts() const
+    std::string WarehouseRepository::getProductDistributionPath(const suldownloaderdata::DownloadedProduct& product) const
     {
-        return  CatalogueInfo::calculatedListProducts(getProducts(), m_catalogueInfo);
+        return Common::FileSystem::join(m_rootDistributionPath, product.getLine());
     }
-
 
 } // namespace SulDownloader
