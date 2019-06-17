@@ -35,7 +35,7 @@ namespace UpdateSchedulerImpl
             }
 
             m_sulDownloaderRunner.reset(
-                new SulDownloaderRunner(m_taskQueue, m_dirPath, "report.json", std::chrono::minutes(10)));
+                new SulDownloaderRunner(m_taskQueue, m_dirPath, "update_report.json", std::chrono::minutes(10)));
             m_sulDownloaderExecHandle = std::async(std::launch::async, [this]() { m_sulDownloaderRunner->run(); });
         }
 

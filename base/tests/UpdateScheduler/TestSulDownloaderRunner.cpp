@@ -35,7 +35,7 @@ public:
 
 TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
 {
-    // Create temp directory to use for the report.json file.
+    // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
@@ -48,22 +48,22 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(5));
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), "update_report.json", std::chrono::seconds(5));
     auto futureRunner = std::async(std::launch::async, [&runner]() { runner.run(); });
 
     // Write a report json file.
     auto futureTempDir =
-        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("report.json", "some json"); });
+        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
-    EXPECT_EQ(task.content, "report.json");
+    EXPECT_EQ(task.content, "update_report.json");
 }
 
 TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
 {
-    // Create temp directory to use for the report.json file.
+    // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
@@ -76,19 +76,19 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    SulDownloaderRunner runner(queue, tempDir->dirPath(), "report.json", std::chrono::seconds(3));
+    SulDownloaderRunner runner(queue, tempDir->dirPath(), "update_report.json", std::chrono::seconds(3));
     std::thread runnerThread([&runner]() { runner.run(); });
 
     auto fut = std::async(std::launch::async, [&tempDir]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        tempDir->createFileAtomically("report.json", "some json");
+        tempDir->createFileAtomically("update_report.json", "some json");
     });
 
     runnerThread.join();
 
     auto task = queue->pop();
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
-    EXPECT_EQ(task.content, "report.json");
+    EXPECT_EQ(task.content, "update_report.json");
 }
 
 TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
@@ -124,7 +124,7 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
+    SulDownloaderRunner runner(queue, "/tmp", "update_report.json", std::chrono::seconds(10));
     std::thread runnerThread([&runner]() { runner.run(); });
 
     runner.abortWaitingForReport();
@@ -147,7 +147,7 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
     std::shared_ptr<SchedulerTaskQueue> queue(new SchedulerTaskQueue());
 
     // Create suldownloader runner and run it.
-    SulDownloaderRunner runner(queue, "/tmp", "report.json", std::chrono::seconds(10));
+    SulDownloaderRunner runner(queue, "/tmp", "update_report.json", std::chrono::seconds(10));
     std::thread runnerThread([&runner]() { runner.run(); });
 
     runner.abortWaitingForReport();

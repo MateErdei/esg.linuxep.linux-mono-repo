@@ -183,7 +183,7 @@ namespace UpdateSchedulerImpl
                 // ensure that recent results 'if available' are processed.
                 // When base is updated, it may stop this plugin. Hence, on start-up, it needs to double-check
                 // there is no new results to be processed.
-                std::string lastUpdate = processSulDownloaderFinished("report.json");
+                std::string lastUpdate = processSulDownloaderFinished("update_report.json");
 
                 // If scheduled updating is enabled, check if we have missed an update, if we have, ensure we
                 // run an update on startup
@@ -211,12 +211,12 @@ namespace UpdateSchedulerImpl
             {
                 // get the previous report and send status if one exists and call processSulDownloaderFinished.
                 // to force sending new status if any back to central.
-                // if a report.json file exists, an update is in progress, so do not force re-processing the previous report.
+                // if a update_report.json file exists, an update is in progress, so do not force re-processing the previous report.
 
                 std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(m_updateVarPath);
-                std::string startPattern("report");
+                std::string startPattern("update_report");
                 std::string endPattern(".json");
-                std::string unprocessedReport("report.json");
+                std::string unprocessedReport("update_report.json");
                 bool newReportFound = false;
                 bool oldReportFound = false;
 
@@ -224,7 +224,7 @@ namespace UpdateSchedulerImpl
                 {
                     std::string fileName = Common::FileSystem::basename(file);
 
-                    // make sure file name begins with 'report' and ends with .'json'
+                    // make sure file name begins with 'update_report' and ends with .'json'
                     if (fileName == unprocessedReport)
                     {
                         newReportFound = true;
@@ -275,7 +275,7 @@ namespace UpdateSchedulerImpl
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
         if (!Common::FileSystem::fileSystem()->isFile(configPath))
         {
-            LOGWARN("No config.json file available. Requesting policy again");
+            LOGWARN("No update_config.json file available. Requesting policy again");
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
             m_pendingUpdate = true;
             return;
@@ -406,7 +406,7 @@ namespace UpdateSchedulerImpl
         std::string fileName = Common::FileSystem::basename(originalJsonFilePath);
         assert(Common::UtilityImpl::StringUtils::endswith(fileName, ".json"));
         std::string noExtension = fileName.substr(0, fileName.size() - 5);
-        assert(noExtension == "report");
+        assert(noExtension == "update_report");
         std::string timeStamp = m_formattedTime.currentTime();
         std::string targetPathName = Common::FileSystem::join(dirPath, noExtension + timeStamp);
         for (int i = 0;; i++)

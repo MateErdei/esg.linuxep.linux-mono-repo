@@ -34,7 +34,7 @@ public:
 
 TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
 {
-    // Create temp directory to use for the report.json file.
+    // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
@@ -52,13 +52,13 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
 
     // Write a report json file.
     auto futureTempDir =
-        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("report.json", "some json"); });
+        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();
 
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
-    EXPECT_EQ(task.content, "report.json");
+    EXPECT_EQ(task.content, "update_report.json");
     if (runner->isRunning())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -68,7 +68,7 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
 
 TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
 {
-    // Create temp directory to use for the report.json file.
+    // Create temp directory to use for the update_report.json file.
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
 
     // Mock systemctl call.
