@@ -5,10 +5,13 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "HttpSender.h"
+
 #include "Logger.h"
 
+#include <Common/FileSystem/IFileSystem.h>
 #include <openssl/crypto.h>
 #include <openssl/ssl.h>
+
 #include <curl.h>
 #include <map>
 #include <sstream>
@@ -91,7 +94,26 @@ namespace Common::HttpSenderImpl
         if (requestConfig.getCertPath() != "")
         {
             curlOptions.emplace_back(
-                "Specify path to Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
+                "Client specified path for Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
+        }
+        else
+        {
+            const std::vector<Path> caDirs = { "/etc/ssl/certs", "/etc/pki/tls/certs" };
+
+            for (const auto& caDir : caDirs)
+            {
+                if (FileSystem::fileSystem()->isDirectory(caDir))
+                {
+                    std::vector<Path> files = FileSystem::fileSystem()->listFiles(caDir);
+
+                    if (files.size() != 0)
+                    {
+                        curlOptions.emplace_back(
+                            "Library specified directory for Certificate Authority bundle", CURLOPT_CAPATH, caDir);
+                        break;
+                    }
+                }
+            }
         }
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
