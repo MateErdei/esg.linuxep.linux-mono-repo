@@ -109,12 +109,6 @@ class MCSPolicyHandler(object):
         else:
             return None
 
-
-        #
-        # if len(nodes) != 1:
-        #     return None
-        # return nodes[0]
-
     def __apply_policy_setting(
             self,
             dom,
