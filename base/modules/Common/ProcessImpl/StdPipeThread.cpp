@@ -25,17 +25,39 @@ namespace
         FD_SET(fd, fds); // NOLINT
         return std::max(maxfd, fd);
     }
+
+    class ScopedTriggerFunctor
+    {
+        std::function<void(void)> & m_functor;
+    public:
+        ScopedTriggerFunctor( std::function<void(void)> & functor): m_functor(functor)
+        {
+
+        }
+        ~ScopedTriggerFunctor()
+        {
+            m_functor();
+        }
+    };
+
 } // namespace
 
-Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor) :
+Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor, std::function<void(void)> notifyFinished) :
     Common::Threads::AbstractThread(),
     m_fileDescriptor(fileDescriptor),
     m_stdoutStream(std::ios_base::out | std::ios_base::ate),
     m_outputLimit(0),
-    m_outputSize(0)
+    m_outputSize(0),
+    m_notifyFinished(notifyFinished)
 {
     setNonBlocking(fileDescriptor);
 }
+
+Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor) : StdPipeThread(fileDescriptor, [](){})
+{
+
+}
+
 
 Common::ProcessImpl::StdPipeThread::~StdPipeThread()
 {
@@ -65,6 +87,7 @@ void Common::ProcessImpl::StdPipeThread::run()
 
     // Make sure that if this process finishes before this loop starts that one attempt is made to read from the pipe.
     bool readPipeOnce = false;
+    ScopedTriggerFunctor scopedTriggerFunctor{m_notifyFinished};
     while ((!finished && !stopRequested()) || !readPipeOnce)
     {
         readPipeOnce = true;
@@ -139,3 +162,4 @@ std::string Common::ProcessImpl::StdPipeThread::output()
     }
     return m_stdoutStream.str();
 }
+

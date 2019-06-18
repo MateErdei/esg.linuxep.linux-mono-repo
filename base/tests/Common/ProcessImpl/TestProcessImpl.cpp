@@ -8,6 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessInfo.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -50,6 +51,28 @@ namespace
             ASSERT_EQ(process->output(), "hello\n");
         }
     }
+
+    TEST(ProcessImpl, ProcessNotfifyOnClosure) // NOLINT
+    {
+        auto process = createProcess();
+        Tests::TestExecutionSynchronizer testExecutionSynchronizer;
+        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        process->exec("/bin/echo", { "hello" });
+        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        ASSERT_EQ(process->output(), "hello\n");
+    }
+
+    TEST(ProcessImpl, ProcessNotfifyOnClosureShouldNotRequireUsageOfStandardOutput) // NOLINT
+    {
+        auto process = createProcess();
+        Tests::TestExecutionSynchronizer testExecutionSynchronizer;
+        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        process->exec("/bin/sleep", { "0.1" });
+        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        ASSERT_EQ(process->output(), "");
+    }
+
+
 
     TEST(ProcessImpl, SupportAddingEnvironmentVariables) // NOLINT
     {

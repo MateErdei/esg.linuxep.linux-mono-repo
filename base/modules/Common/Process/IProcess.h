@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <functional>
 namespace Common
 {
     namespace Process
@@ -29,6 +29,7 @@ namespace Common
         class IProcess
         {
         public:
+            using functor = std::function<void()>;
             virtual ~IProcess() = default;
             /**
              *
@@ -102,6 +103,12 @@ namespace Common
              * @param limit
              */
             virtual void setOutputLimit(size_t limit) = 0;
+
+            /**
+             * Set a callback function that will be triggered when the executed process is detected to have finished
+             */
+            virtual void setNotifyProcessFinishedCallBack(functor) = 0;
+
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();

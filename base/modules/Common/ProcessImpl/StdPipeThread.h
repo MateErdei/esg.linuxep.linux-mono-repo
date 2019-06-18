@@ -29,12 +29,14 @@ namespace Common
             std::mutex m_mutex;
             size_t m_outputLimit;
             size_t m_outputSize;
+            std::function<void(void)> m_notifyFinished;
 
         public:
             /**
              *
              * @param fileDescriptor BORROWED fileDescriptor
              */
+            StdPipeThread(int fileDescriptor, std::function<void(void)> notifyFinished);
             explicit StdPipeThread(int fileDescriptor);
 
             ~StdPipeThread() override;
