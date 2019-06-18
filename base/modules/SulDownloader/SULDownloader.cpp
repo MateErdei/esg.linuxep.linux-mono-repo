@@ -227,7 +227,7 @@ namespace SulDownloader
 
         // Filter file list to make sure all the files are report files based on file name
         std::vector<std::string> previousReportFiles;
-        std::string startPattern("report");
+        std::string startPattern("update_report");
         std::string endPattern(".json");
 
         for (auto& file : filesInReportDirectory)

@@ -422,7 +422,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "report-previous.json";
+    std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
     // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
@@ -475,7 +475,7 @@ TEST_F(                // NOLINT
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "report-previous.json";
+    std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = {
         previousReportFilename, "invalid_file_name1.txt", "invalid_file_name2.json", "report_invalid_file_name3.txt"
     };
@@ -530,7 +530,7 @@ TEST_F(                // NOLINT
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "report-previous.json";
+    std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
@@ -592,7 +592,7 @@ TEST_F(                // NOLINT
     DownloadReport downloadReport =
         DownloadReport::Report("", products, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
     std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "report-previous.json";
+    std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
