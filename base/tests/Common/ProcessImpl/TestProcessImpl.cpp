@@ -72,6 +72,17 @@ namespace
         ASSERT_EQ(process->output(), "");
     }
 
+    TEST(ProcessImpl, ProcessNotfifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
+    {
+        auto process = createProcess();
+        Tests::TestExecutionSynchronizer testExecutionSynchronizer;
+        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        // the process will not work correctly. But the notification on its failure shoud still be triggered.
+        process->exec("/bin/nothingsleep", { "0.1" });
+        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        ASSERT_EQ(process->output(), "");
+    }
+
 
 
     TEST(ProcessImpl, SupportAddingEnvironmentVariables) // NOLINT
