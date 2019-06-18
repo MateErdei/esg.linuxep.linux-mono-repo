@@ -52,7 +52,7 @@ namespace
         }
     }
 
-    TEST(ProcessImpl, ProcessNotfifyOnClosure) // NOLINT
+    TEST(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -62,7 +62,7 @@ namespace
         ASSERT_EQ(process->output(), "hello\n");
     }
 
-    TEST(ProcessImpl, ProcessNotfifyOnClosureShouldNotRequireUsageOfStandardOutput) // NOLINT
+    TEST(ProcessImpl, ProcessNotifyOnClosureShouldNotRequireUsageOfStandardOutput) // NOLINT
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
@@ -72,7 +72,7 @@ namespace
         ASSERT_EQ(process->output(), "");
     }
 
-    TEST(ProcessImpl, ProcessNotfifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
+    TEST(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
