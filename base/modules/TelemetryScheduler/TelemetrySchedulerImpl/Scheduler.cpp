@@ -27,7 +27,7 @@ namespace TelemetrySchedulerImpl
     {
         try
         {
-            Common::Logging::FileLoggingSetup loggerSetup("telemetryScheduler", true);
+            Common::Logging::FileLoggingSetup loggerSetup("tscheduler", true);
 
             LOGINFO("Telemetry Scheduler running...");
 
