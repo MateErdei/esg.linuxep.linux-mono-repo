@@ -108,13 +108,9 @@ namespace Common::HttpSenderImpl
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
+        std::string certPath = requestConfig.getCertPath();
 
-        if (requestConfig.getCertPath() != "")
-        {
-            curlOptions.emplace_back(
-                "Client specified path for Certificate Authority bundle", CURLOPT_CAINFO, requestConfig.getCertPath());
-        }
-        else
+        if (certPath.empty())
         {
             const std::vector<Path> caDirs = { "/etc/ssl/certs", "/etc/pki/tls/certs" };
 
@@ -126,12 +122,19 @@ namespace Common::HttpSenderImpl
 
                     if (!files.empty())
                     {
+                        LOGINFO("Using Certificate Authority path: " << caDir);
                         curlOptions.emplace_back(
                             "Library specified directory for Certificate Authority bundle", CURLOPT_CAPATH, caDir);
                         break;
                     }
                 }
             }
+        }
+        else
+        {
+            LOGINFO("Using Certificate Authority path: " << certPath);
+            curlOptions.emplace_back(
+                "Client specified path for Certificate Authority bundle", CURLOPT_CAINFO, certPath);
         }
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
