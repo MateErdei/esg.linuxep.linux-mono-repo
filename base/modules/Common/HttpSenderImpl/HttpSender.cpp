@@ -24,12 +24,17 @@ namespace
         CURL* m_curl;
 
     public:
-        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
-            m_iCurlWrapper(iCurlWrapper),
-            m_curl(curl)
+        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper)
+        : m_iCurlWrapper(iCurlWrapper)
+        , m_curl(curl)
         {
+
         }
-        ~CurlScopeGuard() { m_iCurlWrapper.curlEasyCleanup(m_curl); }
+
+        ~CurlScopeGuard()
+        {
+            m_iCurlWrapper.curlEasyCleanup(m_curl);
+        }
     };
 
     class SListScopeGuard
@@ -38,26 +43,27 @@ namespace
         curl_slist* m_curl_slist;
 
     public:
-        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
-            m_iCurlWrapper(iCurlWrapper),
-            m_curl_slist(curl_slist)
+        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper)
+        : m_iCurlWrapper(iCurlWrapper)
+        , m_curl_slist (curl_slist)
         {
+
         }
+
         ~SListScopeGuard()
         {
-            if (m_curl_slist != nullptr)
+            if( m_curl_slist != nullptr)
             {
                 m_iCurlWrapper.curlSlistFreeAll(m_curl_slist);
             }
         }
     };
+}
 
-} // namespace
 
 namespace Common::HttpSenderImpl
 {
-    HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) :
-        m_curlWrapper(std::move(curlWrapper))
+    HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
     {
         // Initialising ssl and crypto to create a dependency on their libraries and be able to get the correct rpath
         // TODO: [LINUXEP-6636] Rebuild libcurl with rpath set and remove these lines
@@ -73,12 +79,26 @@ namespace Common::HttpSenderImpl
         }
     }
 
-    HttpSender::~HttpSender() { m_curlWrapper->curlGlobalCleanup(); }
+    HttpSender::~HttpSender()
+    {
+        m_curlWrapper->curlGlobalCleanup();
+    }
 
-    CURLcode HttpSender::setCurlOptions(CURL* curl, RequestConfig& requestConfig)
+    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
     {
         curl_slist* headers = nullptr;
+
         std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
+
+        CURL * curl = m_curlWrapper->curlEasyInit();
+
+        if (!curl)
+        {
+            LOGERROR("Failed to initialise curl");
+            return CURLE_FAILED_INIT;
+        }
+
+        CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
 
         std::stringstream uriStream;
         uriStream << "https://" << requestConfig.getServer() << ":" << requestConfig.getPort() << "/"
@@ -86,8 +106,6 @@ namespace Common::HttpSenderImpl
         std::string uri = uriStream.str();
 
         LOGINFO("Creating HTTPS " << requestConfig.getRequestTypeAsString() << " Request to " << uri);
-
-        CURLcode result = CURLE_FAILED_INIT;
 
         curlOptions.emplace_back("Specify network URL", CURLOPT_URL, uri);
 
@@ -106,7 +124,7 @@ namespace Common::HttpSenderImpl
                 {
                     std::vector<Path> files = FileSystem::fileSystem()->listFiles(caDir);
 
-                    if (files.size() != 0)
+                    if (!files.empty())
                     {
                         curlOptions.emplace_back(
                             "Library specified directory for Certificate Authority bundle", CURLOPT_CAPATH, caDir);
@@ -122,70 +140,58 @@ namespace Common::HttpSenderImpl
             temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)
             {
-                SListScopeGuard sListScopeGuard(headers, *m_curlWrapper);
+                m_curlWrapper->curlSlistFreeAll(headers);
                 LOGERROR("Failed to append header to request");
-                return result;
+                return CURLE_FAILED_INIT;
             }
             headers = temp;
         }
-        SListScopeGuard headersScopeGuard(headers, *m_curlWrapper);
-        if (headers)
-        {
-            curlOptions.emplace_back(
-                "Specify custom HTTP header(s)", CURLOPT_HTTPHEADER, reinterpret_cast<const char*>(headers));
-        }
+
+        SListScopeGuard sListScopeGuard(headers, *m_curlWrapper);
 
         if (requestConfig.getRequestType() == RequestType::POST)
         {
-            curlOptions.emplace_back("Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
+            curlOptions.emplace_back(
+                "Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
         else if (requestConfig.getRequestType() == RequestType::PUT)
         {
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
-            curlOptions.emplace_back("Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
+            curlOptions.emplace_back(
+                "Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
 
         for (const auto& curlOption : curlOptions)
         {
-            result = m_curlWrapper->curlEasySetOpt(curl, std::get<1>(curlOption), std::get<2>(curlOption));
+            CURLcode result = m_curlWrapper->curlEasySetOpt(curl, std::get<1>(curlOption), std::get<2>(curlOption));
+
             if (result != CURLE_OK)
             {
-                LOGERROR(
-                    "Failed to: " << std::get<0>(curlOption)
-                                  << " with error: " << m_curlWrapper->curlEasyStrError(result));
+                LOGERROR("Failed to: " << std::get<0>(curlOption)
+                                       << " with error: " << m_curlWrapper->curlEasyStrError(result));
                 return result;
             }
         }
-        return result;
-    }
 
-    int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
-    {
-        CURLcode result;
-
-        CURL* curl = m_curlWrapper->curlEasyInit();
-
-        if (!curl)
+        if (headers)
         {
-            LOGERROR("Failed to initialise curl");
-            return CURLE_FAILED_INIT;
+            CURLcode result = m_curlWrapper->curlEasySetOptHeaders(curl, headers);
+
+            if (result != CURLE_OK)
+            {
+                LOGERROR("Failed to set headers with error: " << m_curlWrapper->curlEasyStrError(result));
+                return result;
+            }
         }
 
-        CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
+        CURLcode result = m_curlWrapper->curlEasyPerform(curl);
 
-        result = setCurlOptions(curl, requestConfig);
-        if (result != CURLE_OK)
-        {
-            LOGERROR("Failed to set curl options with error: " << m_curlWrapper->curlEasyStrError(result));
-            return result;
-        }
-
-        result = m_curlWrapper->curlEasyPerform(curl);
         if (result != CURLE_OK)
         {
             LOGERROR("Failed to perform file transfer with error: " << m_curlWrapper->curlEasyStrError(result));
             return result;
         }
+
         return static_cast<int>(result);
     }
-} // namespace Common::HttpSenderImpl
+} // LCOV_EXCL_LINE // namespace Common::HttpSenderImpl
