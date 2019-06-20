@@ -67,7 +67,7 @@ endif()
 ## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
-set( OPENSSL_INPUT ${INPUT}/openssl )
+set( OPENSSL_INPUT ${INPUT}/openssl-1.1.1c )
 set( EXPAT_INPUT ${INPUT}/expat )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 
@@ -146,7 +146,7 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
-set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
+set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/64/include)
 find_library(OPENSSL_LIBRARY
         NAMES ssl
         PATHS ${OPENSSL_INPUT}/lib64
