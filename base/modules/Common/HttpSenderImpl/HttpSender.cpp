@@ -112,29 +112,25 @@ namespace Common::HttpSenderImpl
 
         if (certPath.empty())
         {
-            const std::vector<Path> caDirs = { "/etc/ssl/certs", "/etc/pki/tls/certs" };
+            const std::vector<Path> caPaths = { "/etc/ssl/certs/ca-certificates.crt",
+                                                "/etc/pki/tls/certs/ca-bundle.crt" };
 
-            for (const auto& caDir : caDirs)
+            for (const auto& caPath : caPaths)
             {
-                if (FileSystem::fileSystem()->isDirectory(caDir))
+                if (FileSystem::fileSystem()->isFile(caPath))
                 {
-                    std::vector<Path> files = FileSystem::fileSystem()->listFiles(caDir);
-
-                    if (!files.empty())
-                    {
-                        LOGINFO("Using Certificate Authority path: " << caDir);
-                        curlOptions.emplace_back(
-                            "Library specified directory for Certificate Authority bundle", CURLOPT_CAPATH, caDir);
-                        break;
-                    }
+                    LOGINFO("Using library specified Certificate Authority path: " << caPath);
+                    curlOptions.emplace_back(
+                        "Path for Certificate Authority bundle", CURLOPT_CAINFO, caPath);
+                    break;
                 }
             }
         }
         else
         {
-            LOGINFO("Using Certificate Authority path: " << certPath);
+            LOGINFO("Using client specified Certificate Authority path: " << certPath);
             curlOptions.emplace_back(
-                "Client specified path for Certificate Authority bundle", CURLOPT_CAINFO, certPath);
+                "Path for Certificate Authority bundle", CURLOPT_CAINFO, certPath);
         }
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
