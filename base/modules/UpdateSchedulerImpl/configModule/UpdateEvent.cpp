@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "UpdateEvent.h"
 
 #include "PropertyTreeHelper.h"
+#include <set>
 
 namespace
 {
@@ -44,17 +45,25 @@ namespace
         auto& messageNode = addInfoNode.get_child("message");
         auto& messageInsertsNode = messageNode.put("message_inserts", "");
 
-        for (auto& e : event.Messages)
+        std::set<int> errorcodes = {103,106,107,111,112,113};
+        std::set<int> sendName = {103,107,111,113};
+        std::set<int> sendDetails = {103,106,107,112};
+
+        if (errorcodes.find(event.MessageNumber) != errorcodes.end() ) // 103, 106, 107, 111, 112
         {
-            if (!e.PackageName.empty())
+
+            for (auto& e : event.Messages)
             {
-                messageInsertsNode.add("insert", e.PackageName);
+                if (!e.PackageName.empty() && (sendName.find(event.MessageNumber) != sendName.end()) ) // 103, 107, 111
+                {
+                    messageInsertsNode.add("insert", e.PackageName);
+                }
+
+                if (!e.ErrorDetails.empty()  && (sendDetails.find(event.MessageNumber) != sendDetails.end())) // 106, 112 // 103 and 107 if PackageName not empty
+                {
+                    messageInsertsNode.add("insert", e.ErrorDetails);
+                }
             }
-            /*if( !e.ErrorDetails.empty())
-            {
-                //FIXME LINUXEP-6473: Get the correct error code to send to Central.
-                addInfoNode.add("message.message_inserts.insert","CodeErrorA");
-            }*/
         }
     }
 
@@ -76,6 +85,7 @@ namespace
 
         auto tree = UpdateSchedulerImpl::configModule::parseString(L_EVENT_TEMPLATE);
         auto& appInfoNode = tree.get_child("event.appInfo");
+
         insertMessageContent(updateEvent, appInfoNode);
 
         tree.put("event.timestamp", timestamp);
