@@ -198,6 +198,7 @@ namespace SulDownloader
         LOGERROR("Failed to connect to the warehouse");
         auto warehouseEmpty = std::unique_ptr<WarehouseRepository>(new WarehouseRepository(false));
         warehouseEmpty->setError("Failed to connect to warehouse");
+        warehouseEmpty->m_error.status = WarehouseStatus::CONNECTIONERROR;
         return warehouseEmpty;
     }
 
