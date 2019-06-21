@@ -219,28 +219,12 @@ namespace SulDownloader
             auto report = DownloadReport::Report("SulDownloader failed.");
             return DownloadReport::CodeAndSerialize(report);
         }
-    };
+    }
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath)
     {
-        std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(outputParentPath);
-
         // Filter file list to make sure all the files are report files based on file name
-        std::vector<std::string> previousReportFiles;
-        std::string startPattern("update_report");
-        std::string endPattern(".json");
-
-        for (auto& file : filesInReportDirectory)
-        {
-            std::string fileName = Common::FileSystem::basename(file);
-
-            // make sure file name begins with 'report' and ends with .'json'
-            if (fileName.find(startPattern) == 0 &&
-                fileName.find(endPattern) == (fileName.length() - endPattern.length()))
-            {
-                previousReportFiles.push_back(file);
-            }
-        }
+        auto previousReportFiles = DownloadReport::listOfAllPreviousReports(outputParentPath);
 
         std::string previousDownloadReport;
 

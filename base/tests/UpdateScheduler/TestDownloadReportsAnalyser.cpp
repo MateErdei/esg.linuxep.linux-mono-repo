@@ -186,7 +186,7 @@ public:
                    << ", received: " << resulted.FirstFailedTime;
         }
 
-        return productsAreEquivalent(m_expr, n_expr, expected.Products, resulted.Products);
+        return productsAreEquivalent(m_expr, n_expr, expected.Subscriptions, resulted.Subscriptions);
     }
 
     UpdateEvent upgradeEvent()
@@ -194,7 +194,7 @@ public:
         UpdateEvent event;
         event.IsRelevantToSend = true;
         event.UpdateSource = SophosURL;
-        event.MessageNumber = EventMessageNumber::SUCCESS;
+        event.MessageNumber = 0;
         return event;
     }
 
@@ -213,7 +213,7 @@ public:
         //        std::string ProductName;
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
-        status.Products = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
+        status.Subscriptions = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
         return status;
     }
 
@@ -316,14 +316,14 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // N
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::CONNECTIONERROR;
+    expectedEvent.MessageNumber = 112;
     expectedEvent.Messages.emplace_back("", "failed2connect");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 112;
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = StartTimeTest;
-    expectedStatus.Products.clear();
+    expectedStatus.Subscriptions.clear();
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -341,7 +341,7 @@ TEST_F(TestDownloadReportAnalyser, SingleFailureInstallOfPluginErrorAreReported)
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -366,7 +366,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedByInstallFailure) // NOLINT
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -392,7 +392,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
 
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -408,7 +408,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFilesAndNonReportsAreFilteredOut) // NOLINT
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
     std::string file1 =
@@ -419,12 +419,12 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
         DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
     // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
     // files in the chronological order.
-    std::vector<std::string> files{ "file3", "file1", "file2" };
+    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json", "Config.json", "Update_Config.json" };
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, readFile("file1")).WillOnce(Return(file1));
-    EXPECT_CALL(*mockFileSystem, readFile("file2")).WillOnce(Return(file2));
-    EXPECT_CALL(*mockFileSystem, readFile("file3")).WillOnce(Return(file3));
+    EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(file1));
+    EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(file2));
+    EXPECT_CALL(*mockFileSystem, readFile("update_report_3.json")).WillOnce(Return(file3));
 
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
@@ -432,14 +432,14 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
     ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
 
-    std::vector<std::string> sortedOrder{ "file1", "file2", "file3" };
+    std::vector<std::string> sortedOrder{ "update_report_1.json", "update_report_2.json", "update_report_3.json"};
 
     EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
 
     // copy from SuccessFollowedBy2Failures
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -493,7 +493,7 @@ TEST_F(TestDownloadReportAnalyser, FailedUpdateGeneratesCorrectStatusAndEvents) 
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 103;
@@ -519,7 +519,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessfulUpgradeSendEvents) // NOLINT
     UpdateEvent expectedEvent = upgradeEvent();
     // event must be sent
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
@@ -546,7 +546,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithN
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
     expectedStatus.LastSyncTime = FinishTimeTest;
@@ -576,7 +576,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateEvent expectedEvent = upgradeEvent();
     // no event to be sent as update followed by upgrade
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     expectedEvent.UpdateSource = "cache1";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
@@ -607,7 +607,7 @@ TEST_F(TestDownloadReportAnalyser, UpgradeFollowedby2UpdateDoesNotSendEventWithC
     UpdateEvent expectedEvent = upgradeEvent();
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     expectedEvent.UpdateSource = "cache2";
     UpdateStatus expectedStatus = upgradeStatus();
     expectedStatus.LastResult = 0;
@@ -655,7 +655,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
+    expectedEvent.MessageNumber = 103;
     expectedEvent.UpdateSource = "Sophos";
 
     // FIXME: LINUXEP-6473
@@ -668,8 +668,8 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Products.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
-    expectedStatus.Products.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -730,7 +730,7 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = false;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     expectedEvent.UpdateSource = "Sophos";
 
     UpdateStatus expectedStatus;
@@ -740,9 +740,9 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
     expectedStatus.LastSyncTime = "20180821 121220";
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Products.push_back(
+    expectedStatus.Subscriptions.emplace_back(
         ProductStatus{ "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0" });
-    expectedStatus.Products.push_back(
+    expectedStatus.Subscriptions.emplace_back(
         ProductStatus{ "ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0" });
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
@@ -758,11 +758,12 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
                 "urlSource": "https://localhost:1233",
                 "products": [
                 { "rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
     std::string lastReport{ R"sophos({ "startTime": "20190604 144207", "finishTime": "20190604 144207", "syncTime": "20190604 144207", "status": "SUCCESS", "sulError": "", "errorDescription": "",
                 "urlSource": "https://localhost:1233",
                 "products": [
-                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" }, { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
+                {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" },
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
     suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
     suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
 
@@ -772,7 +773,7 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     UpdateEvent expectedEvent;
     // send event because cache changed
     expectedEvent.IsRelevantToSend = true;
-    expectedEvent.MessageNumber = EventMessageNumber::SUCCESS;
+    expectedEvent.MessageNumber = 0;
     expectedEvent.UpdateSource = "https://localhost:1233";
 
     UpdateStatus expectedStatus;
@@ -782,8 +783,11 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     expectedStatus.LastSyncTime = "20190604 144207";
     expectedStatus.LastInstallStartedTime = "20190604 144145";
     expectedStatus.FirstFailedTime.clear();
-    expectedStatus.Products.push_back(
+    expectedStatus.Subscriptions.emplace_back(
             ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
+    expectedStatus.Products.emplace_back(
+            ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
+
     // Plugin is not Reported, as it has been Uninstalled.
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);

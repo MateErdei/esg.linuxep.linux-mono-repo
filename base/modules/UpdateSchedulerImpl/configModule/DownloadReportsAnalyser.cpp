@@ -19,8 +19,20 @@ namespace
 {
     using MessageInsert = UpdateSchedulerImpl::configModule::MessageInsert;
     using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
-    using EventMessageNumber = UpdateSchedulerImpl::configModule::EventMessageNumber;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
+    enum EventMessageNumber
+    {
+        SUCCESS = 0,
+        INSTALLFAILED = 103,
+        INSTALLCAUGHTERROR = 106,
+        DOWNLOADFAILED = 107,
+        UPDATECANCELLED = 108,
+        RESTARTEDNEEDED = 109,
+        UPDATESOURCEMISSING = 110,
+        SINGLEPACKAGEMISSING = 111,
+        CONNECTIONERROR = 112,
+        MULTIPLEPACKAGEMISSING = 113
+    };
 
     void buildMessagesInsertFromDownloadReport(
         std::vector<MessageInsert>* messages,
@@ -138,8 +150,12 @@ namespace
         {
             if ( product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
             {
-                status.Products.emplace_back(product.rigidName, product.name, product.downloadedVersion);
+                status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
+        }
+        for( auto & whComponent: report.getWarehouseComponents())
+        {
+            status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
         }
         return status;
     }
@@ -160,23 +176,40 @@ namespace UpdateSchedulerImpl
 
             const SulDownloader::suldownloaderdata::DownloadReport& lastReport =
                 reportCollection.at(reportCollection.size() - 1);
-
+            ReportCollectionResult collectionResult;
             if (lastReport.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
-                return handleSuccessReports(reportCollection);
+                 collectionResult = handleSuccessReports(reportCollection);
             }
             else
             {
-                return handleFailureReports(reportCollection);
+                collectionResult = handleFailureReports(reportCollection);
             }
+
+            // special case is required for the status to report the list of warehousecomponents because
+            // it is necessary to look for previous report when no product is listed.
+            if ( collectionResult.SchedulerStatus.Products.empty())
+            {
+                // reverse iteration to find the latest report with non empty products
+                // skipping the latest one that has already been checked
+                for( int i = static_cast<int>(reportCollection.size())-2; i >= 0; i--)
+                {
+
+                    UpdateStatus lastStatus = extractStatusFromSingleReport(reportCollection[i], collectionResult.SchedulerEvent);
+                    if ( !lastStatus.Products.empty())
+                    {
+                        collectionResult.SchedulerStatus.Products = lastStatus.Products;
+                        break;
+                    }
+                }
+            }
+            return collectionResult;
         }
 
         ReportAndFiles DownloadReportsAnalyser::processReports()
         {
-            std::vector<std::string> listFiles = Common::FileSystem::fileSystem()->listFiles(
-                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
-            std::string configFile =
-                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+            auto listFiles = DownloadReport::listOfAllPreviousReports(
+                    Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
             struct FileAndDownloadReport
             {
@@ -191,10 +224,6 @@ namespace UpdateSchedulerImpl
             {
                 try
                 {
-                    if (filepath == configFile)
-                    {
-                        continue;
-                    }
                     std::string content = Common::FileSystem::fileSystem()->readFile(filepath);
                     SulDownloader::suldownloaderdata::DownloadReport fileReport =
                         SulDownloader::suldownloaderdata::DownloadReport::toReport(content);
@@ -386,11 +415,11 @@ namespace UpdateSchedulerImpl
 
             // if the current report does not report products, we still need to list them, but we can do it only if
             // there is at least one LastGoodSync
-            if (collectionResult.SchedulerStatus.Products.empty() && indexOfLastGoodSync != -1)
+            if (collectionResult.SchedulerStatus.Subscriptions.empty() && indexOfLastGoodSync != -1)
             {
                 auto statusWithProducts =
                     extractStatusFromSingleReport(reportCollection.at(indexOfLastGoodSync), previousEvent);
-                collectionResult.SchedulerStatus.Products = statusWithProducts.Products;
+                collectionResult.SchedulerStatus.Subscriptions = statusWithProducts.Subscriptions;
             }
 
             return collectionResult;
