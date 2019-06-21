@@ -80,6 +80,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master,bugfix/LINUXEP-8314-telemetry-cert-path</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>
