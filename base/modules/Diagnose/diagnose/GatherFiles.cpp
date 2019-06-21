@@ -24,7 +24,8 @@ namespace
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
         static const std::vector<std::string> interestingExtensions{ ".xml",    ".json", ".txt",   ".conf",
-                                                                     ".config", ".log",  ".log.1", ".dat" };
+                                                                     ".config", ".log",  ".log.1", ".dat",
+                                                                     ".flags"};
 
         for (const auto& type : interestingExtensions)
         {
@@ -174,14 +175,66 @@ namespace diagnose
         throw std::invalid_argument("Error: No config file - " + configFileName);
     }
 
+
+    void GatherFiles::copyPluginSubDirectoryLogFiles(const Path& pluginsDir, const std::string& pluginName, const Path& destination)
+    {
+        static const std::vector<std::string> possiblePluginLogSubDirectories{"dbos/data/logs"};
+
+        // Copy all files from sub directories specified in possiblePluginLogSubDirectories
+        for(const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
+        {
+            std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleSubDirectory);
+
+            std::cout << absolutePath.c_str() << std::endl;
+
+            if(m_fileSystem.isDirectory(absolutePath))
+            {
+                std::string newDestinationPath = Common::FileSystem::join(destination, pluginName, possibleSubDirectory);
+
+                m_fileSystem.makedirs(newDestinationPath);
+
+                std::vector<Path> files = m_fileSystem.listFiles(absolutePath);
+
+                for(const auto& file : files)
+                {
+                    copyFileIntoDirectory(file, newDestinationPath);
+                }
+            }
+        }
+    }
+
+    void GatherFiles::copyPluginSubDirectoryInterestingFiles(const Path& pluginsDir, const std::string& pluginName, const Path& destination)
+    {
+        static const std::vector<std::string> possiblePluginInterestingSubDirectories{"dbos/data"};
+
+        // Copy all interesting files from sub directories specified in possiblePluginLogSubDirectories
+        for(const auto& possibleInterestingSubDirectory : possiblePluginInterestingSubDirectories)
+        {
+            std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleInterestingSubDirectory);
+
+            std::cout << absolutePath.c_str() << std::endl;
+
+            if(m_fileSystem.isDirectory(absolutePath))
+            {
+                std::string newDestinationPath = Common::FileSystem::join(destination, pluginName, possibleInterestingSubDirectory);
+
+                m_fileSystem.makedirs(newDestinationPath);
+
+                copyAllOfInterestFromDir(absolutePath, newDestinationPath);
+            }
+        }
+    }
+
     void GatherFiles::copyPluginFiles(const Path& destination)
     {
         // Find names of the plugins installed
         Path pluginsDir = Common::FileSystem::join(m_installDirectory, "plugins");
+
         if (!m_fileSystem.isDirectory(pluginsDir))
         {
             return;
         }
+
         std::vector<Path> pluginDirs = m_fileSystem.listDirectories(pluginsDir);
 
         for (const auto& absolutePluginPath : pluginDirs)
@@ -189,10 +242,15 @@ namespace diagnose
             std::string pluginName = Common::FileSystem::basename(absolutePluginPath);
 
             Path pluginLogDir = Common::FileSystem::join(pluginsDir, pluginName, "log");
+
             if (m_fileSystem.isDirectory(pluginLogDir))
             {
                 copyAllOfInterestFromDir(pluginLogDir, destination);
             }
+
+            copyPluginSubDirectoryLogFiles(pluginsDir, pluginName, destination);
+
+            copyPluginSubDirectoryInterestingFiles(pluginsDir, pluginName, destination);
         }
     }
 } // namespace diagnose

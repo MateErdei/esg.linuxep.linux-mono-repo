@@ -82,6 +82,21 @@ namespace diagnose
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
 
+        /*
+         * Copies all plugin files (expected to be log files) from a predefined set of sub-directories to the destination directory.
+         * If the predefined sub-directory does not exist, it is ignored.  The sub-directory structure is maintained when copying to the
+         * destination folder.
+         */
+        void copyPluginSubDirectoryLogFiles(const Path& pluginsDir, const std::string& pluginName, const Path& destination);
+
+        /*
+         * Copies all interesting files  from a predefined set of sub-directories to the destination directory.
+         * If the predefined sub-directory does not exist, it is ignored.  The sub-directory structure is maintained when copying to the
+         * destination folder.
+         */
+        void copyPluginSubDirectoryInterestingFiles(const Path& pluginDir, const std::string& pluginName, const Path& destination);
+
+
         std::vector<std::string> m_logFilePaths;
         Common::FileSystem::FileSystemImpl m_fileSystem;
         std::string m_installDirectory;
