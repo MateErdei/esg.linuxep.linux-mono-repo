@@ -102,6 +102,25 @@ TEST_F(HttpSenderTest, putRequest) // NOLINT
     EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
 }
 
+TEST_F(HttpSenderTest, putRequestWithImplicitCertPath) // NOLINT
+{
+    EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));
+    EXPECT_CALL(*m_curlWrapper, curlEasySetOpt(_,_,_)).Times(4).WillRepeatedly(Return(m_succeededResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyPerform(_)).WillOnce(Return(m_succeededResult));
+    EXPECT_CALL(*m_curlWrapper, curlEasyCleanup(_));
+    EXPECT_CALL(*m_curlWrapper, curlGlobalCleanup());
+
+    RequestConfig putRequestConfig(
+        RequestType::PUT,
+        m_additionalHeaders,
+        m_defaultServer,
+        m_defaultPort,
+        "",
+        m_defaultResourceRoot);
+
+    EXPECT_EQ(m_httpSender->doHttpsRequest(putRequestConfig), m_succeededResult);
+}
+
 TEST_F(HttpSenderTest, getRequest_AdditionalHeaderSuccess) // NOLINT
 {
     EXPECT_CALL(*m_curlWrapper, curlEasyInit()).WillOnce(Return(&m_curlHandle));

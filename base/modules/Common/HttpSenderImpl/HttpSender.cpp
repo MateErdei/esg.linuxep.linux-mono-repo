@@ -115,22 +115,28 @@ namespace Common::HttpSenderImpl
             const std::vector<Path> caPaths = { "/etc/ssl/certs/ca-certificates.crt",
                                                 "/etc/pki/tls/certs/ca-bundle.crt" };
 
+            bool caPathFound = false;
+
             for (const auto& caPath : caPaths)
             {
                 if (FileSystem::fileSystem()->isFile(caPath))
                 {
-                    LOGINFO("Using library specified Certificate Authority path: " << caPath);
-                    curlOptions.emplace_back(
-                        "Path for Certificate Authority bundle", CURLOPT_CAINFO, caPath);
+                    caPathFound = true;
+                    LOGINFO("Using library specified CA path: " << caPath);
+                    curlOptions.emplace_back("Path for CA bundle", CURLOPT_CAINFO, caPath);
                     break;
                 }
+            }
+
+            if (!caPathFound)
+            {
+                LOGWARN("CA path not found");
             }
         }
         else
         {
-            LOGINFO("Using client specified Certificate Authority path: " << certPath);
-            curlOptions.emplace_back(
-                "Path for Certificate Authority bundle", CURLOPT_CAINFO, certPath);
+            LOGINFO("Using client specified CA path: " << certPath);
+            curlOptions.emplace_back("Path for CA bundle", CURLOPT_CAINFO, certPath);
         }
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
