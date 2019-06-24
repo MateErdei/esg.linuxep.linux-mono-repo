@@ -91,3 +91,23 @@ add_custom_target(
         COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
 
+# Get the latest abbreviated commit hash of the working branch
+execute_process(
+        COMMAND git log -1 --format=%h
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/readVersion.py  ${CMAKE_BINARY_DIR}/version_tmp.txt
+            COMMAND cat ${CMAKE_BINARY_DIR}/version_tmp.txt
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+        COMMAND date +%Y-%m-%d
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE BUILD_DATE
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+configure_file(VERSION.h.in VERSION.h @ONLY)
