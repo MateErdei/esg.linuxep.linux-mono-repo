@@ -149,7 +149,7 @@ namespace diagnose
             }
             else
             {
-                std::cout << "Error " << filePath << " is neither a file nor directory." << std::endl;
+                std::cout << "Skipping " << filePath << " is neither a file nor directory." << std::endl;
             }
         }
     }
@@ -203,28 +203,6 @@ namespace diagnose
         }
     }
 
-    void GatherFiles::copyPluginSubDirectoryInterestingFiles(const Path& pluginsDir, const std::string& pluginName, const Path& destination)
-    {
-        static const std::vector<std::string> possiblePluginInterestingSubDirectories{"dbos/data"};
-
-        // Copy all interesting files from sub directories specified in possiblePluginLogSubDirectories
-        for(const auto& possibleInterestingSubDirectory : possiblePluginInterestingSubDirectories)
-        {
-            std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleInterestingSubDirectory);
-
-            std::cout << absolutePath.c_str() << std::endl;
-
-            if(m_fileSystem.isDirectory(absolutePath))
-            {
-                std::string newDestinationPath = Common::FileSystem::join(destination, pluginName, possibleInterestingSubDirectory);
-
-                m_fileSystem.makedirs(newDestinationPath);
-
-                copyAllOfInterestFromDir(absolutePath, newDestinationPath);
-            }
-        }
-    }
-
     void GatherFiles::copyPluginFiles(const Path& destination)
     {
         // Find names of the plugins installed
@@ -249,8 +227,6 @@ namespace diagnose
             }
 
             copyPluginSubDirectoryLogFiles(pluginsDir, pluginName, destination);
-
-            copyPluginSubDirectoryInterestingFiles(pluginsDir, pluginName, destination);
         }
     }
 } // namespace diagnose
