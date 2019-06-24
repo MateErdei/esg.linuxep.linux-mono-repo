@@ -15,6 +15,20 @@ namespace UpdateSchedulerImpl
 {
     namespace configModule
     {
+        enum EventMessageNumber
+        {
+            SUCCESS = 0,
+            INSTALLFAILED = 103,
+            INSTALLCAUGHTERROR = 106,
+            DOWNLOADFAILED = 107,
+            UPDATECANCELLED = 108,
+            RESTARTEDNEEDED = 109,
+            UPDATESOURCEMISSING = 110,
+            SINGLEPACKAGEMISSING = 111,
+            CONNECTIONERROR = 112,
+            MULTIPLEPACKAGEMISSING = 113
+        };
+
         struct MessageInsert
         {
             MessageInsert(std::string pN, std::string err) : PackageName(std::move(pN)), ErrorDetails(std::move(err)) {}
@@ -25,10 +39,10 @@ namespace UpdateSchedulerImpl
 
         struct UpdateEvent
         {
-            UpdateEvent() : IsRelevantToSend(false), MessageNumber(0), Messages(), UpdateSource() {}
+            UpdateEvent() : IsRelevantToSend(false), MessageNumber(EventMessageNumber::SUCCESS), Messages(), UpdateSource() {}
 
             bool IsRelevantToSend;
-            int MessageNumber;
+            EventMessageNumber MessageNumber;
             std::vector<MessageInsert> Messages;
             std::string UpdateSource;
         };

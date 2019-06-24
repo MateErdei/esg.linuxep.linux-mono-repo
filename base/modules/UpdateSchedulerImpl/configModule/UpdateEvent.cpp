@@ -29,6 +29,8 @@ namespace
      */
     void insertMessageContent(const UpdateEvent& event, pt::ptree& addInfoNode)
     {
+        using EventMessageNumber = UpdateSchedulerImpl::configModule::EventMessageNumber;
+
         if (event.Messages.empty())
         {
             return;
@@ -57,7 +59,9 @@ namespace
             }
         };
 
-        std::set<int> errorCodes = {103,106,107,111,112};
+        std::set<int> errorCodes = {EventMessageNumber::INSTALLFAILED,EventMessageNumber::INSTALLCAUGHTERROR,
+                                    EventMessageNumber::DOWNLOADFAILED,EventMessageNumber::SINGLEPACKAGEMISSING,
+                                    EventMessageNumber::CONNECTIONERROR};
 
         if (errorCodes.find(event.MessageNumber) != errorCodes.end())
         {
@@ -69,28 +73,30 @@ namespace
 
             switch(event.MessageNumber)
             {
-                case(103):
+                case(EventMessageNumber::INSTALLFAILED):
                     sendName(e, &messageInsertsNode);
                     if (!e.PackageName.empty()) // Only send error details if package name is sent first
                     {
                         sendDetails(e, &messageInsertsNode);
                     }
                     break;
-                case(106):
+                case(EventMessageNumber::INSTALLCAUGHTERROR):
                     sendDetails(e, &messageInsertsNode);
                     break;
-                case(107):
+                case(EventMessageNumber::DOWNLOADFAILED):
                     sendName(e, &messageInsertsNode);
                     if (!e.PackageName.empty()) // Only send error details if package name is sent first
                     {
                         sendDetails(e, &messageInsertsNode);
                     }
                     break;
-                case(111):
+                case(EventMessageNumber::SINGLEPACKAGEMISSING):
                     sendName(e, &messageInsertsNode);
                     break;
-                case(112):
+                case(EventMessageNumber::CONNECTIONERROR):
                     sendDetails(e, &messageInsertsNode);
+                    break;
+                default:
                     break;
             }
         }

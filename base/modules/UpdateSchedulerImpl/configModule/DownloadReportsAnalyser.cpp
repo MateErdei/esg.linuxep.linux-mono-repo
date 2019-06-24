@@ -19,20 +19,8 @@ namespace
 {
     using MessageInsert = UpdateSchedulerImpl::configModule::MessageInsert;
     using UpdateEvent = UpdateSchedulerImpl::configModule::UpdateEvent;
+    using EventMessageNumber = UpdateSchedulerImpl::configModule::EventMessageNumber;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
-    enum EventMessageNumber
-    {
-        SUCCESS = 0,
-        INSTALLFAILED = 103,
-        INSTALLCAUGHTERROR = 106,
-        DOWNLOADFAILED = 107,
-        UPDATECANCELLED = 108,
-        RESTARTEDNEEDED = 109,
-        UPDATESOURCEMISSING = 110,
-        SINGLEPACKAGEMISSING = 111,
-        CONNECTIONERROR = 112,
-        MULTIPLEPACKAGEMISSING = 113
-    };
 
     void buildMessagesInsertFromDownloadReport(
         std::vector<MessageInsert>* messages,
