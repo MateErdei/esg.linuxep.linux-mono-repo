@@ -327,7 +327,7 @@ function build()
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env
     echo "export PATH=$PATH" >>env
 
-    [[ -n ${NPROC:-} ]] || NPROC=2
+    [[ -n ${NPROC:-} ]] || (which nproc && NPROC=`nproc`) ||  NPROC=2
     cmake -v \
         -DPRODUCT_NAME="${PRODUCT_NAME}" \
         -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
