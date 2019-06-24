@@ -208,7 +208,7 @@ namespace UpdateSchedulerImpl
 
         ReportAndFiles DownloadReportsAnalyser::processReports()
         {
-            auto listFiles = DownloadReport::listOfAllPreviousReports(
+            auto listOfReportFiles = DownloadReport::listOfAllPreviousReports(
                     Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
             struct FileAndDownloadReport
@@ -220,7 +220,7 @@ namespace UpdateSchedulerImpl
 
             std::vector<FileAndDownloadReport> reportCollection;
 
-            for (auto& filepath : listFiles)
+            for (auto& filepath : listOfReportFiles)
             {
                 try
                 {

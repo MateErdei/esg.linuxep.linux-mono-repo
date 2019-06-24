@@ -81,8 +81,8 @@ namespace SulDownloader
     DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
 
     DownloadReport DownloadReport::Report(
-            const suldownloaderdata::IWarehouseRepository &warehouse,
-            const suldownloaderdata::TimeTracker &timeTracker)
+        const suldownloaderdata::IWarehouseRepository& warehouse,
+        const suldownloaderdata::TimeTracker& timeTracker)
     {
         DownloadReport report;
         report.setTimings(timeTracker);
@@ -172,7 +172,7 @@ namespace SulDownloader
         return report;
     }
 
-    std::vector<std::string> DownloadReport::listOfAllPreviousReports(const std::string &outputParentPath)
+    std::vector<std::string> DownloadReport::listOfAllPreviousReports(const std::string& outputParentPath)
     {
         std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(outputParentPath);
 
@@ -181,22 +181,20 @@ namespace SulDownloader
         std::string startPattern("update_report");
         std::string endPattern(".json");
 
-        for (auto &file : filesInReportDirectory)
+        for (auto& file : filesInReportDirectory)
         {
             std::string fileName = Common::FileSystem::basename(file);
 
-            // make sure file name begins with 'report' and ends with .'json'
+            // make sure file name begins with 'report' and ends with '.json'
             using strUtils = Common::UtilityImpl::StringUtils;
 
-            if (strUtils::startswith(fileName, startPattern) &&
-                strUtils::endswith(fileName, endPattern))
+            if (strUtils::startswith(fileName, startPattern) && strUtils::endswith(fileName, endPattern))
             {
                 previousReportFiles.emplace_back(file);
             }
         }
         return previousReportFiles;
     }
-
 
     WarehouseStatus DownloadReport::getStatus() const { return m_status; }
 

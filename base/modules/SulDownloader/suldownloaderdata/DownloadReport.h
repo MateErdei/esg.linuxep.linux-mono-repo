@@ -76,7 +76,7 @@ namespace SulDownloader
 
             static DownloadReport Report(const std::string& errorDescription);
 
-            static std::vector<std::string> listOfAllPreviousReports(const std::string &outputParentPath);
+            static std::vector<std::string> listOfAllPreviousReports(const std::string& outputParentPath);
 
             static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport& report);
 

@@ -419,7 +419,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFilesAndNonRep
         DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
     // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
     // files in the chronological order.
-    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json", "Config.json", "Update_Config.json" };
+    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json", "Config.json", "update_uonfig.json", "random_unknown.json" };
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(file1));
