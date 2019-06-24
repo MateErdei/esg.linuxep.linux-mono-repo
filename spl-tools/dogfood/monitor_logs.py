@@ -129,11 +129,45 @@ def monitor_log_file(log_path):
             pass
 
 
+# Default to SSPL
 g_product = "SSPL"
+
+
+def usage():
+    print("Wrong arguments. Usage below:")
+    this_script_name = os.path.basename(__file__)
+
+    print("python3 {} [product]".format(this_script_name))
+    print("Supported products: SAV, SSPL")
+    print("Examples:")
+    print("python3 {} SSPL".format(this_script_name))
+    print("python3 {} SAV".format(this_script_name))
+
 
 def main():
 
-    log_dirs = ["/opt/sophos-spl"]
+    global g_product
+
+    if len(sys.argv) != 2:
+        usage()
+        exit(1)
+
+    arg = sys.argv[1].lower()
+    if "sav" in arg:
+        g_product = "SAV"
+    elif "sspl" in arg:
+        g_product = "SSPL"
+
+    print("Monitoring mode: {}".format(g_product))
+
+    log_dirs = []
+    if g_product == "SAV":
+        log_dirs.append("/opt/sophos-av")
+    elif g_product == "SSPL":
+        log_dirs.append("/opt/sophos-spl")
+    else:
+        print("ERROR: product not set correctly: {}".format(g_product))
+        exit(1)
 
     from pathlib import Path
     logs = []
