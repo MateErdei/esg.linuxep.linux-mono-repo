@@ -42,8 +42,8 @@ void TelemetryProcessor::Run()
         throw std::runtime_error(msg.str());
     }
 
-    sendTelemetry(telemetryJson);
     saveTelemetry(telemetryJson);
+    sendTelemetry(telemetryJson);
 }
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
