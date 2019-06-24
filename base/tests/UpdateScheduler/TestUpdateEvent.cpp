@@ -127,7 +127,7 @@ TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
 }
 
 
-TEST_F(TestSerializeEvent, installFAiledTwoProducts) // NOLINT
+TEST_F(TestSerializeEvent, installFailedTwoProducts) // NOLINT
 {
     static const std::string installFailedEventXML{ R"sophos(<?xml version="1.0"?>
 <event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
@@ -138,8 +138,6 @@ TEST_F(TestSerializeEvent, installFAiledTwoProducts) // NOLINT
       <message_inserts>
         <insert>BaseName</insert>
         <insert>Base failed to install</insert>
-        <insert>PluginName</insert>
-        <insert>Plugin failed to install</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -183,8 +181,6 @@ TEST_F(TestSerializeEvent, downloadFailedEvent) // NOLINT
       <message_inserts>
         <insert>BaseName</insert>
         <insert>Base failed to download</insert>
-        <insert>PluginName</insert>
-        <insert>Plugin failed to download</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
@@ -224,12 +220,6 @@ TEST_F(TestSerializeEvent, productsMissing) // NOLINT
   <timestamp>20180816 083654</timestamp>
   <appInfo>
     <number>113</number>
-    <message>
-      <message_inserts>
-        <insert>BaseName</insert>
-        <insert>PluginName</insert>
-      </message_inserts>
-    </message>
   <updateSource>Sophos</updateSource>
   </appInfo>
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>

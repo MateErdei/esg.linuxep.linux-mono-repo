@@ -41,31 +41,61 @@ namespace
             return;
         }
 
-        addInfoNode.insert(addInfoNode.to_iterator(it), { "message", pt::ptree() });
-        auto& messageNode = addInfoNode.get_child("message");
-        auto& messageInsertsNode = messageNode.put("message_inserts", "");
-
-        std::set<int> errorcodes = {103,106,107,111,112,113};
-        std::set<int> sendName = {103,107,111,113};
-        std::set<int> sendDetails = {103,106,107,112};
-
-        if (errorcodes.find(event.MessageNumber) != errorcodes.end() ) // 103, 106, 107, 111, 112
+        auto sendName = [&](auto e, auto messageInsertsNode)
         {
-
-            for (auto& e : event.Messages)
+            if (!e.PackageName.empty())
             {
-                if (!e.PackageName.empty() && (sendName.find(event.MessageNumber) != sendName.end()) ) // 103, 107, 111
-                {
-                    messageInsertsNode.add("insert", e.PackageName);
-                }
+                messageInsertsNode->add("insert", e.PackageName);
+            }
+        };
 
-                if (!e.ErrorDetails.empty()  && (sendDetails.find(event.MessageNumber) != sendDetails.end())) // 106, 112 // 103 and 107 if PackageName not empty
-                {
-                    messageInsertsNode.add("insert", e.ErrorDetails);
-                }
+        auto sendDetails = [&](auto e, auto messageInsertsNode)
+        {
+            if (!e.ErrorDetails.empty())
+            {
+                messageInsertsNode->add("insert", e.ErrorDetails);
+            }
+        };
+
+        std::set<int> errorCodes = {103,106,107,111,112};
+
+        if (errorCodes.find(event.MessageNumber) != errorCodes.end())
+        {
+            addInfoNode.insert(addInfoNode.to_iterator(it), { "message", pt::ptree() });
+            auto& messageNode = addInfoNode.get_child("message");
+            auto& messageInsertsNode = messageNode.put("message_inserts", "");
+
+            auto e = event.Messages[0]; // Sophos Central only supports sending one message
+
+            switch(event.MessageNumber)
+            {
+                case(103):
+                    sendName(e, &messageInsertsNode);
+                    if (!e.PackageName.empty()) // Only send error details if package name is sent first
+                    {
+                        sendDetails(e, &messageInsertsNode);
+                    }
+                    break;
+                case(106):
+                    sendDetails(e, &messageInsertsNode);
+                    break;
+                case(107):
+                    sendName(e, &messageInsertsNode);
+                    if (!e.PackageName.empty()) // Only send error details if package name is sent first
+                    {
+                        sendDetails(e, &messageInsertsNode);
+                    }
+                    break;
+                case(111):
+                    sendName(e, &messageInsertsNode);
+                    break;
+                case(112):
+                    sendDetails(e, &messageInsertsNode);
+                    break;
             }
         }
     }
+
 
     std::string eventXML(
         const UpdateEvent& updateEvent,
