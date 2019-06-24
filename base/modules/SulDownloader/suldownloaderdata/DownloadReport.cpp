@@ -23,12 +23,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
-namespace {
+namespace
+{
     SulDownloaderProto::ProductStatusReport_ProductStatus convert(ProductReport::ProductStatus productStatus)
     {
         using ProductStatus = ProductReport::ProductStatus;
         using namespace SulDownloaderProto;
-        switch (productStatus) {
+        switch (productStatus)
+        {
             case ProductStatus::UpToDate:
                 return ProductStatusReport_ProductStatus_UPTODATE;
             case ProductStatus::Upgraded:
@@ -76,7 +78,6 @@ namespace {
 namespace SulDownloader
 {
     using namespace Common::UtilityImpl;
-
     DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
 
     DownloadReport DownloadReport::Report(
@@ -100,11 +101,11 @@ namespace SulDownloader
     }
 
     DownloadReport DownloadReport::Report(
-            const std::string &sourceURL,
-            const std::vector<suldownloaderdata::DownloadedProduct> &products,
-            const std::vector<suldownloaderdata::ProductInfo> &warehouseComponents,
-            TimeTracker *timeTracker,
-            VerifyState verifyState)
+        const std::string& sourceURL,
+        const std::vector<suldownloaderdata::DownloadedProduct>& products,
+        const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents,
+        TimeTracker* timeTracker,
+        VerifyState verifyState)
     {
         assert(timeTracker != nullptr);
 
@@ -120,7 +121,7 @@ namespace SulDownloader
             report.m_status = WarehouseStatus::DOWNLOADFAILED;
         }
 
-        for (const auto &product : products)
+        for (const auto& product : products)
         {
             if (product.hasError())
             {
@@ -142,7 +143,7 @@ namespace SulDownloader
 
         if (verifyState == VerifyState::VerifyFailed)
         {
-            for (auto &productReport : report.m_productReport)
+            for (auto& productReport : report.m_productReport)
             {
                 productReport.productStatus = ProductReport::ProductStatus::VerifyFailed;
             }
@@ -160,7 +161,7 @@ namespace SulDownloader
         return report;
     }
 
-    DownloadReport DownloadReport::Report(const std::string &errorDescription)
+    DownloadReport DownloadReport::Report(const std::string& errorDescription)
     {
         DownloadReport report;
         TimeTracker tt;
@@ -199,25 +200,25 @@ namespace SulDownloader
 
     WarehouseStatus DownloadReport::getStatus() const { return m_status; }
 
-    const std::string &DownloadReport::getDescription() const { return m_description; }
+    const std::string& DownloadReport::getDescription() const { return m_description; }
 
-    const std::string &DownloadReport::getStartTime() const { return m_startTime; }
+    const std::string& DownloadReport::getStartTime() const { return m_startTime; }
 
-    const std::string &DownloadReport::getFinishedTime() const { return m_finishedTime; }
+    const std::string& DownloadReport::getFinishedTime() const { return m_finishedTime; }
 
-    const std::string &DownloadReport::getSyncTime() const { return m_sync_time; }
+    const std::string& DownloadReport::getSyncTime() const { return m_sync_time; }
 
-    const std::vector<ProductReport> &DownloadReport::getProducts() const { return m_productReport; }
+    const std::vector<ProductReport>& DownloadReport::getProducts() const { return m_productReport; }
 
     void DownloadReport::setProductsInfo(
-            const std::vector<suldownloaderdata::DownloadedProduct> &products,
-            const WarehouseStatus &warehouseStatus)
+        const std::vector<suldownloaderdata::DownloadedProduct>& products,
+        const WarehouseStatus& warehouseStatus)
     {
         m_productReport.clear();
-        for (auto &product : products)
+        for (auto& product : products)
         {
             ProductReport productReportEntry;
-            auto &info = product.getProductMetadata();
+            auto& info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
@@ -229,10 +230,12 @@ namespace SulDownloader
                 (warehouseStatus == WarehouseStatus::PACKAGESOURCEMISSING))
             {
                 productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
-            } else {
+            }
+            else
+            {
                 productReportEntry.productStatus = (product.productHasChanged() || product.forceProductReinstall())
-                                                   ? ProductReport::ProductStatus::Upgraded
-                                                   : ProductReport::ProductStatus::UpToDate;
+                                                       ? ProductReport::ProductStatus::Upgraded
+                                                       : ProductReport::ProductStatus::UpToDate;
                 if (!productReportEntry.errorDescription.empty())
                 {
                     if (!product.getProductIsBeingUninstalled())
@@ -243,7 +246,8 @@ namespace SulDownloader
                     {
                         productReportEntry.productStatus = ProductReport::ProductStatus::UninstallFailed;
                     }
-                } else if (product.getProductIsBeingUninstalled())
+                }
+                else if (product.getProductIsBeingUninstalled())
                 {
                     productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
@@ -253,16 +257,16 @@ namespace SulDownloader
         }
     }
 
-    void DownloadReport::setTimings(const TimeTracker &timeTracker)
+    void DownloadReport::setTimings(const TimeTracker& timeTracker)
     {
         m_startTime = timeTracker.startTime();
         m_sync_time = timeTracker.syncTime();
         m_finishedTime = timeTracker.finishedTime();
     }
 
-    const std::string &DownloadReport::getSulError() const { return m_sulError; }
+    const std::string& DownloadReport::getSulError() const { return m_sulError; }
 
-    void DownloadReport::setError(const WarehouseError &error)
+    void DownloadReport::setError(const WarehouseError& error)
     {
         m_description = error.Description;
         m_status = error.status;
@@ -272,7 +276,7 @@ namespace SulDownloader
     int DownloadReport::getExitCode() const { return static_cast<int>(m_status); }
 
     // add one return the json content directly.
-    std::string DownloadReport::fromReport(const DownloadReport &report)
+    std::string DownloadReport::fromReport(const DownloadReport& report)
     {
         SulDownloaderProto::DownloadStatusReport protoReport;
         protoReport.set_starttime(report.getStartTime());
@@ -284,9 +288,9 @@ namespace SulDownloader
         protoReport.set_sulerror(report.getSulError());
         protoReport.set_urlsource(report.getSourceURL());
 
-        for (auto &product : report.getProducts())
+        for (auto& product : report.getProducts())
         {
-            SulDownloaderProto::ProductStatusReport *productReport = protoReport.add_products();
+            SulDownloaderProto::ProductStatusReport* productReport = protoReport.add_products();
             productReport->set_productname(product.name);
             productReport->set_rigidname(product.rigidName);
             productReport->set_downloadversion(product.downloadedVersion);
@@ -295,9 +299,9 @@ namespace SulDownloader
             productReport->set_productstatus(convert(product.productStatus));
         }
 
-        for (auto &warehouseComponent : report.getWarehouseComponents())
+        for (auto& warehouseComponent : report.getWarehouseComponents())
         {
-            SulDownloaderProto::WarehouseComponent *warehouseComponentProto = protoReport.add_warehousecomponents();
+            SulDownloaderProto::WarehouseComponent* warehouseComponentProto = protoReport.add_warehousecomponents();
             warehouseComponentProto->set_productname(warehouseComponent.m_productName);
             warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
             warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
@@ -306,14 +310,15 @@ namespace SulDownloader
         return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
     }
 
-    DownloadReport DownloadReport::toReport(const std::string &serializedVersion)
+    DownloadReport DownloadReport::toReport(const std::string& serializedVersion)
     {
         using namespace google::protobuf::util;
         using SulDownloaderProto::DownloadStatusReport;
 
         DownloadStatusReport protoReport;
         auto status = JsonStringToMessage(serializedVersion, &protoReport);
-        if (!status.ok()) {
+        if (!status.ok())
+        {
             LOGERROR("Failed to load SulDownload serialized string");
             LOGSUPPORT(status.ToString());
             throw SulDownloaderException("Failed to load SulDownloadReport from string");
@@ -330,7 +335,7 @@ namespace SulDownloader
         report.m_sulError = protoReport.sulerror();
         report.m_urlSource = protoReport.urlsource();
 
-        for (auto &protoProduct : protoReport.products())
+        for (auto& protoProduct : protoReport.products())
         {
             ProductReport productReport;
             productReport.rigidName = protoProduct.rigidname();
@@ -342,7 +347,7 @@ namespace SulDownloader
             report.m_productReport.push_back(productReport);
         }
 
-        for (auto &warehouseComponentProto : protoReport.warehousecomponents())
+        for (auto& warehouseComponentProto : protoReport.warehousecomponents())
         {
             ProductInfo productInfo;
             productInfo.m_productName = warehouseComponentProto.productname();
@@ -354,7 +359,7 @@ namespace SulDownloader
         return report;
     }
 
-    std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport &report)
+    std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport& report)
     {
         std::string json = DownloadReport::fromReport(report);
         return std::tuple<int, std::string>(report.getExitCode(), json);
@@ -362,7 +367,7 @@ namespace SulDownloader
 
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
-    const std::vector<ProductInfo> &DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
+    const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
 
     std::string ProductReport::statusToString() const
     {
