@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 #include <sys/stat.h>
 
@@ -42,7 +43,15 @@ void TelemetryProcessor::Run()
         throw std::runtime_error(msg.str());
     }
 
-    saveTelemetry(telemetryJson);
+    try
+    {
+        saveTelemetry(telemetryJson);
+    }
+    catch (Common::FileSystem::IFileSystemException& ex)
+    {
+        LOGERROR("Could not save telemetry JSON to disk: " << ex.what());
+    }
+
     sendTelemetry(telemetryJson);
 }
 
@@ -118,6 +127,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
         msg << "HTTP request failed with CURL result " << result;
         throw std::runtime_error(msg.str());
     }
+    LOGINFO("Sent telemetry");
 }
 
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const
