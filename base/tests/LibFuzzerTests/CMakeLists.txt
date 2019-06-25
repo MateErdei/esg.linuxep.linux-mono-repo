@@ -1,5 +1,5 @@
 
-set(PROTO_INPUT_FILE  message.proto ) # ${CMAKE_SOURCE_DIR}/modules/Common/PluginProtocol/proto/PluginAPIMessage.proto)
+set(PROTO_INPUT_FILE  message.proto )
 
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
@@ -13,6 +13,9 @@ add_executable(ManagementAgentApiTest
         ManagementAgentApiTest.cpp
 )
 
+# The different path for BUILD_FUZZ_TESTS and not is to enable developers running on machines without clang
+# to be able to use the IDE. It will build a ManagementAgentApiTest without the fuzzer but capable of running
+# a single input.
 if (BUILD_FUZZ_TESTS )
     target_compile_options(ManagementAgentApiTest PRIVATE -DHasLibFuzzer -Wno-unused-value -Wno-unused-parameter)
     target_link_libraries(ManagementAgentApiTest ${MutatorLibs})

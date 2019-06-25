@@ -2,6 +2,28 @@
 
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
+
+ ManagementAgentApiTest enables to Fuzz the Management Agent Input Socket as defined by the PluginApiMessage.proto.
+ By adding files like:
+
+
+ apimessage
+ {
+  pluginName: "mdr"
+  applicationId: "MDR"
+  command: Registration
+ }
+ apimessage
+ {
+  pluginName: "mdr"
+  applicationId: "MDR"
+  command: SendEvent
+  payload: "this event from plugin"
+ }
+
+ The ManagementAgentApiTest will pick up those two entries and transform than in request which would be used for
+ registration and for sending event from the plugin via ManagementAgent.
+
 ******************************************************************************************************/
 
 #include <stdint.h>
@@ -26,6 +48,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <future>
 #include <fcntl.h>
 
+/**
+ * Setup of files and directories as expected by ManagementAgent to be present.
+ * As well as simple plugin registry and policy to enable ManagementAgent to pick up.
+ */
 void setupTestFiles()
 {
     std::string mdrjson = R"({
@@ -48,6 +74,8 @@ void setupTestFiles()
   "executableUserAndGroup": "root:root"
 }
 )";
+    std::string mdrpolicy = "example of policy content";
+
     std::string installRoot = "/tmp/fuzz";
     auto fileS = Common::FileSystem::fileSystem();
     /*if ( fileS->isDirectory( installRoot))
@@ -83,10 +111,21 @@ void setupTestFiles()
     {
         fileS->writeFile("/tmp/fuzz/base/etc/logger.conf", "VERBOSITY=OFF");
     }
+    std::string mdrPolicyPath = Common::FileSystem::join(installRoot, "base/mcs/policy/MDR_policy.xml");
+    if ( !fileS->isFile(mdrPolicyPath))
+    {
+        fileS->writeFile(mdrPolicyPath, mdrpolicy);
+    }
 
 }
 
-
+/**
+ * This class holds the ManagementAgent instance running on its own thread and the zmq socket to communicate with
+ * the management agent.
+ * It is constructed as static object from the fuzzer test to allow the management agent to be running for the whole
+ * test phase.
+ *
+ */
 class ManagementRunner
 {
 public:
@@ -106,9 +145,10 @@ public:
             {
                 std::cout << "Failed in the management again main" << std::endl;
                 std::cout << ex.what() << std::endl;
+                // The goal is that Management Agent should not crash nor exit when receiving requests over the socket.
+                // Calling abort is the way to allow LibFuzzer to pick-up the crash.
                 abort();
             }
-            return 5;
         }
         );
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -120,6 +160,7 @@ public:
         m_requester->connect(mng_address);
     }
 
+    /** Helper method to allow sending requests to Management Agent*/
     Common::PluginProtocol::DataMessage getReply(const std::string& content)
     {
         try
@@ -136,6 +177,9 @@ public:
         }
         catch ( std::exception & ex)
         {
+            // The 'contract' of the protocol and message is that the only acceptable
+            // exception is the ApiException. Any other is not valid and that
+            // is the reason abort is called.
             std::cout << "Failed in getReply" << std::endl;
             std::cout << ex.what() << std::endl;
             abort();
@@ -146,12 +190,17 @@ public:
 
     bool managemementAgentRunning()
     {
+        // help method to allow tests to verify that ManagementAgent has not crashed.
+
         return m_fun.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout;
     }
 
     ~ManagementRunner()
     {
         std::cout << "Destructor management runner" << std::endl;
+        // There is a limitation of the current design. The next line will block 'forever' and the user will
+        // need to kill the application as there is no defined way to instruct the management agent to stop.
+        // Unless we execute it on its onw process and sent the kill signal.
         m_fun.get();
     }
 private:
@@ -166,26 +215,37 @@ DEFINE_PROTO_FUZZER(const PluginProtocolProto::Msgs& messages) {
 #else
 void mainTest(const PluginProtocolProto::Msgs& messages){
 #endif
+    // It is static to ensure that only one ManagementRunner will exist while the full fuzz test runs.
+    // this also means that the 'state' is not dependent only on the input message which may become a problem
+    // but allows for a very robust verification of the ManagementAgent as it will be test througout the whole
+    // fuzz test.
     static ManagementRunner managementRunner;
 
+    // For each message provide by the fuzzer send the request to Management Agent
+    // and verify that it does not crash.
     for( const PluginProtocolProto::PluginAPIMessage & message: messages.apimessage()  )
     {
 
         std::string onTheWire = message.SerializeAsString();
-        if( onTheWire.empty())
-        {
-            continue;
-        }
+
         auto reply = managementRunner.getReply(onTheWire);
 
         if( !managementRunner.managemementAgentRunning())
         {
             std::cout << "Management agent may have crashed";
+
             abort();
         }
     }
 }
 
+/**
+ * LibFuzzer works only with clang, and developers machine are configured to run gcc.
+ * For this reason, the flag HasLibFuzzer has been used to enable buiding 2 outputs:
+ *   * the real fuzzer tool
+ *   * An output that is capable of consuming the same sort of input file that is used by the fuzzer
+ *     but can be build and executed inside the developers IDE.
+ */
 #ifndef HasLibFuzzer
 int main(int argc, char *argv[])
 {
