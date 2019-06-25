@@ -1,0 +1,9 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#define PRODUCT_NAME "@PRODUCT_NAME@"
+#define PRODUCT_VERSION "@PRODUCT_VERSION@"
+#define GIT_COMMIT_HASH "@GIT_COMMIT_HASH@"
+#define BUILD_DATE "@BUILD_DATE@"
+
+#endif
