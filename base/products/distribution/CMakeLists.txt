@@ -99,10 +99,12 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/readVersion.py  ${CMAKE_BINARY_DIR}/version_tmp.txt
-            COMMAND cat ${CMAKE_BINARY_DIR}/version_tmp.txt
-            OUTPUT_VARIABLE PRODUCT_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/readVersion.py  ${CMAKE_BINARY_DIR}/version_tmp.txt)
+
+execute_process(
+        COMMAND cat ${CMAKE_BINARY_DIR}/version_tmp.txt
+        OUTPUT_VARIABLE PRODUCT_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
         COMMAND date +%Y-%m-%d
