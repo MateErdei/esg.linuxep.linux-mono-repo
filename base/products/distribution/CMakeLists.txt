@@ -110,4 +110,7 @@ execute_process(
         OUTPUT_VARIABLE BUILD_DATE
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-configure_file(VERSION.h.in VERSION.h @ONLY)
+configure_file(VERSION.h.in VERSION @ONLY)
+
+install(FILES ../../build64/products/distribution/VERSION
+        DESTINATION files/base/)
