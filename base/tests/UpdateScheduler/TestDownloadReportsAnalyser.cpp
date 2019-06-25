@@ -442,7 +442,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     expectedEvent.MessageNumber = 103;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
-    expectedStatus.LastResult = 103;
+    expectedStatus.LastResult = EventMessageNumber::INSTALLFAILED;
     expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
     expectedStatus.FirstFailedTime = PreviousStartTime;
@@ -483,10 +483,10 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     // copy from Success
     UpdateEvent expectedEvent = upgradeEvent();
     expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
-    expectedEvent.MessageNumber = 103;
+    expectedEvent.MessageNumber = EventMessageNumber::INSTALLFAILED;
     expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
     UpdateStatus expectedStatus = upgradeStatus();
-    expectedStatus.LastResult = 103;
+    expectedStatus.LastResult = EventMessageNumber::INSTALLFAILED;
     expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
 
