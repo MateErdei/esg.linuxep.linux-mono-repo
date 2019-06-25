@@ -28,10 +28,11 @@ endif()
 
 add_library(fuzzer-proto ${LIB_FUZZER_EXAMPLE_PROTO_SRCS})
 
+
 set_property(TARGET fuzzer-proto
         PROPERTY COMPILE_FLAGS ${NO_FUZZING_FLAGS})
 
-target_include_directories(fuzzer-proto PUBLIC /redist/binaries/linux11/input/protobuf/install64/include)
+target_include_directories(fuzzer-proto PUBLIC ${Protobuf_INCLUDE_DIR})
 
 target_include_directories(ManagementAgentApiTest PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
