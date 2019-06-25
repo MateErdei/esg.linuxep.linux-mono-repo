@@ -6,15 +6,23 @@ option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 if (BUILD_FUZZ_TESTS )
-    set(SANITISE_FLAGS   "-static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
-else()
     set(SANITISE_FLAGS   "")
+    set(FUZZER_COMPILER_FLAGS "-fsanitize=address,fuzzer-no-link" )
+    set(FUZZER_LINKER_FLAGS "-fsanitize=address,fuzzer" )
+    set(NO_FUZZING_FLAGS "-fno-sanitize=fuzzer")
+    set(WARNING_FLAGS "")
+else()
+    set(SANITISE_FLAGS   "-static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
+    set(NO_FUZZING_FLAGS "")
+    set(FUZZER_COMPILER_FLAGS "" )
+    set(FUZZER_LINKER_FLAGS "" )
+    set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector")
 endif()
-set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector")
 
-set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SANITISE_FLAGS} ${WARNING_FLAGS}")
+
+set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${FUZZER_COMPILER_FLAGS} ${WARNING_FLAGS} ${SANITIZE_FLAGS} ")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${SANITISE_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${FUZZER_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
 
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")

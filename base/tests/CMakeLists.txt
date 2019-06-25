@@ -21,6 +21,8 @@ if (BUILD_FUZZ_TESTS )
     add_subdirectory(FuzzTests)
 endif()
 
+add_subdirectory(LibFuzzerTests)
+
 add_custom_target(kcov
         COMMAND bash ${PROJECT_SOURCE_DIR}/tools/run-kcov.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
         )
