@@ -408,7 +408,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2Failures) // NOLINT
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
 }
 
-TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFilesAndNonReportsAreFilteredOut) // NOLINT
+TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLINT
 {
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
     std::string file1 =
@@ -419,7 +419,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFilesAndNonRep
         DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
     // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
     // files in the chronological order.
-    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json", "Config.json", "Update_Config.json", "random_unknown.json" };
+    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json"};
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(file1));
@@ -451,6 +451,50 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFilesAndNonRep
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
 
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true, true, true }));
+}
+
+TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilterOutNonReports) // NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
+    std::string goodFile =
+            DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    std::string badFile =
+            "<notjson?>thisIsInvalid>definitelynotjson<?!";
+    // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
+    // files in the chronological order.
+    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "Config.json", "Update_Config.json", "random_unknown.json" };
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
+    EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(badFile));
+    EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(goodFile));
+
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
+
+    ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
+    ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
+
+    std::vector<std::string> sortedOrder{ "update_report_2.json"};
+
+    EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
+
+    // copy from Success
+    UpdateEvent expectedEvent = upgradeEvent();
+    expectedEvent.IsRelevantToSend = false; // not relevant to send as the information is the same as the previous one.
+    expectedEvent.MessageNumber = 103;
+    expectedEvent.Messages.emplace_back("PluginName", "Plugin failed to install");
+    UpdateStatus expectedStatus = upgradeStatus();
+    expectedStatus.LastResult = 103;
+    expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
+    expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
+
+
+    EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to process file: update_report_1.json"));
+
 }
 
 TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) // NOLINT
