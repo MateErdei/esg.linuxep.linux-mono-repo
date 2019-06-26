@@ -60,10 +60,7 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-        COMMAND python ${CMAKE_SOURCE_DIR}/redist/pluginapi/distribution/readVersion.py  ${CMAKE_BINARY_DIR}/version_tmp.txt)
-
-execute_process(
-        COMMAND cat ${CMAKE_BINARY_DIR}/version_tmp.txt
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
