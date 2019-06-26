@@ -15,13 +15,13 @@ except:
     exit()
 
 
-def follow(thefile):
-    thefile.seek(0, 2) # Go to the end of the file
+def follow(file_to_follow):
+    file_to_follow.seek(0, 2) # Go to the end of the file
     while True:
         try:
-            line = thefile.readline()
+            line = file_to_follow.readline()
         except:
-            print("could not read line")
+            print("could not read line from file: {}".format(file_to_follow.name))
         if not line:
             time.sleep(0.1) # Sleep briefly
             continue
