@@ -58,30 +58,27 @@ def get_time_string_from_log_line(line):
 def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
     line = line.strip()
 
-    if len(line) > 1000:
-        return
-
+    # Empty lines means a blank line is in the log file, so add one here.
     if line == "":
-        return
+        line = "\n"
 
     cursor = db.cursor()
-    time = get_time_string_from_log_line(line)
+    extracted_time = get_time_string_from_log_line(line)
 
-    # if time is "" then the log line probably wasn't logged as a single line and thus did not have a timestamp in it.
+    # if extracted_time is "" then the log line probably wasn't logged as a single line and thus did not have a timestamp in it.
     # So append this line to last committed line.
-    if time == "":
+    if extracted_time == "":
         if last_id is None:
             # if here then we've started capturing logs half way through a multi line log write
             # just throw the line away until we get the start of complete log line with a timestamp in it.
             return None
-        df_sql = "UPDATE dogfood_logs SET log_msg = CONCAT(log_msg, '\n', '{}') WHERE idlogs = {}".format(line, last_id)
-        cursor.execute(df_sql)
+        df_sql = "UPDATE dogfood_logs SET log_msg = CONCAT(log_msg, '\n', %s) WHERE idlogs = %s"
+        cursor.execute(df_sql, (line, last_id))
         db.commit()
-        print("Updated multiline log row with id:{}".format(last_id))
 
     else:
         df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip) VALUES (%s, %s, %s, %s, %s, %s)"
-        df_val = (time, line, log_path, os.path.basename(log_path), hostname, ip)
+        df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip)
         cursor.execute(df_sql, df_val)
         db.commit()
         last_id = cursor.lastrowid
