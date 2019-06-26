@@ -60,7 +60,7 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
