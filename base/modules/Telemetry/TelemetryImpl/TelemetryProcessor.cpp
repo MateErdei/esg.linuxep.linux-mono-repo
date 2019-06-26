@@ -65,13 +65,17 @@ void TelemetryProcessor::gatherTelemetry()
     LOGINFO("Gathering telemetry");
     for (const auto& provider : m_telemetryProviders)
     {
+        std::string name = provider->getName();
+
         try
         {
-            addTelemetry(provider->getName(), provider->getTelemetry());
+            std::string telemetry = provider->getTelemetry();
+            LOGINFO("Gathered telemetry for " << name << ": " << telemetry);
+            addTelemetry(name, telemetry);
         }
         catch (std::exception& ex)
         {
-            LOGWARN("Could not get telemetry from one of the telemetry providers. Exception: " << ex.what());
+            LOGWARN("Could not get telemetry for " << name << ". Exception: " << ex.what());
         }
     }
 }

@@ -134,7 +134,7 @@ TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOL
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"mockKey":"mockValue"})"));
-    EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("mock-telemetry-provider"));
+    EXPECT_CALL(*mockTelemetryProvider, getName()).WillRepeatedly(Return("mock-telemetry-provider"));
 
     auto requestType = GetParam();
 

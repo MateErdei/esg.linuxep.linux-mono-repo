@@ -22,7 +22,7 @@ namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        PluginManager::PluginManager() :
+        PluginManager::PluginManager(const std::string& managementSocketAddr) :
             m_context(Common::ZMQWrapperApi::createContext()),
             m_serverCallbackHandler(),
             m_defaultTimeout(5000),
@@ -34,9 +34,7 @@ namespace ManagementAgent
                 Common::ApplicationConfiguration::applicationPathManager().getSubscriberDataChannelAddress());
             m_proxy->start();
             setTimeouts(*replier);
-            std::string managementSocketAdd =
-                Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
-            replier->listen(managementSocketAdd);
+            replier->listen(managementSocketAddr);
             std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
             m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback));
             m_serverCallbackHandler->start();

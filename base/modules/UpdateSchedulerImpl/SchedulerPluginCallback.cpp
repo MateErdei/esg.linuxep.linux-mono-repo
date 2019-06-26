@@ -73,7 +73,7 @@ namespace UpdateSchedulerImpl
     std::string SchedulerPluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        return std::string();
+        return "{}";
     }
 
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }

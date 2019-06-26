@@ -43,6 +43,6 @@ namespace TelemetrySchedulerImpl
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received telemetry request");
-        return std::string(); // TODO: LINUXEP-7988
+        return "{}"; // TODO: LINUXEP-7988
     }
 } // namespace TelemetrySchedulerImpl

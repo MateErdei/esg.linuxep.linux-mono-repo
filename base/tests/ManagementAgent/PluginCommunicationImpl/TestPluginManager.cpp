@@ -49,7 +49,7 @@ public:
         m_registryPath = "/registry";
         ON_CALL(*mockApplicationPathManager, getPluginRegistryPath()).WillByDefault(Return(m_registryPath));
 
-        m_pluginManagerPtr.reset(new ManagementAgent::PluginCommunicationImpl::PluginManager());
+        m_pluginManagerPtr.reset(new ManagementAgent::PluginCommunicationImpl::PluginManager(Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress()));
 
         m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
         m_mgmtCommon.reset(new Common::PluginApiImpl::PluginResourceManagement(m_pluginManagerPtr->getSocketContext()));

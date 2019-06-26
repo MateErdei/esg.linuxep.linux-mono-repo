@@ -44,6 +44,7 @@ namespace Telemetry
             try
             {
                 commandOutput = getTelemetryItem(command, commandArgs);
+                LOGDEBUG("Got telemetry item: " << name << ", from command: " << command);
             }
             catch (const Common::Process::IProcessException& processException)
             {
