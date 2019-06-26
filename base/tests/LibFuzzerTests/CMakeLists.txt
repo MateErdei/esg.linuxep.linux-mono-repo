@@ -22,7 +22,6 @@ if (BUILD_FUZZ_TESTS )
     target_include_directories(ManagementAgentApiTest PRIVATE ${MutatorInclude} ${MutatorInclude}/libprotobuf-mutator)
 else()
     target_compile_options(ManagementAgentApiTest PRIVATE  -Wno-unused-value -Wno-unused-parameter)
-    target_link_libraries(ManagementAgentApiTest ${MutatorLibs})
 endif()
 
 
