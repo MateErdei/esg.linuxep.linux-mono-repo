@@ -26,8 +26,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <stdint.h>
-#include <stddef.h>
 #include <PluginAPIMessage.pb.h>
 #include <message.pb.h>
 #include "google/protobuf/text_format.h"
@@ -41,10 +39,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/PluginProtocol/Protocol.h>
 #include <modules/Common/PluginApi/ApiException.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
+#include <thread>
 #ifdef  HasLibFuzzer
 #include <libprotobuf-mutator/src/mutator.h>
 #include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #endif
+#include <stdint.h>
+#include <stddef.h>
 #include <future>
 #include <fcntl.h>
 
@@ -119,6 +120,27 @@ void setupTestFiles()
 
 }
 
+enum class ThreadStatus
+{
+    NOTSTARTED,
+    RUNNING,
+    FINISHED
+};
+
+class ThreadGuard
+{
+    std::atomic<ThreadStatus> & m_thread_status;
+public:
+    ThreadGuard( std::atomic<ThreadStatus> & thread_status): m_thread_status(thread_status)
+    {
+        m_thread_status = ThreadStatus::RUNNING;
+    }
+    ~ThreadGuard()
+    {
+        m_thread_status = ThreadStatus::FINISHED;
+    }
+};
+
 /**
  * This class holds the ManagementAgent instance running on its own thread and the zmq socket to communicate with
  * the management agent.
@@ -126,15 +148,17 @@ void setupTestFiles()
  * test phase.
  *
  */
+
 class ManagementRunner
 {
 public:
-    ManagementRunner()
+    ManagementRunner(): m_thread_status{ThreadStatus::NOTSTARTED}
     {
         setupTestFiles();
-        m_fun = std::async(std::launch::async, []()
-        {
 
+        m_managementAgentThread = std::thread( [&]()
+        {
+            ThreadGuard threadGuard(m_thread_status);
             char * argv[] = {(char*)"ManagementAgent",};
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
             try
@@ -191,20 +215,19 @@ public:
     bool managemementAgentRunning()
     {
         // help method to allow tests to verify that ManagementAgent has not crashed.
-
-        return m_fun.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout;
+        return m_thread_status != ThreadStatus::FINISHED;
     }
 
     ~ManagementRunner()
     {
         std::cout << "Destructor management runner" << std::endl;
-        // There is a limitation of the current design. The next line will block 'forever' and the user will
-        // need to kill the application as there is no defined way to instruct the management agent to stop.
-        // Unless we execute it on its onw process and sent the kill signal.
-        m_fun.get();
+        auto m_thread_id = m_managementAgentThread.native_handle();
+        pthread_kill(m_thread_id, SIGTERM);
+        m_managementAgentThread.join();
     }
 private:
-    std::future<int> m_fun;
+    std::atomic<ThreadStatus> m_thread_status;
+    std::thread m_managementAgentThread;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 };
