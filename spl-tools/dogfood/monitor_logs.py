@@ -170,7 +170,8 @@ def main():
     logs = []
     for log_dir in log_dirs:
         for filename in Path(log_dir).glob('**/*.log'):
-            logs.append(str(filename))
+            if "osquery.db" not in str(filename):
+                logs.append(str(filename))
 
     threads = []
     for log in logs:
