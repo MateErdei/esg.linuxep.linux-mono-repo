@@ -108,6 +108,9 @@ mkdir -p queue
 # The detect_odr_violation is removed because the protobuf message is defined twice due to the way that it was imported.
 ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} queue ${FUZZ_TESTCASE_ROOT_DIR}/${TARGET}
 
+# If you wish to run a single target file:
+# ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} <target_file_name>
+
 
 " > ${ScriptPath}
 chmod +x  ${ScriptPath}

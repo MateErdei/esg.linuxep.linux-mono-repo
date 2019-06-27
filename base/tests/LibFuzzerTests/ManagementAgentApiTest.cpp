@@ -26,6 +26,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <stdint.h>
+#include <stddef.h>
 #include <PluginAPIMessage.pb.h>
 #include <message.pb.h>
 #include "google/protobuf/text_format.h"
@@ -35,17 +37,15 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <modules/Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <modules/Common/ZMQWrapperApi/IContext.h>
 #include <modules/Common/ZeroMQWrapper/ISocketRequester.h>
+#include <modules/Common/ZeroMQWrapper/IIPCException.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Common/PluginProtocol/Protocol.h>
 #include <modules/Common/PluginApi/ApiException.h>
 #include <modules/Common/FileSystem/IFileSystem.h>
-#include <thread>
 #ifdef  HasLibFuzzer
 #include <libprotobuf-mutator/src/mutator.h>
 #include <libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h>
 #endif
-#include <stdint.h>
-#include <stddef.h>
 #include <future>
 #include <fcntl.h>
 
@@ -79,6 +79,10 @@ void setupTestFiles()
 
     std::string installRoot = "/tmp/fuzz";
     auto fileS = Common::FileSystem::fileSystem();
+    /*if ( fileS->isDirectory( installRoot))
+    {
+        fileS->removeFileOrDirectory(installRoot);
+    }*/
 
     for( std::string dir : {"tmp",
                             "base",
@@ -116,27 +120,6 @@ void setupTestFiles()
 
 }
 
-enum class ThreadStatus
-{
-    NOTSTARTED,
-    RUNNING,
-    FINISHED
-};
-
-class ThreadGuard
-{
-    std::atomic<ThreadStatus> & m_thread_status;
-public:
-    ThreadGuard( std::atomic<ThreadStatus> & thread_status): m_thread_status(thread_status)
-    {
-        m_thread_status = ThreadStatus::RUNNING;
-    }
-    ~ThreadGuard()
-    {
-        m_thread_status = ThreadStatus::FINISHED;
-    }
-};
-
 /**
  * This class holds the ManagementAgent instance running on its own thread and the zmq socket to communicate with
  * the management agent.
@@ -144,17 +127,15 @@ public:
  * test phase.
  *
  */
-
 class ManagementRunner
 {
 public:
-    ManagementRunner(): m_thread_status{ThreadStatus::NOTSTARTED}
+    ManagementRunner()
     {
         setupTestFiles();
-
-        m_managementAgentThread = std::thread( [&]()
+        m_fun = std::async(std::launch::async, []()
         {
-            ThreadGuard threadGuard(m_thread_status);
+
             char * argv[] = {(char*)"ManagementAgent",};
             Common::ApplicationConfiguration::applicationConfiguration().setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, "/tmp/fuzz");
             try
@@ -172,6 +153,7 @@ public:
         }
         );
         std::this_thread::sleep_for(std::chrono::seconds(5));
+
         m_contextPtr = Common::ZMQWrapperApi::createContext();
         m_requester = m_contextPtr->getRequester();
         std::string mng_address =
@@ -193,7 +175,10 @@ public:
         catch( Common::PluginApi::ApiException & ex)
         {
             return Common::PluginProtocol::DataMessage();
-
+        }
+        catch ( Common::ZeroMQWrapper::IIPCException & ex)
+        {
+            return Common::PluginProtocol::DataMessage();
         }
         catch ( std::exception & ex)
         {
@@ -211,19 +196,20 @@ public:
     bool managemementAgentRunning()
     {
         // help method to allow tests to verify that ManagementAgent has not crashed.
-        return m_thread_status != ThreadStatus::FINISHED;
+
+        return m_fun.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout;
     }
 
     ~ManagementRunner()
     {
         std::cout << "Destructor management runner" << std::endl;
-        auto m_thread_id = m_managementAgentThread.native_handle();
-        pthread_kill(m_thread_id, SIGTERM);
-        m_managementAgentThread.join();
+        // There is a limitation of the current design. The next line will block 'forever' and the user will
+        // need to kill the application as there is no defined way to instruct the management agent to stop.
+        // Unless we execute it on its onw process and sent the kill signal
+        m_fun.get();
     }
 private:
-    std::atomic<ThreadStatus> m_thread_status;
-    std::thread m_managementAgentThread;
+    std::future<int> m_fun;
     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
 };
