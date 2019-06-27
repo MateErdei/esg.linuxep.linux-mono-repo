@@ -112,13 +112,14 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOL
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider3 = std::make_shared<MockTelemetryProvider>();
 
-    EXPECT_CALL(*mockTelemetryProvider1, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider1, getName()).WillOnce(Return("Mock1"));
+    EXPECT_CALL(*mockTelemetryProvider1, getTelemetry()).WillOnce(Return(R"({"key":1})"));
 
+    EXPECT_CALL(*mockTelemetryProvider2, getName()).WillOnce(Return("Mock2"));
     EXPECT_CALL(*mockTelemetryProvider2, getTelemetry()).WillOnce(Throw(std::runtime_error("badProvider")));
 
-    EXPECT_CALL(*mockTelemetryProvider3, getTelemetry()).WillOnce(Return(R"({"key":3})"));
     EXPECT_CALL(*mockTelemetryProvider3, getName()).WillOnce(Return("Mock3"));
+    EXPECT_CALL(*mockTelemetryProvider3, getTelemetry()).WillOnce(Return(R"({"key":3})"));
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
 
@@ -163,11 +164,11 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOLINT
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromSingleProvider) // NOLINT
 {
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
-    std::string longString = std::string(m_config->getMaxJsonSize(), 'a');
+    std::string longString = std::string(m_config->getMaxJsonSize(), '.');
 
     std::stringstream ss;
     ss << R"({"key":")" << longString << R"("})";
@@ -179,5 +180,33 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeData) // NOL
     telemetryProviders.emplace_back(mockTelemetryProvider);
 
     DerivedTelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
+
+    telemetryProcessor.gatherTelemetry();
+    std::string json = telemetryProcessor.getSerialisedTelemetry();
+    ASSERT_EQ(R"({})", json);
+}
+
+TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMultipleProviders) // NOLINT
+{
+    auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
+    auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
+
+    std::string longString = std::string(m_config->getMaxJsonSize()/2, '.');
+
+    std::stringstream ss;
+    ss << R"({"key":")" << longString << R"("})";
+
+    EXPECT_CALL(*mockTelemetryProvider1, getName()).WillOnce(Return("Mock1"));
+    EXPECT_CALL(*mockTelemetryProvider1, getTelemetry()).WillOnce(Return(ss.str()));
+
+    EXPECT_CALL(*mockTelemetryProvider2, getName()).WillOnce(Return("Mock2"));
+    EXPECT_CALL(*mockTelemetryProvider2, getTelemetry()).WillOnce(Return(ss.str()));
+
+    std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
+    telemetryProviders.emplace_back(mockTelemetryProvider1);
+    telemetryProviders.emplace_back(mockTelemetryProvider2);
+
+    DerivedTelemetryProcessor telemetryProcessor(m_config, std::move(m_httpSender), telemetryProviders);
+
     EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error); // NOLINT
 }

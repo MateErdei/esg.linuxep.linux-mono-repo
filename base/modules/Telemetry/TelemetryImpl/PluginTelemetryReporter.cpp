@@ -20,9 +20,7 @@ namespace Telemetry
     {
     }
 
-    // TODO: should ensure name is sensible - no spaces or non-alphanumerics?
     std::string PluginTelemetryReporter::getName() { return m_pluginName; }
 
-    // TODO: verify that JSON not too large - JSON validity is checked when adding to overall telemetry
     std::string PluginTelemetryReporter::getTelemetry() { return m_pluginManager->getTelemetry(m_pluginName); }
 }

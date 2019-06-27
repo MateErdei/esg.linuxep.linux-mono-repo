@@ -57,12 +57,20 @@ void TelemetryProcessor::Run()
 
 void TelemetryProcessor::addTelemetry(const std::string& sourceName, const std::string& json)
 {
+    if (json.length() > m_config->getMaxJsonSize())
+    {
+        std::stringstream msg;
+        msg << "The telemetry being added exceeds the maximum size of " << m_config->getMaxJsonSize() << " bytes.";
+        throw std::runtime_error(msg.str());
+    }
+
     m_telemetryHelper.mergeJsonIn(sourceName, json);
 }
 
 void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
+
     for (const auto& provider : m_telemetryProviders)
     {
         std::string name = provider->getName();
@@ -131,6 +139,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
         msg << "HTTP request failed with CURL result " << result;
         throw std::runtime_error(msg.str());
     }
+
     LOGINFO("Sent telemetry");
 }
 
