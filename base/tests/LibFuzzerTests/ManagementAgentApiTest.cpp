@@ -79,10 +79,6 @@ void setupTestFiles()
 
     std::string installRoot = "/tmp/fuzz";
     auto fileS = Common::FileSystem::fileSystem();
-    /*if ( fileS->isDirectory( installRoot))
-    {
-        fileS->removeFileOrDirectory(installRoot);
-    }*/
 
     for( std::string dir : {"tmp",
                             "base",

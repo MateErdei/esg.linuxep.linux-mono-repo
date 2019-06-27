@@ -54,7 +54,7 @@ if [[ ! -x ${CMAKE} ]]
 then
     echo "Warning: Could not find cmake executable. Using system cmake. \
 Please update this script with the correct cmake location for CLion"
-    CMAKE=$(which cmake)
+    CMAKE=$(which cmake) || exit 1
 fi
 
 
