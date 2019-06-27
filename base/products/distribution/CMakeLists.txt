@@ -99,10 +99,7 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(
-            COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/readVersion.py  ${CMAKE_BINARY_DIR}/version_tmp.txt)
-
-execute_process(
-        COMMAND cat ${CMAKE_BINARY_DIR}/version_tmp.txt
+        COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -112,7 +109,7 @@ execute_process(
         OUTPUT_VARIABLE BUILD_DATE
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-configure_file(VERSION.h.in VERSION @ONLY)
+configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
-install(FILES ../../build64/products/distribution/VERSION
+install(FILES ../../build64/products/distribution/VERSION.ini
         DESTINATION files/base/)
