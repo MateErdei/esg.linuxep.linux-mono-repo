@@ -240,8 +240,11 @@ def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     salt = random_generator.random_bytes(salt_length)
     assert len(salt) == salt_length
 
+    # Pycryptodome expects the salt value to be a string.
+    salt_string = str(salt)
+
     raw_obfuscated = chr(embedded_algorithm_byte) + \
-        chr(salt_length) + salt + impl.obfuscate(salt, raw_plain)
+        chr(salt_length) + salt_string + impl.obfuscate(salt_string, raw_plain)
 
     import base64
     return base64.b64encode(raw_obfuscated)

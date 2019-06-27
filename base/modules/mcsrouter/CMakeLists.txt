@@ -18,7 +18,7 @@ add_custom_target(mcsrouter ALL
         pythonLibDynload
         pathtools
         watchdog
-        pycrypto
+        pycryptodome
         python
         )
 
@@ -48,17 +48,9 @@ add_custom_command(OUTPUT watchdog
         COMMAND cp -r ${INPUT}/watchdog ${CMAKE_BINARY_DIR}
         )
 
-#add_custom_command(OUTPUT pycryptodome
-#        WORKING_DIRECTORY ${INPUT}
-#        COMMAND cp -r ${INPUT}/pycryptodome/Crypto64 ${CMAKE_BINARY_DIR}
-#        COMMAND mv ${CMAKE_BINARY_DIR}/Crypto64 ${CMAKE_BINARY_DIR}/Crypto
-#        )
-
-add_custom_command(OUTPUT pycrypto
+add_custom_command(OUTPUT pycryptodome
         WORKING_DIRECTORY ${INPUT}
-        COMMAND cp -r ${INPUT}/pycrypto/Crypto64 ${CMAKE_BINARY_DIR}
-        COMMAND rm -rf ${CMAKE_BINARY_DIR}/Crypto
-        COMMAND mv ${CMAKE_BINARY_DIR}/Crypto64 ${CMAKE_BINARY_DIR}/Crypto
+        COMMAND cp -r ${PYCRYPTODOME_INPUT}/Crypto ${CMAKE_BINARY_DIR}
         )
 
 add_custom_command(OUTPUT python

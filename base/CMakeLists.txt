@@ -186,11 +186,6 @@ if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
-## Allow this to be redirected for pycryptodome development
-if(NOT DEFINED PYCRYPTO_INPUT)
-    set( PYCRYPTO_INPUT ${INPUT}/pycrypto)
-endif()
-
 set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
