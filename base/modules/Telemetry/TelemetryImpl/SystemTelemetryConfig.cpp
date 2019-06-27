@@ -43,7 +43,12 @@ namespace Telemetry
           SystemTelemetryTuple{ "/usr/bin/head",
                                 { "-100", "/proc/uptime" },
                                 "^(\\d+)\\.\\d*\\s+.*$",
-                                { { "", TelemetryValueType::INTEGER } } } }
+                                { { "", TelemetryValueType::INTEGER } } } },
+        { "timezone",
+          SystemTelemetryTuple{ "/bin/date",
+                                 { "+%Z" },
+                                 "^([A-Z]+)$",
+                                 { { "", TelemetryValueType::STRING } } } }
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
