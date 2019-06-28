@@ -29,7 +29,7 @@ add_library(zeromqwrapperimplobject OBJECT
         )
 target_include_directories(zeromqwrapperimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR})
 add_library(zeromqwrapperimpl SHARED $<TARGET_OBJECTS:zeromqwrapperimplobject> )
-target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} )
+target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} threads )
 
 SET_TARGET_PROPERTIES( zeromqwrapperimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
