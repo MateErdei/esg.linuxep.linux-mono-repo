@@ -99,7 +99,7 @@ public:
 
             std::string socket_address = std::string("ipc://") + IPCADDRESS;
 
-            m_replier->setTimeout(10000);
+            m_replier->setTimeout(500);
             m_replier->listen(socket_address);
             while(true)
             {
@@ -115,12 +115,6 @@ public:
                 catch ( Common::ZeroMQWrapper::IIPCException& ex )
                 {
                     logErr(std::string("Replier: ZMQ exception -> ") + ex.what());
-                    auto * replierImpl = dynamic_cast<Common::ZeroMQWrapperImpl::SocketImpl*>(m_replier.get());
-                    if( replierImpl)
-                    {
-                        replierImpl->refresh();
-                    }
-
                 }
                 catch( std::exception &ex )
                 {
@@ -149,6 +143,8 @@ public :
 
 bool send_data_to_socket( int socketfd, const std::string & payload)
 {
+    std::string sendinfo= "Send data: " + std::to_string(payload.size()) + " bytes";
+    log(sendinfo);
     if ( payload.empty())
     {
         //nothing to send.
@@ -169,38 +165,36 @@ void receive_data_from_replier(int socketfd, const std::string & info)
 {
     // the normal exchange, the replier accepts the greeting
     std::array<char, 100> bf;
-    int rc = recv(socketfd, bf.data(), bf.size(),0);
+    int rc = 0;
+    int count = 0;
+    while( rc == 0 && count++<2)
+    {
+        rc = recv(socketfd, bf.data(), bf.size(),0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
     if( rc <0)
     {
         int er=errno;
         logErr("Requester: Failed to receive answer from replier. " + info, er);
     }
+    std::string received = ".Received bytes: ";
+    received += std::to_string(rc);
+    log(info + received);
 }
 
+class AnounceFinished
+{
+public:
+    AnounceFinished() = default;
+    ~AnounceFinished()
+    {
+        log("Main test finished");
+    }
+};
 
-#ifdef HasLibFuzzer
-DEFINE_PROTO_FUZZER(const  ZMQPartsProto::ZMQStack & message) {
-#else
-void mainTest(const  ZMQPartsProto::ZMQStack & message){
-#endif
-    static ReplierRun replierRun;
-    assert(message.identity()[0]==4);
-    /*
-    std::this_thread::sleep_for(std::chrono::seconds(100));
-
-    Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr{Common::ZMQWrapperApi::createContext()};
-
-    Common::ZeroMQWrapper::ISocketRequesterPtr m_req{m_contextPtr->getRequester()};
-
-    std::string socket_address = std::string("ipc://") + IPCADDRESS;
-
-    m_req->setTimeout(300);
-    m_req->connect(socket_address);
-    m_req->write({"req"});
-    return ;
-    */
-
-
+void sendMessageToReplier(const  ZMQPartsProto::ZMQStack & message, const std::string addr)
+{
     int s;
     struct sockaddr_un remote_addr = {};
 
@@ -212,14 +206,16 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
     }
     SocketGuard socketGuard{s};
     remote_addr.sun_family = AF_UNIX;
-    std::string addr=IPCADDRESS;
     memcpy( remote_addr.sun_path, addr.c_str(), addr.size());
     int count = 0;
     int rc = -1;
     while( count++ < 10  && rc == -1)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         rc = connect(s, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr_un));
+        if( rc != 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
     }
 
     if (rc == -1)
@@ -229,7 +225,7 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
 
         abort();
     }
-
+    log("Sending data to Replier");
     if ( !send_data_to_socket(s, message.greeting()))
     {
         log("Give up at greeting stage");
@@ -255,7 +251,7 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
         log("Give up at identity stage");
         return;
     }
-    receive_data_from_replier(s, "Identity");
+
 
     if ( !send_data_to_socket(s, message.payload()))
     {
@@ -264,6 +260,32 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
     }
     receive_data_from_replier(s, "Answer");
     log("Success");
+}
+
+
+#ifdef HasLibFuzzer
+DEFINE_PROTO_FUZZER(const  ZMQPartsProto::ZMQStack & message) {
+#else
+void mainTest(const  ZMQPartsProto::ZMQStack & message){
+#endif
+    static ReplierRun replierRun;
+    AnounceFinished anounceFinished;
+
+    sendMessageToReplier(message, IPCADDRESS);
+    /*
+    std::this_thread::sleep_for(std::chrono::seconds(100));
+
+    Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr{Common::ZMQWrapperApi::createContext()};
+
+    Common::ZeroMQWrapper::ISocketRequesterPtr m_req{m_contextPtr->getRequester()};
+
+    std::string socket_address = std::string("ipc://") + IPCADDRESS;
+
+    m_req->setTimeout(300);
+    m_req->connect(socket_address);
+    m_req->write({"req"});
+    return ;
+    */
 
 }
 
@@ -284,6 +306,18 @@ int main(int argc, char *argv[])
     {
         logErr("Invalid file. Failed to parse its contents. " + content);
         return 3;
+    }
+
+    if( argc==3 )
+    {
+        // this is to enable sending to other ipc channels.
+        std::string ipcaddr = argv[2];
+        if( ipcaddr.find(".ipc") != std::string::npos)
+        {
+            log("Sending message to : " + ipcaddr);
+            sendMessageToReplier(message, ipcaddr);
+            return 0;
+        }
     }
 
     mainTest(message);

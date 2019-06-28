@@ -85,7 +85,7 @@ popd # libprotobuf-mutator
 
 popd # thirdparty
 
-TARGET="ManagementAgentApiTest"
+TARGETS="ManagementAgentApiTest ZMQTests"
 
 # build the executables to fuzz
 mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup build directory"
@@ -96,9 +96,11 @@ ${CMAKE} .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_
 
 
 
-make ${TARGET}
+make ${TARGETS}
+for TARGET in ${TARGETS}; do
 ScriptDir=${CMAKE_BUILD_FULL_PATH}/tests/${FUZZ_TEST_DIR_NAME}
-ScriptPath=${ScriptDir}/runFuzzer.sh
+ScriptName=runFuzzer${TARGET}.sh
+ScriptPath=${ScriptDir}/${ScriptName}
 echo "#!/bin/bash
 # Run this script from locally.
 # You may extend the examples for the start execution in
@@ -115,7 +117,7 @@ ASAN_OPTIONS=detect_odr_violation=0 ./${TARGET} queue ${FUZZ_TESTCASE_ROOT_DIR}/
 " > ${ScriptPath}
 chmod +x  ${ScriptPath}
 echo "${TARGET} produced. You may run it on: ${ScriptDir}
-runFuzzer.sh"
-
+${ScriptName}"
+done;
 
 popd
