@@ -38,7 +38,7 @@ then
 
     key_id="$S3_ACCESS_KEY_ID"
     key_secret="$S3_SECRET_ACCESS_KEY"
-    path="$BASENAME"
+    path="$HOSTNAME/$BASENAME"
     bucket="$S3_BUCKET"
     content_type="application/octet-stream"
     date="$(LC_ALL=C date -u +"%a, %d %b %Y %X %z")"
