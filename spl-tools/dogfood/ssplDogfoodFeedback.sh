@@ -4,18 +4,7 @@
 
 # This script is intended to be used to gather diagnose logs from our dogfood machines and save them to S3
 
-for i in $@
-do
-    case $i in
-        --noproxy)
-            no_proxy=true
-        ;;
-    esac
-    shift
-done
-
-## set https_proxy if required
-if [[ -z $no_proxy ]] && [[ -n $https_proxy ]]
+if [[ -n $https_proxy ]]
 then
     export http_proxy="http://allegro.eng.sophos:3128/"
     export https_proxy="$http_proxy"
@@ -31,14 +20,15 @@ function failure()
 INST=/opt/sophos-spl
 $INST/bin/sophos_diagnose /tmp/ || failure "Failed to run diagnose"
 FILENAME=$(ls -t /tmp/sspl-diagnose* | head -1)
-
+echo "Uploading: $FILENAME"
 [[ -f "$FILENAME" ]] || failure "Failed to create file"
 BASENAME=$(basename $FILENAME) || failure "Failed to get basename from full path"
 
 ## S3 credentials
-S3_USER_NAME="DogFoodFeedback"
-S3_ACCESS_KEY_ID="AKIAJD6FZV5XHAI5FNXQ"
-S3_SECRET_ACCESS_KEY="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"
+S3_USER_NAME="SSPLDogfood"
+S3_ACCESS_KEY_ID="AKIAWR523TF7Y4IAJCIX"
+S3_SECRET_ACCESS_KEY="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"
+
 
 S3_BUCKET=sspl-dogfood-feedback
 
