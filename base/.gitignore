@@ -24,3 +24,4 @@ redist/
 tests/googletest/
 *.orig
 products/distribution/include/
+thirdparty/libprotobuf-mutator/

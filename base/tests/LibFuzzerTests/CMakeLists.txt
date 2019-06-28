@@ -1,5 +1,5 @@
 
-set(PROTO_INPUT_FILE  message.proto )
+set(PROTO_INPUT_FILE message.proto zmqparts.proto  )
 
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
@@ -50,5 +50,17 @@ add_executable(ManagementAgentApiTest
 target_link_libraries(ManagementAgentApiTest
         fuzzer-proto
         managementagentimpl
+        )
+
+
+add_executable(ZMQTests
+        ZMQTests.cpp
+        )
+target_include_directories(ZMQTests PUBLIC
+        ${ZeroMQ_INCLUDE_DIR}
+        )
+target_link_libraries(ZMQTests
+        fuzzer-proto
+        zmqwrapperapiimpl
         )
 

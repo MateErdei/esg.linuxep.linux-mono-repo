@@ -1,0 +1,9 @@
+syntax = "proto2";
+package ZMQPartsProto;
+
+message ZMQStack {
+    optional string greeting = 1;
+    optional string handshake = 2;
+    optional string identity = 3;
+    optional string payload = 4;
+}
