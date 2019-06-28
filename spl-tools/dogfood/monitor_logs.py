@@ -19,6 +19,7 @@ except:
     exit()
 
 
+# TODO LINUXEP-8365 Duplicate code and also this may not work if the file is deleted and re-created (i.e. log rotation)
 def follow(file_to_follow):
     file_to_follow.seek(0, 2) # Go to the end of the file
     while True:
