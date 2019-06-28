@@ -62,8 +62,8 @@
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycryptodome" version="3-8-2-9/216558/pycryptodome" dest="input/pycryptodome">
-            <include src="pycryptodome.tar" dest="." />
+        <package name="pycryptodome" version="3-8-2-9/216558/pycryptodome" dest="input">
+            <include src="pycryptodome.tar" dest="pycryptodome" />
         </package>
     </inputs>
     <buildcommands>
