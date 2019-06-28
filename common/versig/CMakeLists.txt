@@ -36,7 +36,7 @@ set( OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64 )
 
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR} )
 
-include_directories(BEFORE ${OPENSSL_DIR}/include64)
+include_directories(BEFORE ${OPENSSL_DIR}/64/include)
 
 add_library(versig_lib
         src/CertificateTracker.cpp
