@@ -47,7 +47,7 @@ namespace Telemetry
         { "timezone",
           SystemTelemetryTuple{ "/bin/date",
                                  { "+%Z" },
-                                 "^([A-Z]{3,5})|\\w*\\/?\\w*\\(([A-Z]{3,5})\\,\\s\\+\\d{4}\\)$",
+                                 "^([A-Z]{3,5})$",
                                  { { "", TelemetryValueType::STRING } } } }
     };
 
