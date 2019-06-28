@@ -32,6 +32,7 @@ def follow(file_to_follow):
         yield line
 
 
+# TODO LINUXEP-8365 Duplicate code from this script and the import_diagnose_tars.py script.
 def get_time_string_from_log_line(line):
     global g_product
 
@@ -59,7 +60,7 @@ def get_time_string_from_log_line(line):
     return t
 
 
-#TODO LINUXEP-8365 This is pretty much entirely duplicated in this script and the import diagnose tars script
+# TODO LINUXEP-8365 This is pretty much entirely duplicated in this script and the import diagnose tars script
 # reasoning was so that each was standalone - should change this to share code but only need the one file still.
 def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
     line = line.strip()
