@@ -12,6 +12,10 @@
                  version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
+        <package name="googletest"
+                 version="1-8-1/EES-8928" dest="input">
+            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
+        </package>
     </inputs>
     <buildcommands>
         <command>
