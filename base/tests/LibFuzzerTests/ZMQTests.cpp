@@ -2,6 +2,65 @@
 
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
+ Documentation and helper to developers.
+ ZMQTests goal is to stress the socket layer that we rely on to transmit data accros the plugins and modules.
+ Other fuzzer like ManagementAgentApiTest verifies our logic by applying a valid zmq and protobuf message.
+ This fuzzer tries to explore the different layers of zmq.
+ It is not enough to just send 'garbage' data as the zmq employs a handshake protocol.
+ In order to detect the handshake associated, we create two programs:
+
+ : server
+     Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr{Common::ZMQWrapperApi::createContext()};
+     Common::ZeroMQWrapper::ISocketReplierPtr m_replier{m_contextPtr->getReplier()};
+     std::string socket_address = std::string("ipc:///tmp/test.ipc");
+     m_replier->setTimeout(500);
+     m_replier->listen(socket_address);
+     m_replier->read()
+
+
+ : client
+    Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr{Common::ZMQWrapperApi::createContext()};
+    Common::ZeroMQWrapper::ISocketRequesterPtr m_req{m_contextPtr->getRequester()};
+    std::string socket_address = std::string("ipc:///tmp/test.ipc");
+    m_req->setTimeout(300);
+    m_req->connect(socket_address);
+    m_req->write({"req"});
+
+ And patched the zmq library with the following patch:
+diff --git a/src/tcp.cpp b/src/tcp.cpp
+index e79c84d6..2f1b4311 100644
+--- a/src/tcp.cpp
++++ b/src/tcp.cpp
+@@ -238,6 +238,13 @@ int zmq::tcp_write (fd_t s_, const void *data_, size_t size_)
+return nbytes;
+
+#else
++       const char * buff = static_cast<const char *>(data_);
++
++       for(int i=0; i<size_; i++)
++       {
++               std::cout << "0x" << std::hex << (int) buff[i]  << std::dec << ", ";
++       }
++       std::cout << "// -> " << size_ << " bytes" << std::endl;
+ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
+
+//  Several errors are OK. When speculative write is being done we may not
+
+ Build zmq locally.
+ By running the client with LD_LIBRARY_PATH set to the path of the zmq library changed.
+ It will print messages like:
+ 0x4, 0x19, 0x5, 0x52, 0x45, 0x41, 0x44, 0x59, 0xb, 0x53, 0x6f, 0x63, 0x6b, 0x65, 0x74, 0x2d, 0x54, 0x79, 0x70, 0x65, 0x0, 0x0, 0x0, 0x3, 0x52, 0x45, 0x50, // -> 27 bytes
+ Applying a small python manipulation:
+ >>> l=[ 0x4, 0x19, 0x5, 0x52, 0x45, 0x41, 0x44, 0x59, 0xb, 0x53, 0x6f, 0x63, 0x6b, 0x65, 0x74, 0x2d, 0x54, 0x79, 0x70, 0x65, 0x0, 0x0, 0x0, 0x3, 0x52, 0x45, 0x50]
+ >>> ''.join([chr(e) for e in l])
+ \x04\x19\x05READY\x0bSocket-Type\x00\x00\x00\x03REP
+
+
+ The ZMQTests also applies the same techinique of ManagementAgentApiTest to enable building and running on
+ the developer IDE as well as in the machine that will run the fuzzer.
+
+ To know how to operate the fuzzer check: https://llvm.org/docs/LibFuzzer.html
+
 ******************************************************************************************************/
 
 #include "FuzzerUtils.h"
@@ -275,15 +334,6 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
     /*
     std::this_thread::sleep_for(std::chrono::seconds(100));
 
-    Common::ZMQWrapperApi::IContextSharedPtr m_contextPtr{Common::ZMQWrapperApi::createContext()};
-
-    Common::ZeroMQWrapper::ISocketRequesterPtr m_req{m_contextPtr->getRequester()};
-
-    std::string socket_address = std::string("ipc://") + IPCADDRESS;
-
-    m_req->setTimeout(300);
-    m_req->connect(socket_address);
-    m_req->write({"req"});
     return ;
     */
 
