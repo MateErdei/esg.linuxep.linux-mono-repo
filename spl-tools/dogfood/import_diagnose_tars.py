@@ -1,3 +1,7 @@
+# Copyright 2019, Sophos Limited.  All rights reserved.
+
+# This script is intended to be used to import diagnose tars into the dogfood logs DB.
+
 import sys
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
@@ -176,6 +180,7 @@ def process_diagnose_file(tar_path):
         database="dogfood"
     )
 
+    # TODO LINUXEP-8365 When importing don't do it one log line at a time do it in bulk.
     for log in logs:
         process_log_file(hostname, dogfood_db, ip, log)
 

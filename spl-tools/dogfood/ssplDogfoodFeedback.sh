@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright 2019, Sophos Limited.  All rights reserved.
+
+# This script is intended to be used to gather diagnose logs from our dogfood machines and save them to S3
+
 for i in $@
 do
     case $i in

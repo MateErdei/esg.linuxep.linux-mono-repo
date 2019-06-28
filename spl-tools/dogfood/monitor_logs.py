@@ -1,3 +1,7 @@
+# Copyright 2019, Sophos Limited.  All rights reserved.
+
+# This script is intended to be used on machines to send back dogfood logs to our dogfood log system in real time.
+
 import sys
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
@@ -55,9 +59,12 @@ def get_time_string_from_log_line(line):
     return t
 
 
+#TODO LINUXEP-8365 This is pretty much entirely duplicated in this script and the import diagnose tars script
+# reasoning was so that each was standalone - should change this to share code but only need the one file still.
 def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
     line = line.strip()
 
+    # TODO LINUXEP-8365 only send blank lines in the middle of a multiline log line.
     # Empty lines means a blank line is in the log file, so add one here.
     if line == "":
         line = "\n"
@@ -87,6 +94,9 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
     return last_id
 
 
+# TODO LINUXEP-8365  allow this to fall back to choosing the first non-local ip if no network connection.
+# This function uses a socket to connect to a DNS and gets the IP from that cocket because we then know this is most
+# likely to be the interface we're interested in.
 def get_ip():
     try:
         import socket
