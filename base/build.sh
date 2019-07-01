@@ -183,16 +183,22 @@ function build()
     cd $BASE
     ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
     ## which doesn't like our openssl
-    git submodule sync --recursive || exitFailure 34 "Failed to sync submodule configuration"
-    GIT_SSL_NO_VERIFY=true  \
-        git -c http.sslVerify=false submodule update --init --recursive || {
-        sleep 1
-        echo ".gitmodules:"
-        cat .gitmodules
-        echo ".git/config:"
-        cat .git/config
-        exitFailure 33 "Failed to get googletest via git"
-    }
+#    git submodule sync --recursive || exitFailure 34 "Failed to sync submodule configuration"
+#    GIT_SSL_NO_VERIFY=true  \
+#        git -c http.sslVerify=false submodule update --init --recursive || {
+#        sleep 1
+#        echo ".gitmodules:"
+#        cat .gitmodules
+#        echo ".git/config:"
+#        cat .git/config
+#        exitFailure 33 "Failed to get googletest via git"
+#    }
+
+    GOOGLETESTTAR=$BASE/input/googletest-release-1.8.1.tar.gz
+    pushd $BASE/tests
+    tar xzf $GOOGLETESTTAR
+    mv googletest-release-1.8.1 googletest
+    popd
 
     if [[ -d "$INPUT" ]]
     then
