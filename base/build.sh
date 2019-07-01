@@ -351,7 +351,7 @@ function build()
                 --test-action test \
                 --parallel ${NPROC} \
                 --no-compress-output --output-on-failure \
-                --timeout 60 \
+                --timeout 300 \
                 || {
                 local EXITCODE=$?
                 echo "Unit tests failed with $EXITCODE"
