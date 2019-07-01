@@ -63,8 +63,7 @@ namespace ManagementAgent
 
             std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager(
-                        Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress()));
+                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
             ManagementAgentMain managementAgent;
             managementAgent.initialise(*pluginManager);

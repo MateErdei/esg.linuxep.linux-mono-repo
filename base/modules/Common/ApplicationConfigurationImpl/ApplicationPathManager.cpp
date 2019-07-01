@@ -26,8 +26,6 @@ namespace Common
 
         std::string ApplicationPathManager::getWatchdogSocketAddress() const { return socketPath("watchdog.ipc"); }
 
-        std::string ApplicationPathManager::getTelemetrySocketAddress() const { return socketPath("telemetry.ipc"); }
-
         std::string ApplicationPathManager::sophosInstall() const
         {
             return Common::ApplicationConfiguration::applicationConfiguration().getData(

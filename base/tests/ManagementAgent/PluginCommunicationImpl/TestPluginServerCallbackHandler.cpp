@@ -46,8 +46,7 @@ public:
         replier->listen("inproc:///tmp/management.ipc");
         m_requester->connect("inproc:///tmp/management.ipc");
         m_PluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
-            new ManagementAgent::PluginCommunicationImpl::PluginManager(
-                Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress()));
+            new ManagementAgent::PluginCommunicationImpl::PluginManager());
         m_PluginManagerPtr->setServerCallback(m_mockServerCallback, std::move(replier));
     }
 

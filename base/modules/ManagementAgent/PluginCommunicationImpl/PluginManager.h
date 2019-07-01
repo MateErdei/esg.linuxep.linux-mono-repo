@@ -26,7 +26,7 @@ namespace ManagementAgent
         class PluginManager : virtual public PluginCommunication::IPluginManager
         {
         public:
-            PluginManager(const std::string& managementSocketAddr);
+            PluginManager();
             ~PluginManager() override;
 
             int applyNewPolicy(const std::string& appId, const std::string& policyXml) override;

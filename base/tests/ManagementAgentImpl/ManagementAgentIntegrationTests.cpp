@@ -83,7 +83,7 @@ namespace
 
             std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager(Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress()));
+                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
             initialise(*pluginManager);
             auto futureRunner = std::async(std::launch::async, [this]() { return run(); });
