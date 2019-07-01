@@ -19,7 +19,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryConfigImpl/Config.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <ManagementAgent/PluginCommunication/IPluginProxy.h>
+#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <sstream>
@@ -29,19 +32,29 @@ namespace Telemetry
 {
     void appendTelemetryProvidersForPlugins(std::vector<std::shared_ptr<ITelemetryProvider>>& telemetryProviders)
     {
-        auto pluginManager = std::make_shared<ManagementAgent::PluginCommunicationImpl::PluginManager>(
-            Common::ApplicationConfiguration::applicationPathManager().getTelemetrySocketAddress());
+        const int defaultTimeout = 5000;
+        const int defaultConnectTimeout = 5000;
 
-        std::vector<Common::PluginRegistryImpl::PluginInfo> plugins =
+        std::vector<Common::PluginRegistryImpl::PluginInfo> pluginInfos =
             Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
-        for (auto& plugin : plugins)
-        {
-            pluginManager->registerAndSetAppIds(
-                plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getStatusAppIds());
-            LOGINFO("Registered plugin: " << plugin.getPluginName());
+        Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
 
-            auto telemetryProvider = std::make_shared<PluginTelemetryReporter>(pluginManager, plugin.getPluginName());
+        for (auto& pluginInfo : pluginInfos)
+        {
+            std::string pluginName = pluginInfo.getPluginName();
+            std::string pluginSocketAddress =
+                Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
+
+            auto requester = context->getRequester();
+            requester->setTimeout(defaultTimeout);
+            requester->setConnectionTimeout(defaultConnectTimeout);
+            requester->connect(pluginSocketAddress);
+
+            auto telemetryProvider = std::make_shared<PluginTelemetryReporter>(
+                std::make_unique<ManagementAgent::PluginCommunicationImpl::PluginProxy>(
+                    ManagementAgent::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName }));
+            LOGINFO("Loaded plugin proxy: " << pluginName);
             telemetryProviders.emplace_back(telemetryProvider);
         }
     }
