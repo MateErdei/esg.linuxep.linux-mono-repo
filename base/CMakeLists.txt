@@ -154,7 +154,7 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
-set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/64/include)
+set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
 find_library(OPENSSL_LIBRARY
         NAMES ssl
         PATHS ${OPENSSL_INPUT}/lib64

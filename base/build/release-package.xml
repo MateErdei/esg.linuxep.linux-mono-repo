@@ -9,7 +9,7 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1c-15/216455/output" dest="input">
+        <package name="openssllinux11" version="1-1-1a-2/214501/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
@@ -65,8 +65,7 @@
         <package name="pycryptodome" version="3-8-2-11/216580/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
         </package>
-        <package name="googletest"
-                 version="1-8-1/EES-8928" dest="input">
+        <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
     </inputs>
