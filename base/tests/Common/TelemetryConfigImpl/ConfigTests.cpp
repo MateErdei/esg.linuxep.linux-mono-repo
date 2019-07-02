@@ -6,12 +6,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <Common/TelemetryExeConfigImpl/Config.h>
-#include <Common/TelemetryExeConfigImpl/Serialiser.h>
+#include <Common/TelemetryConfigImpl/Config.h>
+#include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <json.hpp>
 
 using ::testing::StrictMock;
-using namespace Common::TelemetryExeConfigImpl;
+using namespace Common::TelemetryConfigImpl;
 
 class ConfigTests : public ::testing::Test
 {
@@ -22,7 +22,17 @@ public:
 
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
-    const std::string m_jsonString = R"({"additionalHeaders":["header1","header2"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,"maxJsonSize":10,"messageRelays":[{"authentication":1,"id":"ID","password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"priority":2,"url":"relay","username":"relayuser"}],"port":300,"proxies":[{"authentication":1,"password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"url":"proxy","username":"proxyuser"}],"resourceRoot":"TEST","server":"localhost","telemetryServerCertificatePath":"some/path","verb":"GET"})";
+    const std::string m_jsonString =
+        R"({"additionalHeaders":["header1","header2"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
+        R"("interval":42,"maxJsonSize":10,)"
+        R"("messageRelays":[{"authentication":1,"id":"ID",)"
+        R"("password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",)"
+        R"("port":300,"priority":2,"url":"relay","username":"relayuser"}],)"
+        R"("pluginConnectionTimeout":5000,"pluginSendReceiveTimeout":5000,"port":300,)"
+        R"("proxies":[{"authentication":1,)"
+        R"("password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=","port":300,"url":"proxy",)"
+        R"("username":"proxyuser"}],"resourcePath":"test/id.json","resourceRoot":"test","server":"localhost",)"
+        R"("telemetryServerCertificatePath":"some/path","verb":"GET"})";
 
     void SetUp() override
     {
@@ -31,12 +41,14 @@ public:
 
         m_config.setServer("localhost");
         m_config.setVerb("GET");
+        m_config.setInterval(42);
         m_config.setExternalProcessWaitTime(3);
         m_config.setExternalProcessWaitRetries(2);
         m_config.setHeaders({ "header1", "header2" });
         m_config.setMaxJsonSize(10);
         m_config.setPort(m_validPort);
-        m_config.setResourceRoot("TEST");
+        m_config.setResourceRoot("test");
+        m_config.setResourcePath("test/id.json");
         m_config.setTelemetryServerCertificatePath("some/path");
 
         messageRelay.setUrl("relay");
@@ -90,6 +102,8 @@ TEST_F(ConfigTests, defaultConstrutor) // NOLINT
     EXPECT_EQ(DEFAULT_PROCESS_WAIT_RETRIES, c.getExternalProcessWaitRetries());
     EXPECT_EQ(DEFAULT_PROCESS_WAIT_TIME, c.getExternalProcessWaitTime());
     EXPECT_EQ(VERB_PUT, c.getVerb());
+    EXPECT_EQ(DEFAULT_PLUGIN_SEND_RECEIVE_TIMEOUT, c.getPluginSendReceiveTimeout());
+    EXPECT_EQ(DEFAULT_PLUGIN_CONNECTION_TIMEOUT, c.getPluginConnectionTimeout());
 
     ASSERT_TRUE(c.isValid());
 }
@@ -151,7 +165,9 @@ TEST_F(ConfigTests, parseValidConfigJsonDirectlySucceeds) // NOLINT
         "proxies": [],
         "resourceRoot": "linux/dev",
         "server": "localhost",
-        "verb": "PUT"
+        "verb": "PUT",
+        "pluginSendReceiveTimeout": 1000,
+        "pluginConnectionTimeout": 1000
     })";
 
     Serialiser::deserialise(validTelemetryJson);
@@ -339,10 +355,24 @@ TEST_F(ConfigTests, InvalidPort) // NOLINT
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST_F(ConfigTests, InvalidTimeout) // NOLINT
+TEST_F(ConfigTests, InvalidProcessTime) // NOLINT
 {
     Config c = m_config;
     c.setExternalProcessWaitTime(0);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, InvalidPluginSendReceiveTimeout) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginSendReceiveTimeout(-2);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, InvalidPluginConnectionTimeout) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginConnectionTimeout(-2);
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
@@ -356,4 +386,18 @@ TEST_F(ConfigTests, configEquality) // NOLINT
 
     b.setServer("server");
     ASSERT_EQ(a, b);
+}
+
+TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
+{
+    const std::string resourceName = "name";
+    Config exeConfig = Config::buildExeConfigFromTelemetryConfig(m_config, resourceName);
+    EXPECT_EQ(m_config.getServer(), exeConfig.getServer());
+    EXPECT_EQ(m_config.getPort(), exeConfig.getPort());
+    EXPECT_EQ(m_config.getVerb(), exeConfig.getVerb());
+    EXPECT_EQ(m_config.getHeaders(), exeConfig.getHeaders());
+    EXPECT_EQ(m_config.getResourceRoot() + "/" + resourceName, exeConfig.getResourcePath());
+
+    EXPECT_EQ("", exeConfig.getResourceRoot());
+    EXPECT_NE(m_config.getInterval(), exeConfig.getInterval());
 }

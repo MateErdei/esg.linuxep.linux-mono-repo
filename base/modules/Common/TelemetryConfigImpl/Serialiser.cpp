@@ -40,6 +40,8 @@ namespace Common::TelemetryConfigImpl
     const std::string EPWR_CONFIG_KEY = "externalProcessWaitRetries";
     const std::string MAX_JSON_CONFIG_KEY = "maxJsonSize";
     const std::string CERT_PATH_CONFIG_KEY = "telemetryServerCertificatePath";
+    const std::string PLUGIN_SEND_RECEIVE_TIMEOUT_KEY = "pluginSendReceiveTimeout";
+    const std::string PLUGIN_CONNECTION_TIMEOUT_KEY = "pluginConnectionTimeout";
 
     void to_json(nlohmann::json& j, const Config& config);
     void from_json(const nlohmann::json& j, Config& config);
@@ -84,7 +86,9 @@ namespace Common::TelemetryConfigImpl
                             { EPWT_CONFIG_KEY, config.getExternalProcessWaitTime() },
                             { EPWR_CONFIG_KEY, config.getExternalProcessWaitRetries() },
                             { MAX_JSON_CONFIG_KEY, config.getMaxJsonSize() },
-                            { CERT_PATH_CONFIG_KEY, config.getTelemetryServerCertificatePath() } };
+                            { CERT_PATH_CONFIG_KEY, config.getTelemetryServerCertificatePath() },
+                            { PLUGIN_SEND_RECEIVE_TIMEOUT_KEY, config.getPluginSendReceiveTimeout() },
+                            { PLUGIN_CONNECTION_TIMEOUT_KEY, config.getPluginConnectionTimeout() } };
     }
 
     void from_json(const nlohmann::json& j, Proxy& proxy)
@@ -172,6 +176,16 @@ namespace Common::TelemetryConfigImpl
         if (j.contains(CERT_PATH_CONFIG_KEY))
         {
             config.setTelemetryServerCertificatePath(j.at(CERT_PATH_CONFIG_KEY));
+        }
+        
+        if (j.contains(PLUGIN_SEND_RECEIVE_TIMEOUT_KEY))
+        {
+            config.setPluginSendReceiveTimeout(j.at(PLUGIN_SEND_RECEIVE_TIMEOUT_KEY));
+        }
+        
+        if (j.contains(PLUGIN_CONNECTION_TIMEOUT_KEY))
+        {
+            config.setPluginConnectionTimeout(j.at(PLUGIN_CONNECTION_TIMEOUT_KEY));
         }
     }
 

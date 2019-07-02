@@ -69,6 +69,12 @@ namespace Common::TelemetryConfigImpl
         const std::string& getTelemetryServerCertificatePath() const;
         void setTelemetryServerCertificatePath(const std::string& telemetryServerCertificatePath);
 
+        int getPluginSendReceiveTimeout() const;
+        void setPluginSendReceiveTimeout(int pluginSendReceiveTimeout);
+
+        int getPluginConnectionTimeout() const;
+        void setPluginConnectionTimeout(int pluginConnectionTimeout);
+
         bool operator==(const Config& rhs) const;
         bool operator!=(const Config& rhs) const;
 
@@ -88,5 +94,7 @@ namespace Common::TelemetryConfigImpl
         unsigned int m_externalProcessWaitRetries{};
         unsigned int m_maxJsonSize{};
         std::string m_telemetryServerCertificatePath;
+        int m_pluginSendReceiveTimeout;
+        int m_pluginConnectionTimeout;
     };
 } // namespace Telemetry::TelemetryConfigImpl

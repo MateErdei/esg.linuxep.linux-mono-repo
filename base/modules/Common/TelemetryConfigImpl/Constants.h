@@ -24,6 +24,9 @@ namespace Common::TelemetryConfigImpl
 
     const unsigned int MAX_OUTPUT_SIZE = 1000; // 1KB
 
+    const int DEFAULT_PLUGIN_SEND_RECEIVE_TIMEOUT = 5000; // 5 seconds
+    const int DEFAULT_PLUGIN_CONNECTION_TIMEOUT = 5000; // 5 seconds
+
     const std::string VERB_PUT = "PUT";
     const std::string VERB_GET = "GET";
     const std::string VERB_POST = "POST";

@@ -30,11 +30,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Telemetry
 {
-    void appendTelemetryProvidersForPlugins(std::vector<std::shared_ptr<ITelemetryProvider>>& telemetryProviders)
+    void appendTelemetryProvidersForPlugins(
+        std::vector<std::shared_ptr<ITelemetryProvider>>& telemetryProviders,
+        std::shared_ptr<Common::TelemetryConfigImpl::Config> telemetryConfig)
     {
-        const int defaultTimeout = 5000; // TODO: move to config?
-        const int defaultConnectTimeout = 5000; // TODO: move to config?
-
         std::vector<Common::PluginRegistryImpl::PluginInfo> pluginInfos =
             Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
@@ -47,8 +46,8 @@ namespace Telemetry
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
 
             auto requester = context->getRequester();
-            requester->setTimeout(defaultTimeout);
-            requester->setConnectionTimeout(defaultConnectTimeout);
+            requester->setTimeout(telemetryConfig->getPluginSendReceiveTimeout());
+            requester->setConnectionTimeout(telemetryConfig->getPluginConnectionTimeout());
             requester->connect(pluginSocketAddress);
 
             auto telemetryProvider = std::make_shared<PluginTelemetryReporter>(
@@ -75,7 +74,7 @@ namespace Telemetry
                 telemetryConfig->getExternalProcessWaitRetries()));
 
         telemetryProviders.emplace_back(systemTelemetryReporter);
-        appendTelemetryProvidersForPlugins(telemetryProviders);
+        appendTelemetryProvidersForPlugins(telemetryProviders, telemetryConfig);
 
         std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(
             telemetryConfig, std::make_unique<Common::HttpSenderImpl::HttpSender>(curlWrapper), telemetryProviders);

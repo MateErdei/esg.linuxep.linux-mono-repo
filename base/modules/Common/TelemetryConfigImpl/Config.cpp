@@ -14,7 +14,9 @@ Config::Config() :
     m_interval(0),
     m_externalProcessWaitTime(DEFAULT_PROCESS_WAIT_TIME),
     m_externalProcessWaitRetries(DEFAULT_PROCESS_WAIT_RETRIES),
-    m_maxJsonSize(DEFAULT_MAX_JSON_SIZE)
+    m_maxJsonSize(DEFAULT_MAX_JSON_SIZE),
+    m_pluginSendReceiveTimeout(DEFAULT_PLUGIN_SEND_RECEIVE_TIMEOUT),
+    m_pluginConnectionTimeout(DEFAULT_PLUGIN_CONNECTION_TIMEOUT)
 {
 }
 
@@ -96,6 +98,16 @@ bool Config::isValid() const
     }
 
     if (m_verb != VERB_PUT && m_verb != VERB_POST && m_verb != VERB_GET)
+    {
+        return false;
+    }
+
+    if (m_pluginSendReceiveTimeout < -1)
+    {
+        return false;
+    }
+
+    if (m_pluginConnectionTimeout < -1)
     {
         return false;
     }
@@ -230,5 +242,25 @@ const std::string& Config::getTelemetryServerCertificatePath() const
 
 void Config::setTelemetryServerCertificatePath(const std::string& telemetryServerCertificatePath)
 {
-    Config::m_telemetryServerCertificatePath = telemetryServerCertificatePath;
+    m_telemetryServerCertificatePath = telemetryServerCertificatePath;
+}
+
+int Config::getPluginSendReceiveTimeout() const
+{
+    return m_pluginSendReceiveTimeout;
+}
+
+void Config::setPluginSendReceiveTimeout(int pluginSendReceiveTimeout)
+{
+    m_pluginSendReceiveTimeout = pluginSendReceiveTimeout;
+}
+
+int Config::getPluginConnectionTimeout() const
+{
+    return m_pluginConnectionTimeout;
+}
+
+void Config::setPluginConnectionTimeout(int pluginConnectionTimeout)
+{
+    m_pluginConnectionTimeout = pluginConnectionTimeout;
 }
