@@ -6,12 +6,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "PluginManager.h"
 
-#include "IPluginCommunicationException.h"
-#include "PluginProxy.h"
 #include "PluginServerCallback.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/PluginCommunication/IPluginCommunicationException.h>
+#include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
@@ -168,7 +168,7 @@ namespace ManagementAgent
         }
 
         void PluginManager::locked_setAppIds(
-            PluginCommunication::IPluginProxy* plugin,
+            Common::PluginCommunication::IPluginProxy* plugin,
             const std::vector<std::string>& policyAppIds,
             const std::vector<std::string>& statusAppIds,
             std::lock_guard<std::mutex>&)
@@ -196,7 +196,7 @@ namespace ManagementAgent
             locked_setAppIds(plugin, policyAppIds, statusAppIds, lock);
         }
 
-        PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(
+        Common::PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(
             const std::string& pluginName,
             std::lock_guard<std::mutex>&)
         {
@@ -205,20 +205,21 @@ namespace ManagementAgent
             auto requester = m_context->getRequester();
             setTimeouts(*requester);
             requester->connect(pluginSocketAdd);
-            std::unique_ptr<PluginCommunication::IPluginProxy> proxyPlugin =
-                std::unique_ptr<PluginProxy>(new PluginProxy(std::move(requester), pluginName));
+            std::unique_ptr<Common::PluginCommunication::IPluginProxy> proxyPlugin =
+                std::unique_ptr<Common::PluginCommunicationImpl::PluginProxy>(
+                    new Common::PluginCommunicationImpl::PluginProxy(std::move(requester), pluginName));
             m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
             return m_RegisteredPlugins[pluginName].get();
         }
 
-        PluginCommunication::IPluginProxy* PluginManager::getPlugin(const std::string& pluginName)
+        Common::PluginCommunication::IPluginProxy* PluginManager::getPlugin(const std::string& pluginName)
         {
             auto found = m_RegisteredPlugins.find(pluginName);
             if (found != m_RegisteredPlugins.end())
             {
                 return found->second.get();
             }
-            throw PluginCommunication::IPluginCommunicationException("Tried to access non-registered plugin");
+            throw Common::PluginCommunication::IPluginCommunicationException("Tried to access non-registered plugin");
         }
 
         void PluginManager::removePlugin(const std::string& pluginName)

@@ -1,12 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "AppIdCollection.h"
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunicationImpl
     {
@@ -29,4 +29,4 @@ namespace ManagementAgent
         const std::vector<std::string>& AppIdCollection::statusAppIds() const { return m_statusSet.entries(); }
 
     } // namespace PluginCommunicationImpl
-} // namespace ManagementAgent
+} // namespace Common

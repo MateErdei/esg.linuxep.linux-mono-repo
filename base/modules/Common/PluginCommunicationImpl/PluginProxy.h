@@ -1,19 +1,19 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
 
 #include "AppIdCollection.h"
-#include "IPluginProxy.h"
 
+#include <Common/PluginCommunication/IPluginProxy.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/ZeroMQWrapper/IReadWrite.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunicationImpl
     {
@@ -54,4 +54,4 @@ namespace ManagementAgent
         };
 
     } // namespace PluginCommunicationImpl
-} // namespace ManagementAgent
+} // namespace Common

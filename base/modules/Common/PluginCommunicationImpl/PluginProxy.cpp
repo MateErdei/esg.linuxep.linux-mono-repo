@@ -1,12 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginProxy.h"
 
-#include "IPluginCommunicationException.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
 
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/PluginProtocol/Protocol.h>
@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunicationImpl
     {
@@ -119,4 +119,4 @@ namespace ManagementAgent
 
         bool PluginProxy::hasStatusAppId(const std::string& appId) { return m_appIdCollection.implementStatus(appId); }
     } // namespace PluginCommunicationImpl
-} // namespace ManagementAgent
+} // namespace Common

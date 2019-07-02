@@ -1,16 +1,16 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
-#include <UtilityImpl/VectorAsSet.h>
+#include <Common/UtilityImpl/VectorAsSet.h>
 
 #include <memory>
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunicationImpl
     {
@@ -30,4 +30,4 @@ namespace ManagementAgent
             bool implementStatus(const std::string& appId) const;
         };
     } // namespace PluginCommunicationImpl
-} // namespace ManagementAgent
+} // namespace Common

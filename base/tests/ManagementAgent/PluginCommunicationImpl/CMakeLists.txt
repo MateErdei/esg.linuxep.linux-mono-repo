@@ -2,9 +2,8 @@ include(GoogleTest)
 add_executable(PluginCommunicationImplTests
         TestPluginServerCallbackHandler.cpp
         TestPluginManager.cpp
-        TestPluginProxy.cpp
         MockPluginServerCallback.h
-        MockSocketRequester.h
+        ../../Common/PluginCommunicationImpl/MockSocketRequester.h
         ../../Common/PluginApiImpl/TestCompare.h
         ../../Common/PluginApiImpl/TestCompare.cpp
         )

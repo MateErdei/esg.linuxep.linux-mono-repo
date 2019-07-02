@@ -8,11 +8,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "PluginServerCallbackHandler.h"
 
+#include <Common/PluginCommunication/IPluginProxy.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
-#include <ManagementAgent/PluginCommunication/IPluginProxy.h>
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 
 #include <map>
@@ -63,13 +63,13 @@ namespace ManagementAgent
             void setDefaultConnectTimeout(int timeoutMs);
 
         private:
-            PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
+            Common::PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 
             void setTimeouts(Common::ZeroMQWrapper::ISocketSetup& socket);
 
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
             Common::ZeroMQWrapper::IProxyPtr m_proxy;
-            std::map<std::string, std::unique_ptr<PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
+            std::map<std::string, std::unique_ptr<Common::PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
 
             int m_defaultTimeout;
@@ -83,7 +83,7 @@ namespace ManagementAgent
              * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              * @return BORROWED pointer to the proxy
              */
-            PluginCommunication::IPluginProxy* locked_createPlugin(
+            Common::PluginCommunication::IPluginProxy* locked_createPlugin(
                 const std::string& pluginName,
                 std::lock_guard<std::mutex>& lock);
 
@@ -97,7 +97,7 @@ namespace ManagementAgent
              * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              */
             void locked_setAppIds(
-                PluginCommunication::IPluginProxy* plugin,
+                Common::PluginCommunication::IPluginProxy* plugin,
                 const std::vector<std::string>& policyAppIds,
                 const std::vector<std::string>& statusAppIds,
                 std::lock_guard<std::mutex>& lock);

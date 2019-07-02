@@ -7,14 +7,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "MockSocketRequester.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/PluginProtocol/Protocol.h>
+#include <Common/PluginCommunication/IPluginCommunicationException.h>
+#include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/ZMQWrapperApi/IContext.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using ManagementAgent::PluginCommunicationImpl::PluginProxy;
+using Common::PluginCommunicationImpl::PluginProxy;
 
 class TestPluginProxy : public ::testing::Test
 {
@@ -27,7 +27,7 @@ public:
 
     ~TestPluginProxy() override = default;
 
-    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginProxy> m_pluginProxy;
+    std::unique_ptr<Common::PluginCommunicationImpl::PluginProxy> m_pluginProxy;
     MockSocketRequester* m_mockSocketRequester;
     Common::PluginProtocol::Protocol m_Protocol;
 
@@ -77,7 +77,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyBadCommand) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
@@ -90,7 +90,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyErrorMessage) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->getStatus(),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
@@ -98,7 +98,7 @@ TEST_F(TestPluginProxy, TestPluginProxyReplyWithStdException) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, write(_)).WillOnce(Throw(std::exception()));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Apply Policy
@@ -124,7 +124,7 @@ TEST_F(TestPluginProxy, TestPluginProxyApplyPolicyReplyNoAck) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->applyNewPolicy("plugin_one", "thisisapolicy"),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Do Action
@@ -150,7 +150,7 @@ TEST_F(TestPluginProxy, TestPluginProxyDoActionReplyNoAck) // NOLINT
     EXPECT_CALL(*m_mockSocketRequester, read()).WillOnce(Return(m_Protocol.serialize(ackMsg)));
     EXPECT_THROW( // NOLINT
         m_pluginProxy->queueAction("plugin_one", "thisisanaction"),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 // Get Status

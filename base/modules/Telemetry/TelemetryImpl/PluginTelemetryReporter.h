@@ -19,11 +19,11 @@ namespace Telemetry
     {
     public:
         explicit PluginTelemetryReporter(
-            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginProxy> pluginProxy);
+            std::unique_ptr<Common::PluginCommunication::IPluginProxy> pluginProxy);
 
         std::string getName() override;
         std::string getTelemetry() override;
 
-        std::unique_ptr<ManagementAgent::PluginCommunication::IPluginProxy> m_pluginProxy;
+        std::unique_ptr<Common::PluginCommunication::IPluginProxy> m_pluginProxy;
     };
 } // namespace Telemetry

@@ -9,10 +9,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
+#include <Common/PluginCommunication/IPluginCommunicationException.h>
+#include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/ZMQWrapperApi/IContext.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
@@ -24,7 +24,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <thread>
 
-using ManagementAgent::PluginCommunicationImpl::PluginProxy;
+using Common::PluginCommunicationImpl::PluginProxy;
 
 class TestPluginManager : public ::testing::Test
 {
@@ -314,7 +314,7 @@ TEST_F(TestPluginManager, TestGetStatusOnUnregisteredPluginThrows) // NOLINT
 {
     EXPECT_THROW( // NOLINT
         m_pluginManagerPtr->getStatus("plugin_not_registered"),
-        ManagementAgent::PluginCommunication::IPluginCommunicationException); // NOLINT
+        Common::PluginCommunication::IPluginCommunicationException); // NOLINT
 }
 
 TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows) // NOLINT
@@ -327,7 +327,7 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows) // NOLINT
     getStatus.join();
     EXPECT_THROW(                                       // NOLINT
         m_pluginManagerPtr->getStatus(m_pluginOneName), // NOLINT
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
@@ -342,7 +342,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows) // NOLINT
 {
     EXPECT_THROW(                                                  // NOLINT
         m_pluginManagerPtr->getTelemetry("plugin_not_registered"), // NOLINT
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
@@ -355,7 +355,7 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
     getTelemetry.join();
     EXPECT_THROW(                                          // NOLINT
         m_pluginManagerPtr->getTelemetry(m_pluginOneName), // NOLINT
-        ManagementAgent::PluginCommunication::IPluginCommunicationException);
+        Common::PluginCommunication::IPluginCommunicationException);
 }
 
 TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NOLINT

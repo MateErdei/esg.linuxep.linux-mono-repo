@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/StatusInfo.h>
 #include <Common/PluginProtocol/DataMessage.h>
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunication
     {
@@ -90,4 +90,4 @@ namespace ManagementAgent
         };
 
     } // namespace PluginCommunication
-} // namespace ManagementAgent
+} // namespace Common

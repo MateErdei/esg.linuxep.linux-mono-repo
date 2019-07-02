@@ -7,11 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IEventReceiver.h"
-#include "IPluginProxy.h"
 #include "IPluginServerCallback.h"
 #include "IPolicyReceiver.h"
 #include "IStatusReceiver.h"
 
+#include <Common/PluginCommunication/IPluginProxy.h>
 #include <Common/PluginProtocol/DataMessage.h>
 
 #include <memory>

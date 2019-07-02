@@ -15,14 +15,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSenderImpl/HttpSender.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <Common/PluginCommunication/IPluginProxy.h>
+#include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/TelemetryConfigImpl/Config.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <ManagementAgent/PluginCommunication/IPluginProxy.h>
-#include <ManagementAgent/PluginCommunicationImpl/PluginProxy.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
 #include <sstream>
@@ -52,8 +52,8 @@ namespace Telemetry
             requester->connect(pluginSocketAddress);
 
             auto telemetryProvider = std::make_shared<PluginTelemetryReporter>(
-                std::make_unique<ManagementAgent::PluginCommunicationImpl::PluginProxy>(
-                    ManagementAgent::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName }));
+                std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
+                    Common::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName }));
             LOGINFO("Loaded plugin proxy: " << pluginName);
             telemetryProviders.emplace_back(telemetryProvider);
         }

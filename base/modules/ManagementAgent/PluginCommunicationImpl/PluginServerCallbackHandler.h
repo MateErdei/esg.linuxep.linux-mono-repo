@@ -1,16 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
-
-#include "IPluginServerCallback.h"
 
 #include <Common/PluginProtocol/AbstractListenerServer.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/ZeroMQWrapper/IReadWrite.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 #include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
 
 using namespace Common::PluginProtocol;

@@ -13,7 +13,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 namespace Telemetry
 {
     PluginTelemetryReporter::PluginTelemetryReporter(
-        std::unique_ptr<ManagementAgent::PluginCommunication::IPluginProxy> pluginProxy) :
+        std::unique_ptr<Common::PluginCommunication::IPluginProxy> pluginProxy) :
         m_pluginProxy(std::move(pluginProxy))
     {
     }

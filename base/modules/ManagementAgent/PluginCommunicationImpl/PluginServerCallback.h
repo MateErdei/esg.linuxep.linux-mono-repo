@@ -1,15 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
-#include "IPluginServerCallback.h"
 #include "PluginManager.h"
 
 #include <Common/PluginProtocol/DataMessage.h>
+#include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 #include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
 
 #include <string>

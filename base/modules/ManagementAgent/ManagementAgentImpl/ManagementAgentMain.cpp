@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
+#include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/TaskQueueImpl/TaskProcessorImpl.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
@@ -20,7 +21,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/LoggerImpl/Logger.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
-#include <ManagementAgent/PluginCommunication/IPluginCommunicationException.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusTask.h>
@@ -156,7 +156,7 @@ namespace ManagementAgent
                 {
                     pluginStatus = m_pluginManager->getStatus(pluginName);
                 }
-                catch (PluginCommunication::IPluginCommunicationException& e)
+                catch (Common::PluginCommunication::IPluginCommunicationException& e)
                 {
                     LOGWARN("Failed to get plugin status for: " << pluginName << ", with error" << e.what());
                     continue;

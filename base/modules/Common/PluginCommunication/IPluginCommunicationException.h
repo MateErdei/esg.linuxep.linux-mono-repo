@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,14 +8,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Exceptions/IException.h>
 
-namespace ManagementAgent
+namespace Common
 {
     namespace PluginCommunication
     {
-        class IPluginCommunicationException : public Common::Exceptions::IException
+        class IPluginCommunicationException : public Exceptions::IException
         {
         public:
-            explicit IPluginCommunicationException(const std::string& what) : Common::Exceptions::IException(what) {}
+            explicit IPluginCommunicationException(const std::string& what) : Exceptions::IException(what) {}
         };
     } // namespace PluginCommunication
-} // namespace ManagementAgent
+} // namespace Common
