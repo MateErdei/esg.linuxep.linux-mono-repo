@@ -32,8 +32,8 @@ namespace Telemetry
 {
     void appendTelemetryProvidersForPlugins(std::vector<std::shared_ptr<ITelemetryProvider>>& telemetryProviders)
     {
-        const int defaultTimeout = 5000;
-        const int defaultConnectTimeout = 5000;
+        const int defaultTimeout = 5000; // TODO: move to config?
+        const int defaultConnectTimeout = 5000; // TODO: move to config?
 
         std::vector<Common::PluginRegistryImpl::PluginInfo> pluginInfos =
             Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
