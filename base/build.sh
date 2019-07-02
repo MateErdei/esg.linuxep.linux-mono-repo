@@ -46,6 +46,7 @@ DEBUG=0
 export ENABLE_STRIP=1
 VALGRIND=0
 UNIT_TESTS=1
+GOOGLETESTTAR=googletest-release-1.8.1
 
 while [[ $# -ge 1 ]]
 do
@@ -232,7 +233,7 @@ function build()
         untar_or_link_to_redist python-watchdog
         untar_or_link_to_redist python-pathtools
         untar_or_link_to_redist pycryptodome
-        untar_or_link_to_redist googletest-release-1.8.1
+        untar_or_link_to_redist $GOOGLETESTTAR
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
@@ -283,7 +284,7 @@ function build()
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
     fi
-    cp -r $REDIST/googletest-release-1.8.1 $BASE/tests/googletest
+    cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
     ZIP=$(which zip 2>/dev/null || true)
     [[ -x "$ZIP" ]] || {
         echo "Installing zip"
