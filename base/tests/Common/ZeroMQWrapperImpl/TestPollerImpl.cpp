@@ -194,14 +194,13 @@ namespace
         ASSERT_TRUE(socket != nullptr);
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
-        SocketReleaser releaser(socket->socketHolder());
         requester->write({ "another request" });
         EXPECT_THROW( // NOLINT
             poller->poll(Common::ZeroMQWrapper::ms(POLL_MS)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
 
         poller.reset();
-        releaser.release(); // zmq socket already closed
+        socket->socketHolder().release(); // Socket already closed
         replier.reset();
         requester.reset();
         context.reset();
