@@ -21,5 +21,6 @@ input/
 output/
 log/
 redist/
+tests/googletest/
 *.orig
 products/distribution/include/
