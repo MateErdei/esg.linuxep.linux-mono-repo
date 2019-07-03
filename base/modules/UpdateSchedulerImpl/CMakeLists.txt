@@ -50,6 +50,7 @@ target_link_libraries(updateschedulerimpl PUBLIC
         directorywatcherimpl
         pluginapiimpl
         osutilitiesimpl
+        telemetryhelperimpl
         ${LOG4CPLUS_LIBRARY} )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl

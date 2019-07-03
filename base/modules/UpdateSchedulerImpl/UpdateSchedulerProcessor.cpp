@@ -16,14 +16,18 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/Process/IProcess.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
+#include <chrono>
 #include <csignal>
 #include <thread>
-#include <Common/PluginApi/NoPolicyAvailableException.h>
+
+using namespace std::chrono;
 
 namespace UpdateSchedulerImpl
 {
@@ -56,6 +60,7 @@ namespace UpdateSchedulerImpl
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
+        Common::Telemetry::TelemetryHelper::getInstance().set("failed-update-count", 0UL);
     }
 
     void UpdateSchedulerProcessor::mainLoop()
@@ -299,6 +304,9 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/, const bool processLatestReport)
     {
+        Common::Telemetry::TelemetryHelper::getInstance().set(
+            "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+
         auto iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
 
@@ -367,11 +375,14 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)
     {
         LOGERROR("SulDownloader failed to Start with the following error: " << errorMessage);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderTimedOut()
     {
         LOGERROR("SulDownloader failed to complete its job in 10 minutes");
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
+
         ensureSulDownloaderNotRunning();
     }
 

@@ -1,5 +1,3 @@
-#include <utility>
-
 /******************************************************************************************************
 
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
@@ -12,6 +10,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "UpdateSchedulerProcessor.h"
 
 #include <Common/PluginApi/ApiException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
+#include <utility>
 
 namespace UpdateSchedulerImpl
 {
@@ -73,7 +74,7 @@ namespace UpdateSchedulerImpl
     std::string SchedulerPluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
-        return "{}";
+        return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }
