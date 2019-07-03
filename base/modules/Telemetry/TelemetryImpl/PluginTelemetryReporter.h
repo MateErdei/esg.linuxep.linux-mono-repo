@@ -24,6 +24,7 @@ namespace Telemetry
         std::string getName() override;
         std::string getTelemetry() override;
 
+    private:
         std::unique_ptr<Common::PluginCommunication::IPluginProxy> m_pluginProxy;
     };
 } // namespace Telemetry

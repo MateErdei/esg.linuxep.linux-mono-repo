@@ -82,7 +82,7 @@ bool Config::isValid() const
         return false;
     }
 
-    if (m_externalProcessWaitTime < 1 || m_externalProcessWaitTime > MAX_PROCESS_WAIT_TIMEOUT)
+    if (m_externalProcessWaitTime < MIN_PROCESS_WAIT_TIMEOUT || m_externalProcessWaitTime > MAX_PROCESS_WAIT_TIMEOUT)
     {
         return false;
     }
@@ -102,12 +102,12 @@ bool Config::isValid() const
         return false;
     }
 
-    if (m_pluginSendReceiveTimeout < -1)
+    if (m_pluginSendReceiveTimeout < MIN_PLUGIN_TIMEOUT || m_pluginSendReceiveTimeout > MAX_PLUGIN_TIMEOUT)
     {
         return false;
     }
 
-    if (m_pluginConnectionTimeout < -1)
+    if (m_pluginConnectionTimeout < MIN_PLUGIN_TIMEOUT || m_pluginConnectionTimeout > MAX_PLUGIN_TIMEOUT)
     {
         return false;
     }

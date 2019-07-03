@@ -355,24 +355,52 @@ TEST_F(ConfigTests, InvalidPort) // NOLINT
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST_F(ConfigTests, InvalidProcessTime) // NOLINT
+TEST_F(ConfigTests, ProcessWaitTimeoutTooSmall) // NOLINT
 {
     Config c = m_config;
-    c.setExternalProcessWaitTime(0);
+    c.setExternalProcessWaitTime(MIN_PROCESS_WAIT_TIMEOUT - 1);
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST_F(ConfigTests, InvalidPluginSendReceiveTimeout) // NOLINT
+TEST_F(ConfigTests, ProcessWaitTimeoutTooLarge) // NOLINT
 {
     Config c = m_config;
-    c.setPluginSendReceiveTimeout(-2);
+    c.setExternalProcessWaitTime(MAX_PROCESS_WAIT_TIMEOUT + 1);
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
-TEST_F(ConfigTests, InvalidPluginConnectionTimeout) // NOLINT
+TEST_F(ConfigTests, ProcessWaitRetriesTooLarge) // NOLINT
 {
     Config c = m_config;
-    c.setPluginConnectionTimeout(-2);
+    c.setExternalProcessWaitRetries(MAX_PROCESS_WAIT_RETRIES + 1);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLow) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginSendReceiveTimeout(MIN_PLUGIN_TIMEOUT - 1);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLarge) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginSendReceiveTimeout(MAX_PLUGIN_TIMEOUT + 1);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, PluginConnectionTimeoutTooLow) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginConnectionTimeout(MIN_PLUGIN_TIMEOUT - 1);
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+}
+
+TEST_F(ConfigTests, PluginConnectionTimeoutTooLarge) // NOLINT
+{
+    Config c = m_config;
+    c.setPluginConnectionTimeout(MAX_PLUGIN_TIMEOUT + 1);
     EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
 }
 
