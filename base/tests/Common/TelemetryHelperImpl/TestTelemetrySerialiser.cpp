@@ -15,10 +15,10 @@ class TelemetrySerialiserTestFixture : public ::testing::Test
 {
 public:
     TelemetrySerialiserTestFixture() :
-        m_testValue1(1U),
-        m_testValue2(4294967200U),
-        m_testValue3(3U),
-        m_testValue4(-4),
+        m_testValue1(1UL),
+        m_testValue2(4294967200UL),
+        m_testValue3(3UL),
+        m_testValue4(-4L),
         m_testString("TestValue"),
         m_testBool(true)
     {
@@ -39,10 +39,10 @@ public:
         m_root.set("my array", array);
     }
 
-    unsigned int m_testValue1;
-    unsigned int m_testValue2;
-    unsigned int m_testValue3;
-    int m_testValue4;
+    unsigned long m_testValue1;
+    unsigned long m_testValue2;
+    unsigned long m_testValue3;
+    long m_testValue4;
     std::string m_testString;
     bool m_testBool;
 

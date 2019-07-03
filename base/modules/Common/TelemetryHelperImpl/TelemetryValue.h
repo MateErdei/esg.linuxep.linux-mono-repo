@@ -17,8 +17,8 @@ namespace Common::Telemetry
         TelemetryValue();
         explicit TelemetryValue(const std::string& value);
         explicit TelemetryValue(const bool value);
-        explicit TelemetryValue(const int value);
-        explicit TelemetryValue(const unsigned int value);
+        explicit TelemetryValue(const long value);
+        explicit TelemetryValue(const unsigned long value);
         explicit TelemetryValue(const char* value);
         ~TelemetryValue() = default;
 
@@ -31,8 +31,8 @@ namespace Common::Telemetry
             string_type
         };
 
-        void set(int value);
-        void set(unsigned int value);
+        void set(long value);
+        void set(unsigned long value);
         void set(bool value);
         void set(const std::string& value);
         void set(const char* value);
@@ -40,8 +40,8 @@ namespace Common::Telemetry
         Type getType() const;
         void checkType(Type expectedType) const;
 
-        int getInteger() const;
-        unsigned int getUnsignedInteger() const;
+        long getInteger() const;
+        unsigned long getUnsignedInteger() const;
         bool getBoolean() const;
         std::string getString() const;
 
@@ -49,6 +49,6 @@ namespace Common::Telemetry
         bool operator!=(const TelemetryValue& rhs) const;
 
     private:
-        std::variant<int, unsigned int, bool, std::string> m_value;
+        std::variant<long, unsigned long, bool, std::string> m_value;
     };
 } // namespace Common::Telemetry

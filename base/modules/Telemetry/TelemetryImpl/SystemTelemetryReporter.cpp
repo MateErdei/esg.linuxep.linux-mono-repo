@@ -54,7 +54,7 @@ namespace Telemetry
                 }
                 else
                 {
-                    jsonConverter.set(telemetryName, std::get<int>(objects[0].second));
+                    jsonConverter.set(telemetryName, (long)std::get<int>(objects[0].second));
                 }
 
                 continue;
@@ -87,7 +87,7 @@ namespace Telemetry
                     }
                     else
                     {
-                        jsonValue.set(std::get<int>(value.second));
+                        jsonValue.set((long)std::get<int>(value.second));
                     }
 
                     jsonObject.set(value.first, jsonValue);

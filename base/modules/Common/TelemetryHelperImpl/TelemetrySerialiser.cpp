@@ -56,13 +56,13 @@ namespace Common::Telemetry
         {
             case nlohmann::detail::value_t::number_integer:
             {
-                value.set(j.get<int>());
+                value.set(j.get<long>());
                 break;
             }
 
             case nlohmann::detail::value_t::number_unsigned:
             {
-                value.set(j.get<unsigned int>());
+                value.set(j.get<unsigned long>());
                 break;
             }
 

@@ -29,24 +29,24 @@ namespace Common::Telemetry
 
         void operator=(TelemetryHelper const&) = delete;
 
-        void set(const std::string& key, int value);
-        void set(const std::string& key, unsigned int value);
+        void set(const std::string& key, long value);
+        void set(const std::string& key, unsigned long value);
         void set(const std::string& key, const std::string& value);
         void set(const std::string& key, const char* value);
         void set(const std::string& key, bool value);
 
-        void increment(const std::string& key, int value);
-        void increment(const std::string& key, unsigned int value);
+        void increment(const std::string& key, long value);
+        void increment(const std::string& key, unsigned long value);
 
-        void appendValue(const std::string& arrayKey, int value);
-        void appendValue(const std::string& arrayKey, unsigned int value);
+        void appendValue(const std::string& arrayKey, long value);
+        void appendValue(const std::string& arrayKey, unsigned long value);
         void appendValue(const std::string& arrayKey, const std::string& value);
         void appendValue(const std::string& arrayKey, const char* value);
         void appendValue(const std::string& arrayKey, bool value);
 
         void appendObject(const std::string& arrayKey, const TelemetryObject& object);
-        void appendObject(const std::string& arrayKey, const std::string& key, int value);
-        void appendObject(const std::string& arrayKey, const std::string& key, unsigned int value);
+        void appendObject(const std::string& arrayKey, const std::string& key, long value);
+        void appendObject(const std::string& arrayKey, const std::string& key, unsigned long value);
         void appendObject(const std::string& arrayKey, const std::string& key, const std::string& value);
         void appendObject(const std::string& arrayKey, const std::string& key, const char* value);
         void appendObject(const std::string& arrayKey, const std::string& key, bool value);
@@ -83,7 +83,7 @@ namespace Common::Telemetry
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
             TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
-            TelemetryValue telemetryValue(0);
+            TelemetryValue telemetryValue(0L);
 
             if (telemetryObject.getType() != TelemetryObject::Type::value)
             {
@@ -93,12 +93,12 @@ namespace Common::Telemetry
             TelemetryValue::Type valueType = telemetryObject.getValue().getType();
             if (valueType == TelemetryValue::Type::integer_type)
             {
-                int newValue = telemetryObject.getValue().getInteger() + value;
+                long newValue = telemetryObject.getValue().getInteger() + value;
                 telemetryValue.set(newValue);
             }
             else if (valueType == TelemetryValue::Type::unsigned_integer_type)
             {
-                unsigned int newValue = telemetryObject.getValue().getUnsignedInteger() + value;
+                unsigned long newValue = telemetryObject.getValue().getUnsignedInteger() + value;
                 telemetryValue.set(newValue);
             }
 

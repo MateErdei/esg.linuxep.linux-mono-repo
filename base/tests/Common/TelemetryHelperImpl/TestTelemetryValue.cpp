@@ -8,8 +8,8 @@
 
 #include <include/gtest/gtest.h>
 
-static const int TEST_INTEGER = 10;
-static const unsigned int TEST_UNSIGNED_INTEGER = 11U;
+static const long TEST_INTEGER = 10L;
+static const unsigned long TEST_UNSIGNED_INTEGER = 11UL;
 static const bool TEST_BOOL = true;
 static const char* TEST_CSTRING = "Test String";
 static const std::string TEST_STRING = TEST_CSTRING;  // NOLINT
@@ -154,7 +154,7 @@ TEST(TestTelemetryValueImpl, EqualityMatchingItems) // NOLINT
 TEST(TestTelemetryValueImpl, EqualityDifferingItems) // NOLINT
 {
     TelemetryValue telemetryValue1(TEST_INTEGER);
-    TelemetryValue telemetryValue2(999);
+    TelemetryValue telemetryValue2(999L);
     ASSERT_TRUE(telemetryValue1 != telemetryValue2);
 }
 

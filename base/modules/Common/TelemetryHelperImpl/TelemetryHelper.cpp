@@ -11,9 +11,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace Common::Telemetry
 {
-    void TelemetryHelper::set(const std::string& key, int value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value); }
 
-    void TelemetryHelper::set(const std::string& key, unsigned int value) { setInternal(key, value); }
+    void TelemetryHelper::set(const std::string& key, unsigned long value) { setInternal(key, value); }
 
     void TelemetryHelper::set(const std::string& key, const std::string& value) { setInternal(key, value); }
 
@@ -21,13 +21,13 @@ namespace Common::Telemetry
 
     void TelemetryHelper::set(const std::string& key, bool value) { setInternal(key, value); }
 
-    void TelemetryHelper::increment(const std::string& key, int value) { incrementInternal(key, value); }
+    void TelemetryHelper::increment(const std::string& key, long value) { incrementInternal(key, value); }
 
-    void TelemetryHelper::increment(const std::string& key, unsigned int value) { incrementInternal(key, value); }
+    void TelemetryHelper::increment(const std::string& key, unsigned long value) { incrementInternal(key, value); }
 
-    void TelemetryHelper::appendValue(const std::string& arrayKey, int value) { appendValueInternal(arrayKey, value); }
+    void TelemetryHelper::appendValue(const std::string& arrayKey, long value) { appendValueInternal(arrayKey, value); }
 
-    void TelemetryHelper::appendValue(const std::string& arrayKey, unsigned int value)
+    void TelemetryHelper::appendValue(const std::string& arrayKey, unsigned long value)
     {
         appendValueInternal(arrayKey, value);
     }
@@ -44,7 +44,7 @@ namespace Common::Telemetry
 
     void TelemetryHelper::appendValue(const std::string& arrayKey, bool value) { appendValueInternal(arrayKey, value); }
 
-    void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, int value)
+    void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, long value)
     {
         appendObjectInternal(arrayKey, key, value);
     }
@@ -64,7 +64,7 @@ namespace Common::Telemetry
         list.emplace_back(newObject);
     }
 
-    void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, unsigned int value)
+    void TelemetryHelper::appendObject(const std::string& arrayKey, const std::string& key, unsigned long value)
     {
         appendObjectInternal(arrayKey, key, value);
     }

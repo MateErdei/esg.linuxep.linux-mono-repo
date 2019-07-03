@@ -17,15 +17,15 @@ namespace Common::Telemetry
 
     TelemetryValue::TelemetryValue(const bool value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const int value) : m_value(value) {}
+    TelemetryValue::TelemetryValue(const long value) : m_value(value) {}
 
-    TelemetryValue::TelemetryValue(const unsigned int value) : m_value(value) {}
+    TelemetryValue::TelemetryValue(const unsigned long value) : m_value(value) {}
 
     TelemetryValue::TelemetryValue(const char* value) : m_value(std::string(value)) {}
 
-    void TelemetryValue::set(const int value) { m_value = value; }
+    void TelemetryValue::set(const long value) { m_value = value; }
 
-    void TelemetryValue::set(unsigned int value) { m_value = value; }
+    void TelemetryValue::set(unsigned long value) { m_value = value; }
 
     void TelemetryValue::set(const bool value) { m_value = value; }
 
@@ -33,16 +33,16 @@ namespace Common::Telemetry
 
     void TelemetryValue::set(const char* value) { m_value = std::string(value); }
 
-    int TelemetryValue::getInteger() const
+    long TelemetryValue::getInteger() const
     {
         checkType(Type::integer_type);
-        return std::get<int>(m_value);
+        return std::get<long>(m_value);
     }
 
-    unsigned int TelemetryValue::getUnsignedInteger() const
+    unsigned long TelemetryValue::getUnsignedInteger() const
     {
         checkType(Type::unsigned_integer_type);
-        return std::get<unsigned int>(m_value);
+        return std::get<unsigned long>(m_value);
     }
 
     bool TelemetryValue::getBoolean() const
