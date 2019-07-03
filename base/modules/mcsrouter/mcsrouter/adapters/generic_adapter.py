@@ -64,9 +64,6 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             policy_type = node.getAttribute("policyType")
             policy_name = "%s-%s_policy.xml" % (self.__m_app_id, policy_type)
         else:
-            LOGGER.info(
-                "%s Policy didn't contain one compliance node",
-                self.__m_app_id)
             policy_name = "%s_policy.xml" % (self.__m_app_id)
 
         policy_path = os.path.join(path_manager.policy_dir(), policy_name)
