@@ -344,6 +344,9 @@ chmod -R 750 "${SOPHOS_INSTALL}/base/lib"
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/python"*
 
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/tscheduler"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
+
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
 
