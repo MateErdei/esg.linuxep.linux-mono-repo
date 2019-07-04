@@ -17,7 +17,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:xmlutilitiesobject>
         )
 
-target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
+target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf ${EXPAT_LIBRARY} -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
         "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
         "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
         "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
@@ -40,6 +40,7 @@ INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
+FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 
 add_custom_target(
         plugintar ALL
@@ -65,6 +66,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
         DEPENDS testhelpers
 )
