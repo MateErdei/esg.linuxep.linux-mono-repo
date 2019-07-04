@@ -4,10 +4,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-/**
- * Component tests for Telemetry Executable
- */
-
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
 
@@ -26,7 +22,7 @@ using ::testing::StrictMock;
 
 using namespace Common::HttpSenderImpl;
 
-class TelemetryProcessorRunTests : public ::testing::Test
+class TelemetryProcessorHttpSenderTests : public ::testing::Test
 {
 public:
     const char* m_defaultServer = "t1.sophosupd.com";
@@ -113,17 +109,17 @@ public:
     }
 };
 
-class TelemetryProcessorRunTestRequestTypes : public TelemetryProcessorRunTests,
-                                              public ::testing::WithParamInterface<RequestType>
+class TelemetryProcessorHttpSenderTestsRequestTypes : public TelemetryProcessorHttpSenderTests,
+                                                      public ::testing::WithParamInterface<RequestType>
 {
 };
 
 INSTANTIATE_TEST_CASE_P(
     TelemetryTest,
-    TelemetryProcessorRunTestRequestTypes,
+    TelemetryProcessorHttpSenderTestsRequestTypes,
     ::testing::Values(RequestType::GET, RequestType::POST, RequestType::PUT)); // NOLINT
 
-TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOLINT
+TEST_P(TelemetryProcessorHttpSenderTestsRequestTypes, httpsRequestReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
@@ -141,17 +137,17 @@ TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOL
     if (requestType == RequestType::GET)
     {
         EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-            .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareGetRequestConfig));
+            .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::CompareGetRequestConfig));
     }
     else if (requestType == RequestType::POST)
     {
         EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-            .WillOnce(Invoke(this, &TelemetryProcessorRunTests::ComparePostRequestConfig));
+            .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::ComparePostRequestConfig));
     }
     else if (requestType == RequestType::PUT)
     {
         EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-            .WillOnce(Invoke(this, &TelemetryProcessorRunTests::ComparePutRequestConfig));
+            .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::ComparePutRequestConfig));
     }
     else
     {
@@ -167,7 +163,7 @@ TEST_P(TelemetryProcessorRunTestRequestTypes, httpsRequestReturnsSuccess) // NOL
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
+TEST_F(TelemetryProcessorHttpSenderTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
@@ -175,7 +171,7 @@ TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-        .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));
+        .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::CompareRequestConfig));
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -191,7 +187,7 @@ TEST_F(TelemetryProcessorRunTests, GetRequestWithOneArgReturnsSuccess) // NOLINT
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorRunTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
+TEST_F(TelemetryProcessorHttpSenderTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
@@ -199,7 +195,7 @@ TEST_F(TelemetryProcessorRunTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-        .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));
+        .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::CompareRequestConfig));
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -216,7 +212,7 @@ TEST_F(TelemetryProcessorRunTests, PutRequestWithOneArgReturnsSuccess) // NOLINT
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorRunTests, PostRequestWithOneArgReturnsSuccess) // NOLINT
+TEST_F(TelemetryProcessorHttpSenderTests, PostRequestWithOneArgReturnsSuccess) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
@@ -224,7 +220,7 @@ TEST_F(TelemetryProcessorRunTests, PostRequestWithOneArgReturnsSuccess) // NOLIN
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpSender, doHttpsRequest(_))
-        .WillOnce(Invoke(this, &TelemetryProcessorRunTests::CompareRequestConfig));
+        .WillOnce(Invoke(this, &TelemetryProcessorHttpSenderTests::CompareRequestConfig));
 
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
@@ -241,7 +237,7 @@ TEST_F(TelemetryProcessorRunTests, PostRequestWithOneArgReturnsSuccess) // NOLIN
     telemetryProcessor.Run();
 }
 
-TEST_F(TelemetryProcessorRunTests, certificateDoesNotExist) // NOLINT
+TEST_F(TelemetryProcessorHttpSenderTests, certificateDoesNotExist) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));
@@ -264,7 +260,7 @@ TEST_F(TelemetryProcessorRunTests, certificateDoesNotExist) // NOLINT
     EXPECT_THROW(telemetryProcessor.Run(), std::runtime_error);
 }
 
-TEST_F(TelemetryProcessorRunTests, httpRequestFails) // NOLINT
+TEST_F(TelemetryProcessorHttpSenderTests, httpRequestFails) // NOLINT
 {
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/machine_id.txt")).WillOnce(Return("machineId"));

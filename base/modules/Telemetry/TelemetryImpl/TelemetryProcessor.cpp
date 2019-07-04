@@ -43,6 +43,8 @@ void TelemetryProcessor::Run()
         throw std::runtime_error(msg.str());
     }
 
+    LOGDEBUG("Gathered telemetry: " << telemetryJson);
+
     try
     {
         saveTelemetry(telemetryJson);
@@ -78,7 +80,7 @@ void TelemetryProcessor::gatherTelemetry()
         try
         {
             std::string telemetry = provider->getTelemetry();
-            LOGINFO("Gathered telemetry for " << name << ": " << telemetry);
+            LOGINFO("Gathered telemetry for " << name);
             addTelemetry(name, telemetry);
         }
         catch (std::exception& ex)
