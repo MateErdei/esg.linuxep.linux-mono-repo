@@ -1,8 +1,9 @@
-add_library(xmlutilities SHARED
+add_library(xmlutilitiesobject OBJECT
         AttributesMap.cpp AttributesMap.h Logger.h Logger.cpp)
 
 
-target_include_directories(xmlutilities PUBLIC ${EXPAT_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(xmlutilitiesobject PUBLIC ${EXPAT_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+add_library(xmlutilities SHARED $<TARGET_OBJECTS:xmlutilitiesobject>)
 target_link_libraries(xmlutilities PUBLIC
         ${EXPAT_LIBRARY}
         ${LOG4CPLUS_LIBRARY})
