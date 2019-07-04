@@ -40,7 +40,7 @@ int RemoveAction::run()
 
     auto response = doOperationToWatchdog({ "REMOVE", m_args.m_argument });
 
-    if (isSuccessful(response))
+    if (isSuccessfulOrWatchdogIsNotRunning(response))
     {
         return result;
     }

@@ -67,3 +67,10 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessful(const Common::ZeroMQWrapper::I
 {
     return (response.size() == 1 && response.at(0) == "OK");
 }
+
+bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(const Common::ZeroMQWrapper::IReadable::data_t& response)
+{
+    std::string responseString = response.at(0);
+    return (response.size() == 1 && (responseString == "OK" || responseString  == "Watchdog is not running"));
+}
+

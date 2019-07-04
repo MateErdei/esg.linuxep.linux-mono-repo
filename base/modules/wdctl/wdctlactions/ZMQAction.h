@@ -40,6 +40,7 @@ namespace wdctl
                 const Common::ZeroMQWrapper::IWritable::data_t& arguments);
 
             bool isSuccessful(const Common::ZeroMQWrapper::IReadable::data_t&);
+            bool isSuccessfulOrWatchdogIsNotRunning(const Common::ZeroMQWrapper::IReadable::data_t&);
         };
     } // namespace wdctlactions
 } // namespace wdctl
