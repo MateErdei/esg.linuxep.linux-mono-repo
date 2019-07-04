@@ -44,7 +44,6 @@ return nbytes;
 +       std::cout << "// -> " << size_ << " bytes" << std::endl;
 ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
 
-//  Several errors are OK. When speculative write is being done we may not
 
  Build zmq locally.
  By running the client with LD_LIBRARY_PATH set to the path of the zmq library changed.
@@ -331,11 +330,6 @@ void mainTest(const  ZMQPartsProto::ZMQStack & message){
     AnounceFinished anounceFinished;
 
     sendMessageToReplier(message, IPCADDRESS);
-    /*
-    std::this_thread::sleep_for(std::chrono::seconds(100));
-
-    return ;
-    */
 
 }
 

@@ -63,7 +63,7 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     constexpr int64_t maxSize = 10*1024*1024; // 10 MB
     if ( -1== zmq_setsockopt(m_socket, ZMQ_MAXMSGSIZE,&maxSize, sizeof(maxSize)))
     {
-        throw std::logic_error("Failed to configure option (Mxa on the socket");
+        throw std::logic_error("Failed to configure option to limit max size of message on the socket");
     }
 
 }
