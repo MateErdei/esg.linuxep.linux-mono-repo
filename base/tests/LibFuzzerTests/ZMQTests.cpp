@@ -254,23 +254,23 @@ public:
 
 void sendMessageToReplier(const  ZMQPartsProto::ZMQStack & message, const std::string addr)
 {
-    int s;
+    int socketFileDescriptor;
     struct sockaddr_un remote_addr = {};
 
-    if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    if ((socketFileDescriptor = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
         int err=errno;
         logErr("Failed to create socket. ", err);
         abort();
     }
-    SocketGuard socketGuard{s};
+    SocketGuard socketGuard{socketFileDescriptor};
     remote_addr.sun_family = AF_UNIX;
     memcpy( remote_addr.sun_path, addr.c_str(), addr.size());
     int count = 0;
     int rc = -1;
     while( count++ < 10  && rc == -1)
     {
-        rc = connect(s, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr_un));
+        rc = connect(socketFileDescriptor, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr_un));
         if( rc != 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -285,39 +285,39 @@ void sendMessageToReplier(const  ZMQPartsProto::ZMQStack & message, const std::s
         abort();
     }
     log("Sending data to Replier");
-    if ( !send_data_to_socket(s, message.greeting()))
+    if ( !send_data_to_socket(socketFileDescriptor, message.greeting()))
     {
         log("Give up at greeting stage");
         // it is ok to fail to send this data.
         return;
     }
     // the normal exchange, the replier accepts the greeting
-    receive_data_from_replier(s, "Greeting");
+    receive_data_from_replier(socketFileDescriptor, "Greeting");
 
 
 
-    if( !send_data_to_socket(s, message.handshake()))
+    if( !send_data_to_socket(socketFileDescriptor, message.handshake()))
     {
         log("Give up at handshake stage");
         return;
     }
 
-    receive_data_from_replier(s, "Handshake");
+    receive_data_from_replier(socketFileDescriptor, "Handshake");
 
 
-    if( !send_data_to_socket(s, message.identity()))
+    if( !send_data_to_socket(socketFileDescriptor, message.identity()))
     {
         log("Give up at identity stage");
         return;
     }
 
 
-    if ( !send_data_to_socket(s, message.payload()))
+    if ( !send_data_to_socket(socketFileDescriptor, message.payload()))
     {
         log("Give up at payload stage");
         return;
     }
-    receive_data_from_replier(s, "Answer");
+    receive_data_from_replier(socketFileDescriptor, "Answer");
     log("Success");
 }
 
