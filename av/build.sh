@@ -44,6 +44,7 @@ BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-audit-unittest
 VALGRIND=0
+GOOGLETESTTAR=googletest-release-1.8.1
 
 while [[ $# -ge 1 ]]
 do
@@ -211,6 +212,7 @@ function build()
 
         untar_or_link_to_redist pluginapi "" ${PLUGIN_TAR}
         untar_or_link_to_redist cmake cmake-3.11.2-linux
+        untar_or_link_to_redist $GOOGLETESTTAR
 
     elif [[ -d "$ALLEGRO_REDIST" ]]
     then
@@ -220,6 +222,7 @@ function build()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
     fi
     addpath "$REDIST/cmake/bin"
+    cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     if [[ ${BULLSEYE} == 1 ]]
     then
