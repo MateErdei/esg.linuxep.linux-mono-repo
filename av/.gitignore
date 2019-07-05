@@ -14,5 +14,6 @@ input
 output
 build64
 redist
+tests/googletest
 log
 PLUGINNAME
