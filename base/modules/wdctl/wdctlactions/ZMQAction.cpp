@@ -43,7 +43,7 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
             std::string systemCommand = systemctlPath + " status sophos-spl > /dev/null";
             if (system(systemCommand.c_str()) != 0)
             {
-                return { std::string("Watchdog is not running") };
+                return { watchdogNotRunning };
             }
             break;
         }
