@@ -103,7 +103,7 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
     if (proxy != nullptr)
     {
         proxy->setEnabled(false);
-        return "OK";
+        return watchdogReturnsOk;
     }
     return "Error: Plugin not found";
 }
@@ -135,7 +135,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
         proxy->updatePluginInfo(loadResult.first);
     }
     proxy->setEnabled(true);
-    return "OK";
+    return watchdogReturnsOk;
 }
 
 std::string Watchdog::removePlugin(const std::string& pluginName)
@@ -169,7 +169,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
         return "Error: Plugin not found";
     }
 
-    return "OK";
+    return watchdogReturnsOk;
 }
 
 std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t request)

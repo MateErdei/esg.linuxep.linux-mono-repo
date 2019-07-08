@@ -24,6 +24,8 @@ namespace watchdog
         using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
+        static const std::string watchdogReturnsOk = "OK"; // NOLINT
+
         class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
         public:

@@ -5,12 +5,18 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ZMQAction.h"
+#include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
+
+namespace
+{
+    constexpr char watchdogNotRunning[] = "Watchdog is not running";
+}
 
 wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args) :
     Action(args),
@@ -65,12 +71,19 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
 
 bool wdctl::wdctlactions::ZMQAction::isSuccessful(const Common::ZeroMQWrapper::IReadable::data_t& response)
 {
-    return (response.size() == 1 && response.at(0) == "OK");
+    return (response.size() == 1 && response.at(0) == watchdog::watchdogimpl::watchdogReturnsOk);
 }
 
 bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(const Common::ZeroMQWrapper::IReadable::data_t& response)
 {
-    std::string responseString = response.at(0);
-    return (response.size() == 1 && (responseString == "OK" || responseString  == "Watchdog is not running"));
+    if (response.size() == 1)
+    {
+        std::string responseString = response.at(0);
+        return (responseString == watchdog::watchdogimpl::watchdogReturnsOk || responseString  == watchdogNotRunning);
+    }
+    else
+    {
+        return false;
+    }
 }
 
