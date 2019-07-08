@@ -41,6 +41,7 @@ namespace UpdateSchedulerImpl
             std::chrono::seconds m_timeout;
 
             std::tuple<int, std::string> startUpdateService();
+            void logIfUpdateServiceFailed();
         };
 
     } // namespace runnerModule

@@ -66,11 +66,26 @@ namespace UpdateSchedulerImpl
                 return;
             }
 
+            logIfUpdateServiceFailed();
+
             // If update result was successfully generated within timeout period then report file location and return.
             schedulerTask.taskType = SchedulerTask::TaskType::SulDownloaderFinished;
             schedulerTask.content = reportFileLocation;
             m_schedulerTaskQueue->push(schedulerTask);
             LOGSUPPORT("Update Service finished.");
+        }
+
+        void SulDownloaderRunner::logIfUpdateServiceFailed()
+        {
+            auto process = Common::Process::createProcess();
+            process->exec("/bin/systemctl", { "is-failed", "sophos-spl-update.service" });
+            auto result =  std::make_tuple(process->exitCode(), process->output());
+            int exitCode = std::get<0>(result);
+
+            if (exitCode == 0)
+            {
+                LOGERROR("Update Service (sophos-spl-update.service) failed.");
+            }
         }
 
         std::tuple<int, std::string> SulDownloaderRunner::startUpdateService()
