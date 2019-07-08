@@ -14,3 +14,4 @@ add_library(diagnoseimpl STATIC
             ../../Common/UtilityImpl/TimeUtils.h
             ../../Common/UtilityImpl/StringUtils.h
         )
+target_link_libraries(diagnoseimpl PUBLIC processimpl threads)

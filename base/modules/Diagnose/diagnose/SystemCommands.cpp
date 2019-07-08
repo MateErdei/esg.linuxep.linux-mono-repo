@@ -9,27 +9,65 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/Process/IProcess.h>
 
 #include <iostream>
 #include <algorithm>
+#include <sstream>
+#include <iterator>
 
 namespace diagnose
 {
     SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
-    int SystemCommands::runCommand(const std::string& command, const std::string& filename)
+    int SystemCommands::runCommand(const std::string& commandInput, const std::string& filename)
     {
-        std::cout << "Running: " << command << ", output to: " << filename << std::endl;
+        auto process = Common::Process::createProcess();
+        std::istringstream command(commandInput);
+
+        std::vector<std::string> arguments{std::istream_iterator<std::string>{command},
+                                        std::istream_iterator<std::string>{}};
+
+        std::cout << "Running: " << commandInput << ", output to: " << filename << std::endl;
         Path filePath = Common::FileSystem::join(m_destination, filename);
-        std::string fullCommand = command + " >'" + filePath + "' 2>&1";
-        return system(fullCommand.c_str());
+
+        std::string base = arguments.at(0);
+        arguments.erase(arguments.begin());
+
+        try
+        {
+            std::string exePath = getExecutablePath(base);
+            process->exec(exePath, arguments);
+        }
+        catch (std::invalid_argument)
+        {
+            std::cout << commandInput << " executable not found." << std::endl;
+            m_fileSystem.writeFile(filePath,"Executable not found.");
+            return 1;
+        }
+
+        m_fileSystem.writeFile(filePath,process->output());
+        return process->exitCode();
     }
 
+    std::string SystemCommands::getExecutablePath(std::string executableName)
+    {
+        std::vector<std::string> folderLocations = {"/usr/bin","/bin","/usr/local/bin"};
+        for (auto folder:folderLocations)
+        {
+            Path path = Common::FileSystem::join(folder,executableName);
+            if( m_fileSystem.isExecutable(path))
+            {
+                std::cout << "executable path: " << path << std::endl;
+                return path;
+            }
+        }
+        throw std::invalid_argument("executable is not installed");
+    }
 
     void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath)
     {
         Common::UtilityImpl::FormattedTime m_formattedTime;
-        Common::FileSystem::FileSystemImpl fileSystem;
 
         std::cout << "Running tar on: " << srcPath <<std::endl;
 
@@ -47,7 +85,7 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        if( ! fileSystem.isFile(tarfile) )
+        if( !  m_fileSystem.isFile(tarfile) )
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
