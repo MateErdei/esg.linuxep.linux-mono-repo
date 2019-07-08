@@ -116,7 +116,7 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
     watchdog.callHandleSocketRequest();
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
-    EXPECT_EQ(result.at(0), "OK");
+    EXPECT_EQ(result.at(0), watchdog::watchdogimpl::watchdogReturnsOk);
 }
 
 class TestC
