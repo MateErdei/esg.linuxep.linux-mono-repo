@@ -373,7 +373,7 @@ class MCSConnection(object):
 
         if self.__m_mcs_url != mcs_url:
             self.__m_mcs_url = mcs_url
-            LOGGER.info("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
+            LOGGER.debug("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
 
         return (host, port, mcs_url_parsed.path)
 
@@ -607,7 +607,7 @@ class MCSConnection(object):
                 LOGGER.warning(
                     "Cannot decode response as UTF-8, treating as Latin1")
                 body = body.decode("latin1")
-            ENVELOPE_LOGGER.info("RESPONSE: %s", body)
+            ENVELOPE_LOGGER.debug("RESPONSE: %s", body)
         return (response_headers, body)
 
     def __try_get_response(self, request_data):
@@ -807,9 +807,9 @@ class MCSConnection(object):
 
         ENVELOPE_LOGGER.debug("request headers=%s", str(headers))
         if body in (None, ""):
-            ENVELOPE_LOGGER.info("%s %s", method, path)
+            ENVELOPE_LOGGER.debug("%s %s", method, path)
         else:
-            ENVELOPE_LOGGER.info("%s %s : %s", method, path, body)
+            ENVELOPE_LOGGER.debug("%s %s : %s", method, path, body)
 
         # Need to use the path from above, so that we can have different URLs
         request_data = (path, headers, body, method)
