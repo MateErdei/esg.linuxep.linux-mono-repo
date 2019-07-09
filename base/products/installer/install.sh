@@ -358,6 +358,18 @@ chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
 
 chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
+# [LINUXEP-8440] Remove the lines of code below in sprint 2019.33
+
+if [ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log" ]; then
+    chown sophos-spl-user:sophos-spl-group "${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log"
+    chmod 600 "${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log"
+fi
+
+if [ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log" ]; then
+    chown sophos-spl-user:sophos-spl-group "${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log"
+    chmod 600 "${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log"
+fi
+
 unset LD_LIBRARY_PATH
 
 for F in "$DIST/installer/plugins"/*
