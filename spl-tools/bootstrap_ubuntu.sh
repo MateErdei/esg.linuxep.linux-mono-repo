@@ -41,6 +41,6 @@ fi
 
 apt-get update --fix-missing
 apt-get install build-essential cmake python-pip auditd libc6-i386 --assume-yes
-pip2 install robotframework pyzmq protobuf paramiko pycapnp watchdog
+pip2 install robotframework pyzmq watchdog protobuf paramiko pycapnp psutil kittyfuzzer katnip
 
 cp /home/vagrant/auditdConfig.txt /vagrant
