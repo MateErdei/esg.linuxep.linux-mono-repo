@@ -15,6 +15,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <sstream>
 #include <iterator>
+#include <Common/Process/IProcessException.h>
 
 namespace diagnose
 {
@@ -46,7 +47,17 @@ namespace diagnose
             return 1;
         }
 
-        m_fileSystem.writeFile(filePath,process->output());
+        if (process->wait(Common::Process::milli(5000), 1) !=
+            Common::Process::ProcessStatus::FINISHED)
+        {
+            process->kill();
+            std::cout << "Process execution timed out running: '" << commandInput << "' with error " << process->output() << std::endl;
+        }
+        else
+        {
+            m_fileSystem.writeFile(filePath,process->output());
+        }
+
         return process->exitCode();
     }
 
