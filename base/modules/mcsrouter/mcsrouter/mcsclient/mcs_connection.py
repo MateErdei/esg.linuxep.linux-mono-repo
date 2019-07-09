@@ -373,7 +373,7 @@ class MCSConnection(object):
 
         if self.__m_mcs_url != mcs_url:
             self.__m_mcs_url = mcs_url
-            LOGGER.debug("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
+            LOGGER.info("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
 
         return (host, port, mcs_url_parsed.path)
 
