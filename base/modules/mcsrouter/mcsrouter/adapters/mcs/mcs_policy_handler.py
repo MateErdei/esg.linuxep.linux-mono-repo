@@ -187,8 +187,10 @@ class MCSPolicyHandler(object):
         if node is None:
             return False
 
-        servers = self.__get_non_empty_sub_elements(node, "server")
-
+        serverSha256 = self.__get_non_empty_sub_elements(node, "server256")
+        serversSha1 = self.__get_non_empty_sub_elements(node, "server")
+        # append the two lists with the sha256 in preference.
+        servers = serverSha256 + serversSha1
         if not servers:
             LOGGER.error("MCS Policy has no server nodes in servers element")
             return False
