@@ -22,18 +22,17 @@ namespace diagnose
          */
         int runCommand(const std::string& command, const std::string& filename);
 
-        /*
-         * gets the path of the executable
-         */
-        std::string getExecutablePath(const std::string executableName);
 
         /*
          * Archive the diagnose output into a tar.gz ready for sending to Sophos.
          */
         void tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath);
 
+
     private:
+        std::string getExecutablePath(const std::string executableName);
+
         std::string m_destination;
-        Common::FileSystem::FileSystemImpl m_fileSystem;
+        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
     };
 } // namespace diagnose

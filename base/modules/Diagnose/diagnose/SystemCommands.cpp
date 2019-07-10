@@ -43,11 +43,11 @@ namespace diagnose
         catch (std::invalid_argument)
         {
             std::cout << commandInput << " executable not found." << std::endl;
-            m_fileSystem.writeFile(filePath,"Executable not found.");
+            m_fileSystem->writeFile(filePath,"Executable not found.");
             return 1;
         }
-
-        if (process->wait(Common::Process::milli(5000), 1) !=
+        process->setOutputLimit(5000);
+        if (process->wait(Common::Process::milli(500), 10) !=
             Common::Process::ProcessStatus::FINISHED)
         {
             process->kill();
@@ -55,7 +55,7 @@ namespace diagnose
         }
         else
         {
-            m_fileSystem.writeFile(filePath,process->output());
+            m_fileSystem->writeFile(filePath,process->output());
         }
 
         return process->exitCode();
@@ -63,11 +63,11 @@ namespace diagnose
 
     std::string SystemCommands::getExecutablePath(std::string executableName)
     {
-        std::vector<std::string> folderLocations = {"/usr/bin","/bin","/usr/local/bin"};
+        std::vector<std::string> folderLocations = {"/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin"};
         for (auto folder:folderLocations)
         {
             Path path = Common::FileSystem::join(folder,executableName);
-            if( m_fileSystem.isExecutable(path))
+            if( m_fileSystem->isExecutable(path))
             {
                 std::cout << "executable path: " << path << std::endl;
                 return path;
@@ -96,7 +96,7 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        if( !  m_fileSystem.isFile(tarfile) )
+        if( !  m_fileSystem->isFile(tarfile) )
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
