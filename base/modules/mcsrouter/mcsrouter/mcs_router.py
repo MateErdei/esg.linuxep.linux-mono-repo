@@ -324,7 +324,7 @@ class MCSRouter(object):
             LOGGER.warning("Unable to set core file resource limit")
 
         from . import mcs
-        proc = mcs.MCS(self.__m_config, self.__m_install_dir, max_timeout=1)
+        proc = mcs.MCS(self.__m_config, self.__m_install_dir)
 
         assert proc is not None
         ret = self.__safe_run_forever(proc)
