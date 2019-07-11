@@ -241,7 +241,7 @@ class SophosLogging(object):
         else:
             # override mcs-envelop logging
             debug = os.environ.get("MCS_DEBUG", None)
-            if debug:
+            if debug and log_level == logging.INFO:
                 log_level = logging.DEBUG
             envelope_logger.setLevel(log_level)
 
@@ -324,7 +324,7 @@ class MCSRouter(object):
             LOGGER.warning("Unable to set core file resource limit")
 
         from . import mcs
-        proc = mcs.MCS(self.__m_config, self.__m_install_dir)
+        proc = mcs.MCS(self.__m_config, self.__m_install_dir, max_timeout=1)
 
         assert proc is not None
         ret = self.__safe_run_forever(proc)
