@@ -31,4 +31,4 @@ SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
-rm ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
+rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
