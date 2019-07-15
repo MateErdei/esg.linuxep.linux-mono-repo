@@ -19,7 +19,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
-    SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
+    SystemCommands::SystemCommands(const std::string& destination) :
+            m_destination(destination), m_fileSystem(new Common::FileSystem::FileSystemImpl()) {}
 
     // output limit is set to 10MB
     const int outputLimit = 10485760;
