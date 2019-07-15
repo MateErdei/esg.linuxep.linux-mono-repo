@@ -21,6 +21,9 @@ namespace diagnose
 {
     SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
+    // output limit is set to 10MB
+    const int outputLimit = 10485760;
+
     int SystemCommands::runCommand(const std::string& commandInput, const std::string& filename)
     {
         auto process = Common::Process::createProcess();
@@ -40,23 +43,25 @@ namespace diagnose
             std::string exePath = getExecutablePath(base);
             process->exec(exePath, arguments);
         }
-        catch (std::invalid_argument)
+        catch (std::invalid_argument& e)
         {
             std::cout << commandInput << " executable not found." << std::endl;
             m_fileSystem->writeFile(filePath,"Executable not found.");
             return 1;
         }
-        process->setOutputLimit(5000);
+        catch (Common::Process::IProcessException& e)
+        {
+            std::cout << "exec failed with error: " << e.what() << std::endl;
+        }
+        process->setOutputLimit(outputLimit);
         if (process->wait(Common::Process::milli(500), 10) !=
             Common::Process::ProcessStatus::FINISHED)
         {
             process->kill();
-            std::cout << "Process execution timed out running: '" << commandInput << "' with error " << process->output() << std::endl;
+            std::cout << "Process execution timed out running: '" << commandInput << std::endl;
         }
-        else
-        {
-            m_fileSystem->writeFile(filePath,process->output());
-        }
+
+        m_fileSystem->writeFile(filePath,process->output());
 
         return process->exitCode();
     }
@@ -64,7 +69,7 @@ namespace diagnose
     std::string SystemCommands::getExecutablePath(std::string executableName)
     {
         std::vector<std::string> folderLocations = {"/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin"};
-        for (auto folder:folderLocations)
+        for (const auto& folder:folderLocations)
         {
             Path path = Common::FileSystem::join(folder,executableName);
             if( m_fileSystem->isExecutable(path))
