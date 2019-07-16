@@ -217,75 +217,75 @@ for day in result_root:
 
 
 print(summary_root)
-
-exit()
-
-                        ##### old way based on product version
-# This is the root of our result set.
-root = {}
-
-# Put results into struct like:  root["my event"]["0.5.1"]['results']
-for name in task_names:
-    root[name] = {}
-    for version in prod_versions:
-        root[name][version] = {}
-
-        for task in tasks:
-            if name == task['name'] and version == task['product_version']:
-
-                if 'results' not in root[name][version]:
-                    root[name][version]['results'] = []
-                root[name][version]['results'].append(task)
-
-# Create summary of results like:  root["my event"]["0.5.1"]['summary']['agg_avg_cpu']
-for taskname in root:
-    for version in root[taskname]:
-        print(root[taskname][version])
-        root[taskname][version]['summary'] = {}
-        root[taskname][version]['summary']['agg_avg_cpu'] = 0
-        root[taskname][version]['summary']['agg_max_cpu'] = 0
-        root[taskname][version]['summary']['agg_avg_mem'] = 0
-        root[taskname][version]['summary']['agg_max_mem'] = 0
-        root[taskname][version]['summary']['agg_min_mem'] = 0
-        root[taskname][version]['summary']['agg_duration'] = 0
-
-        number_of_results = 0
-        for r in root[taskname][version]['results']:
-
-            # skip bad runs with no data.
-            if 'avg_cpu' in r and 'max_cpu' in r and 'avg_mem' in r and 'max_mem' in r and 'min_mem' in r and 'duration' in r:
-                if r['avg_cpu'] is not None and r['avg_mem'] is not None and r['duration'] is not None and r['max_cpu'] is not None and r['max_mem'] is not None and r['min_mem'] is not None:
-                    root[taskname][version]['summary']['agg_avg_cpu'] += r['avg_cpu']
-                    root[taskname][version]['summary']['agg_avg_mem'] += r['avg_mem']
-                    root[taskname][version]['summary']['agg_duration'] += r['duration']
-
-                    if r['max_cpu'] > root[taskname][version]['summary']['agg_max_cpu']:
-                        root[taskname][version]['summary']['agg_max_cpu'] = r['max_cpu']
-
-                    if r['max_mem'] > root[taskname][version]['summary']['agg_max_mem']:
-                        root[taskname][version]['summary']['agg_max_mem'] = r['max_mem']
-
-                    if r['min_mem'] < root[taskname][version]['summary']['agg_min_mem']:
-                        root[taskname][version]['summary']['agg_min_mem'] = r['min_mem']
-
-                    number_of_results += 1
-
-        if number_of_results == 0:
-            continue
-        root[taskname][version]['summary']['agg_avg_cpu'] /= number_of_results
-        root[taskname][version]['summary']['agg_avg_mem'] /= number_of_results
-        root[taskname][version]['summary']['agg_duration'] /= number_of_results
-
-        # Throw away individual results now that we have a summary.
-        del root[taskname][version]['results']
-
-
-print("---")
-print(json.dumps(root))
-print("---")
+#
+# exit()
+#
+#                         ##### old way based on product version
+# # This is the root of our result set.
+# root = {}
+#
+# # Put results into struct like:  root["my event"]["0.5.1"]['results']
+# for name in task_names:
+#     root[name] = {}
+#     for version in prod_versions:
+#         root[name][version] = {}
+#
+#         for task in tasks:
+#             if name == task['name'] and version == task['product_version']:
+#
+#                 if 'results' not in root[name][version]:
+#                     root[name][version]['results'] = []
+#                 root[name][version]['results'].append(task)
+#
+# # Create summary of results like:  root["my event"]["0.5.1"]['summary']['agg_avg_cpu']
+# for taskname in root:
+#     for version in root[taskname]:
+#         print(root[taskname][version])
+#         root[taskname][version]['summary'] = {}
+#         root[taskname][version]['summary']['agg_avg_cpu'] = 0
+#         root[taskname][version]['summary']['agg_max_cpu'] = 0
+#         root[taskname][version]['summary']['agg_avg_mem'] = 0
+#         root[taskname][version]['summary']['agg_max_mem'] = 0
+#         root[taskname][version]['summary']['agg_min_mem'] = 0
+#         root[taskname][version]['summary']['agg_duration'] = 0
+#
+#         number_of_results = 0
+#         for r in root[taskname][version]['results']:
+#
+#             # skip bad runs with no data.
+#             if 'avg_cpu' in r and 'max_cpu' in r and 'avg_mem' in r and 'max_mem' in r and 'min_mem' in r and 'duration' in r:
+#                 if r['avg_cpu'] is not None and r['avg_mem'] is not None and r['duration'] is not None and r['max_cpu'] is not None and r['max_mem'] is not None and r['min_mem'] is not None:
+#                     root[taskname][version]['summary']['agg_avg_cpu'] += r['avg_cpu']
+#                     root[taskname][version]['summary']['agg_avg_mem'] += r['avg_mem']
+#                     root[taskname][version]['summary']['agg_duration'] += r['duration']
+#
+#                     if r['max_cpu'] > root[taskname][version]['summary']['agg_max_cpu']:
+#                         root[taskname][version]['summary']['agg_max_cpu'] = r['max_cpu']
+#
+#                     if r['max_mem'] > root[taskname][version]['summary']['agg_max_mem']:
+#                         root[taskname][version]['summary']['agg_max_mem'] = r['max_mem']
+#
+#                     if r['min_mem'] < root[taskname][version]['summary']['agg_min_mem']:
+#                         root[taskname][version]['summary']['agg_min_mem'] = r['min_mem']
+#
+#                     number_of_results += 1
+#
+#         if number_of_results == 0:
+#             continue
+#         root[taskname][version]['summary']['agg_avg_cpu'] /= number_of_results
+#         root[taskname][version]['summary']['agg_avg_mem'] /= number_of_results
+#         root[taskname][version]['summary']['agg_duration'] /= number_of_results
+#
+#         # Throw away individual results now that we have a summary.
+#         del root[taskname][version]['results']
+#
+#
+# print("---")
+# print(json.dumps(root))
+# print("---")
 
 
 with open('perf-results.json', 'w') as json_file:
-    json_file.write(json.dumps(root))
+    json_file.write(json.dumps(summary_root))
     print("wrote out perf-results.json")
 
