@@ -8,6 +8,6 @@ THIS_DIR=$(readlink -f ${0%/*})
 
 touch /tmp/thisJenkinsJobMadeByViolaGang
 
-log_info "Updating existing packages..."
+echo "=> Updating existing packages..."
 apt-get update
 apt-get dist-upgrade -qy
