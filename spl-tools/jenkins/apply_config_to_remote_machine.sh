@@ -23,6 +23,7 @@ this_dir_path=$(readlink -f $(dirname $0))
 [[ -e "${this_dir_path}/${config_script}" ]] || die "Failed to find ${this_dir_path}/${config_script}"
 
 this_dir_name=$(basename ${this_dir_path})
+echo rsync -e "ssh -o StrictHostKeyChecking=no" -av ${this_dir_path}/ ${target_machine}:${this_dir_name}/
 rsync -e "ssh -o StrictHostKeyChecking=no" -av ${this_dir_path}/ ${target_machine}:${this_dir_name}/
 if [[ "$?" != "0" ]]
 then
