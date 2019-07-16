@@ -348,10 +348,10 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/telemetry-config.json"
 chmod 440 "${SOPHOS_INSTALL}/base/etc/telemetry-config.json"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
-chmod 710 "${SOPHOS_INSTALL}/base/bin/telemetry"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/tscheduler"*
-chmod 710 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/tscheduler"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs/"*
 chmod g+r "${SOPHOS_INSTALL}/base/mcs/certs/"*
