@@ -10,8 +10,11 @@ add_library(diagnoseimpl STATIC
             Strings.h
             $<TARGET_OBJECTS:filesystemimplobject>
             $<TARGET_OBJECTS:applicationconfigurationimplobject>
+            $<TARGET_OBJECTS:processimplobject>
+            $<TARGET_OBJECTS:threadsobject>
             ../../Common/UtilityImpl/TimeUtils.cpp
             ../../Common/UtilityImpl/TimeUtils.h
             ../../Common/UtilityImpl/StringUtils.h
         )
-target_link_libraries(diagnoseimpl PUBLIC processimpl threads)
+
+target_link_libraries(diagnoseimpl PUBLIC logging)
