@@ -29,5 +29,4 @@ then
     scp -o StrictHostKeyChecking=no -r ${this_dir_path}/ ${target_machine}:${this_dir_name}/
 fi
 set -x
-ls -l ./${this_dir_name}/${config_script}
 ssh -o StrictHostKeyChecking=no -t ${target_machine} "$env_vars ./${this_dir_name}/${config_script} ${options}; rm -rf ./${this_dir_name}"
