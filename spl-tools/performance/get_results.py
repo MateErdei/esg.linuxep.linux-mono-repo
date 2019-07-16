@@ -51,8 +51,8 @@ def get_metrics(hostname, from_timestamp, to_timestamp):
     from_datetime = datetime.utcfromtimestamp(from_timestamp)
     to_datetime = datetime.utcfromtimestamp(to_timestamp)
 
-    print(from_datetime)
-    print(to_datetime)
+    #print(from_datetime)
+    #print(to_datetime)
 
     res_metrics = es.search(index=metrics_index,
                     body={
@@ -115,6 +115,35 @@ def get_metrics(hostname, from_timestamp, to_timestamp):
     return avg_cpu, max_cpu, avg_mem, max_mem, min_mem
 
 
+def all_fields_present(to_check):
+    if 'avg_cpu' not in to_check:
+        return False
+    if to_check['avg_cpu'] is None:
+        return False
+
+    if 'avg_mem' not in to_check:
+        return False
+    if to_check['avg_mem'] is None:
+        return False
+
+    if 'max_cpu' not in to_check:
+        return False
+    if to_check['max_cpu'] is None:
+        return False
+
+    if 'max_mem' not in to_check:
+        return False
+    if to_check['max_mem'] is None:
+        return False
+
+    if 'min_mem' not in to_check:
+        return False
+    if to_check['min_mem'] is None:
+        return False
+
+    return True
+
+
 # Start
 
 es = Elasticsearch(["sspl-perf-mon"])
@@ -124,17 +153,20 @@ metrics_index = "metric*"
 
 es.indices.refresh(index=perf_index)
 
-# sspl-perform1
 
+# sspl-perform1 - the machine which is running our perf tests.
 res = es.search(index=perf_index, body={"query": {"match": {"hostname": "sspl-perform1"}}}, size=1000)
 
 task_names = []
 prod_versions = []
 tasks = []
 days = []
+
+# TODO update this filter based on slave script
 task_filter = ["event1", "event2"]
 
 
+# Build up lists of task names, days etc.
 for hit in res['hits']['hits']:
 
     # Skip events / test loads we are not interested in.
@@ -158,8 +190,6 @@ for hit in res['hits']['hits']:
     if t is not None:
         print(t)
         tasks.append(t)
-
-#########
 
 
 result_root = {}
@@ -187,103 +217,50 @@ for day in result_root:
             summary_root[day][version][task_name]['avg_cpu'] = 0
             summary_root[day][version][task_name]['avg_mem'] = 0
 
+            summary_root[day][version][task_name]['max_cpu'] = None
+            summary_root[day][version][task_name]['max_mem'] = None
+            summary_root[day][version][task_name]['min_mem'] = None
+
             for result in result_root[day][version][task_name]:
-                if 'avg_cpu' in result and result['avg_cpu'] is not None and 'avg_mem' in result and result['avg_mem'] is not None:
+
+                if all_fields_present(result):
                     summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
                     summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
 
+                    if summary_root[day][version][task_name]['max_cpu'] is None or result['max_cpu'] > summary_root[day][version][task_name]['max_cpu']:
+                        summary_root[day][version][task_name]['max_cpu'] = result['max_cpu']
+
+                    if summary_root[day][version][task_name]['max_mem'] is None or result['max_mem'] > summary_root[day][version][task_name]['max_mem']:
+                        summary_root[day][version][task_name]['max_mem'] = result['max_mem']
+
+                    if summary_root[day][version][task_name]['min_mem'] is None or result['min_mem'] < summary_root[day][version][task_name]['min_mem']:
+                        summary_root[day][version][task_name]['min_mem'] = result['min_mem']
+
                     good_result_count += 1
+
+            if good_result_count == 0:
+                continue
 
             summary_root[day][version][task_name]['avg_cpu'] /= good_result_count
             summary_root[day][version][task_name]['avg_mem'] /= good_result_count
 
-            summary_root[day][version][task_name]['avg_cpu'] = summary_root[day][version][task_name]['avg_cpu'] * 100
-            summary_root[day][version][task_name]['avg_mem'] = summary_root[day][version][task_name]['avg_mem'] / 1000000
+            summary_root[day][version][task_name]['avg_cpu'] *= 100
+            summary_root[day][version][task_name]['avg_cpu'] = "{0:.2f}%".format(round(summary_root[day][version][task_name]['avg_cpu'], 2))
+
+            summary_root[day][version][task_name]['max_cpu'] *= 100
+            summary_root[day][version][task_name]['max_cpu'] = "{0:.2f}%".format(round(summary_root[day][version][task_name]['max_cpu'], 2))
+
+            summary_root[day][version][task_name]['avg_mem'] /= 1000000
+            summary_root[day][version][task_name]['avg_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['avg_mem'], 2))
+
+            summary_root[day][version][task_name]['max_mem'] /= 1000000
+            summary_root[day][version][task_name]['max_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['max_mem'], 2))
+
+            summary_root[day][version][task_name]['min_mem'] /= 1000000
+            summary_root[day][version][task_name]['min_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['min_mem'], 2))
 
 
-            # print("avg_cpu for:")
-            # print(day)
-            # print(version)
-            # print(task_name)
-            # print(summary_root[day][version][task_name]['avg_cpu'])
-            #
-
-
-
-
-
-
-
-
-
-print(summary_root)
-#
-# exit()
-#
-#                         ##### old way based on product version
-# # This is the root of our result set.
-# root = {}
-#
-# # Put results into struct like:  root["my event"]["0.5.1"]['results']
-# for name in task_names:
-#     root[name] = {}
-#     for version in prod_versions:
-#         root[name][version] = {}
-#
-#         for task in tasks:
-#             if name == task['name'] and version == task['product_version']:
-#
-#                 if 'results' not in root[name][version]:
-#                     root[name][version]['results'] = []
-#                 root[name][version]['results'].append(task)
-#
-# # Create summary of results like:  root["my event"]["0.5.1"]['summary']['agg_avg_cpu']
-# for taskname in root:
-#     for version in root[taskname]:
-#         print(root[taskname][version])
-#         root[taskname][version]['summary'] = {}
-#         root[taskname][version]['summary']['agg_avg_cpu'] = 0
-#         root[taskname][version]['summary']['agg_max_cpu'] = 0
-#         root[taskname][version]['summary']['agg_avg_mem'] = 0
-#         root[taskname][version]['summary']['agg_max_mem'] = 0
-#         root[taskname][version]['summary']['agg_min_mem'] = 0
-#         root[taskname][version]['summary']['agg_duration'] = 0
-#
-#         number_of_results = 0
-#         for r in root[taskname][version]['results']:
-#
-#             # skip bad runs with no data.
-#             if 'avg_cpu' in r and 'max_cpu' in r and 'avg_mem' in r and 'max_mem' in r and 'min_mem' in r and 'duration' in r:
-#                 if r['avg_cpu'] is not None and r['avg_mem'] is not None and r['duration'] is not None and r['max_cpu'] is not None and r['max_mem'] is not None and r['min_mem'] is not None:
-#                     root[taskname][version]['summary']['agg_avg_cpu'] += r['avg_cpu']
-#                     root[taskname][version]['summary']['agg_avg_mem'] += r['avg_mem']
-#                     root[taskname][version]['summary']['agg_duration'] += r['duration']
-#
-#                     if r['max_cpu'] > root[taskname][version]['summary']['agg_max_cpu']:
-#                         root[taskname][version]['summary']['agg_max_cpu'] = r['max_cpu']
-#
-#                     if r['max_mem'] > root[taskname][version]['summary']['agg_max_mem']:
-#                         root[taskname][version]['summary']['agg_max_mem'] = r['max_mem']
-#
-#                     if r['min_mem'] < root[taskname][version]['summary']['agg_min_mem']:
-#                         root[taskname][version]['summary']['agg_min_mem'] = r['min_mem']
-#
-#                     number_of_results += 1
-#
-#         if number_of_results == 0:
-#             continue
-#         root[taskname][version]['summary']['agg_avg_cpu'] /= number_of_results
-#         root[taskname][version]['summary']['agg_avg_mem'] /= number_of_results
-#         root[taskname][version]['summary']['agg_duration'] /= number_of_results
-#
-#         # Throw away individual results now that we have a summary.
-#         del root[taskname][version]['results']
-#
-#
-# print("---")
-# print(json.dumps(root))
-# print("---")
-
+print(json.dumps(summary_root))
 
 with open('perf-results.json', 'w') as json_file:
     json_file.write(json.dumps(summary_root))
