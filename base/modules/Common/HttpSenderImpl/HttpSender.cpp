@@ -65,11 +65,6 @@ namespace Common::HttpSenderImpl
 {
     HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
     {
-        // Initialising ssl and crypto to create a dependency on their libraries and be able to get the correct rpath
-        // TODO: [LINUXEP-6636] Rebuild libcurl with rpath set and remove these lines
-        SSL_library_init();
-        OPENSSL_init_crypto(OPENSSL_INIT_NO_ADD_ALL_CIPHERS, nullptr);
-
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
         if (result != CURLE_OK)
         {
