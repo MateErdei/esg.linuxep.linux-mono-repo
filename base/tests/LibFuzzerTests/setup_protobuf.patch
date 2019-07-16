@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d9be154..16f36ad 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -124,6 +124,16 @@ endif()
+ if (LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF)
+   include(protobuf)
+ else()
++  set(PROTOBUF_INPUT ${INPUT}/protobuf )
++  set(Protobuf_root ${PROTOBUF_INPUT}/install64)
++  set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
++  set(PROTOBUF_PROTOC_EXECUTABLE ${Protobuf_root}/bin/protoc)
++  set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/lib/libprotobuf.so )
++  set(Protobuf_LITE_LIBRARY  ${Protobuf_root}/lib/libprotobuf-lite.so )
++  set(Protobuf_LIBRARY ${Protobuf_root}/lib/libprotobuf.so )
++  set(Protobuf_DEBUG 1)
++  set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH} )
++  set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
+   find_package(Protobuf REQUIRED)
+   include_directories(${PROTOBUF_INCLUDE_DIRS})
+   include_directories(${CMAKE_CURRENT_BINARY_DIR})
