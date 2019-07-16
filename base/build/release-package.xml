@@ -47,12 +47,6 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0" dest="input/telemetry">
-            <include src="telemetry-config.json" dest="." />
-        </package>
-        <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
-            <include src="telemetry-config.json" dest="." />
-        </package>
         <package name="pythonlinux10" version="2-7-16/214473/pythonlinux10" dest="input">
             <include src="python.tar" dest="." />
         </package>

@@ -1,0 +1,49 @@
+library "standardPipeline"
+
+project = 'sspl-base'
+version_key = '0.5.1'
+project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/everest-base.git'
+project_builddir = 'sspl-base-build'
+project_release_xml = 'build/release-package.xml'
+
+properties([
+  parameters([
+    string(name: 'CommitHash', defaultValue: ''),
+    string(name: 'PortalId', defaultValue: ''),
+    string(name: 'PortalAddress', defaultValue: '')
+  ])
+])
+
+skipDefaultCheckout()
+try{
+	version_number = GetVersionNumber(version_key, project)
+    PreBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+
+    parallel Build:{
+        ArtisanBuild(
+            params.CommitHash,
+            params.PortalId,
+            'Release',
+            project_builddir,
+            project_release_xml,
+            'JenkinsLinuxTemplate1',
+			version_number,
+            'master',
+            project_gitrepo,
+            "${env.BRANCH_NAME}",
+            'release')
+        }
+
+    SuccessfulBuild(
+		params.CommitHash,
+		params.PortalId,
+		params.PortalAddress,
+		'master',
+		project_gitrepo,
+		"${env.BRANCH_NAME}",
+		project_release_xml)
+
+} catch(e){
+    FailedBuild(params.CommitHash, params.PortalId, params.PortalAddress)
+    error("Build failed: " + e.toString())
+}

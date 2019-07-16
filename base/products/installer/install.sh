@@ -199,6 +199,17 @@ function makeRootDirectory()
     done
 }
 
+function install_telemetry_supplement()
+{
+    local telemetry_supplement_path=${SOPHOS_INSTALL}/base/update/cache/primary/SSPLTELEMSUPP/telemetry-config.json
+    local telemetry_config_file_path=${SOPHOS_INSTALL}/base/etc/telemetry-config.json
+
+    if [[ -f ${telemetry_supplement_path} ]]
+    then
+        cp ${telemetry_supplement_path} ${telemetry_config_file_path}
+    fi
+}
+
 if [[ $(id -u) != 0 ]]
 then
     failure ${EXIT_FAIL_NOT_ROOT} "Please run this installer as root."
@@ -323,6 +334,9 @@ do
 done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
+
+# install telemetry supplement before modifying ownership.
+install_telemetry_supplement
 
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"

@@ -43,6 +43,38 @@ TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 </ComponentData>
 """
 
+TELEMSUPP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+  <Component>
+    <Name></Name>
+    <RigidName></RigidName>
+    <Version></Version>
+    <Build>1</Build>
+    <ProductType></ProductType>
+    <DefaultHomeFolder></DefaultHomeFolder>
+    <TargetTypes/>
+    <Roles/>
+    <Platforms/>
+    <Features/>
+    <FileList>
+    </FileList>
+  </Component>
+  <Dictionary>
+    <Name>
+      <Label>
+        <Token></Token>
+        <Language lang="en">
+          <ShortDesc></ShortDesc>
+          <LongDesc></LongDesc>
+        </Language>
+      </Label>
+    </Name>
+  </Dictionary>
+</ComponentData>
+"""
+
+
+
 def addFile(doc, filelist, fileobj):
     """
       <File MD5="62d286b6c9aa3243610ed22dbc3b85f8" Name="savfeedback.key" Offset="sav-linux/common/etc" Size="450"/>
@@ -249,9 +281,22 @@ def getFeatureList():
 def getRigidName():
     return getVariable("PRODUCT_LINE_ID", "RIGID_NAME", "Rigid name", "ServerProtectionLinux-Base")
 
+def get_sdds_import_tempate():
+
+    template = os.environ.get("SDDSTEMPLATE", "TEMPLATE")
+
+    if template == "TEMPLATE":
+        return TEMPLATE
+    elif template == "TELEMSUPP_TEMPLATE":
+        return TELEMSUPP_TEMPLATE
+    else:
+        raise Exception("Unknown SDDS template given: {}".format(template))
+
+
 def generate_sdds_import(dist, file_objects, BASE=None):
     sdds_import_path = os.path.join(dist, b"SDDS-Import.xml")
-    doc = xml.dom.minidom.parseString(TEMPLATE)
+
+    doc = xml.dom.minidom.parseString(get_sdds_import_tempate())
     tidyXml(doc)
 
     productName = getProductName()

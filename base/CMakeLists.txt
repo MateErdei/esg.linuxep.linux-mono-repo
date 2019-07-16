@@ -195,8 +195,6 @@ if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
-set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
-
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
 include_directories(modules)
