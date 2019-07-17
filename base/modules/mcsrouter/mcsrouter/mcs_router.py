@@ -239,10 +239,6 @@ class SophosLogging(object):
         if envelope_file == "":
             envelope_logger.setLevel(logging.CRITICAL)
         else:
-            # override mcs-envelop logging
-            debug = os.environ.get("MCS_DEBUG", None)
-            if debug and log_level == logging.INFO:
-                log_level = logging.DEBUG
             envelope_logger.setLevel(log_level)
 
             envelope_file_handler = logging.handlers.RotatingFileHandler(

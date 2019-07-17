@@ -31,6 +31,29 @@ LOGGER = logging.getLogger(__name__)
 ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
 
 
+class EnvelopeHandler:
+    def __init__(self):
+        self._lastMessage = ""
+        self._last_request = ""
+
+    def set_request(self, last_request):
+        ENVELOPE_LOGGER.debug(last_request)
+        self._last_request = last_request
+
+    def log_answer(self, message):
+        if ENVELOPE_LOGGER.getEffectiveLevel() != logging.DEBUG:
+            if message != self._lastMessage:
+                ENVELOPE_LOGGER.info(self._last_request)
+                ENVELOPE_LOGGER.info("RESPONSE: {}".format(message))
+        else:
+            ENVELOPE_LOGGER.debug("RESPONSE: {}".format(message))
+
+        self._lastMessage = message
+
+
+GlobalEnvelopeHandler = EnvelopeHandler()
+
+
 class MCSHttpException(mcsrouter.mcsclient.mcs_exception.MCSNetworkException):
     """
     MCSHttpException
@@ -607,7 +630,7 @@ class MCSConnection(object):
                 LOGGER.warning(
                     "Cannot decode response as UTF-8, treating as Latin1")
                 body = body.decode("latin1")
-            ENVELOPE_LOGGER.debug("RESPONSE: %s", body)
+            GlobalEnvelopeHandler.log_answer(body)
         return (response_headers, body)
 
     def __try_get_response(self, request_data):
@@ -807,9 +830,10 @@ class MCSConnection(object):
 
         ENVELOPE_LOGGER.debug("request headers=%s", str(headers))
         if body in (None, ""):
-            ENVELOPE_LOGGER.debug("%s %s", method, path)
+            request_string = "{} {}".format(method, path)
         else:
-            ENVELOPE_LOGGER.debug("%s %s : %s", method, path, body)
+            request_string = "{} {} : {}".format(method, path, body)
+        GlobalEnvelopeHandler.set_request(request_string)
 
         # Need to use the path from above, so that we can have different URLs
         request_data = (path, headers, body, method)
@@ -843,7 +867,7 @@ class MCSConnection(object):
             "/register", headers, body=status_xml, method="POST")
         body = base64.b64decode(body)
         (endpoint_id, password) = body.split(":", 1)
-        LOGGER.debug("Register returned endpoint_id '%s'", endpoint_id)
+        LOGGER.info("Register returned endpoint_id '%s'", endpoint_id)
         LOGGER.debug("Register returned password   '%s'", password)
         return (endpoint_id, password)
 
