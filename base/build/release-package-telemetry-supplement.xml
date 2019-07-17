@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-telemetry-config" version="0.5.1">
     <versioning>
-        <workingdir>sspl-base-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-base-telemetry-config-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
@@ -22,7 +22,7 @@
     </buildcommands>
     <publish>
         <workingdir>sspl-base-telemetry-config-build</workingdir>
-        <destdir>sspl-base</destdir>
+        <destdir>sspl-base-telemetry-config</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
