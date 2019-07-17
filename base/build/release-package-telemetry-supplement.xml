@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="sspl-telemetry-config" version="0.5.1">
     <versioning>
-        <workingdir>sspl-base-telemetry-config-build/products/distribution/include/AutoVersioningHeaders</workingdir>
+        <workingdir>sspl-base-telemetry-supplement-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
 
     <inputs>
-        <workingdir>sspl-base-telemetry-config-build</workingdir>
+        <workingdir>sspl-base-telemetry-supplement-build</workingdir>
         <package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0" dest="input/telemetry">
             <include src="telemetry-config.json" dest="." />
         </package>
@@ -17,12 +17,12 @@
         <command>
           <program>/bin/bash</program>
           <args>./build_telemetry_supplement.sh</args>
-          <workingdir>sspl-base-telemetry-config-build</workingdir>
+          <workingdir>sspl-base-telemetry-supplement-build</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-base-telemetry-config-build</workingdir>
-        <destdir>sspl-base-telemetry-config</destdir>
+        <workingdir>sspl-base-telemetry-supplement-build</workingdir>
+        <destdir>sspl-base-telemetry-supplement</destdir>
         <buildoutputs>
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
