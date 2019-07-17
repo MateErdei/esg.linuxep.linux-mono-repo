@@ -32,6 +32,10 @@ ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
 
 
 class EnvelopeHandler:
+    '''
+    When log-level is info this helper filters envelope logs by logging request/response pairs for
+    messages that a different from previously received
+    '''
     def __init__(self):
         self._lastMessage = ""
         self._last_request = ""
