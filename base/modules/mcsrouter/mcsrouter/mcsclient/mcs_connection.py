@@ -40,14 +40,22 @@ class EnvelopeHandler:
         self._lastMessage = ""
         self._last_request = ""
 
+    def _is_get(self, message):
+        return message.startswith("GET ")
+
     def set_request(self, last_request):
-        ENVELOPE_LOGGER.debug(last_request)
+        if self._is_get(last_request):
+            ENVELOPE_LOGGER.debug(last_request)
+        else:
+            ENVELOPE_LOGGER.info(last_request)
+
         self._last_request = last_request
 
     def log_answer(self, message):
         if ENVELOPE_LOGGER.getEffectiveLevel() != logging.DEBUG:
             if message != self._lastMessage:
-                ENVELOPE_LOGGER.info(self._last_request)
+                if self._is_get(self._last_request):
+                    ENVELOPE_LOGGER.info(self._last_request)
                 ENVELOPE_LOGGER.info("RESPONSE: {}".format(message))
         else:
             ENVELOPE_LOGGER.debug("RESPONSE: {}".format(message))
@@ -871,7 +879,7 @@ class MCSConnection(object):
             "/register", headers, body=status_xml, method="POST")
         body = base64.b64decode(body)
         (endpoint_id, password) = body.split(":", 1)
-        LOGGER.info("Register returned endpoint_id '%s'", endpoint_id)
+        LOGGER.debug("Register returned endpoint_id '%s'", endpoint_id)
         LOGGER.debug("Register returned password   '%s'", password)
         return (endpoint_id, password)
 
