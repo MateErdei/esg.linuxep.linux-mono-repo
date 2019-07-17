@@ -163,7 +163,7 @@ tasks = []
 days = []
 
 # TODO update this filter based on slave script
-task_filter = ["event1", "event2"]
+task_filter = ["build_gcc", "copy_files"]
 
 
 # Build up lists of task names, days etc.
