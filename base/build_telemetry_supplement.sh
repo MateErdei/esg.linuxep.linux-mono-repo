@@ -27,10 +27,6 @@ ALLEGRO_REDIST=/redist/binaries/linux11/input
 while [[ $# -ge 1 ]]
 do
     case $1 in
-#        --plugin-api-tar|--pluginapi)
-#            shift
-#            PLUGIN_TAR=$1
-#            ;;
         --generate-sdds-import)
             shift
             GENERATE_SDDS_IMPORT=$1
@@ -76,34 +72,6 @@ function copy_or_link_to_redist()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
 }
-
-#    if [[ -n $tarbase ]]
-#    then
-#        tar=${INPUT}/${tarbase}.tar
-#    else
-#        tar=${INPUT}/${input}.tar
-#    fi
-
-#    if [[ -n "$override_tar" ]]
-#    then
-#        echo "Untaring override $override_tar"
-#        tar xzf "${override_tar}" -C "$REDIST"
-#    elif [[ -f "$tar" ]]
-#    then
-#        echo "Untaring $tar"
-#        tar xf "$tar" -C "$REDIST"
-#    elif [[ -f "${tar}.gz" ]]
-#    then
-#        echo "untaring ${tar}.gz"
-#        tar xzf "${tar}.gz" -C "$REDIST"
-#    elif [[ -d "${ALLEGRO_REDIST}/$input" ]]
-#    then
-#        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
-#        ln -snf "${ALLEGRO_REDIST}/$input" "${REDIST}/$input"
-#    else
-#        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
-#    fi
-#}
 
 function build()
 {
