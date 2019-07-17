@@ -61,6 +61,7 @@ namespace UpdateSchedulerImpl
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
         Common::Telemetry::TelemetryHelper::getInstance().set("failed-update-count", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().set("failed-downloader-count", 0UL);
     }
 
     void UpdateSchedulerProcessor::mainLoop()
@@ -304,9 +305,6 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/, const bool processLatestReport)
     {
-        Common::Telemetry::TelemetryHelper::getInstance().set(
-            "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
-
         auto iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
 
@@ -365,23 +363,31 @@ namespace UpdateSchedulerImpl
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGSUPPORT("Send status to Central");
+
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
+            Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", true);
+            Common::Telemetry::TelemetryHelper::getInstance().set(
+                "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+
             return reportAndFiles.reportCollectionResult.SchedulerStatus.LastSyncTime;
         }
+
+        Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", false);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
         return std::string();
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderFailedToStart(const std::string& errorMessage)
     {
         LOGERROR("SulDownloader failed to Start with the following error: " << errorMessage);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 1UL);
     }
 
     void UpdateSchedulerProcessor::processSulDownloaderTimedOut()
     {
         LOGERROR("SulDownloader failed to complete its job in 10 minutes");
-        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 1UL);
 
         ensureSulDownloaderNotRunning();
     }
