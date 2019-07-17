@@ -21,5 +21,4 @@ function update_yum()
     yum -y update
 }
 
-#which apt-get &>/dev/null && update_apt || update_yum
-which apt-get &>/dev/null && update_yum || update_yum
+( which apt-get &>/dev/null && update_apt ) || update_yum
