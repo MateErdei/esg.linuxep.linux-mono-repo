@@ -10,7 +10,7 @@ import os
 
 def readAutoVersion(base_path, jenkins_file):
     assert os.path.isfile(os.path.join(base_path, jenkins_file))
-    autoVersionFile = os.path.join(base_path, "AutoVersioningHeaders", "AutoVersion.ini")
+    autoVersionFile = os.path.join(base_path, "products" "distribution" "include", "AutoVersioningHeaders", "AutoVersion.ini")
 
     if os.path.isfile(autoVersionFile):
         print ("Reading version from {}".format(autoVersionFile), file=sys.stderr)
