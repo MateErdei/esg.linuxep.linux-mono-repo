@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-telemetry-config" version="0.5.1">
+<package name="sspl-telemetry-supplement" version="0.5.1">
     <versioning>
         <workingdir>sspl-base-telemetry-supplement-build/products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -27,6 +27,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>master</publishbranches>
+        <publishbranches>master feature/LINUXDAR-442-configuration-file-for-telemetry-is-in-a-supplement</publishbranches>
     </publish>
 </package>
