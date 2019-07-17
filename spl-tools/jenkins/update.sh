@@ -12,7 +12,7 @@ function update_apt()
 {
     echo "=> Updating existing packages with apt..."
     apt-get update
-    apt-get dist-upgrade -qy
+    apt-get upgrade -qy
 }
 
 function update_yum()
@@ -21,4 +21,5 @@ function update_yum()
     yum -y update
 }
 
-which apt-get &>/dev/null && update_apt || update_yum
+#which apt-get &>/dev/null && update_apt || update_yum
+which apt-get &>/dev/null && update_yum || update_yum
