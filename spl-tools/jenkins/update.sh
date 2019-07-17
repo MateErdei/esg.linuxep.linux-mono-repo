@@ -17,7 +17,7 @@ function update_apt()
     apt-get upgrade -qy || return 1
     rm /home/jenkins/differentMachineId || return 1
     [[ ! -f /home/jenkins/differentMachineId ]] || return 1
-    ll /home/jenkins
+    ls -l /home/jenkins
 }
 
 function update_yum()
