@@ -51,14 +51,18 @@ class EnvelopeHandler:
 
         self._last_request = last_request
 
+    def _safe_to_log(self, message):
+        return u'RESPONSE: {}'.format(message)
+
     def log_answer(self, message):
+        message_to_log = self._safe_to_log(message)
         if ENVELOPE_LOGGER.getEffectiveLevel() != logging.DEBUG:
             if message != self._lastMessage:
                 if self._is_get(self._last_request):
                     ENVELOPE_LOGGER.info(self._last_request)
-                ENVELOPE_LOGGER.info("RESPONSE: {}".format(message))
+                ENVELOPE_LOGGER.info(message_to_log)
         else:
-            ENVELOPE_LOGGER.debug("RESPONSE: {}".format(message))
+            ENVELOPE_LOGGER.debug(message_to_log)
 
         self._lastMessage = message
 
@@ -842,9 +846,9 @@ class MCSConnection(object):
 
         ENVELOPE_LOGGER.debug("request headers=%s", str(headers))
         if body in (None, ""):
-            request_string = "{} {}".format(method, path)
+            request_string = u"{} {}".format(method, path)
         else:
-            request_string = "{} {} : {}".format(method, path, body)
+            request_string = u"{} {} : {}".format(method, path, body)
         GlobalEnvelopeHandler.set_request(request_string)
 
         # Need to use the path from above, so that we can have different URLs
