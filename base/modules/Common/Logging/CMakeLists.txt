@@ -23,6 +23,7 @@ target_link_libraries(logging PUBLIC
         applicationconfigurationimpl
         filesystemimpl
         ${LOG4CPLUS_LIBRARY}
+        pthread
         )
 
 install(TARGETS logging

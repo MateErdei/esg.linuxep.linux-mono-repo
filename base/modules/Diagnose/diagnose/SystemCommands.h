@@ -6,7 +6,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <string>
 
@@ -33,6 +33,5 @@ namespace diagnose
         std::string getExecutablePath(const std::string executableName);
 
         std::string m_destination;
-        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
     };
 } // namespace diagnose

@@ -19,8 +19,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
+    using namespace Common::FileSystem;
+
     SystemCommands::SystemCommands(const std::string& destination) :
-            m_destination(destination), m_fileSystem(new Common::FileSystem::FileSystemImpl()) {}
+            m_destination(destination) {}
 
     // output limit is set to 10MB
     const int outputLimit = 10485760;
@@ -28,6 +30,8 @@ namespace diagnose
     int SystemCommands::runCommand(const std::string& commandInput, const std::string& filename)
     {
         auto process = Common::Process::createProcess();
+        process->setOutputLimit(outputLimit);
+
         std::istringstream command(commandInput);
 
         std::vector<std::string> arguments{std::istream_iterator<std::string>{command},
@@ -47,22 +51,26 @@ namespace diagnose
         catch (std::invalid_argument& e)
         {
             std::cout << commandInput << " executable not found." << std::endl;
-            m_fileSystem->writeFile(filePath,"Executable not found.");
+            fileSystem()->writeFile(filePath, e.what());
             return 1;
         }
         catch (Common::Process::IProcessException& e)
         {
             std::cout << "exec failed with error: " << e.what() << std::endl;
+            fileSystem()->writeFile(filePath, e.what());
+            return 1;
         }
-        process->setOutputLimit(outputLimit);
+
         if (process->wait(Common::Process::milli(500), 10) !=
             Common::Process::ProcessStatus::FINISHED)
         {
             process->kill();
             std::cout << "Process execution timed out running: '" << commandInput << std::endl;
+            fileSystem()->writeFile(filePath, "Process execution timed out after 5s running: '" + commandInput);
+            return 1;
         }
 
-        m_fileSystem->writeFile(filePath,process->output());
+        fileSystem()->writeFile(filePath,process->output());
 
         return process->exitCode();
     }
@@ -73,13 +81,13 @@ namespace diagnose
         for (const auto& folder:folderLocations)
         {
             Path path = Common::FileSystem::join(folder,executableName);
-            if( m_fileSystem->isExecutable(path))
+            if( fileSystem()->isExecutable(path))
             {
                 std::cout << "executable path: " << path << std::endl;
                 return path;
             }
         }
-        throw std::invalid_argument("executable is not installed");
+        throw std::invalid_argument("Executable " + executableName + " is not installed.");
     }
 
     void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath)
@@ -102,7 +110,7 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        if( !  m_fileSystem->isFile(tarfile) )
+        if( !  fileSystem()->isFile(tarfile) )
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");
         }
