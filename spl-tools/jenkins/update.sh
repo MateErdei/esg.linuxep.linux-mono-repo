@@ -15,6 +15,7 @@ function update_apt()
     echo "=> Updating existing packages with apt..."
     apt-get update || return 1
     apt-get upgrade -qy || return 1
+    rm /home/jenkins/differentMachineId || return 1
 }
 
 function update_yum()
