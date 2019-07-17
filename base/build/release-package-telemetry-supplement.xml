@@ -16,7 +16,7 @@
     <buildcommands>
         <command>
           <program>/bin/bash</program>
-          <args>./build_telemetry_config.sh</args>
+          <args>./build_telemetry_supplement.sh</args>
           <workingdir>sspl-base-telemetry-config-build</workingdir>
         </command>
     </buildcommands>
