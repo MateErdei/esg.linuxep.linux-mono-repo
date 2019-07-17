@@ -10,6 +10,7 @@
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystemImpl/TempDir.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <sys/stat.h>
 
 #include <cassert>
@@ -50,7 +51,7 @@ namespace Tests
                 if (::mkdir(dirpath.c_str(), 0700) != 0)
                 {
                     int errn = errno;
-                    std::string error_cause = ::strerror(errn);
+                    std::string error_cause = Common::UtilityImpl::StrError(errn);
                     throw Common::FileSystem::IFileSystemException(
                         "Failed to create directory: " + dirpath + ". Cause: " + error_cause);
                 }

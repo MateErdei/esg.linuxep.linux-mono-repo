@@ -13,7 +13,7 @@ add_library(utilityimplobject OBJECT
         Main.h
         VectorAsSet.cpp
         VectorAsSet.h
-        OrderedSet.h)
+        OrderedSet.h StrError.cpp StrError.h)
 
 
 target_include_directories(utilityimplobject SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})

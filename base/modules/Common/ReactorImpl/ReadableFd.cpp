@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ReadableFd.h"
 
 #include "Logger.h"
-
+#include <Common/UtilityImpl/StrError.h>
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
@@ -35,7 +35,7 @@ namespace Common
                 auto nbytes = ::read(m_fd, buffer, 30);
                 if (nbytes == -1)
                 {
-                    LOGERROR("Read from file descriptor reported error: " << strerror(errno));
+                    LOGERROR("Read from file descriptor reported error: " << Common::UtilityImpl::StrError(errno));
                     break;
                 }
                 buffer[nbytes] = '\0';

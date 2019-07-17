@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "StdPipeThread.h"
-
+#include <Common/UtilityImpl/StrError.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -128,7 +128,7 @@ void Common::ProcessImpl::StdPipeThread::run()
                 }
                 else
                 {
-                    LOGERROR("Error reading from pipe: " << err << ": " << ::strerror(err));
+                    LOGERROR("Error reading from pipe: " << err << ": " << Common::UtilityImpl::StrError(err));
                 }
                 break;
             }

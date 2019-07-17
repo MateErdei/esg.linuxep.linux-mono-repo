@@ -14,6 +14,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <variant>
 #include <algorithm>
+#include <Common/UtilityImpl/StrError.h>
 
 namespace Telemetry
 {
@@ -108,7 +109,7 @@ namespace Telemetry
         if (exitCode != 0)
         {
             throw Common::Process::IProcessException(
-                "Process execution returned non-zero exit code, 'Exit Code: " + std::string(strerror(exitCode)) + "'");
+                "Process execution returned non-zero exit code, 'Exit Code: " + Common::UtilityImpl::StrError(exitCode) + "'");
         }
 
         auto output = processPtr->output();

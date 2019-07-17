@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IVersig.h"
 #include "Logger.h"
-
+#include <Common/UtilityImpl/StrError.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
@@ -97,7 +97,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         {
             LOGERROR("Installation failed");
             LOGSUPPORT("Installer exit code: " << exitCode);
-            LOGDEBUG("Possible reason: " << std::strerror(exitCode));
+            LOGDEBUG("Possible reason: " << Common::UtilityImpl::StrError(exitCode));
             if (exitCode == ENOEXEC)
             {
                 LOGERROR("Failed to run the installer. Hint: check first line starts with #!/bin/bash");

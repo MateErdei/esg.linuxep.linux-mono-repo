@@ -16,7 +16,7 @@ add_library(osutilitiesimpl SHARED
         DnsLookupImpl.h
 )
 
-target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl applicationconfigurationimpl pthread)
+target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 
 SET_TARGET_PROPERTIES( osutilitiesimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

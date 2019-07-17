@@ -7,13 +7,14 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "FileSystemImpl.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/UtilityImpl/StrError.h>
 
 #include <cstring>
 #include <unistd.h>
 #include <iostream>
 
 using namespace Common::FileSystemImpl;
-
+using namespace Common::UtilityImpl;
 TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix)
 {
     std::string template_name;
@@ -35,7 +36,7 @@ TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix
     if (ptr2data == nullptr)
     {
         int errn = errno;
-        std::string error_cause = ::strerror(errn);
+        std::string error_cause = StrError(errn);
         throw Common::FileSystem::IFileSystemException(
                 "Failed to create directory: " + template_name + ". Cause: " + error_cause);
     }

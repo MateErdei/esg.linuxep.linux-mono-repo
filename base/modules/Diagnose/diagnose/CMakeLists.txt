@@ -9,6 +9,7 @@ add_library(diagnoseimpl STATIC
             SystemCommands.h
             Strings.h
             $<TARGET_OBJECTS:filesystemimplobject>
+            $<TARGET_OBJECTS:utilityimplobject>
             $<TARGET_OBJECTS:applicationconfigurationimplobject>
             $<TARGET_OBJECTS:processimplobject>
             $<TARGET_OBJECTS:threadsobject>

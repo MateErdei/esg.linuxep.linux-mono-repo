@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PidLockFile.h"
-
+#include <Common/UtilityImpl/StrError.h>
 #include <cstring>
 #include <fcntl.h>
 #include <sstream>
@@ -16,7 +16,7 @@ namespace Common
     namespace OSUtilitiesImpl
     {
         using namespace Common::OSUtilities;
-
+        using namespace Common::UtilityImpl;
         PidLockFile::PidLockFile(const std::string& pidfile) : m_fileDescriptor(-1), m_pidfile(pidfile)
         {
             int localfd = pidLockUtils()->open(m_pidfile, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
@@ -24,7 +24,7 @@ namespace Common
             if (localfd == -1)
             {
                 std::stringstream errorStream;
-                errorStream << "Failed to open lock file " << m_pidfile << " because " << strerror(errno) << "("
+                errorStream << "Failed to open lock file " << m_pidfile << " because " << StrError(errno) << "("
                             << errno << ")";
                 throw std::system_error(errno, std::generic_category(), errorStream.str());
             }
@@ -34,7 +34,7 @@ namespace Common
                 // unable to lock the file
                 pidLockUtils()->close(localfd);
                 std::stringstream errorStream;
-                errorStream << "Failed to lock file " << m_pidfile << " because " << strerror(errno) << "(" << errno
+                errorStream << "Failed to lock file " << m_pidfile << " because " << StrError(errno) << "(" << errno
                             << ")";
                 throw std::system_error(errno, std::generic_category(), errorStream.str());
             }
@@ -44,7 +44,7 @@ namespace Common
             {
                 pidLockUtils()->close(localfd);
                 std::stringstream errorStream;
-                errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << strerror(errno) << "("
+                errorStream << "Failed to truncate pidfile " << m_pidfile << " because " << StrError(errno) << "("
                             << errno << ")";
                 throw std::system_error(errno, std::generic_category(), errorStream.str());
             }
@@ -60,7 +60,7 @@ namespace Common
             {
                 pidLockUtils()->close(localfd);
                 std::stringstream errorStream;
-                errorStream << "Failed to write pid to pidfile" << m_pidfile << " because " << strerror(errno) << "("
+                errorStream << "Failed to write pid to pidfile" << m_pidfile << " because " << StrError(errno) << "("
                             << errno << ")";
                 throw std::system_error(errno, std::generic_category(), errorStream.str());
             }

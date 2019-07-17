@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "LoggerConfig.h"
-
+#include <Common/UtilityImpl/StrError.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -188,7 +188,7 @@ namespace Common
             {
                 int currErrno = errno;
                 std::stringstream s;
-                s << "Invalid path for log config: " << confFilePath << ". Err: " << strerror(currErrno);
+                s << "Invalid path for log config: " << confFilePath << ". Err: " << Common::UtilityImpl::StrError(currErrno);
                 errno = backup_errno;
                 throw std::runtime_error(s.str());
             }

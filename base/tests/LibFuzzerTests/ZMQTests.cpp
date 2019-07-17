@@ -94,6 +94,7 @@ ssize_t nbytes = send (s_, static_cast<const char *> (data_), size_, 0);
 #include <sys/un.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <Common/UtilityImpl/StrError.h>
 
 namespace
 {
@@ -124,7 +125,7 @@ namespace
             std::string append;
             if( errno_ != 0)
             {
-                append+= ::strerror(errno_);
+                append+= Common::UtilityImpl::StrError(errno_);
             }
             std::cerr << info + append + '\n';
         }

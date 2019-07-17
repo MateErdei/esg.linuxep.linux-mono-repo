@@ -10,6 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -42,6 +43,7 @@ namespace Common
 {
     namespace FileSystem
     {
+        using namespace Common::UtilityImpl;
         static constexpr unsigned long GL_MAX_SIZE = 1024 * 1024 * 10;
 
         Path join(const Path& path1, const Path& path2)
@@ -175,7 +177,7 @@ namespace Common
             if (!getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)))
             {
                 int err = errno;
-                std::string errdesc = ::strerror(err);
+                std::string errdesc = StrError(err);
 
                 throw IFileSystemException(errdesc);
             }
@@ -189,7 +191,7 @@ namespace Common
             {
                 int err = errno;
                 std::stringstream errorStream;
-                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << ::strerror(err);
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(err);
 
                 throw IFileSystemException(errorStream.str());
             }
@@ -289,7 +291,7 @@ namespace Common
             if (!outFileStream.good())
             {
                 int err = errno;
-                std::string errdesc = ::strerror(err);
+                std::string errdesc = StrError(err);
 
                 throw IFileSystemException("Error, Failed to create file: '" + path + "', " + errdesc);
             }
@@ -373,7 +375,7 @@ namespace Common
                     }
 
                     std::ostringstream ost;
-                    ost << "Failed to create directory " << path << " error " << strerror(errno) << " (" << errno
+                    ost << "Failed to create directory " << path << " error " << StrError(errno) << " (" << errno
                         << ")";
 
                     throw IFileSystemException(ost.str());
@@ -430,8 +432,7 @@ namespace Common
             if (!directoryPtr)
             {
                 int error = errno;
-                std::string reason = strerror(error);
-                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
+                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + StrError(error));
             }
 
             assert(isReaddirSafe(directoryPath));
@@ -472,7 +473,7 @@ namespace Common
             if (!directoryPtr)
             {
                 int error = errno;
-                std::string reason = strerror(error);
+                std::string reason = StrError(error);
                 throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
             }
 
@@ -525,7 +526,7 @@ namespace Common
             if (::remove(path.c_str()) != 0)
             {
                 int errn = errno;
-                std::string error_cause = ::strerror(errn);
+                std::string error_cause = StrError(errn);
                 throw Common::FileSystem::IFileSystemException(
                     "Failed to delete file: " + path + ". Cause: " + error_cause);
             }
@@ -568,7 +569,7 @@ namespace Common
             if (!directoryPtr)
             {
                 int error = errno;
-                std::string reason = strerror(error);
+                std::string reason = StrError(error);
                 throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + reason);
             }
 

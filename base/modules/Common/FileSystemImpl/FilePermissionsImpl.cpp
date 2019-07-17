@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <sys/stat.h>
 
 #include <cstdlib>
@@ -24,6 +25,7 @@ namespace Common
 {
     namespace FileSystem
     {
+        using namespace Common::UtilityImpl;
         void FilePermissionsImpl::chown(const Path& path, const std::string& user, const std::string& group) const
         {
             struct passwd* sophosSplUser = getpwnam(user.c_str());
@@ -80,7 +82,7 @@ namespace Common
             {
                 std::stringstream errorMessage;
                 errorMessage << "Calling GetGroupId on " << groupString.c_str() << " caused this error "
-                             << strerror(err);
+                             << StrError(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
@@ -106,7 +108,7 @@ namespace Common
             else
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling getGroupName on " << groupId << " caused this error " << strerror(err);
+                errorMessage << "Calling getGroupName on " << groupId << " caused this error " << StrError(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
@@ -132,7 +134,7 @@ namespace Common
             else
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling getUserId on " << userString.c_str() << " caused this error " << strerror(err);
+                errorMessage << "Calling getUserId on " << userString.c_str() << " caused this error " << StrError(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
@@ -158,7 +160,7 @@ namespace Common
             else
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling getUserName on " << userId << " caused this error " << strerror(err);
+                errorMessage << "Calling getUserName on " << userId << " caused this error " << StrError(err);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
