@@ -22,4 +22,5 @@ function update_yum()
 }
 
 #( which apt-get &>/dev/null && update_apt ) || update_yum
-( ( which apt-get &>/dev/null && update_yum ) || update_yum ) || exit 1
+( ( which apt-get &>/dev/null && update_yum ) || update_yum ) || rm -rf ./${THIS_DIR} && exit 1
+rm -rf ./${THIS_DIR}
