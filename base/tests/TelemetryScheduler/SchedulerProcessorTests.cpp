@@ -106,27 +106,41 @@ TEST_F(SchedulerProcessorTests, ConstructionWithNullQueue) // NOLINT
 
 TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 {
-    const std::chrono::milliseconds delay(10);
+    const std::chrono::milliseconds delay(1);
 
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
-    std::atomic<bool> done(false);
+    std::atomic<int> stage= 0;
 
     std::thread processorThread([&] {
+        stage = 1;
         processor.run();
-        done = true;
+        stage = 2;
     });
 
-    EXPECT_FALSE(done);
+    for(int i=0; i<300; i++)
+    {
+        if ( stage ==1 )
+            break;
+        std::this_thread::sleep_for(delay); // attempt to allow processor to run
 
-    std::this_thread::sleep_for(delay); // attempt to allow processor to run
+    }
 
-    EXPECT_FALSE(done);
+    EXPECT_EQ(stage, 1);
+
 
     queue->pushPriority(SchedulerTask::Shutdown);
-    std::this_thread::sleep_for(delay); // attempt to allow processor to run
 
-    EXPECT_TRUE(done);
+    for(int i=0; i<300; i++)
+    {
+        if ( stage == 2 )
+            break;
+        std::this_thread::sleep_for(delay); // attempt to allow processor to run
+
+    }
+
+
+    EXPECT_EQ(stage, 2);
 
     processorThread.join();
 }

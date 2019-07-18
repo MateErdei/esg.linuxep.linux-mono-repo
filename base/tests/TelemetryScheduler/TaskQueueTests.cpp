@@ -49,7 +49,7 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 {
     using namespace std::chrono;
-    const milliseconds delay(10);
+    const milliseconds delay(1);
 
     TaskQueue queue;
     SchedulerTask taskOut;
@@ -64,7 +64,12 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
     queue.push(taskIn);
-    std::this_thread::sleep_for(milliseconds(delay));
+
+    for( int i=0; i<200; i++)
+    {
+        if(done) break;
+        std::this_thread::sleep_for(delay);
+    }
 
     EXPECT_TRUE(done);
 
