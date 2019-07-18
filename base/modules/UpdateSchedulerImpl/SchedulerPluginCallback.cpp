@@ -74,6 +74,11 @@ namespace UpdateSchedulerImpl
     std::string SchedulerPluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
+
+        // Ensure counts are always reported:
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 0UL);
+
         return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
