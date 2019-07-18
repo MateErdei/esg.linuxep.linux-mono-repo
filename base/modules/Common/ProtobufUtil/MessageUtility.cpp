@@ -17,7 +17,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace UtilityImpl
+    namespace ProtobufUtil
     {
         std::string MessageUtility::protoBuf2Json(const google::protobuf::Message& message)
         {

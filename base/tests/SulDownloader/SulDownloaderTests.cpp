@@ -20,7 +20,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ArgcAndEnv.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/UtilityImpl/MessageUtility.h>
+#include <Common/ProtobufUtil/MessageUtility.h>
 #include <SulDownloader/SulDownloader.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
@@ -120,7 +120,7 @@ public:
 
     std::string jsonSettings(const ConfigurationSettings& configSettings)
     {
-        return Common::UtilityImpl::MessageUtility::protoBuf2Json(configSettings);
+        return Common::ProtobufUtil::MessageUtility::protoBuf2Json(configSettings);
     }
 
     SulDownloader::suldownloaderdata::ConfigurationData configData(const ConfigurationSettings& configSettings)

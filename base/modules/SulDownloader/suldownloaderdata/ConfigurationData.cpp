@@ -12,7 +12,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/MessageUtility.h>
+#include <Common/ProtobufUtil/MessageUtility.h>
 #include <google/protobuf/util/json_util.h>
 
 #include <ConfigurationSettings.pb.h>
@@ -573,7 +573,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         settings.add_manifestnames(manifestName);
     }
 
-    return Common::UtilityImpl::MessageUtility::protoBuf2Json(settings);
+    return Common::ProtobufUtil::MessageUtility::protoBuf2Json(settings);
 }
 
 void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)

@@ -26,7 +26,7 @@ target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
-target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads ${Protobuf_LIBRARIES})
+target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads protobufutil)
 gtest_discover_tests(SulDownloaderTests)
 
 SET_TARGET_PROPERTIES(SulDownloaderTests

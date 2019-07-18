@@ -13,9 +13,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/UtilityImpl/MessageUtility.h>
+#include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <google/protobuf/util/json_util.h>
+
+#pragma GCC diagnostic pop
+
 
 
 namespace Common
@@ -78,7 +85,7 @@ namespace Common
                 environmentVariables->set_value(envVar.second);
             }
 
-            return Common::UtilityImpl::MessageUtility::protoBuf2Json(pluginInfoProto);
+            return Common::ProtobufUtil::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
 
         PluginInfo PluginInfo::deserializeFromString(

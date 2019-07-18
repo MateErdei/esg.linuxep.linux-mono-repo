@@ -6,23 +6,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
+#include <stdexcept>
 
-namespace google
-{
-    namespace protobuf
-    {
-        class Message;
-    }
-} // namespace google
 namespace Common
 {
-    namespace UtilityImpl
+    namespace ProtobufUtil
     {
-        class MessageUtility
+        class MessageException : public std::runtime_error
         {
         public:
-            static std::string protoBuf2Json(const google::protobuf::Message& message);
+            using std::runtime_error::runtime_error;
         };
 
     } // namespace UtilityImpl

@@ -14,6 +14,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:processmonitoringimplobject>
         $<TARGET_OBJECTS:processimplobject>
         $<TARGET_OBJECTS:utilityimplobject>
+        $<TARGET_OBJECTS:protobufutilobject>
         $<TARGET_OBJECTS:xmlutilitiesobject>
         )
 

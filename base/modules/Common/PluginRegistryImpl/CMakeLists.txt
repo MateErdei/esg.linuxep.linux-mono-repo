@@ -9,11 +9,11 @@ add_library(pluginregistryimpl SHARED
         )
 target_include_directories(pluginregistryimpl PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(pluginregistryimpl
-            ${Protobuf_LIBRARIES}
             utilityimpl
             filesystemimpl
             applicationconfigurationimpl
             processimpl
+            protobufutil
             ${LOG4CPLUS_LIBRARY}
         )
 add_dependencies(pluginregistryimpl generatePluginInfoProto)

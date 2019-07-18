@@ -6,16 +6,23 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Exceptions/IException.h>
+#include <string>
 
+namespace google
+{
+    namespace protobuf
+    {
+        class Message;
+    }
+} // namespace google
 namespace Common
 {
-    namespace UtilityImpl
+    namespace ProtobufUtil
     {
-        class MessageException : public Common::Exceptions::IException
+        class MessageUtility
         {
         public:
-            explicit MessageException(const std::string& what) : Common::Exceptions::IException(what) {}
+            static std::string protoBuf2Json(const google::protobuf::Message& message);
         };
 
     } // namespace UtilityImpl

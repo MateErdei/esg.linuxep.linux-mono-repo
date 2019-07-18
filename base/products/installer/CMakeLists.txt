@@ -45,6 +45,10 @@ target_link_libraries(machineid PUBLIC osutilitiesimpl)
 SET_TARGET_PROPERTIES( manifestdiff
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
+SET_TARGET_PROPERTIES( machineid
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+
+
 install(TARGETS manifestdiff
         DESTINATION files/base/bin)
 

@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "TimeTracker.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/MessageUtility.h>
+#include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <google/protobuf/util/json_util.h>
@@ -305,7 +305,7 @@ namespace SulDownloader
             warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
         }
 
-        return Common::UtilityImpl::MessageUtility::protoBuf2Json(protoReport);
+        return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
     }
 
     DownloadReport DownloadReport::toReport(const std::string& serializedVersion)
