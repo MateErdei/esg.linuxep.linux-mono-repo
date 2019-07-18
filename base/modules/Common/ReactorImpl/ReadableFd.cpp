@@ -1,13 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "ReadableFd.h"
 
 #include "Logger.h"
+
 #include <Common/UtilityImpl/StrError.h>
+
 #include <cstring>
 #include <iostream>
 #include <unistd.h>

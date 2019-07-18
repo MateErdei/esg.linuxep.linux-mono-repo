@@ -12,8 +12,5 @@ namespace Common
     {
         /** Implements a thread safe retrieval of strerror */
         std::string StrError(int errNumber);
-    }
-}
-
-
-
+    } // namespace UtilityImpl
+} // namespace Common

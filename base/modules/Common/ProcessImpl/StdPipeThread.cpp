@@ -1,10 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "StdPipeThread.h"
+
 #include <Common/UtilityImpl/StrError.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -28,16 +30,11 @@ namespace
 
     class ScopedTriggerFunctor
     {
-        std::function<void(void)> & m_functor;
-    public:
-        ScopedTriggerFunctor( std::function<void(void)> & functor): m_functor(functor)
-        {
+        std::function<void(void)>& m_functor;
 
-        }
-        ~ScopedTriggerFunctor()
-        {
-            m_functor();
-        }
+    public:
+        ScopedTriggerFunctor(std::function<void(void)>& functor) : m_functor(functor) {}
+        ~ScopedTriggerFunctor() { m_functor(); }
     };
 
 } // namespace
@@ -53,11 +50,7 @@ Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor, std::funct
     setNonBlocking(fileDescriptor);
 }
 
-Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor) : StdPipeThread(fileDescriptor, [](){})
-{
-
-}
-
+Common::ProcessImpl::StdPipeThread::StdPipeThread(int fileDescriptor) : StdPipeThread(fileDescriptor, []() {}) {}
 
 Common::ProcessImpl::StdPipeThread::~StdPipeThread()
 {
@@ -87,7 +80,7 @@ void Common::ProcessImpl::StdPipeThread::run()
 
     // Make sure that if this process finishes before this loop starts that one attempt is made to read from the pipe.
     bool readPipeOnce = false;
-    ScopedTriggerFunctor scopedTriggerFunctor{m_notifyFinished};
+    ScopedTriggerFunctor scopedTriggerFunctor{ m_notifyFinished };
     while ((!finished && !stopRequested()) || !readPipeOnce)
     {
         readPipeOnce = true;
@@ -162,4 +155,3 @@ std::string Common::ProcessImpl::StdPipeThread::output()
     }
     return m_stdoutStream.str();
 }
-

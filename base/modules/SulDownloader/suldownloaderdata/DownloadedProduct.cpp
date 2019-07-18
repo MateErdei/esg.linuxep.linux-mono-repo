@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,12 +8,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IVersig.h"
 #include "Logger.h"
-#include <Common/UtilityImpl/StrError.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
+#include <Common/UtilityImpl/StrError.h>
 
 #include <cassert>
 #include <cstring>
@@ -192,5 +193,5 @@ bool DownloadedProduct::forceProductReinstall() const
 
 std::string DownloadedProduct::installerPath() const
 {
-    return  Common::FileSystem::join(m_distributePath, "install.sh");
+    return Common::FileSystem::join(m_distributePath, "install.sh");
 }

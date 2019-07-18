@@ -1,20 +1,18 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-
 #include "SystemTelemetryCollectorImpl.h"
 
+#include <Common/Process/IProcessException.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
-#include <Common/Process/IProcessException.h>
-
+#include <algorithm>
 #include <map>
 #include <string>
 #include <variant>
-#include <algorithm>
-#include <Common/UtilityImpl/StrError.h>
 
 namespace Telemetry
 {
@@ -82,11 +80,11 @@ namespace Telemetry
 
     std::string SystemTelemetryCollectorImpl::getTelemetryItem(
         const std::string& command,
-        std::vector<std::string> args)
-        const
+        std::vector<std::string> args) const
     {
         std::string commandAndArgs(command);
-        std::for_each(args.begin(), args.end(), [&commandAndArgs] (const std::string& arg){ commandAndArgs.append(arg); });
+        std::for_each(
+            args.begin(), args.end(), [&commandAndArgs](const std::string& arg) { commandAndArgs.append(arg); });
 
         if (m_commandOutputCache.find(commandAndArgs) != m_commandOutputCache.end())
         {
@@ -109,7 +107,8 @@ namespace Telemetry
         if (exitCode != 0)
         {
             throw Common::Process::IProcessException(
-                "Process execution returned non-zero exit code, 'Exit Code: " + Common::UtilityImpl::StrError(exitCode) + "'");
+                "Process execution returned non-zero exit code, 'Exit Code: " +
+                Common::UtilityImpl::StrError(exitCode) + "'");
         }
 
         auto output = processPtr->output();

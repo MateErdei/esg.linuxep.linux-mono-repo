@@ -1,9 +1,8 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "TempDir.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
@@ -26,13 +25,9 @@ namespace Tests
         m_fileSystem(new Common::FileSystem::FileSystemImpl()),
         m_tempDirBase(new Common::FileSystemImpl::TempDir(baseDirectory, namePrefix))
     {
-
     }
 
-    Path TempDir::dirPath() const
-    {
-        return m_tempDirBase->dirPath();
-    }
+    Path TempDir::dirPath() const { return m_tempDirBase->dirPath(); }
 
     std::string TempDir::absPath(const std::string& relativePath) const
     {
@@ -71,8 +66,7 @@ namespace Tests
     {
         std::string abs_path = absPath(relativePath);
         std::string filename = Common::FileSystem::basename(abs_path);
-        std::string dir_path =
-            abs_path.substr(dirPath().size(), abs_path.size() - filename.size() - dirPath().size());
+        std::string dir_path = abs_path.substr(dirPath().size(), abs_path.size() - filename.size() - dirPath().size());
         makeDirs(dir_path);
         m_fileSystem->writeFile(abs_path, content);
     }
@@ -80,8 +74,7 @@ namespace Tests
     {
         std::string abs_path = absPath(relativePath);
         std::string filename = Common::FileSystem::basename(abs_path);
-        std::string dir_path =
-            abs_path.substr(dirPath().size(), abs_path.size() - filename.size() - dirPath().size());
+        std::string dir_path = abs_path.substr(dirPath().size(), abs_path.size() - filename.size() - dirPath().size());
         makeDirs(dir_path);
         auto tempDir = TempDir::makeTempDir();
         m_fileSystem->writeFileAtomically(abs_path, content, tempDir->dirPath());
