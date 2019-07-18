@@ -23,7 +23,7 @@ function update_apt()
 function update_yum()
 {
     echo "=> Updating existing packages with yum..."
-    yum -y --skip-broken update || return 1
+    yum -y update || return 1
 }
 
 if [ -n "$(which apt-get)" ]
