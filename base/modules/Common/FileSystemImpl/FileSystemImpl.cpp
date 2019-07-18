@@ -176,8 +176,8 @@ namespace Common
 
             if (!getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)))
             {
-                int err = errno;
-                std::string errdesc = StrError(err);
+                int error = errno;
+                std::string errdesc = StrError(error);
 
                 throw IFileSystemException(errdesc);
             }
@@ -189,9 +189,9 @@ namespace Common
         {
             if (::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
-                int err = errno;
+                int error = errno;
                 std::stringstream errorStream;
-                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(err);
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(error);
 
                 throw IFileSystemException(errorStream.str());
             }
@@ -290,8 +290,8 @@ namespace Common
 
             if (!outFileStream.good())
             {
-                int err = errno;
-                std::string errdesc = StrError(err);
+                int error = errno;
+                std::string errdesc = StrError(error);
 
                 throw IFileSystemException("Error, Failed to create file: '" + path + "', " + errdesc);
             }
@@ -369,13 +369,14 @@ namespace Common
                 int ret = ::mkdir(path.c_str(), 0700);
                 if (ret == -1)
                 {
-                    if (errno == EEXIST)
+                    int error = errno;
+                    if (error == EEXIST)
                     {
                         return;
                     }
 
                     std::ostringstream ost;
-                    ost << "Failed to create directory " << path << " error " << StrError(errno) << " (" << errno
+                    ost << "Failed to create directory " << path << " error " << StrError(error) << " (" << error
                         << ")";
 
                     throw IFileSystemException(ost.str());
@@ -525,8 +526,8 @@ namespace Common
         {
             if (::remove(path.c_str()) != 0)
             {
-                int errn = errno;
-                std::string error_cause = StrError(errn);
+                int error = errno;
+                std::string error_cause = StrError(error);
                 throw Common::FileSystem::IFileSystemException(
                     "Failed to delete file: " + path + ". Cause: " + error_cause);
             }

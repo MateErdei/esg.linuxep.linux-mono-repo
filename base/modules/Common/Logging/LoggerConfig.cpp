@@ -1,11 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #include "LoggerConfig.h"
-#include <Common/UtilityImpl/StrError.h>
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/StrError.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>
@@ -42,7 +44,7 @@ namespace
     {
         using sp = Common::Logging::SophosLogLevel;
         static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
-                { "SUPPORT" }, { "WARN" },  { "ERROR" } };
+                                                  { "SUPPORT" }, { "WARN" },  { "ERROR" } };
         static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
 
         auto ind_it = std::find(LogLevels.begin(), LogLevels.end(), logLevel);
@@ -186,9 +188,10 @@ namespace Common
             }
             else
             {
-                int currErrno = errno;
+                int error = errno;
                 std::stringstream s;
-                s << "Invalid path for log config: " << confFilePath << ". Err: " << Common::UtilityImpl::StrError(currErrno);
+                s << "Invalid path for log config: " << confFilePath
+                  << ". Err: " << Common::UtilityImpl::StrError(error);
                 errno = backup_errno;
                 throw std::runtime_error(s.str());
             }

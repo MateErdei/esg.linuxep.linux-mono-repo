@@ -4,14 +4,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "TempDir.h"
+
 #include "FileSystemImpl.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/StrError.h>
 
 #include <cstring>
-#include <unistd.h>
 #include <iostream>
+#include <unistd.h>
 
 using namespace Common::FileSystemImpl;
 using namespace Common::UtilityImpl;
@@ -35,10 +36,10 @@ TempDir::TempDir(const std::string& baseDirectory, const std::string& namePrefix
     char* ptr2data = ::mkdtemp(aux_array.data());
     if (ptr2data == nullptr)
     {
-        int errn = errno;
-        std::string error_cause = StrError(errn);
+        int error = errno;
+        std::string error_cause = StrError(error);
         throw Common::FileSystem::IFileSystemException(
-                "Failed to create directory: " + template_name + ". Cause: " + error_cause);
+            "Failed to create directory: " + template_name + ". Cause: " + error_cause);
     }
     m_tempdir = Path(ptr2data);
 }
@@ -52,7 +53,7 @@ TempDir::~TempDir()
     catch (const std::exception& ex)
     {
         // Can't rely on logging to be setup here.
-        std::cerr << "Failed to delete temp directory: "<<m_tempdir<<" with " << ex.what() << std::endl;
+        std::cerr << "Failed to delete temp directory: " << m_tempdir << " with " << ex.what() << std::endl;
     }
 }
 
