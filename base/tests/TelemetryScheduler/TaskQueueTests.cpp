@@ -67,7 +67,10 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 
     for( int i=0; i<200; i++)
     {
-        if(done) break;
+        if(done)
+        {
+            break;
+        }
         std::this_thread::sleep_for(delay);
     }
 
