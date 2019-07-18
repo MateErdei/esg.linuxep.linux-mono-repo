@@ -38,6 +38,13 @@ namespace UpdateSchedulerImpl
     std::string UpdateSchedulerProcessor::ALC_API("ALC");
     std::string UpdateSchedulerProcessor::VERSIONID("1");
 
+    static void resetTelemetryCounts()
+    {
+        // Reset counts so that they are reported:
+        Common::Telemetry::TelemetryHelper::getInstance().set("failed-update-count", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().set("failed-downloader-count", 0UL);
+    }
+
     UpdateSchedulerProcessor::UpdateSchedulerProcessor(
         std::shared_ptr<SchedulerTaskQueue> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
@@ -60,8 +67,9 @@ namespace UpdateSchedulerImpl
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         m_machineID = sxlMachineID.fetchMachineIdAndCreateIfNecessary();
-        Common::Telemetry::TelemetryHelper::getInstance().set("failed-update-count", 0UL);
-        Common::Telemetry::TelemetryHelper::getInstance().set("failed-downloader-count", 0UL);
+        resetTelemetryCounts();
+        // TODO: looks like resetTelemetryCounts set calls cause deadlock!
+        //Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("resetCounts", resetTelemetryCounts);
     }
 
     void UpdateSchedulerProcessor::mainLoop()
