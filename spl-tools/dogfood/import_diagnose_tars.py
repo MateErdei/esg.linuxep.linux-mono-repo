@@ -235,21 +235,14 @@ g_extract_dir = "/tmp/dogfood-extract"
 def main():
 
     global g_product
+    global g_extract_dir
 
     if len(sys.argv) != 3:
         usage()
         exit(1)
 
-    product = sys.argv[1].lower()
-    if "sav" in product:
-        g_product = "SAV"
-    #elif "sspl" in arg:
-    #    g_product = "SSPL"
-
     print("Product: {}".format(g_product))
 
-
-    completed_tars = []
     tars = []
     tar_path = sys.argv[2]
     if not os.path.exists(tar_path):
@@ -263,7 +256,7 @@ def main():
         if is_sspl_diagnose_file(tar_path):
             tars.append(tar_path)
         else:
-            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gx file.",format(tar_path))
+            print("The file: {}, does not start with sspl-diagnose and end with .tar.gz, so assuming it is not an SSPL dog food tar.gz file.",format(tar_path))
     else:
         exit(1)
 
