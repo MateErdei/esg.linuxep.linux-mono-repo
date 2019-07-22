@@ -27,7 +27,7 @@ ctest \
     -D CTEST_MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     --test-action memcheck --parallel ${NPROC} \
     --output-on-failure \
-    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks'
+    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest'
 EXIT=$?
 [[ ${EXIT} == 0 ]] || echo "ctest failed: $EXIT"
 exit ${EXIT}
