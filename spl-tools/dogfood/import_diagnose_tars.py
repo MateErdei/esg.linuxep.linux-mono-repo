@@ -12,7 +12,7 @@ import re
 from pathlib import Path
 import datetime
 import shutil
-
+import magic
 
 try:
     import mysql.connector
@@ -48,7 +48,7 @@ def get_time_string_from_log_line(line):
     return t
 
 
-def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
+def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id):
     line = line.strip()
 
     # Empty lines means a blank line is in the log file, so add one here.
@@ -64,13 +64,18 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, last_id):
         if last_id is None:
             # if here then we've started capturing logs half way through a multi line log write
             # just throw the line away until we get the start of complete log line with a timestamp in it.
-            return None
+            return last_id
 
         df_sql = "UPDATE dogfood_logs SET log_msg = CONCAT(log_msg, '\n', %s) WHERE idlogs = %s"
         cursor.execute(df_sql, (line, last_id))
         db.commit()
 
     else:
+
+        if latest_time > datetime.datetime.strptime(extracted_time, '%Y-%m-%d %H:%M:%S'):
+            print("Not inserting log line we have already seen from: {}".format(extracted_time))
+            return last_id
+
         df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip) VALUES (%s, %s, %s, %s, %s, %s)"
         df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip)
         cursor.execute(df_sql, df_val)
@@ -108,6 +113,7 @@ def mark_tar_as_processed(tar_path):
         ts = time.time()
         pretty_date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         marker_file.write(pretty_date)
+    print("Finished with:{}".format(tar_path))
 
 
 def extract_hostname(extracted_tar_path):
@@ -175,8 +181,8 @@ def process_diagnose_file(tar_path):
     # Dashboard sanitizes html so a script being inserted for example will not do anything when displayed.
     dogfood_db = mysql.connector.connect(
         host="10.55.36.229",
-        user="inserter",
-        passwd="insert",
+        user="dogfoodrw",
+        passwd="test",
         database="dogfood"
     )
 
@@ -187,13 +193,38 @@ def process_diagnose_file(tar_path):
     mark_tar_as_processed(tar_path)
 
 
+def get_latest_log_time_from_db(hostname, db, log_name):
+    cursor = db.cursor()
+    df_sql = "SELECT MAX(log_time) FROM dogfood_logs WHERE hostname = %s AND log_name = %s"
+    df_val = (hostname, log_name)
+    cursor.execute(df_sql, df_val)
+    results = cursor.fetchall()
+
+    # Default if more than one, there shold never be.
+    if len(results) != 1:
+        min_time = datetime.date.min
+        return datetime.datetime(min_time.year, min_time.month, min_time.day)
+
+    if results[0] is not None and results[0][0] is not None:
+        return results[0][0]
+
+    min_time = datetime.date.min
+    return datetime.datetime(min_time.year, min_time.month, min_time.day)
+
+
 def process_log_file(hostname, db, ip, log_file_path):
     print("Processing log:{}".format(log_file_path))
+    if 'text' not in magic.from_file(log_file_path):
+        print("Log file is not a text file, skipping it.")
+        return
+
+    latest_time = get_latest_log_time_from_db(hostname, db, os.path.basename(log_file_path))
+    print(latest_time)
+
     last_id = None
     with open(log_file_path, 'r') as log:
         for line in log:
-            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, last_id)
-            time.sleep(0.1)
+            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id)
 
 
 # Globals
