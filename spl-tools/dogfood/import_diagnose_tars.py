@@ -182,7 +182,7 @@ def process_diagnose_file(tar_path):
     dogfood_db = mysql.connector.connect(
         host="10.55.36.229",
         user="dogfoodrw",
-        passwd="test",
+        passwd="mason-R8Chu",
         database="dogfood"
     )
 
