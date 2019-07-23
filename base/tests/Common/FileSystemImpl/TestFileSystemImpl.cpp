@@ -536,7 +536,7 @@ namespace
 
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileDeletesFile.txt");
 
         std::string testContent("HelloWorld");
 
@@ -551,14 +551,14 @@ namespace
 
     TEST_F(FileSystemImplTest, removeFileThrowsIfFileDoesNotExist) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileThrowsIfFileDoesNotExist.txt");
         ASSERT_FALSE(m_fileSystem->exists(filePath));
         EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException); // NOLINT
     }
 
     TEST_F(FileSystemImplTest, removeDirectoryDeletesFile) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "remove.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesFile.txt");
 
         std::string testContent("HelloWorld");
 

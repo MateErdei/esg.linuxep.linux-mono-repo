@@ -99,7 +99,7 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
 
 TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // NOLINT
 {
-    Tests::TempDir tempDir("/tmp");
+    Tests::TempDir tempDir("/tmp","SignalHandlerXXXXXX");
 
     std::string socketAddress = std::string("ipc://") + tempDir.dirPath() + "/test.ipc";
 
