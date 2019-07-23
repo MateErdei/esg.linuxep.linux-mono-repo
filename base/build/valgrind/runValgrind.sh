@@ -19,15 +19,18 @@ export MEMORYCHECK_COMMAND_OPTIONS="--gen-suppressions=all"
 cd ${BUILD_DIR}
 
 #ctest -VV --debug --test-action memcheck
-
+pwd
+echo 'suppressions'
+cat ${MEMORYCHECK_SUPPRESSIONS_FILE}
 ctest \
     -D MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D CTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
     -D CTEST_MEMORYCHECK_COMMAND_OPTIONS="${MEMORYCHECK_COMMAND_OPTIONS}" \
-    --test-action memcheck --parallel ${NPROC} \
+    --test-action memcheck --parallel 1 \
     --output-on-failure \
-    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest'
+    -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest' \
+    -R 'TestAsyncSulDownloaderRunner'
 EXIT=$?
 [[ ${EXIT} == 0 ]] || echo "ctest failed: $EXIT"
 exit ${EXIT}
