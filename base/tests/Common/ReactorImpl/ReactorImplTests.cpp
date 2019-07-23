@@ -101,7 +101,7 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
 {
     Tests::TempDir tempDir("/tmp","SignalHandlerXXXXXX");
 
-    std::string socketAddress = std::string("ipc://") + tempDir.dirPath() + "/test.ipc";
+    std::string socketAddress = std::string("ipc://") + Common::FileSystem::join(tempDir.dirPath() , "test.ipc");
 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
@@ -115,15 +115,23 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     FakeClient fakeClient(*context, socketAddress, 5000);
 
     data_t requestData{ "echo", "arg1", "arg2" };
-    EXPECT_EQ(fakeClient.requestReply(requestData), requestData);
-
-    bool required_kill = process->kill();
-
-    if (!required_kill)
+    try
     {
-        // Only expect a 0 if we managed to terminate the process
-        EXPECT_EQ(0, process->exitCode());
+        auto response = fakeClient.requestReply(requestData);
+        EXPECT_EQ(fakeClient.requestReply(requestData), requestData);
+
+        bool required_kill = process->kill();
+
+        if (!required_kill)
+        {
+            // Only expect a 0 if we managed to terminate the process
+            EXPECT_EQ(0, process->exitCode());
+        }
+    }catch ( std::exception & ex)
+    {
+        EXPECT_FALSE( true) << ex.what() << ":  " << process->output();
     }
+
 }
 
 TEST_F(ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow) // NOLINT
