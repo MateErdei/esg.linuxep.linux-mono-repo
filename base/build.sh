@@ -340,11 +340,13 @@ function build()
         then
             ## -VV --debug
             export NPROC
-            bash ${BASE}/build/valgrind/runValgrind.sh \
+            bash -x ${BASE}/build/valgrind/runValgrind.sh \
              || {
                 local EXITCODE=$?
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
             }
+            echo 'Valgrind test finished'
+            exit 0
         elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
         then
             ## If we are doing bullseye system tests then don't run unit test first
