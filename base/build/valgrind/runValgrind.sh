@@ -17,6 +17,7 @@ export MEMORYCHECK_COMMAND_OPTIONS="--gen-suppressions=all"
 [[ -n ${NPROC:-} ]] || NPROC=2
 
 cd ${BUILD_DIR}
+rm -rf Testing/Temporary/*
 
 #ctest -VV --debug --test-action memcheck
 pwd
@@ -32,6 +33,18 @@ ctest \
     -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest' \
     -R 'TestAsyncSulDownloaderRunner'
 EXIT=$?
+
+
+pushd Testing/Temporary
+
+# remove all the tests that passed
+grep  'ERROR SUMMARY: 0' MemoryChecker*.log | cut -d':' -f1 | xargs rm
+
+for file in MemoryChecker*.log; do
+  cat ${file};
+done
+popd
+
 [[ ${EXIT} == 0 ]] || echo "ctest failed: $EXIT"
 exit ${EXIT}
 
