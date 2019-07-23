@@ -106,9 +106,13 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
+    std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
+    ASSERT_TRUE( fileSystem->isDirectory(libsPath));
     ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
     data_t args{ socketAddress };
-    process->exec(fakeServerPath, args);
+    std::vector<Common::Process::EnvironmentPair> environment;
+    environment.push_back( Common::Process::EnvironmentPair{"LD_LIBRARY_PATH", libsPath} );
+    process->exec(fakeServerPath, args, environment );
 
     auto context = Common::ZMQWrapperApi::createContext();
 
