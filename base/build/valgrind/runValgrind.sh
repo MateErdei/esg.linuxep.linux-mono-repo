@@ -31,6 +31,7 @@ ctest \
     --test-action memcheck --parallel 1 \
     --output-on-failure \
     -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest'
+    -R 'TwoSubscribers'
 EXIT=$?
 
 
