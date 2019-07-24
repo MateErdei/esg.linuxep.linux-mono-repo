@@ -194,11 +194,11 @@ namespace Common
 
                     if (extraEnvironment.empty())
                     {
-                        (void)execve(argcAndEnv.path(), argcAndEnv.argc(), nullptr);
+                        (void)execv(argcAndEnv.path(), argcAndEnv.argc());
                     }
                     else
                     {
-                        (void)execve(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
+                        (void)execvpe(argcAndEnv.path(), argcAndEnv.argc(), argcAndEnv.envp());
                     }
                     // if reaches this point, execv failed
                     // for normal execution, execv never returns.
