@@ -116,32 +116,17 @@ def get_metrics(hostname, from_timestamp, to_timestamp):
 
 
 def all_fields_present(to_check):
-    if 'avg_cpu' not in to_check:
-        return False
-    if to_check['avg_cpu'] is None:
-        return False
 
-    if 'avg_mem' not in to_check:
-        return False
-    if to_check['avg_mem'] is None:
-        return False
+    fields = ['avg_cpu', 'avg_mem', 'max_cpu', 'max_mem','min_mem', 'duration']
 
-    if 'max_cpu' not in to_check:
-        return False
-    if to_check['max_cpu'] is None:
-        return False
-
-    if 'max_mem' not in to_check:
-        return False
-    if to_check['max_mem'] is None:
-        return False
-
-    if 'min_mem' not in to_check:
-        return False
-    if to_check['min_mem'] is None:
-        return False
+    for field in fields:
+        if field not in to_check:
+            return False
+        if to_check[field] is None:
+            return False
 
     return True
+
 
 
 # Start
@@ -224,6 +209,7 @@ for day in result_root:
             for result in result_root[day][version][task_name]:
 
                 if all_fields_present(result):
+                    summary_root[day][version][task_name]['duration'] = result['duration']
                     summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
                     summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
 
@@ -245,24 +231,45 @@ for day in result_root:
             summary_root[day][version][task_name]['avg_mem'] /= good_result_count
 
             summary_root[day][version][task_name]['avg_cpu'] *= 100
-            summary_root[day][version][task_name]['avg_cpu'] = "{0:.2f}%".format(round(summary_root[day][version][task_name]['avg_cpu'], 2))
+            summary_root[day][version][task_name]['avg_cpu'] = "{0:.2f}".format(round(summary_root[day][version][task_name]['avg_cpu'], 2))
 
             summary_root[day][version][task_name]['max_cpu'] *= 100
-            summary_root[day][version][task_name]['max_cpu'] = "{0:.2f}%".format(round(summary_root[day][version][task_name]['max_cpu'], 2))
+            summary_root[day][version][task_name]['max_cpu'] = "{0:.2f}".format(round(summary_root[day][version][task_name]['max_cpu'], 2))
 
             summary_root[day][version][task_name]['avg_mem'] /= 1000000
-            summary_root[day][version][task_name]['avg_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['avg_mem'], 2))
+            summary_root[day][version][task_name]['avg_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['avg_mem'], 2))
 
             summary_root[day][version][task_name]['max_mem'] /= 1000000
-            summary_root[day][version][task_name]['max_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['max_mem'], 2))
+            summary_root[day][version][task_name]['max_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['max_mem'], 2))
 
             summary_root[day][version][task_name]['min_mem'] /= 1000000
-            summary_root[day][version][task_name]['min_mem'] = "{0:.0f}MB".format(round(summary_root[day][version][task_name]['min_mem'], 2))
+            summary_root[day][version][task_name]['min_mem'] = "{0:.0f}".format(round(summary_root[day][version][task_name]['min_mem'], 2))
 
 
-print(json.dumps(summary_root))
+#print(json.dumps(summary_root))
+
+
+array_data = []
+
+for date_key, date_value in summary_root.items():
+    for version_key, version_value in date_value.items():
+        for test_key, test_values in version_value.items():
+            row = {}
+            row["Date"] = date_key
+            row["Version"] = version_key
+            row["Test"] = test_key
+
+            for test_value_key, test_value in test_values.items():
+                row[test_value_key] = test_value
+
+            array_data.append(row)
+
+print(array_data)
 
 with open('perf-results.json', 'w') as json_file:
     json_file.write(json.dumps(summary_root))
     print("wrote out perf-results.json")
 
+with open('perf-table.json', 'w') as json_file:
+    json_file.write(json.dumps(array_data))
+    print("wrote out perf-table.json")
