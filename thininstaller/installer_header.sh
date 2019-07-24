@@ -501,7 +501,7 @@ cd distribute
 chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
 
 echo "Running base installer (this may take some time)"
-echo "Product will be installed to : ${SOPHOS_INSTALL}"
+echo "Product will be installed to: ${SOPHOS_INSTALL}"
 MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" ./install.sh
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
