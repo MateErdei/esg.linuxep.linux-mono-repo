@@ -163,7 +163,7 @@ namespace
 
     };
 
-    TEST(TestPollerImpl, DISABLED_PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT
+    TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT
     {
         constexpr int POLL_MS = 2000;
         using Common::Threads::NotifyPipe;

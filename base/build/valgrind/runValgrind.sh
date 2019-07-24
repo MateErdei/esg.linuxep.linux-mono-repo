@@ -21,8 +21,9 @@ rm -rf Testing/Temporary/*
 
 #ctest -VV --debug --test-action memcheck
 pwd
-echo 'suppressions'
+echo 'Suppressions'
 cat ${MEMORYCHECK_SUPPRESSIONS_FILE}
+echo 'Run Ctest'
 ctest \
     -D MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
     -D CTEST_MEMORYCHECK_SUPPRESSIONS_FILE=${MEMORYCHECK_SUPPRESSIONS_FILE} \
@@ -31,20 +32,23 @@ ctest \
     --test-action memcheck --parallel 1 \
     --output-on-failure \
     -E 'ReactorCallTerminatesIfThePollerBreaksForZMQSockets|ReactorCallTerminatesIfThePollerBreaks|PythonTest'
-    -R 'TwoSubscribers'
-EXIT=$?
-
 
 pushd Testing/Temporary
 
 # remove all the tests that passed
 grep  'ERROR SUMMARY: 0' MemoryChecker*.log | cut -d':' -f1 | xargs rm
 
-for file in MemoryChecker*.log; do
-  cat ${file};
-done
+# consider a success if no memory error is reported by valgrind
+EXIT=0
+Failures=`ls MemoryChecker*.log 2>/dev/null | wc -l`
+if [[ Failures -gt  0 ]]; then
+    EXIT=1
+    for file in MemoryChecker*.log; do
+        cat ${file};
+    done
+fi
 popd
 
-[[ ${EXIT} == 0 ]] || echo "ctest failed: $EXIT"
+[[ ${EXIT} == 0 ]] || echo "Memory Checker failed: $EXIT"
 exit ${EXIT}
 

@@ -340,7 +340,7 @@ function build()
         then
             ## -VV --debug
             export NPROC
-            bash -x ${BASE}/build/valgrind/runValgrind.sh \
+            bash ${BASE}/build/valgrind/runValgrind.sh \
              || {
                 local EXITCODE=$?
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
