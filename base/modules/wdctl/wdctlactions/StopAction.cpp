@@ -41,7 +41,7 @@ int StopAction::run()
     }
     else
     {
-        LOGINFO("Plugin " << m_args.m_argument << " not in registry");
-        return 0;
+        LOGERROR("Plugin \"" << m_args.m_argument << "\" not in registry");
+        return 2;
     }
 }
