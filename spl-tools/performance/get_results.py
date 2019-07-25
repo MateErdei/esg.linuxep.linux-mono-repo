@@ -117,7 +117,7 @@ def get_metrics(hostname, from_timestamp, to_timestamp):
 
 def all_fields_present(to_check):
 
-    fields = ['avg_cpu', 'avg_mem', 'max_cpu', 'max_mem','min_mem', 'duration']
+    fields = ['avg_cpu', 'avg_mem', 'max_cpu', 'max_mem','min_mem', 'duration', 'hostname']
 
     for field in fields:
         if field not in to_check:
@@ -210,6 +210,7 @@ for day in result_root:
 
                 if all_fields_present(result):
                     summary_root[day][version][task_name]['duration'] = result['duration']
+                    summary_root[day][version][task_name]['hostname'] = result['hostname']
                     summary_root[day][version][task_name]['avg_cpu'] += result['avg_cpu']
                     summary_root[day][version][task_name]['avg_mem'] += result['avg_mem']
 
