@@ -37,7 +37,15 @@ int CopyPlugin::run()
     Path destination = Common::FileSystem::join(pluginRegistry, Common::FileSystem::basename(m_args.m_argument));
 
     LOGINFO("Copying " << m_args.m_argument << " to " << destination);
-    Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
+    try
+    {
+        Common::FileSystem::fileSystem()->copyFile(m_args.m_argument, destination);
+    }
+    catch (Common::FileSystem::IFileSystemException& error)
+    {
+        LOGFATAL(error.what());
+        return 1;
+    }
 
     try
     {
