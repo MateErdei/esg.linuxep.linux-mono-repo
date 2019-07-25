@@ -28,6 +28,12 @@ namespace Common::Telemetry
                 break;
             }
 
+            case TelemetryValue::Type::double_type:
+            {
+                j = value.getDouble();
+                break;
+            }
+
             case TelemetryValue::Type::string_type:
             {
                 j = value.getString();
@@ -63,6 +69,12 @@ namespace Common::Telemetry
             case nlohmann::detail::value_t::number_unsigned:
             {
                 value.set(j.get<unsigned long>());
+                break;
+            }
+
+            case nlohmann::detail::value_t::number_float:
+            {
+                value.set(j.get<double>());
                 break;
             }
 
@@ -128,6 +140,7 @@ namespace Common::Telemetry
             {
                 case nlohmann::detail::value_t::number_unsigned:
                 case nlohmann::detail::value_t::number_integer:
+                case nlohmann::detail::value_t::number_float:
                 case nlohmann::detail::value_t::string:
                 case nlohmann::detail::value_t::boolean:
                 {

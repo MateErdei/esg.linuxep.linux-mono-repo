@@ -17,7 +17,7 @@ public:
     TelemetrySerialiserTestFixture() :
         m_testValue1(1UL),
         m_testValue2(4294967200UL),
-        m_testValue3(3UL),
+        m_testValue3(3.2),
         m_testValue4(-4L),
         m_testString("TestValue"),
         m_testBool(true)
@@ -41,14 +41,14 @@ public:
 
     unsigned long m_testValue1;
     unsigned long m_testValue2;
-    unsigned long m_testValue3;
+    double m_testValue3;
     long m_testValue4;
     std::string m_testString;
     bool m_testBool;
 
     TelemetryObject m_root;
     std::string m_serialisedTelemetry =
-        R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3,"nested3":-4}]})";
+        R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3.2,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3.2,"nested3":-4}]})";
 };
 
 
@@ -84,12 +84,12 @@ TEST_F(TelemetrySerialiserTestFixture, TelemetryObjectToJsonAndBackToTelemetryOb
     // Check json object constructed correctly.
     ASSERT_EQ(m_testValue1, j["key1"].get<unsigned int>());
     ASSERT_EQ(m_testValue2, j["key2"]["nested1"].get<unsigned int>());
-    ASSERT_EQ(m_testValue3, j["key2"]["nested2"].get<unsigned int>());
+    ASSERT_EQ(m_testValue3, j["key2"]["nested2"].get<double>());
     ASSERT_EQ(m_testValue4, j["key2"]["nested3"].get<int>());
     ASSERT_EQ(m_testString, j["my array"][0].get<std::string>());
     ASSERT_EQ(m_testBool, j["my array"][1].get<bool>());
     ASSERT_EQ(m_testValue2, j["my array"][2]["nested1"].get<unsigned int>());
-    ASSERT_EQ(m_testValue3, j["my array"][2]["nested2"].get<unsigned int>());
+    ASSERT_EQ(m_testValue3, j["my array"][2]["nested2"].get<double>());
     ASSERT_EQ(m_testValue4, j["my array"][2]["nested3"].get<int>());
 
     // Create a new Telemetry Object from the json object and check it is equal in value to the original root.

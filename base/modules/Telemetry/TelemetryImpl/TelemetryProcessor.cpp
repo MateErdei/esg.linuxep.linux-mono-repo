@@ -81,6 +81,7 @@ void TelemetryProcessor::gatherTelemetry()
         {
             std::string telemetry = provider->getTelemetry();
             LOGINFO("Gathered telemetry for " << name);
+            LOGDEBUG("Telemetry data gathered: " << telemetry);
             addTelemetry(name, telemetry);
         }
         catch (std::exception& ex)

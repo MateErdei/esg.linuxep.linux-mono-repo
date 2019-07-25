@@ -21,11 +21,15 @@ namespace Common::Telemetry
 
     TelemetryValue::TelemetryValue(const unsigned long value) : m_value(value) {}
 
+    TelemetryValue::TelemetryValue(const double value) : m_value(value) {}
+
     TelemetryValue::TelemetryValue(const char* value) : m_value(std::string(value)) {}
 
     void TelemetryValue::set(const long value) { m_value = value; }
 
     void TelemetryValue::set(unsigned long value) { m_value = value; }
+
+    void TelemetryValue::set(double value) { m_value = value; }
 
     void TelemetryValue::set(const bool value) { m_value = value; }
 
@@ -43,6 +47,12 @@ namespace Common::Telemetry
     {
         checkType(Type::unsigned_integer_type);
         return std::get<unsigned long>(m_value);
+    }
+
+    double TelemetryValue::getDouble() const
+    {
+        checkType(Type::double_type);
+        return std::get<double>(m_value);
     }
 
     bool TelemetryValue::getBoolean() const

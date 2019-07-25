@@ -10,6 +10,7 @@
 
 static const long TEST_INTEGER = 10L;
 static const unsigned long TEST_UNSIGNED_INTEGER = 11UL;
+static const double TEST_DOUBLE = 3.2;
 static const bool TEST_BOOL = true;
 static const char* TEST_CSTRING = "Test String";
 static const std::string TEST_STRING = TEST_CSTRING;  // NOLINT
@@ -49,6 +50,13 @@ TEST(TestTelemetryValueImpl, ConstructionWithUnsignedInt) // NOLINT
     TelemetryValue telemetryValue(TEST_UNSIGNED_INTEGER);
     ASSERT_EQ(TelemetryValue::Type::unsigned_integer_type, telemetryValue.getType());
     ASSERT_EQ(TEST_UNSIGNED_INTEGER, telemetryValue.getUnsignedInteger());
+}
+
+TEST(TestTelemetryValueImpl, ConstructionWithDouble) // NOLINT
+{
+    TelemetryValue telemetryValue(TEST_DOUBLE);
+    ASSERT_EQ(TelemetryValue::Type::double_type, telemetryValue.getType());
+    ASSERT_EQ(TEST_DOUBLE, telemetryValue.getDouble());
 }
 
 TEST(TestTelemetryValueImpl, ConstructionWithBool) // NOLINT
