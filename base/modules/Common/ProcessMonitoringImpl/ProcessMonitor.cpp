@@ -133,13 +133,9 @@ namespace Common
             }
 
             LOGINFO("Stopping processes");
-            for (auto& proxy : m_processProxies)
-            {
-                proxy->stop();
-            }
+            m_processProxies.clear();  // stop is called on proxies as they are destroyed
 
             // Normal shutdown
-            m_processProxies.clear();
             m_socketHandleFunctionList.clear();
             m_context.reset();
 
