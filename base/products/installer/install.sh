@@ -335,7 +335,7 @@ chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
-chmod 710 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 
