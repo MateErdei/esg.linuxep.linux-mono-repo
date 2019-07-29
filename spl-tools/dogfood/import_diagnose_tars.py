@@ -210,6 +210,10 @@ def process_diagnose_file(tar_path):
         print(filename)
 
     hostname = extract_hostname(sub_dir)
+    if hostname is None or hostname == "None" or hostname == "":
+        print("Skipping tar because could not extract hostname from hostnamectl: {}".format(tar_path))
+        return
+
     ip = extract_ip(sub_dir)
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
