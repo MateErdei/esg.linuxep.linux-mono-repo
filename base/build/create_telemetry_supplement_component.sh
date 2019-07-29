@@ -47,7 +47,7 @@ rm -f ${TEMP}/SDDS-Import.xml ${TEMP}/manifest.dat
 
 python "${GENERATE_MANIFEST_DAT}" ${TEMP}
 
-cp ${TEMP}/manifest.dat ${TELEMETRY_SUPPLEMENT_COMPONENT}/
+cp ${TEMP}/manifest.dat ${TELEMETRY_SUPPLEMENT_COMPONENT}/telem-manifest.dat
 
 ## Generate SDDS-Import.xml
 export SDDSTEMPLATE="TELEMSUPP_TEMPLATE"

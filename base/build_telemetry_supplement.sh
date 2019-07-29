@@ -22,7 +22,6 @@ mkdir -p $OUTPUT || exit 2
 
 INPUT=$BASE/input
 ALLEGRO_REDIST=/redist/binaries/linux11/input
-#PLUGIN_TAR=
 
 while [[ $# -ge 1 ]]
 do
