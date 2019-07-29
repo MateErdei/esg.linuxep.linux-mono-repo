@@ -52,7 +52,7 @@ namespace ManagementAgent
     {
         int ManagementAgentMain::main(int argc, char** argv)
         {
-            umask(S_IRWXG | S_IRWXO); // Read and write for the owner
+            umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
             static_cast<void>(argv);  // unused
             Common::Logging::FileLoggingSetup loggerSetup("sophos_managementagent", true);
             if (argc > 1)

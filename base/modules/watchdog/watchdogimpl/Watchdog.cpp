@@ -74,10 +74,9 @@ void Watchdog::setupSocket()
 
     // getIPCPath() has a ipc:// prefix, remove it
     std::string ipcFilesPath = getIPCPath().substr(6);
-
     try
     {
-        Common::FileSystem::filePermissions()->chmod(ipcFilesPath, S_IRWXU);
+        Common::FileSystem::filePermissions()->chmod(ipcFilesPath,  S_IRUSR | S_IWUSR);
         Common::FileSystem::filePermissions()->chown(ipcFilesPath, "root", "root");
     }
     catch (Common::FileSystem::IFileSystemException& error)
