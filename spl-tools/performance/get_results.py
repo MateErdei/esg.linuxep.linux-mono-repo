@@ -6,6 +6,12 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 import json
 
+try:
+    import mysql.connector
+except:
+    print("No module named 'mysql', please install it: python3 -m pip install mysql-connector-python")
+    exit()
+
 def create_task(task_row):
     task = {}
 
@@ -267,10 +273,34 @@ for date_key, date_value in summary_root.items():
 
 print(array_data)
 
-with open('perf-results.json', 'w') as json_file:
-    json_file.write(json.dumps(summary_root))
-    print("wrote out perf-results.json")
+# with open('perf-results.json', 'w') as json_file:
+#     json_file.write(json.dumps(summary_root))
+#     print("wrote out perf-results.json")
+#
+# with open('perf-table.json', 'w') as json_file:
+#     json_file.write(json.dumps(array_data))
+#     print("wrote out perf-table.json")
 
-with open('perf-table.json', 'w') as json_file:
-    json_file.write(json.dumps(array_data))
-    print("wrote out perf-table.json")
+
+performance_db = mysql.connector.connect(
+    host="10.55.36.229",
+    user="inserter",
+    passwd="insert",
+    database="performance"
+)
+cursor = performance_db.cursor()
+
+for row in array_data:
+    print(row)
+
+    try:
+
+        df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        df_val = (row["Date"], row["Version"], row["Test"], row["avg_cpu"], row["avg_mem"], row["max_cpu"], row["max_mem"], row["min_mem"], row["duration"], row["hostname"])
+        cursor.execute(df_sql, df_val)
+        performance_db.commit()
+        last_id = cursor.lastrowid
+        print("inserted, id:{}".format(last_id))
+    except:
+        print("Exception for: {} ".format(row))
+
