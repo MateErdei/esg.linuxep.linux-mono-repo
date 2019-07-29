@@ -12,12 +12,17 @@ import re
 from pathlib import Path
 import datetime
 import shutil
-import magic
 
 try:
     import mysql.connector
 except:
     print("No module named 'mysql', please install it: python3 -m pip install mysql-connector-python")
+    exit()
+
+try:
+    import magic
+except:
+    print("No module named 'magic', please install it: python3 -m pip install python-magic")
     exit()
 
 
@@ -84,6 +89,28 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id):
 
     print("inserted, id:{}".format(last_id))
     return last_id
+
+
+def send_system_file_line_to_db(line, log_path, db, ip, hostname):
+    line = line.strip()
+
+    cursor = db.cursor()
+
+    #TODO for files where it is possible extract a log line time.
+    # for now set this to something default, we won't set it to anything as most system files don't have the same
+    # structure as a log file, e.g. a log line with a timestamp.
+    log_time = "2019-01-01T00:00:00.000"
+
+    try:
+        df_sql = "CALL insert_sys_file_line(%s, %s, %s, %s, %s, %s)"
+        df_val = (log_time, line, log_path, os.path.basename(log_path), hostname, ip)
+        cursor.execute(df_sql, df_val)
+        db.commit()
+        last_id = cursor.lastrowid
+        print("inserted, id:{}".format(last_id))
+    except Exception as e:
+        print("Exception for: {} ".format(line))
+        print(e)
 
 
 def usage():
@@ -158,7 +185,12 @@ def process_diagnose_file(tar_path):
     tar.extractall(sub_dir)
     tar.close()
 
+    # product logs
     logs = []
+
+    # misc logs, e.g. system files - these do not have a set format so will just treat them as text and use insert time.
+    system_files = []
+
     # Base
     base = os.path.join(sub_dir, "BaseFiles")
     for filename in Path(base).glob('**/*.log*'):
@@ -171,11 +203,16 @@ def process_diagnose_file(tar_path):
         logs.append(str(filename))
         print(filename)
 
+    # Plugins
+    system_file_path = os.path.join(sub_dir, "SystemFiles")
+    for filename in Path(system_file_path).glob('*'):
+        system_files.append(str(filename))
+        print(filename)
+
     hostname = extract_hostname(sub_dir)
     ip = extract_ip(sub_dir)
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
-
 
     # This account has only insert privileges (not even select) so it is safe to include here.
     # Dashboard sanitizes html so a script being inserted for example will not do anything when displayed.
@@ -189,6 +226,10 @@ def process_diagnose_file(tar_path):
     # TODO LINUXEP-8365 When importing don't do it one log line at a time do it in bulk.
     for log in logs:
         process_log_file(hostname, dogfood_db, ip, log)
+
+    for sys_file in system_files:
+        process_system_file(hostname, dogfood_db, ip, sys_file)
+        time.sleep(5)
 
     mark_tar_as_processed(tar_path)
 
@@ -225,6 +266,17 @@ def process_log_file(hostname, db, ip, log_file_path):
     with open(log_file_path, 'r') as log:
         for line in log:
             last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id)
+
+
+def process_system_file(hostname, db, ip, sys_file_path):
+    print("Processing system file:{}".format(sys_file_path))
+    if 'text' not in magic.from_file(sys_file_path):
+        print("Log file is not a text file, skipping it.")
+        return
+
+    with open(sys_file_path, 'r') as log:
+        for line in log:
+            send_system_file_line_to_db(line, sys_file_path, db, ip, hostname)
 
 
 # Globals
