@@ -1,3 +1,10 @@
+# This script merges data from two elastic search indexes and saves the result to a MySQL DB which we use for querying.
+# This should be run at least daily on any machine, currently setup to run on sspl-perf-mon.
+# the data is made up of two sections, the metric data gathered on performance machines using metricbeat and a second
+# section of data which is entered in to elastic search by curl commands from performance scripts on the machines.
+# The second set of data (custom data) contains certain specific things about the perf tests,
+# e.g. duration, start time and end time.
+
 import sys
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
