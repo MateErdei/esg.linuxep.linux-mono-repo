@@ -11,6 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "CheckForTar.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <cstring>
 #include <sstream>
@@ -18,29 +19,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-namespace
-{
-    std::string workOutInstallDirectory()
-    {
-        // Check if we have an environment variable telling us the installation location
-        char* SOPHOS_INSTALL = secure_getenv("SOPHOS_INSTALL");
-        if (SOPHOS_INSTALL != nullptr)
-        {
-            return SOPHOS_INSTALL;
-        }
-
-        // If we can't get the cwd then use a fixed string.
-        return "/opt/sophos-spl";
-    }
-
-    std::string getJournalCtlCmd(int numDays)
-    {
-        std::stringstream journalcmd;
-        journalcmd << "journalctl --since '"<< numDays<<" days ago' ";
-        return journalcmd.str();
-    }
-
-} // namespace
 namespace diagnose
 {
     int diagnose_main::main(int argc, char* argv[])
@@ -74,7 +52,7 @@ namespace diagnose
             //Set the umask for the diagnose tool to remove other users' permissions
             umask(007);
 
-            const std::string installDir = workOutInstallDirectory();
+            const std::string installDir = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
 
             // Setup the file gatherer.
             GatherFiles gatherFiles;
@@ -101,51 +79,61 @@ namespace diagnose
             // Copy all audit log files.
             gatherFiles.copyAllOfInterestFromDir("/var/log/audit/", systemFilesDir);
 
-            std::string journalcltcommand{getJournalCtlCmd(10)};
+            // other formats of the timestamp in '-since=<timestamp>' result in parse errors as of journalctl version
+            // 237
+            std::string logCollectionInterval("--since=-10days");
+
             // Run any system commands that we cant to capture the output from.
             SystemCommands systemCommands(systemFilesDir);
-            systemCommands.runCommand("df -h", "df");
-            systemCommands.runCommand("top -bHn1", "top");
-            systemCommands.runCommand("dstat -a -m 1 5", "dstat");
-            systemCommands.runCommand("iostat 1 5", "iostat");
-            systemCommands.runCommand("hostnamectl", "hostnamectl");
-            systemCommands.runCommand("uname -a", "uname");
-            systemCommands.runCommand("lscpu", "lscpu");
-            systemCommands.runCommand("lshw", "lshw"); // Doesn't work on Amazon
-            systemCommands.runCommand("ls -l /lib/systemd/system", "systemd");
-            systemCommands.runCommand("ls -l /usr/lib/systemd/system", "usr-systemd");
-            systemCommands.runCommand("systemctl list-unit-files", "list-unit-files");
-            systemCommands.runCommand("auditctl -l", "auditctl");
-            systemCommands.runCommand("systemctl status auditd", "systemctl-status-auditd");
-            systemCommands.runCommand("ls /etc/audisp/plugins.d/", "plugins.d");
-            systemCommands.runCommand(journalcltcommand + "-u sophos-spl", "journalctl-sophos-spl");
-            systemCommands.runCommand(journalcltcommand + " -u auditd", "journalctl-auditd");
-            systemCommands.runCommand(journalcltcommand + "_TRANSPORT=audit", "journalctl_TRANSPORT=audit");
-            systemCommands.runCommand("journalctl --since yesterday | grep -v audit", "journalctl-auditd-yesterday");
-            systemCommands.runCommand("ps -ef", "ps");
-            systemCommands.runCommand("getenforce", "getenforce");
-            systemCommands.runCommand("ldd --version", "ldd-version");
-            systemCommands.runCommand("route -n", "route");
-            systemCommands.runCommand("ip route", "ip-route");
-            systemCommands.runCommand("dmesg", "dmesg");
-            systemCommands.runCommand("env", "env");
-            systemCommands.runCommand("ss -an", "ss");
-            systemCommands.runCommand("uptime", "uptime");
-            systemCommands.runCommand("mount", "mount");
-            systemCommands.runCommand("pstree -ap", "pstree");
-            systemCommands.runCommand("lsmod", "lsmod");
-            systemCommands.runCommand("lspci", "lspci");
-            systemCommands.runCommand("ls -alR " + installDir, "ListAllFilesInSSPLDir");
-            systemCommands.runCommand("du -h " + installDir + " --max-depth=2", "DiskSpaceOfSSPL");
-            systemCommands.runCommand("ifconfig -a", "ifconfig");
-            systemCommands.runCommand("ip addr", "ip-addr");
-            systemCommands.runCommand("sysctl -a", "sysctl");
-            systemCommands.runCommand("rpm -qa", "rpm-pkgs");
-            systemCommands.runCommand("dpkg --get-selections", "dpkg-pkgs");
-            systemCommands.runCommand("yum -y list installed", "yum-pkgs");
-            systemCommands.runCommand("zypper se  -i", "zypper-pkgs");
-            systemCommands.runCommand("apt list --installed", "apt-pkgs");
-            systemCommands.runCommand("ldconfig -p", "ldconfig");
+            systemCommands.runCommand("df", { "-h" }, "df");
+            systemCommands.runCommand("top", { "-bHn1" }, "top");
+            systemCommands.runCommand("dstat", { "-a", "-m", "1", "5" }, "dstat");
+            systemCommands.runCommand("iostat", { "1", "5" }, "iostat");
+            systemCommands.runCommand("hostnamectl", std::vector<std::string>(), "hostnamectl");
+            systemCommands.runCommand("uname", { "-a" }, "uname");
+            systemCommands.runCommand("lscpu", std::vector<std::string>(), "lscpu");
+            systemCommands.runCommand("lshw", std::vector<std::string>(), "lshw"); // Doesn't work on Amazon
+            systemCommands.runCommand("ls", { "-l", "/lib/systemd/system" }, "systemd");
+            systemCommands.runCommand("ls", { "-l", "/usr/lib/systemd/system" }, "usr-systemd");
+            systemCommands.runCommand("systemctl", { "list-unit-files" }, "list-unit-files");
+            systemCommands.runCommand("auditctl", { "-l" }, "auditctl");
+            systemCommands.runCommand("systemctl", { "status", "auditd" }, "systemctl-status-auditd");
+            systemCommands.runCommand("ls", { "/etc/audisp/plugins.d/" }, "plugins.d");
+            systemCommands.runCommand(
+                "journalctl", { logCollectionInterval, "-u", "sophos-spl" }, "journalctl-sophos-spl");
+            systemCommands.runCommand("journalctl", { logCollectionInterval, "-u", "auditd" }, "journalctl-auditd");
+            systemCommands.runCommand(
+                "journalctl", { logCollectionInterval, "_TRANSPORT=audit" }, "journalctl_TRANSPORT=audit");
+
+            // crude way to mimic pipe here
+            systemCommands.runCommand("journalctl", { "--since=yesterday" }, "journalctl-auditd-yesterday");
+            Path auditdLogfilePath = Common::FileSystem::join(systemFilesDir, "journalctl-auditd-yesterday");
+            systemCommands.runCommand("grep", { "-v", "audit" }, auditdLogfilePath);
+
+            systemCommands.runCommand("ps", { "-ef" }, "ps");
+            systemCommands.runCommand("getenforce", {}, "getenforce");
+            systemCommands.runCommand("ldd", { "--version" }, "ldd-version");
+            systemCommands.runCommand("route", { "-n" }, "route");
+            systemCommands.runCommand("ip", { "route" }, "ip-route");
+            systemCommands.runCommand("dmesg", {}, "dmesg");
+            systemCommands.runCommand("env", {}, "env");
+            systemCommands.runCommand("ss", { "-an" }, "ss");
+            systemCommands.runCommand("uptime", {}, "uptime");
+            systemCommands.runCommand("mount", std::vector<std::string>(), "mount");
+            systemCommands.runCommand("pstree", { "-ap" }, "pstree");
+            systemCommands.runCommand("lsmod", std::vector<std::string>(), "lsmod");
+            systemCommands.runCommand("lspci", std::vector<std::string>(), "lspci");
+            systemCommands.runCommand("ls", { "-alR", installDir }, "ListAllFilesInSSPLDir");
+            systemCommands.runCommand("du", { "-h", installDir, "--max-depth=2" }, "DiskSpaceOfSSPL");
+            systemCommands.runCommand("ifconfig", { "-a" }, "ifconfig");
+            systemCommands.runCommand("ip", { "addr" }, "ip-addr");
+            systemCommands.runCommand("sysctl", { "-a" }, "sysctl");
+            systemCommands.runCommand("rpm", { "-qa" }, "rpm-pkgs");
+            systemCommands.runCommand("dpkg", { "--get-selections" }, "dpkg-pkgs");
+            systemCommands.runCommand("yum", { "-y", "list", "installed" }, "yum-pkgs");
+            systemCommands.runCommand("zypper", { "se", "-i" }, "zypper-pkgs");
+            systemCommands.runCommand("apt", { "list", "--installed" }, "apt-pkgs");
+            systemCommands.runCommand("ldconfig", { "-p" }, "ldconfig");
 
             // Copy any files that contain useful info to the output dir.
             gatherFiles.copyFile("/etc/os-release", Common::FileSystem::join(systemFilesDir, "os-release"));
