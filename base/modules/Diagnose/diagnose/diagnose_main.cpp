@@ -108,7 +108,7 @@ namespace diagnose
             // crude way to mimic pipe here
             systemCommands.runCommand("journalctl", { "--since=yesterday" }, "journalctl-auditd-yesterday");
             Path auditdLogfilePath = Common::FileSystem::join(systemFilesDir, "journalctl-auditd-yesterday");
-            systemCommands.runCommand("grep", { "-v", "audit" }, auditdLogfilePath);
+            systemCommands.runCommand("grep", { "-v", "audit", auditdLogfilePath }, "journalctl-auditd-yesterday");
 
             systemCommands.runCommand("ps", { "-ef" }, "ps");
             systemCommands.runCommand("getenforce", {}, "getenforce");
