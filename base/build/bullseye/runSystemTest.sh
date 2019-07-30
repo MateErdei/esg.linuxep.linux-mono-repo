@@ -167,12 +167,12 @@ then
     export SDDS_SSPL_MDR_COMPONENT
     export SDDS_SSPL_MDR_COMPONENT_SUITE
 else
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE" ]]
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE" ]]
     then
-        export SDDS_SSPL_MDR_COMPONENT_SUITE=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE
-        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_DBOS_COMPONENT
-        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_OSQUERY_COMPONENT
-        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_MDR_COMPONENT
+        export SDDS_SSPL_MDR_COMPONENT_SUITE=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE
+        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_DBOS_COMPONENT
+        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_OSQUERY_COMPONENT
+        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_MDR_COMPONENT
 
     elif [[ -d "$FILER_5_BIR/sspl-mdr-componentsuite" ]]
     then
