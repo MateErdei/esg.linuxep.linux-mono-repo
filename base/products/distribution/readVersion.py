@@ -100,7 +100,7 @@ def readVersionFromJenkinsFile(BASE=None):
 
 
 def defaultVersion():
-    defaultValue = "0.5.1"
+    defaultValue = "1.0.0"
     print ("Using default {}".format(defaultValue))
     return defaultValue
 
