@@ -78,8 +78,8 @@ namespace diagnose
                 "Process execution timed out after 10s running: '" + commandAndArgs + "'");
         }
 
-        int exitCode = processPtr->exitCode();
         auto output = processPtr->output();
+        int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
             throw Common::Process::IProcessException(
