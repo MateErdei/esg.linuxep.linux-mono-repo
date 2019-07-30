@@ -12,6 +12,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <cstring>
 #include <sstream>
@@ -23,6 +24,8 @@ namespace diagnose
 {
     int diagnose_main::main(int argc, char* argv[])
     {
+        Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
+
         if (argc > 2)
         {
             std::cerr << "Expecting only one parameter got " << (argc - 1) << std::endl;
