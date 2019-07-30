@@ -20,54 +20,11 @@ using ::testing::Return;
 
 namespace
 {
-    const std::string L_lscpulines(
-        "Architecture:        x86_64\nCPU op-mode(s):      32-bit, 64-bit\nByte Order:          "
-        "Little Endian\nCPU(s):              2\n");
-    const std::string L_hostnamectllines(
-        "Static hostname: wellie-sspl-dev\n    Virtualization: vmware\n        Operating System: Ubuntu 18.04.2 LTS\n  "
-        "      Kernel: Linux 4.15.0-47-generic\n        Architecture: x86-6\n");
-
-    const std::string L_specialCharacters{ "\t\n 平仮名\n      Kernel: ひらがな 4.15.0-47-generic\n" };
     const std::string L_dfTLocalLines("Filesystem     Type     1K-blocks     Used Available Use% Mounted on\n"
                                       "udev           ひらがな    4041952        0   4041952   0% /dev\n"
                                       "tmpfs          tmpfs       814448     1544    812904   1% /run\n"
                                       "/dev/sda1      ext4      41020640 34176708   4730500  88% /\n"
                                       "tmpfs          tmpfs      4072224    35724   4036500   1% /dev/shm\n");
-
-    //    const Telemetry::SystemTelemetryConfig L_testSystemTelemetryConfig = {
-    //        { "kernel",
-    //            Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
-    //                                             {},
-    //                                             "^\\s*Kernel:\\s*(.*)$",
-    //                                             { { "", Telemetry::TelemetryValueType::STRING } } } },
-    //        { "os-pretty",
-    //            Telemetry::SystemTelemetryTuple{ "/usr/bin/hostnamectl",
-    //                                             {},
-    //                                             "^ *Operating System: (.*)$",
-    //                                             { { "", Telemetry::TelemetryValueType::STRING } } } },
-    //        { "cpu-cores",
-    //            Telemetry::SystemTelemetryTuple{ "/usr/bin/lscpu",
-    //                                             { "--pretty", "--total" },
-    //                                             "^CPU\\(s\\): (.*)$",
-    //                                             { { "", Telemetry::TelemetryValueType::INTEGER } } } }
-    //    };
-    //    const Telemetry::SystemTelemetryConfig L_kernelTelemetryConfig = {
-    //        { "kernel",
-    //            { "/usr/bin/hostnamectl", {}, "^ *Kernel: (.*)$", { { "", Telemetry::TelemetryValueType::STRING } } }
-    //            }
-    //    };
-    //    const Telemetry::SystemTelemetryConfig L_osTelemetryConfig = {
-    //        { "os-pretty",
-    //            { "/usr/bin/hostnamectl",
-    //                {},
-    //                "^ *Operating System: (.*)$",
-    //                { { "", Telemetry::TelemetryValueType::STRING } } } }
-    //    };
-    //    const Telemetry::SystemTelemetryConfig L_lscpuTelemetryConfig = {
-    //        { "cpu-cores",
-    //            { "/usr/bin/lscpu", {}, "^CPU\\(s\\): (.*)$", { { "", Telemetry::TelemetryValueType::INTEGER } } } }
-    //    };
-
 } // namespace
 
 class DiagnoseSystemCommandsTests : public ::testing::Test
@@ -171,8 +128,8 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLIN
         EXPECT_CALL(*m_mockFileSystem, writeFile("/Nerver/Createdir/df-timeout", timeoutError));
     }
 
-    auto retCode = systemCommands.runCommand("df", { "-h" }, "df-timeout");
-    ASSERT_EQ(retCode, EXIT_FAILURE);
+    auto retCodeFail = systemCommands.runCommand("df", { "-h" }, "df-timeout");
+    ASSERT_EQ(retCodeFail, EXIT_FAILURE);
 
     { // mockProcesses_[1]
         EXPECT_CALL(*m_mockFileSystem, isExecutable(_)).WillRepeatedly(Return(true));
@@ -186,6 +143,6 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLIN
         EXPECT_CALL(*m_mockFileSystem, writeFile((systemDirPath + "df"), L_dfTLocalLines));
     }
 
-    auto retCode2 = systemCommands.runCommand("df", { "-h" }, "df");
-    ASSERT_EQ(retCode2, EXIT_SUCCESS);
+    auto retCodeSuccess = systemCommands.runCommand("df", { "-h" }, "df");
+    ASSERT_EQ(retCodeSuccess, EXIT_SUCCESS);
 }
