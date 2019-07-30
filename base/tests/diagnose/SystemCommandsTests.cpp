@@ -61,8 +61,6 @@ private:
     size_t m_mockProcessIndex = 0;
 };
 
-// These tests assume that keys in SystemTelemetryConfig objects are iterated over in dictionary order.
-
 TEST_F(DiagnoseSystemCommandsTests, RunCommandRunAndWritesToFileOk) // NOLINT
 {
     setupMocks(1);
@@ -105,6 +103,25 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessExitCodeIsFailure) /
 
     // implied assert no throw
     auto retCode = systemCommands.runCommand("df", { "-h" }, "df");
+    ASSERT_EQ(retCode, EXIT_FAILURE);
+}
+
+TEST_F(DiagnoseSystemCommandsTests, RunCommandHandlesProcessGetExecutablePathException) // NOLINT
+{
+    setupMocks(1);
+
+    std::string systemDirPath("/Never/Createdir/");
+    std::string executableName("df");
+    diagnose::SystemCommands systemCommands(systemDirPath);
+    EXPECT_CALL(*m_mockFileSystem, isExecutable(_)).WillRepeatedly(Return(false));
+
+    // write to file called with error message
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        writeFile((systemDirPath + executableName), "Executable " + executableName + " is not installed."));
+
+    // implied assert no throw
+    auto retCode = systemCommands.runCommand(executableName, { "-h" }, "df");
     ASSERT_EQ(retCode, EXIT_FAILURE);
 }
 
