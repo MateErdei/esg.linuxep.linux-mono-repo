@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 static int telemetry_scheduler_main()
 {
-    umask(S_IRWXG | S_IRWXO); // Read and write for the owner
+    umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
     return TelemetrySchedulerImpl::main_entry();
 }
 

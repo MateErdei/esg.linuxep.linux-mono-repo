@@ -72,12 +72,6 @@ namespace Common
                     Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
                     Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", "sophos-spl-group");
                 }
-                // If low priveliged, we do not need to set group permissions
-                else
-                {
-                    Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRUSR | S_IWUSR); // NOLINT
-                }
-
                 std::unique_ptr<Common::PluginApiImpl::BaseServiceAPI> plugin(
                     new BaseServiceAPI(pluginName, std::move(requester)));
 
