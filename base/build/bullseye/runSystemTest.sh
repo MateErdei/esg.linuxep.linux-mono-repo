@@ -55,6 +55,7 @@ then
             --deepen=1 \
             --update-shallow \
             || failure 83 "Failed to fetch ${BULLSEYE_SYSTEM_TEST_BRANCH}"
+    git reset --hard || failure  84 "Failed to reset git branch"
     git checkout "${BULLSEYE_SYSTEM_TEST_BRANCH}" \
             || failure 81 "Failed to checkout required branch"
     git pull \
@@ -139,8 +140,64 @@ else
     fi
 fi
 
+## Find mdr plugin
+if [[ -d "$SSPL_MDR_PLUGIN_SDDS" ]]
+then
+    export SSPL_MDR_PLUGIN_SDDS
+else
 
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-control-plugin/master/SDDS-COMPONENT" ]]
+    then
+        export SSPL_MDR_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-control-plugin/master/SDDS-COMPONENT
+    elif [[ -d "$FILER_5_BIR/sspl-mdr-control-plugin" ]]
+    then
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-control-plugin/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SSPL_MDR_PLUGIN_SDDS="$DIR"
+        fi
+    fi
+fi
 
+## Find mdr component suite
+if [[ -d "$SDDS_SSPL_MDR_COMPONENT_SUITE" ]]
+then
+    export SDDS_SSPL_DBOS_COMPONENT
+    export SDDS_SSPL_OSQUERY_COMPONENT
+    export SDDS_SSPL_MDR_COMPONENT
+    export SDDS_SSPL_MDR_COMPONENT_SUITE
+else
+    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE" ]]
+    then
+        export SDDS_SSPL_MDR_COMPONENT_SUITE=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE
+        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_DBOS_COMPONENT
+        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_OSQUERY_COMPONENT
+        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-componentsuite/master/SDDS_SSPL_MDR_COMPONENT
+
+    elif [[ -d "$FILER_5_BIR/sspl-mdr-componentsuite" ]]
+    then
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_MDR_COMPONENT_SUITE" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SDDS_SSPL_MDR_COMPONENT_SUITE="$DIR"
+        fi
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_DBOS_COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SDDS_SSPL_DBOS_COMPONENT="$DIR"
+        fi
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_OSQUERY_COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SDDS_SSPL_OSQUERY_COMPONENT="$DIR"
+        fi
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_MDR_COMPONENT" | sort -rV | head -1)
+        if [[ -d "$DIR" ]]
+        then
+            export SDDS_SSPL_MDR_COMPONENT="$DIR"
+        fi
+    fi
+fi
 
 
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
@@ -148,7 +205,7 @@ fi
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLEPLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 LOG_LEVEL=TRACE
-EXCLUSION="--exclude manual --exclude SLOW"
+EXCLUSION="--exclude manual --exclude WEEKLY  --exclude AUDIT_PLUGIN  --exclude EVENT_PROCESSOR --exclude FUZZ --exclude TESTFAILURE"
 if [[ -n "${TEST_SELECTOR}" ]]
 then
     sudo \
@@ -157,7 +214,7 @@ then
 else
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --exclude SLOW tests
+        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION}  tests
 fi
 
 echo "Tests exited with $?"
