@@ -124,7 +124,7 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLIN
         EXPECT_CALL(*m_mockProcesses[0], kill());
 
         // write to file called with timeout as reason for failure
-        std::string timeoutError("Process execution timed out after 10s running: '/usr/bin/df -h'");
+        std::string timeoutError("Timed out after 5000ms while running: '/usr/bin/df -h'");
         EXPECT_CALL(*m_mockFileSystem, writeFile(systemDirPath + "df-timeout", timeoutError));
     }
 

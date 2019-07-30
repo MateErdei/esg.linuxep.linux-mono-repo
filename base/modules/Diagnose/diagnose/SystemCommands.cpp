@@ -75,8 +75,8 @@ namespace diagnose
         {
             processPtr->kill();
             std::stringstream ssTimeoutMessage;
-            ssTimeoutMessage << "Process execution timed out after" << (GL_ProcTimeoutMilliSecs * GL_ProcMaxRetries)
-                             << "running: '" << commandAndArgs << "'";
+            ssTimeoutMessage << "Timed out after " << (GL_ProcTimeoutMilliSecs * GL_ProcMaxRetries)
+                             << "ms while running: '" << commandAndArgs << "'";
             throw Common::Process::IProcessException(ssTimeoutMessage.str());
         }
 
