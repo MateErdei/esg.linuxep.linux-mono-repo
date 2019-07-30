@@ -1,5 +1,3 @@
-add_subdirectory(LoggerImpl)
-
 add_library(diagnoseimpl STATIC
             CheckForTar.cpp
             CheckForTar.h
