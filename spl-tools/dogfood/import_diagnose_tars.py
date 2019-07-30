@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 import datetime
 import shutil
+import io
 
 try:
     import mysql.connector
@@ -203,10 +204,11 @@ def process_diagnose_file(tar_path):
         logs.append(str(filename))
         print(filename)
 
-    # Plugins
+    # System files - NB currently ignoring audit log as it is so verbose.
     system_file_path = os.path.join(sub_dir, "SystemFiles")
     for filename in Path(system_file_path).glob('*'):
-        system_files.append(str(filename))
+        if "audit.log" not in str(filename):
+            system_files.append(str(filename))
         print(filename)
 
     hostname = extract_hostname(sub_dir)
@@ -267,7 +269,8 @@ def process_log_file(hostname, db, ip, log_file_path):
     print(latest_time)
 
     last_id = None
-    with open(log_file_path, 'r') as log:
+
+    with io.open(log_file_path, mode="r", encoding="utf-8") as log:
         for line in log:
             last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id)
 
@@ -278,7 +281,7 @@ def process_system_file(hostname, db, ip, sys_file_path):
         print("Log file is not a text file, skipping it.")
         return
 
-    with open(sys_file_path, 'r') as log:
+    with io.open(sys_file_path, mode="r", encoding="utf-8") as log:
         for line in log:
             send_system_file_line_to_db(line, sys_file_path, db, ip, hostname)
 
