@@ -74,8 +74,10 @@ namespace diagnose
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
-            throw Common::Process::IProcessException(
-                "Process execution timed out after 10s running: '" + commandAndArgs + "'");
+            std::stringstream ssTimeoutMessage;
+            ssTimeoutMessage << "Process execution timed out after" << (GL_ProcTimeoutMilliSecs * GL_ProcMaxRetries)
+                             << "running: '" << commandAndArgs << "'";
+            throw Common::Process::IProcessException(ssTimeoutMessage.str());
         }
 
         auto output = processPtr->output();
