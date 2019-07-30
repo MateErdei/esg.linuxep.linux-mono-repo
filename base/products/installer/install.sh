@@ -201,7 +201,7 @@ function makeRootDirectory()
 
 function install_telemetry_supplement()
 {
-    local telemetry_supplement_path=${SOPHOS_INSTALL}/base/update/cache/primary/telemetry-config.json
+    local telemetry_supplement_path=${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/telemetry-config.json
     local telemetry_config_file_path=${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 
     if [[ -f ${telemetry_supplement_path} ]]
