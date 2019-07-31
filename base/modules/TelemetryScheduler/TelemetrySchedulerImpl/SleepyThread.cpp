@@ -8,7 +8,10 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 namespace TelemetrySchedulerImpl
 {
-    SleepyThread::SleepyThread(std::chrono::system_clock::time_point sleepUntil, SchedulerTask task, std::shared_ptr<ITaskQueue> queue) :
+    SleepyThread::SleepyThread(
+        std::chrono::system_clock::time_point sleepUntil,
+        SchedulerTask task,
+        std::shared_ptr<ITaskQueue> queue) :
         m_sleepUntil(sleepUntil),
         m_task(task),
         m_queue(std::move(queue)),

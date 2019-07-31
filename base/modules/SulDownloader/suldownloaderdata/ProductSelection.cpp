@@ -59,20 +59,15 @@ namespace SulDownloader
 {
     // Subscription Selector
 
-    SubscriptionSelector::SubscriptionSelector(const ProductSubscription& productSubscription)
-                                               : m_productSubscription(productSubscription)
+    SubscriptionSelector::SubscriptionSelector(const ProductSubscription& productSubscription) :
+        m_productSubscription(productSubscription)
     {
-
     }
 
-    std::string SubscriptionSelector::targetProductName() const
-    {
-        return m_productSubscription.rigidName();
-    }
+    std::string SubscriptionSelector::targetProductName() const { return m_productSubscription.rigidName(); }
 
     bool SubscriptionSelector::keepProduct(const suldownloaderdata::ProductMetadata& productInformation) const
     {
-
         // the selection is based on the following algorith.
 
         // It has to match rigid name.
@@ -82,12 +77,12 @@ namespace SulDownloader
         //   the product must have the tag in the subscription.
         //   and if the tag is recommended, it may ignore the base version.
 
-        if ( productInformation.getLine() != m_productSubscription.rigidName() )
+        if (productInformation.getLine() != m_productSubscription.rigidName())
         {
             return false;
         }
 
-        if ( !m_productSubscription.fixVersion().empty())
+        if (!m_productSubscription.fixVersion().empty())
         {
             return productInformation.getVersion() == m_productSubscription.fixVersion();
         }
@@ -98,15 +93,10 @@ namespace SulDownloader
         }
 
         return productInformation.getBaseVersion() == m_productSubscription.baseVersion() ||
-        m_productSubscription.tag() == "RECOMMENDED";
-
+               m_productSubscription.tag() == "RECOMMENDED";
     }
 
-    bool SubscriptionSelector::isProductRequired() const
-    {
-        return true;
-    }
-
+    bool SubscriptionSelector::isProductRequired() const { return true; }
 
     // Product Selection
 
@@ -114,19 +104,18 @@ namespace SulDownloader
     {
         ProductSelection productSelection;
 
-        auto & primary = configurationData.getPrimarySubscription();
+        auto& primary = configurationData.getPrimarySubscription();
         LOGSUPPORT("Product Selector: " << primary.toString() << ". Primary.");
-        productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(
-                new SubscriptionSelector(primary)));
+        productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(new SubscriptionSelector(primary)));
 
-        for ( auto subscription : configurationData.getProductsSubscription())
+        for (auto subscription : configurationData.getProductsSubscription())
         {
             LOGSUPPORT("Product Selector: " << subscription.toString());
-            productSelection.appendSelector(std::unique_ptr<ISingleProductSelector>(
-                    new SubscriptionSelector(subscription)));
+            productSelection.appendSelector(
+                std::unique_ptr<ISingleProductSelector>(new SubscriptionSelector(subscription)));
         }
 
-        productSelection.m_features.setEntries(configurationData.getFeatures() );
+        productSelection.m_features.setEntries(configurationData.getFeatures());
 
         return productSelection;
     }
@@ -162,7 +151,7 @@ namespace SulDownloader
             return std::find(features.begin(), features.end(), "CORE") != features.end();
         };
 
-        for (auto index: selectedProductsIndex.values())
+        for (auto index : selectedProductsIndex.values())
         {
             const auto& warehouseProduct = warehouseProducts[index];
             if (passFeatureSetSelection(warehouseProduct))
@@ -210,9 +199,9 @@ namespace SulDownloader
 
     bool ProductSelection::passFeatureSetSelection(const ProductMetadata& productMetadata) const
     {
-        for( const auto & feature : productMetadata.getFeatures())
+        for (const auto& feature : productMetadata.getFeatures())
         {
-            if( m_features.hasEntry(feature))
+            if (m_features.hasEntry(feature))
             {
                 return true;
             }
@@ -221,10 +210,6 @@ namespace SulDownloader
         return false;
     }
 
-    std::string ProductSelection::MissingCoreProduct()
-    {
-        return "Missing CORE product";
-    }
-
+    std::string ProductSelection::MissingCoreProduct() { return "Missing CORE product"; }
 
 } // namespace SulDownloader

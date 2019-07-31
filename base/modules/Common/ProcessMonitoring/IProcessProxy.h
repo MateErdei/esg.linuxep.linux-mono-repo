@@ -6,8 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <chrono>
 #include <Common/Process/IProcessInfo.h>
+
+#include <chrono>
 
 namespace Common
 {
@@ -34,10 +35,9 @@ namespace Common
              */
             virtual std::chrono::seconds ensureStateMatchesOptions() = 0;
 
-
             virtual void setEnabled(bool enabled) = 0;
         };
         using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
         extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);
-    }
-}
+    } // namespace ProcessMonitoring
+} // namespace Common

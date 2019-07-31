@@ -132,9 +132,9 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
     if (!reply.m_error.empty())
     {
-        if ( reply.m_error == Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable)
+        if (reply.m_error == Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable)
         {
-            throw Common::PluginApi::NoPolicyAvailableException( );
+            throw Common::PluginApi::NoPolicyAvailableException();
         }
         std::string errorMessage("Invalid reply, error: " + reply.m_error);
         LOGSUPPORT(errorMessage);

@@ -176,7 +176,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenPassedMessageWithNoData) 
         protocol.deserialize(serialisedMessage);
         FAIL() << "Protocol::deserialize failed to throw!";
     }
-    catch (const Common::PluginApi::ApiException & apiException)
+    catch (const Common::PluginApi::ApiException& apiException)
     {
         std::string errorMessage(apiException.what());
         EXPECT_EQ(errorMessage, "Bad formed message: Protobuf parse error");
@@ -196,7 +196,7 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed) // N
         protocol.deserialize(serialisedMessage);
         FAIL() << "Protocol::deserialize failed to throw!";
     }
-    catch (const Common::PluginApi::ApiException & apiException)
+    catch (const Common::PluginApi::ApiException& apiException)
     {
         std::string errorMessage(apiException.what());
         EXPECT_EQ(errorMessage, "Bad formed message: Protobuf parse error");
@@ -205,7 +205,6 @@ TEST_F(TestProtocol, SerialiseAndDeserialise_ThrowsWhenGarbageDataIsPassed) // N
     {
         FAIL() << "Unexpected Exception";
     }
-
 }
 
 TEST_F(TestProtocol, SerialiseAndDeserialise_ReturnsErrorShownInMessageWhenDataIsMissingRequiredField) // NOLINT

@@ -20,17 +20,15 @@ namespace diagnose
         /*
          * runs a command and writes the output to a file
          */
-        int runCommand(const std::string& command, std::vector<std::string> arguments, const std::string& filename)
-            const;
+        int runCommand(const std::string& command, const std::string& filename);
 
         /*
          * Archive the diagnose output into a tar.gz ready for sending to Sophos.
          */
-        void tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const;
+        void tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath);
 
     private:
-        std::string getExecutablePath(const std::string& executableName) const;
-        std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args) const;
+        std::string getExecutablePath(const std::string executableName);
 
         std::string m_destination;
     };

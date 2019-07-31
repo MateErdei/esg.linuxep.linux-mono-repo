@@ -266,8 +266,6 @@ static const std::string updatePolicyWithAESCredential{ R"sophos(<?xml version="
 </AUConfigurations>
 )sophos" };
 
-
-
 static const std::string incorrectPolicyTypeXml{ R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="2"/>
@@ -476,7 +474,6 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
     EXPECT_EQ(config.getCredentials().getUsername(), "2d7f952565f299f61e8ee5b713ae32dd");
     EXPECT_EQ(config.getCredentials().getPassword(), "2d7f952565f299f61e8ee5b713ae32dd");
 }
-
 
 TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
 {
@@ -839,9 +836,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
             "SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
 }
 
-//updatePolicyWithAESCredential
+// updatePolicyWithAESCredential
 
 TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated)
 {
-    EXPECT_EQ( UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"), "9539d7d1f36a71bbac1259db9e868231");
+    EXPECT_EQ(
+        UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),
+        "9539d7d1f36a71bbac1259db9e868231");
 }

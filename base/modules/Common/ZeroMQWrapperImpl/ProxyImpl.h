@@ -52,10 +52,10 @@ namespace Common
             SocketHolder m_controlPub;
 
             void announceThreadStarted();
-        protected:
 
-            void* m_captureZMQSocket; //Used in derived class LoggerProxyImpl to
-                                      //add a capture socket to zmq_proxy_steerable
+        protected:
+            void* m_captureZMQSocket; // Used in derived class LoggerProxyImpl to
+                                      // add a capture socket to zmq_proxy_steerable
         };
     } // namespace ZeroMQWrapperImpl
 } // namespace Common

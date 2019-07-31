@@ -24,7 +24,7 @@ TEST(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
     error.Description = "Nothing";
     error.status = SulDownloader::suldownloaderdata::SUCCESS;
     suldownloaderdata::ConfigurationData configurationData({ "https://sophos.com/warehouse" });
-    configurationData.setPrimarySubscription({"ServerProtectionLinux-Base", "", "RECOMMENDED", ""});
+    configurationData.setPrimarySubscription({ "ServerProtectionLinux-Base", "", "RECOMMENDED", "" });
     auto selection = SulDownloader::suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
 
     SulDownloader::suldownloaderdata::ProductMetadata metadata;

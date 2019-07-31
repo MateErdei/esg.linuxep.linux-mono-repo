@@ -4,6 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ConfigurationDataBase.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
@@ -12,14 +14,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include "ConfigurationDataBase.h"
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
 class ConfigurationDataTest : public ConfigurationDataBase
 {
 public:
-
     ~ConfigurationDataTest() { Tests::restoreFileSystem(); }
 
     MockFileSystem& setupFileSystemAndGetMock()
@@ -78,8 +78,9 @@ public:
 
         if (expected.getPolicyProxy().getUrl() != resulted.getPolicyProxy().getUrl())
         {
-            return ::testing::AssertionFailure() << s.str() << "proxy urls differ "
-                << expected.getPolicyProxy().getUrl() << " != " << resulted.getPolicyProxy().getUrl();
+            return ::testing::AssertionFailure()
+                   << s.str() << "proxy urls differ " << expected.getPolicyProxy().getUrl()
+                   << " != " << resulted.getPolicyProxy().getUrl();
         }
 
         if (expected.getPolicyProxy() != resulted.getPolicyProxy())
@@ -175,22 +176,25 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 }
 
 TEST_F( // NOLINT
-        ConfigurationDataTest,
-        fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
+    ConfigurationDataTest,
+    fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
 {
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
-    ConfigurationData expectedConfiguration({"https://sophosupdate.sophos.com/latest/warehouse"},
-                                            Credentials{"administrator", "password"},
-                                            {"https://cache.sophos.com/latest/warehouse"},
-                                            Proxy("noproxy:"));
-    expectedConfiguration.setPrimarySubscription( ProductSubscription{"BaseProduct-RigidName", "9", "RECOMMENDED", ""} );
-    expectedConfiguration.setProductsSubscription({ProductSubscription{"PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", ""}});
-    expectedConfiguration.setFeatures({"CORE", "MDR"});
+    ConfigurationData expectedConfiguration(
+        { "https://sophosupdate.sophos.com/latest/warehouse" },
+        Credentials{ "administrator", "password" },
+        { "https://cache.sophos.com/latest/warehouse" },
+        Proxy("noproxy:"));
+    expectedConfiguration.setPrimarySubscription(
+        ProductSubscription{ "BaseProduct-RigidName", "9", "RECOMMENDED", "" });
+    expectedConfiguration.setProductsSubscription(
+        { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
+    expectedConfiguration.setFeatures({ "CORE", "MDR" });
     expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
     expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
     expectedConfiguration.setCertificatePath(m_absCertificatePath);
-    expectedConfiguration.setInstallArguments({"--install-dir", "/opt/sophos-av"});
+    expectedConfiguration.setInstallArguments({ "--install-dir", "/opt/sophos-av" });
     expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
     std::string serialized = ConfigurationData::toJsonSettings(configurationData);
@@ -358,8 +362,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        ConfigurationDataTest,
-        shouldRejectInvalidProxy)
+    ConfigurationDataTest,
+    shouldRejectInvalidProxy)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("proxy": {
@@ -394,9 +398,7 @@ TEST_F( // NOLINT
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
-
 }
-
 
 TEST_F( // NOLINT
     ConfigurationDataTest,
@@ -580,7 +582,9 @@ TEST_F( // NOLINT
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingPrimarySubscriptionShouldFailValidation) // NOLINT
+TEST_F(
+    ConfigurationDataTest,
+    fromJsonSettingsValidJsonStringWithMissingPrimarySubscriptionShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"(                               "primarySubscription": {
@@ -611,7 +615,9 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissing
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixVersionShouldFailValidation) // NOLINT
+TEST_F(
+    ConfigurationDataTest,
+    fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixVersionShouldFailValidation) // NOLINT
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"({
@@ -627,14 +633,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissing
                                 "fixVersion" : ""
                                 },)";
 
-
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
     EXPECT_FALSE(configurationData.isVerified());
 }
-
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation) // NOLINT
 {
@@ -694,7 +698,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithAddedUnknownDat
 
     EXPECT_THROW( // NOLINT
         ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)),
-        SulDownloaderException); 
+        SulDownloaderException);
 }
 
 TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
@@ -708,8 +712,8 @@ TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
 }
 
 TEST_F( // NOLINT
-        ConfigurationDataTest,
-        settingsAreValidForV2)
+    ConfigurationDataTest,
+    settingsAreValidForV2)
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
@@ -722,74 +726,70 @@ TEST_F( // NOLINT
     all_invalid_cases.emplace_back(noPrimarySubscriptionConfig);
 
     ConfigurationData primaryWithRigidNameOnly(configurationData);
-    primaryWithRigidNameOnly.setPrimarySubscription({"rigidname","","",""});
+    primaryWithRigidNameOnly.setPrimarySubscription({ "rigidname", "", "", "" });
     all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
 
     ConfigurationData primaryWithOutRigidName(configurationData);
-    primaryWithOutRigidName.setPrimarySubscription({"","baseversion","RECOMMENDED","None"});
+    primaryWithOutRigidName.setPrimarySubscription({ "", "baseversion", "RECOMMENDED", "None" });
     all_invalid_cases.emplace_back(primaryWithOutRigidName);
 
     ConfigurationData primaryWithRigidNameAndBaseVersion(configurationData);
-    primaryWithRigidNameAndBaseVersion.setPrimarySubscription({"rigidname","baseversion","",""});
+    primaryWithRigidNameAndBaseVersion.setPrimarySubscription({ "rigidname", "baseversion", "", "" });
     all_invalid_cases.emplace_back(primaryWithRigidNameAndBaseVersion);
 
     ConfigurationData productsWithRigidNameOnly(configurationData);
-    productsWithRigidNameOnly.setProductsSubscription({ProductSubscription("rigidname", "", "RECOMMENDED", ""),
-                                                       ProductSubscription("rigidname","","","")});
+    productsWithRigidNameOnly.setProductsSubscription(
+        { ProductSubscription("rigidname", "", "RECOMMENDED", ""), ProductSubscription("rigidname", "", "", "") });
     all_invalid_cases.emplace_back(productsWithRigidNameOnly);
 
     ConfigurationData noCoreFeature(configurationData);
-    noCoreFeature.setFeatures({"SAV", "MDR", "SENSOR"});
+    noCoreFeature.setFeatures({ "SAV", "MDR", "SENSOR" });
     all_invalid_cases.emplace_back(noCoreFeature);
 
     ConfigurationData noFeatureSet(configurationData);
     noFeatureSet.setFeatures({});
     all_invalid_cases.emplace_back(noFeatureSet);
 
-
-    for( auto & configData: all_invalid_cases)
+    for (auto& configData : all_invalid_cases)
     {
-        EXPECT_FALSE( configData.verifySettingsAreValid());
+        EXPECT_FALSE(configData.verifySettingsAreValid());
     }
 
     std::vector<ConfigurationData> all_valid_cases;
     ConfigurationData primaryWithTag(configurationData);
-    primaryWithTag.setPrimarySubscription({"rigidname", "baseversion", "RECOMMENDED", ""});
+    primaryWithTag.setPrimarySubscription({ "rigidname", "baseversion", "RECOMMENDED", "" });
     all_valid_cases.emplace_back(primaryWithTag);
 
     ConfigurationData primaryWithoutBaseVersion(configurationData);
-    primaryWithoutBaseVersion.setPrimarySubscription({"rigidname", "", "RECOMMENDED", ""});
+    primaryWithoutBaseVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
     all_valid_cases.emplace_back(primaryWithoutBaseVersion);
 
     ConfigurationData primaryWithTagAndFixVersion(configurationData);
-    primaryWithTagAndFixVersion.setPrimarySubscription({"rigidname", "", "RECOMMENDED", "9.1"});
+    primaryWithTagAndFixVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
     all_valid_cases.emplace_back(primaryWithTagAndFixVersion);
 
     ConfigurationData primaryWithOnlyFixVersion(configurationData);
-    primaryWithOnlyFixVersion.setPrimarySubscription({"rigidname", "", "", "9.1"});
+    primaryWithOnlyFixVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
     all_valid_cases.emplace_back(primaryWithOnlyFixVersion);
 
     ConfigurationData featuresContainCORE(configurationData);
-    featuresContainCORE.setFeatures({{"CORE"}, {"MDR"}});
+    featuresContainCORE.setFeatures({ { "CORE" }, { "MDR" } });
     all_valid_cases.emplace_back(featuresContainCORE);
 
     ConfigurationData onlyCOREinFeatures(configurationData);
-    onlyCOREinFeatures.setFeatures({{"CORE"}});
+    onlyCOREinFeatures.setFeatures({ { "CORE" } });
     all_valid_cases.emplace_back(onlyCOREinFeatures);
 
     ConfigurationData moreThanOneProduct(configurationData);
-    moreThanOneProduct.setProductsSubscription({
-                                                       {"p1", "", "RECOMMENDED", ""},
-                                                       {"p2", "", "", "9.1"}
-    });
+    moreThanOneProduct.setProductsSubscription({ { "p1", "", "RECOMMENDED", "" }, { "p2", "", "", "9.1" } });
     all_valid_cases.emplace_back(moreThanOneProduct);
 
     ConfigurationData onlyPrimaryAvailable(configurationData);
     onlyPrimaryAvailable.setProductsSubscription({});
     all_valid_cases.emplace_back(onlyPrimaryAvailable);
 
-    for( auto & configData: all_valid_cases)
+    for (auto& configData : all_valid_cases)
     {
-        EXPECT_TRUE( configData.verifySettingsAreValid());
+        EXPECT_TRUE(configData.verifySettingsAreValid());
     }
 }

@@ -4,8 +4,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/FileSystem/ITempDir.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 #pragma once
 
@@ -71,23 +71,20 @@ namespace diagnose
         void copyFileIntoDirectory(const Path& filePath, const Path& dirPath);
 
     private:
-
-
         /*
          * Creates directories
          */
         std::string createDiagnoseFolder(const Path& path, const std::string& dirName);
 
-
         Path getConfigLocation(const std::string& configFileName);
         std::vector<std::string> getLogLocations(const Path& inputFilePath);
 
         /*
-         * Copies all plugin files (expected to be log files) from a predefined set of sub-directories to the destination directory.
-         * If the predefined sub-directory does not exist, it is ignored.  The sub-directory structure is maintained when copying to the
-         * destination folder.
+         * Copies all plugin files (expected to be log files) from a predefined set of sub-directories to the
+         * destination directory. If the predefined sub-directory does not exist, it is ignored.  The sub-directory
+         * structure is maintained when copying to the destination folder.
          */
-        void copyPluginSubDirectoryFiles(
+        void copyPluginSubDirectoryLogFiles(
             const Path& pluginsDir,
             const std::string& pluginName,
             const Path& destination);

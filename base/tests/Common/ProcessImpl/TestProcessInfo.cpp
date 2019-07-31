@@ -63,7 +63,7 @@ namespace Common::Process
     }
 
     TEST(ProcessInfoTests,
-           processInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults) // NOLINT
+         processInfoSetExecutableUserAndGroupWithInvalidUserAndGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser:badgroup");
@@ -81,8 +81,9 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, invalidGroup);
     }
 
-    TEST(ProcessInfoTests,
-            processInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults) // NOLINT
+    TEST(
+        ProcessInfoTests,
+        processInfoSetExecutableUserAndGroupWithInvalidUserAndValidGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         processInfo.setExecutableUserAndGroup("baduser:root");
@@ -100,8 +101,9 @@ namespace Common::Process
         EXPECT_EQ(groupActual.second, invalidGroup);
     }
 
-    TEST(ProcessInfoTests,
-            processInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults)  // NOLINT
+    TEST(
+        ProcessInfoTests,
+        processInfoSetExecutableUserAndGroupWithValidUserAndInvalidGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;
         std::string userGroup("root:badgroup");
@@ -125,7 +127,7 @@ namespace Common::Process
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
-        std::vector<std::string> args{"Arg1", "Arg2", "Arg3"};
+        std::vector<std::string> args{ "Arg1", "Arg2", "Arg3" };
 
         processInfo.setExecutableArguments(args);
 
@@ -139,7 +141,7 @@ namespace Common::Process
     {
         Common::ProcessImpl::ProcessInfo processInfo;
 
-        Process::EnvPairs envPairs{{"env1","envVal1"}, {"env2","envVal2"}};
+        Process::EnvPairs envPairs{ { "env1", "envVal1" }, { "env2", "envVal2" } };
 
         processInfo.setExecutableEnvironmentVariables(envPairs);
 
@@ -186,4 +188,4 @@ namespace Common::Process
 
         EXPECT_EQ(processInfo.getExecutableFullPath(), path);
     }
-}
+} // namespace Common::Process

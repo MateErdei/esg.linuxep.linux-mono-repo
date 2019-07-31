@@ -177,12 +177,12 @@ namespace Common::TelemetryConfigImpl
         {
             config.setTelemetryServerCertificatePath(j.at(CERT_PATH_CONFIG_KEY));
         }
-        
+
         if (j.contains(PLUGIN_SEND_RECEIVE_TIMEOUT_KEY))
         {
             config.setPluginSendReceiveTimeout(j.at(PLUGIN_SEND_RECEIVE_TIMEOUT_KEY));
         }
-        
+
         if (j.contains(PLUGIN_CONNECTION_TIMEOUT_KEY))
         {
             config.setPluginConnectionTimeout(j.at(PLUGIN_CONNECTION_TIMEOUT_KEY));
@@ -225,4 +225,4 @@ namespace Common::TelemetryConfigImpl
 
         return config;
     }
-}
+} // namespace Common::TelemetryConfigImpl

@@ -38,7 +38,8 @@ namespace Common
 
             Path currentWorkingDirectory() const override;
 
-            std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks=false) const override;
+            std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks = false)
+                const override;
 
             std::vector<Path> listDirectories(const Path& directoryPath) const override;
 
@@ -66,7 +67,7 @@ namespace Common
 
             Path readlink(const Path& path) const override;
 
-            off_t fileSize(const Path & path ) const override;
+            off_t fileSize(const Path& path) const override;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

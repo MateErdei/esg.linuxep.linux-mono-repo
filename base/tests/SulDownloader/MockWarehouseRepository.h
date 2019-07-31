@@ -26,6 +26,6 @@ public:
     MOCK_CONST_METHOD0(getProducts, std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>(void));
     MOCK_CONST_METHOD0(getSourceURL, std::string(void));
 
-    MOCK_CONST_METHOD1(getProductDistributionPath, std::string(
-            const suldownloaderdata::DownloadedProduct&));
+    MOCK_CONST_METHOD1(getProductDistributionPath, std::string(const suldownloaderdata::DownloadedProduct&));
+    MOCK_CONST_METHOD0(listInstalledProducts, std::vector<SulDownloader::suldownloaderdata::ProductInfo>(void));
 };

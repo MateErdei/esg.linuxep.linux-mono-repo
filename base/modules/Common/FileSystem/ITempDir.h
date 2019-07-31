@@ -17,5 +17,5 @@ namespace Common
             virtual ~ITempDir() {}
             virtual Path dirPath() const = 0;
         };
-    }
-}
+    } // namespace FileSystem
+} // namespace Common

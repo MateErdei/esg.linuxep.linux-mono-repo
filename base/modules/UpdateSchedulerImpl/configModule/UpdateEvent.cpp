@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "UpdateEvent.h"
 
 #include "PropertyTreeHelper.h"
+
 #include <set>
 
 namespace
@@ -43,25 +44,25 @@ namespace
             return;
         }
 
-        auto sendName = [&](auto e, auto messageInsertsNode)
-        {
+        auto sendName = [&](auto e, auto messageInsertsNode) {
             if (!e.PackageName.empty())
             {
                 messageInsertsNode->add("insert", e.PackageName);
             }
         };
 
-        auto sendDetails = [&](auto e, auto messageInsertsNode)
-        {
+        auto sendDetails = [&](auto e, auto messageInsertsNode) {
             if (!e.ErrorDetails.empty())
             {
                 messageInsertsNode->add("insert", e.ErrorDetails);
             }
         };
 
-        std::set<int> errorCodes = {EventMessageNumber::INSTALLFAILED,EventMessageNumber::INSTALLCAUGHTERROR,
-                                    EventMessageNumber::DOWNLOADFAILED,EventMessageNumber::SINGLEPACKAGEMISSING,
-                                    EventMessageNumber::CONNECTIONERROR};
+        std::set<int> errorCodes = { EventMessageNumber::INSTALLFAILED,
+                                     EventMessageNumber::INSTALLCAUGHTERROR,
+                                     EventMessageNumber::DOWNLOADFAILED,
+                                     EventMessageNumber::SINGLEPACKAGEMISSING,
+                                     EventMessageNumber::CONNECTIONERROR };
 
         if (errorCodes.find(event.MessageNumber) != errorCodes.end())
         {
@@ -71,29 +72,29 @@ namespace
 
             auto e = event.Messages[0]; // Sophos Central only supports sending one message
 
-            switch(event.MessageNumber)
+            switch (event.MessageNumber)
             {
-                case(EventMessageNumber::INSTALLFAILED):
+                case (EventMessageNumber::INSTALLFAILED):
                     sendName(e, &messageInsertsNode);
                     if (!e.PackageName.empty()) // Only send error details if package name is sent first
                     {
                         sendDetails(e, &messageInsertsNode);
                     }
                     break;
-                case(EventMessageNumber::INSTALLCAUGHTERROR):
+                case (EventMessageNumber::INSTALLCAUGHTERROR):
                     sendDetails(e, &messageInsertsNode);
                     break;
-                case(EventMessageNumber::DOWNLOADFAILED):
+                case (EventMessageNumber::DOWNLOADFAILED):
                     sendName(e, &messageInsertsNode);
                     if (!e.PackageName.empty()) // Only send error details if package name is sent first
                     {
                         sendDetails(e, &messageInsertsNode);
                     }
                     break;
-                case(EventMessageNumber::SINGLEPACKAGEMISSING):
+                case (EventMessageNumber::SINGLEPACKAGEMISSING):
                     sendName(e, &messageInsertsNode);
                     break;
-                case(EventMessageNumber::CONNECTIONERROR):
+                case (EventMessageNumber::CONNECTIONERROR):
                     sendDetails(e, &messageInsertsNode);
                     break;
                 default:
@@ -101,7 +102,6 @@ namespace
             }
         }
     }
-
 
     std::string eventXML(
         const UpdateEvent& updateEvent,

@@ -9,10 +9,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "EnvPair.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include <functional>
 namespace Common
 {
     namespace Process
@@ -108,7 +108,6 @@ namespace Common
              * Set a callback function that will be triggered when the executed process is detected to have finished
              */
             virtual void setNotifyProcessFinishedCallBack(functor) = 0;
-
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();

@@ -45,17 +45,15 @@ namespace Telemetry
                                 "^(\\d+)\\.\\d*\\s+.*$",
                                 { { "", TelemetryValueType::INTEGER } } } },
         { "timezone",
-          SystemTelemetryTuple{ "/bin/date",
-                                 { "+%Z" },
-                                 "^([A-Z]{2,5})$",
-                                 { { "", TelemetryValueType::STRING } } } }
+          SystemTelemetryTuple{ "/bin/date", { "+%Z" }, "^([A-Z]{2,5})$", { { "", TelemetryValueType::STRING } } } }
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
         { "disks",
-          SystemTelemetryTuple{ "/bin/df",
-                                { "-T", "--local" },
-                                "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
+          SystemTelemetryTuple{
+              "/bin/df",
+              { "-T", "--local" },
+              "^\\s*\\S+\\s+(\\S+)\\s+\\S+\\s+\\S+\\s+(\\d+)\\s*.*$",
               { { "fstype", TelemetryValueType::STRING }, { "free", TelemetryValueType::INTEGER } } } }
     };
 } // namespace Telemetry

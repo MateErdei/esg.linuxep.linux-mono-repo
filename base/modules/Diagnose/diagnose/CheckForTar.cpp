@@ -7,31 +7,29 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <vector>
-#include <sstream>
-#include <iostream>
 
-#include <stdlib.h>
 #include <cstring>
+#include <iostream>
+#include <sstream>
+#include <stdlib.h>
+#include <vector>
 
 namespace
 {
-    std::vector<std::string> splitPath(const std::string &s)
+    std::vector<std::string> splitPath(const std::string& s)
     {
-        const char delim=':';
+        const char delim = ':';
         std::vector<std::string> elements;
         std::stringstream ss(s);
         std::string value;
 
-        while(std::getline(ss, value, delim))
+        while (std::getline(ss, value, delim))
         {
             elements.push_back(value);
         }
         return elements;
     }
-}
-
-
+} // namespace
 
 bool diagnose::CheckForTar::isTarAvailable(const std::string& PATH)
 {
@@ -63,5 +61,5 @@ bool diagnose::CheckForTar::isTarAvailable()
         std::cerr << "No PATH specified in environment" << std::endl;
         return false;
     }
-    return isTarAvailable( Common::UtilityImpl::StringUtils::checkAndConstruct(PATH));
+    return isTarAvailable(Common::UtilityImpl::StringUtils::checkAndConstruct(PATH));
 }

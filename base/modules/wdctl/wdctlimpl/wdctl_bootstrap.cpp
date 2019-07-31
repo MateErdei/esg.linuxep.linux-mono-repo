@@ -15,9 +15,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
 #include <wdctl/wdctlactions/StopAction.h>
-#include <iostream>
+
 #include <csignal>
 #include <cstdlib>
+#include <iostream>
 #include <unistd.h>
 
 using namespace wdctl::wdctlimpl;
@@ -27,7 +28,7 @@ int wdctl_bootstrap::main(int argc, char** argv)
     if (argc != 3)
     {
         // calling wdctl with wrong number of arguments will happen by users calling, hence, console output is correct.
-        std::cerr <<  "Error: Wrong number of arguments expected 2" << std::endl;
+        std::cerr << "Error: Wrong number of arguments expected 2" << std::endl;
         return 2;
     }
 

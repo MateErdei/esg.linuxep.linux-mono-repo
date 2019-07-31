@@ -3,19 +3,19 @@
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include <Common/FileSystem/IFileSystem.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <Common/FileSystem/IFileSystem.h>
+
+#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <unistd.h>
-#include <chrono>
 #include <thread>
-
+#include <unistd.h>
 
 struct DevNullRedirect
 {
-    DevNullRedirect(): file("/dev/null")
+    DevNullRedirect() : file("/dev/null")
     {
         strm_buffer = std::cout.rdbuf();
         strm_err_buffer = std::cerr.rdbuf();
@@ -29,11 +29,9 @@ struct DevNullRedirect
     }
 
     std::ofstream file;
-    std::streambuf * strm_buffer;
-    std::streambuf * strm_err_buffer;
-
+    std::streambuf* strm_buffer;
+    std::streambuf* strm_err_buffer;
 };
-
 
 int main()
 {
@@ -46,13 +44,13 @@ int main()
         return 1;
     }
     DevNullRedirect devNullRedirect;
-    std::string content(buffer.data(),buffer.data()+read_bytes);
-
+    std::string content(buffer.data(), buffer.data() + read_bytes);
 
     try
     {
-        (void) SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(content);
-    }catch ( SulDownloader::suldownloaderdata::SulDownloaderException & )
+        (void)SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(content);
+    }
+    catch (SulDownloader::suldownloaderdata::SulDownloaderException&)
     {
         return 2;
     }

@@ -10,15 +10,14 @@ namespace Common
 {
     namespace ProcessImpl
     {
-        class ProcessInfo
-                : public Common::Process::IProcessInfo
+        class ProcessInfo : public Common::Process::IProcessInfo
         {
         public:
             ProcessInfo() noexcept;
             /**
-            * Used to get the path of the plugin executable.
-            * @return string containing the path
-            */
+             * Used to get the path of the plugin executable.
+             * @return string containing the path
+             */
             std::string getExecutableFullPath() const override;
 
             /**
@@ -55,8 +54,8 @@ namespace Common
              * Used to store a list of environment variables required by the plugin.
              * @param executableEnvironmentVariables
              */
-            void
-            setExecutableEnvironmentVariables(const Common::Process::EnvPairs& executableEnvironmentVariables) override;
+            void setExecutableEnvironmentVariables(
+                const Common::Process::EnvPairs& executableEnvironmentVariables) override;
 
             /**
              * Used to add a single environment variable to the list of stored environment variables required by the
@@ -65,8 +64,8 @@ namespace Common
              * @param environmentValue
              */
             void addExecutableEnvironmentVariables(
-                    const std::string& environmentName,
-                    const std::string& environmentValue) override;
+                const std::string& environmentName,
+                const std::string& environmentValue) override;
 
             /**
              * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will
@@ -102,8 +101,5 @@ namespace Common
             std::string m_executableUserAndGroupAsString;
         };
 
-    }
-}
-
-
-
+    } // namespace ProcessImpl
+} // namespace Common

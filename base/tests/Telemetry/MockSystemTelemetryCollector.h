@@ -15,8 +15,6 @@ using namespace ::testing;
 class MockSystemTelemetryCollector : public Telemetry::ISystemTelemetryCollector
 {
 public:
-    MOCK_CONST_METHOD0(
-        collectObjects, std::map<std::string, Telemetry::TelemetryItem>());
-    MOCK_CONST_METHOD0(
-        collectArraysOfObjects, std::map<std::string, std::vector<Telemetry::TelemetryItem>>());
+    MOCK_CONST_METHOD0(collectObjects, std::map<std::string, Telemetry::TelemetryItem>());
+    MOCK_CONST_METHOD0(collectArraysOfObjects, std::map<std::string, std::vector<Telemetry::TelemetryItem>>());
 };

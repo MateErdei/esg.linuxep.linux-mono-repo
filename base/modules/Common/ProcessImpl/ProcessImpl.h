@@ -42,7 +42,7 @@ namespace Common
             Process::ProcessStatus getStatus() override;
 
             void setOutputLimit(size_t limit) override;
-            void setNotifyProcessFinishedCallBack( Process::IProcess::functor ) override ;
+            void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
         private:
             void onExecFinished();

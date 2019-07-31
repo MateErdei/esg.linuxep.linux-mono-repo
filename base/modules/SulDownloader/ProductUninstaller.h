@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ namespace SulDownloader
          */
         std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(
             const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
-                suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
+            suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
 
     private:
         std::vector<std::string> getInstalledProductPathsList();

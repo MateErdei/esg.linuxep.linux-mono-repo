@@ -54,4 +54,4 @@ namespace Common::TelemetryConfigImpl
         std::string m_username;
         std::string m_obfuscatedPassword;
     };
-} // namespace Telemetry::TelemetryConfigImpl
+} // namespace Common::TelemetryConfigImpl

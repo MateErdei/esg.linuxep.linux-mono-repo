@@ -7,7 +7,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ApiException.h"
 
-
 namespace Common
 {
     namespace PluginApi

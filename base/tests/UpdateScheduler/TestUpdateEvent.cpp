@@ -46,9 +46,9 @@ public:
         return mockRevId;
     }
 
-    void replaceMapHostCacheIdMock( MockMapHostCacheId * newMock)
+    void replaceMapHostCacheIdMock(MockMapHostCacheId* newMock)
     {
-        (void) m_hostCacheId->cacheID(SophosURL);
+        (void)m_hostCacheId->cacheID(SophosURL);
         m_hostCacheId.reset(newMock);
     }
 
@@ -116,16 +116,15 @@ TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
   <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
 </event>)sophos" };
 
-    MockMapHostCacheId * mockRevId{new ::testing::StrictMock<MockMapHostCacheId>()};
+    MockMapHostCacheId* mockRevId{ new ::testing::StrictMock<MockMapHostCacheId>() };
     EXPECT_CALL(*mockRevId, cacheID("cache.com:8182")).WillOnce(Return("12345"));
     replaceMapHostCacheIdMock(mockRevId);
-    DownloadReport goodReport = DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later,
-            true,"cache.com:8182" );
+    DownloadReport goodReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, true, "cache.com:8182");
 
     UpdateEvent event = getEvent(goodReport);
     runTest(event, successEventXML);
 }
-
 
 TEST_F(TestSerializeEvent, installFailedTwoProducts) // NOLINT
 {

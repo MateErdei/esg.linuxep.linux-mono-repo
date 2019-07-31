@@ -19,4 +19,4 @@ namespace Common::TelemetryConfigImpl
         static Config deserialise(const std::string& jsonString);
     };
 
-} // namespace Telemetry::TelemetryConfigImpl
+} // namespace Common::TelemetryConfigImpl

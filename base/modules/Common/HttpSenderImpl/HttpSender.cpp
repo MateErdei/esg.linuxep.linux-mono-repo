@@ -24,17 +24,13 @@ namespace
         CURL* m_curl;
 
     public:
-        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper)
-        : m_iCurlWrapper(iCurlWrapper)
-        , m_curl(curl)
+        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
+            m_iCurlWrapper(iCurlWrapper),
+            m_curl(curl)
         {
-
         }
 
-        ~CurlScopeGuard()
-        {
-            m_iCurlWrapper.curlEasyCleanup(m_curl);
-        }
+        ~CurlScopeGuard() { m_iCurlWrapper.curlEasyCleanup(m_curl); }
     };
 
     class SListScopeGuard
@@ -43,27 +39,26 @@ namespace
         curl_slist* m_curl_slist;
 
     public:
-        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper)
-        : m_iCurlWrapper(iCurlWrapper)
-        , m_curl_slist (curl_slist)
+        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
+            m_iCurlWrapper(iCurlWrapper),
+            m_curl_slist(curl_slist)
         {
-
         }
 
         ~SListScopeGuard()
         {
-            if( m_curl_slist != nullptr)
+            if (m_curl_slist != nullptr)
             {
                 m_iCurlWrapper.curlSlistFreeAll(m_curl_slist);
             }
         }
     };
-}
-
+} // namespace
 
 namespace Common::HttpSenderImpl
 {
-    HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
+    HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) :
+        m_curlWrapper(std::move(curlWrapper))
     {
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT
         if (result != CURLE_OK)
@@ -74,10 +69,7 @@ namespace Common::HttpSenderImpl
         }
     }
 
-    HttpSender::~HttpSender()
-    {
-        m_curlWrapper->curlGlobalCleanup();
-    }
+    HttpSender::~HttpSender() { m_curlWrapper->curlGlobalCleanup(); }
 
     int HttpSender::doHttpsRequest(RequestConfig& requestConfig)
     {
@@ -85,7 +77,7 @@ namespace Common::HttpSenderImpl
 
         std::vector<std::tuple<std::string, CURLoption, std::string>> curlOptions;
 
-        CURL * curl = m_curlWrapper->curlEasyInit();
+        CURL* curl = m_curlWrapper->curlEasyInit();
 
         if (!curl)
         {
@@ -151,14 +143,12 @@ namespace Common::HttpSenderImpl
 
         if (requestConfig.getRequestType() == RequestType::POST)
         {
-            curlOptions.emplace_back(
-                "Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
+            curlOptions.emplace_back("Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
         else if (requestConfig.getRequestType() == RequestType::PUT)
         {
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
-            curlOptions.emplace_back(
-                "Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
+            curlOptions.emplace_back("Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
 
         for (const auto& curlOption : curlOptions)
@@ -167,8 +157,9 @@ namespace Common::HttpSenderImpl
 
             if (result != CURLE_OK)
             {
-                LOGERROR("Failed to: " << std::get<0>(curlOption)
-                                       << " with error: " << m_curlWrapper->curlEasyStrError(result));
+                LOGERROR(
+                    "Failed to: " << std::get<0>(curlOption)
+                                  << " with error: " << m_curlWrapper->curlEasyStrError(result));
                 return result;
             }
         }
@@ -194,4 +185,4 @@ namespace Common::HttpSenderImpl
 
         return static_cast<int>(result);
     }
-} // LCOV_EXCL_LINE // namespace Common::HttpSenderImpl
+} // namespace Common::HttpSenderImpl

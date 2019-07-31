@@ -10,15 +10,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/OSUtilities/IIPUtils.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/sslimpl/Md5Calc.h>
-#include <Common/ObfuscationImpl/Obfuscate.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+
 #include <algorithm>
 #include <regex>
 #include <sstream>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 namespace
 {
@@ -107,21 +108,22 @@ namespace UpdateSchedulerImpl
         using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
 
-
         SettingsHolder UpdatePolicyTranslator::translatePolicy(const std::string& policyXml)
         {
-            static std::string error{"Failed to parse policy"};
-            try{
+            static std::string error{ "Failed to parse policy" };
+            try
+            {
                 return _translatePolicy(policyXml);
-
-            }catch ( SulDownloader::suldownloaderdata::SulDownloaderException & ex)
+            }
+            catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
             {
-                LOGERROR( ex.what());
-                throw std::runtime_error( error);
-            }catch ( std::invalid_argument& ex)
+                LOGERROR(ex.what());
+                throw std::runtime_error(error);
+            }
+            catch (std::invalid_argument& ex)
             {
-                LOGERROR( ex.what());
-                throw std::runtime_error( error);
+                LOGERROR(ex.what());
+                throw std::runtime_error(error);
             }
         }
 
@@ -150,11 +152,11 @@ namespace UpdateSchedulerImpl
             }
 
             SulDownloader::suldownloaderdata::ConfigurationData config(defaultLocations);
-            std::string user{primaryLocation.value("UserName")};
-            std::string pass{primaryLocation.value("UserPassword")};
-            std::string algorithm{primaryLocation.value("Algorithm")};
+            std::string user{ primaryLocation.value("UserName") };
+            std::string pass{ primaryLocation.value("UserPassword") };
+            std::string algorithm{ primaryLocation.value("Algorithm") };
             bool requireObfuscation = true;
-            if ( algorithm == "AES256")
+            if (algorithm == "AES256")
             {
                 pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
             }
@@ -163,14 +165,14 @@ namespace UpdateSchedulerImpl
                 requireObfuscation = false;
             }
 
-            if( requireObfuscation )
+            if (requireObfuscation)
             {
                 std::string obfuscated = calculateSulObfuscated(user, pass);
-                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{obfuscated, obfuscated});
+                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{ obfuscated, obfuscated });
             }
             else
             {
-                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{user, pass});
+                config.setCredentials(SulDownloader::suldownloaderdata::Credentials{ user, pass });
             }
 
             auto updateCacheEntities =
@@ -380,7 +382,7 @@ namespace UpdateSchedulerImpl
 
         std::string UpdatePolicyTranslator::calculateSulObfuscated(const std::string& user, const std::string& pass)
         {
-            return Common::sslimpl::md5(user + ':' + pass );
+            return Common::sslimpl::md5(user + ':' + pass);
         }
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

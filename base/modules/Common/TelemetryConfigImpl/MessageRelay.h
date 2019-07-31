@@ -32,4 +32,4 @@ namespace Common::TelemetryConfigImpl
         std::string m_id;
         int m_priority;
     };
-}
+} // namespace Common::TelemetryConfigImpl

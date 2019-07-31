@@ -6,10 +6,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ReqRepTestImplementations.h"
 
-#include <iostream>
-
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/time.h>
+
+#include <iostream>
 
 using namespace ReqRepTest;
 
@@ -92,7 +92,10 @@ static int main_inner(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    struct rlimit cpu_limit { .rlim_cur=1, .rlim_max=1 };
+    struct rlimit cpu_limit
+    {
+        .rlim_cur = 1, .rlim_max = 1
+    };
     setrlimit(RLIMIT_CPU, &cpu_limit);
 
     try

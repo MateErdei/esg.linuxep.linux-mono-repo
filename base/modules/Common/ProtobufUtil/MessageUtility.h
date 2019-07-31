@@ -25,5 +25,5 @@ namespace Common
             static std::string protoBuf2Json(const google::protobuf::Message& message);
         };
 
-    } // namespace UtilityImpl
+    } // namespace ProtobufUtil
 } // namespace Common

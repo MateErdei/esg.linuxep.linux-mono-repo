@@ -7,8 +7,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "Common/Process/IProcess.h"
-#include <functional>
+
 #include <gmock/gmock.h>
+
+#include <functional>
 using namespace ::testing;
 
 class MockProcess : public Common::Process::IProcess
@@ -37,7 +39,6 @@ public:
     MOCK_METHOD1(setOutputLimit, void(size_t));
 
     // gmock issued a compiler error with the mock below. Hence, the full definition.
-    void setNotifyProcessFinishedCallBack(Common::Process::IProcess::functor) override
-    {}
-    //MOCK_METHOD1(setNotifyProcessFinishedCallBack, Common::Process::IProcess::functor);
+    void setNotifyProcessFinishedCallBack(Common::Process::IProcess::functor) override {}
+    // MOCK_METHOD1(setNotifyProcessFinishedCallBack, Common::Process::IProcess::functor);
 };

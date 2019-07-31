@@ -9,37 +9,29 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Common::EventTypes;
 
-
 class TestSophosString : public ::testing::Test
 {
 public:
     TestSophosString() = default;
 
-    std::string generateTestString(const SophosString& str)
-    {
-        return str.str();
-    }
+    std::string generateTestString(const SophosString& str) { return str.str(); }
 
-    SophosString generateTestSophosString(const std::string& str)
-    {
-        return str;
-    }
+    SophosString generateTestSophosString(const std::string& str) { return str; }
 
-    uint64_t m_maxKilobytes = 5*1024;
+    uint64_t m_maxKilobytes = 5 * 1024;
 };
 
-
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringCopyConstuctorUsingCharStoresValueCorrectly)
+    TestSophosString,
+    testSophosStringCopyConstuctorUsingCharStoresValueCorrectly)
 {
     SophosString testString("asd");
     ASSERT_EQ(testString, "asd");
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringCopyConstuctorUsingStringStoresValueCorrectly)
+    TestSophosString,
+    testSophosStringCopyConstuctorUsingStringStoresValueCorrectly)
 {
     std::string basicString("basic");
     SophosString testString(basicString);
@@ -47,8 +39,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringCopyConstuctorUsingSophosStringStoresValueCorrectly)
+    TestSophosString,
+    testSophosStringCopyConstuctorUsingSophosStringStoresValueCorrectly)
 {
     SophosString originalSophosString("basic");
     SophosString testString(originalSophosString);
@@ -56,19 +48,18 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringEqualsOperatorEvaluatesTheSameStringCorrectly)
+    TestSophosString,
+    testSophosStringEqualsOperatorEvaluatesTheSameStringCorrectly)
 {
     SophosString testString1("equal");
     SophosString testString2("equal");
 
     ASSERT_EQ(testString1, testString2);
-
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringNotEqualsOperatorEvaluatesDifferentStringsCorrectly)
+    TestSophosString,
+    testSophosStringNotEqualsOperatorEvaluatesDifferentStringsCorrectly)
 {
     SophosString testString1("equal");
     SophosString testString2("notthesame");
@@ -77,8 +68,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringAssignOperatorAssignsFromStringCorrectly)
+    TestSophosString,
+    testSophosStringAssignOperatorAssignsFromStringCorrectly)
 {
     std::string stdString("string");
     SophosString newString = stdString;
@@ -86,8 +77,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringAssignOperatorAssignsFromSophosStringCorrectly)
+    TestSophosString,
+    testSophosStringAssignOperatorAssignsFromSophosStringCorrectly)
 {
     SophosString testString("string");
     SophosString newString = testString;
@@ -95,17 +86,17 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringAssignOperatorAssignsFromCharStringCorrectly)
+    TestSophosString,
+    testSophosStringAssignOperatorAssignsFromCharStringCorrectly)
 {
-    char  charArray[] = "array";
+    char charArray[] = "array";
     SophosString newString = charArray;
     ASSERT_EQ(newString, charArray);
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringStreamOperatorStreamsStringCorrectly)
+    TestSophosString,
+    testSophosStringStreamOperatorStreamsStringCorrectly)
 {
     SophosString newString = "stream";
     std::stringstream streamedString;
@@ -114,104 +105,100 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringGraterThanMaxKilobytesBy1IsTruncatedCorrectly)
+    TestSophosString,
+    testSophosStringGraterThanMaxKilobytesBy1IsTruncatedCorrectly)
 {
     std::stringstream expectedString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes; i++)
     {
         expectedString << "a";
     }
 
     std::stringstream actualString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes + 1; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes + 1; i++)
     {
         actualString << "a";
     }
 
     SophosString actualSophosString(expectedString.str());
 
-
     ASSERT_EQ(expectedString.str(), actualSophosString.str());
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringGraterThanMaxKilobytesBy1000IsTruncatedCorrectly)
+    TestSophosString,
+    testSophosStringGraterThanMaxKilobytesBy1000IsTruncatedCorrectly)
 {
     std::stringstream expectedString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes; i++)
     {
         expectedString << "a";
     }
 
     std::stringstream actualString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes + 1000; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes + 1000; i++)
     {
         actualString << "a";
     }
 
     SophosString actualSophosString(expectedString.str());
 
-
     ASSERT_EQ(expectedString.str(), actualSophosString.str());
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringEqualsMaxKilobytesIsNotTruncated)
+    TestSophosString,
+    testSophosStringEqualsMaxKilobytesIsNotTruncated)
 {
     std::stringstream expectedString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes; i++)
     {
         expectedString << "a";
     }
 
     std::stringstream actualString;
 
-    for(uint64_t i = 0; i < m_maxKilobytes; i++ )
+    for (uint64_t i = 0; i < m_maxKilobytes; i++)
     {
         actualString << "a";
     }
 
     SophosString actualSophosString(expectedString.str());
 
-
     ASSERT_EQ(expectedString.str(), actualSophosString.str());
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringLessThanMaxKilobytesIsNotTruncated)
+    TestSophosString,
+    testSophosStringLessThanMaxKilobytesIsNotTruncated)
 {
     std::stringstream expectedString;
 
-    for(uint64_t i = 0; i < 100; i++ )
+    for (uint64_t i = 0; i < 100; i++)
     {
         expectedString << "a";
     }
 
     std::stringstream actualString;
 
-    for(uint64_t i = 0; i < 100; i++ )
+    for (uint64_t i = 0; i < 100; i++)
     {
         actualString << "a";
     }
 
     SophosString actualSophosString(expectedString.str());
 
-
     ASSERT_EQ(expectedString.str(), actualSophosString.str());
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringCanBePassedToFromMethodCorrectly)
+    TestSophosString,
+    testSophosStringCanBePassedToFromMethodCorrectly)
 {
     SophosString testSophosString1 = generateTestSophosString("TestString1");
 
@@ -224,8 +211,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringSizeMethodReturnsSizeCorrectly)
+    TestSophosString,
+    testSophosStringSizeMethodReturnsSizeCorrectly)
 {
     std::string stdString("string");
     SophosString testString(stdString);
@@ -234,8 +221,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringLengthMethodReturnsLengthCorrectly)
+    TestSophosString,
+    testSophosStringLengthMethodReturnsLengthCorrectly)
 {
     std::string stdString("string");
     SophosString testString(stdString);
@@ -244,8 +231,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringRfindMethodReturnsRFindCorrectly)
+    TestSophosString,
+    testSophosStringRfindMethodReturnsRFindCorrectly)
 {
     std::string stdString("stringHereString");
     SophosString testString(stdString);
@@ -259,8 +246,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringSubstrMethodReturnsSubstrCorrectly)
+    TestSophosString,
+    testSophosStringSubstrMethodReturnsSubstrCorrectly)
 {
     std::string stdString("stringHereString");
     SophosString testString(stdString);
@@ -269,8 +256,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringDataMethodReturnsDataCorrectly)
+    TestSophosString,
+    testSophosStringDataMethodReturnsDataCorrectly)
 {
     std::string stdString("string");
     SophosString testString(stdString);
@@ -282,8 +269,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testSophosStringBackMethodReturnsBackCorrectly)
+    TestSophosString,
+    testSophosStringBackMethodReturnsBackCorrectly)
 {
     std::string stdString("string");
     SophosString testString(stdString);
@@ -296,8 +283,8 @@ TEST_F( // NOLINT
 }
 
 TEST_F( // NOLINT
-        TestSophosString,
-        testMoveConstructorMovesStringsCorrectly)
+    TestSophosString,
+    testMoveConstructorMovesStringsCorrectly)
 {
     std::string sampleString("string");
     std::string stdString(sampleString);

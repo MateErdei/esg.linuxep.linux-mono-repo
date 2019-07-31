@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/Process/EnvPair.h>
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace Common
 {
@@ -62,7 +62,8 @@ namespace Common
              * Used to store a list of environment variables required by the plugin.
              * @param executableEnvironmentVariables
              */
-            virtual void setExecutableEnvironmentVariables(const Common::Process::EnvPairs& executableEnvironmentVariables) = 0;
+            virtual void setExecutableEnvironmentVariables(
+                const Common::Process::EnvPairs& executableEnvironmentVariables) = 0;
 
             /**
              * Used to add a single environment variable to the list of stored environment variables required by the
@@ -71,8 +72,8 @@ namespace Common
              * @param environmentValue
              */
             virtual void addExecutableEnvironmentVariables(
-                    const std::string& environmentName,
-                    const std::string& environmentValue) = 0;
+                const std::string& environmentName,
+                const std::string& environmentValue) = 0;
 
             /**
              * Set the User an Group to execute the child process with, specified user and group must exist, or -1 will
@@ -98,7 +99,6 @@ namespace Common
              * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
              */
             virtual std::pair<bool, gid_t> getExecutableGroup() const = 0;
-
         };
 
         using IProcessInfoPtr = std::unique_ptr<IProcessInfo>;

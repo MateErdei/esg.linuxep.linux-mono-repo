@@ -23,10 +23,7 @@ namespace TelemetrySchedulerImpl
         LOGSUPPORT("Not applying unexpected new policy");
     }
 
-    void PluginCallback::queueAction(const std::string& /*actionXml*/)
-    {
-        LOGSUPPORT("Received unexpected action");
-    }
+    void PluginCallback::queueAction(const std::string& /*actionXml*/) { LOGSUPPORT("Received unexpected action"); }
 
     void PluginCallback::onShutdown()
     {
@@ -37,7 +34,7 @@ namespace TelemetrySchedulerImpl
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)
     {
         LOGSUPPORT("Received unexpected get status request");
-        return Common::PluginApi::StatusInfo {};
+        return Common::PluginApi::StatusInfo{};
     }
 
     std::string PluginCallback::getTelemetry()

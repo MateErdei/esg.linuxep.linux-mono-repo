@@ -6,9 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "AbstractListenerServer.h"
 
-#include "Common/ReactorImpl/ReactorImpl.h"
 #include "Common/PluginApi/ApiException.h"
-
+#include "Common/ReactorImpl/ReactorImpl.h"
 
 namespace Common
 {
@@ -37,10 +36,10 @@ namespace Common
                 auto replyData = protocol.serialize(replyMessage);
                 m_ireadWrite->write(replyData);
             }
-            catch (const Common::PluginApi::ApiException & apiException)
+            catch (const Common::PluginApi::ApiException& apiException)
             {
-                //Send a reply when de/serialisation fails to stop blocking on socket.
-                m_ireadWrite->write(data_t{"INVALID"});
+                // Send a reply when de/serialisation fails to stop blocking on socket.
+                m_ireadWrite->write(data_t{ "INVALID" });
                 throw;
             }
         }

@@ -4,10 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gtest/gtest.h>
 #include <include/gmock/gmock-matchers.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 using namespace Common::XmlUtilities;
 
@@ -140,7 +140,6 @@ static std::string ENTITY_XML{ R"sophos(<!DOCTYPE xmlbomb [
 ]>
 <bomb>&c;</bomb>
 )sophos" };
-
 
 TEST(TestXmlUtilities, ParsePrimaryLocationUsername) // NOLINT
 {

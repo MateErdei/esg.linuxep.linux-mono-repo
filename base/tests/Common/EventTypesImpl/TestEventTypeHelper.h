@@ -68,128 +68,132 @@ namespace Tests
 
             if (expected.getSessionType() != resulted.getSessionType())
             {
-                return ::testing::AssertionFailure() << s.str() << "SessionType differs: Expected = "
-                                                     << expected.getSessionType() << " , Actual = "
-                                                     << resulted.getSessionType();
+                return ::testing::AssertionFailure()
+                       << s.str() << "SessionType differs: Expected = " << expected.getSessionType()
+                       << " , Actual = " << resulted.getSessionType();
             }
 
             if (expected.getEventType() != resulted.getEventType())
             {
-                return ::testing::AssertionFailure() << s.str() << "EventType differs: Expected = "
-                                                     << expected.getEventType() << " , Actual = "
-                                                     << resulted.getEventType();
+                return ::testing::AssertionFailure()
+                       << s.str() << "EventType differs: Expected = " << expected.getEventType()
+                       << " , Actual = " << resulted.getEventType();
             }
 
             if (expected.getEventTypeId() != resulted.getEventTypeId())
             {
-                return ::testing::AssertionFailure() << s.str() << "EventTypeId differs: Expected = "
-                                                     << expected.getEventTypeId() << " , Actual = "
-                                                     << resulted.getEventTypeId();
+                return ::testing::AssertionFailure()
+                       << s.str() << "EventTypeId differs: Expected = " << expected.getEventTypeId()
+                       << " , Actual = " << resulted.getEventTypeId();
             }
 
             if (expected.getSubjectUserSid().domain != resulted.getSubjectUserSid().domain)
             {
-                return ::testing::AssertionFailure() << s.str() << "SubjectUserSid domain differs: Expected = "
-                                                     << expected.getSubjectUserSid().domain << " , Actual = "
-                                                     << resulted.getSubjectUserSid().domain;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SubjectUserSid domain differs: Expected = " << expected.getSubjectUserSid().domain
+                       << " , Actual = " << resulted.getSubjectUserSid().domain;
             }
 
             if (expected.getSubjectUserSid().username != resulted.getSubjectUserSid().username)
             {
-                return ::testing::AssertionFailure() << s.str() << "SubjectUserSid username differs: Expected = "
-                                                     << expected.getSubjectUserSid().username << " , Actual = "
-                                                     << resulted.getSubjectUserSid().username;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "SubjectUserSid username differs: Expected = " << expected.getSubjectUserSid().username
+                       << " , Actual = " << resulted.getSubjectUserSid().username;
             }
 
             if (expected.getSubjectUserSid().machineid != resulted.getSubjectUserSid().machineid)
             {
-                return ::testing::AssertionFailure() << s.str() << "SubjectUserSid machineid differs: Expected = "
-                                                     << expected.getSubjectUserSid().machineid << " , Actual = "
-                                                     << resulted.getSubjectUserSid().machineid;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "SubjectUserSid machineid differs: Expected = " << expected.getSubjectUserSid().machineid
+                       << " , Actual = " << resulted.getSubjectUserSid().machineid;
             }
 
             if (expected.getSubjectUserSid().userid != resulted.getSubjectUserSid().userid)
             {
-                return ::testing::AssertionFailure() << s.str() << "SubjectUserSid userid differs: Expected = "
-                                                     << expected.getSubjectUserSid().userid << " , Actual = "
-                                                     << resulted.getSubjectUserSid().userid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SubjectUserSid userid differs: Expected = " << expected.getSubjectUserSid().userid
+                       << " , Actual = " << resulted.getSubjectUserSid().userid;
             }
 
             if (expected.getTargetUserSid().domain != resulted.getTargetUserSid().domain)
             {
-                return ::testing::AssertionFailure() << s.str() << "TargetUserSid domain differs: Expected = "
-                                                     << expected.getTargetUserSid().domain << " , Actual = "
-                                                     << resulted.getTargetUserSid().domain;
+                return ::testing::AssertionFailure()
+                       << s.str() << "TargetUserSid domain differs: Expected = " << expected.getTargetUserSid().domain
+                       << " , Actual = " << resulted.getTargetUserSid().domain;
             }
 
             if (expected.getTargetUserSid().username != resulted.getTargetUserSid().username)
             {
-                return ::testing::AssertionFailure() << s.str() << "TargetUserSid username differs: Expected = "
-                                                     << expected.getTargetUserSid().username << " , Actual = "
-                                                     << resulted.getTargetUserSid().username;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "TargetUserSid username differs: Expected = " << expected.getTargetUserSid().username
+                       << " , Actual = " << resulted.getTargetUserSid().username;
             }
 
             if (expected.getTargetUserSid().machineid != resulted.getTargetUserSid().machineid)
             {
-                return ::testing::AssertionFailure() << s.str() << "TargetUserSid machineid differs: Expected = "
-                                                     << expected.getTargetUserSid().machineid << " , Actual = "
-                                                     << resulted.getTargetUserSid().machineid;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "TargetUserSid machineid differs: Expected = " << expected.getTargetUserSid().machineid
+                       << " , Actual = " << resulted.getTargetUserSid().machineid;
             }
 
             if (expected.getTargetUserSid().userid != resulted.getTargetUserSid().userid)
             {
-                return ::testing::AssertionFailure() << s.str() << "TargetUserSid userid differs: Expected = "
-                                                     << expected.getTargetUserSid().userid << " , Actual = "
-                                                     << resulted.getTargetUserSid().userid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "TargetUserSid userid differs: Expected = " << expected.getTargetUserSid().userid
+                       << " , Actual = " << resulted.getTargetUserSid().userid;
             }
 
             if (expected.getGroupId() != resulted.getGroupId())
             {
-                return ::testing::AssertionFailure() << s.str() << "GroupId differs: Expected = "
-                                                     << expected.getGroupId() << " , Actual = "
-                                                     << resulted.getGroupId();
+                return ::testing::AssertionFailure()
+                       << s.str() << "GroupId differs: Expected = " << expected.getGroupId()
+                       << " , Actual = " << resulted.getGroupId();
             }
 
             if (expected.getGroupName() != resulted.getGroupName())
             {
-                return ::testing::AssertionFailure() << s.str() << "GroupName differs: Expected = "
-                                                     << expected.getGroupName() << " , Actual = "
-                                                     << resulted.getGroupName();
+                return ::testing::AssertionFailure()
+                       << s.str() << "GroupName differs: Expected = " << expected.getGroupName()
+                       << " , Actual = " << resulted.getGroupName();
             }
 
             if (expected.getTimestamp() != resulted.getTimestamp())
             {
-                return ::testing::AssertionFailure() << s.str() << "Timestamp differs: Expected = "
-                                                     << expected.getTimestamp() << " , Actual = "
-                                                     << resulted.getTimestamp();
+                return ::testing::AssertionFailure()
+                       << s.str() << "Timestamp differs: Expected = " << expected.getTimestamp()
+                       << " , Actual = " << resulted.getTimestamp();
             }
 
             if (expected.getLogonId() != resulted.getLogonId())
             {
-                return ::testing::AssertionFailure() << s.str() << "logonId differs: Expected = "
-                                                     << expected.getLogonId() << " , Actual = "
-                                                     << resulted.getLogonId();
+                return ::testing::AssertionFailure()
+                       << s.str() << "logonId differs: Expected = " << expected.getLogonId()
+                       << " , Actual = " << resulted.getLogonId();
             }
 
             if (expected.getRemoteNetworkAccess().address != resulted.getRemoteNetworkAccess().address)
             {
                 return ::testing::AssertionFailure() << s.str() << "RemoteNetworkAccess address differs: Expected = "
-                                                     << expected.getRemoteNetworkAccess().address << " , Actual = "
-                                                     << resulted.getRemoteNetworkAccess().address;
+                                                     << expected.getRemoteNetworkAccess().address
+                                                     << " , Actual = " << resulted.getRemoteNetworkAccess().address;
             }
 
             if (expected.getSophosPid().timestamp != resulted.getSophosPid().timestamp)
             {
-                return ::testing::AssertionFailure() << s.str() << "SophosPid timestamp differs: Expected = "
-                                                     << expected.getSophosPid().timestamp << " , Actual = "
-                                                     << resulted.getSophosPid().timestamp;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SophosPid timestamp differs: Expected = " << expected.getSophosPid().timestamp
+                       << " , Actual = " << resulted.getSophosPid().timestamp;
             }
 
             if (expected.getSophosPid().pid != resulted.getSophosPid().pid)
             {
-                return ::testing::AssertionFailure() << s.str() << "SophosPid pid differs: Expected = "
-                                                     << expected.getSophosPid().pid << " , Actual = "
-                                                     << resulted.getSophosPid().pid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SophosPid pid differs: Expected = " << expected.getSophosPid().pid
+                       << " , Actual = " << resulted.getSophosPid().pid;
             }
 
             return ::testing::AssertionSuccess();
@@ -286,16 +290,16 @@ namespace Tests
 
             if (expected.getEventType() != resulted.getEventType())
             {
-                return ::testing::AssertionFailure() << s.str() << "EventType differs: Expected = "
-                                                     << expected.getEventType() << " , Actual = "
-                                                     << resulted.getEventType();
+                return ::testing::AssertionFailure()
+                       << s.str() << "EventType differs: Expected = " << expected.getEventType()
+                       << " , Actual = " << resulted.getEventType();
             }
 
             if (expected.getEventTypeId() != resulted.getEventTypeId())
             {
-                return ::testing::AssertionFailure() << s.str() << "EventTypeId differs: Expected = "
-                                                     << expected.getEventTypeId() << " , Actual = "
-                                                     << resulted.getEventTypeId();
+                return ::testing::AssertionFailure()
+                       << s.str() << "EventTypeId differs: Expected = " << expected.getEventTypeId()
+                       << " , Actual = " << resulted.getEventTypeId();
             }
 
             Common::EventTypes::SophosPid expectedSophosPid = expected.getSophosPid();
@@ -303,16 +307,16 @@ namespace Tests
 
             if (expectedSophosPid.pid != resultedSophosPid.pid)
             {
-                return ::testing::AssertionFailure() << s.str() << "SophosPID PID differs: Expected = "
-                                                     << expectedSophosPid.pid << " , Actual = "
-                                                     << resultedSophosPid.pid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SophosPID PID differs: Expected = " << expectedSophosPid.pid
+                       << " , Actual = " << resultedSophosPid.pid;
             }
 
             if (expectedSophosPid.timestamp != resultedSophosPid.timestamp)
             {
-                return ::testing::AssertionFailure() << s.str() << "SophosPID Timestamp differs: Expected = "
-                                                     << expectedSophosPid.timestamp << " , Actual = "
-                                                     << resultedSophosPid.timestamp;
+                return ::testing::AssertionFailure()
+                       << s.str() << "SophosPID Timestamp differs: Expected = " << expectedSophosPid.timestamp
+                       << " , Actual = " << resultedSophosPid.timestamp;
             }
 
             Common::EventTypes::SophosPid expectedParentSophosPid = expected.getParentSophosPid();
@@ -320,16 +324,17 @@ namespace Tests
 
             if (expectedParentSophosPid.pid != resultedParentSophosPid.pid)
             {
-                return ::testing::AssertionFailure() << s.str() << "ParentSophosPID PID differs: Expected = "
-                                                     << expectedParentSophosPid.pid << " , Actual = "
-                                                     << resultedParentSophosPid.pid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "ParentSophosPID PID differs: Expected = " << expectedParentSophosPid.pid
+                       << " , Actual = " << resultedParentSophosPid.pid;
             }
 
             if (expectedParentSophosPid.timestamp != resultedParentSophosPid.timestamp)
             {
-                return ::testing::AssertionFailure() << s.str() << "ParentSophosPID Timestamp differs: Expected = "
-                                                     << expectedParentSophosPid.timestamp << " , Actual = "
-                                                     << resultedParentSophosPid.timestamp;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "ParentSophosPID Timestamp differs: Expected = " << expectedParentSophosPid.timestamp
+                       << " , Actual = " << resultedParentSophosPid.timestamp;
             }
 
             Common::EventTypes::SophosTid expectedParentSophosTid = expected.getParentSophosTid();
@@ -337,245 +342,254 @@ namespace Tests
 
             if (expectedParentSophosTid.tid != resultedParentSophosTid.tid)
             {
-                return ::testing::AssertionFailure() << s.str() << "ParentSophosTID TID differs: Expected = "
-                                                     << expectedParentSophosTid.tid << " , Actual = "
-                                                     << resultedParentSophosTid.tid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "ParentSophosTID TID differs: Expected = " << expectedParentSophosTid.tid
+                       << " , Actual = " << resultedParentSophosTid.tid;
             }
 
             if (expectedParentSophosTid.timestamp != resultedParentSophosTid.timestamp)
             {
-                return ::testing::AssertionFailure() << s.str() << "ParentSophosTID Timestamp differs: Expected = "
-                                                     << expectedParentSophosTid.timestamp << " , Actual = "
-                                                     << resultedParentSophosTid.timestamp;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "ParentSophosTID Timestamp differs: Expected = " << expectedParentSophosTid.timestamp
+                       << " , Actual = " << resultedParentSophosTid.timestamp;
             }
 
             if (expected.getEndTime() != resulted.getEndTime())
             {
-                return ::testing::AssertionFailure() << s.str() << "EndTime differs: Expected = "
-                                                     << expected.getEndTime() << " , Actual = "
-                                                     << resulted.getEndTime();
+                return ::testing::AssertionFailure()
+                       << s.str() << "EndTime differs: Expected = " << expected.getEndTime()
+                       << " , Actual = " << resulted.getEndTime();
             }
 
             if (expected.getFileSize().value != resulted.getFileSize().value)
             {
-                return ::testing::AssertionFailure() << s.str() << "FileSize differs: Expected = "
-                                                     << expected.getFileSize().value << " , Actual = "
-                                                     << resulted.getFileSize().value;
+                return ::testing::AssertionFailure()
+                       << s.str() << "FileSize differs: Expected = " << expected.getFileSize().value
+                       << " , Actual = " << resulted.getFileSize().value;
             }
 
             if (expected.getFlags() != resulted.getFlags())
             {
-                return ::testing::AssertionFailure() << s.str() << "Flags differ: Expected = "
-                                                     << expected.getFlags() << " , Actual = "
-                                                     << resulted.getFlags();
+                return ::testing::AssertionFailure() << s.str() << "Flags differ: Expected = " << expected.getFlags()
+                                                     << " , Actual = " << resulted.getFlags();
             }
 
             if (expected.getSessionId() != resulted.getSessionId())
             {
-                return ::testing::AssertionFailure() << s.str() << "SessionId differ: Expected = "
-                                                     << expected.getSessionId() << " , Actual = "
-                                                     << resulted.getSessionId();
+                return ::testing::AssertionFailure()
+                       << s.str() << "SessionId differ: Expected = " << expected.getSessionId()
+                       << " , Actual = " << resulted.getSessionId();
             }
 
             if (expected.getSid() != resulted.getSid())
             {
-                return ::testing::AssertionFailure() << s.str() << "SID differ: Expected = "
-                                                     << expected.getSid() << " , Actual = "
-                                                     << resulted.getSid();
+                return ::testing::AssertionFailure() << s.str() << "SID differ: Expected = " << expected.getSid()
+                                                     << " , Actual = " << resulted.getSid();
             }
 
             if (expected.getOwnerUserSid().username != resulted.getOwnerUserSid().username)
             {
-                return ::testing::AssertionFailure() << s.str() << "Owner User Sid - username differ: Expected = "
-                                                     << expected.getOwnerUserSid().username  << " , Actual = "
-                                                     << resulted.getOwnerUserSid().username;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "Owner User Sid - username differ: Expected = " << expected.getOwnerUserSid().username
+                       << " , Actual = " << resulted.getOwnerUserSid().username;
             }
 
             if (expected.getOwnerUserSid().domain != resulted.getOwnerUserSid().domain)
             {
-                return ::testing::AssertionFailure() << s.str() << "Owner User Sid - domain differ: Expected = "
-                                                     << expected.getOwnerUserSid().domain  << " , Actual = "
-                                                     << resulted.getOwnerUserSid().domain;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Owner User Sid - domain differ: Expected = " << expected.getOwnerUserSid().domain
+                       << " , Actual = " << resulted.getOwnerUserSid().domain;
             }
-
 
             if (expected.getOwnerUserSid().sid != resulted.getOwnerUserSid().sid)
             {
-                return ::testing::AssertionFailure() << s.str() << "Owner User Sid - sid differ: Expected = "
-                                                     << expected.getOwnerUserSid().sid  << " , Actual = "
-                                                     << resulted.getOwnerUserSid().sid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Owner User Sid - sid differ: Expected = " << expected.getOwnerUserSid().sid
+                       << " , Actual = " << resulted.getOwnerUserSid().sid;
             }
 
             if (expected.getOwnerUserSid().machineid != resulted.getOwnerUserSid().machineid)
             {
-                return ::testing::AssertionFailure() << s.str() << "Owner User Sid - machineid differ: Expected = "
-                                                     << expected.getOwnerUserSid().machineid  << " , Actual = "
-                                                     << resulted.getOwnerUserSid().machineid;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "Owner User Sid - machineid differ: Expected = " << expected.getOwnerUserSid().machineid
+                       << " , Actual = " << resulted.getOwnerUserSid().machineid;
             }
 
             if (expected.getOwnerUserSid().userid != resulted.getOwnerUserSid().userid)
             {
-                return ::testing::AssertionFailure() << s.str() << "Owner User Sid - userid differ: Expected = "
-                                                     << expected.getOwnerUserSid().userid  << " , Actual = "
-                                                     << resulted.getOwnerUserSid().userid;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Owner User Sid - userid differ: Expected = " << expected.getOwnerUserSid().userid
+                       << " , Actual = " << resulted.getOwnerUserSid().userid;
             }
-
 
             Common::EventTypes::Pathname expectedPathname = expected.getPathname();
             Common::EventTypes::Pathname resultedPathname = resulted.getPathname();
 
             if (expectedPathname.flags != resultedPathname.flags)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName Flags differ: Expected = "
-                                                     << expectedPathname.flags << " , Actual = "
-                                                     << resultedPathname.flags;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName Flags differ: Expected = " << expectedPathname.flags
+                       << " , Actual = " << resultedPathname.flags;
             }
 
             if (expectedPathname.fileSystemType != resultedPathname.fileSystemType)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName FileSystemType differs: Expected = "
-                                                     << expectedPathname.fileSystemType << " , Actual = "
-                                                     << resultedPathname.fileSystemType;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName FileSystemType differs: Expected = " << expectedPathname.fileSystemType
+                       << " , Actual = " << resultedPathname.fileSystemType;
             }
 
             if (expectedPathname.driveLetter != resultedPathname.driveLetter)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName DriveLetter differs: Expected = "
-                                                     << expectedPathname.driveLetter << " , Actual = "
-                                                     << resultedPathname.driveLetter;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName DriveLetter differs: Expected = " << expectedPathname.driveLetter
+                       << " , Actual = " << resultedPathname.driveLetter;
             }
 
             if (expectedPathname.pathname != resultedPathname.pathname)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName PathName differs: Expected = "
-                                                     << expectedPathname.pathname << " , Actual = "
-                                                     << resultedPathname.pathname;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName PathName differs: Expected = " << expectedPathname.pathname
+                       << " , Actual = " << resultedPathname.pathname;
             }
 
             if (expectedPathname.openName.offset != resultedPathname.openName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName OpenName Offset differs: Expected = "
-                                                     << expectedPathname.openName.offset << " , Actual = "
-                                                     << resultedPathname.openName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName OpenName Offset differs: Expected = " << expectedPathname.openName.offset
+                       << " , Actual = " << resultedPathname.openName.offset;
             }
 
             if (expectedPathname.openName.length != resultedPathname.openName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName OpenName Length differs: Expected = "
-                                                     << expectedPathname.openName.length  << " , Actual = "
-                                                     << resultedPathname.openName.length;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName OpenName Length differs: Expected = " << expectedPathname.openName.length
+                       << " , Actual = " << resultedPathname.openName.length;
             }
 
             if (expectedPathname.volumeName.length != resultedPathname.volumeName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName VolumeName Length differs: Expected = "
-                                                     << expectedPathname.volumeName.length << " , Actual = "
-                                                     << resultedPathname.volumeName.length;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName VolumeName Length differs: Expected = " << expectedPathname.volumeName.length
+                       << " , Actual = " << resultedPathname.volumeName.length;
             }
 
             if (expectedPathname.volumeName.offset != resultedPathname.volumeName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName VolumeName Offset differs: Expected = "
-                                                     << expectedPathname.volumeName.offset << " , Actual = "
-                                                     << resultedPathname.volumeName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName VolumeName Offset differs: Expected = " << expectedPathname.volumeName.offset
+                       << " , Actual = " << resultedPathname.volumeName.offset;
             }
 
             if (expectedPathname.shareName.length != resultedPathname.shareName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ShareName Length differs: Expected = "
-                                                     << expectedPathname.shareName.length << " , Actual = "
-                                                     << resultedPathname.shareName.length;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ShareName Length differs: Expected = " << expectedPathname.shareName.length
+                       << " , Actual = " << resultedPathname.shareName.length;
             }
 
             if (expectedPathname.shareName.offset != resultedPathname.shareName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ShareName Offset differs: Expected = "
-                                                     << expectedPathname.shareName.offset << " , Actual = "
-                                                     << resultedPathname.shareName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ShareName Offset differs: Expected = " << expectedPathname.shareName.offset
+                       << " , Actual = " << resultedPathname.shareName.offset;
             }
 
             if (expectedPathname.extensionName.length != resultedPathname.extensionName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ExtensionName Length differs: Expected = "
-                                                     << expectedPathname.extensionName.length << " , Actual = "
-                                                     << resultedPathname.extensionName.length;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ExtensionName Length differs: Expected = " << expectedPathname.extensionName.length
+                       << " , Actual = " << resultedPathname.extensionName.length;
             }
 
             if (expectedPathname.extensionName.offset != resultedPathname.extensionName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ExtensionName Offset differs: Expected = "
-                                                     << expectedPathname.extensionName.offset << " , Actual = "
-                                                     << resultedPathname.extensionName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ExtensionName Offset differs: Expected = " << expectedPathname.extensionName.offset
+                       << " , Actual = " << resultedPathname.extensionName.offset;
             }
 
             if (expectedPathname.streamName.length != resultedPathname.streamName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName StreamName Length differs: Expected = "
-                                                     << expectedPathname.streamName.length << " , Actual = "
-                                                     << resultedPathname.streamName.length;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName StreamName Length differs: Expected = " << expectedPathname.streamName.length
+                       << " , Actual = " << resultedPathname.streamName.length;
             }
 
             if (expectedPathname.streamName.offset != resultedPathname.streamName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName StreamName Offset differs: Expected = "
-                                                     << expectedPathname.streamName.offset << " , Actual = "
-                                                     << resultedPathname.streamName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName StreamName Offset differs: Expected = " << expectedPathname.streamName.offset
+                       << " , Actual = " << resultedPathname.streamName.offset;
             }
 
             if (expectedPathname.finalComponentName.length != resultedPathname.finalComponentName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName FinalComponentName Length differs: Expected = "
-                                                     << expectedPathname.finalComponentName.length  << " , Actual = "
-                                                     << resultedPathname.finalComponentName.length;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName FinalComponentName Length differs: Expected = "
+                       << expectedPathname.finalComponentName.length
+                       << " , Actual = " << resultedPathname.finalComponentName.length;
             }
 
             if (expectedPathname.finalComponentName.offset != resultedPathname.finalComponentName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName FinalComponentName Offset differs: Expected = "
-                                                     << expectedPathname.finalComponentName.offset << " , Actual = "
-                                                     << resultedPathname.finalComponentName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str() << "PathName FinalComponentName Offset differs: Expected = "
+                       << expectedPathname.finalComponentName.offset
+                       << " , Actual = " << resultedPathname.finalComponentName.offset;
             }
 
             if (expectedPathname.parentDirName.length != resultedPathname.parentDirName.length)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ParentDirName Length differs: Expected = "
-                                                     << expectedPathname.parentDirName.length << " , Actual = "
-                                                     << resultedPathname.parentDirName.length;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ParentDirName Length differs: Expected = " << expectedPathname.parentDirName.length
+                       << " , Actual = " << resultedPathname.parentDirName.length;
             }
 
             if (expectedPathname.parentDirName.offset != resultedPathname.parentDirName.offset)
             {
-                return ::testing::AssertionFailure() << s.str() << "PathName ParentDirName Offset differs: Expected = "
-                                                     << expectedPathname.parentDirName.offset << " , Actual = "
-                                                     << resultedPathname.parentDirName.offset;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "PathName ParentDirName Offset differs: Expected = " << expectedPathname.parentDirName.offset
+                       << " , Actual = " << resultedPathname.parentDirName.offset;
             }
 
             if (expected.getCmdLine() != resulted.getCmdLine())
             {
-                return ::testing::AssertionFailure() << s.str() << "CMDLine differs: Expected = "
-                                                     << expected.getCmdLine() << " , Actual = "
-                                                     << resulted.getCmdLine();
+                return ::testing::AssertionFailure()
+                       << s.str() << "CMDLine differs: Expected = " << expected.getCmdLine()
+                       << " , Actual = " << resulted.getCmdLine();
             }
 
             if (expected.getSha256() != resulted.getSha256())
             {
-                return ::testing::AssertionFailure() << s.str() << "sha256 differs: Expected = "
-                                                     << expected.getSha256() << " , Actual = "
-                                                     << resulted.getSha256();
+                return ::testing::AssertionFailure() << s.str() << "sha256 differs: Expected = " << expected.getSha256()
+                                                     << " , Actual = " << resulted.getSha256();
             }
 
             if (expected.getSha1() != resulted.getSha1())
             {
-                return ::testing::AssertionFailure() << s.str() << "sha1 differs: Expected = "
-                                                     << expected.getSha1() << " , Actual = "
-                                                     << resulted.getSha1();
+                return ::testing::AssertionFailure() << s.str() << "sha1 differs: Expected = " << expected.getSha1()
+                                                     << " , Actual = " << resulted.getSha1();
             }
 
             if (expected.getProcTitle() != resulted.getProcTitle())
             {
-                return ::testing::AssertionFailure() << s.str() << "procTitle differs: Expected = "
-                                                     << expected.getProcTitle() << " , Actual = "
-                                                     << resulted.getProcTitle();
+                return ::testing::AssertionFailure()
+                       << s.str() << "procTitle differs: Expected = " << expected.getProcTitle()
+                       << " , Actual = " << resulted.getProcTitle();
             }
 
             return ::testing::AssertionSuccess();
@@ -618,44 +632,48 @@ namespace Tests
 
             if (expected.getConnection().sourceAddress.address != resulted.getConnection().sourceAddress.address)
             {
-                return ::testing::AssertionFailure() << s.str() << "Connection source address differs: Expected = "
-                                                     << expected.getEventType() << " , Actual = "
-                                                     << resulted.getEventType();
+                return ::testing::AssertionFailure()
+                       << s.str() << "Connection source address differs: Expected = " << expected.getEventType()
+                       << " , Actual = " << resulted.getEventType();
             }
 
             if (expected.getConnection().sourceAddress.port != resulted.getConnection().sourceAddress.port)
             {
-                return ::testing::AssertionFailure() << s.str() << "Connection source port differs: Expected = "
-                                                     << expected.getConnection().sourceAddress.port << " , Actual = "
-                                                     << resulted.getConnection().sourceAddress.port;
+                return ::testing::AssertionFailure()
+                       << s.str()
+                       << "Connection source port differs: Expected = " << expected.getConnection().sourceAddress.port
+                       << " , Actual = " << resulted.getConnection().sourceAddress.port;
             }
 
-            if (expected.getConnection().destinationAddress.address != resulted.getConnection().destinationAddress.address)
+            if (expected.getConnection().destinationAddress.address !=
+                resulted.getConnection().destinationAddress.address)
             {
-                return ::testing::AssertionFailure() << s.str() << "Connection destination address differs: Expected = "
-                                                     << expected.getConnection().destinationAddress.address << " , Actual = "
-                                                     << resulted.getConnection().destinationAddress.address;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Connection destination address differs: Expected = "
+                       << expected.getConnection().destinationAddress.address
+                       << " , Actual = " << resulted.getConnection().destinationAddress.address;
             }
 
             if (expected.getConnection().destinationAddress.port != resulted.getConnection().destinationAddress.port)
             {
-                return ::testing::AssertionFailure() << s.str() << "Connection destination port differs: Expected = "
-                                                     << expected.getConnection().destinationAddress.port << " , Actual = "
-                                                     << resulted.getConnection().destinationAddress.port;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Connection destination port differs: Expected = "
+                       << expected.getConnection().destinationAddress.port
+                       << " , Actual = " << resulted.getConnection().destinationAddress.port;
             }
 
             if (expected.getConnection().protocol != resulted.getConnection().protocol)
             {
-                return ::testing::AssertionFailure() << s.str() << "Connection protocal differs: Expected = "
-                                                     << expected.getConnection().protocol << " , Actual = "
-                                                     << resulted.getConnection().protocol;
+                return ::testing::AssertionFailure()
+                       << s.str() << "Connection protocal differs: Expected = " << expected.getConnection().protocol
+                       << " , Actual = " << resulted.getConnection().protocol;
             }
 
             if (expected.getEventType() != resulted.getEventType())
             {
-                return ::testing::AssertionFailure() << s.str() << "Event type differs: Expected = "
-                                                     << expected.getEventType() << " , Actual = "
-                                                     << resulted.getEventType();
+                return ::testing::AssertionFailure()
+                       << s.str() << "Event type differs: Expected = " << expected.getEventType()
+                       << " , Actual = " << resulted.getEventType();
             }
 
             return ::testing::AssertionSuccess();

@@ -4,11 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "ProductMetadata.h"
+
 #include "Logger.h"
+
 #include <Common/UtilityImpl/OrderedSet.h>
+
 #include <cassert>
 #include <stdexcept>
-
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -86,25 +88,27 @@ void ProductMetadata::setFeatures(const std::vector<std::string>& features)
 
 const std::vector<std::string>& ProductMetadata::getFeatures() const
 {
-    return  m_features;
+    return m_features;
 }
 
-SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(const std::string & sulComponentName, const std::vector<std::string>& sulSubComponents)
+SubProducts ProductMetadata::extractSubProductsFromSulSubComponents(
+    const std::string& sulComponentName,
+    const std::vector<std::string>& sulSubComponents)
 {
     SulDownloader::suldownloaderdata::SubProducts subProducts;
-    for( auto & sulSubComponent: sulSubComponents)
+    for (auto& sulSubComponent : sulSubComponents)
     {
         try
         {
-            subProducts.push_back( extractProductKeyFromSubComponent(sulSubComponent) );
+            subProducts.push_back(extractProductKeyFromSubComponent(sulSubComponent));
         }
-        catch ( std::invalid_argument & ex)
+        catch (std::invalid_argument& ex)
         {
-            LOGWARN( "SubComponent list received from Sul is not as expected. Received: " << sulSubComponent
-                      << ". Component name: " << sulComponentName);
+            LOGWARN(
+                "SubComponent list received from Sul is not as expected. Received: "
+                << sulSubComponent << ". Component name: " << sulComponentName);
             LOGSUPPORT("Error message: " << ex.what()); // not significant to make to a LOGERROR.
         }
-
     }
     return subProducts;
 }
@@ -121,19 +125,20 @@ const SubProducts& ProductMetadata::subProducts() const
 
 ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string& sulSubComponent)
 {
-    std::string::size_type pos =  sulSubComponent.rfind(";");
-    if( pos == std::string::npos)
+    std::string::size_type pos = sulSubComponent.rfind(";");
+    if (pos == std::string::npos)
     {
-        throw std::invalid_argument( "Missing ';' in the answer from SUL related to the components. Expected <rigidname>;<version>");
+        throw std::invalid_argument(
+            "Missing ';' in the answer from SUL related to the components. Expected <rigidname>;<version>");
     }
-    if( sulSubComponent == ";")
+    if (sulSubComponent == ";")
     {
         throw std::invalid_argument("Empty rigidname is not valid");
     }
-    std::string rigidName = sulSubComponent.substr(0,pos);
-    std::string version = sulSubComponent.substr(pos+1);
+    std::string rigidName = sulSubComponent.substr(0, pos);
+    std::string version = sulSubComponent.substr(pos + 1);
 
-    return   {rigidName, version};
+    return { rigidName, version };
 }
 
 // This method is meant to extract the components or the first level subcomponents that will eventually
@@ -143,16 +148,16 @@ ProductKey ProductMetadata::extractProductKeyFromSubComponent(const std::string&
 SubProducts ProductMetadata::combineSubProducts(const std::vector<ProductMetadata>& productsMetadata)
 {
     Common::UtilityImpl::OrderedSet<ProductKey> orderedProducts;
-    for( auto & productMetadata: productsMetadata)
+    for (auto& productMetadata : productsMetadata)
     {
         SubProducts subProducts = productMetadata.subProducts();
-        if( subProducts.empty())
+        if (subProducts.empty())
         {
             orderedProducts.addElement(ProductKey{ productMetadata.getLine(), productMetadata.getVersion() });
         }
         else
         {
-            for( auto & subProduct: subProducts)
+            for (auto& subProduct : subProducts)
             {
                 orderedProducts.addElement(subProduct);
             }

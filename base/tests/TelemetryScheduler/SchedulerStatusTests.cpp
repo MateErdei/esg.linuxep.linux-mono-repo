@@ -146,8 +146,8 @@ TEST_F(SchedulerStatusTests, systemClockValueTranslatedCorrectly)
     auto timeOut = statusOut.getTelemetryScheduledTime();
 
     EXPECT_EQ(
-            duration_cast<seconds>(timeIn.time_since_epoch()).count(),
-            duration_cast<seconds>(timeOut.time_since_epoch()).count());
+        duration_cast<seconds>(timeIn.time_since_epoch()).count(),
+        duration_cast<seconds>(timeOut.time_since_epoch()).count());
 }
 TEST_F(SchedulerStatusTests, epochTranslatedCorrectly)
 {
@@ -160,6 +160,6 @@ TEST_F(SchedulerStatusTests, epochTranslatedCorrectly)
     system_clock::time_point epoch;
 
     EXPECT_EQ(
-            duration_cast<seconds>(epoch.time_since_epoch()).count(),
-            duration_cast<seconds>(timeOut.time_since_epoch()).count());
+        duration_cast<seconds>(epoch.time_since_epoch()).count(),
+        duration_cast<seconds>(timeOut.time_since_epoch()).count());
 }

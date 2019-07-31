@@ -6,11 +6,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <gtest/gtest.h>
 #include <modules/Common/TelemetryExeConfigImpl/Config.h>
 #include <modules/TelemetryScheduler/TelemetrySchedulerImpl/SchedulerProcessor.h>
 #include <modules/TelemetryScheduler/TelemetrySchedulerImpl/TaskQueue.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;

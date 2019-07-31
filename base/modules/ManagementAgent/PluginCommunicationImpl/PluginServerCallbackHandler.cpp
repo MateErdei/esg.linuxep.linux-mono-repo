@@ -49,8 +49,8 @@ namespace ManagementAgent
                         }
                         else
                         {
-                            return m_messageBuilder.replySetErrorIfEmpty(request,
-                                    Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable);
+                            return m_messageBuilder.replySetErrorIfEmpty(
+                                request, Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable);
                         }
                     }
                     case Commands::PLUGIN_SEND_REGISTER:

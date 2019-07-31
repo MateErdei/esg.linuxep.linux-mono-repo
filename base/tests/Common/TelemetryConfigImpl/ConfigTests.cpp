@@ -4,10 +4,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <Common/TelemetryConfigImpl/Config.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <json.hpp>
 
 using ::testing::StrictMock;
@@ -59,7 +60,7 @@ public:
         messageRelay.setUsername("relayuser");
         messageRelay.setPassword("CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
 
-        m_config.setMessageRelays({messageRelay});
+        m_config.setMessageRelays({ messageRelay });
 
         proxy.setUrl("proxy");
         proxy.setPort(m_validPort);
@@ -67,7 +68,7 @@ public:
         proxy.setUsername("proxyuser");
         proxy.setPassword("CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=");
 
-        m_config.setProxies({proxy});
+        m_config.setProxies({ proxy });
 
         m_jsonObject["server"] = "localhost";
         m_jsonObject["verb"] = "PUT";
@@ -81,13 +82,15 @@ public:
         m_jsonObject["messageRelays"] = { { { "authentication", 1 },
                                             { "id", "ID" },
                                             { "priority", 2 },
-                                            { "password", "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=" },
+                                            { "password",
+                                              "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=" },
                                             { "port", m_validPort },
                                             { "url", "relay" },
                                             { "username", "relayuser" } } };
 
         m_jsonObject["proxies"] = { { { "authentication", 1 },
-                                      { "password", "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=" },
+                                      { "password",
+                                        "CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=" },
                                       { "port", m_validPort },
                                       { "url", "relay1" },
                                       { "username", "relayuser" } } };
@@ -218,7 +221,7 @@ TEST_F(ConfigTests, UnauthenticatedProxyWithoutCredentials) // NOLINT
     customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::none);
 
-    customConfig.setProxies({customProxy});
+    customConfig.setProxies({ customProxy });
 
     std::string jsonString = Serialiser::serialise(customConfig);
     Config newConfig = Serialiser::deserialise(jsonString);
@@ -238,7 +241,7 @@ TEST_F(ConfigTests, UnauthenticatedProxyWithCredentials) // NOLINT
     customProxy.setUsername("proxyuser");
     customProxy.setPassword("proxypw");
 
-    customConfig.setProxies({customProxy});
+    customConfig.setProxies({ customProxy });
 
     EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -255,7 +258,7 @@ TEST_F(ConfigTests, AuthenticatedProxyWithCredentials) // NOLINT
     customProxy.setUsername("proxyuser");
     customProxy.setPassword("proxypw");
 
-    customConfig.setProxies({customProxy});
+    customConfig.setProxies({ customProxy });
 
     std::string jsonString = Serialiser::serialise(customConfig);
     Config newConfig = Serialiser::deserialise(jsonString);
@@ -273,7 +276,7 @@ TEST_F(ConfigTests, AuthenticatedProxyWithoutCredentials) // NOLINT
     customProxy.setPort(m_validPort);
     customProxy.setAuthentication(Proxy::Authentication::digest);
 
-    customConfig.setProxies({customProxy});
+    customConfig.setProxies({ customProxy });
 
     EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -288,7 +291,7 @@ TEST_F(ConfigTests, UnauthenticatedMessageRelayWithoutCredentials) // NOLINT
     messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::none);
 
-    customConfig.setMessageRelays({messageRelay});
+    customConfig.setMessageRelays({ messageRelay });
 
     std::string jsonString = Serialiser::serialise(customConfig);
     Config newConfig = Serialiser::deserialise(jsonString);
@@ -308,7 +311,7 @@ TEST_F(ConfigTests, UnauthenticatedMessageRelayWithCredentials) // NOLINT
     messageRelay.setUsername("proxyuser");
     messageRelay.setPassword("proxypw");
 
-    customConfig.setMessageRelays({messageRelay});
+    customConfig.setMessageRelays({ messageRelay });
 
     EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }
@@ -325,7 +328,7 @@ TEST_F(ConfigTests, AuthenticatedMessageRelayWithCredentials) // NOLINT
     messageRelay.setUsername("proxyuser");
     messageRelay.setPassword("proxypw");
 
-    customConfig.setMessageRelays({messageRelay});
+    customConfig.setMessageRelays({ messageRelay });
 
     std::string jsonString = Serialiser::serialise(customConfig);
     Config newConfig = Serialiser::deserialise(jsonString);
@@ -343,7 +346,7 @@ TEST_F(ConfigTests, AuthenticatedMessageRelayWithoutCredentials) // NOLINT
     messageRelay.setPort(m_validPort);
     messageRelay.setAuthentication(MessageRelay::Authentication::digest);
 
-    customConfig.setMessageRelays({messageRelay});
+    customConfig.setMessageRelays({ messageRelay });
 
     EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
 }

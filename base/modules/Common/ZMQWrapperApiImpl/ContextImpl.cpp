@@ -5,6 +5,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ContextImpl.h"
+
 #include "LoggingProxyImpl.h"
 
 #include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
@@ -13,8 +14,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
 #include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
 
-#include <iostream>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
+
+#include <iostream>
 
 using namespace Common::ZMQWrapperApiImpl;
 
@@ -55,7 +57,8 @@ Common::ZeroMQWrapper::IProxyPtr ContextImpl::getProxy(const std::string& fronte
     {
         return Common::ZeroMQWrapper::IProxyPtr(new Common::ZeroMQWrapperImpl::ProxyImpl(frontend, backend, m_context));
     }
-    return Common::ZeroMQWrapper::IProxyPtr(new Common::ZMQWrapperApiImpl::LoggingProxyImpl(frontend, backend, m_context));
+    return Common::ZeroMQWrapper::IProxyPtr(
+        new Common::ZMQWrapperApiImpl::LoggingProxyImpl(frontend, backend, m_context));
 }
 
 Common::ZMQWrapperApi::IContextSharedPtr Common::ZMQWrapperApi::createContext()

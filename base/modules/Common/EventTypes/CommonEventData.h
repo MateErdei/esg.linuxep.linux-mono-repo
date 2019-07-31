@@ -6,8 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <string>
 #include "SophosString.h"
+
+#include <string>
 
 namespace Common
 {

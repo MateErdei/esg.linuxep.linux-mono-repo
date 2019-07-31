@@ -246,8 +246,8 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
     EXPECT_NO_THROW(DownloadReport::fromReport(report)); // NOLINT
 }
 
-TEST_F(                 // NOLINT
-    DownloadReportTest, 
+TEST_F( // NOLINT
+    DownloadReportTest,
     fromReportWarehouseRepositoryAndTimeTrackerShouldReportSyncFailedForAllProductsOnMissingPackage)
 {
     MockWarehouseRepository mockWarehouseRepository;
@@ -497,8 +497,8 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
     checkJsonOutputWithNoProducts(report, jsonString);
 }
 
-TEST_F(                 // NOLINT
-    DownloadReportTest, 
+TEST_F( // NOLINT
+    DownloadReportTest,
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
 {
     std::string errorString; // = "";
@@ -533,9 +533,11 @@ TEST_F(                 // NOLINT
     TimeTracker timeTracker = createTimeTracker();
 
     std::vector<ProductInfo> warehouseComponents;
-    warehouseComponents.push_back( ProductInfo{downloadedProduct.getLine(), downloadedProduct.getProductMetadata().getName(), downloadedProduct.getProductMetadata().getVersion() } );
-    auto report =
-        DownloadReport::Report("sophosurl", products, warehouseComponents, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    warehouseComponents.push_back(ProductInfo{ downloadedProduct.getLine(),
+                                               downloadedProduct.getProductMetadata().getName(),
+                                               downloadedProduct.getProductMetadata().getVersion() });
+    auto report = DownloadReport::Report(
+        "sophosurl", products, warehouseComponents, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
 
@@ -554,8 +556,8 @@ TEST_F(                 // NOLINT
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F(                 // NOLINT
-    DownloadReportTest, 
+TEST_F( // NOLINT
+    DownloadReportTest,
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
 {
     std::string errorString; // = "";
@@ -610,8 +612,8 @@ TEST_F(                 // NOLINT
     checkJsonOutput(report, jsonString);
 }
 
-TEST_F(                 // NOLINT
-    DownloadReportTest, 
+TEST_F( // NOLINT
+    DownloadReportTest,
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
 {
     std::string errorString = "Install Failed";
@@ -668,8 +670,7 @@ TEST_F(                 // NOLINT
     checkJsonOutput(report, jsonString);
 }
 
-
-TEST_F( DownloadReportTest, shouldExtractTheWarehouseSubComponents)
+TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
 {
     std::string serializedReportWithSubComponents{ R"sophos({
     "finishTime": "20180822 121220",
@@ -701,9 +702,9 @@ TEST_F( DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     "syncTime": "20180821 121220"
 })sophos" };
     DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
-    std::vector<suldownloaderdata::ProductInfo> warehouseComponents =  report.getWarehouseComponents();
-    EXPECT_EQ( warehouseComponents.size(), 2);
-    std::vector<suldownloaderdata::ProductInfo> expected = { {"rn1", "p1", "v1"}, {"rn2", "p2", "v2"} };
+    std::vector<suldownloaderdata::ProductInfo> warehouseComponents = report.getWarehouseComponents();
+    EXPECT_EQ(warehouseComponents.size(), 2);
+    std::vector<suldownloaderdata::ProductInfo> expected = { { "rn1", "p1", "v1" }, { "rn2", "p2", "v2" } };
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, warehouseComponents);
     std::string reSerialize = DownloadReport::fromReport(report);
     DownloadReport reportAgain = DownloadReport::toReport(reSerialize);

@@ -9,18 +9,15 @@ Copyright 2019, Sophos Limited.  All rights reserved.
  */
 
 #include <Common/HttpSenderImpl/CurlWrapper.h>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
 #include <memory>
 
 class FakeCurlWrapper : public Common::HttpSenderImpl::CurlWrapper
 {
 public:
-    CURLcode curlEasyPerform(CURL*) override
-    {
-        return CURLE_OK;
-    }
+    CURLcode curlEasyPerform(CURL*) override { return CURLE_OK; }
 };
 
 class CurlWrapperTest : public ::testing::Test
@@ -29,10 +26,7 @@ public:
     long m_flags = 0;
     std::shared_ptr<FakeCurlWrapper> m_curlWrapper;
 
-    void SetUp() override
-    {
-        m_curlWrapper = std::make_shared<FakeCurlWrapper>();
-    }
+    void SetUp() override { m_curlWrapper = std::make_shared<FakeCurlWrapper>(); }
 };
 
 TEST_F(CurlWrapperTest, curlGlobalInit) // NOLINT
@@ -47,7 +41,7 @@ TEST_F(CurlWrapperTest, curlEasyInit) // NOLINT
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_NE(handle, nullptr);
     EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
 }
 
 TEST_F(CurlWrapperTest, curlEasySetOpt) // NOLINT
@@ -56,7 +50,7 @@ TEST_F(CurlWrapperTest, curlEasySetOpt) // NOLINT
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_EQ(m_curlWrapper->curlEasySetOpt(handle, CURLOPT_URL, "https://localhost"), CURLE_OK);
     EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
 }
 
 TEST_F(CurlWrapperTest, curlSlistAppend) // NOLINT
@@ -66,7 +60,7 @@ TEST_F(CurlWrapperTest, curlSlistAppend) // NOLINT
     slist = m_curlWrapper->curlSlistAppend(slist, "slist_value");
     EXPECT_NE(slist, nullptr);
     EXPECT_NO_THROW(m_curlWrapper->curlSlistFreeAll(slist)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
 }
 
 TEST_F(CurlWrapperTest, curlEasyPerform) // NOLINT
@@ -75,7 +69,7 @@ TEST_F(CurlWrapperTest, curlEasyPerform) // NOLINT
     CURL* handle = m_curlWrapper->curlEasyInit();
     EXPECT_EQ(m_curlWrapper->curlEasyPerform(handle), CURLE_OK);
     EXPECT_NO_THROW(m_curlWrapper->curlEasyCleanup(handle)); // NOLINT
-    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup()); // NOLINT
+    EXPECT_NO_THROW(m_curlWrapper->curlGlobalCleanup());     // NOLINT
 }
 
 TEST_F(CurlWrapperTest, curlEasyStrError) // NOLINT

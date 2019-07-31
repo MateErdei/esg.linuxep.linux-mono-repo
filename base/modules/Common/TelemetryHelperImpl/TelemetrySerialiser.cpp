@@ -188,4 +188,4 @@ namespace Common::Telemetry
         nlohmann::json j = nlohmann::json::parse(jsonString);
         return j.get<TelemetryObject>();
     }
-}
+} // namespace Common::Telemetry

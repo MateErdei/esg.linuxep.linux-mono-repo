@@ -6,8 +6,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
+#include "modules/Common/ZMQWrapperApi/IContext.h"
 
 #include <string>
 #include <vector>

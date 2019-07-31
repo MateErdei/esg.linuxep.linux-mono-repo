@@ -18,6 +18,12 @@ namespace SulDownloader
         class DownloadedProduct;
         class ProductSelection;
         struct WarehouseError;
+        struct ProductInfo
+        {
+            std::string m_rigidName;
+            std::string m_productName;
+            std::string m_version;
+        };
 
         /**
          * Interface for WarehouseRepository to enable tests.
@@ -32,7 +38,7 @@ namespace SulDownloader
 
             virtual WarehouseError getError() const = 0;
 
-            virtual void synchronize(ProductSelection& ) = 0;
+            virtual void synchronize(ProductSelection&) = 0;
 
             virtual void distribute() = 0;
 
@@ -41,6 +47,8 @@ namespace SulDownloader
             virtual std::string getSourceURL() const = 0;
 
             virtual std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const = 0;
+
+            virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
         };
 
         using IWarehouseRepositoryPtr = std::unique_ptr<IWarehouseRepository>;

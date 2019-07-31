@@ -65,9 +65,9 @@ TEST(TaskQueueTests, popWaitsForPush) // NOLINT
     const SchedulerTask taskIn = SchedulerTask::InitialWaitToRunTelemetry;
     queue.push(taskIn);
 
-    for( int i=0; i<200; i++)
+    for (int i = 0; i < 200; i++)
     {
-        if(done)
+        if (done)
         {
             break;
         }

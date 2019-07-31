@@ -144,7 +144,8 @@ namespace SulDownloader
         if (hasError(products))
         {
             LOGWARN("Verification of the downloaded products failed.");
-            return DownloadReport::Report(sourceURL, products, {}, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
+            return DownloadReport::Report(
+                sourceURL, products, {}, &timeTracker, DownloadReport::VerifyState::VerifyFailed);
         }
 
         // design decision: do not install if any error happens before this time.
@@ -176,7 +177,12 @@ namespace SulDownloader
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
-        return DownloadReport::Report(sourceURL, products, warehouseRepository->listInstalledProducts(), &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        return DownloadReport::Report(
+            sourceURL,
+            products,
+            warehouseRepository->listInstalledProducts(),
+            &timeTracker,
+            DownloadReport::VerifyState::VerifyCorrect);
     }
 
     std::tuple<int, std::string> configAndRunDownloader(

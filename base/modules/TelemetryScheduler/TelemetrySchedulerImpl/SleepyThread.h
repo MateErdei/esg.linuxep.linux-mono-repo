@@ -19,13 +19,16 @@ namespace TelemetrySchedulerImpl
     class SleepyThread : public Common::Threads::AbstractThread
     {
     public:
-         /**
-          * Construct thread for delaying queueing of a task.
-          * @param sleepUntil time to queue task
-          * @param task task to queue after delay
-          * @param queue queue to add task to
-          */
-        SleepyThread(std::chrono::system_clock::time_point sleepUntil, SchedulerTask task, std::shared_ptr<ITaskQueue> queue);
+        /**
+         * Construct thread for delaying queueing of a task.
+         * @param sleepUntil time to queue task
+         * @param task task to queue after delay
+         * @param queue queue to add task to
+         */
+        SleepyThread(
+            std::chrono::system_clock::time_point sleepUntil,
+            SchedulerTask task,
+            std::shared_ptr<ITaskQueue> queue);
 
         bool finished() { return m_finished; }
 

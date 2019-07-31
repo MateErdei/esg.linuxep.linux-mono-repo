@@ -149,10 +149,7 @@ namespace Common
 
         std::string CredentialEvent::getGroupName() const { return m_groupName; }
 
-        Common::EventTypes::SophosPid CredentialEvent::getSophosPid() const
-        {
-            return m_sophosPid;
-        }
+        Common::EventTypes::SophosPid CredentialEvent::getSophosPid() const { return m_sophosPid; }
 
         void CredentialEvent::setSessionType(const Common::EventTypes::CredentialEvent::SessionType sessionType)
         {
@@ -186,10 +183,7 @@ namespace Common
 
         void CredentialEvent::setGroupName(const SophosString& groupName) { m_groupName = groupName; }
 
-        void CredentialEvent::setSophosPid(const Common::EventTypes::SophosPid& processId)
-        {
-            m_sophosPid = processId;
-        }
+        void CredentialEvent::setSophosPid(const Common::EventTypes::SophosPid& processId) { m_sophosPid = processId; }
 
         std::string CredentialEvent::toString() const
         {

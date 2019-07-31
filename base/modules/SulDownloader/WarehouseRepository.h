@@ -6,12 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 #include <SulDownloader/suldownloaderdata/Tag.h>
 #include <SulDownloader/suldownloaderdata/WarehouseError.h>
-#include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 
 extern "C"
 {
@@ -124,7 +124,7 @@ namespace SulDownloader
          */
         std::vector<suldownloaderdata::DownloadedProduct> getProducts() const override;
 
-        std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override ;
+        std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
 
         std::string getSourceURL() const override;
 

@@ -11,7 +11,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "PluginRegistryException.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
-
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -23,13 +22,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma GCC diagnostic pop
 
-
-
 namespace Common
 {
     namespace PluginRegistryImpl
     {
-
         std::vector<std::string> PluginInfo::getPolicyAppIds() const { return m_policyAppIds; }
 
         std::string PluginInfo::getPluginName() const { return m_pluginName; }

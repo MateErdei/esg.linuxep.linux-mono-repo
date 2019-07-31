@@ -4,7 +4,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "MockWarehouseRepository.h"
+
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
 #include <SulDownloader/ProductUninstaller.h>
@@ -13,8 +16,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include "MockWarehouseRepository.h"
 
 using namespace SulDownloader;
 
@@ -26,7 +27,7 @@ class ProductUninstallerTest : public ::testing::Test
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
-        m_defaultDistributionPath= "/opt/sophos-spl/base/update/cache/primary/product";
+        m_defaultDistributionPath = "/opt/sophos-spl/base/update/cache/primary/product";
     }
 
     void TearDown() override
@@ -92,8 +93,8 @@ TEST_F( // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList, m_mockWarehouseRepository).size(), 0);
 }
 
-TEST_F(                     // NOLINT
-    ProductUninstallerTest, 
+TEST_F( // NOLINT
+    ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenInstalledProductDirectoryDoesNotExist)
 {
     std::vector<std::string> emptyList;
@@ -105,8 +106,8 @@ TEST_F(                     // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList, m_mockWarehouseRepository).size(), 0);
 }
 
-TEST_F(                     // NOLINT
-    ProductUninstallerTest, 
+TEST_F( // NOLINT
+    ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenOnlyInstalledProductsInList)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
@@ -118,8 +119,8 @@ TEST_F(                     // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository).size(), 0);
 }
 
-TEST_F(                     // NOLINT
-    ProductUninstallerTest, 
+TEST_F( // NOLINT
+    ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenMoreProductsAreInDownloadListThanInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(1);
@@ -131,8 +132,8 @@ TEST_F(                     // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository).size(), 0);
 }
 
-TEST_F(                     // NOLINT
-    ProductUninstallerTest, 
+TEST_F( // NOLINT
+    ProductUninstallerTest,
     removeProductsNotDownloaded_ExpectToUninstallProductWhenProductNotInDownloadListButIsInstalled)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
@@ -151,7 +152,8 @@ TEST_F(                     // NOLINT
     });
     EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository);); // NOLINT
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
+                        productList, m_mockWarehouseRepository);); // NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
 
@@ -174,7 +176,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     });
     EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository);); // NOLINT
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
+                        productList, m_mockWarehouseRepository);); // NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
@@ -200,7 +203,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     });
     EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository);); // NOLINT
+    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
+                        productList, m_mockWarehouseRepository);); // NOLINT
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
@@ -210,15 +214,16 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getError().SulError, "");
 }
 
-TEST_F(                     // NOLINT
-        ProductUninstallerTest,
-        shouldRefuseToRemoveSlashDirectory)
+TEST_F( // NOLINT
+    ProductUninstallerTest,
+    shouldRefuseToRemoveSlashDirectory)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
-    EXPECT_CALL(*m_fileSystemMock, removeFileOrDirectory(_)).Times(0); // being explicitly that it should not remove file
+    EXPECT_CALL(*m_fileSystemMock, removeFileOrDirectory(_))
+        .Times(0); // being explicitly that it should not remove file
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
@@ -228,8 +233,11 @@ TEST_F(                     // NOLINT
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
-    // simulate warehouse repository returning / root directory to be remove (this would be a mistake, but we want ProductUninstaller to not remove the / directory)
+    // simulate warehouse repository returning / root directory to be remove (this would be a mistake, but we want
+    // ProductUninstaller to not remove the / directory)
     EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return("/"));
 
-    EXPECT_THROW(uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository), std::logic_error); // NOLINT
+    EXPECT_THROW(
+        uninstallManager.removeProductsNotDownloaded(productList, m_mockWarehouseRepository),
+        std::logic_error); // NOLINT
 }

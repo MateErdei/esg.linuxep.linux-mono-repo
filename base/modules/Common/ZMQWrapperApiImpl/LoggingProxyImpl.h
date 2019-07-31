@@ -6,21 +6,23 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <Common/Reactor/IReactor.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriberPtr.h>
 #include <Common/ZeroMQWrapperImpl/ContextHolder.h>
 #include <Common/ZeroMQWrapperImpl/ProxyImpl.h>
 #include <Common/ZeroMQWrapperImpl/SocketHolder.h>
-#include <Common/Reactor/IReactor.h>
 
 namespace Common
 {
     namespace ZMQWrapperApiImpl
     {
-        class LoggingProxyImpl
-                : public Common::ZeroMQWrapperImpl::ProxyImpl
+        class LoggingProxyImpl : public Common::ZeroMQWrapperImpl::ProxyImpl
         {
         public:
-            LoggingProxyImpl(const std::string& frontend, const std::string& backend, Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context);
+            LoggingProxyImpl(
+                const std::string& frontend,
+                const std::string& backend,
+                Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context);
 
             void start() override;
 

@@ -65,6 +65,7 @@ namespace
         std::vector<std::string> pathIds;
 
         XML_Parser m_parser;
+
     private:
         std::string getElementPath(const std::string& currentElement, const std::string& id);
 
@@ -76,10 +77,15 @@ namespace
     };
 
     /** implementation of SimpleXmlParser **/
-    SimpleXmlParser::SimpleXmlParser(XML_Parser parser, size_t maxdepth)
-        : m_parser(parser),
-        m_stack(), m_attributesMap(), m_maxdepth(maxdepth), m_lastEntry(""), m_entryCount(0)
-        {}
+    SimpleXmlParser::SimpleXmlParser(XML_Parser parser, size_t maxdepth) :
+        m_parser(parser),
+        m_stack(),
+        m_attributesMap(),
+        m_maxdepth(maxdepth),
+        m_lastEntry(""),
+        m_entryCount(0)
+    {
+    }
 
     void SimpleXmlParser::onStartElement(
         const std::string& element,
@@ -124,7 +130,7 @@ namespace
         {
             elementPath = elementPath + "#" + id;
             std::string number;
-            //If ids are not unique add an integer to allow the map to disambiguate them.
+            // If ids are not unique add an integer to allow the map to disambiguate them.
             if (m_lastEntry != elementPath)
             {
                 m_entryCount = 0;
@@ -169,13 +175,18 @@ namespace
         parser->onTextHandler(textstring);
     }
 
-    void EntityDeclHandler(void *userData,
-                           const XML_Char * entityName , int /* is_parameter_entity */,
-                           const XML_Char */*value*/, int /*value_length*/,
-                           const XML_Char */*base*/, const XML_Char */*systemId*/,
-                           const XML_Char */*publicId*/, const XML_Char */*notationName*/)
+    void EntityDeclHandler(
+        void* userData,
+        const XML_Char* entityName,
+        int /* is_parameter_entity */,
+        const XML_Char* /*value*/,
+        int /*value_length*/,
+        const XML_Char* /*base*/,
+        const XML_Char* /*systemId*/,
+        const XML_Char* /*publicId*/,
+        const XML_Char* /*notationName*/)
     {
-        LOGERROR("Aborting XML parse due to entity "<<entityName);
+        LOGERROR("Aborting XML parse due to entity " << entityName);
         auto parser = static_cast<SimpleXmlParser*>(userData);
         XML_StopParser(parser->m_parser, XML_FALSE);
     }
@@ -264,7 +275,6 @@ namespace Common::XmlUtilities
         XML_SetCharacterDataHandler(parserHolder.parser, textHandler);
 
         XML_SetEntityDeclHandler(parserHolder.parser, EntityDeclHandler);
-
 
         assert(xmlContent.size() < INT_MAX);
         if (XML_Parse(parserHolder.parser, xmlContent.data(), static_cast<int>(xmlContent.size()), true) ==

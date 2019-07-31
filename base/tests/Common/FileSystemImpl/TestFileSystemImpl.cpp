@@ -3,15 +3,15 @@
 Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/TempDir.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/TempDir.h>
 
 #include <fstream>
 
@@ -38,25 +38,21 @@ namespace
         ASSERT_EQ(ret, 0);
     }
 
-
     class FileSystemImplTest : public ::testing::Test
     {
     public:
-        ~FileSystemImplTest()
-        {
-            Tests::restoreFileSystem();
-        }
+        ~FileSystemImplTest() { Tests::restoreFileSystem(); }
         std::unique_ptr<IFileSystem> m_fileSystem;
         void SetUp() override { m_fileSystem.reset(new FileSystemImpl()); }
 
-        void copyFileAndExpectThrow(const Path & src, const Path & dest, const std::string & message)
+        void copyFileAndExpectThrow(const Path& src, const Path& dest, const std::string& message)
         {
             try
             {
                 m_fileSystem->copyFile(src, dest);
                 FAIL();
             }
-            catch ( const IFileSystemException& ex )
+            catch (const IFileSystemException& ex)
             {
                 EXPECT_EQ(ex.what(), message);
             }
@@ -258,8 +254,7 @@ namespace
 
     TEST_F(FileSystemImplTest, writeOverwritesExistingFile) // NOLINT
     {
-        std::string filePath =
-                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "overwriteme.txt");
+        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "overwriteme.txt");
 
         std::string initialContent("initial");
         m_fileSystem->writeFile(filePath, initialContent);
@@ -271,7 +266,6 @@ namespace
         EXPECT_EQ(m_fileSystem->readFile(filePath), finalContent);
         removeFile(filePath);
     }
-
 
     TEST_F(FileSystemImplTest, readThrowsForTooLargeFile) // NOLINT
     {
@@ -310,7 +304,7 @@ namespace
     TEST_F(FileSystemImplTest, readFileUsingDirectoryPathShouldThrow) // NOLINT
     {
         std::string directoryPath =
-                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
         makedir(directoryPath, 0700);
         EXPECT_THROW(m_fileSystem->readFile(directoryPath), IFileSystemException); // NOLINT
@@ -325,7 +319,7 @@ namespace
         std::string testContent("HelloWorld\nHelloWorld2");
 
         m_fileSystem->writeFile(filePath, testContent);
-        std::vector<std::string> content{"HelloWorld","HelloWorld2"};
+        std::vector<std::string> content{ "HelloWorld", "HelloWorld2" };
         EXPECT_EQ(m_fileSystem->readLines(filePath), content);
         removeFile(filePath);
     }
@@ -349,7 +343,7 @@ namespace
     TEST_F(FileSystemImplTest, readLinesOnDirectoryPathShouldThrow) // NOLINT
     {
         std::string directoryPath =
-                Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
         makedir(directoryPath, 0700);
         EXPECT_THROW(m_fileSystem->readLines(directoryPath), IFileSystemException); // NOLINT
@@ -438,7 +432,7 @@ namespace
         EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir"));
     }
 
-    TEST_F( FileSystemImplTest, listDirectoriesReturnsAListOfDirectories) // NOLINT
+    TEST_F(FileSystemImplTest, listDirectoriesReturnsAListOfDirectories) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir1");
@@ -476,7 +470,7 @@ namespace
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
-        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));  //NOLINT
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
@@ -487,7 +481,8 @@ namespace
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
-        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', source file does not exist.");; // NOLINT
+        copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', source file does not exist.");
+        ; // NOLINT
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
@@ -497,7 +492,7 @@ namespace
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         auto mockFileSystem = new StrictMock<MockFileSystem>();
-        //With wrong permissions file will exist but not open
+        // With wrong permissions file will exist but not open
         EXPECT_CALL(*mockFileSystem, exists(A)).WillOnce(Return(true));
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
         Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
@@ -515,7 +510,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
-    TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent)  // NOLINT
+    TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path src = tempdir.absPath("A");
@@ -530,13 +525,17 @@ namespace
         EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
         Tests::replaceFileSystem(std::move(mockIFileSystemPtr));
-        copyFileAndExpectThrow(src, dest, "Failed to copy file: '" + src + "' to '" + dest +
-                                          "', contents failed to copy. Check space available on device.");
+        copyFileAndExpectThrow(
+            src,
+            dest,
+            "Failed to copy file: '" + src + "' to '" + dest +
+                "', contents failed to copy. Check space available on device.");
     }
 
     TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileDeletesFile.txt");
+        std::string filePath =
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileDeletesFile.txt");
 
         std::string testContent("HelloWorld");
 
@@ -551,14 +550,16 @@ namespace
 
     TEST_F(FileSystemImplTest, removeFileThrowsIfFileDoesNotExist) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileThrowsIfFileDoesNotExist.txt");
+        std::string filePath =
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileThrowsIfFileDoesNotExist.txt");
         ASSERT_FALSE(m_fileSystem->exists(filePath));
         EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException); // NOLINT
     }
 
     TEST_F(FileSystemImplTest, removeDirectoryDeletesFile) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesFile.txt");
+        std::string filePath =
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesFile.txt");
 
         std::string testContent("HelloWorld");
 
@@ -571,10 +572,10 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
 
-
     TEST_F(FileSystemImplTest, removeDirectoryDeletesEmptyDirectory) // NOLINT
     {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesEmptyDirectory");
+        std::string filePath =
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesEmptyDirectory");
 
         m_fileSystem->makedirs(filePath);
 
@@ -587,13 +588,13 @@ namespace
 
     TEST_F(FileSystemImplTest, removeDirectoryDeletesNonEmptyDirectory) // NOLINT
     {
-        std::string dirPath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesNonEmptyDirectory");
+        std::string dirPath = Common::FileSystem::join(
+            m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesNonEmptyDirectory");
         std::string filePath = Common::FileSystem::join(dirPath, "testFile");
 
         m_fileSystem->makedirs(dirPath);
         std::string testContent("HelloWorld");
         m_fileSystem->writeFile(filePath, testContent);
-
 
         EXPECT_TRUE(m_fileSystem->isDirectory(dirPath));
         EXPECT_TRUE(m_fileSystem->isFile(filePath));
@@ -602,7 +603,6 @@ namespace
 
         EXPECT_FALSE(m_fileSystem->exists(dirPath));
     }
-
 
     TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
     {

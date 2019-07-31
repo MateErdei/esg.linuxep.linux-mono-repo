@@ -5,8 +5,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "WarehouseError.h"
 #include "IWarehouseRepository.h"
+#include "WarehouseError.h"
+
 #include <ctime>
 #include <string>
 #include <vector>
@@ -70,7 +71,7 @@ namespace SulDownloader
             static DownloadReport Report(
                 const std::string& sourceURL,
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,
-                const std::vector<suldownloaderdata::ProductInfo> & componentsToALCStatus,
+                const std::vector<suldownloaderdata::ProductInfo>& componentsToALCStatus,
                 TimeTracker* timeTracker,
                 VerifyState verify);
 

@@ -70,10 +70,7 @@ namespace
 class SystemTelemetryCollectorImplTests : public ::testing::Test
 {
 public:
-    void TearDown() override
-    {
-        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
-    }
+    void TearDown() override { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
 
     void setupMockProcesses(size_t numberOfMockProcesses)
     {

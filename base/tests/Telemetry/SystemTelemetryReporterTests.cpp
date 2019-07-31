@@ -32,7 +32,7 @@ TEST_F(SystemTelemetryReporterTests, getTelemetryEmptyOK) // NOLINT
     std::map<std::string, Telemetry::TelemetryItem> emptySimpleObjs;
     std::map<std::string, std::vector<Telemetry::TelemetryItem>> emptyArrayObjs;
 
-    std::unique_ptr<MockSystemTelemetryCollector> mockCollector( new MockSystemTelemetryCollector());
+    std::unique_ptr<MockSystemTelemetryCollector> mockCollector(new MockSystemTelemetryCollector());
 
     EXPECT_CALL(*mockCollector, collectObjects()).WillOnce(Return(emptySimpleObjs));
     EXPECT_CALL(*mockCollector, collectArraysOfObjects()).WillOnce(Return(emptyArrayObjs));
@@ -56,7 +56,7 @@ TEST_F(SystemTelemetryReporterTests, getTelemetryOk) // NOLINT
             { { "fstype", { "testvalue2" } }, { "free", { 202 } } } } }
     };
 
-    std::unique_ptr<MockSystemTelemetryCollector> mockCollector( new MockSystemTelemetryCollector());
+    std::unique_ptr<MockSystemTelemetryCollector> mockCollector(new MockSystemTelemetryCollector());
 
     EXPECT_CALL(*mockCollector, collectObjects()).WillOnce(Return(simpleObjs));
     EXPECT_CALL(*mockCollector, collectArraysOfObjects()).WillOnce(Return(arrayObjs));
@@ -74,7 +74,7 @@ TEST_F(SystemTelemetryReporterTests, getTelemetryThrowsButNoTopLevelExpectedExce
     std::map<std::string, Telemetry::TelemetryItem> simpleObjs = { { "test-unexpected-object",
                                                                      { { "unexpected-name", { 42 } } } } };
 
-    std::unique_ptr<MockSystemTelemetryCollector> mockCollector( new MockSystemTelemetryCollector());
+    std::unique_ptr<MockSystemTelemetryCollector> mockCollector(new MockSystemTelemetryCollector());
 
     EXPECT_CALL(*mockCollector, collectObjects()).WillOnce(Return(simpleObjs));
 

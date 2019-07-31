@@ -18,8 +18,7 @@ namespace Telemetry
     class PluginTelemetryReporter : public ITelemetryProvider
     {
     public:
-        explicit PluginTelemetryReporter(
-            std::unique_ptr<Common::PluginCommunication::IPluginProxy> pluginProxy);
+        explicit PluginTelemetryReporter(std::unique_ptr<Common::PluginCommunication::IPluginProxy> pluginProxy);
 
         std::string getName() override;
         std::string getTelemetry() override;

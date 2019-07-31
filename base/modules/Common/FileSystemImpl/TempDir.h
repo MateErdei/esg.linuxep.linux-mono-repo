@@ -14,21 +14,17 @@ namespace Common
 {
     namespace FileSystemImpl
     {
-        class TempDir
-            : public virtual Common::FileSystem::ITempDir
+        class TempDir : public virtual Common::FileSystem::ITempDir
         {
         public:
             TempDir(const std::string& baseDir, const std::string& prefix);
             ~TempDir() override;
-            Path dirPath() const override
-            {
-                return m_tempdir;
-            }
+            Path dirPath() const override { return m_tempdir; }
 
         private:
             void deleteTempDir();
 
             Path m_tempdir;
         };
-    }
-}
+    } // namespace FileSystemImpl
+} // namespace Common

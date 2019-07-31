@@ -390,16 +390,14 @@ namespace Common
             if (!fileSystem->exists(src))
             {
                 throw IFileSystemException(
-                        "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist."
-                );
+                    "Failed to copy file: '" + src + "' to '" + dest + "', source file does not exist.");
             }
             {
                 std::ifstream ifs(src, std::ios::binary);
                 if (!ifs.good())
                 {
                     throw IFileSystemException(
-                            "Failed to copy file: '" + src + "' to '" + dest + "', reading file failed."
-                    );
+                        "Failed to copy file: '" + src + "' to '" + dest + "', reading file failed.");
                 }
 
                 std::ofstream ofs(dest, std::ios::binary);
@@ -408,16 +406,14 @@ namespace Common
             if (!fileSystem->exists(dest))
             {
                 throw IFileSystemException(
-                        "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created."
-                );
+                    "Failed to copy file: '" + src + "' to '" + dest + "', dest file was not created.");
             }
             if (fileSystem->fileSize(src) != 0 && fileSystem->fileSize(dest) == 0)
             {
                 fileSystem->removeFile(dest);
                 throw IFileSystemException(
-                        "Failed to copy file: '" + src + "' to '" + dest +
-                        "', contents failed to copy. Check space available on device."
-                );
+                    "Failed to copy file: '" + src + "' to '" + dest +
+                    "', contents failed to copy. Check space available on device.");
             }
         }
 
@@ -433,7 +429,8 @@ namespace Common
             if (!directoryPtr)
             {
                 int error = errno;
-                throw IFileSystemException("Failed to read directory: '" + directoryPath + "', error:  " + StrError(error));
+                throw IFileSystemException(
+                    "Failed to read directory: '" + directoryPath + "', error:  " + StrError(error));
             }
 
             assert(isReaddirSafe(directoryPath));
@@ -490,8 +487,7 @@ namespace Common
                     break;
                 }
 
-                if ((DT_REG | DT_DIR) & outDirEntity->d_type &&
-                    outDirEntity->d_name != dot &&
+                if ((DT_REG | DT_DIR) & outDirEntity->d_type && outDirEntity->d_name != dot &&
                     outDirEntity->d_name != dotdot)
                 {
                     std::string fullPath = join(directoryPath, outDirEntity->d_name);
@@ -499,13 +495,12 @@ namespace Common
 
                     if (!includeSymlinks)
                     {
-
                         // we do not want to return symlinks as it could create a infinite loop if the caller calls this
                         // method again on the returned directories
-                        struct stat buf; //NOLINT
+                        struct stat buf; // NOLINT
                         int ret = ::lstat(fullPath.c_str(), &buf);
 
-                        if (ret == 0 && S_ISLNK(buf.st_mode)) //NOLINT
+                        if (ret == 0 && S_ISLNK(buf.st_mode)) // NOLINT
                         {
                             include = false;
                         }
@@ -620,7 +615,7 @@ namespace Common
             return Path();
         }
 
-        off_t FileSystemImpl::fileSize(const Path & path ) const
+        off_t FileSystemImpl::fileSize(const Path& path) const
         {
             struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);

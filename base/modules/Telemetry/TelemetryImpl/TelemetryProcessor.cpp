@@ -7,11 +7,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryProcessor.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 #include <sys/stat.h>
 

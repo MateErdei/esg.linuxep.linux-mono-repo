@@ -5,6 +5,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ZMQAction.h"
+
 #include "watchdog/watchdogimpl/Watchdog.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
@@ -74,16 +75,16 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessful(const Common::ZeroMQWrapper::I
     return (response.size() == 1 && response.at(0) == watchdog::watchdogimpl::watchdogReturnsOk);
 }
 
-bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(const Common::ZeroMQWrapper::IReadable::data_t& response)
+bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(
+    const Common::ZeroMQWrapper::IReadable::data_t& response)
 {
     if (response.size() == 1)
     {
         std::string responseString = response.at(0);
-        return (responseString == watchdog::watchdogimpl::watchdogReturnsOk || responseString  == watchdogNotRunning);
+        return (responseString == watchdog::watchdogimpl::watchdogReturnsOk || responseString == watchdogNotRunning);
     }
     else
     {
         return false;
     }
 }
-

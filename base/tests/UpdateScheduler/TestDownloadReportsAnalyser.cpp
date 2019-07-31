@@ -21,7 +21,6 @@ using namespace SulDownloader::suldownloaderdata;
 class TestDownloadReportAnalyser : public ::testing::Test
 {
 public:
-
     ::testing::AssertionResult insertMessagesAreEquivalent(
         const char* m_expr,
         const char* n_expr,
@@ -213,7 +212,8 @@ public:
         //        std::string ProductName;
         //        std::string DownloadedVersion;
         //        std::string InstalledVersion;
-        status.Subscriptions = { { "BaseRigidName", "BaseName", "0.5.0" }, { "PluginRigidName", "PluginName", "0.5.0" } };
+        status.Subscriptions = { { "BaseRigidName", "BaseName", "0.5.0" },
+                                 { "PluginRigidName", "PluginName", "0.5.0" } };
         return status;
     }
 
@@ -419,7 +419,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
         DownloadReportTestBuilder::getPluginFailedToInstallReportString(DownloadReportTestBuilder::UseTime::Later);
     // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
     // files in the chronological order.
-    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json"};
+    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "update_report_3.json" };
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(file1));
@@ -432,7 +432,7 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
     ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
 
-    std::vector<std::string> sortedOrder{ "update_report_1.json", "update_report_2.json", "update_report_3.json"};
+    std::vector<std::string> sortedOrder{ "update_report_1.json", "update_report_2.json", "update_report_3.json" };
 
     EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
 
@@ -459,12 +459,13 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
 
     auto report = DownloadReportTestBuilder::getPluginFailedToInstallReport(DownloadReportTestBuilder::UseTime::Later);
     std::string goodFile =
-            DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
-    std::string badFile =
-            "<notjson?>thisIsInvalid>definitelynotjson<?!";
+        DownloadReportTestBuilder::goodReportString(DownloadReportTestBuilder::UseTime::PreviousPrevious);
+    std::string badFile = "<notjson?>thisIsInvalid>definitelynotjson<?!";
     // returning, on purpose, wrong order in the file system list files as it should not depend on that to list the
     // files in the chronological order.
-    std::vector<std::string> files{ "update_report_1.json", "update_report_2.json", "Config.json", "Update_Config.json", "random_unknown.json" };
+    std::vector<std::string> files{
+        "update_report_1.json", "update_report_2.json", "Config.json", "Update_Config.json", "random_unknown.json"
+    };
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(badFile));
@@ -476,7 +477,7 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     ReportAndFiles reportAndFiles = DownloadReportsAnalyser::processReports();
     ReportCollectionResult collectionResult = reportAndFiles.reportCollectionResult;
 
-    std::vector<std::string> sortedOrder{ "update_report_2.json"};
+    std::vector<std::string> sortedOrder{ "update_report_2.json" };
 
     EXPECT_EQ(reportAndFiles.sortedFilePaths, sortedOrder);
 
@@ -490,11 +491,9 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     expectedStatus.LastSyncTime = PreviousPreviousFinishTime;
     expectedStatus.LastInstallStartedTime = PreviousPreviousStartTime;
 
-
     EXPECT_EQ(collectionResult.IndicesOfSignificantReports, shouldKeep({ true }));
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to process file: update_report_1.json"));
-
 }
 
 TEST_F(TestDownloadReportAnalyser, ProductsAreListedIfPossibleEvenOnConnectionError) // NOLINT
@@ -712,8 +711,10 @@ TEST_F(TestDownloadReportAnalyser, exampleOfAnInstallFailedReport) // NOLINT
     expectedStatus.LastSyncTime.clear();
     expectedStatus.LastInstallStartedTime.clear();
     expectedStatus.FirstFailedTime = "20180822 121220";
-    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
-    expectedStatus.Subscriptions.emplace_back("ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back(
+        "ServerProtectionLinux-Base", "ServerProtectionLinux-Base#0.5.0", "0.5.0");
+    expectedStatus.Subscriptions.emplace_back(
+        "ServerProtectionLinux-Plugin", "ServerProtectionLinux-Plugin#0.5", "0.5.0");
 
     EXPECT_PRED_FORMAT2(schedulerEventIsEquivalent, expectedEvent, collectionResult.SchedulerEvent);
     EXPECT_PRED_FORMAT2(schedulerStatusIsEquivalent, expectedStatus, collectionResult.SchedulerStatus);
@@ -797,17 +798,21 @@ TEST_F(TestDownloadReportAnalyser, exampleOf2SuccessiveUpdateReport) // NOLINT
 
 TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NOLINT
 {
-    std::string firstReport{ R"sophos({ "startTime": "20190604 144145", "finishTime": "20190604 144155",
+    std::string firstReport{
+        R"sophos({ "startTime": "20190604 144145", "finishTime": "20190604 144155",
                 "syncTime": "20190604 144155", "status": "SUCCESS", "sulError": "", "errorDescription": "",
                 "urlSource": "https://localhost:1233",
                 "products": [
                 { "rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos" };
-    std::string lastReport{ R"sophos({ "startTime": "20190604 144207", "finishTime": "20190604 144207", "syncTime": "20190604 144207", "status": "SUCCESS", "sulError": "", "errorDescription": "",
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Plugin-MDR v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPGRADED" } ] })sophos"
+    };
+    std::string lastReport{
+        R"sophos({ "startTime": "20190604 144207", "finishTime": "20190604 144207", "syncTime": "20190604 144207", "status": "SUCCESS", "sulError": "", "errorDescription": "",
                 "urlSource": "https://localhost:1233",
                 "products": [
                 {"rigidName": "ServerProtectionLinux-Base", "productName": "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "downloadVersion": "0.5.0", "errorDescription": "", "productStatus": "UPTODATE" },
-                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos" };
+                { "rigidName": "ServerProtectionLinux-Plugin-MDR", "productName": "", "downloadVersion": "", "errorDescription": "", "productStatus": "UNINSTALLED" } ] })sophos"
+    };
     suldownloaderdata::DownloadReport report1 = suldownloaderdata::DownloadReport::toReport(firstReport);
     suldownloaderdata::DownloadReport report2 = suldownloaderdata::DownloadReport::toReport(lastReport);
 
@@ -828,9 +833,13 @@ TEST_F(TestDownloadReportAnalyser, uninstalledProductsShouldGenerateEvent) // NO
     expectedStatus.LastInstallStartedTime = "20190604 144145";
     expectedStatus.FirstFailedTime.clear();
     expectedStatus.Subscriptions.emplace_back(
-            ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
+        ProductStatus{ "ServerProtectionLinux-Base",
+                       "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0",
+                       "0.5.0" });
     expectedStatus.Products.emplace_back(
-            ProductStatus{ "ServerProtectionLinux-Base", "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0", "0.5.0" });
+        ProductStatus{ "ServerProtectionLinux-Base",
+                       "Sophos Server Protection for Linux ServerProtectionLinux-Base v0.5.0",
+                       "0.5.0" });
 
     // Plugin is not Reported, as it has been Uninstalled.
 

@@ -34,29 +34,26 @@ public:
         auto mockProcess1 = new StrictMock<MockProcess>();
         auto mockProcess2 = new StrictMock<MockProcess>();
 
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
-            [mockProcess1, mockProcess2]() {
-              static int currentMockIndex = 1;
-              if(currentMockIndex == 1)
-              {
-                  currentMockIndex++;
-                  EXPECT_CALL(*mockProcess1, exec(_, _)).Times(1).RetiresOnSaturation();
-                  EXPECT_CALL(*mockProcess1, output()).WillOnce(Return("")).RetiresOnSaturation();
-                  EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(0)).RetiresOnSaturation();
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([mockProcess1, mockProcess2]() {
+            static int currentMockIndex = 1;
+            if (currentMockIndex == 1)
+            {
+                currentMockIndex++;
+                EXPECT_CALL(*mockProcess1, exec(_, _)).Times(1).RetiresOnSaturation();
+                EXPECT_CALL(*mockProcess1, output()).WillOnce(Return("")).RetiresOnSaturation();
+                EXPECT_CALL(*mockProcess1, exitCode()).WillOnce(Return(0)).RetiresOnSaturation();
 
-                  return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
-              }
+                return std::unique_ptr<Common::Process::IProcess>(mockProcess1);
+            }
 
-              EXPECT_CALL(*mockProcess2, exec(_, _)).Times(1);
-              EXPECT_CALL(*mockProcess2, output()).WillOnce(Return(""));
-              EXPECT_CALL(*mockProcess2, exitCode()).WillOnce(Return(1));
+            EXPECT_CALL(*mockProcess2, exec(_, _)).Times(1);
+            EXPECT_CALL(*mockProcess2, output()).WillOnce(Return(""));
+            EXPECT_CALL(*mockProcess2, exitCode()).WillOnce(Return(1));
 
-              currentMockIndex = 1; //Reset
+            currentMockIndex = 1; // Reset
 
-              return std::unique_ptr<Common::Process::IProcess>(mockProcess2);
-
-
-            });
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess2);
+        });
     }
 
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
@@ -77,8 +74,8 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
     runner->triggerSulDownloader();
 
     // Write a report json file.
-    auto futureTempDir =
-        std::async(std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
+    auto futureTempDir = std::async(
+        std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
     auto task = queue->pop();

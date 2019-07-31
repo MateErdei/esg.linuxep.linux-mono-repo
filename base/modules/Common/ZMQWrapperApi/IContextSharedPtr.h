@@ -14,5 +14,5 @@ namespace Common
     {
         class IContext;
         using IContextSharedPtr = std::shared_ptr<IContext>;
-    } // namespace ZeroMQWrapper
+    } // namespace ZMQWrapperApi
 } // namespace Common

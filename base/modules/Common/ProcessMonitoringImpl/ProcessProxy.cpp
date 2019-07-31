@@ -10,24 +10,21 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/Exceptions/Print.h>
 #include <Common/FileSystem/IFileSystem.h>
 
 #include <cassert>
-
-#include <Common/Exceptions/Print.h>
 
 namespace Common
 {
     namespace ProcessMonitoringImpl
     {
-
-        ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo)
-                :
-                m_processInfo(std::move(processInfo)),
-                m_process(Common::Process::createProcess()),
-                m_running(false),
-                m_deathTime(0),
-                m_enabled(true)
+        ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
+            m_processInfo(std::move(processInfo)),
+            m_process(Common::Process::createProcess()),
+            m_running(false),
+            m_deathTime(0),
+            m_enabled(true)
         {
             m_exe = m_processInfo->getExecutableFullPath();
             if ((!m_exe.empty()) && m_exe[0] != '/')
@@ -69,9 +66,10 @@ namespace Common
             // Add in the installation directory to the environment variables used when starting all plugins
             Common::Process::EnvPairs envVariables = m_processInfo->getExecutableEnvironmentVariables();
             envVariables.emplace_back(
-                    "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+                "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
 
-            m_process->exec(m_exe, m_processInfo->getExecutableArguments(), envVariables, userId.second, groupId.second);
+            m_process->exec(
+                m_exe, m_processInfo->getExecutableArguments(), envVariables, userId.second, groupId.second);
             m_running = true;
         }
 
@@ -142,7 +140,7 @@ namespace Common
             }
             else if (!m_enabled)
             {
-                LOGWARN(m_exe << " still running, despite being disabled: " << (int) statusCode);
+                LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
                 return std::chrono::seconds(5);
             }
             return std::chrono::hours(1);
@@ -189,7 +187,7 @@ namespace Common
             {
                 PRINT("Exception caught while attempting to stop ProcessProxy in destructor: " << ex.what());
             }
-            catch(...)
+            catch (...)
             {
                 PRINT("Non std::exception caught while attempting to stop ProcessProxy in destructor");
             }
@@ -228,19 +226,15 @@ namespace Common
             std::swap(m_process, other.m_process);
         }
 
-        ProcessProxy::ProcessProxy(ProcessProxy&& other) noexcept
-        {
-            swap(other);
-        }
+        ProcessProxy::ProcessProxy(ProcessProxy&& other) noexcept { swap(other); }
 
     } // namespace ProcessMonitoringImpl
-} // name
+} // namespace Common
 
 namespace Common::ProcessMonitoring
 {
     IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr)
     {
-        return IProcessProxyPtr(
-                new Common::ProcessMonitoringImpl::ProcessProxy(std::move(processInfoPtr)));
+        return IProcessProxyPtr(new Common::ProcessMonitoringImpl::ProcessProxy(std::move(processInfoPtr)));
     }
-}
+} // namespace Common::ProcessMonitoring

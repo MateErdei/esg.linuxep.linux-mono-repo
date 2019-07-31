@@ -8,8 +8,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "PluginCallback.h"
 #include "SchedulerProcessor.h"
-#include "TaskQueue.h"
 #include "SchedulerTask.h"
+#include "TaskQueue.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>

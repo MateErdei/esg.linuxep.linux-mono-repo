@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/FileSystem/IFileSystem.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <gmock/gmock.h>
 
@@ -21,8 +21,8 @@ public:
     {
         if (initApplicationConfiguration)
         {
-            //Initialise the application configuration in the constructor of the mock to avoid
-            //hitting a unexpected readlink when performing a strict mock
+            // Initialise the application configuration in the constructor of the mock to avoid
+            // hitting a unexpected readlink when performing a strict mock
             Common::ApplicationConfiguration::applicationConfiguration();
         }
     }
@@ -44,8 +44,7 @@ public:
     MOCK_CONST_METHOD1(listDirectories, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD1(removeFile, void(const Path& path));
 
-    MOCK_CONST_METHOD1(removeFileOrDirectory, void(
-            const Path& path));
+    MOCK_CONST_METHOD1(removeFileOrDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD1(makedirs, void(const Path& path));
     MOCK_CONST_METHOD1(makeAbsolute, Path(const Path& path));

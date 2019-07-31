@@ -4,24 +4,22 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <watchdog/watchdogimpl/PluginProxy.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <watchdog/watchdogimpl/PluginProxy.h>
 
 namespace
 {
     class TestPluginProxy : public ::testing::Test
     {
     public:
-        ~TestPluginProxy()
-        {
-            Tests::restoreFileSystem();
-        }
+        ~TestPluginProxy() { Tests::restoreFileSystem(); }
+
     private:
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     };
@@ -30,11 +28,13 @@ namespace
     {
     public:
         explicit PluginProxyExposePluginInfo(Common::PluginRegistryImpl::PluginInfo info) :
-                watchdog::watchdogimpl::PluginProxy(std::move(info)) {}
-        Common::PluginRegistryImpl::PluginInfo& getPluginInfoPublic() {
+            watchdog::watchdogimpl::PluginProxy(std::move(info))
+        {
+        }
+        Common::PluginRegistryImpl::PluginInfo& getPluginInfoPublic()
+        {
             return *dynamic_cast<Common::PluginRegistryImpl::PluginInfo*>(m_processInfo.get());
         }
-
     };
 } // namespace
 
@@ -57,11 +57,10 @@ TEST_F(TestPluginProxy, TestPluginNameCanBeAccessedFromPluginProxy) // NOLINT
 
 TEST_F(TestPluginProxy, TestPluginInfoCanBeUpdatedInPluginProxy) // NOLINT
 {
-    
     Common::PluginRegistryImpl::PluginInfo info;
     std::unique_ptr<PluginProxyExposePluginInfo> proxy;
     EXPECT_NO_THROW(proxy.reset(new PluginProxyExposePluginInfo(std::move(info)))); // NOLINT
-    auto & pluginProxyInfo = proxy->getPluginInfoPublic();
+    auto& pluginProxyInfo = proxy->getPluginInfoPublic();
 
     EXPECT_EQ(pluginProxyInfo.getPluginName(), "");
     EXPECT_EQ(pluginProxyInfo.getXmlTranslatorPath(), "");
@@ -71,7 +70,7 @@ TEST_F(TestPluginProxy, TestPluginInfoCanBeUpdatedInPluginProxy) // NOLINT
     EXPECT_EQ(pluginProxyInfo.getPolicyAppIds().empty(), true);
     EXPECT_EQ(pluginProxyInfo.getStatusAppIds().empty(), true);
     EXPECT_EQ(pluginProxyInfo.getExecutableUserAndGroupAsString(), "");
-    
+
     Common::PluginRegistryImpl::PluginInfo newInfo;
     newInfo.setPluginName("PluginName");
     newInfo.setXmlTranslatorPath("path1");

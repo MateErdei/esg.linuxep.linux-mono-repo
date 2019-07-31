@@ -22,10 +22,11 @@ namespace Common::HttpSenderImpl
     public:
         explicit HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper);
         HttpSender(const HttpSender&) = delete;
-        HttpSender& operator= (const HttpSender&) = delete;
+        HttpSender& operator=(const HttpSender&) = delete;
         ~HttpSender() override;
 
         int doHttpsRequest(RequestConfig& requestConfig) override;
+
     private:
         CURLcode setCurlOptions(
             CURL* curl,

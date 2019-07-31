@@ -4,32 +4,32 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "LoggingProxyImpl.h"
+
 #include "Logger.h"
-#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
+
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapperImpl/SocketImpl.h>
 
 #include <zmq.h>
 
-
 namespace
 {
-    class DebugLogHandler
-            : public Common::Reactor::ICallbackListener
+    class DebugLogHandler : public Common::Reactor::ICallbackListener
     {
     public:
-
         void messageHandler(Common::ZeroMQWrapper::IReadable::data_t request) override
         {
             std::stringstream message;
             message << "Pub Sub Log : ";
-            //Subscription and unsubscription is sent as a single message with the first char set to 1 or 0 respectively
-            if (request.size() == 1) {
-                std::string &data = request[0];
+            // Subscription and unsubscription is sent as a single message with the first char set to 1 or 0
+            // respectively
+            if (request.size() == 1)
+            {
+                std::string& data = request[0];
                 if (!data.empty() && (data[0] == char(0) || data[0] == char(1)))
                 {
-                    message << (data[0] == 0 ? "Unsubscribe ": "Subscribe ") <<  data.substr(1,std::string::npos);
+                    message << (data[0] == 0 ? "Unsubscribe " : "Subscribe ") << data.substr(1, std::string::npos);
                 }
                 else // Not a subscription message
                 {
@@ -47,43 +47,39 @@ namespace
         }
     };
 
-
-    class SocketPullImpl : public Common::ZeroMQWrapperImpl::SocketImpl, virtual public Common::ZeroMQWrapper::ISocketSubscriber
+    class SocketPullImpl : public Common::ZeroMQWrapperImpl::SocketImpl,
+                           virtual public Common::ZeroMQWrapper::ISocketSubscriber
     {
     public:
-        explicit SocketPullImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context)
-                : SocketImpl(std::move(context), ZMQ_PULL)
-        {}
+        explicit SocketPullImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
+            SocketImpl(std::move(context), ZMQ_PULL)
+        {
+        }
 
         /**
          * Read event from the socket
          * @return
          */
-        std::vector<std::string> read() override
-        {
-            return Common::ZeroMQWrapperImpl::SocketUtil::read(m_socket);
-        }
+        std::vector<std::string> read() override { return Common::ZeroMQWrapperImpl::SocketUtil::read(m_socket); }
 
         /**
          * Set the subscription for this socket.
          * @param subject
          * Dummy as not used with pull socket!
          */
-        void subscribeTo(const std::string& subject) override
-        {
-            LOGDEBUG(subject);
-        }
-
+        void subscribeTo(const std::string& subject) override { LOGDEBUG(subject); }
     };
 
-
-}
+} // namespace
 
 namespace Common
 {
     namespace ZMQWrapperApiImpl
     {
-        LoggingProxyImpl::LoggingProxyImpl(const std::string& frontend, const std::string& backend, Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
+        LoggingProxyImpl::LoggingProxyImpl(
+            const std::string& frontend,
+            const std::string& backend,
+            Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
             ProxyImpl(frontend, backend, context),
             m_captureAddress("inproc://Capture"),
             m_capture(context, ZMQ_PUSH),

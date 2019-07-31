@@ -39,7 +39,9 @@ namespace UpdateSchedulerImpl
         void processUpdateNow(const std::string& actionXml);
         void processScheduleUpdate();
         void processShutdownReceived();
-        std::string processSulDownloaderFinished(const std::string& reportFileLocation, const bool processLatestReport=false);
+        std::string processSulDownloaderFinished(
+            const std::string& reportFileLocation,
+            const bool processLatestReport = false);
         void processSulDownloaderFailedToStart(const std::string& errorMessage);
         void processSulDownloaderTimedOut();
         void processSulDownloaderMonitorDetached();

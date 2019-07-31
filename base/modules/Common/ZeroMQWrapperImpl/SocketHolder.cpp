@@ -11,9 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <zmq.h>
 
-Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(void* zmq_socket) : m_socket(zmq_socket)
-{
-}
+Common::ZeroMQWrapperImpl::SocketHolder::SocketHolder(void* zmq_socket) : m_socket(zmq_socket) {}
 
 Common::ZeroMQWrapperImpl::SocketHolder::~SocketHolder()
 {
@@ -60,12 +58,11 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     {
         throw ZeroMQWrapperException("Failed to create socket");
     }
-    constexpr int64_t maxSize = 10*1024*1024; // 10 MB
-    if ( -1== zmq_setsockopt(m_socket, ZMQ_MAXMSGSIZE,&maxSize, sizeof(maxSize)))
+    constexpr int64_t maxSize = 10 * 1024 * 1024; // 10 MB
+    if (-1 == zmq_setsockopt(m_socket, ZMQ_MAXMSGSIZE, &maxSize, sizeof(maxSize)))
     {
         throw std::logic_error("Failed to configure option to limit max size of message on the socket");
     }
-
 }
 
 void* Common::ZeroMQWrapperImpl::SocketHolder::release()

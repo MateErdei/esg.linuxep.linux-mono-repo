@@ -353,7 +353,8 @@ TEST(TestTelemetryHelper, registerResetCallbackGetsCalledMultipleTimes) // NOLIN
 
     DummyTelemetryProvider dummy("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
-        dummy.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy)));
+        dummy.getCookie(),
+        std::bind(&DummyTelemetryProvider::callback, &dummy)));
 
     helper.reset();
     ASSERT_TRUE(dummy.hasCallbackBeenCalled());
@@ -373,11 +374,13 @@ TEST(TestTelemetryHelper, multipleRegisterResetCallbackGetsCalledMultipleTimes) 
 
     DummyTelemetryProvider dummy1("dummy1");
     ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
-        dummy1.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy1)));
+        dummy1.getCookie(),
+        std::bind(&DummyTelemetryProvider::callback, &dummy1)));
 
     DummyTelemetryProvider dummy2("dummy2");
     ASSERT_NO_THROW(helper.registerResetCallback( // NOLINT
-        dummy2.getCookie(), std::bind(&DummyTelemetryProvider::callback, &dummy2)));
+        dummy2.getCookie(),
+        std::bind(&DummyTelemetryProvider::callback, &dummy2)));
 
     helper.reset();
     ASSERT_TRUE(dummy1.hasCallbackBeenCalled());

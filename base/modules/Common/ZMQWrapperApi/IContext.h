@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IContextSharedPtr.h"
+
 #include "Common/ZeroMQWrapper/IProxy.h"
 #include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
 #include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
@@ -32,5 +33,5 @@ namespace Common
         };
 
         extern ZMQWrapperApi::IContextSharedPtr createContext();
-    } // namespace ZeroMQWrapper
+    } // namespace ZMQWrapperApi
 } // namespace Common

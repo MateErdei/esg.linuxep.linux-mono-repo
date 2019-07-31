@@ -49,20 +49,13 @@ namespace
 
 } // namespace
 
-
 namespace Common
 {
     namespace ProcessMonitoringImpl
     {
-        SignalHandler::SignalHandler()
-        {
-            setSignalHandler();
-        }
+        SignalHandler::SignalHandler() { setSignalHandler(); }
 
-        SignalHandler::~SignalHandler()
-        {
-            clearSignalHandler();
-        }
+        SignalHandler::~SignalHandler() { clearSignalHandler(); }
 
         bool SignalHandler::clearSubProcessExitPipe()
         {
@@ -84,14 +77,8 @@ namespace Common
             return ret;
         }
 
-        int SignalHandler::subprocessExitFileDescriptor()
-        {
-            return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd();
-        }
+        int SignalHandler::subprocessExitFileDescriptor() { return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd(); }
 
-        int SignalHandler::terminationFileDescriptor()
-        {
-            return GL_TERM_PIPE.readFd();
-        }
+        int SignalHandler::terminationFileDescriptor() { return GL_TERM_PIPE.readFd(); }
     } // namespace ProcessMonitoringImpl
 } // namespace Common

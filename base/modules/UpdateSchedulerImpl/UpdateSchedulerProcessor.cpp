@@ -75,7 +75,7 @@ namespace UpdateSchedulerImpl
         {
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
         }
-        catch (const Common::PluginApi::NoPolicyAvailableException& )
+        catch (const Common::PluginApi::NoPolicyAvailableException&)
         {
             LOGINFO("No policy available right now for app: " << UpdateSchedulerProcessor::ALC_API);
             // Ignore no Policy Available errors
@@ -83,7 +83,8 @@ namespace UpdateSchedulerImpl
         catch (const Common::PluginApi::ApiException& apiException)
         {
             std::string errorMsg(apiException.what());
-            assert(errorMsg.find(Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) == std::string::npos);
+            assert(
+                errorMsg.find(Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) == std::string::npos);
             LOGERROR("Unexpected error when requesting policy: " << apiException.what());
         }
 
@@ -215,9 +216,11 @@ namespace UpdateSchedulerImpl
             {
                 // get the previous report and send status if one exists and call processSulDownloaderFinished.
                 // to force sending new status if any back to central.
-                // if a update_report.json file exists, an update is in progress, so do not force re-processing the previous report.
+                // if a update_report.json file exists, an update is in progress, so do not force re-processing the
+                // previous report.
 
-                std::vector<std::string> filesInReportDirectory = Common::FileSystem::fileSystem()->listFiles(m_updateVarPath);
+                std::vector<std::string> filesInReportDirectory =
+                    Common::FileSystem::fileSystem()->listFiles(m_updateVarPath);
                 std::string startPattern("update_report");
                 std::string endPattern(".json");
                 std::string unprocessedReport("update_report.json");
@@ -234,12 +237,12 @@ namespace UpdateSchedulerImpl
                         newReportFound = true;
                         break;
                     }
-                    else if (fileName.find(startPattern) == 0 &&
+                    else if (
+                        fileName.find(startPattern) == 0 &&
                         fileName.find(endPattern) == (fileName.length() - endPattern.length()))
                     {
                         oldReportFound = true;
                     }
-
                 }
 
                 if (!newReportFound && oldReportFound)
@@ -301,7 +304,9 @@ namespace UpdateSchedulerImpl
         m_queueTask->pushStop();
     }
 
-    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(const std::string& /*reportFileLocation*/, const bool processLatestReport)
+    std::string UpdateSchedulerProcessor::processSulDownloaderFinished(
+        const std::string& /*reportFileLocation*/,
+        const bool processLatestReport)
     {
         auto iFileSystem = Common::FileSystem::fileSystem();
         bool remainingReportToProcess{ false };
@@ -329,7 +334,8 @@ namespace UpdateSchedulerImpl
         for (size_t i = 0; i < reportAndFiles.sortedFilePaths.size(); i++)
         {
             if (reportAndFiles.reportCollectionResult.IndicesOfSignificantReports[i] ==
-                configModule::ReportCollectionResult::SignificantReportMark::RedundantReport && !processLatestReport)
+                    configModule::ReportCollectionResult::SignificantReportMark::RedundantReport &&
+                !processLatestReport)
             {
                 LOGSUPPORT("Remove File: " << reportAndFiles.sortedFilePaths[i]);
                 iFileSystem->removeFile(reportAndFiles.sortedFilePaths[i]);

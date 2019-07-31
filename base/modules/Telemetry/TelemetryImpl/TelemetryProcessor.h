@@ -12,8 +12,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/HttpSender/IHttpSender.h>
 #include <Common/HttpSenderImpl/RequestConfig.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryConfigImpl/Config.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <utility>
 

@@ -23,5 +23,5 @@ namespace Common
             int subprocessExitFileDescriptor();
             int terminationFileDescriptor();
         };
-    } // namespace watchdogimpl
-} // namespace watchdog
+    } // namespace ProcessMonitoringImpl
+} // namespace Common

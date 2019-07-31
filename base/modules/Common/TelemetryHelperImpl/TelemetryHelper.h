@@ -146,4 +146,4 @@ namespace Common::Telemetry
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
         void clearData();
     };
-}
+} // namespace Common::Telemetry

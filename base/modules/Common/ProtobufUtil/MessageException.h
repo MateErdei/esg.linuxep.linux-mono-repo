@@ -18,5 +18,5 @@ namespace Common
             using std::runtime_error::runtime_error;
         };
 
-    } // namespace UtilityImpl
+    } // namespace ProtobufUtil
 } // namespace Common

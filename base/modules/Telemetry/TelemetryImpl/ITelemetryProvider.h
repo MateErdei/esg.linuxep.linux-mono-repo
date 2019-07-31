@@ -17,4 +17,4 @@ namespace Telemetry
         virtual std::string getName() = 0;
         virtual std::string getTelemetry() = 0;
     };
-}
+} // namespace Telemetry

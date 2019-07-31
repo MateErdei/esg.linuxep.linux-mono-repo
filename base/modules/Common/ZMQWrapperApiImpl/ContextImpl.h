@@ -33,5 +33,5 @@ namespace Common
         private:
             Common::ZeroMQWrapperImpl::ContextHolderSharedPtr m_context;
         };
-    } // namespace ZeroMQWrapperImpl
+    } // namespace ZMQWrapperApiImpl
 } // namespace Common

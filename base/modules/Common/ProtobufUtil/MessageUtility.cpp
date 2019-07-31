@@ -32,5 +32,5 @@ namespace Common
             }
             return json_output;
         }
-    } // namespace UtilityImpl
+    } // namespace ProtobufUtil
 } // namespace Common

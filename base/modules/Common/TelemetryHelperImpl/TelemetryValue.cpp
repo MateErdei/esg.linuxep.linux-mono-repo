@@ -83,4 +83,4 @@ namespace Common::Telemetry
             throw std::logic_error(msg.str());
         }
     }
-}
+} // namespace Common::Telemetry

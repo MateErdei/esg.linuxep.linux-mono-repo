@@ -96,16 +96,16 @@ namespace
             catch (std::exception& ex)
             {
                 auto end = std::chrono::high_resolution_clock::now();
-                auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
+                auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
                 std::cout << "monitor child: " << ex.what() << " after " << duration << "ns" << std::endl;
             }
             auto end = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
+            auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
             int status = 1;
             pid_t exitedPID = ::waitpid(pid, &status, 0);
             assert(exitedPID == pid);
             static_cast<void>(exitedPID);
-            std::cerr << "Child PID="<< pid<< " exited with "<< status << " after " << duration << "ns" << std::endl;
+            std::cerr << "Child PID=" << pid << " exited with " << status << " after " << duration << "ns" << std::endl;
         }
 
     public:
@@ -125,10 +125,10 @@ namespace
             char** newargv = static_cast<char**>(malloc(sizeof(char*) * (args.size() + 2)));
             ScopeGuard guardNewargv{newargv, args.size()+2};
             const char* exe_cstr = exe.c_str();
-            newargv[0] = strdup(exe_cstr); // Not actually modified
+            newargv[0] = const_cast<char*>(exe_cstr); // Not actually modified
             for (size_t i = 0; i < args.size(); i++)
             {
-                newargv[i + 1] = strdup(args[i].c_str()); // Not actually modified
+                newargv[i + 1] = const_cast<char*>(args[i].c_str()); // Not actually modified
             }
             newargv[args.size() + 1] = nullptr;
 

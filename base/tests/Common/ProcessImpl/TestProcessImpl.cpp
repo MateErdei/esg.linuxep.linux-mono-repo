@@ -8,9 +8,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessInfo.h>
-#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
 #include <fstream>
 
@@ -56,9 +56,10 @@ namespace
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
-        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        process->setNotifyProcessFinishedCallBack(
+            [&testExecutionSynchronizer]() { testExecutionSynchronizer.notify(); });
         process->exec("/bin/echo", { "hello" });
-        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        EXPECT_TRUE(testExecutionSynchronizer.waitfor());
         ASSERT_EQ(process->output(), "hello\n");
     }
 
@@ -66,9 +67,10 @@ namespace
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
-        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        process->setNotifyProcessFinishedCallBack(
+            [&testExecutionSynchronizer]() { testExecutionSynchronizer.notify(); });
         process->exec("/bin/sleep", { "0.1" });
-        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        EXPECT_TRUE(testExecutionSynchronizer.waitfor());
         ASSERT_EQ(process->output(), "");
     }
 
@@ -76,14 +78,13 @@ namespace
     {
         auto process = createProcess();
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
-        process->setNotifyProcessFinishedCallBack([&testExecutionSynchronizer](){testExecutionSynchronizer.notify();});
+        process->setNotifyProcessFinishedCallBack(
+            [&testExecutionSynchronizer]() { testExecutionSynchronizer.notify(); });
         // the process will not work correctly. But the notification on its failure shoud still be triggered.
         process->exec("/bin/nothingsleep", { "0.1" });
-        EXPECT_TRUE( testExecutionSynchronizer.waitfor());
+        EXPECT_TRUE(testExecutionSynchronizer.waitfor());
         ASSERT_EQ(process->output(), "");
     }
-
-
 
     TEST(ProcessImpl, SupportAddingEnvironmentVariables) // NOLINT
     {
@@ -210,7 +211,7 @@ namespace
     {
         auto processInfoPtr = Common::Process::createEmptyProcessInfo();
 
-        ASSERT_EQ(processInfoPtr->getExecutableFullPath(),"");
+        ASSERT_EQ(processInfoPtr->getExecutableFullPath(), "");
         std::vector<std::string> emptyVector;
         ASSERT_EQ(processInfoPtr->getExecutableArguments(), emptyVector);
         Common::Process::EnvPairs emptyEnvPairs;
@@ -223,8 +224,6 @@ namespace
         auto userPair = processInfoPtr->getExecutableUser();
         ASSERT_EQ(userPair.first, false);
         ASSERT_EQ(userPair.second, -1);
-
     }
-
 
 } // namespace

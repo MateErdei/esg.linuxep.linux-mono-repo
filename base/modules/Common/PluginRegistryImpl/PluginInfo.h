@@ -166,10 +166,8 @@ namespace Common
             std::vector<std::string> m_statusAppIds;
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
-
         };
 
         using PluginInfoPtr = std::unique_ptr<PluginInfo>;
     } // namespace PluginRegistryImpl
 } // namespace Common
-

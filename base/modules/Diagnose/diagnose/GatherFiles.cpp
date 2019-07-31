@@ -9,24 +9,28 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Strings.h"
 
 #include <Common/FileSystemImpl/TempDir.h>
-#include <Common/UtilityImpl/StringUtils.h>
 
 #include <algorithm>
 #include <iostream>
 
 namespace
 {
+    bool stringEndsWith(const std::string& str, const std::string& suffix)
+    {
+        return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
+    }
+
     bool isFileOfInterest(std::string filename)
     {
         // Transform copy of string to lowercase
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
-        static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
-                                                                     ".log", ".dat",  ".flags", ".ini" };
+        static const std::vector<std::string> interestingExtensions{ ".xml", ".json",  ".txt", ".conf", ".config",
+                                                                     ".log", ".log.1", ".dat", ".flags" };
 
         for (const auto& type : interestingExtensions)
         {
-            if (Common::UtilityImpl::StringUtils::isSubstring(filename, type))
+            if (stringEndsWith(filename, type))
             {
                 return true;
             }
@@ -172,12 +176,12 @@ namespace diagnose
         throw std::invalid_argument("Error: No config file - " + configFileName);
     }
 
-    void GatherFiles::copyPluginSubDirectoryFiles(
+    void GatherFiles::copyPluginSubDirectoryLogFiles(
         const Path& pluginsDir,
         const std::string& pluginName,
         const Path& destination)
     {
-        static const std::vector<std::string> possiblePluginLogSubDirectories{ "./", "dbos/data", "dbos/data/logs" };
+        static const std::vector<std::string> possiblePluginLogSubDirectories{ "dbos/data/logs" };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
         for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
@@ -197,10 +201,7 @@ namespace diagnose
 
                 for (const auto& file : files)
                 {
-                    if (isFileOfInterest(file))
-                    {
-                        copyFileIntoDirectory(file, newDestinationPath);
-                    }
+                    copyFileIntoDirectory(file, newDestinationPath);
                 }
             }
         }
@@ -229,7 +230,7 @@ namespace diagnose
                 copyAllOfInterestFromDir(pluginLogDir, destination);
             }
 
-            copyPluginSubDirectoryFiles(pluginsDir, pluginName, destination);
+            copyPluginSubDirectoryLogFiles(pluginsDir, pluginName, destination);
         }
     }
 } // namespace diagnose

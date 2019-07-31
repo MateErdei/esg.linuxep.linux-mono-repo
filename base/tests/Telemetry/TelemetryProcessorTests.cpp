@@ -8,9 +8,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
  * Component tests for Telemetry Executable
  */
 
+#include "DerivedTelemetryProcessor.h"
 #include "MockHttpSender.h"
 #include "MockTelemetryProvider.h"
-#include "DerivedTelemetryProcessor.h"
 
 #include <Telemetry/TelemetryImpl/Telemetry.h>
 #include <gmock/gmock.h>
@@ -191,7 +191,7 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorDoesNotProcessLargeJsonFromMult
     auto mockTelemetryProvider1 = std::make_shared<MockTelemetryProvider>();
     auto mockTelemetryProvider2 = std::make_shared<MockTelemetryProvider>();
 
-    std::string longString = std::string(m_config->getMaxJsonSize()/2, '.');
+    std::string longString = std::string(m_config->getMaxJsonSize() / 2, '.');
 
     std::stringstream ss;
     ss << R"({"key":")" << longString << R"("})";

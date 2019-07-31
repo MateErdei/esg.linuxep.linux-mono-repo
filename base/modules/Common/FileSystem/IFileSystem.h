@@ -154,17 +154,18 @@ namespace Common
              * @param includeSymlinks If true then include symlinks
              * @return List of the full path of files under the directoryPath.
              */
-            virtual std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks=false) const = 0;
+            virtual std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks = false)
+                const = 0;
 
             /**
-            * Provide the full absolute path of the directories under the directoryPath given.
-            *
-            * @note Only regular directories are listed, special file system entries will not be listed.
-            * . and .. are not listed
-            *
-            * @param directoryPath
-            * @return List of the full path of files under the directoryPath.
-            */
+             * Provide the full absolute path of the directories under the directoryPath given.
+             *
+             * @note Only regular directories are listed, special file system entries will not be listed.
+             * . and .. are not listed
+             *
+             * @param directoryPath
+             * @return List of the full path of files under the directoryPath.
+             */
             virtual std::vector<Path> listDirectories(const Path& directoryPath) const = 0;
 
             virtual void makeExecutable(const Path& path) const = 0;
@@ -223,7 +224,7 @@ namespace Common
              * @param path
              * @return
              */
-            virtual off_t fileSize(const Path & path ) const = 0;
+            virtual off_t fileSize(const Path& path) const = 0;
         };
 
         /**

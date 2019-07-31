@@ -9,11 +9,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "ProcessProxy.h"
 
 #include <Common/PluginRegistryImpl/PluginInfo.h>
+#include <Common/ProcessMonitoring/IProcessMonitor.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
-#include <Common/ProcessMonitoring/IProcessMonitor.h>
+
 #include <list>
 
 namespace Common
@@ -31,8 +32,10 @@ namespace Common
             explicit ProcessMonitor(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~ProcessMonitor() override;
 
-            void addProcessToMonitor(Common::ProcessMonitoring::IProcessProxyPtr processProxyPtr) override ;
-            void addReplierSocketAndHandleToPoll(Common::ZeroMQWrapper::ISocketReplier* socketReplier, std::function<void(void)> socketHandleFunction) override ;
+            void addProcessToMonitor(Common::ProcessMonitoring::IProcessProxyPtr processProxyPtr) override;
+            void addReplierSocketAndHandleToPoll(
+                Common::ZeroMQWrapper::ISocketReplier* socketReplier,
+                std::function<void(void)> socketHandleFunction) override;
 
             int run() override;
 
@@ -40,6 +43,7 @@ namespace Common
 
             ProxyList m_processProxies;
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
+
         private:
             SocketHandleFunctionList m_socketHandleFunctionList;
         };

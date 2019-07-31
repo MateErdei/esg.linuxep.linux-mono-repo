@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/DirectoryWatcher/IDirectoryWatcherException.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
 #include <sys/inotify.h>
@@ -18,7 +19,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <thread>
 #include <unistd.h>
-#include <Common/UtilityImpl/StringUtils.h>
 
 namespace Common
 {
@@ -153,7 +153,7 @@ namespace Common
                         LOGERROR("iNotify read failed with error " << errno << ": Stopping DirectoryWatcher");
                         exit = true;
                     }
-                    else if ( len == 0)
+                    else if (len == 0)
                     {
                         LOGWARN("Read from inotify returned 0 bytes read");
                     }
@@ -172,7 +172,8 @@ namespace Common
                                 auto listenerMapIter = m_listenerMap.find(event->wd);
                                 if (listenerMapIter != m_listenerMap.end())
                                 {
-                                    listenerMapIter->second->fileMoved( Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
+                                    listenerMapIter->second->fileMoved(
+                                        Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
                                 }
                             }
                         }

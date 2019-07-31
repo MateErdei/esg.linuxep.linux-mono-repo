@@ -5,6 +5,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TaskQueue.h"
+
 #include "SchedulerTask.h"
 
 namespace TelemetrySchedulerImpl

@@ -97,4 +97,4 @@ namespace Common::TelemetryConfigImpl
         int m_pluginSendReceiveTimeout;
         int m_pluginConnectionTimeout;
     };
-} // namespace Telemetry::TelemetryConfigImpl
+} // namespace Common::TelemetryConfigImpl

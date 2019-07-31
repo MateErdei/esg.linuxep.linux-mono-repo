@@ -21,4 +21,4 @@ namespace Common::HttpSender
 
         virtual int doHttpsRequest(Common::HttpSenderImpl::RequestConfig& requestConfig) = 0;
     };
-} // namespace Common::HttpSenderImpl
+} // namespace Common::HttpSender

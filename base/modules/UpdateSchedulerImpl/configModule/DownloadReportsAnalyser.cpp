@@ -118,14 +118,14 @@ namespace
         }
 
         // if any product has changed the event is relevant to send.
-        for( const auto & product: report.getProducts())
+        for (const auto& product : report.getProducts())
         {
             switch (product.productStatus)
             {
                 case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Upgraded:
                 case SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled:
-                        event.IsRelevantToSend = true;
-                        break;
+                    event.IsRelevantToSend = true;
+                    break;
                 default:
                     break;
             }
@@ -148,12 +148,12 @@ namespace
 
         for (auto& product : report.getProducts())
         {
-            if ( product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+            if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
             {
                 status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
         }
-        for( auto & whComponent: report.getWarehouseComponents())
+        for (auto& whComponent : report.getWarehouseComponents())
         {
             status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
         }
@@ -179,7 +179,7 @@ namespace UpdateSchedulerImpl
             ReportCollectionResult collectionResult;
             if (lastReport.getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS)
             {
-                 collectionResult = handleSuccessReports(reportCollection);
+                collectionResult = handleSuccessReports(reportCollection);
             }
             else
             {
@@ -188,15 +188,15 @@ namespace UpdateSchedulerImpl
 
             // special case is required for the status to report the list of warehousecomponents because
             // it is necessary to look for previous report when no product is listed.
-            if ( collectionResult.SchedulerStatus.Products.empty())
+            if (collectionResult.SchedulerStatus.Products.empty())
             {
                 // reverse iteration to find the latest report with non empty products
                 // skipping the latest one that has already been checked
-                for( int i = static_cast<int>(reportCollection.size())-2; i >= 0; i--)
+                for (int i = static_cast<int>(reportCollection.size()) - 2; i >= 0; i--)
                 {
-
-                    UpdateStatus lastStatus = extractStatusFromSingleReport(reportCollection[i], collectionResult.SchedulerEvent);
-                    if ( !lastStatus.Products.empty())
+                    UpdateStatus lastStatus =
+                        extractStatusFromSingleReport(reportCollection[i], collectionResult.SchedulerEvent);
+                    if (!lastStatus.Products.empty())
                     {
                         collectionResult.SchedulerStatus.Products = lastStatus.Products;
                         break;
@@ -209,7 +209,7 @@ namespace UpdateSchedulerImpl
         ReportAndFiles DownloadReportsAnalyser::processReports()
         {
             auto listOfReportFiles = DownloadReport::listOfAllPreviousReports(
-                    Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
+                Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath());
 
             struct FileAndDownloadReport
             {
@@ -343,8 +343,6 @@ namespace UpdateSchedulerImpl
             // if previous one had source url different from current, send event
             collectionResult.SchedulerEvent.IsRelevantToSend |=
                 reportCollection.at(previousIndex).getSourceURL() != collectionResult.SchedulerEvent.UpdateSource;
-
-
 
             return collectionResult;
         }

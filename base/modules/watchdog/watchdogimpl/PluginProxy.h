@@ -10,7 +10,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <Common/ProcessMonitoringImpl/ProcessProxy.h>
 
-
 #include <chrono>
 
 namespace watchdog
@@ -41,7 +40,6 @@ namespace watchdog
              * @return
              */
             Common::PluginRegistryImpl::PluginInfo& getPluginInfo() const;
-
         };
     } // namespace watchdogimpl
 } // namespace watchdog

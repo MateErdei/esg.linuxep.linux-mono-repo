@@ -51,23 +51,23 @@ public:
         R"({"key1":1,"key2":{"nested1":4294967200,"nested2":3.2,"nested3":-4},"my array":["TestValue",true,{"nested1":4294967200,"nested2":3.2,"nested3":-4}]})";
 };
 
-
 class TelemetrySerialiserParameterisedTestFixture : public ::testing::TestWithParam<std::string>
 {
 };
 
-INSTANTIATE_TEST_CASE_P(ParameterisedJsonTests,  // NOLINT
-                        TelemetrySerialiserParameterisedTestFixture,
-                        ::testing::Values(
-                            R"({"a":"b"})",
-                            R"({"a":""})",
-                            R"({"key":[]})",
-                            R"([])",
-                            R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, "string2", "string"]})",
-                            R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, {"nested":{"array":[1,2,3]}}, "string"]})",
-                            R"({"OS":{"Name":"Ubuntu","Arch":"x64","Platform":"Linux","Version":"18.04"},"DiskSpace":{"SpaceInMB":150000,"Healthy":true}})"));
+INSTANTIATE_TEST_CASE_P(
+    ParameterisedJsonTests, // NOLINT
+    TelemetrySerialiserParameterisedTestFixture,
+    ::testing::Values(
+        R"({"a":"b"})",
+        R"({"a":""})",
+        R"({"key":[]})",
+        R"([])",
+        R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, "string2", "string"]})",
+        R"({"a":"1", "b":2, "c":false, "d":["string", 2, true, {"nested":{"array":[1,2,3]}}, "string"]})",
+        R"({"OS":{"Name":"Ubuntu","Arch":"x64","Platform":"Linux","Version":"18.04"},"DiskSpace":{"SpaceInMB":150000,"Healthy":true}})"));
 
-TEST_P(TelemetrySerialiserParameterisedTestFixture, SerialiseAndDeserialise ) // NOLINT
+TEST_P(TelemetrySerialiserParameterisedTestFixture, SerialiseAndDeserialise) // NOLINT
 {
     std::string testJson = GetParam();
     auto telemetryObject = TelemetrySerialiser::deserialise(testJson);

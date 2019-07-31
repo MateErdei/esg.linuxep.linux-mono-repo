@@ -99,20 +99,20 @@ TEST_F(ReactorImplTest, TestFakeServerCommandsRespondCorrectly) // NOLINT
 
 TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // NOLINT
 {
-    Tests::TempDir tempDir("/tmp","SignalHandlerXXXXXX");
+    Tests::TempDir tempDir("/tmp", "SignalHandlerXXXXXX");
 
-    std::string socketAddress = std::string("ipc://") + Common::FileSystem::join(tempDir.dirPath() , "test.ipc");
+    std::string socketAddress = std::string("ipc://") + Common::FileSystem::join(tempDir.dirPath(), "test.ipc");
 
     auto process = Common::Process::createProcess();
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fakeServerPath = Common::FileSystem::join(ReactorImplTestsPath(), "FakeServerRunner");
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
-    ASSERT_TRUE( fileSystem->isDirectory(libsPath));
+    ASSERT_TRUE(fileSystem->isDirectory(libsPath));
     ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
     data_t args{ socketAddress };
     std::vector<Common::Process::EnvironmentPair> environment;
-    environment.push_back( Common::Process::EnvironmentPair{"LD_LIBRARY_PATH", libsPath} );
-    process->exec(fakeServerPath, args, environment );
+    environment.push_back(Common::Process::EnvironmentPair{ "LD_LIBRARY_PATH", libsPath });
+    process->exec(fakeServerPath, args, environment);
 
     auto context = Common::ZMQWrapperApi::createContext();
 
@@ -131,11 +131,11 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
             // Only expect a 0 if we managed to terminate the process
             EXPECT_EQ(0, process->exitCode());
         }
-    }catch ( std::exception & ex)
-    {
-        EXPECT_FALSE( true) << ex.what() << ":  " << process->output();
     }
-
+    catch (std::exception& ex)
+    {
+        EXPECT_FALSE(true) << ex.what() << ":  " << process->output();
+    }
 }
 
 TEST_F(ReactorImplTest, CallingStopBeforeStartAndNoListenersDoesNotThrow) // NOLINT

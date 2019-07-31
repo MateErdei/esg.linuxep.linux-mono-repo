@@ -9,8 +9,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/sslimpl/Md5Calc.h>
 #include <sys/stat.h>
 

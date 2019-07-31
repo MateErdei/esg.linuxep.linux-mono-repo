@@ -4,8 +4,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <log4cplus/logger.h>
 #include <Common/Logging/LoggerConfig.h>
+#include <log4cplus/logger.h>
 
 log4cplus::Logger& getManagementAgentLogger()
 {

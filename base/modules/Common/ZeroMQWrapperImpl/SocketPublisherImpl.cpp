@@ -25,7 +25,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 // The socket would then publish messages of the <subscription string> type and we would have
 // a log of when the subscription arrived. Note you would also have to manually handle unsubscribes too.
 
-
 Common::ZeroMQWrapperImpl::SocketPublisherImpl::SocketPublisherImpl(
     Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context) :
     SocketImpl(std::move(context), ZMQ_PUB)

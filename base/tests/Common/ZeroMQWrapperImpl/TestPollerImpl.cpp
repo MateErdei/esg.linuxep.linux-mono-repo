@@ -145,22 +145,13 @@ namespace
     class SocketReleaser
     {
         Common::ZeroMQWrapperImpl::SocketHolder& m_socket;
+
     public:
-        explicit SocketReleaser(Common::ZeroMQWrapperImpl::SocketHolder& socket)
-            : m_socket(socket)
-        {
-        }
+        explicit SocketReleaser(Common::ZeroMQWrapperImpl::SocketHolder& socket) : m_socket(socket) {}
 
-        ~SocketReleaser()
-        {
-            release();
-        }
+        ~SocketReleaser() { release(); }
 
-        void* release()
-        {
-            return m_socket.release();
-        }
-
+        void* release() { return m_socket.release(); }
     };
 
     TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT

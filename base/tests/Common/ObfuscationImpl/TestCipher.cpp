@@ -6,13 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "MockEvpCipherWrapper.h"
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Obfuscation/ICipherException.h>
 #include <Common/ObfuscationImpl/Cipher.h>
 #include <Common/ObfuscationImpl/Obscurity.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 class CipherTest : public ::testing::Test
 {
@@ -49,7 +48,7 @@ TEST_F(CipherTest, BadPKCS5Password) // NOLINT
     // First byte is treated as the salt length
     encrypted[0] = 32;
     Common::ObfuscationImpl::SecureDynamicBuffer cipherKey; // Empty cipher key
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW(                                           // NOLINT
         Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted),
         Common::Obfuscation::ICipherException);
 }

@@ -14,4 +14,4 @@ namespace diagnose
     static const std::string BASE_FOLDER = "BaseFiles";
     static const std::string SYSTEM_FOLDER = "SystemFiles";
     static const std::string DIAGNOSE_FOLDER = "DiagnoseOutput";
-}
+} // namespace diagnose

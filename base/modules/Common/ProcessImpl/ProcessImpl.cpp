@@ -71,7 +71,13 @@ namespace Common
 {
     namespace ProcessImpl
     {
-        ProcessImpl::ProcessImpl() : m_pid(-1), m_exitcode(std::numeric_limits<int>::max()), m_outputLimit(0), m_callback{[](){} } {}
+        ProcessImpl::ProcessImpl() :
+            m_pid(-1),
+            m_exitcode(std::numeric_limits<int>::max()),
+            m_outputLimit(0),
+            m_callback{ []() {} }
+        {
+        }
 
         ProcessImpl::~ProcessImpl() = default;
 
@@ -216,7 +222,7 @@ namespace Common
             m_pid = child;
             m_exitcode = std::numeric_limits<int>::max();
 
-            m_pipeThread.reset(new StdPipeThread(m_pipe->readFd(), [this](){onExecFinished();}) );
+            m_pipeThread.reset(new StdPipeThread(m_pipe->readFd(), [this]() { onExecFinished(); }));
             m_pipeThread->setOutputLimit(m_outputLimit);
             m_pipeThread->start();
         }
@@ -317,10 +323,7 @@ namespace Common
             }
         }
 
-        void ProcessImpl::onExecFinished()
-        {
-            m_callback();
-        }
+        void ProcessImpl::onExecFinished() { m_callback(); }
 
         void ProcessImpl::setNotifyProcessFinishedCallBack(Process::IProcess::functor callback)
         {

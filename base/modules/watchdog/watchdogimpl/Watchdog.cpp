@@ -10,6 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PluginProxy.h"
 
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -27,7 +28,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 using namespace watchdog::watchdogimpl;
 
-Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) : Common::ProcessMonitoringImpl::ProcessMonitor(std::move(context)) {}
+Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
+    Common::ProcessMonitoringImpl::ProcessMonitor(std::move(context))
+{
+}
 
 Watchdog::~Watchdog()
 {
@@ -48,7 +52,7 @@ int Watchdog::initialiseAndRun()
 
     setupSocket();
 
-    addReplierSocketAndHandleToPoll(m_socket.get(), [this](){ this->handleSocketRequest();});
+    addReplierSocketAndHandleToPoll(m_socket.get(), [this]() { this->handleSocketRequest(); });
 
     run();
 

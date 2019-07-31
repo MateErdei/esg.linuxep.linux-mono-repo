@@ -19,8 +19,7 @@ namespace Tests
      * Creates a temporary directory and provide some helper functions to setup files, directory structures and to
      * retrieve their path.
      */
-    class TempDir
-            : public Common::FileSystem::ITempDir
+    class TempDir : public Common::FileSystem::ITempDir
     {
     public:
         /**

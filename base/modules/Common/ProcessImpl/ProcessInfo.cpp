@@ -4,13 +4,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "ProcessInfo.h"
+
 #include "Logger.h"
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 
 #include <grp.h>
 #include <pwd.h>
@@ -20,23 +20,16 @@ namespace Common
 {
     namespace ProcessImpl
     {
-        ProcessInfo::ProcessInfo() noexcept
-                : m_executableUser(-1)
-                  , m_executableGroup(-1)
-        {}
+        ProcessInfo::ProcessInfo() noexcept : m_executableUser(-1), m_executableGroup(-1) {}
 
-        std::vector<std::string> ProcessInfo::getExecutableArguments() const
-        {
-            return m_executableArguments;
-        }
+        std::vector<std::string> ProcessInfo::getExecutableArguments() const { return m_executableArguments; }
 
         Process::EnvPairs ProcessInfo::getExecutableEnvironmentVariables() const
         {
             return m_executableEnvironmentVariables;
         }
 
-        std::string ProcessInfo::getExecutableFullPath() const
-        { return m_executableFullPath; }
+        std::string ProcessInfo::getExecutableFullPath() const { return m_executableFullPath; }
 
         void ProcessInfo::setExecutableFullPath(const std::string& executableFullPath)
         {
@@ -59,8 +52,8 @@ namespace Common
         }
 
         void ProcessInfo::addExecutableEnvironmentVariables(
-                const std::string& environmentName,
-                const std::string& environmentValue)
+            const std::string& environmentName,
+            const std::string& environmentValue)
         {
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
         }
@@ -109,10 +102,7 @@ namespace Common
             }
         }
 
-        std::string ProcessInfo::getExecutableUserAndGroupAsString() const
-        {
-            return m_executableUserAndGroupAsString;
-        }
+        std::string ProcessInfo::getExecutableUserAndGroupAsString() const { return m_executableUserAndGroupAsString; }
 
         std::pair<bool, uid_t> ProcessInfo::getExecutableUser() const
         {
@@ -128,12 +118,9 @@ namespace Common
             return std::make_pair(m_executableGroup != -1, groupId);
         }
 
-    }
-}
+    } // namespace ProcessImpl
+} // namespace Common
 namespace Common::Process
 {
-    IProcessInfoPtr createEmptyProcessInfo()
-    {
-        return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo);
-    }
-}
+    IProcessInfoPtr createEmptyProcessInfo() { return IProcessInfoPtr(new Common::ProcessImpl::ProcessInfo); }
+} // namespace Common::Process

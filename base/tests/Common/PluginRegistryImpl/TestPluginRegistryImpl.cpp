@@ -880,4 +880,3 @@ TEST_F(PluginRegistryTests, extractPluginNameReturnsCorrectAnswer) // NOLINT
     std::string plugin = Common::PluginRegistryImpl::PluginInfo::extractPluginNameFromFilename("/foo/bar/sav.json");
     EXPECT_EQ(plugin, "sav");
 }
-

@@ -79,7 +79,7 @@ namespace UpdateSchedulerImpl
         {
             auto process = Common::Process::createProcess();
             process->exec("/bin/systemctl", { "is-failed", "sophos-spl-update.service" });
-            auto result =  std::make_tuple(process->exitCode(), process->output());
+            auto result = std::make_tuple(process->exitCode(), process->output());
             int exitCode = std::get<0>(result);
 
             if (exitCode == 0)

@@ -21,4 +21,3 @@ namespace TelemetrySchedulerImpl
     };
 
 } // namespace TelemetrySchedulerImpl
-

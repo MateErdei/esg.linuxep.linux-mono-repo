@@ -18,7 +18,8 @@ public:
 
     ConfigurationDataBase()
     {
-        m_absInstallationPath = "/installroot";;
+        m_absInstallationPath = "/installroot";
+        ;
         m_absCertificatePath = "/installroot/dev_certificates";
         m_absSystemSslPath = "/installroot/etc/ssl/certs";
         m_absCacheUpdatePath = "/installroot/etc/cachessl/certs";
@@ -75,17 +76,13 @@ public:
                                })";
 
         jsonString.replace(
-                jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath
-        );
+            jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
         jsonString.replace(
-                jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath
-        );
+            jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
         jsonString.replace(
-                jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath
-        );
+            jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
         jsonString.replace(
-                jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath
-        );
+            jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
 
         if (!oldPartString.empty())
         {

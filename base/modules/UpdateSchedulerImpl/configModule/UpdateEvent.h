@@ -39,7 +39,13 @@ namespace UpdateSchedulerImpl
 
         struct UpdateEvent
         {
-            UpdateEvent() : IsRelevantToSend(false), MessageNumber(EventMessageNumber::SUCCESS), Messages(), UpdateSource() {}
+            UpdateEvent() :
+                IsRelevantToSend(false),
+                MessageNumber(EventMessageNumber::SUCCESS),
+                Messages(),
+                UpdateSource()
+            {
+            }
 
             bool IsRelevantToSend;
             EventMessageNumber MessageNumber;

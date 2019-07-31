@@ -110,7 +110,7 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
 
     auto queue = std::make_shared<TaskQueue>();
     SchedulerProcessor processor(queue, m_mockPathManager);
-    std::atomic<int> stage= 0;
+    std::atomic<int> stage = 0;
 
     std::thread processorThread([&] {
         stage = 1;
@@ -118,27 +118,23 @@ TEST_F(SchedulerProcessorTests, CanBeStopped) // NOLINT
         stage = 2;
     });
 
-    for(int i=0; i<300; i++)
+    for (int i = 0; i < 300; i++)
     {
-        if ( stage ==1 )
+        if (stage == 1)
             break;
         std::this_thread::sleep_for(delay); // attempt to allow processor to run
-
     }
 
     EXPECT_EQ(stage, 1);
 
-
     queue->pushPriority(SchedulerTask::Shutdown);
 
-    for(int i=0; i<300; i++)
+    for (int i = 0; i < 300; i++)
     {
-        if ( stage == 2 )
+        if (stage == 2)
             break;
         std::this_thread::sleep_for(delay); // attempt to allow processor to run
-
     }
-
 
     EXPECT_EQ(stage, 2);
 

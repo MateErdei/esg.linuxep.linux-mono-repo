@@ -35,7 +35,7 @@ namespace UpdateSchedulerImpl
         public:
             // may throw PolicyValidationException if the policy does not pass the validation criteria.
             SettingsHolder translatePolicy(const std::string& policyXml);
-            static std::string calculateSulObfuscated(const std::string & user, const std::string & pass);
+            static std::string calculateSulObfuscated(const std::string& user, const std::string& pass);
 
             std::string cacheID(const std::string& hostname) const override;
 

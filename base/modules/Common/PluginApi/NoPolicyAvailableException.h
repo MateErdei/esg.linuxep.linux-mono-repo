@@ -7,7 +7,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "ApiException.h"
 
-
 namespace Common
 {
     namespace PluginApi
@@ -19,7 +18,7 @@ namespace Common
         {
         public:
             static const std::string NoPolicyAvailable;
-            explicit NoPolicyAvailableException() : ApiException( NoPolicyAvailable) {}
+            explicit NoPolicyAvailableException() : ApiException(NoPolicyAvailable) {}
         };
     } // namespace PluginApi
 } // namespace Common

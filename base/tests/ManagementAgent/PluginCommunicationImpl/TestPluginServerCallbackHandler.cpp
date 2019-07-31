@@ -17,7 +17,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/PluginApiImpl/TestCompare.h>
 
-namespace {
+namespace
+{
     constexpr int defaultTimeoutMs = 2000;
 }
 
@@ -311,19 +312,19 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnB
 
 TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesNotStopHandlersAbilityToRespond)
 {
-    data_t rawMessage{"NotProtobufMessage"};
+    data_t rawMessage{ "NotProtobufMessage" };
     m_requester->write(rawMessage);
     auto rawReply = m_requester->read();
     EXPECT_EQ(rawReply[0], "INVALID");
 
     Common::PluginProtocol::DataMessage registerMessage =
-            createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
+        createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER, "");
 
     EXPECT_CALL(*m_mockServerCallback, receivedRegisterWithManagementAgent(registerMessage.m_pluginName))
-            .WillOnce(Return());
+        .WillOnce(Return());
 
     Common::PluginProtocol::DataMessage ackMessage =
-            createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
+        createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_REGISTER);
 
     auto replyMessage = sendReceive(registerMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
