@@ -47,7 +47,7 @@ public:
                                "proxyType": ""
                                 }
                                },
-                               "manifestNames" : ["manifest.dat", "telem-manifest.dat"],
+                               "manifestNames" : ["manifest.dat"],
                                "installationRootPath": "absInstallationPath",
                                "certificatePath": "absCertificatePath",
                                "systemSslPath": "absSystemSslPath",

@@ -38,6 +38,7 @@ void DownloadedProduct::verify(const ConfigurationData& configurationData)
     assert(m_state == State::Distributed);
     m_state = State::Verified;
     auto iVersig = createVersig();
+
     if (iVersig->verify(configurationData, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
         WarehouseError error;

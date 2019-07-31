@@ -14,6 +14,39 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
+const std::vector<std::string> VersigImpl::getListOfManifestFileNames(
+                const ConfigurationData& configurationData,
+                const std::string& productDirectoryPath) const
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    auto manifestPaths = configurationData.getManifestNames();
+    if (manifestPaths.size() == 0)
+    {
+        // a manifest.dat file should exits for each component.
+        manifestPaths.emplace_back("manifest.dat");
+    }
+
+    // optional manifest files to validate if they exists.
+    std::vector<std::string> optionalManifestFileList = {"telem-manifest.dat"};
+
+    for(auto& relativeManifestPath : optionalManifestFileList)
+    {
+
+        auto dir = Common::FileSystem::dirName(relativeManifestPath);
+        auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
+        auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
+
+        if (fileSystem->isFile(manifestPath))
+        {
+            manifestPaths.emplace_back(relativeManifestPath);
+        }
+    }
+
+    return manifestPaths;
+
+}
+
 IVersig::VerifySignature VersigImpl::verify(
     const ConfigurationData& configurationData,
     const std::string& productDirectoryPath) const
@@ -41,11 +74,7 @@ IVersig::VerifySignature VersigImpl::verify(
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-    auto manifestPaths = configurationData.getManifestNames();
-    if (manifestPaths.size() == 0)
-    {
-        manifestPaths.emplace_back("manifest.dat");
-    }
+    auto manifestPaths = getListOfManifestFileNames(configurationData, productDirectoryPath);
 
     int exitCode = -1;
     for (auto& relativeManifestPath : manifestPaths)
@@ -54,6 +83,7 @@ IVersig::VerifySignature VersigImpl::verify(
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
+
         if (!fileSystem->isFile(manifestPath))
         {
             LOGERROR("Manifest not found. Path expected to be in: " << manifestPath);

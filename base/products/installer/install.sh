@@ -207,6 +207,8 @@ function install_telemetry_supplement()
     if [[ -f ${telemetry_supplement_path} ]]
     then
         cp ${telemetry_supplement_path} ${telemetry_config_file_path}
+    else
+        echo "Warning ${telemetry_supplement_path} file not found"
     fi
 }
 
