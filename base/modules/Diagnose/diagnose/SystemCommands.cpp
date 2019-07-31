@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "SystemCommands.h"
 
 #include "Strings.h"
+#include "SystemCommandException.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcess.h>
@@ -21,7 +22,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
-    const int GL_10mbSize = 10 * 1024 * 1024;
+    constexpr int GL_10mbSize = 10 * 1024 * 1024;
     const int GL_ProcTimeoutMilliSecs = 500;
     const int GL_ProcMaxRetries = 10;
 
@@ -32,8 +33,8 @@ namespace diagnose
 
     int SystemCommands::runCommand(
         const std::string& command,
-        std::vector<std::string> arguments,
-        const std::string& filename)
+        std::vector<std::string>& arguments,
+        const std::string& filename) const
     {
         Path filePath = Common::FileSystem::join(m_destination, filename);
         std::cout << "Output file path: " << filePath << std::endl;
@@ -50,16 +51,20 @@ namespace diagnose
             std::cout << command << " executable not found." << std::endl;
             fileSystem()->writeFile(filePath, e.what());
         }
-        catch (Common::Process::IProcessException& e)
+        catch (SystemCommandsException& e)
         {
-            std::cout << "running process failed with error: " << e.what() << std::endl;
-            fileSystem()->writeFile(filePath, e.what());
+            std::stringstream message;
+            message << "running process failed with error: " << e.what() << std::endl;
+            std::cout << message.str();
+            message << e.output();
+            fileSystem()->writeFile(filePath, message.str());
         }
 
         return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args)
+    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string>& args)
+        const
     {
         std::string commandAndArgs(command);
         std::for_each(
@@ -74,24 +79,25 @@ namespace diagnose
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
+            auto output = processPtr->output();
             std::stringstream ssTimeoutMessage;
             ssTimeoutMessage << "Timed out after " << (GL_ProcTimeoutMilliSecs * GL_ProcMaxRetries)
                              << "ms while running: '" << commandAndArgs << "'";
-            throw Common::Process::IProcessException(ssTimeoutMessage.str());
+            throw SystemCommandsException(ssTimeoutMessage.str(), output);
         }
 
         auto output = processPtr->output();
         int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
-            throw Common::Process::IProcessException(
-                "Process execution returned non-zero exit code, 'Exit Code: " +
-                Common::UtilityImpl::StrError(exitCode) + "', Output: '" + output + "'");
+            throw SystemCommandsException(
+                "Process execution returned non-zero exit code, 'Exit Code: " + Common::UtilityImpl::StrError(exitCode),
+                output);
         }
         return output;
     }
 
-    std::string SystemCommands::getExecutablePath(std::string executableName)
+    std::string SystemCommands::getExecutablePath(std::string executableName) const
     {
         std::vector<std::string> folderLocations = {"/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin"};
         for (const auto& folder:folderLocations)
@@ -105,7 +111,7 @@ namespace diagnose
         throw std::invalid_argument("Executable " + executableName + " is not installed.");
     }
 
-    void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath)
+    void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
         Common::UtilityImpl::FormattedTime m_formattedTime;
 

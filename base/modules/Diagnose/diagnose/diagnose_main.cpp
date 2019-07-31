@@ -104,12 +104,7 @@ namespace diagnose
             systemCommands.runCommand("journalctl", { logCollectionInterval, "-u", "auditd" }, "journalctl-auditd");
             systemCommands.runCommand(
                 "journalctl", { logCollectionInterval, "_TRANSPORT=audit" }, "journalctl_TRANSPORT=audit");
-
-            // crude way to mimic pipe here
             systemCommands.runCommand("journalctl", { "--since=yesterday" }, "journalctl-auditd-yesterday");
-            Path auditdLogfilePath = Common::FileSystem::join(systemFilesDir, "journalctl-auditd-yesterday");
-            systemCommands.runCommand("grep", { "-v", "audit", auditdLogfilePath }, "journalctl-auditd-yesterday");
-
             systemCommands.runCommand("ps", { "-ef" }, "ps");
             systemCommands.runCommand("getenforce", {}, "getenforce");
             systemCommands.runCommand("ldd", { "--version" }, "ldd-version");

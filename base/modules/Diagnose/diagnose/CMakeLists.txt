@@ -8,6 +8,7 @@ add_library(diagnoseimpl STATIC
             SystemCommands.cpp
             SystemCommands.h
             Strings.h
+        SystemCommandException.h
             $<TARGET_OBJECTS:filesystemimplobject>
             $<TARGET_OBJECTS:utilityimplobject>
             $<TARGET_OBJECTS:applicationconfigurationimplobject>
