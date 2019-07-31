@@ -33,7 +33,7 @@ namespace diagnose
 
     int SystemCommands::runCommand(
         const std::string& command,
-        std::vector<std::string>& arguments,
+        std::vector<std::string> arguments,
         const std::string& filename) const
     {
         Path filePath = Common::FileSystem::join(m_destination, filename);
@@ -63,7 +63,7 @@ namespace diagnose
         return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string>& args)
+    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args)
         const
     {
         std::string commandAndArgs(command);
