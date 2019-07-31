@@ -63,12 +63,13 @@ namespace Common
 
                 requester->connect(mng_address);
                 replier->listen(plugin_address);
-                // plugin_address starts with ipc:// Remove it.
-                std::string plugin_address_file = plugin_address.substr(6);
+
                 // If root owned, we need to ensure the group of the ipc socket is sophos-spl-group
                 // so that Management Agent can communicate with the plugin.
                 if (::getuid() == 0)
                 {
+                    // plugin_address starts with ipc:// Remove it.
+                    std::string plugin_address_file = plugin_address.substr(6);
                     Common::FileSystem::filePermissions()->chmod(plugin_address_file, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
                     Common::FileSystem::filePermissions()->chown(plugin_address_file, "root", "sophos-spl-group");
                 }
