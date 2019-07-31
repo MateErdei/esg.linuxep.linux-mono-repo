@@ -15,13 +15,13 @@ namespace diagnose
     public:
         SystemCommandsException(const std::string& what, const std::string& output) :
             IProcessException(what),
-            message(output)
+            m_message(output)
         {
         }
 
-        std::string output() const noexcept { return message; }
+        std::string output() const { return m_message; }
 
     private:
-        std::string message;
+        std::string m_message;
     };
 } // namespace diagnose

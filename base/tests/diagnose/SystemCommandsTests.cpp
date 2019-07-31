@@ -140,10 +140,12 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLIN
         EXPECT_CALL(*m_mockProcesses[0], wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::TIMEOUT));
         EXPECT_CALL(*m_mockProcesses[0], kill());
         EXPECT_CALL(*m_mockProcesses[0], output()).WillOnce(Return(L_dfTLocalLines));
+
         // write to file called with timeout as reason for failure
+        std::string outputToFile(L_dfTLocalLines + "***End Of Command Output***\n");
         std::string timeoutError(
-            "running process failed with error: Timed out after 5000ms while running: '/usr/bin/df -h'\n");
-        EXPECT_CALL(*m_mockFileSystem, writeFile(systemDirPath + "df-timeout", timeoutError + L_dfTLocalLines));
+            "Running command failed to complete with error: Timed out after 5000ms while running: '/usr/bin/df -h'");
+        EXPECT_CALL(*m_mockFileSystem, writeFile(systemDirPath + "df-timeout", outputToFile + timeoutError));
     }
 
     auto retCodeFail = systemCommands.runCommand("df", { "-h" }, "df-timeout");

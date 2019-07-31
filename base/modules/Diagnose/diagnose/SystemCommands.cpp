@@ -53,10 +53,12 @@ namespace diagnose
         }
         catch (SystemCommandsException& e)
         {
+            std::cout << "Running command: '" << command << "' failed  to complete with error: " << e.what()
+                      << std::endl;
+
             std::stringstream message;
-            message << "running process failed with error: " << e.what() << std::endl;
-            std::cout << message.str();
-            message << e.output();
+            message << e.output() << "***End Of Command Output***" << std::endl
+                    << "Running command failed to complete with error: " << e.what();
             fileSystem()->writeFile(filePath, message.str());
         }
 
