@@ -36,28 +36,6 @@ extern char** environ;
 
 namespace
 {
-    struct ScopeGuard
-    {
-        ScopeGuard( char** c, unsigned long s):m_c(c), m_n(s){}
-        char** m_c;
-        unsigned long m_n;
-        ~ScopeGuard()
-        {
-            for(unsigned long i =0; i<m_n; i++)
-            {
-                if (m_c[i])
-                {
-                    free(m_c[i]);
-                }
-            }
-            free(m_c);
-        }
-    };
-
-}
-
-namespace
-{
     using ::testing::NiceMock;
     using ::testing::StrictMock;
     using namespace ReqRepTest;
@@ -109,7 +87,6 @@ namespace
         }
 
     public:
-
         RunInExternalProcess(const TestContext& context, Common::ZMQWrapperApi::IContextSharedPtr zmq_context) :
             m_killchannel(context.killChannel()),
             m_zmq_context(std::move(zmq_context))
@@ -123,7 +100,6 @@ namespace
             exe += "/TestReqRepTool";
             // Create argument list
             char** newargv = static_cast<char**>(malloc(sizeof(char*) * (args.size() + 2)));
-            ScopeGuard guardNewargv{newargv, args.size()+2};
             const char* exe_cstr = exe.c_str();
             newargv[0] = const_cast<char*>(exe_cstr); // Not actually modified
             for (size_t i = 0; i < args.size(); i++)
