@@ -83,6 +83,6 @@
             <output name="output" srcfolder="output"> </output>
             <output name="build_log" srcfolder="log"> </output>
         </buildoutputs>
-        <publishbranches>bugfix/LINUXDAR-492-diagnose-issuing-log4-error</publishbranches>
+        <publishbranches>master</publishbranches>
     </publish>
 </package>
