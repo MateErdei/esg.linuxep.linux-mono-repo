@@ -29,7 +29,7 @@ namespace diagnose
         void tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const;
 
     private:
-        std::string getExecutablePath(const std::string executableName) const;
+        std::string getExecutablePath(const std::string& executableName) const;
         std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args) const;
 
         std::string m_destination;

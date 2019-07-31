@@ -97,7 +97,7 @@ namespace diagnose
         return output;
     }
 
-    std::string SystemCommands::getExecutablePath(std::string executableName) const
+    std::string SystemCommands::getExecutablePath(const std::string& executableName) const
     {
         std::vector<std::string> folderLocations = {"/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin"};
         for (const auto& folder:folderLocations)
