@@ -19,12 +19,14 @@
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <iostream>
+#include <sys/stat.h>
 
 namespace UpdateSchedulerImpl
 {
     using namespace UpdateScheduler;
     int main_entry()
     {
+        umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         Common::Logging::FileLoggingSetup logging("updatescheduler");
 
         std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =

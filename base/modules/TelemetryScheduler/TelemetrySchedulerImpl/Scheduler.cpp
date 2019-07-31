@@ -20,6 +20,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <stdexcept>
+#include <sys/stat.h>
 
 namespace TelemetrySchedulerImpl
 {
@@ -27,6 +28,7 @@ namespace TelemetrySchedulerImpl
     {
         try
         {
+            umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
             Common::Logging::FileLoggingSetup loggerSetup("tscheduler", true);
 
             LOGINFO("Telemetry Scheduler running...");

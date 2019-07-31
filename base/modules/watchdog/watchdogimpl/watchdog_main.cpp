@@ -13,6 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 
 #include <unistd.h>
+#include <sys/stat.h>
 
 #ifndef PATH_MAX
 #    define PATH_MAX 2048
@@ -50,6 +51,7 @@ namespace
  */
 int watchdog_main::main(int argc, char** argv)
 {
+    umask(S_IRWXG | S_IRWXO); // Read and write for the owner
     static_cast<void>(argv); // unused
 
     std::string installDir = work_out_install_directory();

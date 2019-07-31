@@ -26,6 +26,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cassert>
+#include <sys/stat.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -290,6 +291,7 @@ namespace SulDownloader
 
     int main_entry(int argc, char* argv[])
     {
+        umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("suldownloader");
         std::unique_ptr<Common::OSUtilitiesImpl::PidLockFile> pidLock;
