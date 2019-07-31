@@ -53,7 +53,7 @@ def cleanupDirs()
 pipeline {
     agent none
 
-    properties {
+    options {
         disableConcurrentBuilds()
     }
 
