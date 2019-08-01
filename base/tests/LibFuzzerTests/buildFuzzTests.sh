@@ -66,6 +66,9 @@ fi
 pushd libprotobuf-mutator
   # at this point in time their project has not release. Hence, just update
   git pull
+  # FIXME: Remove the fixed checkout when protobuf is upgraded in BASE LINUXDAR-590
+  # after this checkout the libprotobuf-mutator started to use newer version of protobuf we do not support yet.
+  git checkout 43932cf9575a93723780b31ef3594f48362ceb69
   cp ${FUZZ_TEST_DIR}/setup_protobuf.patch .
   git checkout CMakeLists.txt
   git apply setup_protobuf.patch
