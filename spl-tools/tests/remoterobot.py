@@ -113,8 +113,8 @@ for arg in sys.argv[1:]:
 # add common parameters used most of times
 if "--include=manual" not in remote_args:
     remote_args.insert(0, '--exclude=manual')
-if "--include=weekly" not in remote_args:
-    remote_args.insert(0, '--exclude=weekly')
+if "--include=slow" not in remote_args:
+    remote_args.insert(0, '--exclude=slow')
 
 
 # add quotes to make it safer
