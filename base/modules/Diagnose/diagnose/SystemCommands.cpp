@@ -77,14 +77,15 @@ namespace diagnose
         processPtr->setOutputLimit(GL_10mbSize);
 
         processPtr->exec(command, args);
-        if (processPtr->wait(Common::Process::milli(GL_ProcTimeoutMilliSecs), GL_ProcMaxRetries) !=
+        auto period = Common::Process::milli(GL_ProcTimeoutMilliSecs);
+        if (processPtr->wait(period, GL_ProcMaxRetries) !=
             Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
             auto output = processPtr->output();
             std::stringstream ssTimeoutMessage;
-            ssTimeoutMessage << "Timed out after " << (GL_ProcTimeoutMilliSecs * GL_ProcMaxRetries)
-                             << "ms while running: '" << commandAndArgs << "'";
+            ssTimeoutMessage << "Timed out after " << std::chrono::duration_cast<std::chrono::seconds>(period * GL_ProcMaxRetries).count()
+                             << "s while running: '" << commandAndArgs << "'";
             throw SystemCommandsException(ssTimeoutMessage.str(), output);
         }
 
