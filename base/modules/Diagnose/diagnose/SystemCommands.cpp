@@ -24,7 +24,7 @@ namespace diagnose
 {
     constexpr int GL_10mbSize = 10 * 1024 * 1024;
     const int GL_ProcTimeoutMilliSecs = 500;
-    const int GL_ProcMaxRetries = 10;
+    const int GL_ProcMaxRetries = 20;
 
     using namespace Common::FileSystem;
 

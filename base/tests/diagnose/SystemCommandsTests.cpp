@@ -144,7 +144,7 @@ TEST_F(DiagnoseSystemCommandsTests, RunCommandMultipleTimesWithTimeout) // NOLIN
         // write to file called with timeout as reason for failure
         std::string outputToFile(L_dfTLocalLines + "***End Of Command Output***\n");
         std::string timeoutError(
-            "Running command failed to complete with error: Timed out after 5s while running: '/usr/bin/df -h'");
+            "Running command failed to complete with error: Timed out after 10s while running: '/usr/bin/df -h'");
         EXPECT_CALL(*m_mockFileSystem, writeFile(systemDirPath + "df-timeout", outputToFile + timeoutError));
     }
 
