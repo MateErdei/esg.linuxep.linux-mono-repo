@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-file(GLOB_RECURSE mcs_router_SRC
-        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        ./*.pyc )
-
 file(GLOB_RECURSE python_SRC
         RELATIVE ${PYTHON_INPUT}/install64/lib/python2.7
         ${PYTHON_INPUT}/install64/lib/python2.7/*.py )
@@ -25,8 +21,8 @@ add_custom_target(mcsrouter ALL
 add_custom_command(OUTPUT mcsrouter.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         # force compile all required mcs python code.
-        COMMAND python -m compileall ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
-        COMMAND zip ${CMAKE_BINARY_DIR}/mcsrouter.zip ${mcs_router_SRC}
+        COMMAND ${PYTHON_INPUT}/install64/bin/python -m compileall ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
+        COMMAND find . -name "*pyc" -print | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         # clean up compiled files
         COMMAND find . -name "*.pyc" | xargs rm -f
         DEPENDS ${mcs_router_DEPS}
