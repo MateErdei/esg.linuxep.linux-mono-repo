@@ -170,28 +170,28 @@ else
     if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE" ]]
     then
         export SDDS_SSPL_MDR_COMPONENT_SUITE=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE
-        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_DBOS_COMPONENT
-        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_OSQUERY_COMPONENT
-        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS_SSPL_MDR_COMPONENT
+        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-DBOS-COMPONENT
+        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-OSQUERY-COMPONENT
+        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT
 
     elif [[ -d "$FILER_5_BIR/sspl-mdr-componentsuite" ]]
     then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_MDR_COMPONENT_SUITE" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-MDR-COMPONENT-SUITE" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_MDR_COMPONENT_SUITE="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_DBOS_COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-DBOS-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_DBOS_COMPONENT="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_OSQUERY_COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-OSQUERY-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_OSQUERY_COMPONENT="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS_SSPL_MDR_COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-MDR-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_MDR_COMPONENT="$DIR"
