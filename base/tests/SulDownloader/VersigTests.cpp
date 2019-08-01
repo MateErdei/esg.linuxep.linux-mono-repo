@@ -21,6 +21,8 @@ public:
     VersigTests() : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
     {
         m_configurationData.setCertificatePath("/installroot/cert");
+        m_configurationData.setManifestNames({"manifest.dat"});
+        m_configurationData.setOptionalManifestNames({"telem-manifest.dat"});
         rootca = Common::FileSystem::join(m_configurationData.getCertificatePath(), "rootca.crt");
         productDir = "/installroot/cache/update/Primary/product";
         manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";
@@ -72,7 +74,7 @@ TEST_F(VersigTests, returnInvalidIfFailsToFindVersigExecutable) // NOLINT
     ASSERT_EQ(VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, returnInvalidIfNoManitestDatIsFound) // NOLINT
+TEST_F(VersigTests, returnInvalidIfNoManifestDatIsFound) // NOLINT
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
@@ -163,11 +165,6 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
 
     ASSERT_EQ(VS::SIGNATURE_VERIFIED, versig->verify(m_configurationData, productDir));
 }
-
-
-
-
-
 
 TEST_F(VersigTests, signatureFailureIsReportedAsFailure) // NOLINT
 {

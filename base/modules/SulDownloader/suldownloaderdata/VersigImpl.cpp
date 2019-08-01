@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "VersigImpl.h"
@@ -14,7 +14,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader::suldownloaderdata;
 
-const std::vector<std::string> VersigImpl::getListOfManifestFileNames(
+std::vector<std::string> VersigImpl::getListOfManifestFileNames(
                 const ConfigurationData& configurationData,
                 const std::string& productDirectoryPath) const
 {
@@ -28,9 +28,10 @@ const std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     }
 
     // optional manifest files to validate if they exists.
-    std::vector<std::string> optionalManifestFileList = {"telem-manifest.dat"};
 
-    for(auto& relativeManifestPath : optionalManifestFileList)
+    auto optionalManifestPaths = configurationData.getOptionalManifestNames();
+
+    for(auto& relativeManifestPath : optionalManifestPaths)
     {
 
         auto dir = Common::FileSystem::dirName(relativeManifestPath);

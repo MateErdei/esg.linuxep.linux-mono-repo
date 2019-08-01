@@ -260,16 +260,28 @@ namespace SulDownloader
             void setInstallArguments(const std::vector<std::string>& installArguments);
 
             /**
-             * Get the list of allowed manifest names for the products downloaded.
+             * Get the list of mandatory manifest (relative) file paths that must exist for all the products downloaded.
              * @return list of manifest names.
              */
             const std::vector<std::string>& getManifestNames() const;
 
             /**
-             * Set the list of manifest names that are allowed for packages.
+             * Set the list of mandatory manifest (relative) file paths that must exist for all packages.
              * @param manifestNames
              */
-            void setManifestNames(const std::vector<std::string>& manifestNames);
+            void setManifestNames(const std::vector<std::string>& optionalManifestNames);
+
+            /**
+             * Get the list of possible optional manifest f(relative) file paths for the products downloaded.
+             * @return list of optional manifest names.
+             */
+            const std::vector<std::string>& getOptionalManifestNames() const;
+
+            /**
+             * Set the list of optional manifest (relative) file paths that are may exist for packages.
+             * @param optionalManifestNames
+             */
+            void setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames);
 
             /**
              * Set the list of features that the downloaded products should have.
@@ -350,6 +362,7 @@ namespace SulDownloader
             LogLevel m_logLevel;
             bool m_forceReinstallAllProducts;
             std::vector<std::string> m_manifestNames;
+            std::vector<std::string> m_optionalManifestNames;
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

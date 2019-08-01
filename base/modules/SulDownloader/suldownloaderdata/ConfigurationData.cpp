@@ -457,6 +457,10 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setManifestNames(manifestnames);
 
+    std::vector<std::string> optionalManifestnames(std::begin(settings.optionalmanifestnames()), std::end(settings.optionalmanifestnames()));
+
+    configurationData.setOptionalManifestNames(optionalManifestnames);
+
     return configurationData;
 }
 
@@ -479,6 +483,17 @@ void ConfigurationData::setManifestNames(const std::vector<std::string>& manifes
 {
     m_manifestNames = manifestNames;
 }
+
+const std::vector<std::string>& ConfigurationData::getOptionalManifestNames() const
+{
+    return m_optionalManifestNames;
+}
+
+void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames)
+{
+    m_optionalManifestNames = optionalManifestNames;
+}
+
 
 std::vector<Proxy> ConfigurationData::proxiesList() const
 {

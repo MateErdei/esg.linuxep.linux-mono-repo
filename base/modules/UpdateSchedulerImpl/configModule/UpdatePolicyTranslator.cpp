@@ -278,6 +278,7 @@ namespace UpdateSchedulerImpl
                                                     subscriptionDetails.value("BaseVersion"),
                                                     subscriptionDetails.value("Tag"),
                                                     subscriptionDetails.value("FixVersion") });
+
                     ssplBaseIncluded = true;
                 }
             }
@@ -313,6 +314,11 @@ namespace UpdateSchedulerImpl
 
             config.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
             config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
+
+
+            config.setManifestNames({"manifest.dat"});
+
+            config.setOptionalManifestNames({"telem-manifest.dat"});
 
             std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
             int periodInt = 60;

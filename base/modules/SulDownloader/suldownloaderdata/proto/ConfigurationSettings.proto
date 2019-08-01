@@ -43,6 +43,7 @@ message ConfigurationSettings
     optional LogLevelOption logLevel = 10 [default=NORMAL];
     optional bool forceReinstallAllProducts = 11 [default=false];
     repeated string manifestNames = 12;
+    repeated string optionalManifestNames = 13;
 
     message Subscription
     {
@@ -52,8 +53,8 @@ message ConfigurationSettings
         optional string fixVersion = 4;
     }
 
-    optional Subscription primarySubscription = 13;
-    repeated Subscription products = 14;
-    repeated string features = 15;
+    optional Subscription primarySubscription = 14;
+    repeated Subscription products = 15;
+    repeated string features = 16;
 
 }

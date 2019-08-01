@@ -53,7 +53,6 @@ cp ${TEMP}/manifest.dat ${TELEMETRY_SUPPLEMENT_COMPONENT}/telem-manifest.dat
 export SDDSTEMPLATE="TELEMSUPP_TEMPLATE"
 export PRODUCT_LINE_ID=SSPLTELEMSUPP
 export PRODUCT_NAME=SophosServerProtectionLinuxTelemetrySupplement
-#export FEATURE_LIST=BASE
 export DEFAULT_HOME_FOLDER=${PRODUCT_LINE_ID}
 export PRODUCT_VERSION="${PRODUCT_VERSION}"
 export PRODUCT_TYPE="Component"

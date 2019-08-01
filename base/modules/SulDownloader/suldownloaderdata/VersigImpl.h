@@ -21,7 +21,7 @@ namespace SulDownloader
                 const SulDownloader::suldownloaderdata::ConfigurationData& certificate_path,
                 const std::string& productDirectoryPath) const override;
         private:
-            const std::vector<std::string> getListOfManifestFileNames(
+            std::vector<std::string> getListOfManifestFileNames(
                     const ConfigurationData& configurationData,
                     const std::string& productDirectoryPath) const;
         };
