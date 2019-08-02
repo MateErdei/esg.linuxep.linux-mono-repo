@@ -208,7 +208,7 @@ namespace SulDownloader
              * @param productSubscription
              */
             void setPrimarySubscription( const ProductSubscription & productSubscription);
-            /** Set the list of other products to be installed. In sspl it is meant to target Sensors, MDR, etc
+            /** Set the list of other products to be installed. In sspl it is meant to target Sensors, plugins, etc
              */
             void setProductsSubscription( const std::vector<ProductSubscription> & productsSubscriptions);
 

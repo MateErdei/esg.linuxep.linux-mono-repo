@@ -9,13 +9,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
  apimessage
  {
-  pluginName: "mdr"
+  pluginName: "mtr"
   applicationId: "MDR"
   command: Registration
  }
  apimessage
  {
-  pluginName: "mdr"
+  pluginName: "mtr"
   applicationId: "MDR"
   command: SendEvent
   payload: "this event from plugin"
