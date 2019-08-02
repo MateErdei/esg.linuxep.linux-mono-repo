@@ -53,8 +53,7 @@ namespace diagnose
         }
         catch (SystemCommandsException& e)
         {
-            std::cout << "Running command: '" << command << "' failed  to complete with error: " << e.what()
-                      << std::endl;
+            std::cout << "Running command: '" << command << "' failed  to complete with: " << e.what() << std::endl;
 
             std::stringstream message;
             message << e.output() << "***End Of Command Output***" << std::endl
