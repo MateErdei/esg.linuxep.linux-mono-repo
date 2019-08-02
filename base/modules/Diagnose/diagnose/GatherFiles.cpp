@@ -24,8 +24,7 @@ namespace
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
         static const std::vector<std::string> interestingExtensions{ ".xml",    ".json", ".txt",   ".conf",
-                                                                     ".config", ".log",  ".log.1", ".dat",
-                                                                     ".flags"};
+                                                                     ".config", ".log",  ".log.1", ".dat", ".flags", ".ini" };
 
         for (const auto& type : interestingExtensions)
         {
@@ -178,7 +177,7 @@ namespace diagnose
 
     void GatherFiles::copyPluginSubDirectoryLogFiles(const Path& pluginsDir, const std::string& pluginName, const Path& destination)
     {
-        static const std::vector<std::string> possiblePluginLogSubDirectories{"dbos/data/logs"};
+        static const std::vector<std::string> possiblePluginLogSubDirectories{ "./", "dbos/data", "dbos/data/logs" };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
         for(const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
