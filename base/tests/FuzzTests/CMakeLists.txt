@@ -3,7 +3,8 @@ add_executable(loggerconfigtests
         loggerconfigtests.cpp
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:applicationconfigurationimplobject>)
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:utilityimplobject>)
 
 target_include_directories(loggerconfigtests PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
@@ -26,6 +27,7 @@ add_executable(parsealcpolicytests
         ${ALCParseDir}/../../UpdateScheduler/ScheduledUpdate.h
         ${ALCParseDir}/../Logger.cpp
         ${ALCParseDir}/../Logger.h
+        $<TARGET_OBJECTS:utilityimplobject>
         )
 target_link_libraries(parsealcpolicytests PRIVATE
         ${LOG4CPLUS_LIBRARY}
@@ -70,12 +72,13 @@ add_executable(suldownloaderconfigtests
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
-
+        $<TARGET_OBJECTS:protobufutilobject>
+        $<TARGET_OBJECTS:utilityimplobject>
         )
+
 target_link_libraries(suldownloaderconfigtests PRIVATE
         ${LOG4CPLUS_LIBRARY}
         ${Protobuf_LIBRARIES}
-        utilityimpl
         obfuscationimpl
         )
 
