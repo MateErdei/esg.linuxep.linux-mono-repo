@@ -355,6 +355,11 @@ function build()
                 exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
             }
         fi
+
+        # python would have been executed in unit tests creating pyc and or pyo files
+        # need to make sure these are removed before creating distribution files.
+        find ../build${BITS} -name "*.pyc" -type f | xargs -r rm -f
+        find ../build${BITS} -name "*.pyo" -type f | xargs -r rm -f
     fi
     make -j${NPROC} install || exitFailure 17 "Failed to install $PRODUCT"
     make dist || exitFailure 18 "Failed to create distribution"
