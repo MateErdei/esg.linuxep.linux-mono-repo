@@ -21,8 +21,8 @@ namespace
         // Transform copy of string to lowercase
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
-        static const std::vector<std::string> interestingExtensions{ ".xml",    ".json", ".txt",   ".conf",  ".config",
-                                                                     ".log", ".log.*", ".dat", ".flags", ".ini" };
+        static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
+                                                                     ".log", ".dat",  ".flags", ".ini" };
 
         for (const auto& type : interestingExtensions)
         {
@@ -67,9 +67,9 @@ namespace diagnose
             }
             else
             {
-                throw std::invalid_argument("Error: Previous execution of Diagnose tool has not cleaned up. Please remove " + outputDir);
+                throw std::invalid_argument(
+                    "Error: Previous execution of Diagnose tool has not cleaned up. Please remove " + outputDir);
             }
-
         }
 
         m_fileSystem.makedirs(outputDir);
@@ -180,21 +180,22 @@ namespace diagnose
         static const std::vector<std::string> possiblePluginLogSubDirectories{ "./", "dbos/data", "dbos/data/logs" };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
-        for(const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
+        for (const auto& possibleSubDirectory : possiblePluginLogSubDirectories)
         {
             std::string absolutePath = Common::FileSystem::join(pluginsDir, pluginName, possibleSubDirectory);
 
             std::cout << absolutePath.c_str() << std::endl;
 
-            if(m_fileSystem.isDirectory(absolutePath))
+            if (m_fileSystem.isDirectory(absolutePath))
             {
-                std::string newDestinationPath = Common::FileSystem::join(destination, pluginName, possibleSubDirectory);
+                std::string newDestinationPath =
+                    Common::FileSystem::join(destination, pluginName, possibleSubDirectory);
 
                 m_fileSystem.makedirs(newDestinationPath);
 
                 std::vector<Path> files = m_fileSystem.listFiles(absolutePath);
 
-                for(const auto& file : files)
+                for (const auto& file : files)
                 {
                     if (isFileOfInterest(file))
                     {
