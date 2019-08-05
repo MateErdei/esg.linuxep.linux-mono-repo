@@ -48,7 +48,7 @@ namespace Common
              */
             static inline bool isSubstring(const std::string& s, const std::string& target)
             {
-                return s.find(target) == std::string::npos;
+                return s.find(target) != std::string::npos;
             }
 
             /**
