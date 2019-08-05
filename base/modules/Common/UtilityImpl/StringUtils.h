@@ -41,6 +41,17 @@ namespace Common
             }
 
             /**
+             * Does s contains target
+             * @param s
+             * @param target
+             * @return
+             */
+            static inline bool isSubstring(const std::string& s, const std::string& target)
+            {
+                return s.find(target) == std::string::npos;
+            }
+
+            /**
              * Replace all instances of key with replace in pattern.
              * @param pattern Base string to do replacements in
              * @param key Target string to replace

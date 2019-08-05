@@ -98,9 +98,12 @@ namespace diagnose
             systemCommands.runCommand("lshw", std::vector<std::string>(), "lshw"); // Doesn't work on Amazon
             systemCommands.runCommand("ls", { "-l", "/lib/systemd/system" }, "systemd");
             systemCommands.runCommand("ls", { "-l", "/usr/lib/systemd/system" }, "usr-systemd");
-            systemCommands.runCommand("systemctl", { "list-unit-files" }, "list-unit-files");
             systemCommands.runCommand("auditctl", { "-l" }, "auditctl");
             systemCommands.runCommand("systemctl", { "status", "auditd" }, "systemctl-status-auditd");
+            systemCommands.runCommand("systemctl", { "list-unit-files" }, "list-unit-files");
+            systemCommands.runCommand("systemctl", { "status", "sophos-spl" }, "systemctl-status-sophos-spl");
+            systemCommands.runCommand(
+                "systemctl", { "status", "sophos-spl-update" }, "systemctl-status-sophos-spl-update");
             systemCommands.runCommand("ls", { "/etc/audisp/plugins.d/" }, "plugins.d");
             systemCommands.runCommand(
                 "journalctl", { logCollectionInterval, "-u", "sophos-spl" }, "journalctl-sophos-spl");
