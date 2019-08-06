@@ -61,6 +61,12 @@ namespace Common
             virtual ProcessStatus wait(Milliseconds period, int attempts) = 0;
 
             /**
+             * Should only be called after exec. Returns the pid of the
+             * @return
+             */
+            virtual int childPid() const = 0;
+
+            /**
              *
              * Kill / terminate child process.
              * Returns False if the SIGTERM was enough

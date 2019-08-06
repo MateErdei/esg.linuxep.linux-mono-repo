@@ -24,6 +24,7 @@ namespace Common
             ProcessImpl();
             ~ProcessImpl() override;
             Process::ProcessStatus wait(Process::Milliseconds period, int attempts) override;
+            int childPid() const override ;
             void exec(
                 const std::string& path,
                 const std::vector<std::string>& arguments,

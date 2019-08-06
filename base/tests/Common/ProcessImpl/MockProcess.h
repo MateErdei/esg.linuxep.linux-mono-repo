@@ -30,6 +30,7 @@ public:
             const std::string&,
             const std::vector<std::string>&,
             const std::vector<Common::Process::EnvironmentPair>&));
+    MOCK_CONST_METHOD0(childPid, int()); 
     MOCK_METHOD2(exec, void(const std::string&, const std::vector<std::string>&));
     MOCK_METHOD2(wait, Common::Process::ProcessStatus(Common::Process::Milliseconds, int));
     MOCK_METHOD0(kill, bool(void));
