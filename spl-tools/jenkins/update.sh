@@ -33,3 +33,5 @@ else
     echo System has neither apt-get or yum
     exit 1
 fi
+
+shutdown now

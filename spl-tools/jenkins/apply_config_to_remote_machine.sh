@@ -32,4 +32,3 @@ then
 fi
 
 ssh -o StrictHostKeyChecking=no -t ${target_machine} "$env_vars ./${this_dir_name}/${config_script} ${options}"
-sleep 10
