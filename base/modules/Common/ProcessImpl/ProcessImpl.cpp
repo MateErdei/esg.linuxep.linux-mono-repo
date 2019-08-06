@@ -330,10 +330,7 @@ namespace Common
             m_callback = callback;
         }
 
-        int ProcessImpl::childPid() const
-        {
-            return m_pid;
-        }
+        int ProcessImpl::childPid() const { return m_pid; }
 
         ProcessFactory::ProcessFactory() { restoreCreator(); }
 

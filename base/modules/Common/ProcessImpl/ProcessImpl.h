@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -24,7 +24,7 @@ namespace Common
             ProcessImpl();
             ~ProcessImpl() override;
             Process::ProcessStatus wait(Process::Milliseconds period, int attempts) override;
-            int childPid() const override ;
+            int childPid() const override;
             void exec(
                 const std::string& path,
                 const std::vector<std::string>& arguments,
@@ -44,8 +44,6 @@ namespace Common
 
             void setOutputLimit(size_t limit) override;
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
-
-            void waitUntilProcessEnds() override;
 
         private:
             void onExecFinished();
