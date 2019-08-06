@@ -97,7 +97,8 @@ export OUTPUT=${STARTING_DIR}/sspl-base/output
 pushd sspl-systemtests
 sudo -E robot \
     --exclude MANUAL \
-    --exclude WEEKLY \
+    --exclude SLOW \
+    --exclude CUSTOM_LOCATION \
     --exclude EXAMPLE_PLUGIN \
     --exclude EVENT_PLUGIN \
     --exclude AUDIT_PLUGIN \
