@@ -13,3 +13,5 @@ if [ -n "$(which apt-get)" ]
 then
     deleteID || exit 1
 fi
+
+shutdown now
