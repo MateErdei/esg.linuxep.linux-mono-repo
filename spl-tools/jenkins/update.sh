@@ -34,4 +34,4 @@ else
     exit 1
 fi
 
-shutdown now
+shutdown 1
