@@ -132,7 +132,7 @@ else
         export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT
     elif [[ -d "$FILER_5_BIR/sspl-eventprocessor" ]]
     then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-eventprocessor/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-eventprocessor/1-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="$DIR"
@@ -151,7 +151,7 @@ else
         export SSPL_MDR_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-control-plugin/master/SDDS-COMPONENT
     elif [[ -d "$FILER_5_BIR/sspl-mdr-control-plugin" ]]
     then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-control-plugin/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-control-plugin/1-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SSPL_MDR_PLUGIN_SDDS="$DIR"
@@ -176,22 +176,22 @@ else
 
     elif [[ -d "$FILER_5_BIR/sspl-mdr-componentsuite" ]]
     then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-MDR-COMPONENT-SUITE" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-MDR-COMPONENT-SUITE" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_MDR_COMPONENT_SUITE="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-DBOS-COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-DBOS-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_DBOS_COMPONENT="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-OSQUERY-COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-OSQUERY-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_OSQUERY_COMPONENT="$DIR"
         fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/0-*/*/output/SDDS-SSPL-MDR-COMPONENT" | sort -rV | head -1)
+        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-MDR-COMPONENT" | sort -rV | head -1)
         if [[ -d "$DIR" ]]
         then
             export SDDS_SSPL_MDR_COMPONENT="$DIR"
@@ -205,7 +205,7 @@ fi
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLEPLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS,SDDS_SSPL_DBOS_COMPONENT,SDDS_SSPL_OSQUERY_COMPONENT,SDDS_SSPL_MDR_COMPONENT,SDDS_SSPL_MDR_COMPONENT_SUITE,SSPL_MDR_PLUGIN_SDDS
 LOG_LEVEL=TRACE
-EXCLUSION="-e MANUAL -e SLOW  -e AUDIT_PLUGIN  -e EVENT_PROCESSOR -e FUZZ -e TESTFAILURE -e AMAZON_LINUX"
+EXCLUSION="-e MANUAL -e AUDIT_PLUGIN  -e EVENT_PROCESSOR -e FUZZ -e TESTFAILURE -e AMAZON_LINUX"
 if [[ -n "${TEST_SELECTOR}" ]]
 then
     sudo \
