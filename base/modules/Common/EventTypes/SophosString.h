@@ -139,7 +139,8 @@ namespace Common
              * by the first occurrence of a null character.
              * @param pos, position of the last character in the string to be considered as the beginning of a match.
              * Any value greater or equal than the string length (including string::npos) means that the entire string
-             * is searched. Note: The first character is denoted by a value of 0 (not 1).
+             * is searched.
+             * Note: The first character is denoted by a value of 0 (not 1).
              * @param n, length of sequence of characters to match.
              * @returns size_t, position of the first character of the last match.
              * If no matches were found, the function returns string::npos.
@@ -151,7 +152,8 @@ namespace Common
              * @param c, individual character to be searched for.
              * @param pos, Position of the last character in the string to be considered as the beginning of a match.
              * Any value greater or equal than the string length (including string::npos) means that the entire string
-             * is searched. Note: The first character is denoted by a value of 0 (not 1).
+             * is searched.
+             * Note: The first character is denoted by a value of 0 (not 1).
              * @returns size_t, position of the first character of the last match.
              * If no matches were found, the function returns string::npos.
              */
