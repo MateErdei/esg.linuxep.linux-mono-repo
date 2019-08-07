@@ -395,6 +395,7 @@ then
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
+        ${SOPHOS_INSTALL}/base/bin/registerCentral --deregister
         ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
