@@ -45,7 +45,10 @@ namespace Telemetry
                                 "^(\\d+)\\.\\d*\\s+.*$",
                                 { { "", TelemetryValueType::INTEGER } } } },
         { "timezone",
-          SystemTelemetryTuple{ "/bin/date", { "+%Z" }, "^([A-Z]{2,5})$", { { "", TelemetryValueType::STRING } } } }
+          SystemTelemetryTuple{ "/bin/date",
+                                { "+%Z" },
+                                "^([A-Z]{2,5})$",
+                                { { "", TelemetryValueType::STRING } } } }
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
