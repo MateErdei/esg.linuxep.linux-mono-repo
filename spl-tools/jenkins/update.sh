@@ -20,7 +20,11 @@ function update_apt()
 function update_yum()
 {
     echo "=> Updating existing packages with yum..."
-    yum -y update || return 1
+    if grep 'Red Hat Enterprise Linux release 8' /etc/redhat-release; then
+        yum -y --nobest update || return 1
+    else
+        yum -y update || return 1
+    fi
 }
 
 if [ -n "$(which apt-get)" ]
