@@ -148,7 +148,7 @@ fi
 ## Requires sudo permissions:
 PRESERVE_ENV=OUTPUT,BASE_DIST,COVFILE,BASE,EXAMPLEPLUGIN_SDDS,THIN_INSTALLER_OVERRIDE,SYSTEM_PRODUCT_TEST_OUTPUT,SSPL_AUDIT_PLUGIN_SDDS,SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 LOG_LEVEL=TRACE
-EXCLUSION="--exclude manual --exclude WEEKLY"
+EXCLUSION="--exclude manual --exclude SLOW"
 if [[ -n "${TEST_SELECTOR}" ]]
 then
     sudo \
@@ -157,7 +157,7 @@ then
 else
     sudo \
         --preserve-env="${PRESERVE_ENV}" \
-        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --exclude WEEKLY tests
+        robot --loglevel "${LOG_LEVEL}" ${EXCLUSION} --exclude SLOW tests
 fi
 
 echo "Tests exited with $?"
