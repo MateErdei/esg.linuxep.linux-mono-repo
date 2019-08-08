@@ -430,7 +430,7 @@ then
 else  # sspl not installed
     if [ -d ${SOPHOS_INSTALL} ]
     then
-        echo "The intended destination for Sophos Server Protection for Linux : ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location." >&2
+        echo "The intended destination for Sophos Server Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location." >&2
         cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
     fi
 fi
