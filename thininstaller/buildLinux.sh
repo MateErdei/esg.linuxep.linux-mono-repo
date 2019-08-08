@@ -34,7 +34,7 @@ source "$BASE"/build-scripts/common.sh
 
 function create_versioned_installer_header()
 {
-    local VERSION=$(cat Version.txt)
+    local VERSION=$(grep "package name=\"sspl-thininstaller\"" release-package.xml | sed -e s/.*version=\"// -e s/\"\>//)
     sed s/VERSION_REPLACEMENT_STRING/$VERSION/g ./installer_header.sh > installer_header_versioned.sh
     INSTALLER_HEADER=installer_header_versioned.sh
 }
