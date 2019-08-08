@@ -395,8 +395,13 @@ then
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral --deregister
+        # in-cases where central SAV was previously installed we need to force register and de-register and register again
+        # to ensure central realises the machine is now protected by SSPL and not SAV, so that the correct policies are
+        # provided.
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS >/dev/null
+        ${SOPHOS_INSTALL}/base/bin/registerCentral --deregister >/dev/null
         ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS
+
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
         then
