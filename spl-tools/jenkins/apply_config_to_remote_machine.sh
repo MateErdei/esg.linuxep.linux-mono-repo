@@ -1,13 +1,13 @@
 #!/bin/bash
 set -x
 
-function die()
+function failure()
 {
     echo "$@" >&2
     exit 1
 }
 
-(( "$#" >= "2" )) || die "Usage: $0 <config_filename> <user@target_machine> [options...]"
+(( "$#" >= "2" )) || failure "Usage: $0 <config_filename> <user@target_machine> [options...]"
 
 config_script="$1"
 shift
@@ -21,7 +21,7 @@ then
 fi
 
 this_dir_path=$(readlink -f $(dirname $0))
-[[ -e "${this_dir_path}/${config_script}" ]] || die "Failed to find ${this_dir_path}/${config_script}"
+[[ -e "${this_dir_path}/${config_script}" ]] || failure "Failed to find ${this_dir_path}/${config_script}"
 
 this_dir_name=$(basename ${this_dir_path})
 echo rsync -e "ssh -o StrictHostKeyChecking=no" -av ${this_dir_path}/ ${target_machine}:${this_dir_name}/
