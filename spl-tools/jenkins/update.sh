@@ -1,9 +1,8 @@
-#!/bin/bash -e
-
-set -x
+#!/bin/bash
+set -xe
 
 #
-# Script to automatically configure or update a Jenkins ubuntu node
+# Script to automatically update a jenkins template
 #
 
 THIS_DIR=$(readlink -f ${0%/*})
@@ -28,10 +27,10 @@ function update_yum()
 
 if [ -n "$(which apt-get)" ]
 then
-    update_apt || ( rm -rf ./${THIS_DIR} && exit 1 )
+    update_apt || ( rm -rf "./${THIS_DIR}" && exit 1 )
 elif [ -n "$(which yum)" ]
 then
-    update_yum || ( rm -rf ./${THIS_DIR} && exit 1 )
+    update_yum || ( rm -rf "./${THIS_DIR}" && exit 1 )
 else
     echo System has neither apt-get or yum
     exit 1

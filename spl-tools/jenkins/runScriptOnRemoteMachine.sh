@@ -1,5 +1,10 @@
 #!/bin/bash
-set -x
+set -xe
+
+#
+# Script to run an arbitrary script on a remote machine
+#
+
 
 function failure()
 {
@@ -7,7 +12,7 @@ function failure()
     exit 1
 }
 
-(( "$#" >= "2" )) || failure "Usage: $0 <config_filename> <user@target_machine> [options...]"
+(( "$#" >= "2" )) || failure "Usage: $0 <config_script> <user@target_machine> [options...]"
 
 config_script="$1"
 shift
