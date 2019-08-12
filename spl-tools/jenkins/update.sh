@@ -8,8 +8,6 @@ set -x
 
 THIS_DIR=$(readlink -f ${0%/*})
 
-touch /tmp/thisJenkinsJobMadeByViolaGang
-
 function update_apt()
 {
     echo "=> Updating existing packages with apt..."
