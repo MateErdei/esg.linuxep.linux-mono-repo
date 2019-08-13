@@ -12,15 +12,12 @@ source /etc/profile
 #set -ex
 #set -o pipefail
 
-PATH_TO_AFL_LATEST_TAR_GZ=/mnt/filer6/linux/users/Gesner/afl-latest.tgz
-
-
 STARTINGDIR=$(pwd)
 
 cd ${0%/*}
 FuzzTestsDir=$(pwd)
 SOURCE_DIR=$(realpath ${FuzzTestsDir}/../../)
-SSPL_TOOLS_DIR=$(realpath ${SOURCE_DIR}/../)
+SSPL_TOOLS_DIR=$(realpath ${FuzzTestsDir}/../../../)
 FuzzTestCaseRelDir="everest-systemproducttests/SupportFiles/base_data/fuzz/"
 
 PROJECT=everest-base
@@ -28,15 +25,11 @@ PROJECT=everest-base
 
 # check assumptions:
 if [[ "FuzzTests" != "$(basename ${FuzzTestsDir})" ]]; then
-  echo "Not executed from FuzzTests: $(basename ${FuzzTestsDir})"; exit 1;
+  echo "Not executed from FuzzTests: ${FuzzTestsDir}"; exit 1;
 fi
 
 if [[ "${PROJECT}" != "$(basename ${SOURCE_DIR})" ]]; then
-  echo "Not executed from ${PROJECT}: $(basename ${SOURCE_DIR})"; exit 1;
-fi
-
-if [[ "sspl-tools" != "$(basename ${SSPL_TOOLS_DIR})" ]]; then
-  echo "Not executed from FuzzTests: $(basename ${SSPL_TOOLS_DIR})"; exit 1;
+  echo "Not executed from ${PROJECT}: ${SOURCE_DIR}"; exit 1;
 fi
 
 CMAKE_BUILD_DIR=cmake-fuzz
@@ -127,7 +120,7 @@ for target in ${TARGETS}; do
 echo configuring ${target} script
 cat > fuzzRun${target}.sh << EOF
 mkdir -p /tmp/base/etc/
-AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${MachineExecPath}/${target}"
+AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 400 "${MachineExecPath}/${target}"
 #AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-cmin -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${MachineExecPath}/${target}"
 EOF
 
