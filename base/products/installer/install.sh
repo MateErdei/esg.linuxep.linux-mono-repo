@@ -339,7 +339,11 @@ done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
-install_telemetry_supplement
+# do not set up the telemetry supplement for a clean install as it doesn't exist in the update cache yet
+if (( $CLEAN_INSTALL == 0 ))
+then
+    install_telemetry_supplement
+fi
 
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/bin"
