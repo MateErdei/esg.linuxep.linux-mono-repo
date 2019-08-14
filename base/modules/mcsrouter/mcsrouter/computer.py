@@ -8,9 +8,11 @@ computer Module
 from __future__ import print_function, division, unicode_literals
 
 import logging
+import os
+import glob
 
 from .mcsclient import status_cache
-from .utils import timestamp
+from .utils import timestamp, path_manager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -124,7 +126,7 @@ class Computer(object):
         """
         return self.__m_adapters.keys()
 
-    def run_commands(self, commands):
+    def _run_commands(self, commands):
         """
         run_commands
         """
@@ -152,6 +154,23 @@ class Computer(object):
                 self.__m_commands = new_command + self.__m_commands
 
         return True
+
+    def run_commands(self, commands):
+
+        if not os.path.isdir(path_manager.policy_temp_dir()):
+            os.mkdir(path_manager.policy_temp_dir())
+        try:
+            return self._run_commands(commands)
+        finally:
+            for filepath in glob.glob(os.path.join(path_manager.policy_temp_dir(), "*.xml")):
+                try:
+                    os.rename(filepath, os.path.join(path_manager.policy_dir(), os.path.basename(filepath)))
+                except OSError as ex:
+                    LOGGER.warning("Failed to write a policy to :{}. Reason: {}".format(filepath, ex))
+            try:
+                os.rmdir(path_manager.policy_temp_dir())
+            except OSError as ex:
+                LOGGER.debug( "Failed to remove policy temporary directory, for the following reason: {} ")
 
     def clear_cache(self):
         """

@@ -67,10 +67,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         else:
             policy_name = "%s_policy.xml" % (self.__m_app_id)
 
-        policy_path = os.path.join(path_manager.policy_dir(), policy_name)
-        policy_path_tmp = os.path.join(path_manager.temp_dir(), policy_name)
-        mcsrouter.utils.atomic_write.atomic_write(
-            policy_path, policy_path_tmp, policy)
+        policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), policy_name)
+        with open(policy_path_tmp, "w") as policy_file:
+            policy_file.write(policy)
 
         return []
 

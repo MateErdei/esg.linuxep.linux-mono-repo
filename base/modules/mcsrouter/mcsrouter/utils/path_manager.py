@@ -271,6 +271,12 @@ def temp_dir():
     """
     return os.path.join(install_dir(), 'tmp')
 
+def policy_temp_dir():
+    """
+    temp_dir for temporary writing of policies
+    """
+    return os.path.join(install_dir(), 'tmp', 'policy')
+
 # base/lib:base/lib64
 
 
