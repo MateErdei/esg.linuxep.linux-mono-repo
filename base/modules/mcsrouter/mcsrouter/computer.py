@@ -161,6 +161,7 @@ class Computer(object):
         # received for a specific appId that only the latest one is actioned.
         if not os.path.isdir(path_manager.policy_temp_dir()):
             os.mkdir(path_manager.policy_temp_dir())
+            os.chmod(path_manager.policy_temp_dir(), 0o700)
         try:
             return self._run_commands(commands)
         finally:
@@ -168,7 +169,7 @@ class Computer(object):
                 try:
                     filename = os.path.basename(filepath)
                     os.rename(filepath, os.path.join(path_manager.policy_dir(), filename))
-                    LOGGER.debug("Applying new policy: {}".format(filename))
+                    LOGGER.info("Distribute new policy: {}".format(filename))
                 except OSError as ex:
                     LOGGER.warning("Failed to write a policy to :{}. Reason: {}".format(filepath, ex))
 

@@ -75,8 +75,11 @@ class MCSPolicyHandler(object):
         assert policy_xml is not None
         if path is None:
             path = self.__policy_path()
-        mcsrouter.utils.atomic_write.atomic_write(path, os.path.join(
-            path_manager.temp_dir(), self.policy_base_name()), policy_xml)
+
+        policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), self.policy_base_name())
+        with open(policy_path_tmp, "w") as policy_file:
+            policy_file.write(policy_xml)
+
 
     def __load_policy(self):
         """
