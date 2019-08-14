@@ -409,8 +409,8 @@ class MCSPolicyHandler(object):
         """
         try:
             self.__apply_policy(policy_age, save)
-        except Exception:  # pylint: disable=broad-except
-            LOGGER.exception("Failed to apply MCS policy")
+        except Exception as e:  # pylint: disable=broad-except
+            LOGGER.error("Failed to apply MCS policy: {}".format(e))
 
     def process(self, policy_xml):
         """
