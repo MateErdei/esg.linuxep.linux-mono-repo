@@ -19,6 +19,8 @@ import logging
 import logging.handlers
 
 from .utils import config as utils_config
+from .utils.logger_utcformatter import UTCFormatter
+
 from .mcsclient import mcs_exception
 from .mcsclient import mcs_connection
 from . import mcs as MCS
@@ -55,7 +57,6 @@ def setup_logging():
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
 
-    from mcs_router import UTCFormatter
     formatter = UTCFormatter(
         "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s [%(thread)10.10d] %(name)s <> %(message)s", "%Y-%m-%dT%H:%M:%S")
 

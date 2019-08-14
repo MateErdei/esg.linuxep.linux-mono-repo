@@ -23,6 +23,7 @@ import time
 import __builtin__
 
 from .utils import path_manager
+from .utils.logger_utcformatter import UTCFormatter
 from .utils import config as config_module
 from . import sophos_https
 
@@ -174,11 +175,6 @@ def daemonise():
 
         os._exit(0) #pylint: disable=protected-access
 
-class UTCFormatter(logging.Formatter):
-    """
-    UTCFormatter class so all logs can show the same UTC time.
-    """
-    converter = time.gmtime
 
 class SophosLogging(object):
     """
