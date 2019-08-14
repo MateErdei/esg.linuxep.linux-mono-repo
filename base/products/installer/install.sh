@@ -207,6 +207,8 @@ function install_telemetry_supplement()
     if [[ -f ${telemetry_supplement_path} ]]
     then
         cp ${telemetry_supplement_path} ${telemetry_config_file_path}
+        chown -h "root:${GROUP_NAME}" ${telemetry_config_file_path}*
+        chmod 440 ${telemetry_config_file_path}*
     else
         echo "Warning ${telemetry_supplement_path} file not found"
     fi
@@ -337,7 +339,6 @@ done
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
-# install telemetry supplement before modifying ownership.
 install_telemetry_supplement
 
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"
@@ -359,9 +360,6 @@ chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
 chmod -R 750 "${SOPHOS_INSTALL}/base/lib"
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python"*
 chmod 710 "${SOPHOS_INSTALL}/base/bin/python"*
-
-chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/telemetry-config.json"*
-chmod 440 "${SOPHOS_INSTALL}/base/etc/telemetry-config.json"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*
