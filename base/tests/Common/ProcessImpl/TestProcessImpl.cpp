@@ -52,12 +52,20 @@ namespace
         }
     }
 
-    TEST(ProcessImpl, WaitpidWaitsUntilProcessEnds) // NOLINT
+    TEST(ProcessImpl, WaitpidWaitsUntilProcessEndsSuccessfully) // NOLINT
     {
         auto process = createProcess();
         process->exec("/bin/echo", { "hello" });
         process->waitUntilProcessEnds();
         ASSERT_EQ(process->output(), "hello\n");
+    }
+
+    TEST(ProcessImpl, WaitpidTerminatesZombieProcess) // NOLINT
+    {
+        auto process = createProcess();
+        process->exec("/bin/sleep", { "60" });
+        system("/bin/kill -6 `/bin/pidof sleep`");
+        process->waitUntilProcessEnds();
     }
 
     TEST(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
