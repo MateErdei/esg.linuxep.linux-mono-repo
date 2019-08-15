@@ -45,14 +45,24 @@ namespace Telemetry
             std::string pluginSocketAddress =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress(pluginName);
 
-            auto requester = context->getRequester();
-            requester->setTimeout(telemetryConfig->getPluginSendReceiveTimeout());
-            requester->setConnectionTimeout(telemetryConfig->getPluginConnectionTimeout());
-            requester->connect(pluginSocketAddress);
+            std::shared_ptr<ITelemetryProvider> telemetryProvider;
+            // Check if socket exists before adding to telemetry providers
+            if (Common::FileSystem::fileSystem()->isFile(pluginSocketAddress))
+            {
+                auto requester = context->getRequester();
+                requester->setTimeout(telemetryConfig->getPluginSendReceiveTimeout());
+                requester->setConnectionTimeout(telemetryConfig->getPluginConnectionTimeout());
+                requester->connect(pluginSocketAddress);
 
-            auto telemetryProvider = std::make_shared<PluginTelemetryReporter>(
-                std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
-                    Common::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName }));
+                telemetryProvider = std::make_shared<PluginTelemetryReporter>(
+                        std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
+                                Common::PluginCommunicationImpl::PluginProxy{std::move(requester), pluginName}));
+            }
+            else
+            {
+                telemetryProvider = std::make_shared<PluginTelemetryReporterWithoutIPC>(pluginName);
+            }
+
             LOGINFO("Loaded plugin proxy: " << pluginName);
             telemetryProviders.emplace_back(telemetryProvider);
         }

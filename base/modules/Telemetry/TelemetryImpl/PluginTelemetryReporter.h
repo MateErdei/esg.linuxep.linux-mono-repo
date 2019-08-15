@@ -26,4 +26,17 @@ namespace Telemetry
     private:
         std::unique_ptr<Common::PluginCommunication::IPluginProxy> m_pluginProxy;
     };
+
+    class PluginTelemetryReporterWithoutIPC : public ITelemetryProvider
+    {
+    public:
+        explicit PluginTelemetryReporterWithoutIPC(std::string pluginName);
+
+        std::string getName() override;
+        std::string getTelemetry() override;
+
+    private:
+        std::string m_pluginName;
+    };
+
 } // namespace Telemetry
