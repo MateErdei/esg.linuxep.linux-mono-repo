@@ -44,3 +44,17 @@ TEST_F(PluginTelemetryReporterTests, getTelemetryOk) // NOLINT
     ASSERT_EQ(pluginName, expectedPluginName);
     ASSERT_TRUE(pluginTelemetryJson.find("answer") != std::string::npos);
 }
+
+TEST_F(PluginTelemetryReporterTests, getTelemetryWithoutIPCOk) // NOLINT
+{
+    const std::string expectedPluginName = "fakePlugin";
+    const std::string expectedPluginTelemetryJson = R"({})";
+
+    Telemetry::PluginTelemetryReporterWithoutIPC reporter(expectedPluginName);
+
+    const std::string pluginName = reporter.getName();
+    const std::string pluginTelemetryJson = reporter.getTelemetry();
+
+    ASSERT_EQ(pluginName, expectedPluginName);
+    ASSERT_EQ(pluginTelemetryJson, expectedPluginTelemetryJson);
+}
