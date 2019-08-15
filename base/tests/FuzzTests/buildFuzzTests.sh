@@ -43,7 +43,7 @@ source "$BASE"/build/pathmgr.sh
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
 
-
+PATH_TO_AFL_LATEST_TAR_GZ=/redist/binaries/linux11/input/afl/afl-latest.tgz
 # ensure the afl tools is available in sspl-tools
 AFL_BASE_NAME=$(tar tfz "${PATH_TO_AFL_LATEST_TAR_GZ}" --exclude '*/*')
 
