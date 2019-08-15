@@ -7,7 +7,7 @@ import os
 import logging
 
 import mcsrouter.adapters.adapter_base
-import mcsrouter.utils.atomic_write
+import mcsrouter.utils.utf8_write
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper as xml_helper
@@ -68,8 +68,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             policy_name = "%s_policy.xml" % (self.__m_app_id)
 
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), policy_name)
-        with open(policy_path_tmp, "w") as policy_file:
-            policy_file.write(policy)
+        mcsrouter.utils.utf8_write.utf8_write(policy_path_tmp, policy)
 
         return []
 

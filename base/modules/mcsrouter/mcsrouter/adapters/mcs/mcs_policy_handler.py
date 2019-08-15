@@ -14,7 +14,7 @@ import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 import logging
 
 import mcsrouter.utils.xml_helper
-import mcsrouter.utils.atomic_write
+import mcsrouter.utils.utf8_write
 import mcsrouter.utils.path_manager as path_manager
 
 
@@ -77,9 +77,7 @@ class MCSPolicyHandler(object):
             path = self.__policy_path()
 
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), self.policy_base_name())
-        with open(policy_path_tmp, "w") as policy_file:
-            policy_file.write(policy_xml)
-
+        mcsrouter.utils.utf8_write.utf8_write(policy_path_tmp, policy_xml)
 
     def __load_policy(self):
         """
