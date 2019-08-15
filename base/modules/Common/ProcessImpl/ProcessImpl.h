@@ -44,6 +44,8 @@ namespace Common
             void setOutputLimit(size_t limit) override;
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
+            void waitUntilProcessEnds() override;
+
         private:
             void onExecFinished();
             pid_t m_pid;

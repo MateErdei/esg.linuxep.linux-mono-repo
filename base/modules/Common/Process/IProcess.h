@@ -108,6 +108,12 @@ namespace Common
              * Set a callback function that will be triggered when the executed process is detected to have finished
              */
             virtual void setNotifyProcessFinishedCallBack(functor) = 0;
+
+            /**
+             * Wait for a state change in a child of the calling process.
+             * A state change is considered to be: the child terminated; the child was stopped by a signal; or the child was resumed by a signal.
+             */
+            virtual void waitUntilProcessEnds() = 0;
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();

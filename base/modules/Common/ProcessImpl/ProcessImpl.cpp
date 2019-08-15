@@ -352,5 +352,19 @@ namespace Common
             };
         }
 
+        void ProcessImpl::waitUntilProcessEnds()
+        {
+            int status;
+            pid_t ret = waitpid(m_pid, &status, 0);
+            if (ret == -1)
+            {
+                LOGERROR("The PID " << m_pid << " does not exist or is not a child of the calling process.");
+            }
+            else
+            {
+                LOGDEBUG("PID " << m_pid << " exited.");
+            }
+        }
+
     } // namespace ProcessImpl
 } // namespace Common
