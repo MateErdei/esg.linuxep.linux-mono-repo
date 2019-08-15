@@ -356,13 +356,29 @@ namespace Common
         {
             int status;
             pid_t ret = waitpid(m_pid, &status, 0);
+
             if (ret == -1)
             {
                 LOGERROR("The PID " << m_pid << " does not exist or is not a child of the calling process.");
             }
             else
             {
-                LOGDEBUG("PID " << m_pid << " exited.");
+                if (WIFEXITED(status))
+                {
+                    LOGDEBUG("PID " << m_pid << " exited, status=" << WEXITSTATUS(status));
+                }
+                else if (WIFSIGNALED(status))
+                {
+                    LOGDEBUG("PID " << m_pid << " killed by signal, status=" << WTERMSIG(status));
+                }
+                // WIFSTOPPED can only occur if the call is done using WUNTRACED or if the child is being traced by ptrace
+                else if (WIFSTOPPED(status)) {
+                    LOGDEBUG("PID " << m_pid << " stopped by signal, status=" << WSTOPSIG(status));
+                }
+                else if (WIFCONTINUED(status)) {
+                    LOGDEBUG("PID " << m_pid << " continued to run");
+                }
+
             }
         }
 

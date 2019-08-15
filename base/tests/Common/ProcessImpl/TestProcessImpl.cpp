@@ -52,6 +52,14 @@ namespace
         }
     }
 
+    TEST(ProcessImpl, WaitpidWaitsUntilProcessEnds) // NOLINT
+    {
+        auto process = createProcess();
+        process->exec("/bin/echo", { "hello" });
+        process->waitUntilProcessEnds();
+        ASSERT_EQ(process->output(), "hello\n");
+    }
+
     TEST(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
     {
         auto process = createProcess();
@@ -80,7 +88,7 @@ namespace
         Tests::TestExecutionSynchronizer testExecutionSynchronizer;
         process->setNotifyProcessFinishedCallBack(
             [&testExecutionSynchronizer]() { testExecutionSynchronizer.notify(); });
-        // the process will not work correctly. But the notification on its failure shoud still be triggered.
+        // the process will not work correctly. But the notification on its failure should still be triggered.
         process->exec("/bin/nothingsleep", { "0.1" });
         EXPECT_TRUE(testExecutionSynchronizer.waitfor());
         ASSERT_EQ(process->output(), "");
