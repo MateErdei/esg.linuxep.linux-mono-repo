@@ -8,6 +8,7 @@ import logging
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.utf8_write
+import mcsrouter.utils.atomic_write
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper as xml_helper
