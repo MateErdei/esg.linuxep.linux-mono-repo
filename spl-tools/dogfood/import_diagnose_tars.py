@@ -144,13 +144,32 @@ def mark_tar_as_processed(tar_path):
     print("Finished with:{}".format(tar_path))
 
 
-def extract_hostname(extracted_tar_path):
-    with open(os.path.join(extracted_tar_path, "SystemFiles", "hostnamectl"), 'r') as hostnamectl:
-        for line in hostnamectl:
-            if "hostname:" in line:
-                x = line.split(":")
+def extract_part(extracted_tar_path, filename, tag, delim, position):
+    with open(os.path.join(extracted_tar_path, "SystemFiles", filename), 'r') as file:
+        for line in file:
+            if "Process execution timed out" in line:
+                return None
+            if tag in line or tag == "":
+                x = line.split(delim)
                 if len(x) > 1:
-                    return x[1].strip()
+                    hostname = x[position].strip()
+                    if hostname is not "":
+                        return hostname
+    return None
+
+
+def extract_hostname(extracted_tar_path):
+    hostname = extract_part(extracted_tar_path, "hostnamectl", "hostname", ":", 1)
+    if hostname is not None:
+        return hostname
+
+    hostname = extract_part(extracted_tar_path, "sysctl", "kernel.hostname", " = ", 1)
+    if hostname is not None:
+        return hostname
+
+    hostname = extract_part(extracted_tar_path, "uname", "", " ", 1)
+    if hostname is not None:
+        return hostname
 
 
 # todo make this more robust around splitting.
@@ -175,11 +194,17 @@ def process_diagnose_file(tar_path):
 
     if not os.path.isdir(g_extract_dir):
         os.mkdir(g_extract_dir)
+
     tar_file_name = os.path.basename(tar_path)
     local_tar_path = os.path.join(g_extract_dir, tar_file_name)
+
+    if os.path.exists(local_tar_path):
+        print("There is a diagnose tar with a clashing name: {}".format(local_tar_path))
+        exit(1)
+
     shutil.copyfile(tar_path, local_tar_path)
 
-    sub_dir = os.path.join(g_extract_dir,tar_file_name + ".dir")
+    sub_dir = os.path.join(g_extract_dir, tar_file_name + ".dir")
 
     import tarfile
     tar = tarfile.open(local_tar_path)
