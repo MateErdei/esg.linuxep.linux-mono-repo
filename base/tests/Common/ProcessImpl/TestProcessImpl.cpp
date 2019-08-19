@@ -65,8 +65,9 @@ namespace
         auto process = createProcess();
         process->exec("/bin/sleep", { "60" });
         // We are using kill -6 because this executes an abort signal which can put a process into the "zombie" state
-        system("/bin/kill -6 `/bin/pidof sleep`");
+        auto killReturn = system("/bin/kill -6 `/bin/pidof sleep`");
         process->waitUntilProcessEnds();
+        ASSERT_EQ(killReturn, 0);
     }
 
     TEST(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
