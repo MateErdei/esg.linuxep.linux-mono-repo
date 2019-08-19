@@ -12,7 +12,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
-#include <chrono>
 #include <fstream>
 
 using namespace Common::Process;
@@ -59,22 +58,6 @@ namespace
         process->exec("/bin/echo", { "hello" });
         process->waitUntilProcessEnds();
         ASSERT_EQ(process->output(), "hello\n");
-    }
-
-    TEST(ProcessImpl, WaitpidTerminatesZombieProcess) // NOLINT
-    {
-        // We are using kill -6 because this executes an abort signal which can put a process into the "zombie" state
-        auto process = createProcess();
-
-        auto start = std::chrono::high_resolution_clock::now();
-        process->exec("/bin/sleep", { "60" });
-        auto killReturn = system("/bin/kill -6 `/bin/pidof sleep`");
-        process->waitUntilProcessEnds();
-        ASSERT_EQ(killReturn, 0);
-        auto stop = std::chrono::high_resolution_clock::now();
-
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-        ASSERT_LT(duration.count(), 10);
     }
 
     TEST(ProcessImpl, ProcessNotifyOnClosure) // NOLINT
