@@ -147,7 +147,7 @@ def mark_tar_as_processed(tar_path):
 def extract_part(extracted_tar_path, filename, tag, delim, position):
     with open(os.path.join(extracted_tar_path, "SystemFiles", filename), 'r') as file:
         for line in file:
-            if "Process execution timed out" in line:
+            if "timed out" in line.lower():
                 return None
             if tag in line or tag == "":
                 x = line.split(delim)
