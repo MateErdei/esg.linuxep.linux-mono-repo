@@ -5,9 +5,9 @@ def buildAndTest(debugFlag)
         checkout scm
         sh 'rm -rf /tmp/temp*'
         if (debugFlag) {
-            sh 'rm -rf build64 && ./build.sh --no-unittests --debug'
+            sh 'rm -rf build64 && ./build.sh --clean --no-unittests --debug'
         } else {
-            sh 'rm -rf build64 && ./build.sh --no-unittests'
+            sh 'rm -rf build64 && ./build.sh --clean --no-unittests'
         }
 
         // Timeout applies to each individual test. Stops hanging tests from hanging the build.
