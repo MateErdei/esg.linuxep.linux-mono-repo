@@ -121,7 +121,6 @@ echo configuring ${target} script
 cat > fuzzRun${target}.sh << EOF
 mkdir -p /tmp/base/etc/
 AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 400 "${MachineExecPath}/${target}"
-#AFL_SKIP_CPUFREQ=1  LD_LIBRARY_PATH=${LIBS_MACHINE}  ${AFL_PATH}/afl-cmin -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${MachineExecPath}/${target}"
 EOF
 
 
@@ -133,7 +132,7 @@ if [[ \${CORE_PATTERN} != "core" ]]; then
   echo 'core' | sudo tee -a /proc/sys/kernel/core_pattern
 fi
 mkdir -p /tmp/base/etc/
-LD_LIBRARY_PATH=${LIBS_VAGRANT}  /vagrant/${AFL_BASE_NAME}/afl-fuzz -i "${VagrantFuzzTestCase}/${target}/" -o findings_${target} -m 200 "${VagrantExecPath}/${target}"
+LD_LIBRARY_PATH=${LIBS_VAGRANT}  /vagrant/${AFL_BASE_NAME}/afl-fuzz -i "${VagrantFuzzTestCase}/${target}/" -o findings_${target} -m 400 "${VagrantExecPath}/${target}"
 
 if [[ -f backup_core_pattern_option ]]; then
   cat backup_core_pattern_option | sudo tee -a /proc/sys/kernel/core_pattern
