@@ -191,6 +191,7 @@ def process_diagnose_file(tar_path):
     global g_extract_dir
 
     print(tar_path)
+    cleanup()
 
     if not os.path.isdir(g_extract_dir):
         os.mkdir(g_extract_dir)
@@ -260,7 +261,6 @@ def process_diagnose_file(tar_path):
 
     for sys_file in system_files:
         process_system_file(hostname, dogfood_db, ip, sys_file)
-        time.sleep(5)
 
     mark_tar_as_processed(tar_path)
 
@@ -311,6 +311,11 @@ def process_system_file(hostname, db, ip, sys_file_path):
             send_system_file_line_to_db(line, sys_file_path, db, ip, hostname)
 
 
+def cleanup():
+    if g_extract_dir.startswith("/tmp/") and os.path.exists(g_extract_dir):
+        shutil.rmtree(g_extract_dir)
+
+
 # Globals
 g_product = "SSPL"
 g_extract_dir = "/tmp/dogfood-extract"
@@ -353,8 +358,9 @@ def main():
     for tar in tars_to_process:
         process_diagnose_file(tar)
 
-    if g_extract_dir.startswith("/tmp/") and os.path.exists(g_extract_dir):
-        shutil.rmtree(g_extract_dir)
+    # if g_extract_dir.startswith("/tmp/") and os.path.exists(g_extract_dir):
+    #     shutil.rmtree(g_extract_dir)
+    cleanup()
 
 
 if __name__ == "__main__":
