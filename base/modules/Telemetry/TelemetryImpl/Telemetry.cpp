@@ -47,8 +47,10 @@ namespace Telemetry
 
             std::shared_ptr<ITelemetryProvider> telemetryProvider;
             // Check if socket exists before adding to telemetry providers
-            if (Common::FileSystem::fileSystem()->isFile(pluginSocketAddress))
+            std::string socketFileLocation = pluginSocketAddress.substr(std::string("ipc://").size());
+            if (Common::FileSystem::fileSystem()->exists(socketFileLocation))
             {
+                LOGDEBUG("Gather Telemetry via IPC for " << pluginName);
                 auto requester = context->getRequester();
                 requester->setTimeout(telemetryConfig->getPluginSendReceiveTimeout());
                 requester->setConnectionTimeout(telemetryConfig->getPluginConnectionTimeout());
@@ -60,6 +62,7 @@ namespace Telemetry
             }
             else
             {
+                LOGDEBUG("Provide empty telemetry for " << pluginName);
                 telemetryProvider = std::make_shared<PluginTelemetryReporterWithoutIPC>(pluginName);
             }
 
