@@ -106,9 +106,19 @@ namespace Telemetry
         int exitCode = processPtr->exitCode();
         if (exitCode != 0)
         {
-            throw Common::Process::IProcessException(
-                "Process execution returned non-zero exit code, 'Exit Code: " +
-                Common::UtilityImpl::StrError(exitCode) + "'");
+            if (exitCode == 2)
+            {
+                LOGWARN("Process execution was unsuccessful, command not found: '" + commandAndArgs + "'");
+                return m_commandOutputCache[commandAndArgs];
+            }
+            else
+            {
+                throw Common::Process::IProcessException(
+                        "Process execution returned non-zero exit code, 'Exit Code: [" +
+                        std::to_string(exitCode) +
+                        "] " +
+                        Common::UtilityImpl::StrError(exitCode) + "'");
+            }
         }
 
         auto output = processPtr->output();
