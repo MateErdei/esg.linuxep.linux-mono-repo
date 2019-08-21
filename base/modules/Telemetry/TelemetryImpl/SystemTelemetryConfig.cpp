@@ -48,7 +48,12 @@ namespace Telemetry
           SystemTelemetryTuple{ "/bin/date",
                                 { "+%Z" },
                                 "^([A-Z]{2,5})$",
-                                { { "", TelemetryValueType::STRING } } } }
+                                { { "", TelemetryValueType::STRING } } } },
+        { "selinux",
+            SystemTelemetryTuple{ "/usr/sbin/getenforce",
+                                  {},
+                                  "^(?:(Enforcing|Permissive|Disabled))$",
+                                  { { "", TelemetryValueType::STRING } } } }
     };
 
     const SystemTelemetryConfig GL_systemTelemetryArraysConfig = {
