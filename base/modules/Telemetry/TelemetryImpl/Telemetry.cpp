@@ -39,6 +39,7 @@ namespace Telemetry
 
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
 
+        const unsigned long ipcSize = std::string("ipc://").size();
         for (auto& pluginInfo : pluginInfos)
         {
             std::string pluginName = pluginInfo.getPluginName();
@@ -47,7 +48,8 @@ namespace Telemetry
 
             std::shared_ptr<ITelemetryProvider> telemetryProvider;
             // Check if socket exists before adding to telemetry providers
-            std::string socketFileLocation = pluginSocketAddress.substr(std::string("ipc://").size());
+            std::string socketFileLocation = pluginSocketAddress.substr(ipcSize);
+            LOGDEBUG("Checking socket file location" << socketFileLocation);
             if (Common::FileSystem::fileSystem()->exists(socketFileLocation))
             {
                 LOGDEBUG("Gather Telemetry via IPC for " << pluginName);
