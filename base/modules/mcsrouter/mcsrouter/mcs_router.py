@@ -331,7 +331,7 @@ def create_configuration(argv):
     """
     config = config_module.Config(
         path_manager.mcs_router_conf(),
-        mode="0o640",
+        mode=0o640,
         user_id=get_uid("root"),
         group_id=get_gid("sophos-spl-group")
     )
