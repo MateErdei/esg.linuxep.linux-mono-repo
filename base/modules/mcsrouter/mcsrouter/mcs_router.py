@@ -25,6 +25,7 @@ import __builtin__
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
 from .utils import config as config_module
+from .utils.get_ids import get_uid, get_gid
 from . import sophos_https
 
 
@@ -328,7 +329,12 @@ def create_configuration(argv):
     """
     create_configuration
     """
-    config = config_module.Config(path_manager.mcs_router_conf())
+    config = config_module.Config(
+        path_manager.mcs_router_conf(),
+        mode="0o640",
+        user_id=get_uid("root"),
+        group_id=get_gid("sophos-spl-group")
+    )
     config.set_default("LOGLEVEL", LOG_LEVEL_DEFAULT)
 
     for arg in argv[1:]:

@@ -4,6 +4,7 @@ config Module
 """
 
 import os
+import path_manager
 
 
 class Config(object):
@@ -11,12 +12,15 @@ class Config(object):
     Simple key=value configuration file
     """
 
-    def __init__(self, filename=None, parent_config=None):
+    def __init__(self, filename=None, parent_config=None, mode=0o600, user_id=0, group_id=0):
         """
         __init__
         """
         self.__m_options = {}
         self.load(filename)
+        self.__mode = mode
+        self.__group_id = group_id
+        self.__user_id = user_id
         self.__m_filename = filename
         self.__m_parent_config = parent_config
 
@@ -79,20 +83,22 @@ class Config(object):
         except ValueError:
             return default_value
 
-    def save(self, filename=None, mode=0o600):
+    def save(self, filename=None):
         """
         save
         """
         if filename is None:
             filename = self.__m_filename
         assert filename is not None
-        old_umask = os.umask(0o777 ^ mode)
+        old_umask = os.umask(0o777 ^ self.__mode)
         try:
-            file_to_write = open(filename, "w")
-            os.chmod(filename, mode)
+            temp_filename = os.path.join(path_manager.temp_dir(), os.path.basename(filename))
+            file_to_write = open(temp_filename, "w")
             for (key, value) in self.__m_options.iteritems():
                 file_to_write.write("%s=%s\n" % (key, value))
             file_to_write.close()
+            os.chown(temp_filename, self.__user_id, self.__group_id)
+            os.rename(temp_filename, filename)
         finally:
             os.umask(old_umask)
         self.__m_filename = filename

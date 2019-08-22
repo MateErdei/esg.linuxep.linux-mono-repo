@@ -35,6 +35,7 @@ from .utils import signal_handler
 from .utils import directory_watcher as directory_watcher_module
 from .utils import plugin_registry
 from .utils import path_manager
+from .utils.get_ids import get_gid, get_uid
 from . import computer
 
 LOGGER = logging.getLogger(__name__)
@@ -161,13 +162,25 @@ class MCS(object):
             "https://mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep")
         fixed_config = config_module.Config(
             filename=path_manager.root_config(),
-            parent_config=config)
+            parent_config=config,
+            mode=0o640,
+            user_id=get_uid("root"),
+            group_id=get_gid("sophos-spl-group")
+        )
         self.__m_policy_config = config_module.Config(
             filename=path_manager.mcs_policy_config(),
-            parent_config=fixed_config)
+            parent_config=fixed_config,
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         self.__m_config = config_module.Config(
             filename=path_manager.sophosspl_config(),
-            parent_config=self.__m_policy_config)
+            parent_config=self.__m_policy_config,
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         config = self.__m_config
 
         status_latency = self.__m_config.get_int("STATUS_LATENCY", 30)

@@ -20,6 +20,7 @@ import logging.handlers
 
 from .utils import config as utils_config
 from .utils.logger_utcformatter import UTCFormatter
+from .utils.get_ids import get_gid, get_uid
 
 from .mcsclient import mcs_exception
 from .mcsclient import mcs_connection
@@ -196,49 +197,6 @@ def remove_mcs_policy():
     safe_delete(path_manager.mcs_policy_config())
     safe_delete(path_manager.mcs_policy_file())
 
-
-def get_uid(uid_string):
-    """
-    get_uid
-    """
-    # Try as a integer
-    try:
-        return int(uid_string, 10)  # id specified in decimal
-    except ValueError:
-        pass
-
-    # Try in the passwd database
-    import pwd
-    try:
-        password_struct = pwd.getpwnam(uid_string)
-        return password_struct.pw_uid
-    except KeyError:
-        # The text doesn't exist as a user
-        pass
-    return 0
-
-
-def get_gid(gid_string):
-    """
-    get_gid
-    """
-    # Try as a integer
-    try:
-        return int(gid_string, 10)  # id specified in decimal
-    except ValueError:
-        pass
-
-    # Try in the passwd database
-    import grp
-    try:
-        group_struct = grp.getgrnam(gid_string)
-        return group_struct.gr_gid
-    except KeyError:
-        # The text doesn't exist as a group
-        pass
-    return 0
-
-
 class RandomGenerator(object):
     """
     RandomGenerator
@@ -260,7 +218,12 @@ def add_options_to_policy(relays, proxycredentials):
     if relays is None and proxycredentials is None:
         return
 
-    policy_config = utils_config.Config(path_manager.mcs_policy_config())
+    policy_config = utils_config.Config(
+        path_manager.mcs_policy_config(),
+        mode=0o600,
+        user_id=get_uid("sophos-spl-user"),
+        group_id=get_gid("sophos-spl-group")
+    )
 
     if relays is not None:
         for index, relay in enumerate(relays.split(";"), 1):
@@ -285,25 +248,6 @@ def add_options_to_policy(relays, proxycredentials):
         policy_config.set("mcs_policy_proxy_credentials", obfuscated)
 
     policy_config.save()
-    os.chown(
-        path_manager.mcs_policy_config(),
-        get_uid("sophos-spl-user"),
-        get_gid("sophos-spl-group"))
-    os.chmod(path_manager.mcs_policy_config(), 0o600)
-
-
-def set_file_permissions():
-    """
-    set_file_permissions
-    """
-    mcs_config = path_manager.root_config()
-    sspl_config = path_manager.sophosspl_config()
-
-    uid = get_uid("sophos-spl-user")
-    gid = get_gid("sophos-spl-group")
-    os.chown(mcs_config, 0, gid)
-    os.chmod(mcs_config, 0o640)
-    os.chown(sspl_config, uid, gid)
 
 
 def remove_console_configuration():
@@ -408,13 +352,24 @@ def inner_main(argv):
         parser.print_usage()
         return 2
 
-    top_config = utils_config.Config(path_manager.mcs_router_conf())
+    top_config = utils_config.Config(
+        path_manager.mcs_router_conf(),
+        mode="0o640",
+        user_id=get_uid("root"),
+        group_id=get_gid("sophos-spl-group")
+    )
     debug = os.environ.get("MCS_DEBUG", None)
     if debug:
         top_config.set("LOGLEVEL", "DEBUG")
         top_config.save()
 
-    config = utils_config.Config(path_manager.root_config(), top_config)
+    config = utils_config.Config(
+        path_manager.root_config(),
+        top_config,
+        mode="0o640",
+        user_id=get_uid("root"),
+        group_id=get_gid("sophos-spl-group")
+    )
 
     # grep proxy from environment
     proxy = os.environ.get("https_proxy", None)
@@ -445,7 +400,12 @@ def inner_main(argv):
         # Need to get the URL and Token from the policy file, in case they have been
         # updated by Central
         policy_config = utils_config.Config(
-            path_manager.mcs_policy_config(), config)
+            path_manager.mcs_policy_config(),
+            config,
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         try:
             token = policy_config.get("MCSToken")
             url = policy_config.get("MCSURL")
@@ -455,7 +415,12 @@ def inner_main(argv):
 
     elif options.deregister:
         print("Deregistering from Sophos Central")
-        client_config = utils_config.Config(path_manager.sophosspl_config())
+        client_config = utils_config.Config(
+            path_manager.sophosspl_config(),
+            mode=0o600,
+            user_id=get_uid("sophos-spl-user"),
+            group_id=get_gid("sophos-spl-group")
+        )
         client_config.set("MCSID", "reregister")
         client_config.set("MCSPassword", "")
         client_config.save()
@@ -476,8 +441,6 @@ def inner_main(argv):
             # Successfully registered to Sophos Central
             print("Saving Sophos Central credentials")
             config.save()
-
-            set_file_permissions()
 
             # cleanup RMS files
             safe_delete(path_manager.sophos_config_file())
