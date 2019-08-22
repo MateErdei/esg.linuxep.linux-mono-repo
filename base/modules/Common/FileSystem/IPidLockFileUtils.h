@@ -11,7 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace OSUtilities
+    namespace FileSystem
     {
         /** ILockFileHolder is an scoped class that on construction will acquire a lock file and
          * release on its destruction. It is mainly thought for applications that need to secure
@@ -76,5 +76,5 @@ namespace Common
         IPidLockFileUtils* pidLockUtils();
         std::unique_ptr<ILockFileHolder> acquireLockFile(const std::string& fullPath);
 
-    } // namespace OSUtilities
+    } // namespace FileSystem
 } // namespace Common

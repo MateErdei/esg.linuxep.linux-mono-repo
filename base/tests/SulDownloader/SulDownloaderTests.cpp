@@ -31,7 +31,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/OSUtilitiesImpl/MockPidLockFileUtils.h>
+#include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -77,7 +77,7 @@ public:
         ON_CALL(*mockPidLockFileUtilsPtr, write(_, _, _)).WillByDefault(Return(1));
         std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils =
             std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
-        Common::OSUtilitiesImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
     }
 
     /**
@@ -86,7 +86,7 @@ public:
     void TearDown() override
     {
         Tests::restoreFileSystem();
-        Common::OSUtilitiesImpl::restorePidLockUtils();
+        Common::FileSystemImpl::restorePidLockUtils();
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper helper;
         helper.restoreWarehouseFactory();

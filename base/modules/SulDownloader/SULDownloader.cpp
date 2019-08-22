@@ -15,7 +15,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/FileLoggingSetup.h>
-#include <Common/OSUtilities/IPidLockFileUtils.h>
+#include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
@@ -300,10 +300,10 @@ namespace SulDownloader
         umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         // Configure logging
         Common::Logging::FileLoggingSetup loggerSetup("suldownloader");
-        std::unique_ptr<Common::OSUtilities::ILockFileHolder> pidLock;
+        std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock;
         try
         {
-            pidLock = Common::OSUtilities::acquireLockFile( Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath());
+            pidLock = Common::FileSystem::acquireLockFile( Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath());
         }
         catch (const std::system_error& ex)
         {

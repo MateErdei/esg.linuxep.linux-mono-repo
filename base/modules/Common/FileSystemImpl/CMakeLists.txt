@@ -1,12 +1,15 @@
 
 add_library(filesystemimplobject OBJECT
         ../FileSystem/IFileSystem.h
+        ../FileSystem/IFilePermissions.h
+        ../FileSystem/IPidLockFileUtils.h
+        ../FileSystem/ITempDir.h
         FileSystemImpl.cpp
         FileSystemImpl.h
-        ../FileSystem/IFilePermissions.h
         FilePermissionsImpl.h
         FilePermissionsImpl.cpp
-        ../FileSystem/ITempDir.h
+        PidLockFile.cpp
+        PidLockFile.h
         TempDir.cpp
         TempDir.h)
 

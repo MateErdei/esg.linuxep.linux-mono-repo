@@ -16,9 +16,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace Common
 {
-    namespace OSUtilitiesImpl
+    namespace FileSystemImpl
     {
-        using namespace Common::OSUtilities;
+        using namespace Common::FileSystem;
         using namespace Common::UtilityImpl;
         PidLockFile::PidLockFile(const std::string& pidfile) : m_fileDescriptor(-1), m_pidfile(pidfile)
         {
@@ -100,34 +100,34 @@ namespace Common
         void PidLockFileUtils::unlink(const std::string& pathname) const { ::unlink(pathname.c_str()); }
 
         __pid_t PidLockFileUtils::getpid() const { return ::getpid(); }
-    } // namespace OSUtilitiesImpl
+    } // namespace FileSystemImpl
 } // namespace Common
 
-std::unique_ptr<Common::OSUtilities::ILockFileHolder> Common::OSUtilities::acquireLockFile(const std::string& fullPath)
+std::unique_ptr<Common::FileSystem::ILockFileHolder> Common::FileSystem::acquireLockFile(const std::string& fullPath)
 {
-    std::unique_ptr<Common::OSUtilities::ILockFileHolder> pidLock{ new Common::OSUtilitiesImpl::PidLockFile(fullPath)};
+    std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock{ new Common::FileSystemImpl::PidLockFile(fullPath)};
     return pidLock;
 }
 
 
-Common::OSUtilitiesImpl::IPidLockFileUtilsPtr& pidLockUtilsStaticPointer()
+Common::FileSystemImpl::IPidLockFileUtilsPtr& pidLockUtilsStaticPointer()
 {
-    static Common::OSUtilitiesImpl::IPidLockFileUtilsPtr instance =
-        Common::OSUtilitiesImpl::IPidLockFileUtilsPtr(new Common::OSUtilitiesImpl::PidLockFileUtils());
+    static Common::FileSystemImpl::IPidLockFileUtilsPtr instance =
+        Common::FileSystemImpl::IPidLockFileUtilsPtr(new Common::FileSystemImpl::PidLockFileUtils());
     return instance;
 }
 
-void Common::OSUtilitiesImpl::replacePidLockUtils(Common::OSUtilitiesImpl::IPidLockFileUtilsPtr pointerToReplace)
+void Common::FileSystemImpl::replacePidLockUtils(Common::FileSystemImpl::IPidLockFileUtilsPtr pointerToReplace)
 {
     pidLockUtilsStaticPointer().reset(pointerToReplace.release());
 }
 
-void Common::OSUtilitiesImpl::restorePidLockUtils()
+void Common::FileSystemImpl::restorePidLockUtils()
 {
     pidLockUtilsStaticPointer().reset(new PidLockFileUtils());
 }
 
-Common::OSUtilities::IPidLockFileUtils* Common::OSUtilities::pidLockUtils()
+Common::FileSystem::IPidLockFileUtils* Common::FileSystem::pidLockUtils()
 {
     return pidLockUtilsStaticPointer().get();
 }

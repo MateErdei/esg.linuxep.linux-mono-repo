@@ -2,14 +2,11 @@ add_library(osutilitiesimpl SHARED
         ../OSUtilities/IIPUtils.h
         ../OSUtilities/ILocalIP.h
         ../OSUtilities/IDnsLookup.h
-        ../OSUtilities/IPidLockFileUtils.h
         ../OSUtilities/IIPUtils.cpp
         MACinfo.cpp
         MACinfo.h
         SXLMachineID.cpp
         SXLMachineID.h
-        PidLockFile.cpp
-        PidLockFile.h
         LocalIPImpl.cpp
         LocalIPImpl.h
         DnsLookupImpl.cpp

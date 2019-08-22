@@ -6,16 +6,16 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/OSUtilities/IPidLockFileUtils.h>
+#include <Common/FileSystem/IPidLockFileUtils.h>
 
 #include <memory>
 #include <string>
 
 namespace Common
 {
-    namespace OSUtilitiesImpl
+    namespace FileSystemImpl
     {
-        class PidLockFileUtils : public Common::OSUtilities::IPidLockFileUtils
+        class PidLockFileUtils : public Common::FileSystem::IPidLockFileUtils
         {
         public:
             int open(const std::string& pathname, int flags, mode_t mode) const override;
@@ -27,7 +27,7 @@ namespace Common
             __pid_t getpid() const override;
         };
 
-        class PidLockFile : public Common::OSUtilities::ILockFileHolder
+        class PidLockFile : public Common::FileSystem::ILockFileHolder
         {
             PidLockFile& operator=(const PidLockFile&) = delete;
             PidLockFile(const PidLockFile&) = delete;
@@ -49,8 +49,8 @@ namespace Common
         };
 
         // Used for testing only
-        using IPidLockFileUtilsPtr = std::unique_ptr<Common::OSUtilities::IPidLockFileUtils>;
+        using IPidLockFileUtilsPtr = std::unique_ptr<Common::FileSystem::IPidLockFileUtils>;
         void replacePidLockUtils(IPidLockFileUtilsPtr pointerToReplace);
         void restorePidLockUtils();
-    } // namespace OSUtilitiesImpl
+    } // namespace FileSystemImpl
 } // namespace Common

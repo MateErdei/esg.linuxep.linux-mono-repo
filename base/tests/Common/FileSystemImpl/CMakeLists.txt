@@ -4,6 +4,8 @@ add_executable(filesystemimpltestsexe
         TestFileSystemImpl.cpp
         TestFilePermissionsImpl.cpp
         TestTempDir.cpp
+        TestPidLockFile.cpp
+        MockPidLockFileUtils.h
         )
 target_include_directories(filesystemimpltestsexe SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
 target_include_directories(filesystemimpltestsexe BEFORE PUBLIC "${gtest_SOURCE_DIR}")

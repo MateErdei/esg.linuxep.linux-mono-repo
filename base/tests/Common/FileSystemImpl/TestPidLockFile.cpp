@@ -6,13 +6,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "MockPidLockFileUtils.h"
 
-#include <Common/OSUtilitiesImpl/PidLockFile.h>
+#include <Common/FileSystemImpl/PidLockFile.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <future>
 
-using PidLockFile = Common::OSUtilitiesImpl::PidLockFile;
+using PidLockFile = Common::FileSystemImpl::PidLockFile;
 
 class TestPidLockFile : public ::testing::Test
 {
@@ -21,9 +21,9 @@ public:
     {
         std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils(new StrictMock<MockPidLockFileUtils>());
         m_mockPidLockFileUtilsPtr = mockPidLockFileUtils.get();
-        Common::OSUtilitiesImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+        Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
     }
-    ~TestPidLockFile() { Common::OSUtilitiesImpl::restorePidLockUtils(); }
+    ~TestPidLockFile() { Common::FileSystemImpl::restorePidLockUtils(); }
     MockPidLockFileUtils* m_mockPidLockFileUtilsPtr;
 };
 
@@ -95,12 +95,12 @@ TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
 {
     Tests::TempDir tempDir;
     std::string lockfile = tempDir.absPath("my.lock");
-    auto holder = Common::OSUtilities::acquireLockFile(lockfile);
+    auto holder = Common::FileSystem::acquireLockFile(lockfile);
     ASSERT_TRUE(holder);
     auto lockfunctor = [&lockfile]() {
         try
         {
-            auto q = Common::OSUtilities::acquireLockFile(lockfile);
+            auto q = Common::FileSystem::acquireLockFile(lockfile);
             return 0;
         }
         catch (std::system_error&)
@@ -111,7 +111,7 @@ TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
     auto fut = std::async(std::launch::async,lockfunctor);
     EXPECT_EQ( fut.get(), 1);
 
-    EXPECT_THROW(Common::OSUtilities::acquireLockFile(lockfile), std::system_error);
+    EXPECT_THROW(Common::FileSystem::acquireLockFile(lockfile), std::system_error);
 
     holder.reset();
     ASSERT_FALSE(holder);
@@ -124,7 +124,7 @@ TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     Tests::TempDir tempDir;
     std::string lockfile = tempDir.absPath("mypid.lock");
-    auto holder = Common::OSUtilities::acquireLockFile(lockfile);
+    auto holder = Common::FileSystem::acquireLockFile(lockfile);
     ASSERT_TRUE(holder);
 
 
@@ -132,7 +132,7 @@ TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
             {
                 try
                 {
-                    Common::OSUtilities::acquireLockFile(lockfile);
+                    Common::FileSystem::acquireLockFile(lockfile);
                 }
                 catch (std::system_error& )
                 {
