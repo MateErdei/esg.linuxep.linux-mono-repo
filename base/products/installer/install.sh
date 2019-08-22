@@ -24,7 +24,8 @@ fi
 
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
-[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
+source $ABS_SCRIPTDIR/cleanupinstall.sh
+
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
 MCS_TOKEN=${MCS_TOKEN:-}
@@ -107,9 +108,14 @@ EOF
     fi
 }
 
-function restartSsplService()
+function stopSsplService()
 {
-    systemctl restart sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
+    systemctl stop sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
+}
+
+function startSsplService()
+{
+    systemctl start sophos-spl.service || failure ${EXIT_FAIL_SERVICE} "Failed to restart sophos-spl service"
 }
 
 function createUpdaterSystemdService()
@@ -315,22 +321,10 @@ chmod u+x "$DIST/files/base/bin"/*
 # generate machine id if necessary
 "$DIST/files/base/bin/machineid" "${SOPHOS_INSTALL}"
 
-"$DIST/files/base/bin/manifestdiff" \
-    --old="${SOPHOS_INSTALL}/base/update/manifest.dat" \
-    --new="$DIST/manifest.dat" \
-    --added="${SOPHOS_INSTALL}/tmp/addedFiles" \
-    --removed="${SOPHOS_INSTALL}/tmp/removedFiles" \
-    --diff="${SOPHOS_INSTALL}/tmp/changedFiles"
-
+generate_manifest_diff $DIST
 
 CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/manifest.dat" ]] && CLEAN_INSTALL=0
-
-function changedOrAdded()
-{
-    local TARGET="$1"
-    grep -q "^${TARGET}\$" "${SOPHOS_INSTALL}/tmp/addedFiles" "${SOPHOS_INSTALL}/tmp/changedFiles" >/dev/null
-}
 
 for F in $(find "$DIST/files" -type f)
 do
@@ -378,9 +372,11 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 unset LD_LIBRARY_PATH
 
+changed_or_added install.sh  ${DIST}
+
 for F in "$DIST/installer/plugins"/*
 do
-    if changedOrAdded ${F#"$DIST"/}
+    if changed_or_added ${F#"$DIST"/}  ${DIST}
     then
        "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "$F" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration $F"
     fi
@@ -407,30 +403,28 @@ then
     fi
 fi
 
-if changedOrAdded install.sh
+if changed_or_added install.sh ${DIST}
 then
     createUpdaterSystemdService
     createWatchdogSystemdService
 fi
 
-function ssplChanged()
-{
-    [ -s "${SOPHOS_INSTALL}/tmp/addedFiles" ] || \
-    [ -s "${SOPHOS_INSTALL}/tmp/changedFiles" ] || \
-    [ -s "${SOPHOS_INSTALL}/tmp/removedFiles" ]
-}
-
 if (( $CLEAN_INSTALL == 1 ))
 then
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
+
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "EXIT_CODE" == 0 ]]
     then
         waitForProcess "python -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
 else
-    if ssplChanged
+    if software_changed ${DIST}
     then
-        restartSsplService
+        stopSsplService
+
+        perform_cleanup ${DIST}
+
+        startSsplService
     fi
 fi
 
@@ -442,8 +436,7 @@ then
     echo "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
-cp "$DIST/manifest.dat" "${SOPHOS_INSTALL}/base/update/manifest.dat"
-chmod 600 "${SOPHOS_INSTALL}/base/update/manifest.dat"
+copy_manifests ${DIST}
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}

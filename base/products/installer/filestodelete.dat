@@ -1,0 +1,8 @@
+report*.json
+config.json
+*.pyc
+*.pyo
+addedFiles
+changedFiles
+removedFiles
+base/update/manifest.dat

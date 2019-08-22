@@ -4,6 +4,16 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/install.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/cleanupinstall.sh
+        DESTINATION .
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/filestodelete.dat
+        DESTINATION .
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
 install(FILES ${CMAKE_SOURCE_DIR}/products/installer/uninstall.sh
         DESTINATION files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
