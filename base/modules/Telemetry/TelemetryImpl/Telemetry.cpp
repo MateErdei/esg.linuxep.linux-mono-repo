@@ -39,7 +39,7 @@ namespace Telemetry
 
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();
 
-        const unsigned long ipcSize = std::string("ipc://").size();
+        const size_t ipcSize = std::string("ipc://").size();
         for (auto& pluginInfo : pluginInfos)
         {
             std::string pluginName = pluginInfo.getPluginName();
