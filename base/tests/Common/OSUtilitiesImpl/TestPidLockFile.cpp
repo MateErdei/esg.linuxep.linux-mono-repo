@@ -110,11 +110,34 @@ TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
     };
     auto fut = std::async(std::launch::async,lockfunctor);
     EXPECT_EQ( fut.get(), 1);
-    
+
     EXPECT_THROW(Common::OSUtilities::acquireLockFile(lockfile), std::system_error);
-    
+
     holder.reset();
     ASSERT_FALSE(holder);
     auto fut2 = std::async(std::launch::async, lockfunctor);
     EXPECT_EQ( fut2.get(), 0);
+}
+
+TEST( TestLockFile, acquireLockFileShouldWorkAcrossProcesses) // NOLINT
+{
+    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    Tests::TempDir tempDir;
+    std::string lockfile = tempDir.absPath("mypid.lock");
+    auto holder = Common::OSUtilities::acquireLockFile(lockfile);
+    ASSERT_TRUE(holder);
+
+
+    EXPECT_DEATH(
+            {
+                try
+                {
+                    Common::OSUtilities::acquireLockFile(lockfile);
+                }
+                catch (std::system_error& )
+                {
+                    _exit(1);
+                }
+            },
+            ""); // NOLINT
 }
