@@ -16,6 +16,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:utilityimplobject>
         $<TARGET_OBJECTS:protobufutilobject>
         $<TARGET_OBJECTS:xmlutilitiesobject>
+        $<TARGET_OBJECTS:directorywatcherimplobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf ${EXPAT_LIBRARY} -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
@@ -47,6 +48,9 @@ add_custom_target(
         plugintar ALL
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
         COMMAND mkdir -p pluginapi/include/Common/ApplicationConfiguration
+        COMMAND mkdir -p pluginapi/include/Common/DirectoryWatcher
+        COMMAND mkdir -p pluginapi/include/Common/EventTypes
+        COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/FileSystem
         COMMAND mkdir -p pluginapi/include/Common/Logging
         COMMAND mkdir -p pluginapi/include/Common/Process
@@ -55,12 +59,10 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/TelemetryHelperImpl
         COMMAND mkdir -p pluginapi/include/Common/Threads
-        COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/XmlUtilities
         COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND mkdir -p pluginapi/include/Common/ZMQWrapperApi
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
-        COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
@@ -101,6 +103,9 @@ function(add_copy_test_directory base)
 endfunction()
 
 add_copy_directory(Common/ApplicationConfiguration)
+add_copy_directory(Common/DirectoryWatcher)
+add_copy_directory(Common/EventTypes)
+add_copy_directory(Common/Exceptions)
 add_copy_directory(Common/FileSystem)
 add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
@@ -109,11 +114,9 @@ add_copy_directory(Common/ProcessMonitoring)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/TelemetryHelperImpl)
 add_copy_directory(Common/Threads)
+add_copy_directory(Common/XmlUtilities)
 add_copy_directory(Common/ZeroMQWrapper)
 add_copy_directory(Common/ZMQWrapperApi)
-add_copy_directory(Common/EventTypes)
-add_copy_directory(Common/Exceptions)
-add_copy_directory(Common/XmlUtilities)
 add_copy_test_directory(Common/Helpers)
 
 

@@ -9,7 +9,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "SulDownloaderResultDirectoryListener.h"
 
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
-#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/Process/IProcess.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 

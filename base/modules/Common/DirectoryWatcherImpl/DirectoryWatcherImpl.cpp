@@ -190,3 +190,16 @@ namespace Common
         }
     } // namespace DirectoryWatcherImpl
 } // namespace Common
+
+
+namespace Common {
+    namespace DirectoryWatcher {
+        using Common::DirectoryWatcherImpl::DirectoryWatcher;
+
+        IDirectoryWatcherPtr createDirectoryWatcher()
+        {
+            auto iNotifyWrapper = std::unique_ptr<IiNotifyWrapper>(new Common::DirectoryWatcherImpl::iNotifyWrapper());
+            return std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::move(iNotifyWrapper)));
+        }
+    } // namespace DirectoryWatcher
+} // namespace Common

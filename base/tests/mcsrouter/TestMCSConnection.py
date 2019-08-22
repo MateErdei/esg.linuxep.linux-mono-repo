@@ -15,8 +15,14 @@ import mcsrouter.utils.config
 import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_exception
 
+# Stop the mcs router tests writing to disk
+class ConfigWithoutSave(mcsrouter.utils.config.Config):
+    def save(self, filename=None):
+        pass
+
+
 def createTestConfig(url="http://localhost/foobar"):
-    config = mcsrouter.utils.config.Config('testConfig.config')
+    config = ConfigWithoutSave('testConfig.config')
     config.set("MCSURL",url)
     config.set("MCSID","")
     config.set("MCSPassword","")

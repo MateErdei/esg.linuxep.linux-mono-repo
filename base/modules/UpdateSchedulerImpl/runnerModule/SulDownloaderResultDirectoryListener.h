@@ -8,6 +8,10 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/DirectoryWatcher/IDirectoryWatcher.h>
 
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+
 namespace UpdateSchedulerImpl
 {
     namespace runnerModule

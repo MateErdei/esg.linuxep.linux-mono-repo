@@ -96,8 +96,7 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(
             m_actionFullPath, m_taskQueue, m_mockPluginManager));
 
-    std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> directoryWatcher(
-        new Common::DirectoryWatcherImpl::DirectoryWatcher());
+    auto directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
 
     directoryWatcher->addListener(*listener1);
     directoryWatcher->addListener(*listener2);
@@ -161,8 +160,7 @@ TEST_F( // NOLINT
         new ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener(
             m_actionFullPath, m_taskQueue, m_mockPluginManager));
 
-    std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> directoryWatcher(
-        new Common::DirectoryWatcherImpl::DirectoryWatcher());
+    auto directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
 
     directoryWatcher->addListener(*listener1);
     directoryWatcher->addListener(*listener2);

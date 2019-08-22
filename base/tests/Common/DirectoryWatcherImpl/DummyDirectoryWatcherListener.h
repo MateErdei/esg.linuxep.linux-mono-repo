@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 
+#include <mutex>
+
 class DirectoryWatcherListener : public Common::DirectoryWatcher::IDirectoryWatcherListener
 {
 public:

@@ -20,8 +20,7 @@ namespace UpdateSchedulerImpl
             const std::string& nameOfFileToWaitFor,
             std::chrono::seconds timeout) :
             m_listener(directoryToWatch, nameOfFileToWaitFor),
-            m_directoryWatcher(std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher>(
-                new Common::DirectoryWatcherImpl::DirectoryWatcher())),
+            m_directoryWatcher(Common::DirectoryWatcher::createDirectoryWatcher()),
             m_schedulerTaskQueue(std::move(schedulerTaskQueue)),
             m_timeout(timeout)
         {

@@ -6,12 +6,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
+#include <Common/DirectoryWatcher/IiNotifyWrapper.h>
 #include <gmock/gmock.h>
 
 using namespace ::testing;
 
-class MockiNotifyWrapper : public Common::DirectoryWatcherImpl::IiNotifyWrapper
+class MockiNotifyWrapper : public Common::DirectoryWatcher::IiNotifyWrapper
 {
 public:
     MOCK_METHOD0(init, int(void));

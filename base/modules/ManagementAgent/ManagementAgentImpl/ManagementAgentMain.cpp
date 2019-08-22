@@ -125,8 +125,7 @@ namespace ManagementAgent
                     m_taskQueue,
                     *m_pluginManager));
 
-            m_directoryWatcher =
-                std::unique_ptr<DirectoryWatcher::IDirectoryWatcher>(new DirectoryWatcherImpl::DirectoryWatcher());
+            m_directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
             m_directoryWatcher->addListener(*m_policyListener);
             m_directoryWatcher->addListener(*m_actionListener);
         }
