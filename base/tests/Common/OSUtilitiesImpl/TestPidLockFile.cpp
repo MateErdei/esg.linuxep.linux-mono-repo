@@ -7,8 +7,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockPidLockFileUtils.h"
 
 #include <Common/OSUtilitiesImpl/PidLockFile.h>
+#include <tests/Common/Helpers/TempDir.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <future>
 
 using PidLockFile = Common::OSUtilitiesImpl::PidLockFile;
 
@@ -87,4 +89,32 @@ TEST_F(TestPidLockFile, pidLockFileDoesntThrowIfSuccessful) // NOLINT
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, unlink(pidFilePath)).WillOnce(Return());
 
     EXPECT_NO_THROW(PidLockFile pidfile(pidFilePath)); // NOLINT
+}
+
+TEST( TestLockFile, aquireLockFileShouldAllowOnlyOneHolder )
+{
+    Tests::TempDir tempDir;
+    std::string lockfile = tempDir.absPath("my.lock");
+    auto holder = Common::OSUtilities::acquireLockFile(lockfile);
+    ASSERT_TRUE(holder);
+    auto lockfunctor = [&lockfile]() {
+        try
+        {
+            auto q = Common::OSUtilities::acquireLockFile(lockfile);
+            return 0;
+        }
+        catch (std::system_error&)
+        {
+            return 1;
+        }
+    };
+    auto fut = std::async(std::launch::async,lockfunctor);
+    EXPECT_EQ( fut.get(), 1);
+    
+    EXPECT_THROW(Common::OSUtilities::acquireLockFile(lockfile), std::system_error);
+    
+    holder.reset();
+    ASSERT_FALSE(holder);
+    auto fut2 = std::async(std::launch::async, lockfunctor);
+    EXPECT_EQ( fut2.get(), 0);
 }

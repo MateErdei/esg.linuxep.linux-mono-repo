@@ -13,6 +13,15 @@ namespace Common
 {
     namespace OSUtilities
     {
+        /** ILockFileHolder is an scoped class that on construction will acquire a lock file and
+         * release on its destruction. It is mainly thought for applications that need to secure
+         * a 'singleton app'. */
+        class ILockFileHolder
+        {
+        public:
+            virtual ~ILockFileHolder() = default;
+        };
+
         class IPidLockFileUtils
         {
         public:
@@ -67,5 +76,7 @@ namespace Common
 
         // Used to access global instance of PidLockUtils.
         IPidLockFileUtils* pidLockUtils();
+        std::unique_ptr<ILockFileHolder> acquireLockFile(const std::string& fullPath);
+
     } // namespace OSUtilities
 } // namespace Common

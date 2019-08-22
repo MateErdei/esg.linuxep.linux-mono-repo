@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PidLockFile.h"
 
 #include <Common/UtilityImpl/StrError.h>
+#include <sys/file.h>
 
 #include <cstring>
 #include <fcntl.h>
@@ -85,7 +86,11 @@ namespace Common
             return ::open(pathname.c_str(), flags, mode);
         }
 
-        int PidLockFileUtils::lockf(int fd, int cmd, off_t len) const { return ::lockf(fd, cmd, len); }
+        int PidLockFileUtils::lockf(int fd, int /*cmd*/, off_t /*len*/) const
+        {
+            return flock(fd, LOCK_EX | LOCK_NB);
+            //::lockf(fd, cmd, len);
+        }
 
         int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }
 
@@ -98,6 +103,13 @@ namespace Common
         __pid_t PidLockFileUtils::getpid() const { return ::getpid(); }
     } // namespace OSUtilitiesImpl
 } // namespace Common
+
+std::unique_ptr<Common::OSUtilities::ILockFileHolder> Common::OSUtilities::acquireLockFile(const std::string& fullPath)
+{
+    std::unique_ptr<Common::OSUtilities::ILockFileHolder> pidLock{ new Common::OSUtilitiesImpl::PidLockFile(fullPath)};
+    return pidLock;
+}
+
 
 Common::OSUtilitiesImpl::IPidLockFileUtilsPtr& pidLockUtilsStaticPointer()
 {
