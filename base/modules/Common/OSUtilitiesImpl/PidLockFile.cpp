@@ -32,7 +32,7 @@ namespace Common
                 throw std::system_error(errno, std::generic_category(), errorStream.str());
             }
 
-            if (pidLockUtils()->lockf(localfd, F_TLOCK, 0) == -1)
+            if (pidLockUtils()->flock(localfd) == -1)
             {
                 // unable to lock the file
                 pidLockUtils()->close(localfd);
@@ -86,10 +86,9 @@ namespace Common
             return ::open(pathname.c_str(), flags, mode);
         }
 
-        int PidLockFileUtils::lockf(int fd, int /*cmd*/, off_t /*len*/) const
+        int PidLockFileUtils::flock(int fd) const
         {
-            return flock(fd, LOCK_EX | LOCK_NB);
-            //::lockf(fd, cmd, len);
+            return ::flock(fd, LOCK_EX | LOCK_NB);
         }
 
         int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }

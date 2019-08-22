@@ -16,7 +16,7 @@ class MockPidLockFileUtils : public Common::OSUtilities::IPidLockFileUtils
 {
 public:
     MOCK_CONST_METHOD3(open, int(const std::string&, int, mode_t));
-    MOCK_CONST_METHOD3(lockf, int(int, int, off_t));
+    MOCK_CONST_METHOD1(flock, int(int));
     MOCK_CONST_METHOD2(ftruncate, int(int, off_t));
     MOCK_CONST_METHOD3(write, ssize_t(int, const void*, size_t));
     MOCK_CONST_METHOD1(close, void(int));

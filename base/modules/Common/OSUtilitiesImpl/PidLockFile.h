@@ -19,7 +19,7 @@ namespace Common
         {
         public:
             int open(const std::string& pathname, int flags, mode_t mode) const override;
-            int lockf(int fd, int cmd, off_t len) const override;
+            int flock(int fd) const override;
             int ftruncate(int fd, off_t length) const override;
             ssize_t write(int fd, const void* buf, size_t count) const override;
             void close(int fd) const override;

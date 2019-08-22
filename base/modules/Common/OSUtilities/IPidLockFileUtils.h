@@ -35,13 +35,11 @@ namespace Common
              */
             virtual int open(const std::string& pathname, int flags, mode_t mode) const = 0;
             /**
-             * Wrapper for lockf
+             * Wrapper for flock ( it will always apply the exclusive lock)
              * @param fd
-             * @param cmd
-             * @param len
              * @return
              */
-            virtual int lockf(int fd, int cmd, off_t len) const = 0;
+            virtual int flock(int fd) const = 0;
             /**
              * Wrapper for ftruncate
              * @param fd

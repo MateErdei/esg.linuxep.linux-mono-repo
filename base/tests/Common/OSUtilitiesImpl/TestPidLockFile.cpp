@@ -36,7 +36,7 @@ TEST_F(TestPidLockFile, pidLockFileThrowsWithBadFileDescriptor) // NOLINT
 TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToLockFile) // NOLINT
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, lockf(_, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(-1));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
     EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
 }
@@ -44,7 +44,7 @@ TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToLockFile) // NOLINT
 TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToTruncateFile) // NOLINT
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, lockf(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, ftruncate(_, _)).WillOnce(Return(-1));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, close(_)).WillOnce(Return());
     EXPECT_THROW(PidLockFile pidfile("/bogus/testpath/fake.pid"), std::system_error); // NOLINT
@@ -53,7 +53,7 @@ TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToTruncateFile) // NOLINT
 TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToWriteFile) // NOLINT
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, lockf(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, ftruncate(_, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, getpid()).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, write(_, _, _)).WillOnce(Return(-1));
@@ -64,7 +64,7 @@ TEST_F(TestPidLockFile, pidLockFileThrowsIfUnableToWriteFile) // NOLINT
 TEST_F(TestPidLockFile, pidLockFileThrowsIfItDoesNotWriteCorrectNumberOfBytes) // NOLINT
 {
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(_, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, lockf(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, ftruncate(_, _)).WillOnce(Return(0));
 
     // "10" uses two bytes, pretend we only write 1
@@ -79,7 +79,7 @@ TEST_F(TestPidLockFile, pidLockFileDoesntThrowIfSuccessful) // NOLINT
 {
     std::string pidFilePath("/bogus/testpath/fake.pid");
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, open(pidFilePath, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, lockf(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockPidLockFileUtilsPtr, flock(_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, ftruncate(_, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, getpid()).WillOnce(Return(100));
     EXPECT_CALL(*m_mockPidLockFileUtilsPtr, write(_, _, _)).WillOnce(Return(3));
