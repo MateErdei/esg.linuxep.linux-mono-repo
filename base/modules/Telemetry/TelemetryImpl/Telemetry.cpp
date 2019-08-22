@@ -49,7 +49,7 @@ namespace Telemetry
             std::shared_ptr<ITelemetryProvider> telemetryProvider;
             // Check if socket exists before adding to telemetry providers
             std::string socketFileLocation = pluginSocketAddress.substr(ipcSize);
-            LOGDEBUG("Checking socket file location" << socketFileLocation);
+            LOGDEBUG("Checking socket file location " << socketFileLocation);
             if (Common::FileSystem::fileSystem()->exists(socketFileLocation))
             {
                 LOGDEBUG("Gather Telemetry via IPC for " << pluginName);
