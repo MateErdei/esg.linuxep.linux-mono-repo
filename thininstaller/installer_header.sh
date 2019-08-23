@@ -287,7 +287,7 @@ do
 done
 
 # Verify that instdir does not contain special characters that may cause problems.
-if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-Z0-9\/\_\.]*$'
+if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
 then
     echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted."
     cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
