@@ -26,6 +26,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMcsActionFilePath() const override;
         std::string getMcsStatusFilePath() const override;
         std::string getMcsEventFilePath() const override;
+        std::string getMcsConfigFolderPath() const override;
 
         std::string getManagementAgentStatusCacheFilePath() const override;
 

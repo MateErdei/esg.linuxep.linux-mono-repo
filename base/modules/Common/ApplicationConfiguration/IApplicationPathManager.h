@@ -39,6 +39,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getMcsActionFilePath() const = 0;
         virtual std::string getMcsStatusFilePath() const = 0;
         virtual std::string getMcsEventFilePath() const = 0;
+        virtual std::string getMcsConfigFolderPath() const = 0;
 
         virtual std::string getManagementAgentStatusCacheFilePath() const = 0;
 
