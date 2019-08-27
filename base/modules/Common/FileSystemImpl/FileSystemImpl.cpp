@@ -620,10 +620,21 @@ namespace Common
             struct stat statbuf; // NOLINT
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
-            { // if it does not exists, it is not executable
+            { // if it does not exist
                 return -1;
             }
             return statbuf.st_size;
+        }
+
+        std::time_t FileSystemImpl::lastModifiedTime(const Path& path) const
+        {
+            struct stat statbuf; // NOLINT
+            int ret = stat(path.c_str(), &statbuf);
+            if (ret != 0)
+            { // if it does not exist
+                return -1;
+            }
+            return statbuf.st_mtim.tv_sec;
         }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()

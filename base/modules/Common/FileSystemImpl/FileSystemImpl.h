@@ -27,12 +27,7 @@ namespace Common
 
             bool isDirectory(const Path& path) const override;
 
-            /**
-             * Checks to see if the given path is a symlink.
-             * @param path to check
-             * @return true, if path is a symlink, false otherwise
-             */
-            virtual bool isSymlink(const Path& path) const override;
+            bool isSymlink(const Path& path) const override;
 
             Path makeAbsolute(const Path& path) const override;
 
@@ -68,6 +63,9 @@ namespace Common
             Path readlink(const Path& path) const override;
 
             off_t fileSize(const Path& path) const override;
+
+            std::time_t lastModifiedTime(const Path& path) const override;
+
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

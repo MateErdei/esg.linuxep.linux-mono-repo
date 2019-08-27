@@ -6,6 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <ctime>
 #include <memory>
 #include <string>
 #include <vector>
@@ -225,6 +226,13 @@ namespace Common
              * @return
              */
             virtual off_t fileSize(const Path& path) const = 0;
+
+            /**
+             * Return the time the file was last modified
+             * @param path
+             * @return
+             */
+            virtual std::time_t lastModifiedTime(const Path& path) const = 0;
         };
 
         /**
