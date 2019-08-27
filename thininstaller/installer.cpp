@@ -249,9 +249,22 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
     return proxies;
 }
 
+class ScopedSulInit
+{
+public:
+    ScopedSulInit()
+    {
+        SU_init();
+    }
+    ~ScopedSulInit()
+    {
+        SU_deinit();
+    }
+};
+
 static int downloadInstaller(std::string location, bool updateCache)
 {
-    SU_init();
+    ScopedSulInit sulInit;
     SU_Result ret;
     SU_Handle session = SU_beginSession();
 
