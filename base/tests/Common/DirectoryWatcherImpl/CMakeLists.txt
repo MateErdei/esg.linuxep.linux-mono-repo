@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(DirectoryWatcherImplTests
         TestDirectoryWatcherImpl.cpp TestRealiNotifyDirectoryWatcher.cpp
-        MockiNotifyWrapper.h DummyDirectoryWatcherListener.h
+        DummyDirectoryWatcherListener.h
         ../../ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h
         )
 target_include_directories(DirectoryWatcherImplTests SYSTEM BEFORE PUBLIC

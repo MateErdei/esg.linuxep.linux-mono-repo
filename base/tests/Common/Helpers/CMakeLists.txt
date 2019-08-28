@@ -16,7 +16,9 @@ add_library(testhelpersobject OBJECT
         MockFilePermissions.h
         MockFileSystem.h
         FakeTimeUtils.cpp
-        FakeTimeUtils.h)
+        FakeTimeUtils.h
+        MockiNotifyWrapper.h
+        )
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" )
 
