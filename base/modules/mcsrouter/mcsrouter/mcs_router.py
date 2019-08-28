@@ -25,7 +25,6 @@ import __builtin__
 from .utils import path_manager
 from .utils.logger_utcformatter import UTCFormatter
 from .utils import config as config_module
-from .utils.get_ids import get_uid, get_gid
 from . import sophos_https
 
 
@@ -155,43 +154,19 @@ def create_daemon():
     return 0
 
 
-def daemonise():
-    """
-    daemonise
-    """
-    pid = create_daemon()
-
-    if isinstance(pid, tuple):
-        # Error
-        return
-    elif pid != 0:
-        # parent
-        try:
-            file_descriptor = os.open("/dev/null", os.O_RDONLY)
-            if file_descriptor != 0:
-                os.dup2(file_descriptor, 0)
-                os.close(file_descriptor)
-        except IOError:
-            pass  # ignore error closing stdin
-
-        os._exit(0) #pylint: disable=protected-access
-
-
 class SophosLogging(object):
     """
     SophosLogging
     """
 
-    def __init__(self, config, install_dir):
+    def __init__(self,install_dir):
         """
         __init__
         """
-        # pylint: disable=too-many-locals
+        #pylint: disable=too-many-locals
         path_manager.INST = install_dir
-        log_config = config.get_default(
-            "LOGCONFIG", path_manager.log_conf_file())
-        log_level_string = config.get_default(
-            "LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
+        log_config = path_manager.log_conf_file()
+        log_level_string = "DEBUG"#config.get_default("LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
 
         # Configure log level from config file if present
         readable = False
@@ -209,10 +184,11 @@ class SophosLogging(object):
                 log_level_string = 'WARNING'
 
         log_level = getattr(logging, log_level_string, logging.INFO)
-        log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
+        log_file = path_manager.mcs_router_log()
 
         root_logger = logging.getLogger()
         root_logger.setLevel(log_level)
+
 
         formatter = UTCFormatter(
             "%(process)-7d [%(asctime)s.%(msecs)03d] %(levelname)7s "
@@ -222,13 +198,12 @@ class SophosLogging(object):
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
-        if config.get_default("CONSOLE", "0") == "1":
-            stream_handler = logging.StreamHandler()
-            stream_handler.setFormatter(formatter)
-            root_logger.addHandler(stream_handler)
+        # if config.get_default("CONSOLE", "0") == "1":
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        root_logger.addHandler(stream_handler)
 
-        envelope_file = config.get_default(
-            "ENVELOPE_LOG", path_manager.mcs_envelope_log())
+        envelope_file = path_manager.mcs_envelope_log()
 
         envelope_logger = logging.getLogger("ENVELOPES")
         envelope_logger.propagate = False
@@ -267,11 +242,10 @@ class MCSRouter(object):
     MCSRouter
     """
 
-    def __init__(self, config, install_dir):
+    def __init__(self, install_dir):
         """
         __init__
         """
-        self.__m_config = config
         self.__m_install_dir = install_dir
 
     def __safe_run_forever(self, proc):
@@ -302,56 +276,14 @@ class MCSRouter(object):
         proc = None
         LOGGER.info("Starting mcsrouter")
 
-        # Turn off core files
-        try:
-            if self.__m_config.get_default("SaveCore", "0") == "1":
-                LOGGER.info("Enabling saving core files")
-                resource.setrlimit(
-                    resource.RLIMIT_CORE,
-                    (resource.RLIM_INFINITY,
-                     resource.RLIM_INFINITY))
-            else:
-                LOGGER.info("Disabling core files")
-                resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-        except ValueError:
-            LOGGER.warning("Unable to set core file resource limit")
 
         from . import mcs
-        proc = mcs.MCS(self.__m_config, self.__m_install_dir)
+        proc = mcs.MCS(self.__m_install_dir)
 
         assert proc is not None
         ret = self.__safe_run_forever(proc)
         LOGGER.warning("Exiting mcsrouter")
         return ret
-
-
-def create_configuration(argv):
-    """
-    create_configuration
-    """
-    config = config_module.Config(
-        path_manager.mcs_router_conf(),
-        mode=0o640,
-        user_id=get_uid("root"),
-        group_id=get_gid("sophos-spl-group")
-    )
-    config.set_default("LOGLEVEL", LOG_LEVEL_DEFAULT)
-
-    for arg in argv[1:]:
-        if arg.startswith("--"):
-            arg = arg[2:]
-        if "=" in arg:
-            (key, value) = arg.split("=", 1)
-            config.set(key, value)
-        elif arg == "-v":
-            config.set("LOGLEVEL", "DEBUG")
-        elif arg == "console":
-            config.set("CONSOLE", "1")
-        elif arg == "daemon":
-            config.set("DAEMON", "1")
-        elif arg == "no-daemon":
-            config.set("DAEMON", "0")
-    return config
 
 
 def clear_tmp_directory():
@@ -380,16 +312,12 @@ def main(argv):
     path_manager.INST = install_dir
     clear_tmp_directory()
     os.umask(0o177)
-    config = create_configuration(argv)
 
-    if config.get_default("DAEMON", "1") == "1":
-        daemonise()
-
-    sophos_logging = SophosLogging(config, install_dir)
+    sophos_logging = SophosLogging(install_dir)
     LOGGER.info("Started with install directory set to " + install_dir)
     pid_file = PidFile(install_dir)
     try:
-        mgmt = MCSRouter(config, install_dir)
+        mgmt = MCSRouter(install_dir)
         return mgmt.run()
     except Exception:
         LOGGER.critical(

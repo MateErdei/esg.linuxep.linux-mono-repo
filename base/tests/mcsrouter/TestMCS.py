@@ -77,11 +77,11 @@ class FakeMCSConnection(object):
 
 class TestMCS(unittest.TestCase):
     @mock.patch('os.listdir', return_value=["dummyplugin.json"])
-    def createMCS(self,config=None, *mockarg):
+    def createMCS(self, config=None, *mockarg):
         global INSTALL_DIR
         if config is None:
-            config = mcsrouter.utils.config.Config()
-        return mcsrouter.mcs.MCS(config,INSTALL_DIR)
+            return mcsrouter.mcs.MCS(INSTALL_DIR)
+        return mcsrouter.mcs.MCS(INSTALL_DIR, config)
 
 
     def setUp(self):

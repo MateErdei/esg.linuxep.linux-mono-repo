@@ -152,13 +152,6 @@ def log_conf_file():
     """
     return os.path.join(etc_dir(), "logger.conf")
 
-
-def mcs_router_conf():
-    """
-    mcs_router_conf
-    """
-    return os.path.join(etc_dir(), "mcsrouter.conf")
-
 # etc/sophosspl
 
 
