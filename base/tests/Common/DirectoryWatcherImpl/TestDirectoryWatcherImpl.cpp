@@ -63,6 +63,13 @@ public:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
+
+TEST_F(DirectoryWatcherTests, createDirectoryWatcherDoesNotThrow) // NOLINT
+{
+    EXPECT_NO_THROW( Common::DirectoryWatcher::createDirectoryWatcher()); // NOLINT
+}
+
+
 TEST_F(DirectoryWatcherTests, failiNotifyInit) // NOLINT
 {
     auto mockiNotifyWrapper = new StrictMock<MockiNotifyWrapper>();

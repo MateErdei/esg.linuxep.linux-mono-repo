@@ -14,6 +14,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TempDir.h>
 
 #include <fstream>
+#include <chrono>
+
+#include <unistd.h>
 
 using namespace Common::FileSystem;
 namespace
@@ -635,5 +638,36 @@ namespace
         Path findPath = m_fileSystem->readlink("/bin/bash");
         ASSERT_EQ(findPath.size(), 0);
     }
+
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories) // NOLINT
+    {
+        std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("Root/subdir"));
+
+        ASSERT_GE(time_created, curTime);
+    }
+
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnFiles) // NOLINT
+    {
+        std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        Tests::TempDir tempDir;
+        tempDir.createFile("emptyFile","");
+        std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("emptyFile"));
+        ASSERT_GE(time_created, curTime);
+    }
+
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnSymlinks) // NOLINT
+    {
+        std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        Tests::TempDir tempDir;
+        tempDir.createFile("emptyFile","");
+        symlink(tempDir.absPath("emptyFile").c_str(), tempDir.absPath("symlink").c_str());
+        std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("symlink"));
+        ASSERT_GE(time_created, curTime);
+    }
+
+
 
 } // namespace
