@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IDirectoryWatcherListener.h"
+#include "IiNotifyWrapper.h"
 
 #include <memory>
 #include <string>
@@ -43,6 +44,6 @@ namespace Common
         };
 
         using IDirectoryWatcherPtr = std::unique_ptr<IDirectoryWatcher>;
-        extern IDirectoryWatcherPtr createDirectoryWatcher();
+        extern IDirectoryWatcherPtr createDirectoryWatcher(IiNotifyWrapperPtr = nullptr);
     } // namespace DirectoryWatcher
 } // namespace Common

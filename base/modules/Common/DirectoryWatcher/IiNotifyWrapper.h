@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <stdint.h>
 #include <unistd.h>
+#include <memory>
 
 namespace Common
 {
@@ -45,5 +46,7 @@ namespace Common
              */
             virtual ssize_t read(int fd, void* buf, size_t nbytes) = 0;
         };
+
+        using IiNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>;
     } // namespace DirectoryWatcher
 } // namespace Common

@@ -196,10 +196,12 @@ namespace Common {
     namespace DirectoryWatcher {
         using Common::DirectoryWatcherImpl::DirectoryWatcher;
 
-        IDirectoryWatcherPtr createDirectoryWatcher()
-        {
-            auto iNotifyWrapper = std::unique_ptr<IiNotifyWrapper>(new Common::DirectoryWatcherImpl::iNotifyWrapper());
-            return std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::move(iNotifyWrapper)));
+        IDirectoryWatcherPtr createDirectoryWatcher(IiNotifyWrapperPtr iNotifyWrapperPtr) {
+            if (!iNotifyWrapperPtr)
+            {
+                iNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>(new Common::DirectoryWatcherImpl::iNotifyWrapper());
+            }
+            return std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::move(iNotifyWrapperPtr)));
         }
     } // namespace DirectoryWatcher
 } // namespace Common

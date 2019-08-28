@@ -663,7 +663,8 @@ namespace
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         Tests::TempDir tempDir;
         tempDir.createFile("emptyFile","");
-        symlink(tempDir.absPath("emptyFile").c_str(), tempDir.absPath("symlink").c_str());
+        int success = symlink(tempDir.absPath("emptyFile").c_str(), tempDir.absPath("symlink").c_str());
+        ASSERT_EQ(success, 0);
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("symlink"));
         ASSERT_GE(time_created, curTime);
     }
