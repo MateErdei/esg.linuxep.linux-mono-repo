@@ -7,15 +7,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
 
-#include <fstream>
-#include <chrono>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
+#include <chrono>
+#include <fstream>
 #include <unistd.h>
 
 using namespace Common::FileSystem;
@@ -668,7 +669,4 @@ namespace
         std::time_t time_created = m_fileSystem->lastModifiedTime(tempDir.absPath("symlink"));
         ASSERT_GE(time_created, curTime);
     }
-
-
-
 } // namespace
