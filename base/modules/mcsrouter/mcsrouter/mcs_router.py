@@ -166,7 +166,7 @@ class SophosLogging(object):
         #pylint: disable=too-many-locals
         path_manager.INST = install_dir
         log_config = path_manager.log_conf_file()
-        log_level_string = "DEBUG"#config.get_default("LOGLEVEL", LOG_LEVEL_DEFAULT).upper()
+        log_level_string = LOG_LEVEL_DEFAULT
 
         # Configure log level from config file if present
         readable = False
@@ -197,11 +197,6 @@ class SophosLogging(object):
             log_file, maxBytes=1024 * 1024, backupCount=5)
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
-
-        # if config.get_default("CONSOLE", "0") == "1":
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        root_logger.addHandler(stream_handler)
 
         envelope_file = path_manager.mcs_envelope_log()
 
