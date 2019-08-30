@@ -42,7 +42,7 @@ def get_time_string_from_log_line(line):
             return ""
     elif g_product == "SSPL":
         # [2019-06-18T13:14:02.528]
-        pattern = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]"
+        pattern = "\[[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]\]"
         reg = re.compile(pattern)
         try:
             t = reg.findall(line)[0]
@@ -50,6 +50,8 @@ def get_time_string_from_log_line(line):
             print("Could not find date in:{}".format(line))
             return ""
         t = t.replace('T', ' ')
+        t = t.replace('[', '')
+        t = t.replace(']', '')
         t = t.split('.')[0]
     return t
 
