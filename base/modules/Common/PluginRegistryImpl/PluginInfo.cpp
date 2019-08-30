@@ -80,6 +80,7 @@ namespace Common
                 environmentVariables->set_name(envVar.first);
                 environmentVariables->set_value(envVar.second);
             }
+            pluginInfoProto.set_secondstoshutdown(pluginInfo.getSecondsToShutDown());
 
             return Common::ProtobufUtil::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
@@ -126,6 +127,7 @@ namespace Common
             pluginInfo.setXmlTranslatorPath(protoPluginInfo.xmltranslatorpath());
             pluginInfo.setExecutableUserAndGroup(protoPluginInfo.executableuserandgroup());
             pluginInfo.setExecutableFullPath(protoPluginInfo.executablefullpath());
+            pluginInfo.setSecondsToShutDown(protoPluginInfo.secondstoshutdown());
 
             for (const auto& argv : protoPluginInfo.executablearguments())
             {

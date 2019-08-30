@@ -34,6 +34,7 @@ public:
     MOCK_METHOD2(exec, void(const std::string&, const std::vector<std::string>&));
     MOCK_METHOD2(wait, Common::Process::ProcessStatus(Common::Process::Milliseconds, int));
     MOCK_METHOD0(kill, bool(void));
+    MOCK_METHOD1(kill, bool(int));
     MOCK_METHOD0(exitCode, int(void));
     MOCK_METHOD0(output, std::string(void));
     MOCK_METHOD0(getStatus, Common::Process::ProcessStatus(void));

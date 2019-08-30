@@ -20,7 +20,7 @@ namespace Common
 {
     namespace ProcessImpl
     {
-        ProcessInfo::ProcessInfo() noexcept : m_executableUser(-1), m_executableGroup(-1) {}
+        ProcessInfo::ProcessInfo() noexcept : m_secondsToShutDown(2), m_executableUser(-1), m_executableGroup(-1) {}
 
         std::vector<std::string> ProcessInfo::getExecutableArguments() const { return m_executableArguments; }
 
@@ -116,6 +116,17 @@ namespace Common
             gid_t groupId = static_cast<gid_t>(m_executableGroup);
 
             return std::make_pair(m_executableGroup != -1, groupId);
+        }
+
+        int ProcessInfo::getSecondsToShutDown() const
+        {
+            return m_secondsToShutDown;
+
+        }
+
+        void ProcessInfo::setSecondsToShutDown(int seconds)
+        {
+            m_secondsToShutDown = seconds;
         }
 
     } // namespace ProcessImpl

@@ -75,6 +75,7 @@ namespace Common
              *
              */
             virtual bool kill() = 0;
+            virtual bool kill( int secondsBeforeSIGKILL) = 0;
 
             /**
              *

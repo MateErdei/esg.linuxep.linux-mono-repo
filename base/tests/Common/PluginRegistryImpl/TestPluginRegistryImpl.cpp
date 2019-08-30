@@ -40,7 +40,8 @@ public:
                                        "value": "world"
                                       }
                                      ],
-                                     "executableUserAndGroup": "user:group"
+                                     "executableUserAndGroup": "user:group",
+                                     "secondsToShutDown": "3"
                                     })";
 
         if (!oldPartString.empty())
@@ -86,7 +87,7 @@ public:
         pluginInfo.setPolicyAppIds({ "app1" });
         pluginInfo.setStatusAppIds({ "app2" });
         pluginInfo.setExecutableUserAndGroup("user:group");
-
+        pluginInfo.setSecondsToShutDown(3);
         return std::move(pluginInfo);
     }
 
@@ -199,6 +200,11 @@ public:
                        << ::testing::PrintToString(expectedValues)
                        << "\n result: " << ::testing::PrintToString(resultedValues);
             }
+        }
+        if( expected.getSecondsToShutDown() != resulted.getSecondsToShutDown())
+        {
+            return ::testing::AssertionFailure() << s.str() << "GetSecondsToShutDown differs: \n expected: "
+                     << expected.getSecondsToShutDown() << "\n result: " << resulted.getSecondsToShutDown() ;
         }
 
         return ::testing::AssertionSuccess();
@@ -726,6 +732,27 @@ TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithInvalidDataTypesT
             createJsonString(oldString, newString), ""),      // NOLINT
         Common::PluginRegistryImpl::PluginRegistryException); // NOLINT
 }
+
+TEST_F( // NOLINT
+        PluginRegistryTests,
+        pluginInfoProvidesValidTimeToShutdownIfNotAvailableInJson)
+{
+    std::string oldString = R"("secondsToShutDown": "3")";
+
+    std::string newString;
+
+    Common::PluginRegistryImpl::PluginInfo expectedPluginInfo;
+
+    expectedPluginInfo = createDefaultPluginInfo();
+    expectedPluginInfo.setSecondsToShutDown(2);
+    std::string json = createJsonString(oldString, newString);
+    EXPECT_THAT(json, ::testing::Not(::testing::HasSubstr("secondsTo") )  );
+    EXPECT_PRED_FORMAT2(
+            pluginInfoSimilar,
+            expectedPluginInfo,
+            Common::PluginRegistryImpl::PluginInfo::deserializeFromString(json, "PluginName"));
+}
+
 
 TEST_F(PluginRegistryTests, pluginInfoDeserializeFromNonJsonStringThrows) // NOLINT
 {

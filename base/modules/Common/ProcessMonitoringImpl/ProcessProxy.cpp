@@ -83,7 +83,7 @@ namespace Common
             {
                 LOGINFO("Stopping " << m_exe);
                 assert(m_process != nullptr);
-                m_process->kill();
+                m_process->kill(m_processInfo->getSecondsToShutDown());
             }
         }
 

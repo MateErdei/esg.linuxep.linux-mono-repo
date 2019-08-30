@@ -99,6 +99,9 @@ namespace Common
              * @return pair <true, valid group id> if the group id is valid, pair <false, invalid group id> otherwise
              */
             virtual std::pair<bool, gid_t> getExecutableGroup() const = 0;
+
+            virtual int getSecondsToShutDown() const = 0;
+
         };
 
         using IProcessInfoPtr = std::unique_ptr<IProcessInfo>;

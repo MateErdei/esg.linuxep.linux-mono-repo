@@ -39,6 +39,7 @@ namespace Common
             int exitCode() override;
             std::string output() override;
             bool kill() override;
+            bool kill( int secondsBeforeSIGKILL) override;
 
             Process::ProcessStatus getStatus() override;
 

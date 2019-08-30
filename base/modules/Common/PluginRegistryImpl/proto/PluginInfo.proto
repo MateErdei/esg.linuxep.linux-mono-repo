@@ -19,4 +19,5 @@ message PluginInfo
     repeated string executableArguments = 6;
     repeated EnvironmentVariablesT environmentVariables = 7;
     optional string executableUserAndGroup = 8;
+    optional int64  secondsToShutDown = 9  [default=2];
 }

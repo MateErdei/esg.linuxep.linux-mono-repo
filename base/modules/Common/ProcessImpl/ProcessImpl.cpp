@@ -272,12 +272,18 @@ namespace Common
 
         bool ProcessImpl::kill()
         {
+            return kill(2);
+        }
+
+        bool ProcessImpl::kill(int secondsBeforeSIGKILL)
+        {
+            int numOfDecSeconds = secondsBeforeSIGKILL * 10;
             bool requiredKill = false;
             if (m_pid > 0)
             {
                 LOGSUPPORT("Terminating process " << m_pid);
                 ::kill(m_pid, SIGTERM);
-                if (wait(Process::milli(20), 100) == Process::ProcessStatus::TIMEOUT)
+                if (wait(Process::milli(numOfDecSeconds), 100) == Process::ProcessStatus::TIMEOUT)
                 {
                     LOGSUPPORT("Killing process " << m_pid);
                     ::kill(m_pid, SIGKILL);
@@ -290,7 +296,9 @@ namespace Common
                 m_pipeThread->requestStop();
             }
             return requiredKill;
+
         }
+
 
         Process::ProcessStatus ProcessImpl::getStatus()
         {

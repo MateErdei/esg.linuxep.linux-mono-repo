@@ -92,13 +92,18 @@ namespace Common
              */
             std::pair<bool, gid_t> getExecutableGroup() const override;
 
+            void setSecondsToShutDown(int seconds);
+            int getSecondsToShutDown() const override ;
+
         protected:
+            int m_secondsToShutDown;
             int m_executableUser;
             int m_executableGroup;
             std::string m_executableFullPath;
             std::vector<std::string> m_executableArguments;
             Process::EnvPairs m_executableEnvironmentVariables;
             std::string m_executableUserAndGroupAsString;
+
         };
 
     } // namespace ProcessImpl
