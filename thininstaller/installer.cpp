@@ -226,7 +226,7 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string 
             continue;
         }
 
-        // Note, we ignore the Message Relay ID
+        // Note, we ignore the MR or UC ID
         std::string address = addressAndPriority[0];
         std::string priorityString = addressAndPriority[1];
         int priority;
