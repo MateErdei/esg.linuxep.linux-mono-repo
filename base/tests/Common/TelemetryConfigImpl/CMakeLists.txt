@@ -10,7 +10,7 @@ target_include_directories(TelemetryConfigImplTests SYSTEM BEFORE PUBLIC "${gtes
 target_include_directories(TelemetryConfigImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}")
 
 target_link_libraries(TelemetryConfigImplTests telemetryconfigimpl)
-target_link_libraries(TelemetryConfigImplTests gtest gmock gtest_main gcov)
+target_link_libraries(TelemetryConfigImplTests gtest gmock gtest_main)
 
 gtest_discover_tests(TelemetryConfigImplTests)
 

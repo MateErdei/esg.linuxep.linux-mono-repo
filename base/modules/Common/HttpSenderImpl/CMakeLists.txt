@@ -31,5 +31,3 @@ install(TARGETS httpsenderimpl
         LIBRARY DESTINATION files/base/lib64)
 
 add_dependencies(httpsenderimpl copy_libs)
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")

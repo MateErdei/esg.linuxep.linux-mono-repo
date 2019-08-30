@@ -34,5 +34,3 @@ install(TARGETS telemetryschedulerimpl
         LIBRARY DESTINATION files/base/lib64)
 
 add_dependencies(telemetryschedulerimpl copy_libs)
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")

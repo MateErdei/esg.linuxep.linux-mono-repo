@@ -321,6 +321,7 @@ function build()
         -DREDIST="${REDIST}" \
         -DINPUT="${REDIST}" \
         -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
+        -DCMAKE_NO_GCOV="true" \
         .. \
         || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"

@@ -12,7 +12,6 @@ target_include_directories(HttpSenderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_
 target_include_directories(HttpSenderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")
 
 target_link_libraries(HttpSenderTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto httpsenderimpl testhelpers)
-target_link_libraries(HttpSenderTests gcov)
 gtest_discover_tests(HttpSenderTests)
 
 SET_TARGET_PROPERTIES(HttpSenderTests
