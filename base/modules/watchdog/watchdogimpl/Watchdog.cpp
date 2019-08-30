@@ -26,6 +26,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <cstdlib>
 #include <unistd.h>
 
+namespace
+{
+    const char * PLUGINNOTFOUND = "Error: Plugin not found";
+}
+
 using namespace watchdog::watchdogimpl;
 
 Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
@@ -108,7 +113,7 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
         proxy->setEnabled(false);
         return watchdogReturnsOk;
     }
-    return "Error: Plugin not found";
+    return PLUGINNOTFOUND;
 }
 
 std::string Watchdog::enablePlugin(const std::string& pluginName)
@@ -123,7 +128,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     if (proxy == nullptr && !loadResult.second)
     {
         // No plugin loaded and none on disk
-        return "Error: Plugin not found";
+        return PLUGINNOTFOUND;
     }
     if (proxy == nullptr)
     {
@@ -169,7 +174,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     if (!found)
     {
         // Maybe should just return "OK"?
-        return "Error: Plugin not found";
+        return PLUGINNOTFOUND;
     }
 
     return watchdogReturnsOk;
@@ -197,6 +202,10 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
     {
         return removePlugin(argument);
     }
+    else if ( command == "ISRUNNING")
+    {
+        return checkPluginIsRunning(argument);
+    }
 
     return "Error: Unknown command";
 }
@@ -213,3 +222,19 @@ PluginProxy* Watchdog::findPlugin(const std::string& pluginName)
     }
     return nullptr;
 }
+
+std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
+{
+    auto plugin = findPlugin(pluginName);
+    if (!plugin)
+    {
+        return PLUGINNOTFOUND;
+    }
+    if ( plugin->isRunning())
+    {
+        return watchdogReturnsOk;
+    }
+    return watdhdogReturnsNotRunning;
+}
+
+

@@ -228,6 +228,12 @@ namespace Common
 
         ProcessProxy::ProcessProxy(ProcessProxy&& other) noexcept { swap(other); }
 
+        bool ProcessProxy::isRunning()
+        {
+            checkForExit();
+            return m_running;
+        }
+
     } // namespace ProcessMonitoringImpl
 } // namespace Common
 

@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
 #include <fstream>
+#include <Common/FileSystem/IFileSystem.h>
 
 using namespace Common::Process;
 namespace
@@ -232,6 +233,60 @@ namespace
         auto userPair = processInfoPtr->getExecutableUser();
         ASSERT_EQ(userPair.first, false);
         ASSERT_EQ(userPair.second, -1);
+    }
+
+namespace{
+    std::string pythonScript = R"(
+import signal
+import time
+import os
+def handler(signum,frame):
+ return
+signal.signal(signal.SIGTERM,handler)
+print ("armed signal")
+print (os.getpid())
+count=0
+while count < 2:
+    count += 1
+    time.sleep(10)
+)";
+
+    std::string& pythonFullPath()
+    {
+        static std::vector<std::string> candidates = {
+                {"/usr/bin/python"},
+                {"/usr/bin/python3.6"},
+                {"/usr/bin/python2.7"},
+                {"/usr/bin/python2"},
+                {"/usr/bin/python"}
+        };
+        for( auto & path: candidates)
+        {
+            if ( Common::FileSystem::fileSystem()->exists(path))
+            {
+                return path;
+            }
+        }
+        throw std::runtime_error("Could not find path of python");
+    }
+
+}
+
+
+    TEST(ProcessImpl, WaitShouldBeRespected)
+    {
+        auto proc = Common::Process::createProcess();
+        proc->exec(pythonFullPath(), {"-c", pythonScript} );
+
+        auto now = std::chrono::system_clock::now();
+
+        // sending the kill too earlier may get to python before it has armed the signal handler.
+        // this sleep is to try to avoid this.
+        ASSERT_EQ( proc->wait(Common::Process::milli(300), 2), Common::Process::ProcessStatus::TIMEOUT) << proc->output();
+        auto after = std::chrono::system_clock::now();
+        auto passed = std::chrono::duration_cast<std::chrono::milliseconds>(after-now).count();
+        EXPECT_GE(passed, 600);
+        EXPECT_LE(passed, 2000);
     }
 
 } // namespace

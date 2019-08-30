@@ -60,6 +60,8 @@ namespace Common
              */
             void setEnabled(bool enabled) override;
 
+            bool isRunning() override ;
+
         protected:
             /**
              * Information object for the process

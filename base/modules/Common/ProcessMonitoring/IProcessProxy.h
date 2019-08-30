@@ -36,6 +36,7 @@ namespace Common
             virtual std::chrono::seconds ensureStateMatchesOptions() = 0;
 
             virtual void setEnabled(bool enabled) = 0;
+            virtual bool isRunning() = 0;
         };
         using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
         extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);

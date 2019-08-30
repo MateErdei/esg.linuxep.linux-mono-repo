@@ -15,6 +15,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
 #include <wdctl/wdctlactions/StopAction.h>
+#include <wdctl/wdctlactions/IsRunning.h>
 
 #include <csignal>
 #include <cstdlib>
@@ -50,7 +51,11 @@ StringVector wdctl_bootstrap::convertArgv(unsigned int argc, char** argv)
 int wdctl_bootstrap::main(const StringVector& args)
 {
     Common::Logging::FileLoggingSetup logSetup("wdctl");
+    return main_afterLogConfigured(args);
+}
 
+int wdctl_bootstrap::main_afterLogConfigured(const StringVector& args)
+{
     m_args.parseArguments(args);
 
     LOGINFO(m_args.m_command << " " << m_args.m_argument);
@@ -75,6 +80,10 @@ int wdctl_bootstrap::main(const StringVector& args)
     {
         action.reset(new wdctl::wdctlactions::RemoveAction(m_args));
     }
+    else if ( command == "isrunning")
+    {
+        action.reset( new wdctl::wdctlactions::IsRunning(m_args));
+    }
     else
     {
         LOGERROR("Unknown command: " << m_args.m_command);
@@ -82,3 +91,4 @@ int wdctl_bootstrap::main(const StringVector& args)
     }
     return action->run();
 }
+

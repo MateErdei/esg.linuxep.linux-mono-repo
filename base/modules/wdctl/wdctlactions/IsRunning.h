@@ -1,23 +1,21 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
 
 #include "ZMQAction.h"
-
+#include "StopAction.h"
 namespace wdctl
 {
     namespace wdctlactions
     {
-        class StopAction : public ZMQAction
+        class IsRunning : public StopAction
         {
         public:
-            enum class IsRunningStatus{IsRunning, IsNotRunning, Undefined};
-            explicit StopAction(const wdctl::wdctlarguments::Arguments& args);
+            using StopAction::StopAction;
             int run() override;
-            IsRunningStatus checkIsRunning();
         };
     } // namespace wdctlactions
 } // namespace wdctl

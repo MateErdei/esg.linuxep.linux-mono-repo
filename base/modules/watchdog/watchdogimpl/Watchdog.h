@@ -25,6 +25,7 @@ namespace watchdog
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
 
         static const std::string watchdogReturnsOk = "OK"; // NOLINT
+        static const std::string watdhdogReturnsNotRunning =  "Not Running"; //NOLINT
 
         class Watchdog : public Common::ProcessMonitoringImpl::ProcessMonitor
         {
@@ -43,7 +44,7 @@ namespace watchdog
 
             std::string disablePlugin(const std::string& pluginName);
             std::string enablePlugin(const std::string& pluginName);
-
+            std::string checkPluginIsRunning( const std::string& pluginName);
             /**
              * Stop the plugin if it is running, and remove it from m_pluginProxies.
              * @param pluginName

@@ -13,6 +13,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Common/ZeroMQWrapper/ISocketRequesterPtr.h>
+#include <thread>
+#include <watchdog/watchdogimpl/Watchdog.h>
 
 using namespace wdctl::wdctlactions;
 
@@ -26,7 +28,19 @@ int StopAction::run()
 
     if (isSuccessful(response))
     {
-        return 0;
+
+        for( int i =0; i<10; i++)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            StopAction::IsRunningStatus isRunningStatus = checkIsRunning();
+            if( isRunningStatus==StopAction::IsRunningStatus::IsNotRunning)
+            {
+                return 0;
+            }
+
+        }
+        LOGINFO("Watchdog did not confirm the plugin is not running after 10 seconds: " << m_args.m_argument);
+        return 3;
     }
 
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
@@ -44,4 +58,22 @@ int StopAction::run()
         LOGERROR("Plugin \"" << m_args.m_argument << "\" not in registry");
         return 2;
     }
+}
+
+StopAction::IsRunningStatus StopAction::checkIsRunning()
+{
+    auto response = doOperationToWatchdog({"ISRUNNING", m_args.m_argument});
+    if (response.empty())
+    {
+        return StopAction::IsRunningStatus::Undefined;
+    }
+    if (response.at(0) == watchdog::watchdogimpl::watdhdogReturnsNotRunning)
+    {
+        return StopAction::IsRunningStatus::IsNotRunning;
+    }
+    if( response.at(0) == watchdog::watchdogimpl::watchdogReturnsOk)
+    {
+        return StopAction::IsRunningStatus::IsRunning;
+    }
+    return StopAction::IsRunningStatus::Undefined;
 }
