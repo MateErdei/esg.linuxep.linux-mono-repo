@@ -492,7 +492,8 @@ namespace Common
                     continue;
                 }
 
-                if ((isFile(fullPath) ||  isSymlink(fullPath) || isDirectory(fullPath)) && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                if ((isFile(fullPath) || isSymlink(fullPath) || isDirectory(fullPath)) && outDirEntity->d_name != dot &&
+                    outDirEntity->d_name != dotdot)
                 {
                     files.push_back(fullPath);
                 }
