@@ -207,10 +207,20 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
     WatchdogRunner watchdogRunner;
     watchdogRunner.start();
     waitPluginStarted();
-    ASSERT_EQ(wdctl.main_afterLogConfigured(stopArgs), 0);
-
+    int retValue =  wdctl.main_afterLogConfigured(stopArgs);
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
+    if( retValue != 0)
+    {
+        // Provide more information if the test fails.
+        // this will display the value returned and well as all the
+        // log messages on failure.
+        EXPECT_EQ(retValue, 0) << logMessage;
+    }
+    else
+    {
+        EXPECT_THAT(logMessage, ::testing::HasSubstr("stop fakeplugin"));
+    }
+
     EXPECT_EQ(watchdogRunner.stop(), 0);
 }
 
