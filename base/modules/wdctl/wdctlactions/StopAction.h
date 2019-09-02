@@ -14,7 +14,12 @@ namespace wdctl
         class StopAction : public ZMQAction
         {
         public:
-            enum class IsRunningStatus{IsRunning, IsNotRunning, Undefined};
+            enum class IsRunningStatus
+            {
+                IsRunning,
+                IsNotRunning,
+                Undefined
+            };
             explicit StopAction(const wdctl::wdctlarguments::Arguments& args);
             int run() override;
             IsRunningStatus checkIsRunning();

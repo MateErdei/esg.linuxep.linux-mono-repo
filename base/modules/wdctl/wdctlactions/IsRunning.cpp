@@ -18,17 +18,16 @@ using namespace wdctl::wdctlactions;
 
 int IsRunning::run()
 {
-    LOGINFO("Attempting to check plugin is running: " << m_args.m_argument );
+    LOGINFO("Attempting to check plugin is running: " << m_args.m_argument);
 
     StopAction::IsRunningStatus status = checkIsRunning();
-    if( status == StopAction::IsRunningStatus::IsRunning)
+    if (status == StopAction::IsRunningStatus::IsRunning)
     {
         return 0;
     }
-    if ( status == StopAction::IsRunningStatus::IsNotRunning)
+    if (status == StopAction::IsRunningStatus::IsNotRunning)
     {
         return 1;
     }
     return 2;
-
 }

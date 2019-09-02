@@ -5,8 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "ZMQAction.h"
 #include "StopAction.h"
+#include "ZMQAction.h"
 namespace wdctl
 {
     namespace wdctlactions

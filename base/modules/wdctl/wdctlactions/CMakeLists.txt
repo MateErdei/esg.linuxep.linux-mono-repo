@@ -14,7 +14,8 @@ add_library(wdctlactions STATIC
         ZMQAction.h
         RemoveAction.cpp
         RemoveAction.h
-        IsRunning.cpp IsRunning.h)
+        IsRunning.cpp
+        IsRunning.h)
 
 set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
 

@@ -37,7 +37,7 @@ Common::ZeroMQWrapper::ISocketRequesterPtr wdctl::wdctlactions::ZMQAction::conne
 Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(
     const Common::ZeroMQWrapper::IWritable::data_t& arguments)
 {
-    if ( detectWatchdog())
+    if (detectWatchdog())
     {
         for (std::string systemctlPath : { "/bin/systemctl", "/usr/sbin/systemctl" })
         {
@@ -51,7 +51,6 @@ Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOpera
                 break;
             }
         }
-
     }
 
     // if we do not find systemctlPath we then assume it might exist in another place
