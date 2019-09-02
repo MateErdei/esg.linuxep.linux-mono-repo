@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2018 Sophos Limited.  All rights reserved.
+# Copyright 2019 Sophos Limited.  All rights reserved.
 
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 
