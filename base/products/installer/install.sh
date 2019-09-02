@@ -372,8 +372,6 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 
 unset LD_LIBRARY_PATH
 
-changed_or_added install.sh  ${DIST}
-
 for F in "$DIST/installer/plugins"/*
 do
     if changed_or_added ${F#"$DIST"/}  ${DIST}
