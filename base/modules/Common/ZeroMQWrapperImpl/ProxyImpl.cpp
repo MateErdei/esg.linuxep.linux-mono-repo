@@ -42,7 +42,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
     assert(m_context.get() != nullptr);
     assert(m_context->ctx() != nullptr);
     std::unique_lock<std::mutex> lock(m_threadStarted);
-    m_thread = std::move(std::thread(&ProxyImpl::run, this));
+    m_thread = std::thread(&ProxyImpl::run, this);
     m_ensureThreadStarted.wait(lock, [this]() { return m_threadStartedFlag; });
 }
 
