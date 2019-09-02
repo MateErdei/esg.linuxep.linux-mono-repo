@@ -306,7 +306,7 @@ def get_password_uncached():
         for item in sect:
             ret.append(chr(item))
 
-    return ''.join(ret).encode("utf-8", "replace")
+    return ''.join(ret).encode("ascii", "replace")
 
 
 GL_PASSWORD = None

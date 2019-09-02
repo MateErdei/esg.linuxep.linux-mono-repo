@@ -85,12 +85,13 @@ class SECObfuscation(object):
         """
         deobfuscate
         """
-        temp_salt = salt.decode("utf-8", "replace")
-        # key, iv_value = self.create_session_key(salt)
-        key = self.create_session_key(salt)
+        temp_salt = salt.decode("ascii", "replace")
+        key, iv_value = self.create_session_key(salt)
 
-        key_temp = key.decode("UTF-8", "replace")
-        #value_temp = iv_value.decode("utf-8", "replace")
+        #key = self.create_session_key(salt)
+
+        key_temp = key.decode("ascii", "replace")
+        value_temp = iv_value.decode("ascii", "replace")
         iv_value = ""
         cipher = self.create_cipher(key, iv_value)
 
@@ -130,9 +131,10 @@ class ThreeDES(SECObfuscation):
 
 
         password = self.get_password()
+        temp_password = password.decode("ascii", "replace")
 
         key_iv = b""
-        previous_hash = b""
+        previous_hash = "".encode("ascii")
 
         while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
             md5_hash = hashlib.md5()
