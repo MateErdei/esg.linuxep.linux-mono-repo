@@ -21,6 +21,7 @@ RemoveAction::RemoveAction(const Action::Arguments& args) : ZMQAction(args) {}
 
 int RemoveAction::run()
 {
+    LOGINFO("Attempting to remove " << m_args.m_argument);
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
 
     Path destination =
@@ -31,6 +32,7 @@ int RemoveAction::run()
     try
     {
         Common::FileSystem::fileSystem()->removeFile(destination);
+        LOGINFO("Remove the plugin registry");
     }
     catch (const Common::FileSystem::IFileSystemException& e)
     {
