@@ -444,10 +444,9 @@ namespace Common
                 {
                     break;
                 }
-
-                if (DT_REG & outDirEntity->d_type)
+                std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                if (isFile(fullPath) || isSymlink(fullPath))
                 {
-                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
                     files.push_back(fullPath);
                 }
             }
@@ -487,28 +486,15 @@ namespace Common
                     break;
                 }
 
-                if ((DT_REG | DT_DIR) & outDirEntity->d_type && outDirEntity->d_name != dot &&
-                    outDirEntity->d_name != dotdot)
+                std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                if (!includeSymlinks && isSymlink(fullPath))
                 {
-                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                    bool include = true;
+                    continue;
+                }
 
-                    if (!includeSymlinks)
-                    {
-                        // we do not want to return symlinks as it could create a infinite loop if the caller calls this
-                        // method again on the returned directories
-                        struct stat buf; // NOLINT
-                        int ret = ::lstat(fullPath.c_str(), &buf);
-
-                        if (ret == 0 && S_ISLNK(buf.st_mode)) // NOLINT
-                        {
-                            include = false;
-                        }
-                    }
-                    if (include)
-                    {
-                        files.push_back(fullPath);
-                    }
+                if ((isFile(fullPath) ||  isSymlink(fullPath) || isDirectory(fullPath)) && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                {
+                    files.push_back(fullPath);
                 }
             }
 
@@ -581,19 +567,18 @@ namespace Common
                     break;
                 }
 
-                if (DT_DIR & outDirEntity->d_type && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                std::string fullPath = join(directoryPath, outDirEntity->d_name);
+
+                // We do not want to return symlinks as it could create a infinite loop if the caller calls this
+                // method again on the returned directories
+                if (isSymlink(fullPath))
                 {
-                    std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                    continue;
+                }
 
-                    // we do not want to return symlinks as it could create a infinite loop if the caller calls this
-                    // method again on the returned directories
-                    struct stat buf;
-                    int ret = ::lstat(fullPath.c_str(), &buf);
-
-                    if (ret == 0 && !S_ISLNK(buf.st_mode))
-                    {
-                        dirs.push_back(fullPath);
-                    }
+                if (isDirectory(fullPath) && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                {
+                    dirs.push_back(fullPath);
                 }
             }
 
