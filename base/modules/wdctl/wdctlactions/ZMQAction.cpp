@@ -37,18 +37,23 @@ Common::ZeroMQWrapper::ISocketRequesterPtr wdctl::wdctlactions::ZMQAction::conne
 Common::ZeroMQWrapper::IReadable::data_t wdctl::wdctlactions::ZMQAction::doOperationToWatchdog(
     const Common::ZeroMQWrapper::IWritable::data_t& arguments)
 {
-    for (std::string systemctlPath : { "/bin/systemctl", "/usr/sbin/systemctl" })
+    if ( detectWatchdog())
     {
-        if (Common::FileSystem::fileSystem()->isFile(systemctlPath))
+        for (std::string systemctlPath : { "/bin/systemctl", "/usr/sbin/systemctl" })
         {
-            std::string systemCommand = systemctlPath + " status sophos-spl > /dev/null";
-            if (system(systemCommand.c_str()) != 0)
+            if (Common::FileSystem::fileSystem()->isFile(systemctlPath))
             {
-                return { watchdogNotRunning };
+                std::string systemCommand = systemctlPath + " status sophos-spl > /dev/null";
+                if (system(systemCommand.c_str()) != 0)
+                {
+                    return { watchdogNotRunning };
+                }
+                break;
             }
-            break;
         }
+
     }
+
     // if we do not find systemctlPath we then assume it might exist in another place
     // and allow the command to go through
 

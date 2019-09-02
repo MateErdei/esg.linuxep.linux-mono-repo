@@ -207,7 +207,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
     WatchdogRunner watchdogRunner;
     watchdogRunner.start();
     waitPluginStarted();
-    int retValue =  wdctl.main_afterLogConfigured(stopArgs);
+    int retValue =  wdctl.main_afterLogConfigured(stopArgs, false);
     std::string logMessage = testing::internal::GetCapturedStderr();
     if( retValue != 0)
     {
@@ -231,13 +231,13 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
     waitPluginStarted();
 
     wdctl::wdctlimpl::wdctl_bootstrap wdctl;
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs), 0);
+    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
 
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs), 0);
+    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 0);
 
     // stop
-    EXPECT_EQ(wdctl.main_afterLogConfigured(stopArgs), 0);
-    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs), 1);
+    EXPECT_EQ(wdctl.main_afterLogConfigured(stopArgs, false), 0);
+    EXPECT_EQ(wdctl.main_afterLogConfigured(isRunningArgs, false), 1);
 
     EXPECT_EQ(watchdogRunner.stop(), 0);
 }

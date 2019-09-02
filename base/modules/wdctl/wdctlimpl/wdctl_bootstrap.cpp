@@ -54,7 +54,7 @@ int wdctl_bootstrap::main(const StringVector& args)
     return main_afterLogConfigured(args);
 }
 
-int wdctl_bootstrap::main_afterLogConfigured(const StringVector& args)
+int wdctl_bootstrap::main_afterLogConfigured(const StringVector& args, bool detectWatchdog)
 {
     m_args.parseArguments(args);
 
@@ -88,6 +88,10 @@ int wdctl_bootstrap::main_afterLogConfigured(const StringVector& args)
     {
         LOGERROR("Unknown command: " << m_args.m_command);
         return 10;
+    }
+    if( !detectWatchdog)
+    {
+        action->setSkipWatchdogDetection();
     }
     return action->run();
 }
