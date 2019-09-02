@@ -5,8 +5,6 @@
 computer Module
 """
 
-from __future__ import print_function, division, unicode_literals
-
 import logging
 import os
 import glob
@@ -45,7 +43,7 @@ class Computer(object):
         try:
             del self.__m_adapters[app_id]
         except KeyError as exception:
-            LOGGER.warning('Failed to remove adapter: ' + str(exception))
+            LOGGER.warning('Failed to remove adapter: %s' % exception)
 
     def get_timestamp(self):
         """
@@ -60,7 +58,7 @@ class Computer(object):
         """
         # Enumerate adapters statuses - including self
         changed = False
-        for adapter in self.__m_adapters.values():
+        for adapter in list(self.__m_adapters.values()):
             status_xml = adapter.get_status_xml()
             if status_xml is None:
                 # No status for this adapter
@@ -88,7 +86,7 @@ class Computer(object):
         """
         has_status_changed
         """
-        for adapter in self.__m_adapters.values():
+        for adapter in list(self.__m_adapters.values()):
             if adapter.has_new_status():
                 return True
         return False
@@ -112,7 +110,7 @@ class Computer(object):
         LOGGER.debug("received log event: %s", ";".join(
             [m.msgid for m in event.getMessages()]))
 
-        for adapter in self.__m_adapters.values():
+        for adapter in list(self.__m_adapters.values()):
             if adapter == self:
                 continue
             xml = adapter.process_log_event(event)
@@ -124,7 +122,7 @@ class Computer(object):
         """
         get_app_ids
         """
-        return self.__m_adapters.keys()
+        return list(self.__m_adapters.keys())
 
     def _run_commands(self, commands):
         """
@@ -155,18 +153,13 @@ class Computer(object):
 
         return True
 
-    def _setup_temp_dir(self, temp_path):
-        if not os.path.isdir(temp_path):
-            os.mkdir(temp_path)
-            os.chmod(temp_path, 0o700)
-
     def run_commands(self, commands):
         # We are writing policies received in a single command poll to a temporary directory
         # before moving them into the mcs policy folder. This will mean that if multiple policies are
         # received for a specific appId that only the latest one is actioned.
-        self._setup_temp_dir(path_manager.policy_temp_dir())
-        self._setup_temp_dir(path_manager.actions_temp_dir())
-
+        if not os.path.isdir(path_manager.policy_temp_dir()):
+            os.mkdir(path_manager.policy_temp_dir())
+            os.chmod(path_manager.policy_temp_dir(), 0o700)
         try:
             return self._run_commands(commands)
         finally:
@@ -176,19 +169,7 @@ class Computer(object):
                     os.rename(filepath, os.path.join(path_manager.policy_dir(), filename))
                     LOGGER.info("Distribute new policy: {}".format(filename))
                 except OSError as ex:
-                    LOGGER.warning("Failed to write a policy to: {}. Reason: {}".format(filepath, ex))
-
-            # We want to introduce actions to the system in the order in which they were received.
-            actions = glob.glob(os.path.join(path_manager.actions_temp_dir(), "*.xml"))
-            actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
-            for filepath in actions:
-                try:
-                    # This removes the timestamp (tag to sort by) from the front of the filename.
-                    filename = os.path.basename(filepath).split("_", 1)[-1]
-                    os.rename(filepath, os.path.join(path_manager.action_dir(), filename))
-                    LOGGER.info("Distribute new action: {}".format(filename))
-                except OSError as ex:
-                    LOGGER.warning("Failed to write an action to: {}. Reason: {}".format(filepath, ex))
+                    LOGGER.warning("Failed to write a policy to :{}. Reason: %s" % (filepath, ex))
 
     def clear_cache(self):
         """

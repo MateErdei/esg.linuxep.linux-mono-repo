@@ -19,8 +19,8 @@ def get_app_ids_from_plugin_json(file_path):
     try:
         with open(file_path, 'r') as file_to_read:
             parsed_file = json.load(file_to_read)
-            app_ids = set(parsed_file.get(u'policyAppIds', []))
-            app_ids = app_ids.union(parsed_file.get(u'statusAppIds', []))
+            app_ids = set(parsed_file.get('policyAppIds', []))
+            app_ids = app_ids.union(parsed_file.get('statusAppIds', []))
             return app_ids
 
     except IOError as exception:

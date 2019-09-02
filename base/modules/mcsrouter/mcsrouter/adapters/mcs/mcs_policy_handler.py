@@ -3,8 +3,6 @@
 mcs_policy_handler Module
 """
 
-from __future__ import absolute_import, print_function, division, unicode_literals
-
 import os
 
 import xml.dom.minidom
@@ -16,7 +14,6 @@ import logging
 import mcsrouter.utils.xml_helper
 import mcsrouter.utils.utf8_write
 import mcsrouter.utils.path_manager as path_manager
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -107,8 +104,8 @@ class MCSPolicyHandler(object):
 
         if len(valid_nodes) == 1:
             return valid_nodes[0]
-        else:
-            return None
+
+        return None
 
     def __apply_policy_setting(
             self,
@@ -410,8 +407,8 @@ class MCSPolicyHandler(object):
         """
         try:
             self.__apply_policy(policy_age, save)
-        except Exception as e:  # pylint: disable=broad-except
-            LOGGER.error("Failed to apply MCS policy: {}".format(e))
+        except Exception as exception:  # pylint: disable=broad-except
+            LOGGER.error("Failed to apply MCS policy: %s" % exception)
 
     def process(self, policy_xml):
         """

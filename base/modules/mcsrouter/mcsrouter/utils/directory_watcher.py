@@ -5,7 +5,7 @@ Wrapper for the 'watcher' module, which writes to a pipe on any change,
 so that we can wait for it in a select.select() call.
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import os
 import logging

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
 
 import os
 import sys
@@ -29,7 +29,7 @@ def get_mcs_router_dir():
 def safeRmtree(path):
     try:
         shutil.rmtree(path,ignore_errors=True)
-    except EnvironmentError,e:
+    except EnvironmentError as e:
         if e.errno == errno.ENOENT:
             return
         else:
@@ -38,23 +38,23 @@ def safeRmtree(path):
 def safeDelete(path):
     try:
         os.unlink(path)
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         if e.errno == errno.ENOENT:
             return
         else:
             raise
 
-def safeMkdir(path, perm=0700):
+def safeMkdir(path, perm=0o700):
     try:
         os.makedirs(path)
         os.chmod(path,perm)
-    except EnvironmentError,e:
+    except EnvironmentError as e:
         if e.errno == errno.EEXIST:
             return
         else:
             raise
 
-def writeFile(path,content,perm=0600):
+def writeFile(path,content,perm=0o600):
     open(path,"w").write(content)
     os.chmod(path,perm)
 
@@ -87,7 +87,7 @@ class FakeConfigManager(object):
         pass
 
     def set(self, savPath, savValue, lock=True, flags=0):
-        assert isinstance(savValue,basestring) or isinstance(savValue,list)
+        assert isinstance(savValue,str) or isinstance(savValue,list)
         self.m_config[savPath] = savValue
         self.m_used = True
         logger.info("Set %s to %s",savPath,str(savValue))

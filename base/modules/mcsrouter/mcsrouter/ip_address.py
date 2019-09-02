@@ -26,7 +26,7 @@ def get_all_interfaces():
     max_possible = 8  # initial value
     while True:
         number_of_bytes = max_possible * struct_size
-        names = array.array('B', '\0' * number_of_bytes)
+        names = array.array('B', b'\0' * number_of_bytes)
         out_bytes = struct.unpack('iL', fcntl.ioctl(
             socket_instance.fileno(),
             0x8912,  # SIOCGIFCONF
@@ -36,8 +36,8 @@ def get_all_interfaces():
             max_possible *= 2
         else:
             break
-    name_string = names.tostring()
-    return [(name_string[i:i + 16].split('\0', 1)[0],
+    name_string = names.tobytes()
+    return [(name_string[i:i + 16].split(b'\0', 1)[0],
              socket.inet_ntoa(name_string[i + 20:i + 24]))
             for i in range(0, out_bytes, struct_size)]
 
@@ -55,11 +55,11 @@ def get_non_local_ipv4():
     for (index, ip_address) in all_interfaces:
         if ip_address.startswith("127."):
             pass
-        elif index.startswith("eth"):
+        elif index.startswith(b"eth"):
             ip_ordering.append((0, index, ip_address))
-        elif index.startswith("em"):
+        elif index.startswith(b"em"):
             ip_ordering.append((1, index, ip_address))
-        elif index.startswith("docker"):
+        elif index.startswith(b"docker"):
             ip_ordering.append((200, index, ip_address))
         elif ip_address.startswith("172."):
             ip_ordering.append((150, index, ip_address))
@@ -83,7 +83,9 @@ def get_non_local_ipv6():
 
     """
     try:
-        data = open("/proc/net/if_inet6").read()
+        with open("/proc/net/if_inet6") as reader:
+            data = reader.read()
+
     except EnvironmentError:
         return
 
@@ -96,7 +98,7 @@ def get_non_local_ipv6():
 
     ethernet_ips = []
     other_ips = []
-    for (device, ip_address) in field.iteritems():
+    for (device, ip_address) in field.items():
         if ip_address == "00000000000000000000000000000001":
             continue
         elif device.startswith("eth"):

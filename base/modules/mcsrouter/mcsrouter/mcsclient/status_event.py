@@ -5,7 +5,7 @@
 status_event Module
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import mcsrouter.utils.xml_helper
 
@@ -46,7 +46,7 @@ class StatusEvent(object):
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 
         for (app_id, (ttl, creation_time, adapter_status_xml)
-            ) in self.__m_adapters.iteritems():
+            ) in self.__m_adapters.items():
 
             if isinstance(ttl, int):
                 ttl = "PT%dS" % ttl

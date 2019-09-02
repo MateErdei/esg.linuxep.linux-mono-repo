@@ -5,8 +5,6 @@
 XMLHelper Module
 """
 
-from __future__ import absolute_import, print_function, division, unicode_literals
-
 import xml.dom
 import xml.dom.expatbuilder
 import xml.dom.xmlbuilder
@@ -15,6 +13,7 @@ import codecs
 
 import logging
 LOGGER = logging.getLogger("mcsrouter")
+
 def get_text_from_element(element):
     """
     get_text_from_element
@@ -52,9 +51,15 @@ class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
     pass
 
 class XMLException(Exception):
+    """
+    XMLException class
+    """
     pass
 
 class NoEntityExpatBuilderNS(xml.dom.expatbuilder.ExpatBuilderNS):
+    """
+    NoEntityExpatBuilderNS Class
+    """
     def entity_decl_handler(self, entityName, is_parameter_entity, value,
                             base, systemId, publicId, notationName):
         raise NoEntitiesAllowedException("Refusing to parse Entity Declaration: "+entityName)
@@ -91,5 +96,3 @@ def check_string_size_for_events(contents):
         err_msg = "Refusing to parse, size of status exceeds size limit"
         LOGGER.warning(err_msg)
         raise XMLException(err_msg)
-
-

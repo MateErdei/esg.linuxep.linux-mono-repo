@@ -3,21 +3,21 @@
 sophos_https Module
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import socket
 import ssl
-import httplib
+import http.client
 import base64
 
 # urllib.parse in python 3
-import urlparse
+import urllib.parse
 
 # pylint: disable=relative-import
-import proxy_authorization
-import mcsclient.mcs_exception
+from . import proxy_authorization
+from .mcsclient import mcs_exception
 
 LOGGER = None
 
@@ -180,7 +180,7 @@ class Proxy(object):
         return 'Basic %s' % base64.b64encode(raw).strip()
 
 
-class InvalidCertificateException(httplib.HTTPException, urllib2.URLError):
+class InvalidCertificateException(http.client.HTTPException, urllib.error.URLError):
     """
     InvalidCertificateException
     """
@@ -203,7 +203,7 @@ class InvalidCertificateException(httplib.HTTPException, urllib2.URLError):
                 (self.host, self.reason, self.cert))
 
 
-class ProxyTunnelError(httplib.HTTPException):
+class ProxyTunnelError(http.client.HTTPException):
     """
     ProxyTunnelError
     """
@@ -229,12 +229,12 @@ class ProxyTunnelError(httplib.HTTPException):
             self.response.status, self.response.reason)
 
 
-class CertValidatingHTTPSConnection(httplib.HTTPConnection):
+class CertValidatingHTTPSConnection(http.client.HTTPConnection):
     """
     CertValidatingHTTPSConnection
     """
     # pylint: disable=too-many-instance-attributes
-    default_port = httplib.HTTPS_PORT
+    default_port = http.client.HTTPS_PORT
 
     def __init__(self, host, port=None, key_file=None, cert_file=None,
                  ca_certs=None, strict=None, timeout=None, **kwargs):
@@ -243,7 +243,7 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
         """
         # pylint: disable=too-many-arguments
 
-        httplib.HTTPConnection.__init__(
+        http.client.HTTPConnection.__init__(
             self, host, port, strict, timeout, **kwargs)
         self.key_file = key_file
         self.cert_file = cert_file
@@ -265,7 +265,7 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
         connect = [
             "CONNECT %s:%d HTTP/1.0\r\n" %
             (self._tunnel_host, self._tunnel_port)]
-        for header, value in self._tunnel_headers.iteritems():
+        for header, value in self._tunnel_headers.items():
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
         self.send("".join(connect))
@@ -290,7 +290,7 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
         "Connect to a host on a given (SSL) port."
         try:
             sock = socket.create_connection((self.host, self.port),
-                                            self.timeout, self.source_address)
+                                            self.timeout, None)
             if self._tunnel_host:
                 self.sock = sock
                 self._tunnel()
@@ -317,13 +317,13 @@ class CertValidatingHTTPSConnection(httplib.HTTPConnection):
             raise mcsclient.mcs_exception.MCSConnectionFailedException(exception)
 
 
-class ConnectHTTPSHandler(urllib2.HTTPSHandler):
+class ConnectHTTPSHandler(urllib.request.HTTPSHandler):
     """
     ConnectHTTPSHandler
     """
 
     def do_open(self, http_class, req, **http_conn_args):
-        return urllib2.HTTPSHandler.do_open(
+        return urllib.request.HTTPSHandler.do_open(
             self, CertValidatingHTTPSConnection, req, **http_conn_args)
 
 
@@ -348,7 +348,7 @@ def create_connection(
     proxy_username = proxy.username()
     proxy_password = proxy.password()
 
-    url_parsed = urlparse.urlparse(url)
+    url_parsed = urllib.parse.urlparse(url)
     (url_host, url_port) = split_host_port(url_parsed.netloc, 443)
 
     auth = proxy_authorization.ProxyAuthorization(proxy, url_host, url_port)

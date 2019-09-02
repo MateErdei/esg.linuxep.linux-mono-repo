@@ -5,13 +5,13 @@
 MCS Module
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import errno
 import os
 import socket
 import time
-import httplib
+import http.client
 import select
 import logging
 import random
@@ -520,12 +520,12 @@ class MCS(object):
 
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient)
-                except (mcs_exception.MCSConnectionFailedException, httplib.NotConnected):
+                except (mcs_exception.MCSConnectionFailedException, http.client.NotConnected):
                     # Already logged from mcsclient
                     #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
                     self.__m_command_check_interval.set_on_error(error_count)
-                except httplib.BadStatusLine as exception:
+                except http.client.BadStatusLine as exception:
                     after_time = time.time()
                     bad_status_line_delay = after_time - before_time
                     if bad_status_line_delay < 1.0:

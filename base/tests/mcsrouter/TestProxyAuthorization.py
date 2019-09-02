@@ -1,5 +1,5 @@
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+
 
 import unittest
 import sys
@@ -40,7 +40,7 @@ def getFakeResponse():
 def createProxyAuthorization(proxy=None):
     if proxy is None:
         proxy = FakeProxy()
-    return mcsrouter.proxy_authorization.ProxyAuthorization(proxy,"allegro")
+    return mcsrouter.proxy_authorization.ProxyAuthorization(proxy, "allegro")
 
 class TestProxyAuthorization(unittest.TestCase):
     def testConstruction(self):
@@ -50,7 +50,7 @@ class TestProxyAuthorization(unittest.TestCase):
         fake = getFakeResponse()
         x = createProxyAuthorization()
         header = x.get_authenticate_header(fake)
-        self.assertEqual(header,'Digest realm="TestProxy", nonce="4fb2664f1c4e056d8f69f50e8dca65b1", algorithm="MD5", qop="auth"\r\n')
+        self.assertEqual(header, 'Digest realm="TestProxy", nonce="4fb2664f1c4e056d8f69f50e8dca65b1", algorithm="MD5", qop="auth"\r\n')
 
     def testUpdateHeader(self):
         fake = getFakeResponse()

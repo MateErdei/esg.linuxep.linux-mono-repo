@@ -3,7 +3,7 @@
 event_receiver Module
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import os
 import re

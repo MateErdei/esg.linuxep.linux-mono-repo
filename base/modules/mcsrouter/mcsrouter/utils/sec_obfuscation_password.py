@@ -6,7 +6,7 @@ sec_obfuscation_password Module
 
 #pylint: disable=no-self-use
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
 
 # From
 # //wincomms/latest-dev/mcs-endpoint/product/src/McsClient/SECObfuscation/...
@@ -115,7 +115,7 @@ def reverse_1(input_array):
     output_array = input_array[:]
     data_size = len(output_array)
     # Reverse Transposition of data - ADCB becomes ABCD
-    for i in xrange(data_size):
+    for i in range(data_size):
         mod2 = i % 2
         if mod2 == 0:
             output_array[i] = input_array[i // 2]  # even
@@ -148,7 +148,7 @@ def get_index(salt):
     """
     get_index
     """
-    key = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
+    key = "FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
     key_length = len(key)
     mod3 = salt % 3
     if mod3 == 0:
@@ -162,7 +162,7 @@ def get_mask(salt):
     """
     get_mask
     """
-    key = b"FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
+    key = "FDGASSkwpodkfgfspwoegre;[addq[pad.col\x00"
     key_length = len(key)
     mod3 = salt % 3
     if mod3 == 0:
@@ -306,7 +306,7 @@ def get_password_uncached():
         for item in sect:
             ret.append(chr(item))
 
-    return b"".join(ret)
+    return ''.join(ret).encode("utf-8", "replace")
 
 
 GL_PASSWORD = None

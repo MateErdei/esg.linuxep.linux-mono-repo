@@ -1,6 +1,6 @@
 import unittest
 
-import PathManager
+from . import PathManager
 
 import fcntl
 import os

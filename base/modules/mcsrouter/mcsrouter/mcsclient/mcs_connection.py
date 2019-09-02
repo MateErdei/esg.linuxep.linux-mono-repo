@@ -7,11 +7,11 @@ import base64
 import os
 import xml.dom.minidom
 import xml.parsers.expat
-import httplib
+import http.client
 
 # urllib.parse in python 3
 try:
-    import urlparse
+    import urllib.parse
 except ImportError:
     import urllib.parse as urlparse
 
@@ -52,7 +52,7 @@ class EnvelopeHandler:
         self._last_request = last_request
 
     def _safe_to_log(self, message):
-        return u'RESPONSE: {}'.format(message)
+        return 'RESPONSE: {}'.format(message)
 
     def log_answer(self, message):
         message_to_log = self._safe_to_log(message)
@@ -407,7 +407,7 @@ class MCSConnection(object):
         @return (host,port,path)
         """
 
-        mcs_url_parsed = urlparse.urlparse(mcs_url)
+        mcs_url_parsed = urllib.parse.urlparse(mcs_url)
         (host, port) = sophos_https.split_host_port(mcs_url_parsed.netloc, 443)
 
         if self.__m_mcs_url != mcs_url:
@@ -599,41 +599,40 @@ class MCSConnection(object):
             raise mcsrouter.mcsclient.mcs_exception.MCSNetworkException(
                 "Response too short")
 
-        if response.status == httplib.UNAUTHORIZED:
+        if response.status == http.client.UNAUTHORIZED:
             LOGGER.info("UNAUTHORIZED from server %d WWW-Authenticate=%s",
                         response.status,
                         response_headers.get('www-authenticate', "<Absent>"))
             LOGGER.debug("HEADERS=%s", str(response_headers))
             raise MCSHttpUnauthorizedException(
                 response.status, response_headers, body)
-        elif response.status == httplib.SERVICE_UNAVAILABLE:
+        elif response.status == http.client.SERVICE_UNAVAILABLE:
             LOGGER.warning("HTTP Service Unavailable (503): %s (%s)",
                            response.reason,
                            body)
             raise MCSHttpServiceUnavailableException(
                 response.status, response_headers, body)
-        elif response.status == httplib.GATEWAY_TIMEOUT:
+        elif response.status == http.client.GATEWAY_TIMEOUT:
             LOGGER.warning("HTTP Gateway timeout (504): %s (%s)",
                            response.reason,
                            body)
             raise MCSHttpGatewayTimeoutException(
                 response.status, response_headers, body)
-        elif response.status != httplib.OK:
+        elif response.status != http.client.OK:
             LOGGER.error("Bad response from server %d: %s (%s)",
                          response.status,
                          response.reason,
-                         httplib.responses.get(response.status,
-                                               str(response.status)))
+                         http.client.responses.get(response.status,
+                                                   str(response.status)))
             raise MCSHttpException(response.status, response_headers, body)
 
-        cookie_headers = response.msg.getallmatchingheaders("set-cookie")
-        for header in cookie_headers:
-            header_val = header.split(":", 1)[1].strip()
-            # ignore cookie expiry, etc.
-            cookie = header_val.split(";", 1)[0].strip()
-            name, value = cookie.split("=", 1)
-            self.__m_cookies[name] = value
-            LOGGER.debug("Storing cookie: %s=%s", name, value)
+        response_headers = response.getheaders()
+        for header_key, header_value in response_headers:
+            if header_key.lower() == "set-cookie":
+                cookie = header_value.split(";", 1)[0].strip()
+                name, value = cookie.split("=", 1)
+                self.__m_cookies[name] = value
+                LOGGER.debug("Storing cookie: %s=%s", name, value)
 
         ENVELOPE_LOGGER.debug("response headers=%s", str(response_headers))
 
@@ -641,11 +640,19 @@ class MCSConnection(object):
             # Fix issue where we receive latin1 encoded characters in
             # XML received from Central (LINUXEP-4819)
             try:
-                body = body.decode("utf-8")
+                # body will either be bytes or a string
+                if isinstance(body, str):
+                    body = body.encode('latin-1').decode('utf-8')
+                else:
+                    body = body.decode('utf-8')
+
             except UnicodeDecodeError:
                 LOGGER.warning(
                     "Cannot decode response as UTF-8, treating as Latin1")
-                body = body.decode("latin1")
+                if isinstance(body, str):
+                    body = body.encode('utf-8').decode('latin-1')
+                else:
+                    body = body.decode('latin-1')
             GlobalEnvelopeHandler.log_answer(body)
         return (response_headers, body)
 
@@ -656,14 +663,14 @@ class MCSConnection(object):
         try:
             return self.__get_response(request_data)
 
-        except httplib.NotConnected as exception:
+        except http.client.NotConnected as exception:
             # Only reported if it would otherwise have autoconnected
             self.__m_last_seen_http_error = exception
             LOGGER.info("Connection broken")
             self.close()
             return None
 
-        except httplib.BadStatusLine as exception:
+        except http.client.BadStatusLine as exception:
             self.__m_last_seen_http_error = exception
             LOGGER.debug("Received httplib.BadStatusLine, closing connection")
             self.__m_cookies.clear()
@@ -837,18 +844,18 @@ class MCSConnection(object):
 
         if self.__m_cookies:
             cookies = "; ".join(["=".join(cookie)
-                                 for cookie in self.__m_cookies.iteritems()])
+                                 for cookie in self.__m_cookies.items()])
             headers.setdefault("Cookie", cookies)
             LOGGER.debug("Sending cookies: %s", cookies)
 
-        if isinstance(body, unicode):
-            body = body.encode("utf-8")
+        #if isinstance(body, str):
+        #    body = body.encode("utf-8")
 
         ENVELOPE_LOGGER.debug("request headers=%s", str(headers))
         if body in (None, ""):
-            request_string = u"{} {}".format(method, path)
+            request_string = "{} {}".format(method, path)
         else:
-            request_string = u"{} {} : {}".format(method, path, body)
+            request_string = "{} {} : {}".format(method, path, body)
         GlobalEnvelopeHandler.set_request(request_string)
 
         # Need to use the path from above, so that we can have different URLs
@@ -897,12 +904,14 @@ class MCSConnection(object):
         """
         send_message
         """
+
+        bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
+        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
+        base64encoded_string = base64.b64encode(bytes_to_be_encoded).decode("utf-8")
+
         headers = {
             "Authorization": "Basic " +
-                             base64.b64encode(
-                                 "%s:%s" %
-                                 (self.get_id(),
-                                  self.get_password())),
+                             base64.b64encode(bytes_to_be_encoded).decode("utf-8"),
             "Content-Type": "application/xml; charset=utf-8",
         }
         if method != "GET":
@@ -927,8 +936,7 @@ class MCSConnection(object):
             status_xml = status.xml()
             self.send_message_with_id("/statuses/endpoint/", status_xml, "PUT")
         except mcsrouter.utils.xml_helper.XMLException:
-            LOGGER.warn("Status xml rejected")
-            pass
+            LOGGER.warning("Status xml rejected")
 
     def send_events(self, events):
         """
@@ -938,8 +946,7 @@ class MCSConnection(object):
             events_xml = events.xml()
             self.send_message_with_id("/events/endpoint/", events_xml, "POST")
         except mcsrouter.utils.xml_helper.XMLException:
-            LOGGER.warn("Event xml rejected")
-            pass
+            LOGGER.warning("Event xml rejected")
 
     def query_commands(self, app_ids=None):
         """
@@ -950,7 +957,7 @@ class MCSConnection(object):
             "/commands/applications/%s/endpoint/" %
             (";".join(app_ids)))
 
-        if isinstance(commands, unicode):
+        if isinstance(commands, str):
             commands = commands.encode('utf-8', errors='replace')
 
         try:

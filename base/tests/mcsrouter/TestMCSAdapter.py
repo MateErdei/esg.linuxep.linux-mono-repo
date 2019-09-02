@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import,print_function,division,unicode_literals
-
 import unittest
 import sys
 import os
@@ -14,9 +12,9 @@ logger = logging.getLogger(__name__)
 import mcsrouter.adapters.mcs_adapter
 import mcsrouter.utils.config
 
-import __builtin__
+import builtins
 
-__builtin__.__dict__['REGISTER_MCS'] = False
+builtins.__dict__['REGISTER_MCS'] = False
 
 FakePolicyCommand = PathManager.FakePolicyCommand
 FakeConfigManager = PathManager.FakeConfigManager

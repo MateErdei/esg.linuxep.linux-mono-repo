@@ -6,15 +6,17 @@
 proxy_authorization Module
 """
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
 
 import logging
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 
 LOGGER = logging.getLogger(__name__)
 
 
-class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
+class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
     """
     SophosProxyDigestAuthHandler
     """
@@ -43,11 +45,14 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
         if user is None:
             return None
 
-        A1 = b"%s:%s:%s" % (user, realm, password)
+        A1 = "%s:%s:%s" % (user, realm, password)
         uri = b"%s:%d" % (
-            remote_host,
+            remote_host.encode("utf-8"),
             remote_port)
-        A2 = b"CONNECT:%s" % uri
+        A2 = "CONNECT:%s" % uri
+
+        H_A1_as_bytes = H(A1).encode("utf-8")
+        H_A2_as_bytes = H(A2).encode("utf-8")
 
         if qop == 'auth':
             if nonce == self.last_nonce:
@@ -58,14 +63,21 @@ class SophosProxyDigestAuthHandler(urllib2.AbstractDigestAuthHandler):
 
             nc_value = b'%08x' % self.nonce_count
             cnonce = self.get_cnonce(nonce)
-            nonce_bit = b"%s:%s:%s:%s:%s" % (
-                nonce, nc_value, cnonce, qop, H(A2))
-            respdig = KD(H(A1), nonce_bit)
+
+            qop_as_bytes = qop.encode("utf-8")
+
+            # nonce_bit = b"%s:%s:%s:%s:%s" % (
+            #     nonce, nc_value, cnonce, qop_as_bytes, H_A2_as_bytes)
+            nonce_bit = "{}{}{}{}{}".format(
+                nonce, nc_value, cnonce, qop_as_bytes, H_A2_as_bytes)
+            nonce_bit = nonce_bit.encode("utf-8")
+
+            respdig = KD(H_A1_as_bytes, nonce_bit)
         elif qop is None:
-            respdig = KD(H(A1), b"%s:%s" % (nonce, H(A2)))
+            respdig = KD(H_A1_as_bytes, b"%s:%s" % (nonce, H_A2_as_bytes))
         else:
             # TODO: handle auth-int.
-            raise urllib2.URLError("qop '%s' is not supported." % qop)
+            raise urllib.error.URLError("qop '%s' is not supported." % qop)
 
         # TODO: should the partial digests be encoded too?
 
@@ -107,7 +119,7 @@ class ProxyAuthorization(object):
         #pylint: disable=no-self-use
         headers = response.msg.headers
         for header in headers:
-            if header.lower().startswith(b"proxy-authenticate: "):
+            if header.lower().startswith("proxy-authenticate: "):
                 return header[len('Proxy-Authenticate: '):]
 
         LOGGER.error("No authentication header found: %s", str(headers))
@@ -122,7 +134,7 @@ class ProxyAuthorization(object):
             return False
 
         scheme = authentication_header.split()[0]
-        if scheme.lower() != b"digest":
+        if scheme.lower().encode() != b"digest":
             LOGGER.warning("Proxy authentication scheme is %s", scheme)
             return False
 
@@ -145,13 +157,13 @@ class ProxyAuthorization(object):
         @return True if we should retry
         """
         token, challenge = auth.split(' ', 1) #pylint: disable=unused-variable
-        chal = urllib2.parse_keqv_list(urllib2.parse_http_list(challenge))
+        chal = urllib.request.parse_keqv_list(urllib.request.parse_http_list(challenge))
 
         auth = self.m_proxy_handler.get_proxy_authorization(
             self.m_remote_host, chal, remote_port=self.m_remote_port)
 
         if auth:
-            self.m_auth_header = b'Digest %s' % auth
+            self.m_auth_header = b'Digest %s' % auth.encode("utf-8")
             return True
 
         LOGGER.error("Unable to get authorization!")

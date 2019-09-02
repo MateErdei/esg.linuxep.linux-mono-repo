@@ -4,7 +4,7 @@ app_proxy_adapter Module
 """
 # pylint: disable=line-too-long
 
-from __future__ import print_function, division, unicode_literals
+
 
 import xml.dom.minidom
 import xml.parsers.expat

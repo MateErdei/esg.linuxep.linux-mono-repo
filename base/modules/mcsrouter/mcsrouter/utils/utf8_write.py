@@ -13,8 +13,8 @@ def utf8_write(path, data):
     :param data:
     """
     try:
-        if not isinstance(data, unicode):
-            data = unicode(data, 'utf-8', 'replace')
+        if not isinstance(data, str):
+            data = str(data, 'utf-8', 'replace')
         with codecs.open(path, mode="w", encoding='utf-8') as file_to_write:
             file_to_write.write(data)
     except (OSError, IOError) as exception:

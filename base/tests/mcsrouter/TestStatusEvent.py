@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+
 
 import unittest
 import sys
@@ -18,7 +18,7 @@ class TestStatusEvent(unittest.TestCase):
     def testNoAdapters(self):
         statusEvent = mcsrouter.mcsclient.status_event.StatusEvent()
         x = statusEvent.xml()
-        self.assertEqual(x,"""<?xml version="1.0" encoding="utf-8"?><ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"/>""")
+        self.assertEqual(x, b"""<?xml version="1.0" encoding="utf-8"?><ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"/>""")
 
     def testOneAdapter(self):
         statusEvent = mcsrouter.mcsclient.status_event.StatusEvent()

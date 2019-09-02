@@ -23,11 +23,11 @@ def handler(sig_num, frame):  #pylint: disable=unused-argument
     """
     global subprocess_exit_pipe, sig_term_pipe
     if sig_num == signal.SIGCHLD:
-        os.write(subprocess_exit_pipe[1], "1")
+        os.write(subprocess_exit_pipe[1], b"1")
     elif sig_num in (signal.SIGTERM, signal.SIGINT):
-        os.write(sig_term_pipe[1], "1")
+        os.write(sig_term_pipe[1], b"1")
     else:
-        print >>sys.stderr, "SIGNAL %d not handled" % sig_num
+        print("SIGNAL %d not handled" % sig_num, file=sys.stderr)
 
 
 def make_non_blocking_and_non_inherit(file_descriptor):

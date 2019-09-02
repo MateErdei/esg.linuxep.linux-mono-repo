@@ -5,7 +5,7 @@ atomic_write Module
 
 import os
 import logging
-from utf8_write import utf8_write
+from .utf8_write import utf8_write
 
 
 def atomic_write(path, tmp_path, data):

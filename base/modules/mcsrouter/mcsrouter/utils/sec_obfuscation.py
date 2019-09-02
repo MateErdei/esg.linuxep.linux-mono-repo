@@ -5,12 +5,14 @@ sec_obfuscation Module
 """
 #pylint: disable=no-self-use
 
-from __future__ import absolute_import, print_function, division, unicode_literals
+
+import binascii
+
 
 from Crypto.Cipher import DES3
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512, HMAC
-
+from Crypto.Random import get_random_bytes
 
 # Algorithm enumeration:
 ALGO_3DES = 7
@@ -43,7 +45,8 @@ class SECObfuscation(object):
         """
         remove_padding
         """
-        padding = ord(text[-1])
+        text_as_string = text.decode("utf8", "replace")
+        padding = ord(text_as_string[-1])
         if padding > self.BLOCK_LENGTH:
             raise SECObfuscationException("Padding incorrect")
 
@@ -60,6 +63,7 @@ class SECObfuscation(object):
         """
         split_key_iv
         """
+
         key = key_iv[0:self.KEY_LENGTH]
         iv_value = key_iv[self.KEY_LENGTH:self.KEY_LENGTH + self.IV_LENGTH]
 
@@ -81,8 +85,15 @@ class SECObfuscation(object):
         """
         deobfuscate
         """
-        key, iv_value = self.create_session_key(salt)
+        temp_salt = salt.decode("utf-8", "replace")
+        # key, iv_value = self.create_session_key(salt)
+        key = self.create_session_key(salt)
+
+        key_temp = key.decode("UTF-8", "replace")
+        #value_temp = iv_value.decode("utf-8", "replace")
+        iv_value = ""
         cipher = self.create_cipher(key, iv_value)
+
         return self.remove_padding(cipher.decrypt(cipher_text))
 
     def obfuscate(self, salt, plain_text):
@@ -116,20 +127,26 @@ class ThreeDES(SECObfuscation):
         """
         import hashlib
 
+
+
         password = self.get_password()
 
-        key_iv = b""
-        previous_hash = b""
+        return PBKDF2(password.decode("utf8", "replace"), salt, dkLen=32)
 
-        while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
-            md5_hash = hashlib.md5()
-            md5_hash.update(previous_hash)
-            md5_hash.update(password)
-            md5_hash.update(salt)
-            previous_hash = md5_hash.digest()
-            key_iv += previous_hash
+        password_temp = password.decode("utf-8", "replace")
 
-        return self.split_key_iv(key_iv)
+        # key_iv = b""
+        # previous_hash = b""
+        #
+        # while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
+        #     md5_hash = hashlib.md5()
+        #     md5_hash.update(previous_hash)
+        #     md5_hash.update(password)
+        #     md5_hash.update(salt)
+        #     previous_hash = md5_hash.digest()
+        #     key_iv += previous_hash
+        #
+        # return self.split_key_iv(key_iv)
 
 
 class AES256(SECObfuscation):
@@ -199,7 +216,8 @@ def deobfuscate(base64_obfuscated):
     """
     import base64
     try:
-        raw_obfuscated = base64.b64decode(base64_obfuscated)
+        raw_obfuscated = base64.b64decode(base64_obfuscated).decode("utf-8", "replace")
+
     except TypeError:
         raise SECObfuscationException("Invalid Base64 in SECObfuscation")
 
@@ -220,6 +238,7 @@ def deobfuscate(base64_obfuscated):
         raise SECObfuscationException("Ciphertext corrupt: data short")
 
     try:
+        salt = salt.encode("ascii", "replace")
         return impl.deobfuscate(salt, cipher_text)
     except ValueError as exception:
         raise SECObfuscationException("Ciphertext corrupt: " + str(exception))
@@ -241,10 +260,10 @@ def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     assert len(salt) == salt_length
 
     # Pycryptodome expects the salt value to be a string.
-    salt_string = str(salt)
+    #salt_string = salt.decode("utf8", "replace")
 
     raw_obfuscated = chr(embedded_algorithm_byte) + \
-        chr(salt_length) + salt_string + impl.obfuscate(salt_string, raw_plain)
+        chr(salt_length) + salt_string + impl.obfuscate(salt, raw_plain)
 
     import base64
     return base64.b64encode(raw_obfuscated)

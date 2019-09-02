@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright 2017 Sophos Plc. All rights reserved.
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+
 
 import unittest
 import sys
@@ -20,7 +20,7 @@ class NotRandomGenerator(object):
 
 class RandomGenerator(object):
     def random_bytes(self, size):
-        return bytearray(random.getrandbits(8) for _ in xrange(size))
+        return bytearray(random.getrandbits(8) for _ in range(size))
 
 class TestSECObfuscation(unittest.TestCase):
     def testPassword(self):
@@ -33,7 +33,7 @@ class TestSECObfuscation(unittest.TestCase):
         obfuscated = b"BwhG+aIe8X1jsPM4PpvCMUItpmbuWzlZMFk1GbXs5tFHWsM3h28n7ZJT"
         expected = b"Lorem ipsum dolor sit amet"
         deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
-        self.assertEqual(deobfuscated,expected)
+        self.assertEqual(deobfuscated, expected)
 
     def testDeobfuscation_3DES_short(self):
         obfuscated = b"Bwh/EjOnVfpnj2j2A7ZK9rcX"
@@ -62,7 +62,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\xa6\x66\xee\x5b\x39\x59\x30\x59"
             b"\x35\x19\xb5\xec\xe6\xd1\x47\x5a"
             b"\xc3\x37\x87\x6f\x27\xed\x92\x53")
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Unknown obfuscation algorithm-id") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 
@@ -75,7 +75,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\xa6\x66\xee\x5b\x39\x59\x30\x59"
             b"\x35\x19\xb5\xec\xe6\xd1\x47\x5a"
             b"\xc3\x37\x87\x6f\x27\xed\x92\x53")
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Incorrect number of salt bytes") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 
@@ -84,7 +84,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\x07"                                 ## Signature
             b"\x08"                                 ## Salt size
         )
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Ciphertext corrupt: short salt") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 
@@ -94,7 +94,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\x08"                                 ## Salt size
             b"\x46\xf9\xa2\x1e\xf1\x7d\x63"         ## Salt (one byte too short)
         )
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Ciphertext corrupt: short salt") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 
@@ -104,7 +104,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\x08"                                 ## Salt size
             b"\x46\xf9\xa2\x1e\xf1\x7d\x63\xb0"     ## Salt
         )
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Ciphertext corrupt: data short") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 
@@ -119,7 +119,7 @@ class TestSECObfuscation(unittest.TestCase):
             b"\xc3\x37\x87\x6f\x27\xed\x92\x53"
         )
         obfuscated = b"*" + obfuscated[1:]
-        with self.assertRaisesRegexp(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
+        with self.assertRaisesRegex(mcsrouter.utils.sec_obfuscation.SECObfuscationException,
                                      r"Invalid Base64 in SECObfuscation") as cm:
             deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
 

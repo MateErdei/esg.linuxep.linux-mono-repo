@@ -1,5 +1,5 @@
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+
 
 import os
 import unittest
@@ -7,7 +7,7 @@ import mock
 
 import sys
 import json
-import __builtin__
+import builtins
 
 import logging
 logger = logging.getLogger("TestMCS")
@@ -86,7 +86,7 @@ class TestMCS(unittest.TestCase):
 
     def setUp(self):
         ## Monkey patch the MCSConnection
-        __builtin__.__dict__['REGISTER_MCS'] = False
+        builtins.__dict__['REGISTER_MCS'] = False
         mcsrouter.mcsclient.mcs_connection.MCSConnection = FakeMCSConnection
         FakeMCSConnection.m_token = None
         FakeMCSConnection.m_status = None
@@ -122,7 +122,7 @@ class TestMCS(unittest.TestCase):
     @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
     @mock.patch('os.listdir', return_value=[])
     def testReregistration(self, *mockargs):
-        __builtin__.__dict__['REGISTER_MCS'] = True
+        builtins.__dict__['REGISTER_MCS'] = True
         config = mcsrouter.utils.config.Config()
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","reregister")

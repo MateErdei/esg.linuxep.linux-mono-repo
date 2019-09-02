@@ -9,11 +9,12 @@ import glob
 import json
 import os
 import re
-import string
 import sys
 import socket
 import subprocess
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 import time
 
 DISTRIBUTION_NAME_MAP = {
@@ -157,7 +158,7 @@ class TargetSystem(object):
         __back_tick
         :return:
         """
-        if isinstance(command, basestring):
+        if isinstance(command, str):
             command = [command]
         # Clean environment
         env = os.environ.copy()
@@ -279,7 +280,9 @@ class TargetSystem(object):
             # failed to run lsb_release
             return
 
-        lines = stdout.split("\n")
+        stdout_string = stdout.decode('utf-8')
+
+        lines = stdout_string.split("\n")
         # Each line consists of "Key:<whitespace>*<value>"
         matcher = re.compile(r"([^:]+):\s*(.+)$")
         for line in lines:
@@ -292,10 +295,10 @@ class TargetSystem(object):
         if 'Distributor ID' in self.m_lsb_release:
             vendor = self.m_lsb_release['Distributor ID']
             # Lower case and strip spaces
-            vendor = string.lower(vendor)
-            vendor = string.replace(vendor, " ", "")
+            vendor = vendor.lower()
+            vendor = vendor.replace(" ", "")
             # DEF25168: Other special characters seem to be working
-            vendor = string.replace(vendor, "/", "_")
+            vendor = vendor.replace("/", "_")
             match = False
             for key in DISTRIBUTION_NAME_MAP:
                 if vendor.startswith(key):
@@ -307,9 +310,9 @@ class TargetSystem(object):
                 # (Asianux3)
                 if vendor == 'n_a' or vendor == '':
                     vendor = self.m_lsb_release['Description']
-                    vendor = string.lower(vendor)
-                    vendor = string.replace(vendor, " ", "")
-                    vendor = string.replace(vendor, "/", "_")
+                    vendor = vendor.lower()
+                    vendor = vendor.replace(" ", "")
+                    vendor = vendor.replace("/", "_")
                     for key in DISTRIBUTION_NAME_MAP:
                         if vendor.startswith(key):
                             vendor = DISTRIBUTION_NAME_MAP[key]
@@ -319,7 +322,7 @@ class TargetSystem(object):
                     # Create a valid distribution name from whatever we're given
                     # Endswith
                     length = len(vendor) - len("linux")
-                    if length > 0 and string.rfind(vendor, "linux") == length:
+                    if length > 0 and vendor.rfind("linux") == length:
                         vendor = vendor[:length]
             self.m_lsb_release['vendor'] = vendor
             self.m_vendor = vendor
@@ -433,11 +436,11 @@ class TargetSystem(object):
         if not os.path.exists(distro_file):
             return distro_identified
         check_file = open(distro_file)
-        original_contents = string.strip(check_file.readline())
+        original_contents = check_file.readline().strip()
         check_file.close()
         # Lowercase and strip spaces to match map table content
-        check_contents = string.lower(original_contents)
-        check_contents = string.replace(check_contents, " ", "")
+        check_contents = original_contents.lower()
+        check_contents = check_contents.replace(" ", "")
 
         # conversion mapping between string at start of file and distro name
 
@@ -468,7 +471,7 @@ class TargetSystem(object):
             version_file.close()
             if version is None:
                 raise self.TargetDetectionException('exc-kernel-unknown')
-            detected_version = string.split(version)
+            detected_version = version.split()
             if (len(detected_version) < 3) or (detected_version[2] == ''):
                 raise self.TargetDetectionException('exc-kernel-unknown')
             return detected_version[2]
@@ -494,21 +497,28 @@ class TargetSystem(object):
             pass
 
         try:
-            data = open("/sys/devices/virtual/dmi/id/bios_version").read()
+            with open("/sys/devices/virtual/dmi/id/bios_version") as reader:
+                data = reader.read()
+
             if "amazon" in data:
                 return True
         except EnvironmentError:
             pass
 
         try:
-            data = open("/sys/devices/virtual/dmi/id/product_uuid").read()
+            with open("/sys/devices/virtual/dmi/id/product_uuid") as reader:
+                data = reader.read()
+
             if data.startswith("EC2"):
                 return True
         except EnvironmentError:
             pass
 
         try:
-            results = open("/var/log/dmesg").read()
+
+            with open("/var/log/dmesg") as reader:
+                results = reader.read()
+
             results_list = results.split("\n")
             for item in results_list:
                 line = item.lower()
@@ -556,8 +566,8 @@ class TargetSystem(object):
 
         if known_aws_instance:
             try:
-                proxy_handler = urllib2.ProxyHandler({})
-                opener = urllib2.build_opener(proxy_handler)
+                proxy_handler = urllib.request.ProxyHandler({})
+                opener = urllib.request.build_opener(proxy_handler)
                 aws_info_string = opener.open(
                     "http://169.254.169.254/latest/dynamic/instance-identity/document",
                     timeout=1).read()
@@ -565,7 +575,7 @@ class TargetSystem(object):
                 return {"region": aws_info["region"],
                         "accountId": aws_info["accountId"],
                         "instanceId": aws_info["instanceId"]}
-            except urllib2.URLError:
+            except urllib.error.URLError:
                 return None
         else:
             return None
@@ -580,7 +590,7 @@ class TargetSystem(object):
             version_file.close()
             if version is None:
                 raise self.TargetDetectionException('exc-kernel-unknown')
-            return string.find(version, 'SMP') != -1
+            return version.find('SMP') != -1
         return False
 
     def detect_architecture(self):
@@ -683,7 +693,7 @@ class TargetSystem(object):
             line = map_handle.readline().strip()
             if line == '':
                 break
-            tokens = string.split(line, ' ', 3)
+            tokens = line.split(' ', 3)
             if tokens[2] == symbol:
                 address = '0x' + tokens[0]
                 break
@@ -773,7 +783,11 @@ class TargetSystem(object):
             :return:
             """
             result = []
-            for part in version_string.split("."):
+
+            parts = version_string.split(".")
+
+            #for part in version_string.split("."):
+            for part in parts:
                 try:
                     result.append(int(part))
                 except ValueError:
@@ -782,7 +796,7 @@ class TargetSystem(object):
 
         vers_a = ver(version_a)
         vers_b = ver(version_b)
-        return cmp(vers_a, vers_b)
+        return vers_a >= vers_b
 
     def version_is_at_least(self, other_version):
         """
@@ -790,9 +804,9 @@ class TargetSystem(object):
         """
         os_version = self.get_os_version()
         if os_version is None:
-            print >>sys.stderr, "WARNING: No OS Version"
+            print("WARNING: No OS Version", file=sys.stderr)
             return False
-        return self.version_compare(os_version, other_version) >= 0
+        return self.version_compare(os_version, other_version)
 
     def kernel_version_is_at_least(self, other_version):
         """
@@ -800,19 +814,23 @@ class TargetSystem(object):
         """
         kernel_short_version = self.kernel_release_version().split("-")[0]
         if kernel_short_version is None:
-            print >>sys.stderr, "WARNING: No kernel Version"
+            print("WARNING: No kernel Version", file=sys.stderr)
             return False
-        return self.version_compare(kernel_short_version, other_version) >= 0
+        return self.version_compare(kernel_short_version, other_version)
 
     def glibc_version_is_at_least(self, other_version):
         """
         Check that the kernel version of the is at least other_version
         """
-        glibc_version = self.get_glibc_version()
-        if glibc_version is None:
-            print >>sys.stderr, "WARNING: No glibc Version"
+        glibc_version_byte_string = self.get_glibc_version()
+
+        if glibc_version_byte_string is None:
+            print("WARNING: No glibc Version", file=sys.stderr)
             return False
-        return self.version_compare(glibc_version, other_version) >= 0
+
+        glibc_version = glibc_version_byte_string.decode('utf-8')
+
+        return self.version_compare(glibc_version, other_version)
 
     def safe_english_locale(self, set_locale=False):
         """

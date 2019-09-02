@@ -45,9 +45,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         # handle non ascii characters ( LINUXEP-6757 )
         policy = policy.encode('utf-8')
         LOGGER.debug(
-            "{} Adapter processing policy {}".format(
-            self.__m_app_id,
-            policy)
+                "%s Adapter processing policy %s" % (
+                self.__m_app_id,
+                policy)
         )
         LOGGER.debug("Received %s policy", self.__m_app_id)
 
@@ -80,9 +80,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         LOGGER.debug("Received %s action", self.__m_app_id)
 
-        body = command.get(u"body")
+        body = command.get("body")
         try:
-            timestamp = command.get(u"creationTime")
+            timestamp = command.get("creationTime")
         except KeyError:
             timestamp = mcsrouter.utils.timestamp.timestamp()
 

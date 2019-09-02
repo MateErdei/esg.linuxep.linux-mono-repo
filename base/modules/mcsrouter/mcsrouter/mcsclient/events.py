@@ -5,12 +5,13 @@ events Module
 
 #pylint: disable=line-too-long
 
-import mcsrouter.utils.xml_helper
-
 import logging
 LOGGER = logging.getLogger(__name__)
 
-EVENTS_TEMPLATE = u"""<?xml version="1.0" encoding="UTF-8"?>
+import mcsrouter.utils.xml_helper
+
+
+EVENTS_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 <ns:events schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/events">
 </ns:events>
 """
@@ -61,17 +62,17 @@ class Event(object):
         """
         add_xml
         """
-        event_node = doc.createElement(u"event")
-        event_node.appendChild(text_node(doc, u"appId", self.m_app_id))
+        event_node = doc.createElement("event")
+        event_node.appendChild(text_node(doc, "appId", self.m_app_id))
         event_node.appendChild(
             text_node(
                 doc,
-                u"creationTime",
+                "creationTime",
                 self.m_creation_time))
-        event_node.appendChild(text_node(doc, u"ttl", self.m_ttl))
-        event_node.appendChild(text_node(doc, u"body", self.m_body))
-        event_node.appendChild(text_node(doc, u"seq", self.m_seq))
-        event_node.appendChild(text_node(doc, u"id", self.m_id))
+        event_node.appendChild(text_node(doc, "ttl", self.m_ttl))
+        event_node.appendChild(text_node(doc, "body", self.m_body))
+        event_node.appendChild(text_node(doc, "seq", self.m_seq))
+        event_node.appendChild(text_node(doc, "id", self.m_id))
 
         node.appendChild(event_node)
 
@@ -94,7 +95,7 @@ class Events(object):
         """
         #pylint: disable=too-many-arguments
         if isinstance(ttl, int):
-            ttl = u"PT%dS" % ttl
+            ttl = "PT%dS" % ttl
         seq = self.__m_seq
         self.__m_seq += 1
         self.__m_events.append(
@@ -119,7 +120,7 @@ class Events(object):
         xmlBuilder
         """
         doc = mcsrouter.utils.xml_helper.parseString(EVENTS_TEMPLATE)
-        events_node = doc.getElementsByTagName(u"ns:events")[0]
+        events_node = doc.getElementsByTagName("ns:events")[0]
         for event in self.__m_events:
             LOGGER.info(
                 "Sending event %s for %s adapter",

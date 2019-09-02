@@ -111,7 +111,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         __process_policy
         """
-        LOGGER.debug(u"MCS Adapter processing policy: {}".format(policy))
+        LOGGER.debug("MCS Adapter processing policy: %s" % policy)
         self.__m_policy_handler.process(policy)
         return []
 

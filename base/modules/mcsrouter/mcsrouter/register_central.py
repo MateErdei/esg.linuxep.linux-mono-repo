@@ -3,7 +3,7 @@
 register_central Module
 """
 
-from __future__ import print_function, division, unicode_literals
+
 
 import glob
 import os
@@ -13,7 +13,7 @@ import sys
 import time
 import optparse
 import errno
-import __builtin__
+import builtins
 
 import logging
 import logging.handlers
@@ -33,7 +33,7 @@ from .utils import sec_obfuscation
 
 LOGGER = logging.getLogger(__name__)
 
-__builtin__.__dict__['REGISTER_MCS'] = True
+builtins.__dict__['REGISTER_MCS'] = True
 
 
 def safe_mkdir(directory):
@@ -206,7 +206,7 @@ class RandomGenerator(object):
         random_bytes
         """
         # pylint: disable=no-self-use
-        return bytearray(random.getrandbits(8) for _ in xrange(size))
+        return bytearray(random.getrandbits(8) for _ in range(size))
 
 
 def add_options_to_policy(relays, proxycredentials):

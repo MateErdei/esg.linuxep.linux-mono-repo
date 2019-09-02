@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+    UTCFormatter module
+"""
+
 from logging import Formatter
 import time
 

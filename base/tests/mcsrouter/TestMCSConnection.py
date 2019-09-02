@@ -1,5 +1,5 @@
 
-from __future__ import absolute_import,print_function,division,unicode_literals
+
 
 import unittest
 import sys
@@ -92,10 +92,10 @@ class TestMCSConnection(unittest.TestCase):
         try:
             conn = mcsrouter.mcsclient.mcs_connection.MCSConnection(
                 config)
-            results = conn.send_message("?ARGS=1","1")
+            results = conn.send_message("?ARGS=1"," 1")
             logger.debug("1 %s",str(results))
             self.assertTrue("Cookies 0" in results)
-            results = conn.send_message("?ARGS=2","2")
+            results = conn.send_message("?ARGS=2", "2")
             logger.debug("2 %s",str(results))
             self.assertTrue("Cookies 1" in results)
         except mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException as e:

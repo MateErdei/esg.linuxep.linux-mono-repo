@@ -1,9 +1,9 @@
+
 import unittest
-import sys
+
+import http.client
 
 import PathManager
-import httplib
-
 
 import mcsrouter.utils.config
 import mcsrouter.mcsclient.mcs_connection
@@ -11,9 +11,9 @@ import mcsrouter.mcsclient.mcs_exception
 
 def createTestConfig(url="http://localhost/foobar"):
     config = mcsrouter.utils.config.Config()
-    config.set("MCSURL",url)
-    config.set("MCSID","")
-    config.set("MCSPassword","")
+    config.set("MCSURL", url)
+    config.set("MCSID", "")
+    config.set("MCSPassword", "")
     return config
 
 class dummyResponse(object):
@@ -59,7 +59,7 @@ class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
         self.__m_kwargs = kwargs
 
     def _MCSConnection__create_connection_and_get_response(self, requestData):
-        print "in good one"
+        print("in good one")
         if not self._MCSConnection__m_connection:
             self._MCSConnection__m_connection = dummyConnection(**self.__m_kwargs)
         return self._MCSConnection__get_response(requestData)
@@ -117,29 +117,29 @@ class TestMCSResponse(unittest.TestCase):
     ## test status error codes
 
     def testUnauthorized(self):
-        conn = dummyMCSConnection(status=httplib.UNAUTHORIZED)
+        conn = dummyMCSConnection(status=http.client.UNAUTHORIZED)
         with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException) as cm:
             caps = conn.capabilities()
-        self.assertEqual( cm.exception.error_code(), httplib.UNAUTHORIZED )
+        self.assertEqual( cm.exception.error_code(), http.client.UNAUTHORIZED )
 
     def testServiceUnavailable(self):
-        conn = dummyMCSConnection(status=httplib.SERVICE_UNAVAILABLE)
+        conn = dummyMCSConnection(status=http.client.SERVICE_UNAVAILABLE)
         with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpServiceUnavailableException) as cm:
             caps = conn.capabilities()
-        self.assertEqual( cm.exception.error_code(), httplib.SERVICE_UNAVAILABLE )
+        self.assertEqual( cm.exception.error_code(), http.client.SERVICE_UNAVAILABLE )
 
     def testGatewayTimeout(self):
-        conn = dummyMCSConnection(status=httplib.GATEWAY_TIMEOUT)
+        conn = dummyMCSConnection(status=http.client.GATEWAY_TIMEOUT)
         with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpGatewayTimeoutException) as cm:
             caps = conn.capabilities()
-        self.assertEqual( cm.exception.error_code(), httplib.GATEWAY_TIMEOUT )
+        self.assertEqual( cm.exception.error_code(), http.client.GATEWAY_TIMEOUT )
 
     def testOtherError(self):
         # test a random error code.
-        conn = dummyMCSConnection(status=httplib.EXPECTATION_FAILED, reason="bogus error")
+        conn = dummyMCSConnection(status=http.client.EXPECTATION_FAILED, reason="bogus error")
         with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
             caps = conn.capabilities()
-        self.assertEqual( cm.exception.error_code(), httplib.EXPECTATION_FAILED )
+        self.assertEqual( cm.exception.error_code(), http.client.EXPECTATION_FAILED )
 
 # except ImportError:
 #     print >>sys.stderr,sys.path

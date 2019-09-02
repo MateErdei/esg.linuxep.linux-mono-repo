@@ -43,6 +43,7 @@ set(MEMORYCHECK_COMMAND_OPTIONS
 set(MEMORYCHECK_COMMAND_OPTIONS
         "${MEMORYCHECK_COMMAND_OPTIONS} --gen-suppressions=all --suppressions=${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")
 
+set(PYTHON_EXECUTABLE python3).
 
 include (CTest)
 enable_testing()
