@@ -38,6 +38,11 @@ namespace
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
             EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
         }
+        ~TestWatchdog()
+        {
+            Tests::restoreFilePermissions();
+            Tests::restoreFileSystem();
+        }
     };
 
     class TestableWatchdog : public watchdog::watchdogimpl::Watchdog

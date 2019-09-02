@@ -23,6 +23,10 @@ namespace
 
     public:
         TestWatchdog() {}
+        ~TestWatchdog()
+        {
+            Tests::restoreFileSystem();
+        }
 
         watchdog::watchdogimpl::PluginInfoVector call_read_plugin_configs() { return readPluginConfigs(); }
     };
@@ -101,7 +105,6 @@ namespace
 
         EXPECT_EQ(plugins.size(), 1);
 
-        Tests::restoreFileSystem();
     }
 
     TEST_F(WatchdogTests, WatchdogShouldNoFailIfNoValidPluginConfigs) // NOLINT
@@ -119,8 +122,6 @@ namespace
         TestWatchdog watchdog;
 
         EXPECT_NO_THROW(watchdog.call_read_plugin_configs()); // NOLINT
-
-        Tests::restoreFileSystem();
     }
 
     TEST_F(WatchdogTests, WatchdogSucceedsIfAnyValidPluginConfigs) // NOLINT
@@ -148,7 +149,6 @@ namespace
 
         EXPECT_EQ(plugins.size(), 1);
 
-        Tests::restoreFileSystem();
     }
 
     TEST_F(WatchdogTests, WatchdogSucceedsWhenItLoadsTwoPluginConfigs) // NOLINT
@@ -177,6 +177,5 @@ namespace
 
         EXPECT_EQ(plugins.size(), 2);
 
-        Tests::restoreFileSystem();
     }
 } // namespace
