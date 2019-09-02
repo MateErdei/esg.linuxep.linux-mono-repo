@@ -17,6 +17,24 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <thread>
 
+namespace
+{
+    std::string& sleepFullPath()
+    {
+        static std::vector<std::string> candidates = { { "/usr/bin/sleep" }, { "/bin/sleep" } };
+        for (auto& sleeppath : candidates)
+        {
+            if (Common::FileSystem::fileSystem()->exists(sleeppath) &&
+                !Common::FileSystem::fileSystem()->isSymlink(sleeppath))
+            {
+                return sleeppath;
+            }
+        }
+        throw std::runtime_error("Could not find path of sleep");
+    }
+
+}
+
 class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
 {
 public:
@@ -58,7 +76,7 @@ std::string templateFakePlugin(const std::string&  installdir)
     "MDR"
   ],
   "pluginName": "fakeplugin",
-  "executableFullPath": "/bin/sleep",
+  "executableFullPath": "@sleep@",
   "executableArguments": [ "9" ],
   "environmentVariables": [
     {
@@ -72,7 +90,9 @@ std::string templateFakePlugin(const std::string&  installdir)
 
   std::string user = nullFilePermission.getUserName(::getuid());
   std::string group = nullFilePermission.getGroupName(::getgid());
-    return Common::UtilityImpl::StringUtils::orderedStringReplace(templ,{{"@@SOPHOS_INSTALL@@", installdir},{"@@user@@",user},{"@@group@@", group}} );
+    return Common::UtilityImpl::StringUtils::orderedStringReplace(templ,{
+            {"@sleep@", sleepFullPath()}, {"@@SOPHOS_INSTALL@@", installdir}, {"@@user@@",user}, {"@@group@@", group}
+    } );
 }
 
 
