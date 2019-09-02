@@ -131,22 +131,18 @@ class ThreeDES(SECObfuscation):
 
         password = self.get_password()
 
-        return PBKDF2(password.decode("utf8", "replace"), salt, dkLen=32)
+        key_iv = b""
+        previous_hash = b""
 
-        password_temp = password.decode("utf-8", "replace")
+        while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
+            md5_hash = hashlib.md5()
+            md5_hash.update(previous_hash)
+            md5_hash.update(password)
+            md5_hash.update(salt)
+            previous_hash = md5_hash.digest()
+            key_iv += previous_hash
 
-        # key_iv = b""
-        # previous_hash = b""
-        #
-        # while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
-        #     md5_hash = hashlib.md5()
-        #     md5_hash.update(previous_hash)
-        #     md5_hash.update(password)
-        #     md5_hash.update(salt)
-        #     previous_hash = md5_hash.digest()
-        #     key_iv += previous_hash
-        #
-        # return self.split_key_iv(key_iv)
+        return self.split_key_iv(key_iv)
 
 
 class AES256(SECObfuscation):
