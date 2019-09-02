@@ -133,7 +133,7 @@ class ThreeDES(SECObfuscation):
         password = self.get_password()
         temp_password = password.decode("ascii", "replace")
 
-        key_iv = b""
+        key_iv = "".encode("ascii")
         previous_hash = "".encode("ascii")
 
         while len(key_iv) < self.KEY_LENGTH + self.IV_LENGTH:
