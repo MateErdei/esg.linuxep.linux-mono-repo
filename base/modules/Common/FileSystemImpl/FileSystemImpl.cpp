@@ -139,18 +139,18 @@ namespace Common
 
         bool FileSystemImpl::isFile(const Path& path) const
         {
-            struct stat statbuf;
+            struct stat statbuf{};
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a file
                 return false;
             }
-            return S_ISREG(statbuf.st_mode);
+            return S_ISREG(statbuf.st_mode); // NOLINT
         }
 
         bool FileSystemImpl::isDirectory(const Path& path) const
         {
-            struct stat statbuf; // NOLINT
+            struct stat statbuf{};
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a directory
@@ -159,9 +159,20 @@ namespace Common
             return S_ISDIR(statbuf.st_mode); // NOLINT
         }
 
+        bool FileSystemImpl::isFileOrDirectory(const Path& path) const
+        {
+            struct stat statbuf{};
+            int ret = stat(path.c_str(), &statbuf);
+            if (ret != 0)
+            { // if it does not exists, it is not a file
+                return false;
+            }
+            return S_ISREG(statbuf.st_mode) || S_ISDIR(statbuf.st_mode); // NOLINT
+        }
+
         bool FileSystemImpl::isSymlink(const Path& path) const
         {
-            struct stat statbuf; // NOLINT
+            struct stat statbuf{};
             int ret = ::lstat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a directory
@@ -444,8 +455,9 @@ namespace Common
                 {
                     break;
                 }
+
                 std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                if (isFile(fullPath) || isSymlink(fullPath))
+                if (DT_REG & outDirEntity->d_type || (DT_UNKNOWN & outDirEntity->d_type && isFile(fullPath)))
                 {
                     files.push_back(fullPath);
                 }
@@ -486,15 +498,25 @@ namespace Common
                     break;
                 }
 
-                std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                if (!includeSymlinks && isSymlink(fullPath))
+                if (outDirEntity->d_name == dot || outDirEntity->d_name == dotdot)
                 {
                     continue;
                 }
 
-                if ((isFile(fullPath) || isSymlink(fullPath) || isDirectory(fullPath)) && outDirEntity->d_name != dot &&
-                    outDirEntity->d_name != dotdot)
+                std::string fullPath = join(directoryPath, outDirEntity->d_name);
+
+                // If regular file or directory (info from dirent struct d_type) or if ftype not enabled on
+                // filesystem (d_type is always DT_UNKNOWN) we have to use lstat
+                if ((DT_REG | DT_DIR) & outDirEntity->d_type || // NOLINT
+                    (DT_UNKNOWN & outDirEntity->d_type && isFileOrDirectory(fullPath)))
                 {
+                    // We do not want to return symlinks as it could create an infinite loop if the caller calls this
+                    // method again on the returned directories
+                    if (!includeSymlinks && isSymlink(fullPath))
+                    {
+                        continue;
+                    }
+
                     files.push_back(fullPath);
                 }
             }
@@ -568,17 +590,20 @@ namespace Common
                     break;
                 }
 
-                std::string fullPath = join(directoryPath, outDirEntity->d_name);
-
-                // We do not want to return symlinks as it could create a infinite loop if the caller calls this
-                // method again on the returned directories
-                if (isSymlink(fullPath))
+                if (outDirEntity->d_name == dot || outDirEntity->d_name == dotdot)
                 {
                     continue;
                 }
 
-                if (isDirectory(fullPath) && outDirEntity->d_name != dot && outDirEntity->d_name != dotdot)
+                std::string fullPath = join(directoryPath, outDirEntity->d_name);
+                if (DT_DIR & outDirEntity->d_type || (DT_UNKNOWN & outDirEntity->d_type && isDirectory(fullPath)))
                 {
+                    // We do not want to return symlinks as it could create an infinite loop if the caller calls this
+                    // method again on the returned directories
+                    if (isSymlink(fullPath))
+                    {
+                        continue;
+                    }
                     dirs.push_back(fullPath);
                 }
             }

@@ -27,6 +27,8 @@ namespace Common
 
             bool isDirectory(const Path& path) const override;
 
+            bool isFileOrDirectory(const Path& path) const override;
+
             bool isSymlink(const Path& path) const override;
 
             Path makeAbsolute(const Path& path) const override;

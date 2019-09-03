@@ -30,6 +30,7 @@ public:
     MOCK_CONST_METHOD1(isExecutable, bool(const Path& path));
     MOCK_CONST_METHOD1(isFile, bool(const Path& path));
     MOCK_CONST_METHOD1(isDirectory, bool(const Path& path));
+    MOCK_CONST_METHOD1(isFileOrDirectory, bool(const Path& path));
     MOCK_CONST_METHOD1(isSymlink, bool(const Path& path));
     MOCK_CONST_METHOD0(currentWorkingDirectory, Path());
     MOCK_CONST_METHOD2(moveFile, void(const Path& sourcePath, const Path& destPath));

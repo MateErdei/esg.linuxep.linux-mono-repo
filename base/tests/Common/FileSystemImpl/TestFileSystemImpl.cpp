@@ -203,6 +203,16 @@ namespace
         EXPECT_FALSE(m_fileSystem->isFile("/etc"));
     }
 
+    TEST_F(FileSystemImplTest, isFileReturnsTrueWhenPathGivenPointsToASymLink) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isFile("/proc/self/exe"));
+    }
+
+    TEST_F(FileSystemImplTest, isFileReturnsFalseWhenPathGivenPointsToASocket) // NOLINT
+    {
+        EXPECT_FALSE(m_fileSystem->isFile("/run/systemd/private"));
+    }
+
     TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenPathGivenPointsToAFile) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isDirectory("/etc/passwd"));

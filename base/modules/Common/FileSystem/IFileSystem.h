@@ -63,7 +63,7 @@ namespace Common
             /**
              * Checks to see if the given path is a regular file
              * @param path to check
-             * @return true, if path is a regular file, false otherwise
+             * @return true, if path is a regular file (file, symlink, socket), false otherwise
              */
             virtual bool isFile(const Path& path) const = 0;
 
@@ -73,6 +73,13 @@ namespace Common
              * @return true, if path directory exists, false otherwise
              */
             virtual bool isDirectory(const Path& path) const = 0;
+
+            /**
+             * Checks to see if the given path is a file or directory.
+             * @param path to check
+             * @return true, if path is dir or a regular file, false otherwise
+             */
+            virtual bool isFileOrDirectory(const Path& path) const = 0;
 
             /**
              * Checks to see if the given path is a symlink.
