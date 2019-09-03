@@ -233,6 +233,36 @@ namespace
         EXPECT_TRUE(m_fileSystem->isDirectory("/etc"));
     }
 
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToAFile) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/etc/passwd"));
+    }
+
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToASymLink) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/proc/self/exe"));
+    }
+
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenPathGivenPointsToASocket) // NOLINT
+    {
+        EXPECT_FALSE(m_fileSystem->isFileOrDirectory("/run/systemd/private"));
+    }
+
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isFileOrDirectory("."));
+    }
+
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenFileDoesNotExist) // NOLINT
+    {
+        EXPECT_FALSE(m_fileSystem->isFileOrDirectory("/etc/ghdfoijsdfgjhszdgvzjsdjvcjsdhzc"));
+    }
+
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenIsDirectory) // NOLINT
+    {
+        EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/etc"));
+    }
+
     TEST_F(FileSystemImplTest, isSymlinkReturnsTrueForSymlink) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isSymlink("/proc/self/exe"));
