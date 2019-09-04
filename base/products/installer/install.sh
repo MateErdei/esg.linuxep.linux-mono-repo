@@ -411,7 +411,7 @@ if (( $CLEAN_INSTALL == 1 ))
 then
     waitForProcess "${SOPHOS_INSTALL}/base/bin/sophos_managementagent" || failure ${EXIT_FAIL_SERVICE} "Management Agent not running"
 
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "EXIT_CODE" == 0 ]]
+    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "$EXIT_CODE" == "0" ]]
     then
         waitForProcess "python -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
