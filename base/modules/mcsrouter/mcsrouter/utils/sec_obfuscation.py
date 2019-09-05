@@ -46,7 +46,7 @@ class SECObfuscation(object):
         remove_padding
         """
         text_as_string = text.decode("utf8", "replace")
-        padding = ord(text_as_string[-1])
+        padding = int(text[-1])
         if padding > self.BLOCK_LENGTH:
             raise SECObfuscationException("Padding incorrect")
 
@@ -57,7 +57,7 @@ class SECObfuscation(object):
         add_padding
         """
         padding = self.BLOCK_LENGTH - len(text) % self.BLOCK_LENGTH
-        return text + chr(padding) * padding
+        return text + bytes([padding] * padding)
 
     def split_key_iv(self, key_iv):
         """
@@ -92,15 +92,19 @@ class SECObfuscation(object):
 
         key_temp = key.decode("ascii", "replace")
         value_temp = iv_value.decode("ascii", "replace")
-        iv_value = ""
+        #iv_value = ""
         cipher = self.create_cipher(key, iv_value)
 
-        return self.remove_padding(cipher.decrypt(cipher_text))
+        as_bytes = self.remove_padding(cipher.decrypt(cipher_text))
+        return as_bytes.decode('ascii', 'replace')
 
     def obfuscate(self, salt, plain_text):
         """
         obfuscate
         """
+        if not all( [ isinstance(salt, bytearray) or isinstance(salt, bytes),
+                  isinstance(plain_text, bytearray) or isinstance(plain_text, bytes)]):
+            raise TypeError("Salt and Text must be bytes or bytearray")
         key, iv_value = self.create_session_key(salt)
         cipher = self.create_cipher(key, iv_value)
         return cipher.encrypt(self.add_padding(plain_text))
@@ -202,7 +206,7 @@ def get_implementation(raw_obfuscated):
     """
     get_implementation
     """
-    embedded_algorithm_byte = ord(raw_obfuscated[0])
+    embedded_algorithm_byte = int(raw_obfuscated[0])
     return get_embedded_algorithm_byte(
         embedded_algorithm_byte)
 
@@ -214,15 +218,15 @@ def deobfuscate(base64_obfuscated):
     """
     import base64
     try:
-        raw_obfuscated = base64.b64decode(base64_obfuscated).decode("utf-8", "replace")
+        raw_obfuscated = base64.b64decode(base64_obfuscated)
 
-    except TypeError:
+    except binascii.Error:
         raise SECObfuscationException("Invalid Base64 in SECObfuscation")
 
     impl = get_implementation(raw_obfuscated)
     assert impl is not None
 
-    salt_length = ord(raw_obfuscated[1])
+    salt_length = int(raw_obfuscated[1])
     if salt_length != impl.SALT_LENGTH:
         raise SECObfuscationException("Incorrect number of salt bytes")
 
@@ -236,7 +240,7 @@ def deobfuscate(base64_obfuscated):
         raise SECObfuscationException("Ciphertext corrupt: data short")
 
     try:
-        salt = salt.encode("ascii", "replace")
+        #salt = salt.encode("ascii", "replace")
         return impl.deobfuscate(salt, cipher_text)
     except ValueError as exception:
         raise SECObfuscationException("Ciphertext corrupt: " + str(exception))
@@ -257,11 +261,10 @@ def obfuscate(embedded_algorithm_byte, raw_plain, random_generator):
     salt = random_generator.random_bytes(salt_length)
     assert len(salt) == salt_length
 
-    # Pycryptodome expects the salt value to be a string.
-    #salt_string = salt.decode("utf8", "replace")
-
-    raw_obfuscated = chr(embedded_algorithm_byte) + \
-        chr(salt_length) + salt_string + impl.obfuscate(salt, raw_plain)
+    partial = impl.obfuscate(salt, raw_plain)
+    raw_obfuscated_list = bytearray([embedded_algorithm_byte, salt_length]) + salt + \
+                          partial
+    raw_obfuscated = bytes(raw_obfuscated_list)
 
     import base64
     return base64.b64encode(raw_obfuscated)

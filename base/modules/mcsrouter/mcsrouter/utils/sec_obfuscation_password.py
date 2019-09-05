@@ -304,10 +304,8 @@ def get_password_uncached():
     ret = []
     for sect in (sect1, sect2, sect3, sect4):
         for item in sect:
-            ret.append(chr(item))
-
-    return ''.join(ret).encode("ascii", "replace")
-
+            ret.append(item)
+    return bytes(ret)
 
 GL_PASSWORD = None
 
