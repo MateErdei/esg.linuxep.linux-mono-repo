@@ -26,6 +26,12 @@ except:
     print("No module named 'magic', please install it: python3 -m pip install python-magic")
     exit()
 
+try:
+    import xmltodict
+except:
+    print("No module named 'xmltodict', please install it: python3 -m pip install xmltodict")
+    exit()
+
 
 def get_time_string_from_log_line(line):
     global g_product
@@ -56,7 +62,7 @@ def get_time_string_from_log_line(line):
     return t
 
 
-def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id):
+def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, product_base_version):
     line = line.strip()
 
     # Empty lines means a blank line is in the log file, so add one here.
@@ -84,8 +90,8 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id):
             print("Not inserting log line we have already seen from: {}".format(extracted_time))
             return last_id
 
-        df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip) VALUES (%s, %s, %s, %s, %s, %s)"
-        df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip)
+        df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip, base_version) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip, product_base_version)
         cursor.execute(df_sql, df_val)
         db.commit()
         last_id = cursor.lastrowid
@@ -189,6 +195,18 @@ def extract_ip(extracted_tar_path):
                 return ip
 
 
+# VERSION.INI is not in dogfood yet so we have to get product version from somewhere else.
+def extract_base_version(extracted_tar_path):
+    with open(os.path.join(extracted_tar_path, "BaseFiles", "ALC_status.xml"), 'r') as alc_status:
+        status = xmltodict.parse(alc_status.read(), dict_constructor=dict)
+        subscriptions = status['status']['subscriptions']['subscription']
+
+        for subscription in subscriptions:
+            if subscription['@rigidName'] == "ServerProtectionLinux-Base":
+                return subscription['@version']
+    return "unknown"
+
+
 def process_diagnose_file(tar_path):
     global g_extract_dir
 
@@ -248,6 +266,8 @@ def process_diagnose_file(tar_path):
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
 
+    product_base_version = extract_base_version(sub_dir)
+
     # This account has only insert privileges (not even select) so it is safe to include here.
     # Dashboard sanitizes html so a script being inserted for example will not do anything when displayed.
     dogfood_db = mysql.connector.connect(
@@ -259,10 +279,10 @@ def process_diagnose_file(tar_path):
 
     # TODO LINUXEP-8365 When importing don't do it one log line at a time do it in bulk.
     for log in logs:
-        process_log_file(hostname, dogfood_db, ip, log)
+        process_log_file(hostname, dogfood_db, ip, log, product_base_version)
 
-    for sys_file in system_files:
-        process_system_file(hostname, dogfood_db, ip, sys_file)
+    # for sys_file in system_files:
+    #     process_system_file(hostname, dogfood_db, ip, sys_file)
 
     mark_tar_as_processed(tar_path)
 
@@ -286,7 +306,7 @@ def get_latest_log_time_from_db(hostname, db, log_name):
     return datetime.datetime(min_time.year, min_time.month, min_time.day)
 
 
-def process_log_file(hostname, db, ip, log_file_path):
+def process_log_file(hostname, db, ip, log_file_path, product_base_version):
     print("Processing log:{}".format(log_file_path))
     if 'text' not in magic.from_file(log_file_path):
         print("Log file is not a text file, skipping it.")
@@ -299,7 +319,7 @@ def process_log_file(hostname, db, ip, log_file_path):
 
     with io.open(log_file_path, mode="r", encoding="utf-8") as log:
         for line in log:
-            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id)
+            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id, product_base_version)
 
 
 def process_system_file(hostname, db, ip, sys_file_path):
