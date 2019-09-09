@@ -21,7 +21,7 @@ add_custom_target(mcsrouter ALL
 add_custom_command(OUTPUT mcsrouter.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         # force compile all required mcs python code.
-        COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
+        COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall -b ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
         COMMAND find . -name "*pyc" -print | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         # clean up compiled files
         COMMAND find . -name "*.pyc" | xargs rm -f
