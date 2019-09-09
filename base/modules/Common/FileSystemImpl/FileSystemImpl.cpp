@@ -457,7 +457,7 @@ namespace Common
                 }
 
                 std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                if (DT_REG & outDirEntity->d_type || (DT_UNKNOWN & outDirEntity->d_type && isFile(fullPath)))
+                if (DT_REG & outDirEntity->d_type || (DT_UNKNOWN == outDirEntity->d_type && isFile(fullPath)))
                 {
                     files.push_back(fullPath);
                 }
@@ -508,7 +508,7 @@ namespace Common
                 // If regular file or directory (info from dirent struct d_type) or if ftype not enabled on
                 // filesystem (d_type is always DT_UNKNOWN) we have to use lstat
                 if ((DT_REG | DT_DIR) & outDirEntity->d_type || // NOLINT
-                    (DT_UNKNOWN & outDirEntity->d_type && isFileOrDirectory(fullPath)))
+                    (DT_UNKNOWN == outDirEntity->d_type && isFileOrDirectory(fullPath)))
                 {
                     // We do not want to return symlinks as it could create an infinite loop if the caller calls this
                     // method again on the returned directories
@@ -596,7 +596,7 @@ namespace Common
                 }
 
                 std::string fullPath = join(directoryPath, outDirEntity->d_name);
-                if (DT_DIR & outDirEntity->d_type || (DT_UNKNOWN & outDirEntity->d_type && isDirectory(fullPath)))
+                if (DT_DIR & outDirEntity->d_type || (DT_UNKNOWN == outDirEntity->d_type && isDirectory(fullPath)))
                 {
                     // We do not want to return symlinks as it could create an infinite loop if the caller calls this
                     // method again on the returned directories
