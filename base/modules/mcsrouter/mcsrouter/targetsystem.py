@@ -538,7 +538,7 @@ class TargetSystem(object):
                 stderr=devnull)
             results2 = subprocess.check_output(
                 args=["dmidecode", "-s", "bios-version"], stderr=devnull)
-            if results1.startswith("EC2") or "amazon" in results2:
+            if results1.startswith(b"EC2") or b"amazon" in results2:
                 return True
         except (subprocess.CalledProcessError, EnvironmentError):
             pass

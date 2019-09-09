@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(GLOB_RECURSE python_SRC
-        RELATIVE ${PYTHON_INPUT}/install64/lib/python2.7
-        ${PYTHON_INPUT}/install64/lib/python2.7/*.py)
+        RELATIVE ${PYTHON_INPUT}/install64/lib/python3.7
+        ${PYTHON_INPUT}/install64/lib/python3.7/*.py )
 
 
 file(GLOB_RECURSE mcs_router_DEPS
@@ -10,7 +10,7 @@ file(GLOB_RECURSE mcs_router_DEPS
 
 add_custom_target(mcsrouter ALL
         DEPENDS mcsrouter.zip
-        python27.zip
+        python37.zip
         pythonLibDynload
         pathtools
         watchdog
@@ -21,21 +21,21 @@ add_custom_target(mcsrouter ALL
 add_custom_command(OUTPUT mcsrouter.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         # force compile all required mcs python code.
-        COMMAND ${PYTHON_INPUT}/install64/bin/python -m compileall ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
+        COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
         COMMAND find . -name "*pyc" -print | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         # clean up compiled files
         COMMAND find . -name "*.pyc" | xargs rm -f
         DEPENDS ${mcs_router_DEPS}
         )
 
-add_custom_command(OUTPUT python27.zip
-        WORKING_DIRECTORY ${INPUT}/python/install64/lib/python2.7/
-        COMMAND zip ${CMAKE_BINARY_DIR}/python27.zip ${python_SRC}
+add_custom_command(OUTPUT python37.zip
+        WORKING_DIRECTORY ${INPUT}/python3/install64/lib/python3.7/
+        COMMAND zip ${CMAKE_BINARY_DIR}/python37.zip ${python_SRC}
         )
 
 add_custom_command(OUTPUT pythonLibDynload
         WORKING_DIRECTORY ${INPUT}
-        COMMAND cp -r ${INPUT}/python/install64/lib/python2.7/lib-dynload/ ${CMAKE_BINARY_DIR}
+        COMMAND cp -r ${INPUT}/python3/install64/lib/python3.7/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
 add_custom_command(OUTPUT pathtools
@@ -67,28 +67,28 @@ add_custom_command(OUTPUT pycryptodome
 
 add_custom_command(OUTPUT python
         WORKING_DIRECTORY ${INPUT}
-        COMMAND cp ${PYTHON_INPUT}/install64/bin/python ${CMAKE_BINARY_DIR}
+        COMMAND cp ${PYTHON_INPUT}/install64/bin/python3 ${CMAKE_BINARY_DIR}
         )
 
 install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
         DESTINATION files/base/lib64)
 
-install(FILES ${CMAKE_BINARY_DIR}/python27.zip
+install(FILES ${CMAKE_BINARY_DIR}/python37.zip
         DESTINATION files/base/lib64)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
-        DESTINATION files/base/lib/python2.7/)
+        DESTINATION files/base/lib/python3.7/)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/pathtools
-        DESTINATION files/base/lib/python2.7/site-packages)
+        DESTINATION files/base/lib/python3.7/site-packages)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/watchdog
-        DESTINATION files/base/lib/python2.7/site-packages)
+        DESTINATION files/base/lib/python3.7/site-packages)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
-        DESTINATION files/base/lib/python2.7/site-packages)
+        DESTINATION files/base/lib/python3.7/site-packages)
 
-install(FILES ${CMAKE_BINARY_DIR}/python
+install(FILES ${CMAKE_BINARY_DIR}/python3
         DESTINATION files/base/bin)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt

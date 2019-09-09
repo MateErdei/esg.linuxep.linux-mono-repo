@@ -29,18 +29,6 @@ class TestSECObfuscation(unittest.TestCase):
         self.assertEqual(password[0],ord('V'))
         self.assertEqual(len(password),48)
 
-    # def testDeobfuscation_3DES(self):
-    #     obfuscated = b"BwhG+aIe8X1jsPM4PpvCMUItpmbuWzlZMFk1GbXs5tFHWsM3h28n7ZJT"
-    #     expected = b"Lorem ipsum dolor sit amet"
-    #     deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
-    #     self.assertEqual(deobfuscated, expected)
-
-    # def testDeobfuscation_3DES_short(self):
-    #     obfuscated = b"Bwh/EjOnVfpnj2j2A7ZK9rcX"
-    #     expected = b"a:b"
-    #     deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
-    #     self.assertEqual(deobfuscated,expected)
-
     def testDeobfuscation_AES_1(self):
         obfuscated = b"CCDiD8La6HsOmf0vCG0bTL88m2j9IOy34+9PQ9MiIpTNxJ9GcSzxrWDSHnEI1vyFKtM="
         expected = "foo:bar"
@@ -135,12 +123,6 @@ class TestSECObfuscation(unittest.TestCase):
         deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
         expected = "Ch1pm0nk"
         self.assertEqual(deobfuscated,expected)
-
-    # def testRoundTrip_DES3(self):
-    #     expected = b"Lorem ipsum dolor sit amet"
-    #     obfuscated = mcsrouter.utils.sec_obfuscation.obfuscate(mcsrouter.utils.sec_obfuscation.ALGO_3DES,expected,RandomGenerator())
-    #     deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
-    #     self.assertEqual(deobfuscated,expected)
 
 if __name__ == '__main__':
     if "-q" in sys.argv:

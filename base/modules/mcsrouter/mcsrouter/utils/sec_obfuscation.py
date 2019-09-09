@@ -85,14 +85,8 @@ class SECObfuscation(object):
         """
         deobfuscate
         """
-        temp_salt = salt.decode("ascii", "replace")
         key, iv_value = self.create_session_key(salt)
 
-        #key = self.create_session_key(salt)
-
-        key_temp = key.decode("ascii", "replace")
-        value_temp = iv_value.decode("ascii", "replace")
-        #iv_value = ""
         cipher = self.create_cipher(key, iv_value)
 
         as_bytes = self.remove_padding(cipher.decrypt(cipher_text))
@@ -132,10 +126,7 @@ class ThreeDES(SECObfuscation):
         """
         import hashlib
 
-
-
         password = self.get_password()
-        temp_password = password.decode("ascii", "replace")
 
         key_iv = "".encode("ascii")
         previous_hash = "".encode("ascii")
@@ -182,7 +173,8 @@ class AES256(SECObfuscation):
             """
             return HMAC.new(password, salt, SHA512).digest()
 
-        key_iv = PBKDF2(password, salt,
+        # salt may be type of bytearray, convert to bytes before passing to prevent errors in PBKDF2 call.
+        key_iv = PBKDF2(password, bytes(salt),
                         dkLen=self.KEY_LENGTH + self.IV_LENGTH,
                         count=self.KEY_ITERATIONS,
                         prf=pseudo_random_family)
@@ -240,7 +232,6 @@ def deobfuscate(base64_obfuscated):
         raise SECObfuscationException("Ciphertext corrupt: data short")
 
     try:
-        #salt = salt.encode("ascii", "replace")
         return impl.deobfuscate(salt, cipher_text)
     except ValueError as exception:
         raise SECObfuscationException("Ciphertext corrupt: " + str(exception))

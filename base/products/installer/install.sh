@@ -356,8 +356,8 @@ chmod 750 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
 chmod -R 750 "${SOPHOS_INSTALL}/base/lib"
-chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python"*
-chmod 710 "${SOPHOS_INSTALL}/base/bin/python"*
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/python3"*
+chmod 710 "${SOPHOS_INSTALL}/base/bin/python3"*
 
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/telemetry"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/telemetry"*

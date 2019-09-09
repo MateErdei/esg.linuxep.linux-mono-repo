@@ -5,17 +5,17 @@ option(test "Build all tests." ON) # Makes boolean 'test' available.
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
-if (BUILD_FUZZ_TESTS)
+if (BUILD_FUZZ_TESTS )
     set(SANITISE_FLAGS   "")
-    set(FUZZER_COMPILER_FLAGS "-fsanitize=address,fuzzer-no-link")
-    set(FUZZER_LINKER_FLAGS "-fsanitize=address,fuzzer")
+    set(FUZZER_COMPILER_FLAGS "-fsanitize=address,fuzzer-no-link" )
+    set(FUZZER_LINKER_FLAGS "-fsanitize=address,fuzzer" )
     set(NO_FUZZING_FLAGS "-fno-sanitize=fuzzer")
     set(WARNING_FLAGS "")
 else()
     set(SANITISE_FLAGS   "-static-libasan -static-libubsan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
     set(NO_FUZZING_FLAGS "")
-    set(FUZZER_COMPILER_FLAGS "")
-    set(FUZZER_LINKER_FLAGS "")
+    set(FUZZER_COMPILER_FLAGS "" )
+    set(FUZZER_LINKER_FLAGS "" )
     set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector")
 endif()
 
@@ -67,67 +67,67 @@ endif()
 set(FEATURE_LIST "CORE")
 
 find_package(PkgConfig)
-FIND_PACKAGE (Threads REQUIRED)
+FIND_PACKAGE ( Threads REQUIRED )
 
 if(NOT DEFINED REDIST)
-    set(REDIST /redist)
+    set( REDIST /redist )
 endif()
 if(NOT DEFINED BINARIES_DIR)
-    set(BINARIES_DIR ${REDIST}/binaries)
+    set( BINARIES_DIR ${REDIST}/binaries )
 endif()
 if(NOT DEFINED INPUT)
-    set(INPUT ${BINARIES_DIR}/linux11/input)
+    set( INPUT ${BINARIES_DIR}/linux11/input )
 endif()
 
 ## Find 3rd party libraries
-set(BOOST_INPUT ${INPUT}/boost)
-set(CURL_INPUT ${INPUT}/curl)
-set(OPENSSL_INPUT ${INPUT}/openssl)
-set(EXPAT_INPUT ${INPUT}/expat)
-set(LOG4CPLUS_INPUT ${INPUT}/log4cplus)
+set( BOOST_INPUT ${INPUT}/boost )
+set( CURL_INPUT ${INPUT}/curl )
+set( OPENSSL_INPUT ${INPUT}/openssl )
+set( EXPAT_INPUT ${INPUT}/expat )
+set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 
-set(BOOST_INCLUDE ${BOOST_INPUT}/include)
+set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 
 if(NOT DEFINED VERSIG_INPUT)
-    set(VERSIG_INPUT ${INPUT}/versig)
+    set( VERSIG_INPUT ${INPUT}/versig)
 endif()
 
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
-    set(SUL_INPUT ${INPUT}/SUL)
+    set( SUL_INPUT ${INPUT}/SUL )
 endif()
 
-set(SUL_LIBRARY_DIR ${SUL_INPUT}/lib64)
-set(SUL_LIBRARY_DIRS STRING ${CMAKE_BINARY_DIR}/libs:${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64 FORCE)
+set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
+set( SUL_LIBRARY_DIRS STRING ${CMAKE_BINARY_DIR}/libs:${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64 FORCE)
 
-set(BOOST_INCLUDE_DIR ${BOOST_INPUT}/include)
+set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 
-set(PROTOBUF_INPUT ${INPUT}/protobuf)
+set( PROTOBUF_INPUT ${INPUT}/protobuf )
 set(Protobuf_root ${PROTOBUF_INPUT}/install64)
 set(Protobuf_INCLUDE_DIR ${Protobuf_root}/include)
 set(PROTOBUF_PROTOC_EXECUTABLE ${Protobuf_root}/bin/protoc)
-set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/lib/libprotobuf.so)
-set(Protobuf_LITE_LIBRARY  ${Protobuf_root}/lib/libprotobuf-lite.so)
-set(Protobuf_LIBRARY ${Protobuf_root}/lib/libprotobuf.so)
+set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/lib/libprotobuf.so )
+set(Protobuf_LITE_LIBRARY  ${Protobuf_root}/lib/libprotobuf-lite.so )
+set(Protobuf_LIBRARY ${Protobuf_root}/lib/libprotobuf.so )
 set(Protobuf_DEBUG 1)
-set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH})
-set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH})
+set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH} )
+set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 INCLUDE(FindProtobuf)
 INCLUDE(CAPN)
-#FIND_PACKAGE(Protobuf REQUIRED)
+#FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
 
-set(CAPNPROTO_INPUT ${INPUT}/capnproto)
+set(CAPNPROTO_INPUT ${INPUT}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib64)
 set(CAPNPROTO_EXECUTABLE_DIR ${CAPNPROTO_INPUT}/bin)
 set(CAPNPROTO_EXECUTABLE ${CAPNPROTO_INPUT}/bin/capnp)
-set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH})
-set(ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH})
+set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH} )
+set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
 
 message( ${CAPNPROTO_LD_LIBRARY_PATH})
 
-set(ZEROMQ_INPUT ${INPUT}/zeromq)
+set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use pkg-config to get hints for 0mq locations
 #pkg_check_modules(PC_ZeroMQ QUIET zmq)
 
@@ -155,13 +155,13 @@ find_library(EXPAT_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set(LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include)
+set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
 
 find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
-set(OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
+set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
 find_library(OPENSSL_LIBRARY
         NAMES ssl
         PATHS ${OPENSSL_INPUT}/lib64
@@ -173,7 +173,7 @@ find_library(OPENSSLCRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set(CURL_INCLUDE_DIR ${CURL_INPUT}/include64)
+set( CURL_INCLUDE_DIR ${CURL_INPUT}/include64 )
 find_library(CURL_LIBRARY
         NAMES curl
         PATHS ${CURL_INPUT}/lib64
@@ -183,22 +183,22 @@ find_library(CURL_LIBRARY
 
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
-    set(PYTHON_INPUT ${INPUT}/python)
+    set( PYTHON_INPUT ${INPUT}/python3)
 endif()
 
 ## Allow this to be redirected for pathtools development
 if(NOT DEFINED WATCHDOG_INPUT)
-    set(WATCHDOG_INPUT ${INPUT}/watchdog)
+    set( WATCHDOG_INPUT ${INPUT}/watchdog)
 endif()
 
 ## Allow this to be redirected for watchdog development
 if(NOT DEFINED PATHTOOLS_INPUT)
-    set(PATHTOOLS_INPUT ${INPUT}/pathtools)
+    set( PATHTOOLS_INPUT ${INPUT}/pathtools)
 endif()
 
 ## Allow this to be redirected for pycryptodome development
 if(NOT DEFINED PYCRYPTODOME_INPUT)
-    set(PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
+    set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})

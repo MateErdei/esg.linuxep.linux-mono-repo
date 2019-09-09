@@ -148,8 +148,7 @@ def register(config, inst, logger):
             break
         except mcs_exception.MCSConnectionFailedException:
             url = config.get("MCSURL")
-            print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url,
-                  file=sys.stderr)
+            print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url, file=sys.stderr)
             logger.warning(
                 "Failed to connect to Sophos Central: Check URL: %s",
                 url,
@@ -158,8 +157,7 @@ def register(config, inst, logger):
             break
         except mcs_connection.MCSHttpException as exception:
             if exception.error_code() == 401:
-                print("ERROR: Authentication error from Sophos Central: Check Token",
-                      file=sys.stderr)
+                print("ERROR: Authentication error from Sophos Central: Check Token", file=sys.stderr)
                 logger.fatal(
                     "ERROR: Authentication error from Sophos Central: Check Token")
                 ret = 6
