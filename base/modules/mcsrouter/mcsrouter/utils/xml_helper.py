@@ -42,7 +42,7 @@ def get_escaped_non_ascii_content(file_path):
         encoding='utf-8',
         mode='r',
         errors='replace').read()
-    return body.encode('ascii', 'xmlcharrefreplace')
+    return body
 
 class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
     """

@@ -72,7 +72,7 @@ class TestPluginRegistry(unittest.TestCase):
             self.assertEqual(removed, ['ALC'])
 
 class TestUtils(unittest.TestCase):
-    def get_escaped_non_ascii_content(self):
+    def test_escaped_non_ascii_content(self):
         mocked_open_function = mock.mock_open(read_data=policyContent.encode('utf-8'))
 
         with mock.patch("builtins.open", mocked_open_function):
