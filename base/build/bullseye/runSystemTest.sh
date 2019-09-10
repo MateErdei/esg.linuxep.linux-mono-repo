@@ -75,7 +75,6 @@ fi
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
-
 DEVBFR=NOT_FOUND
 [[ -d /mnt/filer6/bfr/sspl-base ]] && DEVBFR=/mnt/filer6/bfr
 [[ -d /uk-filer6/bfr/sspl-base ]] && DEVBFR=/uk-filer6/bfr
@@ -86,7 +85,7 @@ LASTGOODBUILD () {
 
 ## BRANCH OVERRIDES
 # You can override the specific branch to use of any jenkins dev build by providing
-# one of the below environment variable variables when this script is called
+# one of the bellow environment variable variables when this script is called
 # If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
 # If none is given, master will be assumed
 
@@ -102,7 +101,7 @@ if [[ -d "$EXAMPLEPLUGIN_SDDS" ]]
 then
     export EXAMPLEPLUGIN_SDDS
 else
-    EXAMPLE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/*/output/SDDS-COMPONENT)
+    EXAMPLE_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/0.5.1/output/SDDS-COMPONENT"
 
     if [[ -d ${EXAMPLE_PLUGIN_SOURCE} ]]
     then
@@ -115,7 +114,7 @@ if [[ -d "$SSPL_AUDIT_PLUGIN_SDDS" ]]
 then
     export SSPL_AUDIT_PLUGIN_SDDS
 else
-    AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
+    AUDIT_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/0.5.1/output/SDDS-COMPONENT"
     if [[ -d ${AUDIT_PLUGIN_SOURCE} ]]
     then
         export SSPL_AUDIT_PLUGIN_SDDS=${AUDIT_PLUGIN_SOURCE}
@@ -127,7 +126,7 @@ if [[ -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
 then
     export SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 else
-    EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
+    EVENT_PROCESSOR_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/0.5.1/output/SDDS-COMPONENT"
     if [[ -d ${EVENT_PROCESSOR_SOURCE} ]]
     then
         export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=${EVENT_PROCESSOR_SOURCE}
@@ -139,7 +138,7 @@ if [[ -d "$SSPL_MDR_PLUGIN_SDDS" ]]
 then
     export SSPL_MDR_PLUGIN_SDDS
 else
-    MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
+    MDR_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/1.0.0/output/SDDS-COMPONENT"
     if [[ -d ${MDR_PLUGIN_SOURCE} ]]
     then
         export SSPL_MDR_PLUGIN_SDDS=${MDR_PLUGIN_SOURCE}
@@ -154,15 +153,16 @@ then
     export SDDS_SSPL_MDR_COMPONENT
     export SDDS_SSPL_MDR_COMPONENT_SUITE
 else
-    MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
+    MDR_COMPONENT_SUITE_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/1.0.0/output"
     if [[ -d ${MDR_COMPONENT_SUITE_SOURCE} ]]
     then
         export SDDS_SSPL_MDR_COMPONENT_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
-        export SDDS_SSPL_DBOS_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-DBOS-COMPONENT/"
+        export SDDS_SSPL_DBOS_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
         export SDDS_SSPL_OSQUERY_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
         export SDDS_SSPL_MDR_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT/"
     fi
 fi
+
 
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
