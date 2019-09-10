@@ -32,7 +32,7 @@ def receive():
             try:
                 xml_helper.check_xml_has_no_script_tags(body)
             except Exception as ex:
-                LOGGER.ERROR( "Failed verification of xml as it has script. Error: {}".format(str(ex)))
+                LOGGER.error( "Failed verification of xml as it has script. Error: {}".format(str(ex)))
                 continue
             yield (app_id, time, body)
         else:

@@ -551,13 +551,17 @@ class MCSConnection(object):
         """
         # pylint: disable=too-many-branches, too-many-statements, too-many-locals
         path, headers, body, method = request_data
+        if isinstance(body, str):
+            encoded_body = body.encode('utf-8')
+        else:
+            encoded_body = body
 
         conn = self.__m_connection
 
         # currentPath is only defined once we have opened a connection
         base_path = self.__m_current_path
         full_path = base_path + path
-        conn.request(method, full_path, body=body, headers=headers)
+        conn.request(method, full_path, body=encoded_body, headers=headers)
         response = conn.getresponse()
         response_headers = {
             key.lower(): value for key,
@@ -637,7 +641,7 @@ class MCSConnection(object):
 
         ENVELOPE_LOGGER.debug("response headers=%s", str(response_headers))
 
-        if body not in ("", None):
+        if body:
             # Fix issue where we receive latin1 encoded characters in
             # XML received from Central (LINUXEP-4819)
             try:
