@@ -1,0 +1,32 @@
+library 'standardPipeline'
+
+properties([
+    parameters([
+        string(name: 'CommitHash', defaultValue: ''),
+        string(name: 'PortalId', defaultValue: ''),
+        string(name: 'PortalAddress', defaultValue: ''),
+        string(name: 'UPSTREAM_CONTEXT',
+                defaultValue: '{}',
+                description: 'Information about the build which triggered this in JSON.')
+    ])
+])
+
+skipDefaultCheckout()
+
+try
+{
+    PreBuild(params, '1.0.0', 'cloud-warehouse', 'warehouse')
+
+    parallel cloud:
+    {
+        ArtisanBuild('Warehouse', '\\build\\release-package.xml')
+    }
+
+    SuccessfulBuild('\\build\\release-package.xml')
+}
+
+catch(e)
+{
+    echo 'Exception: ' + e.toString()
+    FailedBuild(e)
+}

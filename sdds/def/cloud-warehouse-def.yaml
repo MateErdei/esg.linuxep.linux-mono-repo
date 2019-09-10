@@ -1,0 +1,91 @@
+%YAML 1.1
+---
+warehouses:
+    sspl:
+        components:
+            ServerProtectionLinux-Base:
+                import:
+                    description: "Sophos Linux Base"
+                    version: "1.0.0"
+                features: [CORE]
+                platforms: []
+                release-tags:
+                    -   base-version:
+                        tag: RECOMMENDED
+                supplements:
+                    -   SSPLTELEMSUPP
+
+    ssplmdr:
+        components:
+            ServerProtectionLinux-Plugin-MDR:
+                import:
+                    description: "Sophos Server Protection for Linux MTR"
+                    version: "1.0.0"
+                features: [MDR]
+                platforms: []
+                release-tags:
+                    -   base-version:
+                        tag: RECOMMENDED
+                subcomponents:
+                    ServerProtectionLinux-MDR-Control-Component:
+                    ServerProtectionLinux-MDR-DBOS-Component:
+                    ServerProtectionLinux-MDR-osquery-Component:
+    ssplpluginexample:
+        components:
+            ServerProtectionLinux-Plugin-Example:
+                import:
+                    description: "Sophos Linux Example Plugin"
+                    version: "1.0.0"
+                features: [CORE]
+                platforms: []
+                release-tags:
+                    -   base-version:
+                        tag: RECOMMENDED
+                supplements:
+    sspleventprocessor:
+        components:
+            ServerProtectionLinux-Plugin-EventProcessor:
+                import:
+                    description: "Sophos Linux Event Processor"
+                    version: "1.0.0"
+                features: [CORE]
+                platforms: []
+                release-tags:
+                    -   base-version:
+                        tag: RECOMMENDED
+                supplements:
+    ssplauditplugin:
+        components:
+            ServerProtectionLinux-Plugin-AuditPlugin:
+                import:
+                    description: "Sophos Linux Audit Plugin"
+                    version: "1.0.0"
+                features: [CORE]
+                platforms: []
+                release-tags:
+                    - base-version:
+                      tag: RECOMMENDED
+                supplements:
+
+customer-files:
+    -   warehouse: sspl
+        user: base_user
+        password: password
+        split-warehouses:
+            - warehouse: sspl
+
+    -   warehouse: sspl
+        user: mtr_user
+        password: password
+        split-warehouses:
+            - warehouse: sspl
+            - warehouse: ssplmdr
+
+    -   warehouse: sspl
+        user: test_plugin_user
+        password: password
+        split-warehouses:
+            - warehouse: sspl
+            - warehouse: ssplauditplugin
+            - warehouse: sspleventprocessor
+            - warehouse: ssplpluginexample
