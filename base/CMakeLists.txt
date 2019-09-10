@@ -68,14 +68,19 @@ set(FEATURE_LIST "CORE")
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
-if(NOT DEFINED REDIST)
-    set( REDIST /redist )
-endif()
-if(NOT DEFINED BINARIES_DIR)
-    set( BINARIES_DIR ${REDIST}/binaries )
-endif()
 if(NOT DEFINED INPUT)
-    set( INPUT ${BINARIES_DIR}/linux11/input )
+    set( INPUT ${CMAKE_SOURCE_DIR}/redist )
+endif()
+
+if(NOT EXISTS ${INPUT})
+    string( APPEND ERRORMESSAGE
+    "To build using CLion you first need to:\n"
+    "1. Fetch inputs in source folder by running:\n"
+    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
+    "2. Run the full build script with no build flag:\n"
+    "    ./build.sh --no-build\n"
+    "After that you will be able to build using CLion")
+    message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
 ## Find 3rd party libraries

@@ -35,8 +35,13 @@ BULLSEYE=0
 BULLSEYE_UPLOAD=0
 BULLSEYE_SYSTEM_TESTS=0
 export NO_REMOVE_GCC=1
-ALLEGRO_REDIST=/redist/binaries/linux11/input
 INPUT=$BASE/input
+
+if [[ ! -d "$INPUT"  && -d "$BASE/sspl-base-build" ]]
+then
+    INPUT="$BASE/sspl-base-build/input"
+fi
+
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
 BULLSEYE_SYSTEM_TEST_BRANCH=master
@@ -63,10 +68,6 @@ do
         --remove-gcc)
             NO_REMOVE_GCC=0
             ;;
-        --allegro-redist)
-            shift
-            ALLEGRO_REDIST=$1
-            ;;
         --input)
             shift
             INPUT=$1
@@ -90,6 +91,9 @@ do
             ;;
         --no-strip)
             export ENABLE_STRIP=0
+            ;;
+        --no-build)
+            NO_BUILD=1
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
@@ -152,7 +156,7 @@ case ${CMAKE_BUILD_TYPE} in
         ;;
 esac
 
-function untar_or_link_to_redist()
+function untar_input()
 {
     local input=$1
     local tar=${INPUT}/${input}.tar
@@ -166,10 +170,6 @@ function untar_or_link_to_redist()
     then
         echo "Untaring $tarzip"
         tar xzf "$tarzip" -C "$REDIST"
-    elif [[ -d "${ALLEGRO_REDIST}/$input" ]]
-    then
-        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
-        ln -snf "${ALLEGRO_REDIST}/$input" "${REDIST}/$input"
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
@@ -199,10 +199,6 @@ function build()
         then
             rm -rf $REDIST/openssl
             tar xf "$OPENSSL_TAR" -C "$REDIST"
-        elif [[ -d $ALLEGRO_REDIST ]]
-        then
-            ln -snf $ALLEGRO_REDIST/openssl $REDIST/openssl
-            echo "Failed to find input openssl, using allegro redist openssl"
         else
             exitFailure 12 "Failed to find openssl"
         fi
@@ -217,33 +213,30 @@ function build()
             echo "WARNING: using system cmake"
         fi
 
-        untar_or_link_to_redist versig
-        untar_or_link_to_redist curl
+        untar_input versig
+        untar_input curl
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib64
-        untar_or_link_to_redist SUL
-        untar_or_link_to_redist boost
-        untar_or_link_to_redist expat
-        untar_or_link_to_redist log4cplus
+        untar_input SUL
+        untar_input boost
+        untar_input expat
+        untar_input log4cplus
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
-        untar_or_link_to_redist zeromq
+        untar_input zeromq
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
-        untar_or_link_to_redist protobuf
-        untar_or_link_to_redist capnproto
-        untar_or_link_to_redist python
-        untar_or_link_to_redist python-watchdog
-        untar_or_link_to_redist python-pathtools
-        untar_or_link_to_redist pycryptodome
-        untar_or_link_to_redist $GOOGLETESTTAR
+        untar_input protobuf
+        untar_input capnproto
+        untar_input python
+        untar_input python-watchdog
+        untar_input python-pathtools
+        untar_input pycryptodome
+        untar_input $GOOGLETESTTAR
         addpath ${REDIST}/protobuf/install${BITS}/bin
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
 
         mkdir -p ${REDIST}/certificates
-        if [[ -f ${INPUT}/ps_certificates/ps_rootca.crt ]]
+        if [[ -f ${INPUT}/ps_rootca.crt ]]
         then
-            cp ${INPUT}/ps_certificates/ps_rootca.crt ${REDIST}/certificates
-        elif [[ -f "$ALLEGRO_REDIST/certificates/ps_rootca.crt" ]]
-        then
-            cp "$ALLEGRO_REDIST/certificates/ps_rootca.crt" ${REDIST}/certificates
+            cp ${INPUT}/ps_rootca.crt ${REDIST}/certificates
         else
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "ps_rootca.crt not available"
         fi
@@ -251,30 +244,15 @@ function build()
         if [[ -f ${INPUT}/manifest_certificates/rootca.crt ]]
         then
             cp "${INPUT}/manifest_certificates/rootca.crt" "${REDIST}/certificates/"
-        elif [[ -f ${INPUT}/ps_certificates/ps_rootca.crt ]]
+        elif [[ -f ${INPUT}/ps_rootca.crt ]]
         then
             ## Use ps_rootca.crt as rootca.crt since they are the same in practice
-            cp "${INPUT}/ps_certificates/ps_rootca.crt" "${REDIST}/certificates/rootca.crt"
-        elif [[ -f "$ALLEGRO_REDIST/certificates/rootca.crt" ]]
-        then
-            cp "$ALLEGRO_REDIST/certificates/rootca.crt" "${REDIST}/certificates"
+            cp "${INPUT}/ps_rootca.crt" "${REDIST}/certificates/rootca.crt"
         else
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "rootca.crt not available"
         fi
-
-    elif [[ -d "$ALLEGRO_REDIST" ]]
-    then
-        echo "WARNING: No input available; using system or /redist files"
-        REDIST=$ALLEGRO_REDIST
-        addpath "$REDIST/cmake/bin"
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/curl/lib${BITS}
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/log4cplus/lib
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/zeromq/lib
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/protobuf/install${BITS}/lib
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/gcc/lib${BITS}
     else
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
     ZIP=$(which zip 2>/dev/null || true)
@@ -299,18 +277,27 @@ function build()
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
     fi
 
+#   Required for build scripts to run on dev machines
+    export LIBRARY=/usr/lib/x86_64-linux-gnu/:${LIBRARY}
+
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
-
+    echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
+    if (( ${NO_BUILD} == 1 ))
+    then
+        exit 0
+    fi
 
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env
     echo "export PATH=$PATH" >>env
+
+
 
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc` / 2)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1

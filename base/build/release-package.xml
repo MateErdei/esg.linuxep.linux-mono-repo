@@ -42,7 +42,7 @@
             <include src="log4cplus.tar" dest="."/>
         </package>
         <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
-            <include src="ps_rootca.crt" dest="ps_certificates"/>
+            <include src="ps_rootca.crt" dest="."/>
         </package>
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
