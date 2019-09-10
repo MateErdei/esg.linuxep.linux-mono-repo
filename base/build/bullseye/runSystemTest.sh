@@ -75,30 +75,37 @@ fi
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
-FILER_6_LINUX=NOT_FOUND
-[[ -d /mnt/filer6/linux/SSPL ]] && FILER_6_LINUX=/mnt/filer6/linux
-[[ -d /uk-filer6/linux/SSPL ]] && FILER_6_LINUX=/uk-filer6/linux
+DEVBFR=NOT_FOUND
+[[ -d /mnt/filer6/bfr/sspl-base ]] && DEVBFR=/mnt/filer6/bfr
+[[ -d /uk-filer6/bfr/sspl-base ]] && DEVBFR=/uk-filer6/bfr
 
-FILER_5_BIR=NOT_FOUND
-[[ -d /uk-filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/uk-filer5/prodro/bir
-[[ -d /mnt/filer5/prodro/bir/sspl-exampleplugin ]] && FILER_5_BIR=/mnt/filer5/prodro/bir
+LASTGOODBUILD () {
+        echo $1/$( cat "$1/lastgoodbuild.txt" )
+}
+
+## BRANCH OVERRIDES
+# You can override the specific branch to use of any jenkins dev build by providing
+# one of the bellow environment variable variables when this script is called
+# If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
+# If none is given, master will be assumed
+
+[[ ! -z ${BASE_BRANCH} ]]                 || BASE_BRANCH="master"
+[[ ! -z ${EXAMPLE_PLUGIN_BRANCH} ]]       || EXAMPLE_PLUGIN_BRANCH="master"
+[[ ! -z ${AUDIT_PLUGIN_BRANCH} ]]         || AUDIT_PLUGIN_BRANCH="master"
+[[ ! -z ${EVENT_PROCESSOR_BRANCH} ]]      || EVENT_PROCESSOR_BRANCH="master"
+[[ ! -z ${MDR_PLUGIN_BRANCH} ]]           || MDR_PLUGIN_BRANCH="master"
+[[ ! -z ${MDR_COMPONENT_SUITE_BRANCH} ]]  || MDR_COMPONENT_SUITE_BRANCH="master"
 
 ## Find example plugin
 if [[ -d "$EXAMPLEPLUGIN_SDDS" ]]
 then
     export EXAMPLEPLUGIN_SDDS
 else
+    EXAMPLE_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/0.5.1/output/SDDS-COMPONENT"
 
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT" ]]
+    if [[ -d ${EXAMPLE_PLUGIN_SOURCE} ]]
     then
-        export EXAMPLEPLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/Example/master/SDDS-COMPONENT
-    elif [[ -d "$FILER_5_BIR/sspl-exampleplugin" ]]
-    then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-exampleplugin/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export EXAMPLEPLUGIN_SDDS="$DIR"
-        fi
+        export EXAMPLEPLUGIN_SDDS=${EXAMPLE_PLUGIN_SOURCE}
     fi
 fi
 
@@ -107,17 +114,10 @@ if [[ -d "$SSPL_AUDIT_PLUGIN_SDDS" ]]
 then
     export SSPL_AUDIT_PLUGIN_SDDS
 else
-
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/AuditPlugin/master/SDDS-COMPONENT" ]]
+    AUDIT_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/0.5.1/output/SDDS-COMPONENT"
+    if [[ -d ${AUDIT_PLUGIN_SOURCE} ]]
     then
-        export SSPL_AUDIT_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/AuditPlugin/master/SDDS-COMPONENT
-    elif [[ -d "$FILER_5_BIR/sspl-audit" ]]
-    then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-audit/0-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SSPL_AUDIT_PLUGIN_SDDS="$DIR"
-        fi
+        export SSPL_AUDIT_PLUGIN_SDDS=${AUDIT_PLUGIN_SOURCE}
     fi
 fi
 
@@ -126,17 +126,10 @@ if [[ -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
 then
     export SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 else
-
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT" ]]
+    EVENT_PROCESSOR_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/0.5.1/output/SDDS-COMPONENT"
+    if [[ -d ${EVENT_PROCESSOR_SOURCE} ]]
     then
-        export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/EventProcessor/master/SDDS-COMPONENT
-    elif [[ -d "$FILER_5_BIR/sspl-eventprocessor" ]]
-    then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-eventprocessor/1-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="$DIR"
-        fi
+        export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=${EVENT_PROCESSOR_SOURCE}
     fi
 fi
 
@@ -145,17 +138,10 @@ if [[ -d "$SSPL_MDR_PLUGIN_SDDS" ]]
 then
     export SSPL_MDR_PLUGIN_SDDS
 else
-
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-control-plugin/master/SDDS-COMPONENT" ]]
+    MDR_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/1.0.0/output/SDDS-COMPONENT"
+    if [[ -d ${MDR_PLUGIN_SOURCE} ]]
     then
-        export SSPL_MDR_PLUGIN_SDDS=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-mdr-control-plugin/master/SDDS-COMPONENT
-    elif [[ -d "$FILER_5_BIR/sspl-mdr-control-plugin" ]]
-    then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-control-plugin/1-*/*/output/SDDS-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SSPL_MDR_PLUGIN_SDDS="$DIR"
-        fi
+        export SSPL_MDR_PLUGIN_SDDS=${MDR_PLUGIN_SOURCE}
     fi
 fi
 
@@ -167,35 +153,13 @@ then
     export SDDS_SSPL_MDR_COMPONENT
     export SDDS_SSPL_MDR_COMPONENT_SUITE
 else
-    if [[ -d "$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE" ]]
+    MDR_COMPONENT_SUITE_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/1.0.0/output"
+    if [[ -d ${MDR_COMPONENT_SUITE_SOURCE} ]]
     then
-        export SDDS_SSPL_MDR_COMPONENT_SUITE=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT-SUITE
-        export SDDS_SSPL_DBOS_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-DBOS-COMPONENT
-        export SDDS_SSPL_OSQUERY_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-OSQUERY-COMPONENT
-        export SDDS_SSPL_MDR_COMPONENT=$FILER_6_LINUX/SSPL/JenkinsBuildOutput/sspl-plugin-mdr-componentsuite/master/SDDS-SSPL-MDR-COMPONENT
-
-    elif [[ -d "$FILER_5_BIR/sspl-mdr-componentsuite" ]]
-    then
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-MDR-COMPONENT-SUITE" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SDDS_SSPL_MDR_COMPONENT_SUITE="$DIR"
-        fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-DBOS-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SDDS_SSPL_DBOS_COMPONENT="$DIR"
-        fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-OSQUERY-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SDDS_SSPL_OSQUERY_COMPONENT="$DIR"
-        fi
-        DIR=$(ls -1 "$FILER_5_BIR/sspl-mdr-componentsuite/1-*/*/output/SDDS-SSPL-MDR-COMPONENT" | sort -rV | head -1)
-        if [[ -d "$DIR" ]]
-        then
-            export SDDS_SSPL_MDR_COMPONENT="$DIR"
-        fi
+        export SDDS_SSPL_MDR_COMPONENT_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
+        export SDDS_SSPL_DBOS_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
+        export SDDS_SSPL_OSQUERY_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-OSQUERY-COMPONENT/"
+        export SDDS_SSPL_MDR_COMPONENT="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT/"
     fi
 fi
 
