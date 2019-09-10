@@ -11,6 +11,7 @@ import mcsrouter.adapters.adapter_base
 import mcsrouter.adapters.mcs.mcs_policy_handler
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
+from mcsrouter.utils.byte2utf8 import to_utf8
 
 
 
@@ -97,6 +98,8 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         output = doc.toxml(encoding="utf-8")
         doc.unlink()
         LOGGER.debug("Status MCS XML: %s", output)
+        output = output if isinstance(output, str) else to_utf8(output)
+        assert( isinstance(output, str))
         return output
 
     def _has_new_status(self):

@@ -13,7 +13,7 @@ import mcsrouter.utils.atomic_write
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper as xml_helper
-
+from mcsrouter.utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 
@@ -108,6 +108,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         try:
             status_xml = xml_helper.get_escaped_non_ascii_content(
                 status_path)
+            status_xml = to_utf8(status_xml) if isinstance(status_xml, bytes) else status_xml
         except IOError:
             return None
         try:

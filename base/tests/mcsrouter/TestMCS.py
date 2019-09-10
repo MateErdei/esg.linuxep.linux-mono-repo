@@ -20,6 +20,8 @@ import PathManager
 import mcsrouter.mcs
 import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.mcsclient.mcs_connection
+import mcsrouter.mcsclient.mcs_commands as mcs_commands
+import mcsrouter.adapters.generic_adapter as generic_adapter
 ORIGINAL_MCS_CONNECTION = mcsrouter.mcsclient.mcs_connection.MCSConnection
 
 import mcsrouter.utils.config
@@ -181,10 +183,6 @@ class TestCommandCheckInterval(unittest.TestCase):
         c.set(20)
         self.assertEqual(c.get(),53)
 
-# except ImportError:
-#     logger.error("Bad sys.path: %s",str(sys.path))
-#     class TestMCS(unittest.TestCase):
-#         pass
 
 if __name__ == '__main__':
     import logging

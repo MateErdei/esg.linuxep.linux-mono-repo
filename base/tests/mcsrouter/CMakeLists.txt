@@ -103,3 +103,13 @@ add_test (NAME PythonTestUtils
 set_tests_properties(PythonTestUtils
         PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
 
+
+add_test (NAME PythonTestGenericAdapter
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/TestGenericAdapter.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
+        )
+
+set_tests_properties(PythonTestGenericAdapter
+        PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+
+

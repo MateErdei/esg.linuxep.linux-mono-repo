@@ -37,6 +37,7 @@ class StatusCache(object):
         @return True if status changed
 
         """
+        assert(isinstance(adapter_status_xml,str))
         now = time.time()
 
         adapter_status_xml = adapter_status_xml.replace('&quot;', '"')

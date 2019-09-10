@@ -3,7 +3,7 @@ adapter_base Module
 """
 
 import mcsrouter.utils.xml_helper
-
+from mcsrouter.utils.byte2utf8 import to_utf8
 import xml.dom.minidom
 
 import logging
@@ -50,6 +50,7 @@ class AdapterBase(object):
         """
         _set_text
         """
+        assert( isinstance(value, str))
         text = doc.createTextNode(value)
         for child in node.childNodes:
             node.removeChild(child)
@@ -109,19 +110,22 @@ class AdapterBase(object):
         get_status_and_config_xml
         """
         status = self._get_status_xml()
-
         if status is None:
             return None
+        assert( isinstance(status, str))
 
         doc = self._parse_xml_string(
             TEMPLATE_STATUS_AND_CONFIGURATION_XML)
         remove_blanks(doc)
         status_node = doc.getElementsByTagName("status")[0]
+
         self._set_text(status_node, doc, status)
         config_node = doc.getElementsByTagName("configuration")[0]
-        self._set_text(config_node, doc, self._get_config_xml())
+        conf_xml = self._get_config_xml()
+        assert(isinstance(conf_xml, str))
+        self._set_text(config_node, doc, conf_xml)
 
-        output = doc.toxml(encoding="utf-8")
+        output = to_utf8(doc.toxml(encoding="utf-8"))
         doc.unlink()
         return output
 

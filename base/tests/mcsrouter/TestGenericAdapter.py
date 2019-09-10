@@ -1,25 +1,33 @@
-
-
-
 import os
 import unittest
 import mock
+
 import sys
 import json
 import builtins
 
 import logging
-logger = logging.getLogger("TestUtils")
+logger = logging.getLogger("TestMCS")
 
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
 
 import PathManager
 
-import mcsrouter.utils.plugin_registry as plugin_registry
-import mcsrouter.utils.xml_helper as xml_helper
+import mcsrouter.mcs
+import mcsrouter.mcsclient.mcs_exception
+import mcsrouter.mcsclient.mcs_connection
+import mcsrouter.mcsclient.mcs_commands as mcs_commands
+import mcsrouter.adapters.generic_adapter as generic_adapter
 
-
+class FakeCommand(mcs_commands.PolicyCommand):
+    def __init__(self, policy):
+        mcs_commands.PolicyCommand.__init__(self, "cmd_id", "ALC", "p_id", None)
+        self.__p = policy
+    def complete(self):
+        pass
+    def get_policy(self):
+        return self.__p
 policyContent = """<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
     <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
@@ -54,33 +62,24 @@ policyContent = """<?xml version="1.0"?>
 </AUConfigurations>
 """
 
-class TestPluginRegistry(unittest.TestCase):
-    @mock.patch('os.listdir', return_value=["dummyplugin.json"])
-    def test_added_and_removed_app_ids(self, *mockargs):
-        mocked_open_function = mock.mock_open(read_data="""{"policyAppIds":["ALC","MDR"]}""")
 
+class TestGenericAdapter(unittest.TestCase):
+
+    def testGenericProcessCommand(self):
+
+        m = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
+        self.assertEqual(m.get_app_id(), 'ALC')
+        alc_policy = FakeCommand(policyContent)
+        mocked_open_function = mock.mock_open()
         with mock.patch("builtins.open", mocked_open_function):
-            pr = plugin_registry.PluginRegistry(INSTALL_DIR)
-            added, removed = pr.added_and_removed_app_ids()
-            self.assertEqual( added, ['ALC', 'MDR'])
-            self.assertEqual(removed, [])
-        mocked_open_function = mock.mock_open(read_data="""{"policyAppIds":["MDR"]}""")
+            m.process_command(alc_policy)
 
-        with mock.patch("builtins.open", mocked_open_function):
-            added, removed = pr.added_and_removed_app_ids()
-            self.assertEqual( added, [])
-            self.assertEqual(removed, ['ALC'])
-
-class TestUtils(unittest.TestCase):
-    def get_escaped_non_ascii_content(self):
+    def testGetStatus(self):
+        m = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
+        self.assertEqual(m.get_app_id(), 'ALC')
         mocked_open_function = mock.mock_open(read_data=policyContent.encode('utf-8'))
-
         with mock.patch("builtins.open", mocked_open_function):
-            content = xml_helper.get_escaped_non_ascii_content('thisfilepath.xml')
-        self.assertTrue( 'Features' in content)
-        self.assertEqual(type(content), type(''))
-
-
+            m.get_status_and_config_xml()
 
 
 

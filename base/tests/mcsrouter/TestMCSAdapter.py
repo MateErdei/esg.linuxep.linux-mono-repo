@@ -914,6 +914,7 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_default("message_relay_address2",None),None)
         self.assertEqual(policy_config.get_default("message_relay_id2",None),None)
 
+
 if __name__ == '__main__':
     if "-q" in sys.argv:
         logging.disable(logging.CRITICAL)
