@@ -18,7 +18,7 @@ import PathManager
 
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
-
+import mcsrouter.mcsclient.status_event as status_event
 
 policyContent = """<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -80,6 +80,20 @@ class TestUtils(unittest.TestCase):
         self.assertTrue( 'Features' in content)
         self.assertEqual(type(content), type(''))
 
+alc_status="""<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
+</status>"""
+alc_expected="""<?xml version="1.0" encoding="utf-8"?><ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"><status><appId>ALC</appId><creationTime>20190912T100000</creationTime><ttl>2</ttl><body>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+&lt;status xmlns=&quot;com.sophos\mansys\status&quot; type=&quot;sau&quot;&gt;
+    &lt;CompRes xmlns=&quot;com.sophos\msys\csc&quot; Res=&quot;Same&quot; RevID=&quot;@@revid@@&quot; policyType=&quot;1&quot; /&gt;
+&lt;/status&gt;</body></status></ns:statuses>"""
+
+class TestStatusEvents(unittest.TestCase):
+    def testStatusEventXmlShouldReturnString(self):
+        se = status_event.StatusEvent()
+        se.add_adapter('ALC', '2', '20190912T100000', alc_status)
+        self.assertEqual(se.xml(), alc_expected)
 
 
 

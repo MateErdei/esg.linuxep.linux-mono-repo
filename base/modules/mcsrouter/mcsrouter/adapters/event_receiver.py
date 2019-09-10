@@ -29,7 +29,11 @@ def receive():
             time = os.path.getmtime(file_path)
             body = xml_helper.get_escaped_non_ascii_content(
                 file_path)
-            xml_helper.check_xml_has_no_script_tags(body)
+            try:
+                xml_helper.check_xml_has_no_script_tags(body)
+            except Exception as ex:
+                LOGGER.ERROR( "Failed verification of xml as it has script. Error: {}".format(str(ex)))
+                continue
             yield (app_id, time, body)
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
