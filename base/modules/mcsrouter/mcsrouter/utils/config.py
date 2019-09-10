@@ -4,8 +4,7 @@ config Module
 """
 
 import os
-import mcsrouter.utils.path_manager
-
+from . import path_manager
 
 class Config(object):
     """

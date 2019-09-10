@@ -16,6 +16,7 @@ import urllib.request
 import urllib.error
 import urllib.parse
 import time
+from .utils.byte2utf8 import to_utf8
 
 DISTRIBUTION_NAME_MAP = {
     'debian': 'debian',
@@ -197,7 +198,8 @@ class TargetSystem(object):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         shell=shell)
-                (stdout, stderr) = proc.communicate()  # pylint: disable=unused-variable
+                (stdout_b, stderr_b) = proc.communicate()  # pylint: disable=unused-variable
+                stdout = to_utf8(stdout_b) if stdout_b else ""
                 ret_code = proc.wait()
                 assert ret_code is not None
             except OSError:
@@ -280,9 +282,7 @@ class TargetSystem(object):
             # failed to run lsb_release
             return
 
-        stdout_string = stdout.decode('utf-8')
-
-        lines = stdout_string.split("\n")
+        lines = stdout.split("\n")
         # Each line consists of "Key:<whitespace>*<value>"
         matcher = re.compile(r"([^:]+):\s*(.+)$")
         for line in lines:
@@ -530,15 +530,15 @@ class TargetSystem(object):
         try:
             # Don't try two dmidecodes if the first gives an error
             devnull = open("/dev/null", "wb")
-            results1 = subprocess.check_output(
+            results1 = to_utf8(subprocess.check_output(
                 args=[
                     "dmidecode",
                     "--string",
                     "system-uuid"],
-                stderr=devnull)
-            results2 = subprocess.check_output(
-                args=["dmidecode", "-s", "bios-version"], stderr=devnull)
-            if results1.startswith(b"EC2") or b"amazon" in results2:
+                stderr=devnull))
+            results2 = to_utf8(subprocess.check_output(
+                args=["dmidecode", "-s", "bios-version"], stderr=devnull))
+            if results1.startswith("EC2") or "amazon" in results2:
                 return True
         except (subprocess.CalledProcessError, EnvironmentError):
             pass
@@ -822,13 +822,11 @@ class TargetSystem(object):
         """
         Check that the kernel version of the is at least other_version
         """
-        glibc_version_byte_string = self.get_glibc_version()
+        glibc_version = self.get_glibc_version()
 
-        if glibc_version_byte_string is None:
+        if glibc_version is None:
             print("WARNING: No glibc Version", file=sys.stderr)
             return False
-
-        glibc_version = glibc_version_byte_string.decode('utf-8')
 
         return self.version_compare(glibc_version, other_version)
 
@@ -959,7 +957,7 @@ class TargetSystem(object):
         try:
             ldd = subprocess.Popen(
                 ("ldd", "--version"), stdout=subprocess.PIPE)
-            ldd_version = self.split_ldd_output(ldd.communicate()[0])
+            ldd_version = self.split_ldd_output(to_utf8(ldd.communicate()[0]))
         except subprocess.CalledProcessError:
             pass
         except OSError:

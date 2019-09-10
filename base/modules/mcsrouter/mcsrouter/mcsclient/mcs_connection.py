@@ -25,6 +25,7 @@ from mcsrouter import sophos_https
 from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
 import mcsrouter.utils.path_manager as path_manager
+from ..utils.byte2utf8 import to_utf8
 
 
 LOGGER = logging.getLogger(__name__)
@@ -879,6 +880,7 @@ class MCSConnection(object):
             mcs_id = ""
         password = self.get_password() or ""
         auth = "%s:%s:%s" % (mcs_id, password, token)
+        auth = auth.encode('utf-8')
         headers = {
             "Authorization": "Basic %s" % (base64.b64encode(auth)),
             "Content-Type": "application/xml; charset=utf-8",
@@ -889,6 +891,7 @@ class MCSConnection(object):
         (headers, body) = self.__request(
             "/register", headers, body=status_xml, method="POST")
         body = base64.b64decode(body)
+        body = to_utf8(body)
         (endpoint_id, password) = body.split(":", 1)
         LOGGER.debug("Register returned endpoint_id '%s'", endpoint_id)
         LOGGER.debug("Register returned password   '%s'", password)
@@ -907,11 +910,11 @@ class MCSConnection(object):
 
         bytes_to_be_encoded = "{}:{}".format(self.get_id(), self.get_password())
         bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
-        base64encoded_string = base64.b64encode(bytes_to_be_encoded).decode("utf-8")
+        base64encoded_string = to_utf8(base64.b64encode(bytes_to_be_encoded))
 
         headers = {
             "Authorization": "Basic " +
-                             base64.b64encode(bytes_to_be_encoded).decode("utf-8"),
+                             to_utf8(base64.b64encode(bytes_to_be_encoded)),
             "Content-Type": "application/xml; charset=utf-8",
         }
         if method != "GET":

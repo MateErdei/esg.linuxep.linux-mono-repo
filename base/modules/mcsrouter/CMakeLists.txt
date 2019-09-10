@@ -15,16 +15,16 @@ add_custom_target(mcsrouter ALL
         pathtools
         watchdog
         pycryptodome
-        python
+        python3
         )
 
 add_custom_command(OUTPUT mcsrouter.zip
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         # force compile all required mcs python code.
+        # python3 changed the way to produce .pyc, and in order to allow for 'sourceless' distribution,
+        # no python source can be present. https://www.python.org/dev/peps/pep-3147/#case-4-legacy-pyc-files-and-source-less-imports
         COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall -b ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
-        COMMAND find . -name "*pyc" -print | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
-        # clean up compiled files
-        COMMAND find . -name "*.pyc" | xargs rm -f
+        COMMAND find mcsrouter | grep -v __pycache__ | grep "pyc" | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         DEPENDS ${mcs_router_DEPS}
         )
 
@@ -65,7 +65,7 @@ add_custom_command(OUTPUT pycryptodome
         COMMAND find ${PYCRYPTODOME_INPUT}/Crypto -name "*.pyo" -type f | xargs -r rm -f
         )
 
-add_custom_command(OUTPUT python
+add_custom_command(OUTPUT python3
         WORKING_DIRECTORY ${INPUT}
         COMMAND cp ${PYTHON_INPUT}/install64/bin/python3 ${CMAKE_BINARY_DIR}
         )

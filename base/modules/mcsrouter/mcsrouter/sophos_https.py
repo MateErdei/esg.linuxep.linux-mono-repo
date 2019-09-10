@@ -3,8 +3,6 @@
 sophos_https Module
 """
 
-
-
 import os
 import urllib.request, urllib.error, urllib.parse
 import socket
@@ -18,7 +16,6 @@ import urllib.parse
 # pylint: disable=relative-import
 from . import proxy_authorization
 from .mcsclient import mcs_exception
-
 LOGGER = None
 
 
@@ -314,7 +311,7 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
 
             # Cert verification now built-in (Python 2.7.9)
         except socket.error as exception:
-            raise mcsclient.mcs_exception.MCSConnectionFailedException(exception)
+            raise mcs_exception.MCSConnectionFailedException(exception)
 
 
 class ConnectHTTPSHandler(urllib.request.HTTPSHandler):

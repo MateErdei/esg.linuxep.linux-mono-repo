@@ -6,7 +6,7 @@ plugin_registry Module
 import json
 import logging
 import os
-
+from mcsrouter.utils.byte2utf8 import to_utf8
 import mcsrouter.utils.path_manager
 
 LOGGER = logging.getLogger(__name__)
@@ -83,9 +83,8 @@ class PluginRegistry(object):
         added_app_ids = app_ids.difference(self._current_app_ids)
         removed_app_ids = self._current_app_ids.difference(app_ids)
         self._current_app_ids = app_ids
-        added_list = [node.encode('ascii', 'ignore') for node in added_app_ids]
-        removed_list = [node.encode('ascii', 'ignore')
-                        for node in removed_app_ids]
+        added_list = [node for node in added_app_ids]
+        removed_list = [node for node in removed_app_ids]
         added_list.sort()
         removed_list.sort()
 

@@ -93,3 +93,13 @@ add_test (NAME PythonTestTimestamp
 
 set_tests_properties(PythonTestTimestamp
         PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+
+
+add_test (NAME PythonTestUtils
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/TestUtils.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
+        )
+
+set_tests_properties(PythonTestUtils
+        PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+

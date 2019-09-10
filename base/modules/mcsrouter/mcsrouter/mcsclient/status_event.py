@@ -10,6 +10,7 @@ status_event Module
 import mcsrouter.utils.xml_helper
 
 from . import events
+from ..utils.byte2utf8 import  to_utf8
 
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""
@@ -39,7 +40,7 @@ class StatusEvent(object):
         xml = self.xmlBuilder()
         mcsrouter.utils.xml_helper.check_string_length_for_statuses(xml)
 
-        return xml
+        return to_utf8(xml)
 
     def xmlBuilder(self):
         doc = mcsrouter.utils.xml_helper.parseString(TEMPLATE_STATUS_EVENT)

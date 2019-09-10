@@ -27,6 +27,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         __init__
         """
+        assert( isinstance(app_id, str))
         self.__m_app_id = app_id
         self.__m_last_status_time = None
         if install_dir is not None:
