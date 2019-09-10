@@ -159,4 +159,8 @@ else
     chmod +x tests/remoterobot.py
 fi
 
+# Setup CI build scripts
+echoProgress "Setting up the CI build scripts"
+sudo ./SetupCIBuildScripts.sh
+
 popd &> /dev/null
