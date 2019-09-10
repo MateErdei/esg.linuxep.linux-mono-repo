@@ -22,24 +22,24 @@ def get_all_interfaces():
     """
     is_64bits = sys.maxsize > 2**32
     struct_size = 40 if is_64bits else 32
-    socket_instance = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    max_possible = 8  # initial value
-    while True:
-        number_of_bytes = max_possible * struct_size
-        names = array.array('B', b'\0' * number_of_bytes)
-        out_bytes = struct.unpack('iL', fcntl.ioctl(
-            socket_instance.fileno(),
-            0x8912,  # SIOCGIFCONF
-            struct.pack('iL', number_of_bytes, names.buffer_info()[0])
-        ))[0]
-        if out_bytes == number_of_bytes:
-            max_possible *= 2
-        else:
-            break
-    name_string = names.tobytes()
-    return [(name_string[i:i + 16].split(b'\0', 1)[0],
-             socket.inet_ntoa(name_string[i + 20:i + 24]))
-            for i in range(0, out_bytes, struct_size)]
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as socket_instance:
+        max_possible = 8  # initial value
+        while True:
+            number_of_bytes = max_possible * struct_size
+            names = array.array('B', b'\0' * number_of_bytes)
+            out_bytes = struct.unpack('iL', fcntl.ioctl(
+                socket_instance.fileno(),
+                0x8912,  # SIOCGIFCONF
+                struct.pack('iL', number_of_bytes, names.buffer_info()[0])
+            ))[0]
+            if out_bytes == number_of_bytes:
+                max_possible *= 2
+            else:
+                break
+        name_string = names.tobytes()
+        return [(name_string[i:i + 16].split(b'\0', 1)[0],
+                 socket.inet_ntoa(name_string[i + 20:i + 24]))
+                for i in range(0, out_bytes, struct_size)]
 
 
 def get_non_local_ipv4():

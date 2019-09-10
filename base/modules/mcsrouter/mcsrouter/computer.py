@@ -40,6 +40,7 @@ class Computer(object):
         """
         remove_adapter_by_app_id
         """
+        assert(isinstance(app_id, str))
         try:
             del self.__m_adapters[app_id]
         except KeyError as exception:

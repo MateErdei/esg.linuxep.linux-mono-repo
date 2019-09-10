@@ -19,6 +19,7 @@ import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_commands as mcs_commands
 import mcsrouter.adapters.generic_adapter as generic_adapter
+import mcsrouter.adapters.agent_adapter as agent_adapter
 
 class FakeCommand(mcs_commands.PolicyCommand):
     def __init__(self, policy):
@@ -80,6 +81,15 @@ class TestGenericAdapter(unittest.TestCase):
         mocked_open_function = mock.mock_open(read_data=policyContent.encode('utf-8'))
         with mock.patch("builtins.open", mocked_open_function):
             m.get_status_and_config_xml()
+
+    @mock.patch('os.listdir', return_value=["ALC-1_policy.xml"])
+    @mock.patch('os.path.isfile', return_value=True)
+    @mock.patch('os.path.getmtime', return_value=1567677734.4998658)
+    def testAgentAdapter(self, *mockargs):
+        agent = agent_adapter.AgentAdapter(INSTALL_DIR)
+        mocked_open_function = mock.mock_open(read_data="""{"policyAppIds":["ALC","MDR"]}""")
+        with mock.patch("builtins.open", mocked_open_function):
+            self.assertEqual(agent.get_policy_status(), """<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
 
 
 

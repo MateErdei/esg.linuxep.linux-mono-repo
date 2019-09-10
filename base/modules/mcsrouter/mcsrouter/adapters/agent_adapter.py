@@ -10,7 +10,7 @@ import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.target_system_manager
 import mcsrouter.utils.path_manager as path_manager
-
+import time
 import os
 
 LOGGER = logging.getLogger(__name__)
@@ -277,7 +277,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                 # Policies have three letter acronyms
                 filename = filename[:3]
 
-                if latest_timestamp > epoch_timestamp:
+                if latest_timestamp > windows_timestamp:
                     latest_timestamp = windows_timestamp
                 entries.append("<policy app=\"{}\" latest=\"{}\" />".format(filename, windows_timestamp))
 
