@@ -963,14 +963,10 @@ class MCSConnection(object):
         commands = self.send_message_with_id(
             "/commands/applications/%s/endpoint/" %
             (";".join(app_ids)))
-
-        if isinstance(commands, str):
-            commands = commands.encode('utf-8', errors='replace')
-
         try:
             doc = mcsrouter.utils.xml_helper.parseString(commands)
-        except xml.parsers.expat.ExpatError:
-            LOGGER.exception("Failed to parse commands: %s", commands)
+        except xml.parsers.expat.ExpatError as ex:
+            LOGGER.error("Failed to parse commands: {}. Error: {}".format(commands, ex))
             return []
         try:
             command_nodes = doc.getElementsByTagName("command")

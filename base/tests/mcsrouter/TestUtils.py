@@ -19,6 +19,7 @@ import PathManager
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
+import xml.parsers.expat
 
 policyContent = """<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -80,6 +81,20 @@ class TestUtils(unittest.TestCase):
         self.assertTrue( 'Features' in content)
         self.assertEqual(type(content), type(''))
 
+    def test_parseString(self):
+        passed = False
+        try:
+            xml_helper.parseString(b'')
+        except xml.parsers.expat.ExpatError:
+            passed = True
+        self.assertTrue(passed)
+
+        alc_policy = xml_helper.parseString(policyContent)
+
+        elements = alc_policy.getElementsByTagName('subscription')
+        self.assertEqual( len(elements), 4)
+
+
 alc_status="""<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
@@ -94,6 +109,7 @@ class TestStatusEvents(unittest.TestCase):
         se = status_event.StatusEvent()
         se.add_adapter('ALC', '2', '20190912T100000', alc_status)
         self.assertEqual(se.xml(), alc_expected)
+
 
 
 
