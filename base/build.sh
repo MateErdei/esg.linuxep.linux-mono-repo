@@ -40,7 +40,12 @@ INPUT=$BASE/input
 if [[ ! -d "$INPUT"  && -d "$BASE/sspl-base-build" ]]
 then
     INPUT="$BASE/sspl-base-build/input"
+else
+    MESSAGE_PART1="You need to run the following to setup your input folder: "
+    MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build/release-package.xml"
+    exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
 fi
+
 
 COVFILE="/tmp/root/sspl-unit.cov"
 COV_HTML_BASE=sspl-unittest
