@@ -148,13 +148,18 @@ done
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
-if [[ ! -d "$INPUT"  && -d "$BASE/sspl-template-plugin-build" ]]
+
+
+if [[ ! -d "$INPUT" ]]
 then
-    INPUT="$BASE/sspl-template-plugin-build/input"
-else
-    MESSAGE_PART1="You need to run the following to setup your input folder: "
-    MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
-    exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
+    if [[ -d "$BASE/sspl-template-plugin-build" ]]
+    then
+        INPUT="$BASE/sspl-template-plugin-build/input"
+    else
+        MESSAGE_PART1="You need to run the following to setup your input folder: "
+        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
+        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
+    fi
 fi
 
 function untar_input()
