@@ -149,7 +149,6 @@ export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
 
-
 if [[ ! -d "$INPUT" ]]
 then
     if [[ -d "$BASE/sspl-template-plugin-build" ]]
