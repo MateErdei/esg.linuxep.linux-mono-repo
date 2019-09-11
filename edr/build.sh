@@ -67,6 +67,12 @@ do
         --no-strip)
             export ENABLE_STRIP=0
             ;;
+        --no-build)
+            NO_BUILD=1
+            ;;
+        --no-unpack)
+            NO_UNPACK=1
+            ;;
         --cmake-option)
             shift
             EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} $1"
@@ -142,9 +148,16 @@ done
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
-ALLEGRO_REDIST=/redist/binaries/linux11/input
+if [[ ! -d "$INPUT"  && -d "$BASE/sspl-template-plugin-build" ]]
+then
+    INPUT="$BASE/sspl-template-plugin-build/input"
+else
+    MESSAGE_PART1="You need to run the following to setup your input folder: "
+    MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
+    exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
+fi
 
-function untar_or_link_to_redist()
+function untar_input()
 {
     local input=$1
     local tarbase=$2
@@ -169,10 +182,6 @@ function untar_or_link_to_redist()
     then
         echo "untaring ${tar}.gz"
         tar xzf "${tar}.gz" -C "$REDIST"
-    elif [[ -d "${ALLEGRO_REDIST}/$input" ]]
-    then
-        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
-        ln -snf "${ALLEGRO_REDIST}/$input" "${REDIST}/$input"
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
@@ -187,40 +196,22 @@ function build()
     echo "PATH=$PATH"
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
 
-    cd $BASE
-
-    ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
-    ## which doesn't like our openssl
-    git submodule sync --recursive || exitFailure 34 "Failed to sync submodule configuration"
-    GIT_SSL_NO_VERIFY=true  \
-        git -c http.sslVerify=false submodule update --init --recursive || {
-        sleep 1
-        echo ".gitmodules:"
-        cat .gitmodules
-        echo ".git/config:"
-        cat .git/config
-        exitFailure 33 "Failed to get googletest via git"
-    }
-
-
-    unpack_scaffold_gcc_make "$INPUT"
-
-    if [[ -d $INPUT ]]
+    if [[ ! -d $INPUT ]]
     then
-        REDIST=$BASE/redist
-        mkdir -p $REDIST
-
-        untar_or_link_to_redist pluginapi "" ${PLUGIN_TAR}
-        untar_or_link_to_redist cmake cmake-3.11.2-linux
-        untar_or_link_to_redist $GOOGLETESTTAR
-
-    elif [[ -d "$ALLEGRO_REDIST" ]]
-    then
-        echo "WARNING: No input available; using system or $ALLEGRO_REDIST files"
-        REDIST=$ALLEGRO_REDIST
-    else
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No redist or input available"
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
+
+    REDIST=$BASE/redist
+
+    if [[ -z "$NO_UNPACK" ]]
+    then
+        mkdir -p $REDIST
+        unpack_scaffold_gcc_make "$INPUT"
+        untar_input pluginapi "" ${PLUGIN_TAR}
+        untar_input cmake cmake-3.11.2-linux
+        untar_input $GOOGLETESTTAR
+    fi
+
     addpath "$REDIST/cmake/bin"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
@@ -240,10 +231,19 @@ function build()
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
     fi
 
+    #   Required for build scripts to run on dev machines
+    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+
     [[ -n $CC ]] || CC=$(which gcc)
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
     export CXX
+
+    if (( $NO_BUILD == 1 ))
+    then
+        exit 0
+    fi
 
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
