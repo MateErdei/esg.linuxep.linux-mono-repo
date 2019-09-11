@@ -203,7 +203,7 @@ function build()
 
     REDIST=$BASE/redist
 
-    if [[ ! -z "$NO_UNPACK" ]]
+    if [[ -z "$NO_UNPACK" ]]
     then
         unpack_scaffold_gcc_make "$INPUT"
 
