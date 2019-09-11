@@ -20,6 +20,7 @@ import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
 import mcsrouter.sophos_https as sophos_https
+import mcsrouter.ip_selection as ip_selection
 
 import xml.parsers.expat
 
@@ -123,6 +124,14 @@ class TestSophosHTTPS(unittest.TestCase):
     def testTunnel(self):
         conn=sophos_https.CertValidatingHTTPSConnection()
         conn._tunnel()
+
+class TestIPSelection(unittest.TestCase):
+    def test_ip_address_distance(self):
+        self.assertEqual(ip_selection.get_ip_address_distance('127.0.0.1', '31.222.175.174'), 31)
+        self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.1', '127.1.3.3'), 17)
+        self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.5', '127.0.1.3'), 3)
+        self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.3', '127.0.1.3'), 0)
+        self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.1', '127.0.1.2'), 2)
 
 
 if __name__ == '__main__':

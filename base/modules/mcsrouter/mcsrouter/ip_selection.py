@@ -4,6 +4,7 @@ ip_selection Module
 """
 
 import socket
+import ipaddress
 import threading
 
 from . import ip_address
@@ -48,8 +49,8 @@ def ip_string_to_int(ip_addr, ip_type):
     ip_string_to_int
     """
     if ip_type == "ipv4":
-        return int(socket.inet_pton(socket.AF_INET, ip_addr).encode('hex'), 16)
-    return int(socket.inet_pton(socket.AF_INET6, ip_addr).encode('hex'), 16)
+        return int(ipaddress.IPv4Address(ip_addr))
+    return int(ipaddress.IPv6Address(ip_addr))
 
 
 def get_ip_address_distance(local_ip, remote_ip, ip_type="ipv4"):
