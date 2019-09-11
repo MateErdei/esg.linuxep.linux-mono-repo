@@ -25,6 +25,7 @@ add_custom_command(OUTPUT mcsrouter.zip
         # no python source can be present. https://www.python.org/dev/peps/pep-3147/#case-4-legacy-pyc-files-and-source-less-imports
         COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall -b ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
         COMMAND find mcsrouter | grep -v __pycache__ | grep "pyc" | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
+        #COMMAND find mcsrouter | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         DEPENDS ${mcs_router_DEPS}
         )
 

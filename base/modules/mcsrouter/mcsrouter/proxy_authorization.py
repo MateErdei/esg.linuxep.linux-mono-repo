@@ -117,12 +117,12 @@ class ProxyAuthorization(object):
         get_authenticate_header
         """
         #pylint: disable=no-self-use
-        headers = response.msg.headers
-        for header in headers:
-            if header.lower().startswith("proxy-authenticate: "):
-                return header[len('Proxy-Authenticate: '):]
+        msg = response.msg
+        proxy_key = [key for key in msg.keys() if key.lower().startswith('proxy-authenticate')]
+        if proxy_key:
+            return msg.get(proxy_key[0])
 
-        LOGGER.error("No authentication header found: %s", str(headers))
+        LOGGER.error("No authentication header found: {}".format(msg.as_string()))
         return None
 
     def update_auth_header(self, response):

@@ -235,11 +235,12 @@ def add_options_to_policy(relays, proxycredentials):
             policy_config.set(id_key, relay_id)
 
     if proxycredentials is not None:
+        cred_encoded = proxycredentials.encode('utf-8')
         obfuscated = sec_obfuscation.obfuscate(
             sec_obfuscation.ALGO_AES256,
-            proxycredentials,
+            cred_encoded,
             RandomGenerator())
-        policy_config.set("mcs_policy_proxy_credentials", obfuscated)
+        policy_config.set("mcs_policy_proxy_credentials", to_utf8(obfuscated))
 
     policy_config.save()
 
