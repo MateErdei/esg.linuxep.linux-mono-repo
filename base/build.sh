@@ -100,6 +100,9 @@ do
         --no-build)
             NO_BUILD=1
             ;;
+        --no-unpack)
+            NO_UNPACK=1
+            ;;
         --bullseye|--bulleye)
             BULLSEYE=1
             BULLSEYE_UPLOAD=1
@@ -191,12 +194,17 @@ function build()
     echo "Build type=${CMAKE_BUILD_TYPE}"
     echo "Debug=${DEBUG}"
 
-    if [[ -d "$INPUT" ]]
+    if [[ ! -d "$INPUT" ]]
     then
+        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
+    fi
 
+    REDIST=$BASE/redist
+
+    if [[ ! -z "$NO_UNPACK" ]]
+    then
         unpack_scaffold_gcc_make "$INPUT"
 
-        REDIST=$BASE/redist
         mkdir -p $REDIST
 
         OPENSSL_TAR=${INPUT}/openssl.tar
@@ -256,9 +264,8 @@ function build()
         else
             exitFailure $FAILURE_INPUT_NOT_AVAILABLE "rootca.crt not available"
         fi
-    else
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
+
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
     ZIP=$(which zip 2>/dev/null || true)
     [[ -x "$ZIP" ]] || {
@@ -283,7 +290,7 @@ function build()
     fi
 
 #   Required for build scripts to run on dev machines
-    export LIBRARY=/usr/lib/x86_64-linux-gnu/:${LIBRARY}
+    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
