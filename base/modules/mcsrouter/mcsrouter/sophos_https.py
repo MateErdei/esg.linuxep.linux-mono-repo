@@ -174,7 +174,7 @@ class Proxy(object):
             return None
 
         raw = "%s:%s" % (self.m_username, self.m_password)
-        return 'Basic %s' % base64.b64encode(raw).strip()
+        return 'Basic ' + base64.b64encode(raw.encode('utf-8')).strip().decode('utf-8')
 
 
 class InvalidCertificateException(http.client.HTTPException, urllib.error.URLError):
@@ -234,14 +234,14 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
     default_port = http.client.HTTPS_PORT
 
     def __init__(self, host, port=None, key_file=None, cert_file=None,
-                 ca_certs=None, strict=None, timeout=None, **kwargs):
+                 ca_certs=None, timeout=None, **kwargs):
         """
         __init__
         """
         # pylint: disable=too-many-arguments
 
         http.client.HTTPConnection.__init__(
-            self, host, port, strict, timeout, **kwargs)
+            self, host, port, timeout, **kwargs)
         self.key_file = key_file
         self.cert_file = cert_file
         self.ca_certs = ca_certs
@@ -265,9 +265,10 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         for header, value in self._tunnel_headers.items():
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
-        self.send("".join(connect))
-        response = self.response_class(self.sock, strict=self.strict,
-                                       method=self._method)
+        info( "Connect message: ", str(connect))
+        content = ''.join(connect)
+        self.send(content.encode('utf-8'))
+        response = self.response_class(self.sock, method=self._method)
         response.begin()
 
         if response.version == 9:
@@ -287,7 +288,7 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         "Connect to a host on a given (SSL) port."
         try:
             sock = socket.create_connection((self.host, self.port),
-                                            self.timeout, None)
+                                            self.timeout, self.source_address)
             if self._tunnel_host:
                 self.sock = sock
                 self._tunnel()

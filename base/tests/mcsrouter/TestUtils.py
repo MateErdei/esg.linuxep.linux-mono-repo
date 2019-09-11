@@ -19,6 +19,8 @@ import PathManager
 import mcsrouter.utils.plugin_registry as plugin_registry
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
+import mcsrouter.sophos_https as sophos_https
+
 import xml.parsers.expat
 
 policyContent = """<?xml version="1.0"?>
@@ -111,7 +113,16 @@ class TestStatusEvents(unittest.TestCase):
         self.assertEqual(se.xml(), alc_expected)
 
 
+class TestSophosHTTPS(unittest.TestCase):
+    def testProxyProducesHeaderAsString(self):
+        proxy = sophos_https.Proxy()
+        proxy.m_username = 'user'
+        proxy.m_password = 'pass'
+        self.assertEqual(proxy.auth_header(), 'Basic dXNlcjpwYXNz')
 
+    def testTunnel(self):
+        conn=sophos_https.CertValidatingHTTPSConnection()
+        conn._tunnel()
 
 
 if __name__ == '__main__':

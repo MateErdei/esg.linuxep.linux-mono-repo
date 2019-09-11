@@ -331,11 +331,9 @@ class MCSPolicyHandler(object):
         try:
             dom = mcsrouter.utils.xml_helper.parseString(policy_xml)
         except xml.parsers.expat.ExpatError as exception:
-            LOGGER.error(
-                "Failed to parse MCS policy (%s): %s",
-                str(exception),
-                policy_xml)
-            return
+            message = "Failed to parse MCS policy ({}): {}".format(str(exception), policy_xml)
+            LOGGER.error(message)
+            raise RuntimeError("Invalid xml policy")
 
         try:
             policy_nodes = dom.getElementsByTagName("policy")
