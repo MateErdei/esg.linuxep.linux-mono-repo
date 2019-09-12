@@ -17,10 +17,38 @@ INSTALLER_HEADER=installer_header.sh
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
-
 export NO_REMOVE_GCC=1
+
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --no-build)
+            NO_BUILD=1
+            ;;
+        --no-unpack)
+            NO_UNPACK=1
+            ;;
+        *)
+            exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
 INPUT=$BASE/input
-ALLEGRO_REDIST=/redist/binaries/linux11/input
+
+if [[ ! -d "$INPUT" ]]
+then
+    if [[ -d "$BASE/sspl-thininstaller-build" ]]
+    then
+        INPUT="$BASE/sspl-thininstaller-build/input"
+    else
+        MESSAGE_PART1="You need to run the following to setup your input folder: "
+        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch release-package.xml"
+        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
+    fi
+fi
+
 REDIST=$BASE/redist
 mkdir -p $REDIST
 
@@ -39,7 +67,7 @@ function create_versioned_installer_header()
     INSTALLER_HEADER=installer_header_versioned.sh
 }
 
-function untar_or_link_to_redist()
+function untar_input()
 {
     local input=$1
     local tar=${INPUT}/${input}.tar
@@ -48,10 +76,6 @@ function untar_or_link_to_redist()
     then
         echo "Untaring $tar"
         tar xf "$tar" -C "$REDIST"
-    elif [[ -d ${ALLEGRO_REDIST}/$input ]]
-    then
-        echo "Linking ${REDIST}/$input to ${ALLEGRO_REDIST}/$input"
-        ln -snf ${ALLEGRO_REDIST}/$input ${REDIST}/$input
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
@@ -73,10 +97,6 @@ function prepare_dependencies()
             tar xf "$OPENSSL_TAR" -C "$REDIST"
             ln -snf libssl.so.1 ${REDIST}/openssl/lib64/libssl.so.11
             ln -snf libcrypto.so.1 ${REDIST}/openssl/lib64/libcrypto.so.11
-        elif [[ -d $ALLEGRO_REDIST ]]
-        then
-            ln -snf $ALLEGRO_REDIST/openssl $REDIST/openssl
-            echo "Failed to find input openssl, using allegro redist openssl"
         else
             exitFailure 12 "Failed to find openssl"
         fi
@@ -88,26 +108,17 @@ function prepare_dependencies()
         then
             tar xzf "$CMAKE_TAR" -C "$REDIST"
             addpath "$REDIST/cmake/bin"
-        elif [[ -d $ALLEGRO_REDIST/cmake ]]
-        then
-            ln -snf $ALLEGRO_REDIST/cmake $REDIST/cmake
-            addpath "$REDIST/cmake/bin"
         else
             echo "WARNING: using system cmake"
         fi
         echo "Using cmake: $(which cmake)"
 
-        untar_or_link_to_redist versig
-        untar_or_link_to_redist curl
-        untar_or_link_to_redist SUL
-        untar_or_link_to_redist boost
-        untar_or_link_to_redist expat
-        untar_or_link_to_redist zlib
-    elif [[ -d $ALLEGRO_REDIST ]]
-    then
-        echo "WARNING: No input available; using system or /redist files"
-        REDIST=$ALLEGRO_REDIST
-        addpath "$REDIST/cmake/bin"
+        untar_input versig
+        untar_input curl
+        untar_input SUL
+        untar_input boost
+        untar_input expat
+        untar_input zlib
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
     fi
@@ -122,7 +133,16 @@ function build()
 
     cd $BASE
 
-    prepare_dependencies
+    if [[ -z "$NO_UNPACK" ]]
+    then
+        prepare_dependencies
+    fi
+
+    if (( $NO_BUILD == 1 ))
+    then
+        exit 0
+    fi
+
     ls -l ./redist
 
     rm -rf $BASE/output
