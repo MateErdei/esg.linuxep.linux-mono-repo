@@ -9,13 +9,13 @@ fi
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 
 mkdir -p ~/.config/pip/
-cd ~/.config/pip/
+pushd ~/.config/pip/
 echo [global] > pip.conf
 echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
 echo cert = $SCRIPTDIR/sophos_certs.pem >> pip.conf
 
 python3 -m pip install build_scripts
-
+popd
 rm -rf ~/.config/pip/
 
 #Update the hardcoded paths to filer 5 and filer 6 in the build scripts to work on dev machines
