@@ -20,27 +20,27 @@ set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
-set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
+set(GENERATE_SDDS_IMPORT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImport.py )
 
-add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         )
 
 add_custom_target(
         dist
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(
         forcedist
-        COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND rm -f ${DIST}/SDDS-Import.xml
         COMMAND python ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND python ${GENERATE_SDDS_IMPORT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
 )
 
 install(FILES  ${third_party_libs}
@@ -53,7 +53,12 @@ add_custom_target(
 )
 
 execute_process(
-        COMMAND python ${REDIST}/pluginapi/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
+        COMMAND python ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
+        OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+        COMMAND python ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
         OUTPUT_VARIABLE PRODUCT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
