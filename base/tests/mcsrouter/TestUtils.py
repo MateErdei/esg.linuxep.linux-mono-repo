@@ -21,6 +21,7 @@ import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
 import mcsrouter.sophos_https as sophos_https
 import mcsrouter.ip_selection as ip_selection
+from mcsrouter import ip_address
 
 import xml.parsers.expat
 
@@ -129,6 +130,11 @@ class TestIPSelection(unittest.TestCase):
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.5', '127.0.1.3'), 3)
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.3', '127.0.1.3'), 0)
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.1', '127.0.1.2'), 2)
+
+    def test_ip_fqdn(self):
+        fq = ip_address.get_fqdn()
+        self.assertNotIn("b'", fq)
+
 
 
 if __name__ == '__main__':

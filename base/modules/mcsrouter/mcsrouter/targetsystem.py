@@ -491,8 +491,9 @@ class TargetSystem(object):
         :return:
         """
         try:
-            if "ec2" in open("/sys/hypervisor/uuid").read():
-                return True
+            with open('/sys/hypervisor/uuid') as f:
+                if "ec2" in f.read():
+                    return True
         except EnvironmentError:
             pass
 
@@ -529,17 +530,17 @@ class TargetSystem(object):
 
         try:
             # Don't try two dmidecodes if the first gives an error
-            devnull = open("/dev/null", "wb")
-            results1 = to_utf8(subprocess.check_output(
-                args=[
+            with open("/dev/null", "wb") as devnull:
+                results1 = to_utf8(subprocess.check_output(
+                    args=[
                     "dmidecode",
                     "--string",
                     "system-uuid"],
-                stderr=devnull))
-            results2 = to_utf8(subprocess.check_output(
-                args=["dmidecode", "-s", "bios-version"], stderr=devnull))
-            if results1.startswith("EC2") or "amazon" in results2:
-                return True
+                    stderr=devnull))
+                results2 = to_utf8(subprocess.check_output(
+                    args=["dmidecode", "-s", "bios-version"], stderr=devnull))
+                if results1.startswith("EC2") or "amazon" in results2:
+                    return True
         except (subprocess.CalledProcessError, EnvironmentError):
             pass
 

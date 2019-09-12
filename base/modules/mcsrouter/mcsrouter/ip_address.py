@@ -14,6 +14,7 @@ import fcntl
 import struct
 import array
 import subprocess
+from .utils.byte2utf8 import to_utf8
 
 
 def get_all_interfaces():
@@ -131,16 +132,15 @@ def get_fqdn():
     if "." in fqdn_socket:
         return fqdn_socket
 
-    dev_null = open(os.devnull, "wb")
-    try:
-        output = subprocess.check_output(['hostname', '-f'], stderr=dev_null)
-    except OSError:
-        # hostname doesn't exist - got nothing better than s
-        return fqdn_socket
-    except subprocess.CalledProcessError:
-        # hostname -f returned an error - got nothing better than s
-        return fqdn_socket
-    finally:
-        dev_null.close()
-
-    return output.strip()
+    with open(os.devnull, "wb") as dev_null:
+        try:
+            output = subprocess.check_output(['hostname', '-f'], stderr=dev_null)
+            if b'.' in output:
+                return to_utf8(output.strip())
+        except OSError:
+            # hostname doesn't exist - got nothing better than s
+            return fqdn_socket
+        except subprocess.CalledProcessError:
+            # hostname -f returned an error - got nothing better than s
+            return fqdn_socket
+    return fqdn_socket

@@ -20,6 +20,7 @@ import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_commands as mcs_commands
 import mcsrouter.adapters.generic_adapter as generic_adapter
 import mcsrouter.adapters.agent_adapter as agent_adapter
+import mcsrouter.utils.target_system_manager
 
 class FakeCommand(mcs_commands.PolicyCommand):
     def __init__(self, policy):
@@ -91,7 +92,10 @@ class TestGenericAdapter(unittest.TestCase):
         with mock.patch("builtins.open", mocked_open_function):
             self.assertEqual(agent.get_policy_status(), """<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
 
-
+    def testComputerStatus(self):
+        target_system = mcsrouter.utils.target_system_manager.get_target_system('/tmp/sophos-spl')
+        status_xml = agent_adapter.ComputerCommonStatus(target_system).to_status_xml()
+        self.assertNotIn("b'", status_xml)
 
 if __name__ == '__main__':
     import logging

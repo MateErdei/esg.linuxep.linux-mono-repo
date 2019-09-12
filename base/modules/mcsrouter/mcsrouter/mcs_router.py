@@ -211,7 +211,7 @@ class SophosLogging(object):
         log_file = config.get_default("LOGFILE", path_manager.mcs_router_log())
 
         root_logger = logging.getLogger()
-        root_logger.setLevel(log_level)
+        root_logger.setLevel(logging.DEBUG)
 
 
         formatter = UTCFormatter(

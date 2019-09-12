@@ -881,7 +881,7 @@ class MCSConnection(object):
         auth = "%s:%s:%s" % (mcs_id, password, token)
         auth = auth.encode('utf-8')
         headers = {
-            "Authorization": "Basic %s" % (to_utf8(base64.b64encode(auth))),
+            "Authorization": "Basic {}".format(to_utf8(base64.b64encode(auth))),
             "Content-Type": "application/xml; charset=utf-8",
         }
         LOGGER.debug("Registering with auth    '{}'".format(auth))
