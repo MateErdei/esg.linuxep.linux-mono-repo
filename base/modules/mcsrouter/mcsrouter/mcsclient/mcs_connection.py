@@ -458,19 +458,16 @@ class MCSConnection(object):
 
             if proxy_host:
                 if proxy.relay_id():
-                    LOGGER.info("Trying connection via message relay %s:%d",
-                                proxy_host, proxy_port)
+                    LOGGER.info("Trying connection via message relay {}:{}".format(proxy_host, proxy_port))
                 else:
-                    LOGGER.info("Trying connection via proxy %s:%d",
-                                proxy_host, proxy_port)
+                    LOGGER.info("Trying connection via proxy {}:{}".format(proxy_host, proxy_port))
                 connection = sophos_https.CertValidatingHTTPSConnection(
                     proxy_host, proxy_port, timeout=30, **args)
                 proxy_username_password = auth_calculator.auth_header()
                 proxy_headers = sophos_https.set_proxy_headers(proxy_username_password)
                 connection.set_tunnel(host, port, headers=proxy_headers)
             else:
-                LOGGER.info("Trying connection directly to %s:%d",
-                            host, port)
+                LOGGER.warning("Trying connection directly to {}:{}".format(host,port))
                 connection = sophos_https.CertValidatingHTTPSConnection(host,
                                                                         port,
                                                                         timeout=30,
@@ -520,9 +517,7 @@ class MCSConnection(object):
                             str(exception),
                             repr(exception))
                 else:
-                    LOGGER.warning("Failed direct connection to %s:%d: %s %s",
-                                   host, port,
-                                   str(exception), repr(exception))
+                    LOGGER.warning("Failed direct connection to {}:{} {}".format(host, port, exception))
                 return None
 
         # Success
@@ -886,19 +881,19 @@ class MCSConnection(object):
         auth = "%s:%s:%s" % (mcs_id, password, token)
         auth = auth.encode('utf-8')
         headers = {
-            "Authorization": "Basic %s" % (base64.b64encode(auth)),
+            "Authorization": "Basic %s" % (to_utf8(base64.b64encode(auth))),
             "Content-Type": "application/xml; charset=utf-8",
         }
-        LOGGER.debug("Registering with auth    '%s'", auth)
-        LOGGER.debug("Registering with message '%s'", status_xml)
-        LOGGER.debug("Registering with headers '%s'", str(headers))
+        LOGGER.debug("Registering with auth    '{}'".format(auth))
+        LOGGER.debug("Registering with message '{}'".format(status_xml))
+        LOGGER.debug("Registering with headers '{}'".format(headers))
         (headers, body) = self.__request(
             "/register", headers, body=status_xml, method="POST")
         body = base64.b64decode(body)
         body = to_utf8(body)
         (endpoint_id, password) = body.split(":", 1)
-        LOGGER.debug("Register returned endpoint_id '%s'", endpoint_id)
-        LOGGER.debug("Register returned password   '%s'", password)
+        LOGGER.debug("Register returned endpoint_id '{}'".format(endpoint_id))
+        LOGGER.debug("Register returned password   '{}'".format(password))
         return (endpoint_id, password)
 
     def action_completed(self, action):

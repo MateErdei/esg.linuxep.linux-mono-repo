@@ -33,8 +33,7 @@ class FakeObject(object):
 
 def getFakeResponse():
     fake = FakeObject()
-    fake.msg = fake
-    fake.headers = ['Server: BaseHTTP/0.3 Python/2.7.13\r\n', 'Date: Mon, 25 Sep 2017 15:57:58 GMT\r\n', 'Proxy-Authenticate: Digest realm="TestProxy", nonce="4fb2664f1c4e056d8f69f50e8dca65b1", algorithm="MD5", qop="auth"\r\n']
+    fake.msg = {'Server': 'BaseHTTP/0.3 Python/2.7.13\r\n', 'Date': 'Mon, 25 Sep 2017 15:57:58 GMT\r\n', 'Proxy-Authenticate': 'Digest realm="TestProxy", nonce="4fb2664f1c4e056d8f69f50e8dca65b1", algorithm="MD5", qop="auth"\r\n'}
     return fake
 
 def createProxyAuthorization(proxy=None):

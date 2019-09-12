@@ -121,9 +121,6 @@ class TestSophosHTTPS(unittest.TestCase):
         proxy.m_password = 'pass'
         self.assertEqual(proxy.auth_header(), 'Basic dXNlcjpwYXNz')
 
-    def testTunnel(self):
-        conn=sophos_https.CertValidatingHTTPSConnection()
-        conn._tunnel()
 
 class TestIPSelection(unittest.TestCase):
     def test_ip_address_distance(self):
