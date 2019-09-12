@@ -7,8 +7,18 @@ set(CMAKE_CXX_STANDARD 11)
 
 
 if(NOT DEFINED REDIST)
-    message("Defaulting redist to  REDIST /redist/binaries/linux11/input")
-    set(REDIST /redist/binaries/linux11/input)
+    set( REDIST ${CMAKE_SOURCE_DIR}/redist )
+endif()
+
+if(NOT EXISTS ${REDIST})
+    string( APPEND ERRORMESSAGE
+            "To build using CLion you first need to:\n"
+            "1. Fetch inputs in source folder by running:\n"
+            "    python3 -m build_scripts.artisan_fetch release-package.xml\n"
+            "2. Run the full build script with no build flag:\n"
+            "    ./buildLinux.sh --no-build\n"
+            "After that you will be able to build using CLion")
+    message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
 #SUL Library
