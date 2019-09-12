@@ -635,7 +635,7 @@ TEST_F(TestUpdateScheduler, checkUpdateOnStartUpSetToFalseWhenNotMissedUpdate) /
     EXPECT_EQ(scheduledUpdate.getEnabled(), true);
 }
 
-TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
+TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateConfig) // NOLINT
 {
     MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
     MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
@@ -644,8 +644,8 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
     EXPECT_CALL(*api, requestPolicies(_));
     EXPECT_CALL(*cron, start());
     ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
-    EXPECT_CALL(*cron, setPeriodTime(time)).Times(1);
-    EXPECT_CALL(*cron, setScheduledUpdate(_)).Times(2);
+    EXPECT_CALL(*cron, setPeriodTime(time)).Times(0);
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).Times(0);
 
     EXPECT_CALL(*cron, requestStop());
     EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
@@ -659,12 +659,8 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
         std::unique_ptr<ICronSchedulerThread>(cron),
         std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
 
-    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/update_config.json", _)).Times(2);
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_config.json"))
-        .Times(2)
-        .WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_report.json")).WillOnce(Return(false));
-
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/update_config.json", _)).Times(0);
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_config.json")).Times(0);
     std::future<void> schedulerRunHandle =
         std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
@@ -673,17 +669,52 @@ TEST_F(TestUpdateScheduler, invalidPoliciesWillCreateConfigs) // NOLINT
 
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
+    schedulerRunHandle.get(); // synchronize stop
+}
+
+TEST_F(TestUpdateScheduler, PolicyWithInvalidPolicyPeriodWillCreateConfig) // NOLINT
+{
+    MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();
+    MockAsyncDownloaderRunner* runner = new StrictMock<MockAsyncDownloaderRunner>();
+    MockCronSchedulerThread* cron = new StrictMock<MockCronSchedulerThread>();
+
+    EXPECT_CALL(*api, requestPolicies(_));
+    EXPECT_CALL(*cron, start());
+    ICronSchedulerThread::DurationTime time = std::chrono::minutes(50);
+    EXPECT_CALL(*cron, setScheduledUpdate(_)).Times(1);
+
+    EXPECT_CALL(*cron, requestStop());
+    EXPECT_CALL(*runner, isRunning()).WillOnce(Return(false));
+
+    auto& fileSystemMock = setupFileSystemMock();
+
+    UpdateSchedulerImpl::UpdateSchedulerProcessor updateScheduler(
+            m_queue,
+            std::unique_ptr<IBaseServiceApi>(api),
+            m_pluginCallback,
+            std::unique_ptr<ICronSchedulerThread>(cron),
+            std::unique_ptr<IAsyncSulDownloaderRunner>(runner));
+
+    EXPECT_CALL(fileSystemMock, writeFile("/installroot/base/update/var/update_config.json", _)).Times(1);
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_config.json"))
+            .Times(1)
+            .WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/update_report.json")).WillOnce(Return(false));
+
+    std::future<void> schedulerRunHandle =
+            std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
+
     std::string invalidPolicyPeriod = Common::UtilityImpl::StringUtils::orderedStringReplace(
-        updatePolicyWithProxy,
-        { { R"sophos(SchedEnable="true" Frequency="50")sophos",
-            R"sophos(SchedEnable="true" Frequency="50000000")sophos" } });
+            updatePolicyWithProxy,
+            { { R"sophos(SchedEnable="true" Frequency="50")sophos",
+                      R"sophos(SchedEnable="true" Frequency="50000000")sophos" } });
 
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyPeriod });
 
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 }
-
 TEST_F(TestUpdateScheduler, scheduledUpdatePolicyWillConfigureSchedule) // NOLINT
 {
     MockApiBaseServices* api = new StrictMock<MockApiBaseServices>();

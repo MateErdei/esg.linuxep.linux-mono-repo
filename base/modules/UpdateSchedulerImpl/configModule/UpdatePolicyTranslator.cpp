@@ -156,6 +156,12 @@ namespace UpdateSchedulerImpl
             std::string pass{ primaryLocation.value("UserPassword") };
             std::string algorithm{ primaryLocation.value("Algorithm") };
             bool requireObfuscation = true;
+
+            if (user.empty() || pass.empty())
+            {
+                throw std::invalid_argument("Invalid policy: Either user or password is empty ");
+            }
+
             if (algorithm == "AES256")
             {
                 pass = Common::ObfuscationImpl::SECDeobfuscate(pass);

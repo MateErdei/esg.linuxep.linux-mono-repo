@@ -105,6 +105,11 @@ namespace Common
                 throw Common::Obfuscation::ICipherException("Empty key not allowed");
             }
 
+            if (encrypted.empty())
+            {
+                throw Common::Obfuscation::ICipherException("SECDeobfuscation Failed.");
+            }
+
             size_t saltLength = encrypted[0];
             assert(saltLength <= 256);
 
