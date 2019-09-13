@@ -157,9 +157,13 @@ namespace UpdateSchedulerImpl
             std::string algorithm{ primaryLocation.value("Algorithm") };
             bool requireObfuscation = true;
 
-            if (user.empty() || pass.empty())
+            if (pass.empty())
             {
-                throw std::invalid_argument("Invalid policy: Either user or password is empty ");
+                throw std::invalid_argument("Invalid policy: Password is empty ");
+            }
+            if (user.empty())
+            {
+                throw std::invalid_argument("Invalid policy: Username is empty ");
             }
 
             if (algorithm == "AES256")
