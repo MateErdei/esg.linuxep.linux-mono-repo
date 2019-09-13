@@ -23,3 +23,7 @@ BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" 
 
 sed -i 's/\/mnt\/filer6/\/mnt\/filer6\/bfr/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
 sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
+
+#Create temporary location used by scripts
+mkdir /SophosPackages
+chmod 777 /SophosPackages
