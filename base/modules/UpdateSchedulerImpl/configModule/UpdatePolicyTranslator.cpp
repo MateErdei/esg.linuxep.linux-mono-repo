@@ -157,6 +157,8 @@ namespace UpdateSchedulerImpl
             std::string algorithm{ primaryLocation.value("Algorithm") };
             bool requireObfuscation = true;
 
+            // we check that username and password are not empty mainly for fuzzing purposes as in
+            // product we never expect central to send us a policy with empty credentials
             if (pass.empty())
             {
                 throw std::invalid_argument("Invalid policy: Password is empty ");
