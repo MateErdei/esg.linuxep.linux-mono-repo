@@ -21,6 +21,8 @@ import logging.handlers
 from .utils import config as utils_config
 from .utils.logger_utcformatter import UTCFormatter
 from .utils.get_ids import get_gid, get_uid
+from .utils.atomic_write import atomic_write
+from .utils.timestamp import timestamp
 
 from .mcsclient import mcs_exception
 from .mcsclient import mcs_connection
@@ -257,13 +259,14 @@ def remove_console_configuration():
             safe_delete(file_path)
 
 
-def remove_all_update_reports():
+def remove_all_update_reports_and_config():
     """
-    remove_all_update_reports
+    remove_all_update_reports_and_config
     """
     for file_to_remove in glob.glob(
-            "{}/report*.json".format(path_manager.update_var_path())):
-        os.remove(file_to_remove)
+            "{}/update_report*.json".format(path_manager.update_var_path())):
+        safe_delete(file_to_remove)
+    safe_delete(os.join(path_manager.update_var_path(), "update_config.json"))
 
 
 def stop_mcs_router():
@@ -299,6 +302,14 @@ def restart_update_scheduler():
         subprocess.call([path_manager.wdctl_bin_path(),
                          "start", update_scheduler])
 
+def request_ALC_event_to_be_sent():
+    """
+    Send an action to the updates schedular to resend last event if appropriate
+    """
+    action_name = "ALC_action_{}.xml".format(timestamp())
+    action_path = os.path.join(path_manager.action_dir(), action_name)
+    action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)
+    atomic_write(action_path, action_path_tmp, "ResendLastUpdateEvent")
 
 def inner_main(argv):
     """
@@ -429,15 +440,12 @@ def inner_main(argv):
             # cleanup RMS files
             safe_delete(path_manager.sophos_config_file())
 
-            # cleanup last reported update event
-            safe_delete(path_manager.get_update_last_event_file())
-
             # cleanup console config layers
             if not options.reregister:
                 # Only remove the configs if we are doing a new registration
                 remove_console_configuration()
 
-            remove_all_update_reports()
+            remove_all_update_reports_and_config()
             start_mcs_router()
             restart_update_scheduler()
             print("Now managed by Sophos Central")

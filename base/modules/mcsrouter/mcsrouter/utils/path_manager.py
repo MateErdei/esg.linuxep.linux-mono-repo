@@ -113,22 +113,6 @@ def plugin_registry_path():
     """
     return os.path.join(base_path(), "pluginRegistry")
 
-# base/var/run/sophosspl
-
-
-def get_var_run_dir():
-    """
-    get_var_run_dir
-    """
-    return os.path.join(base_path(), "var", "run", "sophosspl")
-
-
-def get_update_last_event_file():
-    """
-    get_update_last_event_file
-    """
-    return os.path.join(get_var_run_dir(), "update.last_event")
-
 # etc
 
 
