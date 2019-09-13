@@ -8,6 +8,8 @@ import ipaddress
 import threading
 
 from . import ip_address
+import logging
+LOGGER = logging.getLogger(__name__)
 
 
 class IpLookupThread(threading.Thread):
@@ -27,10 +29,12 @@ class IpLookupThread(threading.Thread):
         run
         """
         try:
+            addr_info = socket.getaddrinfo(self.server["hostname"], None)
+            LOGGER.debug('AddrInfo: {}'.format(addr_info))
             self.server["ips"] = list(
-                set([i[4][0] for i in socket.getaddrinfo(self.server["hostname"], None)]))
-        except socket.gaierror:
-            pass
+                set([i[4][0] for i in addr_info ]))
+        except Exception as ex:
+            LOGGER.warning("Extracting ip from server {} resulted in exception {}".format(self.server['hostname'], ex))
 
 
 def order_servers_by_key(server_location_list, key_string):
@@ -69,11 +73,12 @@ def get_server_ips_from_hostname(server_location_list):
     """
     get_server_ips_from_hostname
     """
+    servers = server_location_list.copy()
     max_lookup_timeout = 20
 
     # Start an address resolution thread for each hostname
     lookup_threads = []
-    for server in server_location_list:
+    for server in servers:
         lookup_threads.append(IpLookupThread(server))
 
     for thread in lookup_threads:
@@ -113,6 +118,17 @@ def order_by_ip_address_distance(
     server_location_list = order_servers_by_key(server_location_list, 'dist')
     return server_location_list
 
+def order_message_relays( server_location_list, local_ipv4s, local_ipv6s):
+    server_location_list = order_by_ip_address_distance(
+        local_ipv4s, local_ipv6s, server_location_list)
+    LOGGER.debug("Ordered by distance: {}".format(server_location_list))
+    # Order by priority
+    server_location_list = order_servers_by_key(
+        server_location_list, "priority")
+    LOGGER.debug("Ordered by priority: {}".format(server_location_list))
+    return server_location_list
+
+
 
 def evaluate_address_preference(server_location_list):
     """
@@ -121,16 +137,12 @@ def evaluate_address_preference(server_location_list):
     """
     if len(server_location_list) < 2:
         return server_location_list
-
+    LOGGER.debug("Evaluate Preference server location list: {}".format(server_location_list))
     # Order by IP address
     local_ipv4s = list(ip_address.get_non_local_ipv4())
+    LOGGER.debug("IPV4: {}".format(local_ipv4s))
     local_ipv6s = [int(ipv6, 16) for ipv6 in ip_address.get_non_local_ipv6()]
+    LOGGER.debug("IPV6: {}".format(local_ipv6s))
     server_location_list = get_server_ips_from_hostname(server_location_list)
-    server_location_list = order_by_ip_address_distance(
-        local_ipv4s, local_ipv6s, server_location_list)
-
-    # Order by priority
-    server_location_list = order_servers_by_key(
-        server_location_list, "priority")
-
-    return server_location_list
+    LOGGER.debug("Evaluate Preference server location list with ips: {}".format(server_location_list))
+    return order_message_relays(server_location_list, local_ipv4s, local_ipv6s)

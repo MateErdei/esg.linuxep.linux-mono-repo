@@ -122,7 +122,6 @@ class TestSophosHTTPS(unittest.TestCase):
         proxy.m_password = 'pass'
         self.assertEqual(proxy.auth_header(), 'Basic dXNlcjpwYXNz')
 
-
 class TestIPSelection(unittest.TestCase):
     def test_ip_address_distance(self):
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.0.1', '31.222.175.174'), 31)
@@ -130,6 +129,39 @@ class TestIPSelection(unittest.TestCase):
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.5', '127.0.1.3'), 3)
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.3', '127.0.1.3'), 0)
         self.assertEqual(ip_selection.get_ip_address_distance('127.0.1.1', '127.0.1.2'), 2)
+        self.assertEqual(ip_selection.get_ip_address_distance('10.0.2.15', '10.0.2.14'), 1)
+        self.assertEqual(ip_selection.get_ip_address_distance('10.0.2.15', '10.0.2.31'), 5)
+        self.assertEqual(ip_selection.get_ip_address_distance('10.0.2.15', '10.0.3.15'), 9)
+        self.assertEqual(ip_selection.get_ip_address_distance('10.0.2.15', '11.0.2.15'), 25)
+
+    def test_order_by_order_by_ip_address_distance(self):
+        local6s = []
+        local4s = ['10.0.2.15']
+        servers_list = ['10.0.2.14', '10.0.2.31', '10.0.3.15', '11.0.2.15']
+        copy_servers = servers_list[:]
+        copy_servers.reverse()
+        servers = [{'ips': [ip]} for ip in copy_servers]
+
+        ans = ip_selection.order_by_ip_address_distance(local4s, local6s, servers)
+        self.assertEqual(ans[0], {'ips': ['10.0.2.14'], 'dist': 1})
+        self.assertEqual(ans[1], {'ips': ['10.0.2.31'], 'dist': 5})
+        self.assertEqual(ans[2], {'ips': ['10.0.3.15'], 'dist': 9})
+        self.assertEqual(ans[3], {'ips': ['11.0.2.15'], 'dist': 25})
+
+    def test_alg_evaluate_address_preference(self):
+        local_ipv4s= ['10.0.2.15']
+        local_ipv6s= [338288524927261089654739516762171489380]
+        server_location_list=[
+            {'hostname': 'FakeRelayTwentyFive', 'port': '6666', 'priority': '0', 'id': '1', 'ips': ['11.0.2.15']},
+            {'hostname': 'FakeRelayFive', 'port': '6666', 'priority': '0', 'id': '2', 'ips': ['10.0.2.31']},
+            {'hostname': 'FakeRelayNine', 'port': '6666', 'priority': '0', 'id': '4', 'ips': ['10.0.3.15']},
+            {'hostname': 'ssplsecureproxyserver.eng.sophos', 'port': '8888', 'priority': '1', 'id': '5', 'ips': ['10.55.36.245']}
+        ]
+        server_location_list = ip_selection.order_message_relays(server_location_list, local_ipv4s, local_ipv6s)
+        hostnames=['FakeRelayFive', 'FakeRelayNine', 'FakeRelayTwentyFive', 'ssplsecureproxyserver.eng.sophos' ]
+        self.assertEqual(len(server_location_list), 4)
+        hosts = [l['hostname'] for l in server_location_list]
+        self.assertEqual(hostnames, hosts)
 
     def test_ip_fqdn(self):
         fq = ip_address.get_fqdn()
@@ -140,3 +172,4 @@ class TestIPSelection(unittest.TestCase):
 if __name__ == '__main__':
     import logging
     unittest.main()
+

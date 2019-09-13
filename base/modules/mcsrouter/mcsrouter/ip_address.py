@@ -16,7 +16,6 @@ import array
 import subprocess
 from .utils.byte2utf8 import to_utf8
 
-
 def get_all_interfaces():
     """
     get_all_interfaces
