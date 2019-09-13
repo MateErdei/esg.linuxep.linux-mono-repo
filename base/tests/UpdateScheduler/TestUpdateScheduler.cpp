@@ -664,11 +664,14 @@ TEST_F(TestUpdateScheduler, invalidPolicyWillNotCreateConfig) // NOLINT
     std::future<void> schedulerRunHandle =
         std::async(std::launch::async, [&updateScheduler]() { updateScheduler.mainLoop(); });
 
-    std::string invalidPolicyEmptyUserName = Common::UtilityImpl::StringUtils::orderedStringReplace(
+    std::string invalidPolicyEmptyPassword = Common::UtilityImpl::StringUtils::orderedStringReplace(
         updatePolicyWithProxy, { { "UserPassword=\"54m5ung\"", "UserPassword=\"\"" } });
 
-    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName });
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyEmptyPassword });
+    std::string invalidPolicyEmptyUserName= Common::UtilityImpl::StringUtils::orderedStringReplace(
+            updatePolicyWithProxy, { { "UserName=\"QA940267\"", "UserName=\"\"" } });
 
+    m_queue->push(SchedulerTask{ SchedulerTask::TaskType::Policy, invalidPolicyEmptyUserName });
     m_queue->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
     schedulerRunHandle.get(); // synchronize stop
 }

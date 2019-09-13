@@ -107,7 +107,7 @@ namespace Common
 
             if (encrypted.empty())
             {
-                throw Common::Obfuscation::ICipherException("SECDeobfuscation Failed: string to decrypt is empty");
+                throw Common::Obfuscation::ICipherException("String to decrypt is empty");
             }
 
             size_t saltLength = encrypted[0];
