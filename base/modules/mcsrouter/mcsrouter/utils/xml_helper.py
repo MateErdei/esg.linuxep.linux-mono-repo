@@ -50,7 +50,7 @@ class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
     """
     pass
 
-class XMLException(Exception):
+class XMLException(RuntimeError):
     """
     XMLException class
     """
