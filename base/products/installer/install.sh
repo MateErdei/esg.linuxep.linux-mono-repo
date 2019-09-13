@@ -413,7 +413,7 @@ then
 
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != ""  && "$EXIT_CODE" == "0" ]]
     then
-        waitForProcess "python -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
+        waitForProcess "python3 -m mcsrouter.mcs_router" || failure ${EXIT_FAIL_SERVICE} "MCS Router not running"
     fi
 else
     if software_changed ${DIST}
