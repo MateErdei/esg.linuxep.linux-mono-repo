@@ -155,17 +155,17 @@ class Computer(object):
 
         return True
 
+    def _setup_temp_dir(self, temp_path):
+        if not os.path.isdir(temp_path):
+            os.mkdir(temp_path)
+            os.chmod(temp_path, 0o700)
+
     def run_commands(self, commands):
         # We are writing policies received in a single command poll to a temporary directory
         # before moving them into the mcs policy folder. This will mean that if multiple policies are
         # received for a specific appId that only the latest one is actioned.
-        if not os.path.isdir(path_manager.policy_temp_dir()):
-            os.mkdir(path_manager.policy_temp_dir())
-            os.chmod(path_manager.policy_temp_dir(), 0o700)
-
-        if not os.path.isdir(path_manager.actions_temp_dir()):
-            os.mkdir(path_manager.actions_temp_dir())
-            os.chmod(path_manager.actions_temp_dir(), 0o700)
+        self._setup_temp_dir(path_manager.policy_temp_dir())
+        self._setup_temp_dir(path_manager.actions_temp_dir())
 
         try:
             return self._run_commands(commands)

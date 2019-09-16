@@ -50,7 +50,7 @@ set(SulDownloaderData  ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderda
 
 include_directories(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
 
-set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
+set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH})
 
 PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${SulDownloaderData}/proto/ConfigurationSettings.proto)
 PROTOBUF_GENERATE_CPP(DOWNLOADER_REPORT_PROTO_SRC DOWNLOADER_REPORT_PROTO_H ${SulDownloaderData}/proto/DownloadReport.proto)
