@@ -75,6 +75,8 @@ fi
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
+echo "DEBUG DEBUG systemtest branch $BULLSEYE_SYSTEM_TEST_BRANCH*****"
+
 DEVBFR=NOT_FOUND
 [[ -d /mnt/filer6/bfr/sspl-base ]] && DEVBFR=/mnt/filer6/bfr
 [[ -d /uk-filer6/bfr/sspl-base ]] && DEVBFR=/uk-filer6/bfr
@@ -163,7 +165,7 @@ else
     fi
 fi
 
-
+echo "DEBUG DEBUG $SDDS_SSPL_MDR_COMPONENT_SUITE *****"
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
 ## Requires sudo permissions:
