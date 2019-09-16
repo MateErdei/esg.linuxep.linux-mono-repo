@@ -18,7 +18,7 @@ SET_TARGET_PROPERTIES( loggerconfigtests
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 
-set( ALCParseDir ${CMAKE_SOURCE_DIR}/modules/UpdateSchedulerImpl/configModule)
+set(ALCParseDir ${CMAKE_SOURCE_DIR}/modules/UpdateSchedulerImpl/configModule)
 add_executable(parsealcpolicytests
         parsealcpolicytests.cpp
         ${ALCParseDir}/UpdatePolicyTranslator.cpp
@@ -46,11 +46,11 @@ SET_TARGET_PROPERTIES( parsealcpolicytests
 target_include_directories(parsealcpolicytests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/UpdateSchedulerImpl/configModule ${LOG4CPLUS_INCLUDE_DIR} )
 
 
-set( SulDownloaderData  ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata)
+set(SulDownloaderData  ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata)
 
 include_directories(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
 
-set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
+set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 
 PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${SulDownloaderData}/proto/ConfigurationSettings.proto)
 PROTOBUF_GENERATE_CPP(DOWNLOADER_REPORT_PROTO_SRC DOWNLOADER_REPORT_PROTO_H ${SulDownloaderData}/proto/DownloadReport.proto)

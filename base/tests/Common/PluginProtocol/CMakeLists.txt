@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(TestPluginProtocol
         DataMessageTests.cpp)
-target_include_directories(TestPluginProtocol SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" )
+target_include_directories(TestPluginProtocol SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
 target_include_directories(TestPluginProtocol
         BEFORE PUBLIC "${gtest_SOURCE_DIR}"
         "${gmock_SOURCE_DIR}"

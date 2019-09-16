@@ -20,9 +20,9 @@ add_library(testhelpersobject OBJECT
         MockiNotifyWrapper.h
         )
 
-target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" )
+target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include")
 
-add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject> )
+add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 
 target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}")
 

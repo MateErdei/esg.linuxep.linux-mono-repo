@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 file(GLOB_RECURSE python_SRC
         RELATIVE ${PYTHON_INPUT}/install64/lib/python2.7
-        ${PYTHON_INPUT}/install64/lib/python2.7/*.py )
+        ${PYTHON_INPUT}/install64/lib/python2.7/*.py)
 
 
 file(GLOB_RECURSE mcs_router_DEPS

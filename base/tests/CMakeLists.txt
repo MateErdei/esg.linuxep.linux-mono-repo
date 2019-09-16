@@ -1,4 +1,4 @@
-if( NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/googletest )
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/googletest)
     message( FATAL_ERROR "googletest directory not present. \nPlease, run ${CMAKE_SOURCE_DIR}/build.sh which will setup the directory")
 endif()
 
@@ -20,7 +20,7 @@ add_subdirectory(UpdateScheduler)
 add_subdirectory(watchdog)
 add_subdirectory(wdctl)
 
-if (BUILD_FUZZ_TESTS )
+if (BUILD_FUZZ_TESTS)
     message("Building fuzz tests ${BUILD_FUZZ_TESTS}")
     add_subdirectory(FuzzTests)
 endif()

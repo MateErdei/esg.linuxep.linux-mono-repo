@@ -6,4 +6,4 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter.sh
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter.json
         DESTINATION installer/plugins
-        PERMISSIONS OWNER_READ )
+        PERMISSIONS OWNER_READ)

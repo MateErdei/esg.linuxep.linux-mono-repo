@@ -3,4 +3,4 @@ add_library(wdctlarguments STATIC
         Arguments.cpp
         )
 
-target_link_libraries(wdctlarguments PUBLIC )
+target_link_libraries(wdctlarguments PUBLIC)

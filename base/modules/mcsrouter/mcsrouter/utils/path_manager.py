@@ -250,13 +250,13 @@ def temp_dir():
 
 def policy_temp_dir():
     """
-    temp_dir for temporary writing of policies
+    policy_temp_dir for temporary writing of policies
     """
     return os.path.join(install_dir(), 'tmp', 'policy')
 
 def actions_temp_dir():
     """
-    temp_dir for temporary writing of actions
+    actions_temp_dir for temporary writing of actions
     """
     return os.path.join(install_dir(), 'tmp', 'actions')
 
