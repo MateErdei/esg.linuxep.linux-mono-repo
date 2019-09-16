@@ -13,7 +13,8 @@ logger = logging.getLogger("TestUtils")
 
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
 INSTALL_DIR=os.path.join(BUILD_DIR,"install")
-
+import tempfile
+import shutil
 import PathManager
 
 import mcsrouter.utils.plugin_registry as plugin_registry
@@ -22,6 +23,7 @@ import mcsrouter.mcsclient.status_event as status_event
 import mcsrouter.sophos_https as sophos_https
 import mcsrouter.ip_selection as ip_selection
 from mcsrouter import ip_address
+from mcsrouter.mcs_router import SophosLogging
 
 import xml.parsers.expat
 
@@ -166,6 +168,30 @@ class TestIPSelection(unittest.TestCase):
     def test_ip_fqdn(self):
         fq = ip_address.get_fqdn()
         self.assertNotIn("b'", fq)
+
+class TestSophosLogging(unittest.TestCase):
+
+    def test_sophos_logging_does_not_crash_application(self, *mockargs):
+        dirn=tempfile.mkdtemp()
+        try:
+            session_dup= '''[sophos_managementagent]\nVERBOSITY=DEBUG\n[sophos_managementagent]\nVERBOSITY=INFO\n'''
+            loggerDir=os.path.join(dirn, 'base/etc')
+            os.makedirs(loggerDir, exist_ok=True)
+            os.makedirs(os.path.join(dirn, 'logs/base/sophosspl'), exist_ok=True)
+
+            with open(os.path.join(loggerDir, 'logger.conf'), 'w') as f:
+                f.write(session_dup)
+            sl=SophosLogging(dirn)
+            log= logging.Logger('test')
+            log.info('test')
+            sl.shutdown()
+        finally:
+            shutil.rmtree(dirn)
+
+
+
+
+
 
 
 
