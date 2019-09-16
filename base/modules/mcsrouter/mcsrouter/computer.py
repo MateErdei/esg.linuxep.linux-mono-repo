@@ -162,6 +162,11 @@ class Computer(object):
         if not os.path.isdir(path_manager.policy_temp_dir()):
             os.mkdir(path_manager.policy_temp_dir())
             os.chmod(path_manager.policy_temp_dir(), 0o700)
+
+        if not os.path.isdir(path_manager.actions_temp_dir()):
+            os.mkdir(path_manager.actions_temp_dir())
+            os.chmod(path_manager.actions_temp_dir(), 0o700)
+
         try:
             return self._run_commands(commands)
         finally:
@@ -171,7 +176,17 @@ class Computer(object):
                     os.rename(filepath, os.path.join(path_manager.policy_dir(), filename))
                     LOGGER.info("Distribute new policy: {}".format(filename))
                 except OSError as ex:
-                    LOGGER.warning("Failed to write a policy to :{}. Reason: {}".format(filepath, ex))
+                    LOGGER.warning("Failed to write a policy to: {}. Reason: {}".format(filepath, ex))
+
+            actions = glob.glob(os.path.join(path_manager.actions_temp_dir(), "*.xml"))
+            actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
+            for filepath in actions:
+                try:
+                    filename = os.path.basename(filepath).split("_", 1)[1]
+                    os.rename(filepath, os.path.join(path_manager.action_dir(), filename))
+                    LOGGER.info("Distribute new action: {}".format(filename))
+                except OSError as ex:
+                    LOGGER.warning("Failed to write an action to: {}. Reason: {}".format(filepath, ex))
 
     def clear_cache(self):
         """

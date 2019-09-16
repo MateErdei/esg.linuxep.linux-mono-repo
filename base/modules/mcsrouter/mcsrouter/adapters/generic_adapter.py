@@ -5,6 +5,7 @@ generic_adapter Module
 import xml.dom.minidom
 import os
 import logging
+import datetime
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.utf8_write
@@ -85,12 +86,10 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         except KeyError:
             timestamp = mcsrouter.utils.timestamp.timestamp()
 
-        action_name = "%s_action_%s.xml" % (self.__m_app_id, timestamp)
-        action_path = os.path.join(path_manager.action_dir(), action_name)
-        action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)
-        mcsrouter.utils.atomic_write.atomic_write(
-            action_path, action_path_tmp, body)
-
+        order_tag = datetime.datetime.now().strftime("%Y%d%m%H%M%S%f")
+        action_name = "{}_{}_action_{}.xml".format(order_tag, self.__m_app_id, timestamp)
+        action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
+        mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
         return []
 
     def _get_status_xml(self):
