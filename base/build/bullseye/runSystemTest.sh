@@ -75,7 +75,6 @@ fi
 ln -nsf "$COVFILE" test.cov
 ln -nsf "$COVFILE" .
 
-echo "DEBUG DEBUG systemtest branch $BULLSEYE_SYSTEM_TEST_BRANCH*****"
 
 DEVBFR=NOT_FOUND
 [[ -d /mnt/filer6/bfr/sspl-base ]] && DEVBFR=/mnt/filer6/bfr
@@ -87,7 +86,7 @@ LASTGOODBUILD () {
 
 ## BRANCH OVERRIDES
 # You can override the specific branch to use of any jenkins dev build by providing
-# one of the bellow environment variable variables when this script is called
+# one of the below environment variable variables when this script is called
 # If a <repo>_BRANCH variable is given, it will use that specific branch from the jenkins build output on filer6
 # If none is given, master will be assumed
 
@@ -165,7 +164,6 @@ else
     fi
 fi
 
-echo "DEBUG DEBUG $SDDS_SSPL_MDR_COMPONENT_SUITE *****"
 [[ -n "${THIN_INSTALLER_OVERRIDE}" ]] && export THIN_INSTALLER_OVERRIDE
 
 ## Requires sudo permissions:
