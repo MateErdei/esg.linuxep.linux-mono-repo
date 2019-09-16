@@ -269,11 +269,7 @@ function build()
     fi
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
-    ZIP=$(which zip 2>/dev/null || true)
-    [[ -x "$ZIP" ]] || {
-        echo "Installing zip"
-        sudo yum install -y zip unzip </dev/null
-    }
+
 
     if [[ ${BULLSEYE} == 1 ]]
     then
