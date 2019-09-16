@@ -182,21 +182,25 @@ find_library(CURL_LIBRARY
 
 
 ## Allow this to be redirected for python development
+set( PYTHON_INPUT /redist/binaries/linux11/input/python3)
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python3)
 endif()
 
 ## Allow this to be redirected for pathtools development
+set( WATCHDOG_INPUT /redist/binaries/linux11/input/watchdog)
 if(NOT DEFINED WATCHDOG_INPUT)
     set( WATCHDOG_INPUT ${INPUT}/watchdog)
 endif()
 
 ## Allow this to be redirected for watchdog development
+set( PATHTOOLS_INPUT /redist/binaries/linux11/input/pathtools)
 if(NOT DEFINED PATHTOOLS_INPUT)
     set( PATHTOOLS_INPUT ${INPUT}/pathtools)
 endif()
 
 ## Allow this to be redirected for pycryptodome development
+set( PYCRYPTODOME_INPUT /redist/binaries/linux11/input/pycryptodome)
 if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()

@@ -47,6 +47,7 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
+        <!--
         <package name="pythonlinux10" version="2-7-16/214473/pythonlinux10" dest="input">
             <include src="python.tar" dest="." />
         </package>
@@ -58,7 +59,7 @@
         </package>
         <package name="pycryptodome" version="3-8-2-11/216580/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
-        </package>
+        </package> -->
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
