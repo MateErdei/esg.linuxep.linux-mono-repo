@@ -30,35 +30,35 @@ add_custom_command(OUTPUT mcsrouter.zip
         )
 
 add_custom_command(OUTPUT python37.zip
-        WORKING_DIRECTORY ${INPUT}/python3/install64/lib/python3.7/
+        WORKING_DIRECTORY ${PYTHON_INPUT}/install64/lib/python3.7
         COMMAND zip ${CMAKE_BINARY_DIR}/python37.zip ${python_SRC}
         )
 
 add_custom_command(OUTPUT pythonLibDynload
-        WORKING_DIRECTORY ${INPUT}
-        COMMAND cp -r ${INPUT}/python3/install64/lib/python3.7/lib-dynload/ ${CMAKE_BINARY_DIR}
+        WORKING_DIRECTORY ${PYTHON_INPUT}
+        COMMAND cp -r ${PYTHON_INPUT}/install64/lib/python3.7/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
 add_custom_command(OUTPUT pathtools
-        WORKING_DIRECTORY ${INPUT}
+        WORKING_DIRECTORY ${PATHTOOLS_INPUT}/..
         # Copy the whole directory as it may contain a mix of python and C files.
-        COMMAND cp -r ${INPUT}/pathtools ${CMAKE_BINARY_DIR}
+        COMMAND cp -r ${PATHTOOLS_INPUT} ${CMAKE_BINARY_DIR}
         # Remove unwanted files.
         COMMAND find ${CMAKE_BINARY_DIR}/pathtools -name "*.pyc" -type f | xargs -r rm -f
         COMMAND find ${CMAKE_BINARY_DIR}/pathtools -name "*.pyo" -type f | xargs -r rm -f
         )
 
 add_custom_command(OUTPUT watchdog
-        WORKING_DIRECTORY ${INPUT}
+        WORKING_DIRECTORY ${WATCHDOG_INPUT}/..
         # Copy the whole directory as it may contain a mix of python and C files.
-        COMMAND cp -r ${INPUT}/watchdog ${CMAKE_BINARY_DIR}
+        COMMAND cp -r ${WATCHDOG_INPUT} ${CMAKE_BINARY_DIR}
         # Remove unwanted files.
         COMMAND find ${CMAKE_BINARY_DIR}/watchdog -name "*.pyc" -type f | xargs -r rm -f
         COMMAND find ${CMAKE_BINARY_DIR}/watchdog -name "*.pyo" -type f | xargs -r rm -f
         )
 
 add_custom_command(OUTPUT pycryptodome
-        WORKING_DIRECTORY ${INPUT}
+        WORKING_DIRECTORY ${PYCRYPTODOME_INPUT}/..
         # Copy the whole directory as it may contain a mix of python and C files.
         COMMAND cp -r ${PYCRYPTODOME_INPUT}/Crypto ${CMAKE_BINARY_DIR}
         # Remove unwanted files.
@@ -67,7 +67,7 @@ add_custom_command(OUTPUT pycryptodome
         )
 
 add_custom_command(OUTPUT python3
-        WORKING_DIRECTORY ${INPUT}
+        WORKING_DIRECTORY ${PYTHON_INPUT}
         COMMAND cp ${PYTHON_INPUT}/install64/bin/python3 ${CMAKE_BINARY_DIR}
         )
 
