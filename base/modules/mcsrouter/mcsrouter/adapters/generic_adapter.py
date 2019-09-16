@@ -46,9 +46,9 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         # handle non ascii characters ( LINUXEP-6757 )
         policy = policy.encode('utf-8')
         LOGGER.debug(
-                "%s Adapter processing policy %s" % (
-                self.__m_app_id,
-                policy)
+            "{} Adapter processing policy {}".format(
+            self.__m_app_id,
+            policy)
         )
         LOGGER.debug("Received %s policy", self.__m_app_id)
 

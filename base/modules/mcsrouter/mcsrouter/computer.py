@@ -44,7 +44,7 @@ class Computer(object):
         try:
             del self.__m_adapters[app_id]
         except KeyError as exception:
-            LOGGER.warning('Failed to remove adapter: %s' % exception)
+            LOGGER.warning('Failed to remove adapter: {}'.format(str(exception)))
 
     def get_timestamp(self):
         """
@@ -170,7 +170,7 @@ class Computer(object):
                     os.rename(filepath, os.path.join(path_manager.policy_dir(), filename))
                     LOGGER.info("Distribute new policy: {}".format(filename))
                 except OSError as ex:
-                    LOGGER.warning("Failed to write a policy to :{}. Reason: %s" % (filepath, ex))
+                    LOGGER.warning("Failed to write a policy to :{}. Reason: {}".format(filepath, ex))
 
     def clear_cache(self):
         """

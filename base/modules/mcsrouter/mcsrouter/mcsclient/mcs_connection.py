@@ -10,10 +10,7 @@ import xml.parsers.expat
 import http.client
 
 # urllib.parse in python 3
-try:
-    import urllib.parse
-except ImportError:
-    import urllib.parse as urlparse
+import urllib.parse
 
 import logging
 
