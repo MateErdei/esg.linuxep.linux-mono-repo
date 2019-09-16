@@ -101,11 +101,11 @@ if [[ -d "$EXAMPLEPLUGIN_SDDS" ]]
 then
     export EXAMPLEPLUGIN_SDDS
 else
-    EXAMPLE_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/0.5.1/output/SDDS-COMPONENT"
+    EXAMPLE_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-exampleplugin/${EXAMPLE_PLUGIN_BRANCH}" )/sspl-exampleplugin/*/output/SDDS-COMPONENT)
 
     if [[ -d ${EXAMPLE_PLUGIN_SOURCE} ]]
     then
-        export EXAMPLEPLUGIN_SDDS=${EXAMPLE_PLUGIN_SOURCE}
+        export EXAMPLEPLUGIN_SDDS3=${EXAMPLE_PLUGIN_SOURCE}
     fi
 fi
 
@@ -114,7 +114,7 @@ if [[ -d "$SSPL_AUDIT_PLUGIN_SDDS" ]]
 then
     export SSPL_AUDIT_PLUGIN_SDDS
 else
-    AUDIT_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/0.5.1/output/SDDS-COMPONENT"
+    AUDIT_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-audit/${AUDIT_PLUGIN_BRANCH}" )/sspl-audit/*/output/SDDS-COMPONENT)
     if [[ -d ${AUDIT_PLUGIN_SOURCE} ]]
     then
         export SSPL_AUDIT_PLUGIN_SDDS=${AUDIT_PLUGIN_SOURCE}
@@ -126,7 +126,7 @@ if [[ -d "$SSPL_PLUGIN_EVENTPROCESSOR_SDDS" ]]
 then
     export SSPL_PLUGIN_EVENTPROCESSOR_SDDS
 else
-    EVENT_PROCESSOR_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/0.5.1/output/SDDS-COMPONENT"
+    EVENT_PROCESSOR_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-eventprocessor/${EVENT_PROCESSOR_BRANCH}" )/sspl-eventprocessor/*/output/SDDS-COMPONENT)
     if [[ -d ${EVENT_PROCESSOR_SOURCE} ]]
     then
         export SSPL_PLUGIN_EVENTPROCESSOR_SDDS=${EVENT_PROCESSOR_SOURCE}
@@ -138,7 +138,7 @@ if [[ -d "$SSPL_MDR_PLUGIN_SDDS" ]]
 then
     export SSPL_MDR_PLUGIN_SDDS
 else
-    MDR_PLUGIN_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/1.0.0/output/SDDS-COMPONENT"
+    MDR_PLUGIN_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-control-plugin/${MDR_PLUGIN_BRANCH}" )/sspl-mdr-control-plugin/*/output/SDDS-COMPONENT)
     if [[ -d ${MDR_PLUGIN_SOURCE} ]]
     then
         export SSPL_MDR_PLUGIN_SDDS=${MDR_PLUGIN_SOURCE}
@@ -153,7 +153,7 @@ then
     export SDDS_SSPL_MDR_COMPONENT
     export SDDS_SSPL_MDR_COMPONENT_SUITE
 else
-    MDR_COMPONENT_SUITE_SOURCE="$( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/1.0.0/output"
+    MDR_COMPONENT_SUITE_SOURCE=$(echo $( LASTGOODBUILD "$DEVBFR/sspl-mdr-componentsuite/${MDR_COMPONENT_SUITE_BRANCH}" )/sspl-mdr-componentsuite/*/output)
     if [[ -d ${MDR_COMPONENT_SUITE_SOURCE} ]]
     then
         export SDDS_SSPL_MDR_COMPONENT_SUITE="${MDR_COMPONENT_SUITE_SOURCE}/SDDS-SSPL-MDR-COMPONENT-SUITE/"
