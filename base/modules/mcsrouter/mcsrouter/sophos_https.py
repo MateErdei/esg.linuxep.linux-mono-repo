@@ -265,7 +265,7 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         for header, value in self._tunnel_headers.items():
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
-        info( "Connect message: ", str(connect))
+        info( "Connect message: {} ".format(str(connect)))
         content = ''.join(connect)
         self.send(content.encode('utf-8'))
         response = self.response_class(self.sock, method=self._method)
