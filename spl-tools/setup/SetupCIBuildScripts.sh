@@ -25,5 +25,11 @@ sed -i 's/\/mnt\/filer6/\/mnt\/filer6\/bfr/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_
 sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_common.py
 
 #Create temporary location used by scripts
-mkdir /SophosPackages
+mkdir -p /SophosPackages
 chmod 777 /SophosPackages
+
+#Create or clear out the build folder used for unpacking gcc to
+mkdir -p /build
+chmod 777 /build
+rm -rf /build/*
+
