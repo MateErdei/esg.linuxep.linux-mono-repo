@@ -119,9 +119,9 @@ class TestSECObfuscation(unittest.TestCase):
         self.assertEqual(deobfuscated,expected)
 
     def testProxyPasswordDeofbuscation(self):
-        obfuscated = "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY="
+        obfuscated = "CCCj7sOF/IMdsPr1YxSIC0XjQcBmqy4kRtg7wwV0uCFxwzGl2qNaqk4lYs/6cQmFNLY="
         deobfuscated = mcsrouter.utils.sec_obfuscation.deobfuscate(obfuscated)
-        expected = "Ch1pm0nk"
+        expected = "password"
         self.assertEqual(deobfuscated,expected)
 
 if __name__ == '__main__':

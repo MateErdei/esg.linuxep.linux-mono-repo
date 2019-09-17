@@ -74,6 +74,8 @@ class TestMCSConnection(unittest.TestCase):
             ## Not able to make connection to allegro
             self.skipTest("Not Able to connect to allegro")
             return
+        finally:
+            conn.close()
 
         #~ print(results)
         headers = {}
@@ -102,6 +104,8 @@ class TestMCSConnection(unittest.TestCase):
             ## Not able to make connection to allegro
             self.skipTest("Not Able to connect to allegro")
             return
+        finally:
+            conn.close()
 
 # except ImportError:
 #     print >>sys.stderr,sys.path

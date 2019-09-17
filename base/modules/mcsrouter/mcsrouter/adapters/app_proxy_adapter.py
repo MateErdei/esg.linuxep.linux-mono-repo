@@ -97,11 +97,11 @@ u'<?xml version="1.0"?>
 
         try:
             doc = self._parse_xml_string(body)
-        except xml.parsers.expat.ExpatError:
-            LOGGER.exception(
-                "Unable to parse AppProxy Action: '%s' from '%s'",
+        except xml.parsers.expat.ExpatError as ex:
+            LOGGER.error(
+                "Unable to parse AppProxy Action: '{}' from '{}'. Error: {}".format(
                 body,
-                command.get_xml_text())
+                command.get_xml_text(), str(ex)))
             return []
 
         try:

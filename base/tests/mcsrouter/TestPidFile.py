@@ -16,7 +16,8 @@ class TestPidFile(unittest.TestCase):
         installDir = os.path.abspath("./tmp")
         pidfile = mcsrouter.mcs_router.PidFile(installDir)
         self.assertTrue(os.path.isfile(PIDFILE))
-        pid = open(PIDFILE).read().strip()
+        with open(PIDFILE) as pid_handle:
+            pid = pid_handle.read().strip()
         self.assertEqual(pid, str(os.getpid()))
         pidfile.exit()
         self.assertFalse(os.path.isfile(PIDFILE))
@@ -25,14 +26,16 @@ class TestPidFile(unittest.TestCase):
         installDir = os.path.abspath("./tmp")
         pidfile = mcsrouter.mcs_router.PidFile(installDir)
         self.assertTrue(os.path.isfile(PIDFILE))
-        pid = open(PIDFILE).read().strip()
+        with open(PIDFILE) as pid_handle:
+            pid = pid_handle.read().strip()
         self.assertEqual(pid, str(os.getpid()))
         pidfile.exit()
         self.assertFalse(os.path.isfile(PIDFILE))
 
         pidfile = mcsrouter.mcs_router.PidFile(installDir)
         self.assertTrue(os.path.isfile(PIDFILE))
-        pid = open(PIDFILE).read().strip()
+        with open(PIDFILE) as pid_handle:
+            pid = pid_handle.read().strip()
         self.assertEqual(pid, str(os.getpid()))
         pidfile.exit()
         self.assertFalse(os.path.isfile(PIDFILE))
