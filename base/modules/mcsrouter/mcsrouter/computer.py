@@ -182,7 +182,7 @@ class Computer(object):
             actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
             for filepath in actions:
                 try:
-                    filename = os.path.basename(filepath).split("_", 1)[1]
+                    filename = os.path.basename(filepath).split("_", 1)[-1]
                     os.rename(filepath, os.path.join(path_manager.action_dir(), filename))
                     LOGGER.info("Distribute new action: {}".format(filename))
                 except OSError as ex:
