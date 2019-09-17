@@ -460,11 +460,6 @@ class MCSConnection:
                                                                         port,
                                                                         timeout=30,
                                                                         **args)
-
-            if self.__m_debug:
-                #~ connection.set_debuglevel(1)
-                pass
-
             try:
                 connection.connect()
             except sophos_https.ProxyTunnelError as exception:
