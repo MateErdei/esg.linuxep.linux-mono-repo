@@ -116,9 +116,9 @@ def send_system_file_line_to_db(line, log_path, db, ip, hostname):
         cursor.execute(df_sql, df_val)
         db.commit()
         last_id = cursor.lastrowid
-        print("inserted, id:{}".format(last_id))
+        print("inserted, id:{}, hostname:{}".format(last_id, hostname))
     except Exception as e:
-        print("Exception for: {} ".format(line))
+        print("ERROR Exception for: {}: {} ".format(hostname, line))
         print(e)
 
 
@@ -250,12 +250,18 @@ def process_diagnose_file(tar_path):
         logs.append(str(filename))
         print(filename)
 
-    # System files - NB currently ignoring audit log as it is so verbose.
+    # System files - NB currently ignoring large system files as they take too long to import.
     system_file_path = os.path.join(sub_dir, "SystemFiles")
     for filename in Path(system_file_path).glob('*'):
-        if "audit.log" not in str(filename):
+        file_name_string = str(filename)
+        file_size_bytes = os.path.getsize(file_name_string)
+
+        # skip system files bigger than 1MB
+        if file_size_bytes < 1000000:
             system_files.append(str(filename))
-        print(filename)
+            print("Including system file: {}".format(filename))
+        else:
+            print("WARN - Ignoring system file due to size: {}".format(filename))
 
     hostname = extract_hostname(sub_dir)
     if hostname is None or hostname == "None" or hostname == "":
@@ -263,10 +269,12 @@ def process_diagnose_file(tar_path):
         return
 
     ip = extract_ip(sub_dir)
+    product_base_version = extract_base_version(sub_dir)
+
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
-
-    product_base_version = extract_base_version(sub_dir)
+    print("Version: {}".format(product_base_version))
+    time.sleep(3)
 
     # This account has only insert privileges (not even select) so it is safe to include here.
     # Dashboard sanitizes html so a script being inserted for example will not do anything when displayed.
@@ -307,7 +315,7 @@ def get_latest_log_time_from_db(hostname, db, log_name):
 
 
 def process_log_file(hostname, db, ip, log_file_path, product_base_version):
-    print("Processing log:{}".format(log_file_path))
+    print("Processing log:{} {}".format(hostname, log_file_path))
     if 'text' not in magic.from_file(log_file_path):
         print("Log file is not a text file, skipping it.")
         return
@@ -323,14 +331,16 @@ def process_log_file(hostname, db, ip, log_file_path, product_base_version):
 
 
 def process_system_file(hostname, db, ip, sys_file_path):
-    print("Processing system file:{}".format(sys_file_path))
+    print("Processing system file: {}, {}".format(hostname, sys_file_path))
     if 'text' not in magic.from_file(sys_file_path):
         print("Log file is not a text file, skipping it.")
         return
-
-    with io.open(sys_file_path, mode="r", encoding="utf-8") as log:
-        for line in log:
-            send_system_file_line_to_db(line, sys_file_path, db, ip, hostname)
+    try:
+        with io.open(sys_file_path, mode="r", encoding="utf-8") as log:
+            for line in log:
+                send_system_file_line_to_db(line, sys_file_path, db, ip, hostname)
+    except Exception as e:
+        print("ERROR Skipping: {} due to exception: {}".format("sys_file_path", e))
 
 
 def cleanup():
@@ -344,7 +354,6 @@ g_extract_dir = "/tmp/dogfood-extract"
 
 
 def main():
-
     global g_product
     global g_extract_dir
 
@@ -380,8 +389,6 @@ def main():
     for tar in tars_to_process:
         process_diagnose_file(tar)
 
-    # if g_extract_dir.startswith("/tmp/") and os.path.exists(g_extract_dir):
-    #     shutil.rmtree(g_extract_dir)
     cleanup()
 
 
