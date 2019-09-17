@@ -65,6 +65,11 @@ class NoEntityExpatBuilderNS(xml.dom.expatbuilder.ExpatBuilderNS):
         raise NoEntitiesAllowedException("Refusing to parse Entity Declaration: "+entityName)
 
 def parseString(contents):
+    """
+    Construct a xml.dom object from an xml string
+    :param contents: content of the xml as string
+    :return: xml.dom object
+    """
     options = xml.dom.xmlbuilder.Options()
     options.entities = True
     options.external_parameter_entities = False

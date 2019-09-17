@@ -153,7 +153,7 @@ def get_index(salt):
     mod3 = salt % 3
     if mod3 == 0:
         return (salt * 13) % key_length
-    elif mod3 == 1:
+    if mod3 == 1:
         return (salt * 11) % key_length
     return (salt * 7) % key_length
 
@@ -167,7 +167,7 @@ def get_mask(salt):
     mod3 = salt % 3
     if mod3 == 0:
         return ord(key[(salt * 13) % key_length])
-    elif mod3 == 1:
+    if mod3 == 1:
         return ord(key[(salt * 11) % key_length])
     return ord(key[(salt * 7) % key_length])
 

@@ -12,7 +12,6 @@ import binascii
 from Crypto.Cipher import DES3
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Hash import SHA512, HMAC
-from Crypto.Random import get_random_bytes
 
 # Algorithm enumeration:
 ALGO_3DES = 7
@@ -26,7 +25,7 @@ class SECObfuscationException(Exception):
     pass
 
 
-class SECObfuscation(object):
+class SECObfuscation:
     """
     SECObfuscation class
     """
@@ -45,7 +44,6 @@ class SECObfuscation(object):
         """
         remove_padding
         """
-        text_as_string = text.decode("utf8", "replace")
         padding = int(text[-1])
         if padding > self.BLOCK_LENGTH:
             raise SECObfuscationException("Padding incorrect")
@@ -73,13 +71,13 @@ class SECObfuscation(object):
         """
         create_session_key
         """
-        pass
+        raise NotImplementedError()
 
     def create_cipher(self, key, iv_value):
         """
         create_cipher
         """
-        pass
+        raise NotImplementedError()
 
     def deobfuscate(self, salt, cipher_text):
         """
@@ -96,8 +94,8 @@ class SECObfuscation(object):
         """
         obfuscate
         """
-        if not all( [ isinstance(salt, bytearray) or isinstance(salt, bytes),
-                  isinstance(plain_text, bytearray) or isinstance(plain_text, bytes)]):
+        if not all([isinstance(salt, (bytearray, bytes)),
+                    isinstance(plain_text, (bytearray, bytes))]):
             raise TypeError("Salt and Text must be bytes or bytearray")
         key, iv_value = self.create_session_key(salt)
         cipher = self.create_cipher(key, iv_value)
@@ -173,7 +171,8 @@ class AES256(SECObfuscation):
             """
             return HMAC.new(password, salt, SHA512).digest()
 
-        # salt may be type of bytearray, convert to bytes before passing to prevent errors in PBKDF2 call.
+        # salt may be type of bytearray, convert to bytes before passing to
+        # prevent errors in PBKDF2 call.
         key_iv = PBKDF2(password, bytes(salt),
                         dkLen=self.KEY_LENGTH + self.IV_LENGTH,
                         count=self.KEY_ITERATIONS,
@@ -188,7 +187,7 @@ def get_embedded_algorithm_byte(embedded_algorithm_byte):
     """
     if embedded_algorithm_byte == ThreeDES.ALGORITHM_MARKER_BYTE:
         return ThreeDES()
-    elif embedded_algorithm_byte == AES256.ALGORITHM_MARKER_BYTE:
+    if embedded_algorithm_byte == AES256.ALGORITHM_MARKER_BYTE:
         return AES256()
 
     raise SECObfuscationException("Unknown obfuscation algorithm-id")
