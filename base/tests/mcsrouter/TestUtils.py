@@ -1,6 +1,3 @@
-
-
-
 import os
 import unittest
 import mock
@@ -187,12 +184,6 @@ class TestSophosLogging(unittest.TestCase):
             sl.shutdown()
         finally:
             shutil.rmtree(dirn)
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
