@@ -8,6 +8,7 @@ import ipaddress
 import threading
 import logging
 from . import ip_address
+import time
 LOGGER = logging.getLogger(__name__)
 
 
@@ -27,13 +28,25 @@ class IpLookupThread(threading.Thread):
         """
         run
         """
+        attempt = 0
         try:
-            addr_info = socket.getaddrinfo(self.server["hostname"], None)
-            LOGGER.debug('AddrInfo: {}'.format(addr_info))
-            ip_set = {[i[4][0] for i in addr_info]}
-            self.server["ips"] = list(ip_set)
-        except LookupError:
-            LOGGER.exception('Failed in extracting  hostname info ')
+            while attempt < 2:
+                attempt += 1
+                try:
+                    addr_info = socket.getaddrinfo(self.server["hostname"], None)
+                    LOGGER.debug('AddrInfo: {}'.format(addr_info))
+                    ip_set = {[i[4][0] for i in addr_info]}
+                    self.server["ips"] = list(ip_set)
+                # some times the following error occurs:
+                # File "socket.py", line 748, in getaddrinfo
+                #   for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+                # LookupError: unknown encoding: idna
+                # But it seems not to persist. Try again.
+                except LookupError as ex:
+                    LOGGER.info('Failed in extracting  hostname info {}'.format(ex))
+                    time.sleep(0.1)
+                    if attempt == 2:
+                        raise
         except Exception as ex:  # pylint: disable=broad-except
             msg = "Extracting ip from server {} resulted in exception {}"
             LOGGER.warning(msg.format(self.server['hostname'], ex))

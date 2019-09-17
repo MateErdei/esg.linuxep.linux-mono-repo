@@ -25,7 +25,7 @@ class MCSPolicyHandlerException(Exception):
     pass
 
 
-class MCSPolicyHandler(object):
+class MCSPolicyHandler:
     """
     Process MCS adapter policy
     as defined at
@@ -185,10 +185,10 @@ class MCSPolicyHandler(object):
         if node is None:
             return False
 
-        serverSha256 = self.__get_non_empty_sub_elements(node, "server256")
-        serversSha1 = self.__get_non_empty_sub_elements(node, "server")
+        servers_sha256 = self.__get_non_empty_sub_elements(node, "server256")
+        servers_sha1 = self.__get_non_empty_sub_elements(node, "server")
         # append the two lists with the sha256 in preference.
-        servers = serverSha256 + serversSha1
+        servers = servers_sha256 + servers_sha1
         if not servers:
             LOGGER.error("MCS Policy has no server nodes in servers element")
             return False
@@ -279,13 +279,13 @@ class MCSPolicyHandler(object):
         """
         proxies_node = self.__get_element(dom, "proxies")
 
-        def cleanupProxy():
+        def cleanup_proxy():
             self.__m_policy_config.remove("mcs_policy_proxy")
             self.__m_policy_config.remove("mcs_policy_proxy_credentials")
 
         if proxies_node is None:
             ## Remove any existing proxy configuration
-            cleanupProxy()
+            cleanup_proxy()
             return False
 
         proxies = self.__get_non_empty_sub_elements(proxies_node, "proxy")
@@ -293,7 +293,7 @@ class MCSPolicyHandler(object):
         if not proxies:
             LOGGER.error("MCS Policy has no proxy nodes in proxies element")
             ## Remove any existing proxy configuration
-            cleanupProxy()
+            cleanup_proxy()
             return False
 
         if len(proxies) > 1:
@@ -405,8 +405,8 @@ class MCSPolicyHandler(object):
         """
         try:
             self.__apply_policy(policy_age, save)
-        except Exception as e:  # pylint: disable=broad-except
-            LOGGER.error("Failed to apply MCS policy: {}".format(e))
+        except Exception as ex:  # pylint: disable=broad-except
+            LOGGER.error("Failed to apply MCS policy: {}".format(ex))
 
     def process(self, policy_xml):
         """

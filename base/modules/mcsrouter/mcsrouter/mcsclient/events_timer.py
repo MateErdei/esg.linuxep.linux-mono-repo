@@ -8,7 +8,7 @@ import time
 import sys
 
 
-class EventsTimer(object):
+class EventsTimer:
     """
     MCS protocol Specification 15.2.4:
  RMS does not aggregate events. The principle here is that an event should

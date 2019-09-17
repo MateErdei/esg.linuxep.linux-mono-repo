@@ -2,11 +2,11 @@
 adapter_base Module
 """
 
+import xml.dom.minidom
+import logging
 import mcsrouter.utils.xml_helper
 from mcsrouter.utils.byte2utf8 import to_utf8
-import xml.dom.minidom
 
-import logging
 LOGGER = logging.getLogger(__name__)
 
 TEMPLATE_STATUS_AND_CONFIGURATION_XML = """<?xml version='1.0' encoding='utf-8'?>
@@ -31,14 +31,14 @@ def remove_blanks(node):
             remove_blanks(child_node)
 
 
-class AdapterBase(object):
+class AdapterBase:
     """
     AdapterBase class
     """
     # pylint: disable=no-self-use
 
-    def _parse_xml_string(self, s):
-        return mcsrouter.utils.xml_helper.parseString(s)
+    def _parse_xml_string(self, content):
+        return mcsrouter.utils.xml_helper.parseString(content)
 
     def get_status_ttl(self):
         """
@@ -50,7 +50,7 @@ class AdapterBase(object):
         """
         _set_text
         """
-        assert( isinstance(value, str))
+        assert isinstance(value, str)
         text = doc.createTextNode(value)
         for child in node.childNodes:
             node.removeChild(child)
@@ -97,7 +97,7 @@ class AdapterBase(object):
         """
         _get_status_xml
         """
-        pass
+        return ""
 
     def get_status_xml(self):
         """
@@ -112,7 +112,7 @@ class AdapterBase(object):
         status = self._get_status_xml()
         if status is None:
             return None
-        assert( isinstance(status, str))
+        assert isinstance(status, str)
 
         doc = self._parse_xml_string(
             TEMPLATE_STATUS_AND_CONFIGURATION_XML)
@@ -122,7 +122,7 @@ class AdapterBase(object):
         self._set_text(status_node, doc, status)
         config_node = doc.getElementsByTagName("configuration")[0]
         conf_xml = self._get_config_xml()
-        assert(isinstance(conf_xml, str))
+        assert isinstance(conf_xml, str)
         self._set_text(config_node, doc, conf_xml)
 
         output = to_utf8(doc.toxml(encoding="utf-8"))

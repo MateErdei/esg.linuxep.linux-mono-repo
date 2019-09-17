@@ -16,7 +16,7 @@ TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""
 
 
-class StatusEvent(object):
+class StatusEvent:
     """
     StatusEvent class
     """
@@ -37,12 +37,12 @@ class StatusEvent(object):
         """
         xml
         """
-        xml = self.xmlBuilder()
+        xml = self.xml_builder()
         mcsrouter.utils.xml_helper.check_string_length_for_statuses(xml)
 
         return xml
 
-    def xmlBuilder(self):
+    def xml_builder(self):
         doc = mcsrouter.utils.xml_helper.parseString(TEMPLATE_STATUS_EVENT)
         statuses = doc.getElementsByTagName("ns:statuses")[0]
 

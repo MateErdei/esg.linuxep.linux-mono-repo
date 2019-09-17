@@ -27,7 +27,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         __init__
         """
-        assert( isinstance(app_id, str))
+        assert isinstance(app_id, str)
         self.__m_app_id = app_id
         self.__m_last_status_time = None
         if install_dir is not None:
@@ -47,8 +47,8 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         policy = policy.encode('utf-8')
         LOGGER.debug(
             "{} Adapter processing policy {}".format(
-            self.__m_app_id,
-            policy)
+                self.__m_app_id,
+                policy)
         )
         LOGGER.debug("Received %s policy", self.__m_app_id)
 

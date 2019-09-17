@@ -12,7 +12,7 @@ import mcsrouter.utils.xml_helper
 
 
 # pylint: disable=no-self-use
-class Command(object):
+class Command:
     """
     Command
     """

@@ -19,7 +19,7 @@ TIMESTAMP_RE = re.compile(
     r'&lt;creationTime&gt;[^&]+&lt;/creationTime&gt;|timestamp=\"[^\"\']*\"|timestamp=\'[^\"\']*\'')
 
 
-class StatusCache(object):
+class StatusCache:
     """
     StatusCache class
     """
@@ -37,7 +37,7 @@ class StatusCache(object):
         @return True if status changed
 
         """
-        assert(isinstance(adapter_status_xml,str))
+        assert isinstance(adapter_status_xml, str)
         now = time.time()
 
         adapter_status_xml = adapter_status_xml.replace('&quot;', '"')

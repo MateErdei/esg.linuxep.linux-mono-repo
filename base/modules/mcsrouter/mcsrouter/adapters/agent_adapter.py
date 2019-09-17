@@ -2,6 +2,7 @@
 agent_adapter Module
 """
 
+import os
 import logging
 
 from mcsrouter import ip_address
@@ -10,8 +11,7 @@ import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.timestamp
 import mcsrouter.utils.target_system_manager
 import mcsrouter.utils.path_manager as path_manager
-import time
-import os
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ def format_ipv6(ipv6):
     return ":".join(result)
 
 
-class ComputerCommonStatus(object):
+class ComputerCommonStatus:
     """
     Class to represent the details that constitute the common computer status XML
     """
@@ -246,11 +246,11 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         get_aws_status
         """
         target_system = self.__target_system()
-        awsInfo = target_system.detect_instance_info()
+        aws_info = target_system.detect_instance_info()
 
-        region = awsInfo["region"]
-        account_id = awsInfo["accountId"]
-        instance_id = awsInfo["instanceId"]
+        region = aws_info["region"]
+        account_id = aws_info["accountId"]
+        instance_id = aws_info["instanceId"]
 
         return "".join((
             "<aws>",
@@ -281,7 +281,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
                     latest_timestamp = windows_timestamp
                 entries.append("<policy app=\"{}\" latest=\"{}\" />".format(filename, windows_timestamp))
 
-        if len(entries) == 0:
+        if not entries:
             return ""
 
         entries.insert(0, "<policy-status latest=\"{}\">".format(latest_timestamp))

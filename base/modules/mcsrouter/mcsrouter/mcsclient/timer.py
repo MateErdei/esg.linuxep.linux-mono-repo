@@ -6,7 +6,7 @@ timer Module
 import time
 
 
-class Timer(object):
+class Timer:
     """
     Object to indicate when the next status event should be sent.
     """

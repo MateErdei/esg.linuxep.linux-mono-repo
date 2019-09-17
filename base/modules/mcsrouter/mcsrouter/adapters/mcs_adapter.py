@@ -2,7 +2,6 @@
 mcs_adapter Module
 """
 
-import xml.dom.minidom
 import datetime
 
 import logging
@@ -99,7 +98,6 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         doc.unlink()
         LOGGER.debug("Status MCS XML: %s", output)
         output = output if isinstance(output, str) else to_utf8(output)
-        assert( isinstance(output, str))
         return output
 
     def _has_new_status(self):
