@@ -293,10 +293,12 @@ function build()
 
 #   Required for build scripts to run on dev machines
     export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
+    echo "After setup: CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}"
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
