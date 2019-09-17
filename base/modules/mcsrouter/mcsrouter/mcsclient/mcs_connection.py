@@ -133,8 +133,7 @@ def create_user_agent(product_version, registration_token, product="Linux"):
     if registration_token in ["unknown", "", None]:
         reg_token = ""
 
-    return "Sophos MCS Client/%s %s sessions %s" % (
-        product_version, product, reg_token)
+    return "Sophos MCS Client/{} {} sessions {}".format(product_version, product, reg_token)
 
 
 class MCSConnection:
@@ -158,14 +157,13 @@ class MCSConnection:
         cafile = path_manager.root_ca_path()
         ca_file_env = os.environ.get("MCS_CA", None)
         if ca_file_env not in ("", None) and os.path.isfile(ca_file_env):
-            LOGGER.warning("Using %s as certificate CA", ca_file_env)
+            LOGGER.warning("Using {} as certificate CA".format(ca_file_env))
             cafile = ca_file_env
         cafile = self.__m_config.get_default("CAFILE", cafile)
         self.__m_ca_file = None
         if cafile is not None and not os.path.isfile(cafile):
             LOGGER.error(
-                "Unable to load CA certificates from %s as it isn't a file",
-                cafile)
+                "Unable to load CA certificates from {} as it isn't a file".format(cafile))
             cafile = None
 
         self.__m_ca_file = cafile
@@ -197,7 +195,7 @@ class MCSConnection:
         """
         set_user_agent
         """
-        LOGGER.debug("Setting User-Agent to %s", agent)
+        LOGGER.debug("Setting User-Agent to {}".format(agent))
         self.__m_user_agent = agent
 
     def __get_message_relays(self):
@@ -270,9 +268,7 @@ class MCSConnection:
                     obfuscated)
             except sec_obfuscation.SECObfuscationException as exception:
                 LOGGER.error(
-                    "Invalid obfuscated credentials (%s): %s",
-                    str(exception),
-                    obfuscated)
+                    "Invalid obfuscated credentials ({}): {}".format(str(exception), obfuscated))
                 self.__m_obfuscation_cache[obfuscated] = None
 
         return self.__m_obfuscation_cache[obfuscated]
@@ -405,7 +401,7 @@ class MCSConnection:
 
         if self.__m_mcs_url != mcs_url:
             self.__m_mcs_url = mcs_url
-            LOGGER.info("MCS URL %s:%d%s", host, port, mcs_url_parsed.path)
+            LOGGER.info("MCS URL {}:{}{}".format(host, port, mcs_url_parsed.path))
 
         return (host, port, mcs_url_parsed.path)
 
@@ -480,34 +476,36 @@ class MCSConnection:
                         "Retrying 407 response with updated auth header")
                 else:
                     LOGGER.warning(
-                        "Failed connection with proxy due to authentication via %s:%d to %s:%d: %s",
-                        proxy_host,
-                        proxy_port,
-                        host,
-                        port,
-                        str(exception),
+                        "Failed connection with proxy due to authentication via {}:{} to {}:{}: {}".format(
+                            proxy_host,
+                            proxy_port,
+                            host,
+                            port,
+                            str(exception))
                     )
                     return None
             except mcsrouter.mcsclient.mcs_exception.MCSConnectionFailedException as exception:
                 if proxy_host:
                     if proxy.relay_id():
                         LOGGER.warning(
-                            "Failed connection with message relay via %s:%d to %s:%d: %s %s",
-                            proxy_host,
-                            proxy_port,
-                            host,
-                            port,
-                            str(exception),
-                            repr(exception))
+                            "Failed connection with message relay via {}:{} to {}:{}: {} {}".format(
+                                proxy_host,
+                                proxy_port,
+                                host,
+                                port,
+                                str(exception),
+                                repr(exception))
+                            )
                     else:
                         LOGGER.warning(
-                            "Failed connection with proxy via %s:%d to %s:%d: %s %s",
-                            proxy_host,
-                            proxy_port,
-                            host,
-                            port,
-                            str(exception),
-                            repr(exception))
+                            "Failed connection with proxy via {}:{} to {}:{}: {} {}".format(
+                                proxy_host,
+                                proxy_port,
+                                host,
+                                port,
+                                str(exception),
+                                repr(exception))
+                            )
                 else:
                     LOGGER.warning("Failed direct connection to {}:{} {}".format(
                         host, port, exception))
@@ -515,16 +513,16 @@ class MCSConnection:
 
         # Success
         if proxy_host:
-            LOGGER.info("Successfully connected to %s:%d via %s:%d",
-                        host, port,
-                        proxy_host, proxy_port)
+            LOGGER.info("Successfully connected to {}:{} via {}:{}".format(host, port,
+                        proxy_host, proxy_port))
         else:
             local_port = str(connection.sock.getsockname()[1])
             LOGGER.info(
-                "Successfully directly connected to %s:%d from port %s",
-                host,
-                port,
-                local_port)
+                "Successfully directly connected to {}:{} from port {}".format(
+                    host,
+                    port,
+                    local_port)
+            )
 
         if self.__m_current_proxy != proxy:
             self.__m_current_proxy = proxy
@@ -593,30 +591,31 @@ class MCSConnection:
                 "Response too short")
 
         if response.status == http.client.UNAUTHORIZED:
-            LOGGER.info("UNAUTHORIZED from server %d WWW-Authenticate=%s",
-                        response.status,
-                        response_headers.get('www-authenticate', "<Absent>"))
-            LOGGER.debug("HEADERS=%s", str(response_headers))
+            LOGGER.info("UNAUTHORIZED from server {} WWW-Authenticate={}".format(
+                            response.status,
+                            response_headers.get('www-authenticate', "<Absent>"))
+            )
+            LOGGER.debug("HEADERS={}".format(response_headers))
             raise MCSHttpUnauthorizedException(
                 response.status, response_headers, body)
         if response.status == http.client.SERVICE_UNAVAILABLE:
-            LOGGER.warning("HTTP Service Unavailable (503): %s (%s)",
-                           response.reason,
-                           body)
+            LOGGER.warning("HTTP Service Unavailable (503): {} ({})".format(
+                            response.reason,
+                            body))
             raise MCSHttpServiceUnavailableException(
                 response.status, response_headers, body)
         if response.status == http.client.GATEWAY_TIMEOUT:
-            LOGGER.warning("HTTP Gateway timeout (504): %s (%s)",
+            LOGGER.warning("HTTP Gateway timeout (504): {} ({})".format(
                            response.reason,
-                           body)
+                           body))
             raise MCSHttpGatewayTimeoutException(
                 response.status, response_headers, body)
         if response.status != http.client.OK:
-            LOGGER.error("Bad response from server %d: %s (%s)",
+            LOGGER.error("Bad response from server {}: {} ({})".format(
                          response.status,
                          response.reason,
                          http.client.responses.get(response.status,
-                                                   str(response.status)))
+                                                   str(response.status))))
             raise MCSHttpException(response.status, response_headers, body)
 
         response_headers = response.getheaders()
@@ -625,9 +624,9 @@ class MCSConnection:
                 cookie = header_value.split(";", 1)[0].strip()
                 name, value = cookie.split("=", 1)
                 self.__m_cookies[name] = value
-                LOGGER.debug("Storing cookie: %s=%s", name, value)
+                LOGGER.debug("Storing cookie: {}={}".format(name, value))
 
-        ENVELOPE_LOGGER.debug("response headers=%s", str(response_headers))
+        ENVELOPE_LOGGER.debug("response headers={}".format(str(response_headers)))
 
         if body:
             # Fix issue where we receive latin1 encoded characters in
@@ -692,7 +691,7 @@ class MCSConnection:
         """
         previous_proxy = self.__m_current_proxy
         host, port, path = self.__get_url_parts(mcs_url)
-        LOGGER.debug("Connecting to %s:%d%s", host, port, path)
+        LOGGER.debug("Connecting to {}:{}{}".format(host, port, path))
         self.__m_current_path = ""
 
         def get_response_with_url(proxy):
@@ -734,7 +733,7 @@ class MCSConnection:
         # Need to re-connect to Central/MCS
         proxies = self.__create_list_of_proxies()
         urls = self.__get_urls()
-        LOGGER.debug("Trying URLs: %s", str(urls))
+        LOGGER.debug("Trying URLs: {}".format(str(urls)))
 
         # First try the URL that worked previously
         if self.__m_mcs_url in urls:
@@ -832,19 +831,18 @@ class MCSConnection:
         """
         __request
         """
-        #~ LOGGER.debug("%sing %s with %d byte body"%(method, path, len(body)))
         headers.setdefault("User-Agent", self.__m_user_agent)
 
         if self.__m_cookies:
             cookies = "; ".join(["=".join(cookie)
                                  for cookie in self.__m_cookies.items()])
             headers.setdefault("Cookie", cookies)
-            LOGGER.debug("Sending cookies: %s", cookies)
+            LOGGER.debug("Sending cookies: {}".format(cookies))
 
         #if isinstance(body, str):
         #    body = body.encode("utf-8")
 
-        ENVELOPE_LOGGER.debug("request headers=%s", str(headers))
+        ENVELOPE_LOGGER.debug("request headers={}".format(str(headers)))
         if body in (None, ""):
             request_string = "{} {}".format(method, path)
         else:
@@ -871,7 +869,7 @@ class MCSConnection:
         if mcs_id == "reregister":
             mcs_id = ""
         password = self.get_password() or ""
-        auth = "%s:%s:%s" % (mcs_id, password, token)
+        auth = "{}:{}:{}".format(mcs_id, password, token)
         auth = auth.encode('utf-8')
         headers = {
             "Authorization": "Basic {}".format(to_utf8(base64.b64encode(auth))),
@@ -910,9 +908,9 @@ class MCSConnection:
         }
         if method != "GET":
             LOGGER.debug(
-                "MCS request url=%s body size=%d",
+                "MCS request url={} body size={}".format(
                 command_path,
-                len(body))
+                len(body)))
         (headers, body) = self.__request(command_path, headers, body, method)
         return body
 
@@ -948,8 +946,7 @@ class MCSConnection:
         """
         assert app_ids is not None
         commands = self.send_message_with_id(
-            "/commands/applications/%s/endpoint/" %
-            (";".join(app_ids)))
+            "/commands/applications/{}/endpoint/".format(";".join(app_ids)))
         try:
             doc = mcsrouter.utils.xml_helper.parseString(commands)
         except xml.parsers.expat.ExpatError as ex:
@@ -973,25 +970,25 @@ class MCSConnection:
         Delete a command that has been completed
         """
         self.send_message(
-            "/commands/endpoint/%s/%s" %
-            (self.get_id(), command_id), "", "DELETE")
+            "/commands/endpoint/{}/{}".format(
+            (self.get_id(), command_id), "", "DELETE"))
 
     def get_policy(self, app_id, policy_id):
         """
         Get a policy from MCS
         """
-        path = "/policy/application/%s/%s" % (app_id, policy_id)
+        path = "/policy/application/{}/{}".format(app_id, policy_id)
 
         base_path = self.__m_current_path
-        LOGGER.debug("Request policy from %s", base_path + path)
+        LOGGER.debug("Request policy from {}".format(base_path + path))
         return self.send_message(path)
 
     def get_policy_fragment(self, app_id, fragment_id):
         """
         get_policy_fragment
         """
-        path = "/policy/fragment/application/%s/%s" % (app_id, fragment_id)
+        path = "/policy/fragment/application/{}/{}".format(app_id, fragment_id)
 
         base_path = self.__m_current_path
-        LOGGER.debug("Request policy fragment from %s", base_path + path)
+        LOGGER.debug("Request policy fragment from {}".format(base_path + path))
         return self.send_message(path)

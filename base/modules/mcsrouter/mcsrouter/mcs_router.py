@@ -35,18 +35,6 @@ class PidFile:
     """
     PidFile
     """
-
-    def __safe_make_dirs(self, path):
-        """
-        __safe_make_dirs
-        """
-        try:
-            os.makedirs(path)
-        except EnvironmentError as exception:
-            if exception.errno == 17:
-                return
-            raise
-
     def __init__(self, install_dir):
         """
         __init__
@@ -72,6 +60,17 @@ class PidFile:
         self.__m_pid_file.flush()
 
         self.__m_pid = os.getpid()
+
+    def __safe_make_dirs(self, path):
+        """
+        __safe_make_dirs
+        """
+        try:
+            os.makedirs(path)
+        except EnvironmentError as exception:
+            if exception.errno == 17:
+                return
+            raise
 
     def exit(self):
         """
@@ -153,27 +152,6 @@ class SophosLogging:
     """
     SophosLogging
     """
-
-    def _extract_log_level(self, log_config):
-        readable = False
-        log_level_string = LOG_LEVEL_DEFAULT
-        try:
-            if os.path.isfile(log_config):
-                config_parser = configparser.ConfigParser()
-                readable = config_parser.read(log_config)
-                config_sections = config_parser.sections()
-                for section in config_sections:
-                    if section == 'mcs_router' and config_parser.has_option(section, 'VERBOSITY'):
-                        log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
-                        break
-                    elif section == 'global' and config_parser.has_option(section, 'VERBOSITY'):
-                        log_level_string = config_parser.get('global', 'VERBOSITY')
-                if log_level_string == 'WARN':
-                    log_level_string = 'WARNING'
-        except Exception as ex: # pylint: disable=broad-except
-            print("Failed to parse log configuration: {}".format(ex), file=sys.stderr)
-        return readable, log_level_string
-
     def __init__(self, install_dir):
         """
         __init__
@@ -225,6 +203,26 @@ class SophosLogging:
         LOGGER.info("Logging level: %s", str(root_logger_level))
         LOGGER.info("Logging to %s", log_file)
         sophos_https.LOGGER = logging.getLogger("sophos_https")
+
+    def _extract_log_level(self, log_config):
+        readable = False
+        log_level_string = LOG_LEVEL_DEFAULT
+        try:
+            if os.path.isfile(log_config):
+                config_parser = configparser.ConfigParser()
+                readable = config_parser.read(log_config)
+                config_sections = config_parser.sections()
+                for section in config_sections:
+                    if section == 'mcs_router' and config_parser.has_option(section, 'VERBOSITY'):
+                        log_level_string = config_parser.get('mcs_router', 'VERBOSITY')
+                        break
+                    elif section == 'global' and config_parser.has_option(section, 'VERBOSITY'):
+                        log_level_string = config_parser.get('global', 'VERBOSITY')
+                if log_level_string == 'WARN':
+                    log_level_string = 'WARNING'
+        except Exception as ex: # pylint: disable=broad-except
+            print("Failed to parse log configuration: {}".format(ex), file=sys.stderr)
+        return readable, log_level_string
 
     def shutdown(self):
         """

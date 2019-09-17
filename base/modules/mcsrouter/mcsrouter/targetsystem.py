@@ -34,13 +34,7 @@ DISTRIBUTION_NAME_MAP = {
     'asianux': 'asianux',
     'oracle': 'oracle',
     'centos': 'centos',
-    'amazonlinux': 'amazon',
-
-    # Sophos Anti-Virus for VMWare platforms.
-    # NB, there is also a vshield-1.0 which can be assigned by detect_distro
-    # and which corresponds to the "special" 1.0 release of SAV for vShield which
-    # didn't have a dedicated update location.
-    'sophosanti-virusforvmwarevshield': 'vshield',
+    'amazonlinux': 'amazon'
 }
 
 #-----------------------------------------------------------------------------
@@ -296,7 +290,6 @@ class TargetSystem:
             # Lower case and strip spaces
             vendor = vendor.lower()
             vendor = vendor.replace(" ", "")
-            # DEF25168: Other special characters seem to be working
             vendor = vendor.replace("/", "_")
             match = False
             for key in DISTRIBUTION_NAME_MAP:
@@ -305,8 +298,6 @@ class TargetSystem:
                     match = True
                     break
             if not match:
-                # Attempt to extract vendor from Description if above failed
-                # (Asianux3)
                 if vendor in ['n_a', '']:
                     vendor = self.m_lsb_release['Description']
                     vendor = vendor.lower()

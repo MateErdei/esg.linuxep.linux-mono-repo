@@ -94,7 +94,7 @@ class Config(object):
             temp_filename = os.path.join(path_manager.temp_dir(), os.path.basename(filename))
             file_to_write = open(temp_filename, "w")
             for (key, value) in self.__m_options.items():
-                file_to_write.write("%s=%s\n" % (key, value))
+                file_to_write.write("{}={}\n".format(key, value))
             file_to_write.close()
             os.chown(temp_filename, self.__user_id, self.__group_id)
             os.rename(temp_filename, filename)

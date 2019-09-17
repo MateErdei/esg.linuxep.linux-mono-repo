@@ -45,10 +45,8 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
         if user is None:
             return None
 
-        A1 = "%s:%s:%s" % (user, realm, password)
-        uri = b"%s:%d" % (
-            remote_host.encode("utf-8"),
-            remote_port)
+        A1 = "{}:{}:{}".format(user, realm, password)
+        uri = "{}:{}".format(remote_host, remote_port)
         A2 = "CONNECT:%s" % uri
 
         H_A1_as_bytes = H(A1).encode("utf-8")
@@ -66,8 +64,6 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
 
             qop_as_bytes = qop.encode("utf-8")
 
-            # nonce_bit = b"%s:%s:%s:%s:%s" % (
-            #     nonce, nc_value, cnonce, qop_as_bytes, H_A2_as_bytes)
             nonce_bit = "{}{}{}{}{}".format(
                 nonce, nc_value, cnonce, qop_as_bytes, H_A2_as_bytes)
             nonce_bit = nonce_bit.encode("utf-8")

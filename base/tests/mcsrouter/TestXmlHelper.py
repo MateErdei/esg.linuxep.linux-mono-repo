@@ -3,11 +3,7 @@
 
 
 import unittest
-
-import xml.parsers.expat
-
 import PathManager
-
 import mcsrouter.mcsclient.status_event
 import mcsrouter.mcsclient.events
 import mcsrouter.utils.xml_helper

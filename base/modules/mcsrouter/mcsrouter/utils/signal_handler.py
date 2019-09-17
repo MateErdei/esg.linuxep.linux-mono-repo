@@ -27,7 +27,7 @@ def handler(sig_num, frame):  #pylint: disable=unused-argument
     elif sig_num in (signal.SIGTERM, signal.SIGINT):
         os.write(sig_term_pipe[1], b"1")
     else:
-        print("SIGNAL %d not handled" % sig_num, file=sys.stderr)
+        print("SIGNAL {} not handled".format(sig_num), file=sys.stderr)
 
 
 def make_non_blocking_and_non_inherit(file_descriptor):
