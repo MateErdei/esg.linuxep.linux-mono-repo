@@ -178,10 +178,12 @@ class Computer(object):
                 except OSError as ex:
                     LOGGER.warning("Failed to write a policy to: {}. Reason: {}".format(filepath, ex))
 
+            # We want to introduce actions to the system in the order in which they were received.
             actions = glob.glob(os.path.join(path_manager.actions_temp_dir(), "*.xml"))
             actions.sort(key=lambda a: os.path.basename(a).split("_", 1)[0])
             for filepath in actions:
                 try:
+                    # This removes the timestamp (tag to sort by) from the front of the filename.
                     filename = os.path.basename(filepath).split("_", 1)[-1]
                     os.rename(filepath, os.path.join(path_manager.action_dir(), filename))
                     LOGGER.info("Distribute new action: {}".format(filename))
