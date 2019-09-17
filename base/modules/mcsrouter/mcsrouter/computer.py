@@ -15,7 +15,7 @@ from .utils import timestamp, path_manager
 LOGGER = logging.getLogger(__name__)
 
 
-class Computer(object):
+class Computer:
     """
     Class that represents a computer with adapters and a connection to a management service
     """
@@ -40,7 +40,7 @@ class Computer(object):
         """
         remove_adapter_by_app_id
         """
-        assert(isinstance(app_id, str))
+        assert isinstance(app_id, str)
         try:
             del self.__m_adapters[app_id]
         except KeyError as exception:

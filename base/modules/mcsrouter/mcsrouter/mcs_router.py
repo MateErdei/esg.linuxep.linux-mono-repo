@@ -13,9 +13,7 @@ import fcntl
 import logging
 import logging.handlers
 
-# ConfigParser has been renamed configparser in Python 3.
-# Therefore using the 'as' to minimise work needed during migration from 2 to 3
-import configparser as configparser
+import configparser
 
 import signal
 import time
@@ -33,7 +31,7 @@ LOG_LEVEL_DEFAULT = "INFO"
 builtins.__dict__['REGISTER_MCS'] = False
 
 
-class PidFile(object):
+class PidFile:
     """
     PidFile
     """
@@ -47,8 +45,7 @@ class PidFile(object):
         except EnvironmentError as exception:
             if exception.errno == 17:
                 return
-            else:
-                raise
+            raise
 
     def __init__(self, install_dir):
         """
@@ -152,7 +149,7 @@ def create_daemon():
     return 0
 
 
-class SophosLogging(object):
+class SophosLogging:
     """
     SophosLogging
     """
@@ -173,8 +170,8 @@ class SophosLogging(object):
                         log_level_string = config_parser.get('global', 'VERBOSITY')
                 if log_level_string == 'WARN':
                     log_level_string = 'WARNING'
-        except Exception as ex:
-            print( "Failed to parse log configuration: {}".format(ex), file=sys.stderr)
+        except Exception as ex: # pylint: disable=broad-except
+            print("Failed to parse log configuration: {}".format(ex), file=sys.stderr)
         return readable, log_level_string
 
     def __init__(self, install_dir):
@@ -236,7 +233,7 @@ class SophosLogging(object):
         logging.shutdown()
 
 
-class MCSRouter(object):
+class MCSRouter:
     """
     MCSRouter
     """
@@ -298,7 +295,7 @@ def clear_tmp_directory():
                 pass
 
 
-def main(argv):
+def main():
     """
     main
     """
@@ -313,7 +310,7 @@ def main(argv):
     os.umask(0o177)
 
     sophos_logging = SophosLogging(install_dir)
-    LOGGER.info("Started with install directory set to " + install_dir)
+    LOGGER.info("Started with install directory set to {}".format(install_dir))
     pid_file = PidFile(install_dir)
     try:
         mgmt = MCSRouter(install_dir)
@@ -329,4 +326,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())

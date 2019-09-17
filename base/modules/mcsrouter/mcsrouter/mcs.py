@@ -40,7 +40,7 @@ from . import computer
 LOGGER = logging.getLogger(__name__)
 
 
-class CommandCheckInterval(object):
+class CommandCheckInterval:
     """
     CommandCheckInterval
     """
@@ -143,7 +143,7 @@ class CommandCheckInterval(object):
                     delay_upper_bound, error_count)
 
 
-class MCS(object):
+class MCS:
     """
     MCS
     """
@@ -360,7 +360,7 @@ class MCS(object):
         # pylint: disable=too-many-nested-blocks
         try:
             while running:
-                timeoutCompensation = 0
+                timeout_compensation = 0
 
                 before_time = time.time()
 
@@ -432,7 +432,7 @@ class MCS(object):
                             "Next command check in %.2f s",
                             self.__m_command_check_interval.get())
 
-                    timeoutCompensation = (time.time() - last_commands)
+                    timeout_compensation = (time.time() - last_commands)
 
                     # Check to see if any adapters have new status
                     if self.__m_computer.has_status_changed() \
@@ -553,7 +553,7 @@ class MCS(object):
                         self.__m_status_timer.relative_time(), timeout)
                     timeout = min(events_timer.relative_time(), timeout)
                 else:
-                    timeout -= timeoutCompensation
+                    timeout -= timeout_compensation
 
                 # Avoid busy looping and negative timeouts
                 timeout = max(0.5, timeout)

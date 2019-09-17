@@ -91,7 +91,7 @@ class SophosProxyDigestAuthHandler(urllib.request.AbstractDigestAuthHandler):
         return base
 
 
-class ProxyAuthorization(object):
+class ProxyAuthorization:
     """
     ProxyAuthorization class
     """

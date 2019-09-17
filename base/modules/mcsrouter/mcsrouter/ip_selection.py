@@ -6,9 +6,8 @@ ip_selection Module
 import socket
 import ipaddress
 import threading
-
-from . import ip_address
 import logging
+from . import ip_address
 LOGGER = logging.getLogger(__name__)
 
 
@@ -31,10 +30,13 @@ class IpLookupThread(threading.Thread):
         try:
             addr_info = socket.getaddrinfo(self.server["hostname"], None)
             LOGGER.debug('AddrInfo: {}'.format(addr_info))
-            self.server["ips"] = list(
-                set([i[4][0] for i in addr_info ]))
-        except Exception as ex:
-            LOGGER.warning("Extracting ip from server {} resulted in exception {}".format(self.server['hostname'], ex))
+            ip_set = {[i[4][0] for i in addr_info]}
+            self.server["ips"] = list(ip_set)
+        except LookupError:
+            LOGGER.exception('Failed in extracting  hostname info ')
+        except Exception as ex:  # pylint: disable=broad-except
+            msg = "Extracting ip from server {} resulted in exception {}"
+            LOGGER.warning(msg.format(self.server['hostname'], ex))
 
 
 def order_servers_by_key(server_location_list, key_string):
@@ -118,7 +120,16 @@ def order_by_ip_address_distance(
     server_location_list = order_servers_by_key(server_location_list, 'dist')
     return server_location_list
 
-def order_message_relays( server_location_list, local_ipv4s, local_ipv6s):
+def order_message_relays(server_location_list, local_ipv4s, local_ipv6s):
+    """
+    Order the message relays based on ip distance and priority.
+    :param server_location_list: list of dictionary entries containing at least: hostname,
+                                 priority and ips
+    :param local_ipv4s: list of ip4 strings. eg: ['10.0.1.2']
+    :param local_ipv6s:
+    :return: copy of server_location_list sorted by ip distance and priority.
+    @see test_alg_evaluate_address_preference
+    """
     server_location_list = order_by_ip_address_distance(
         local_ipv4s, local_ipv6s, server_location_list)
     LOGGER.debug("Ordered by distance: {}".format(server_location_list))
@@ -144,5 +155,6 @@ def evaluate_address_preference(server_location_list):
     local_ipv6s = [int(ipv6, 16) for ipv6 in ip_address.get_non_local_ipv6()]
     LOGGER.debug("IPV6: {}".format(local_ipv6s))
     server_location_list = get_server_ips_from_hostname(server_location_list)
-    LOGGER.debug("Evaluate Preference server location list with ips: {}".format(server_location_list))
+    LOGGER.debug("Evaluate Preference server location list with ips: {}"
+                 .format(server_location_list))
     return order_message_relays(server_location_list, local_ipv4s, local_ipv6s)

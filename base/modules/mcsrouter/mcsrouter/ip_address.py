@@ -134,7 +134,7 @@ def get_fqdn():
     with open(os.devnull, "wb") as dev_null:
         try:
             output = subprocess.check_output(['hostname', '-f'], stderr=dev_null)
-            if b'.' in output:
+            if output.find(b'.') != -1:
                 return to_utf8(output.strip())
         except OSError:
             # hostname doesn't exist - got nothing better than s

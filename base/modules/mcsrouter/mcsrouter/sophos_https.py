@@ -4,14 +4,14 @@ sophos_https Module
 """
 
 import os
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import socket
 import ssl
 import http.client
 import base64
 
-# urllib.parse in python 3
-import urllib.parse
 
 # pylint: disable=relative-import
 from . import proxy_authorization
@@ -68,7 +68,7 @@ def get_proxy(proxy=None):
     return (proxy_host, proxy_port)
 
 
-class Proxy(object):
+class Proxy:
     """
     Proxy
     """
@@ -265,7 +265,7 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
         for header, value in self._tunnel_headers.items():
             connect.append("%s: %s\r\n" % (header, value))
         connect.append("\r\n")
-        info( "Connect message: {} ".format(str(connect)))
+        info("Connect message: {} ".format(str(connect)))
         content = ''.join(connect)
         self.send(content.encode('utf-8'))
         response = self.response_class(self.sock, method=self._method)
@@ -276,9 +276,9 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
             # concluded HTTP/0.9 is being used something has gone wrong.
             response.close()
             raise socket.error("Invalid response from tunnel request")
-        elif response.status == 407:
+        if response.status == 407:
             raise ProxyTunnelError(response)
-        elif response.status != 200:
+        if response.status != 200:
             response.close()
             raise socket.error(
                 "Tunnel connection failed: %d %s" %

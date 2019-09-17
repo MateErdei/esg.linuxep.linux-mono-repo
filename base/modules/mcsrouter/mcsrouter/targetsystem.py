@@ -48,7 +48,7 @@ DISTRIBUTION_NAME_MAP = {
 #-----------------------------------------------------------------------------
 
 
-class TargetSystem(object):
+class TargetSystem:
     """
     Represents the system into which we are trying to install/load TALPA.
     """
@@ -117,8 +117,7 @@ class TargetSystem(object):
         if self.has_upstart and self.has_systemd:
             init_process = self.__detect_init_process()
             self.use_systemd = (init_process == "systemd")
-            self.use_upstart = (
-                init_process == "init" or init_process == "upstart")
+            self.use_upstart = init_process in ['init', 'upstart']
         else:
             self.use_upstart = self.has_upstart
             self.use_systemd = self.has_systemd
@@ -308,7 +307,7 @@ class TargetSystem(object):
             if not match:
                 # Attempt to extract vendor from Description if above failed
                 # (Asianux3)
-                if vendor == 'n_a' or vendor == '':
+                if vendor in ['n_a', '']:
                     vendor = self.m_lsb_release['Description']
                     vendor = vendor.lower()
                     vendor = vendor.replace(" ", "")
@@ -475,8 +474,8 @@ class TargetSystem(object):
             if (len(detected_version) < 3) or (detected_version[2] == ''):
                 raise self.TargetDetectionException('exc-kernel-unknown')
             return detected_version[2]
-        else:
-            return "Unknown"
+
+        return "Unknown"
 
     def detect_version(self):
         """
@@ -491,8 +490,8 @@ class TargetSystem(object):
         :return:
         """
         try:
-            with open('/sys/hypervisor/uuid') as f:
-                if "ec2" in f.read():
+            with open('/sys/hypervisor/uuid') as uuid_file:
+                if "ec2" in uuid_file.read():
                     return True
         except EnvironmentError:
             pass
@@ -533,9 +532,10 @@ class TargetSystem(object):
             with open("/dev/null", "wb") as devnull:
                 results1 = to_utf8(subprocess.check_output(
                     args=[
-                    "dmidecode",
-                    "--string",
-                    "system-uuid"],
+                        "dmidecode",
+                        "--string",
+                        "system-uuid"
+                    ],
                     stderr=devnull))
                 results2 = to_utf8(subprocess.check_output(
                     args=["dmidecode", "-s", "bios-version"], stderr=devnull))
@@ -734,17 +734,17 @@ class TargetSystem(object):
         platform = self.get_platform()
         if platform == "linux":
             return "x86"
-        elif platform == "sunos":
+        if platform == "sunos":
             arch = self.detect_architecture()
             if arch in ['i86pc', 'i386', 'i586']:
                 return "x86"
             return "sparc"
-        elif platform == "freebsd":
+        if platform == "freebsd":
             arch = self.detect_architecture()
             if arch in ['i386']:
                 return "x86"
             return "amd"
-        elif platform == "aix":
+        if platform == "aix":
             return "powerpc"
         return self.detect_architecture()
 
@@ -757,8 +757,8 @@ class TargetSystem(object):
             if self.arch in ["x86_64", "amd64"]:
                 return "64"
             return "32"
-        else:
-            return ""
+
+        return ""
 
     def get_os_version(self):
         """
@@ -766,7 +766,7 @@ class TargetSystem(object):
         """
         if self.is_solaris:
             return self.uname[2]
-        elif self.is_ubuntu:
+        if self.is_ubuntu:
             return self.m_lsb_release.get('Release', None)
 
         return None
@@ -875,7 +875,7 @@ class TargetSystem(object):
         if self.is_hpux:
             if name is None:
                 return '.so'
-            elif name.startswith('libsavi.'):
+            if name.startswith('libsavi.'):
                 return '.sl'
             return '.so'
         return '.so'
@@ -1052,13 +1052,13 @@ class TargetSystem(object):
             if self.distro == "vshield":
                 return "5B6B70A6-3C03-47EA-81D2-60C38376135F"
             return "5CF594B0-9FED-4212-BA91-A4077CB1D1F3"
-        elif self.is_solaris:
+        if self.is_solaris:
             if self.get_architecture() == "sparc":
                 return "5CFA73B4-DBC2-4A70-8B18-C29AA9014C81"
             return "CF87F829-EA39-4D74-97F7-B849606F0044"
-        elif self.is_hpux:
+        if self.is_hpux:
             return "905F6B56-DF17-4CF8-B413-7162F2D2DD3F"
-        elif self.is_aix:
+        if self.is_aix:
             return "43F3AB41-6B33-40A7-8E99-22F237C97AB3"
 
         raise Exception("Not a supported platform")

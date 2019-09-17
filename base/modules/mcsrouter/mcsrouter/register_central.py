@@ -11,7 +11,7 @@ import subprocess
 import random
 import sys
 import time
-import optparse
+import argparse
 import errno
 import builtins
 
@@ -48,7 +48,6 @@ def safe_mkdir(directory):
         except OSError as exception:
             if exception.errno != errno.EEXIST:
                 raise
-    return
 
 
 def setup_logging():
@@ -124,8 +123,7 @@ def safe_delete(path):
         os.unlink(path)
     except IOError:
         pass
-    except OSError:
-        pass
+
 
 
 def register(config, inst, logger):
@@ -146,14 +144,13 @@ def register(config, inst, logger):
             break
         except mcs_exception.MCSConnectionFailedException as ex:
             url = config.get("MCSURL")
-            print("ERROR: Failed to connect to Sophos Central: Check URL: %s" % url, file=sys.stderr)
             logger.warning(
                 "Failed to connect to Sophos Central: Check URL: {}. Error: {}".format(url, str(ex)))
             ret = 4
             break
         except mcs_connection.MCSHttpException as exception:
             if exception.error_code() == 401:
-                print("ERROR: Authentication error from Sophos Central: Check Token", file=sys.stderr)
+                logger.debug("HTTPException {}".format(exception))
                 logger.fatal(
                     "ERROR: Authentication error from Sophos Central: Check Token")
                 ret = 6
@@ -189,7 +186,7 @@ def remove_mcs_policy():
     safe_delete(path_manager.mcs_policy_config())
     safe_delete(path_manager.mcs_policy_file())
 
-class RandomGenerator(object):
+class RandomGenerator:
     """
     RandomGenerator
     """
@@ -303,48 +300,49 @@ def inner_main(argv):
     """
     # pylint: disable=too-many-branches, too-many-statements
 
-    stop_mcs_router()
+    #stop_mcs_router()
     ret = 1
     usage = "Usage: register_central <MCS-Token> <MCS-URL> | register_central [options]"
-    parser = optparse.OptionParser(usage=usage)
-    parser.add_option(
+    parser = argparse.ArgumentParser(usage=usage)
+    parser.add_argument(
         "--deregister",
         dest="deregister",
         action="store_true",
         default=False)
-    parser.add_option(
+    parser.add_argument(
         "--reregister",
         dest="reregister",
         action="store_true",
         default=False)
-    parser.add_option(
+    parser.add_argument(
         "--messagerelay",
         dest="messagerelay",
         action="store",
         default=None)
-    parser.add_option(
+    parser.add_argument(
         "--proxycredentials",
         dest="proxycredentials",
         action="store",
         default=None)
-    (options, args) = parser.parse_args(argv[1:])
+    parser.add_argument('token', help='MCS Token to register with Central',
+                        nargs='?', default=None)
+    parser.add_argument('url', help='MCS URL to use to register with Central',
+                        nargs='?', default=None)
 
+    options = parser.parse_args(argv[1:])
     if options.proxycredentials is None:
         options.proxycredentials = os.environ.get("PROXY_CREDENTIALS", None)
 
-    token = None
-    url = None
+    token = options.token
+    url = options.url
 
     if options.deregister:
         pass
     elif options.reregister:
         pass
-    elif len(args) == 2:
-        (token, url) = args
-    else:
+    elif token is None or url is None:
         parser.print_usage()
         return 2
-
     config = utils_config.Config(
         path_manager.root_config(),
         mode=0o640,

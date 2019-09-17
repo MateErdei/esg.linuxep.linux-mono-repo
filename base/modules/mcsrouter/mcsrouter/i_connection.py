@@ -4,7 +4,7 @@ i_connection Module
 """
 
 
-class IConnection(object):
+class IConnection:
     """
     IConnection Class
     """
