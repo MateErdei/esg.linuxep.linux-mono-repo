@@ -19,8 +19,7 @@ import mcsrouter.utils.xml_helper
 from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
 from mcsrouter import sophos_https
-
-from ..utils.byte2utf8 import to_utf8
+from mcsrouter.utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 ENVELOPE_LOGGER = logging.getLogger("ENVELOPES")
@@ -828,9 +827,6 @@ class MCSConnection:
                                  for cookie in self.__m_cookies.items()])
             headers.setdefault("Cookie", cookies)
             LOGGER.debug("Sending cookies: {}".format(cookies))
-
-        #if isinstance(body, str):
-        #    body = body.encode("utf-8")
 
         ENVELOPE_LOGGER.debug("request headers={}".format(str(headers)))
         if body in (None, ""):
