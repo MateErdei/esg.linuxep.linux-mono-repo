@@ -35,7 +35,7 @@ class IpLookupThread(threading.Thread):
                 try:
                     addr_info = socket.getaddrinfo(self.server["hostname"], None)
                     LOGGER.debug('AddrInfo: {}'.format(addr_info))
-                    ip_set = {[i[4][0] for i in addr_info]}
+                    ip_set = set([i[4][0] for i in addr_info])
                     self.server["ips"] = list(ip_set)
                 # some times the following error occurs:
                 # File "socket.py", line 748, in getaddrinfo

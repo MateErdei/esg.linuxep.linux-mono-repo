@@ -508,8 +508,8 @@ class MCSConnection:
 
         # Success
         if proxy_host:
-            LOGGER.info("Successfully connected to {}:{} via {}:{}".format(host, port,
-                        proxy_host, proxy_port))
+            LOGGER.info("Successfully connected to {}:{} via {}:{}".format(
+                host, port, proxy_host, proxy_port))
         else:
             local_port = str(connection.sock.getsockname()[1])
             LOGGER.info(
@@ -581,36 +581,32 @@ class MCSConnection:
         # if we got an HTTP Content-Length, make sure the response isn't too
         # short
         if length is not None and len(body) < limit:
-            LOGGER.error("Response too short")
+            LOGGER.error("Response too short. Size: {}. Limit: {}".format(len(body), limit))
             raise mcsrouter.mcsclient.mcs_exception.MCSNetworkException(
                 "Response too short")
 
         if response.status == http.client.UNAUTHORIZED:
             LOGGER.info("UNAUTHORIZED from server {} WWW-Authenticate={}".format(
-                            response.status,
-                            response_headers.get('www-authenticate', "<Absent>"))
-            )
+                response.status,
+                response_headers.get('www-authenticate', "<Absent>")))
             LOGGER.debug("HEADERS={}".format(response_headers))
             raise MCSHttpUnauthorizedException(
                 response.status, response_headers, body)
         if response.status == http.client.SERVICE_UNAVAILABLE:
             LOGGER.warning("HTTP Service Unavailable (503): {} ({})".format(
-                            response.reason,
-                            body))
+                response.reason, body))
             raise MCSHttpServiceUnavailableException(
                 response.status, response_headers, body)
         if response.status == http.client.GATEWAY_TIMEOUT:
             LOGGER.warning("HTTP Gateway timeout (504): {} ({})".format(
-                           response.reason,
-                           body))
+                response.reason, body))
             raise MCSHttpGatewayTimeoutException(
                 response.status, response_headers, body)
         if response.status != http.client.OK:
             LOGGER.error("Bad response from server {}: {} ({})".format(
-                         response.status,
-                         response.reason,
-                         http.client.responses.get(response.status,
-                                                   str(response.status))))
+                response.status, response.reason,
+                http.client.responses.get(response.status,
+                                          str(response.status))))
             raise MCSHttpException(response.status, response_headers, body)
 
         response_headers = response.getheaders()
@@ -675,6 +671,7 @@ class MCSConnection:
             self.__m_last_seen_http_error = exception
             # don't re-use old cookies after an error, as this may trigger
             # de-duplication
+
             LOGGER.debug("Forgetting cookies due to comms error")
             self.__m_cookies.clear()
             self.__close_connection()
@@ -904,8 +901,8 @@ class MCSConnection:
         if method != "GET":
             LOGGER.debug(
                 "MCS request url={} body size={}".format(
-                command_path,
-                len(body)))
+                    command_path,
+                    len(body)))
         (headers, body) = self.__request(command_path, headers, body, method)
         return body
 
@@ -965,8 +962,8 @@ class MCSConnection:
         Delete a command that has been completed
         """
         self.send_message(
-            "/commands/endpoint/{}/{}".format(
-            (self.get_id(), command_id), "", "DELETE"))
+            "/commands/endpoint/{}/{}".format(self.get_id(), command_id),
+            "", "DELETE")
 
     def get_policy(self, app_id, policy_id):
         """

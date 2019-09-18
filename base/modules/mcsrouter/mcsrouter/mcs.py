@@ -372,6 +372,7 @@ class MCS:
                     if reregister:
                         LOGGER.info("Re-registering with MCS")
                         self.register()
+                        LOGGER.info("Endpoint re-registered")
                         reregister = False
                         error_count = 0
                         # If re-registering due to a de-dupe from Central,
@@ -520,7 +521,7 @@ class MCS:
 
                     self.__m_command_check_interval.set_on_error(
                         error_count, transient)
-                except (mcs_exception.MCSConnectionFailedException, http.client.NotConnected):
+                except (mcs_exception.MCSNetworkException, http.client.NotConnected):
                     # Already logged from mcsclient
                     #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
