@@ -110,6 +110,16 @@ class TestUtils(unittest.TestCase):
             self.assertTrue(isinstance(s, str))
             self.assertEqual(s, parsed_string)
 
+    def test_get_scaped_non_ascii_content(self):
+        fd, filepath = tempfile.mkstemp()
+        try:
+            os.write(fd, b"""<?xml version="1.0" ?><hello/>""")
+            os.close(fd)
+            content = xml_helper.get_escaped_non_ascii_content(filepath)
+            self.assertTrue(isinstance(content, str))
+        finally:
+
+            os.remove(filepath)
 
 
 

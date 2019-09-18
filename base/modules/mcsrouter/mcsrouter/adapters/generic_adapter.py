@@ -108,7 +108,6 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         try:
             status_xml = xml_helper.get_escaped_non_ascii_content(
                 status_path)
-            status_xml = to_utf8(status_xml) if isinstance(status_xml, bytes) else status_xml
         except IOError:
             return None
         try:

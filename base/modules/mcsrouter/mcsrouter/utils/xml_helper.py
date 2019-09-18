@@ -37,11 +37,8 @@ def get_escaped_non_ascii_content(file_path):
     """
     get_escaped_non_ascii_content
     """
-    body = codecs.open(
-        file_path,
-        encoding='utf-8',
-        mode='r',
-        errors='replace').read()
+    with codecs.open( file_path, encoding='utf-8', mode='r', errors='replace') as file_handler:
+        body = file_handler.read()
     return body
 
 class NoEntitiesAllowedException(xml.parsers.expat.ExpatError):
