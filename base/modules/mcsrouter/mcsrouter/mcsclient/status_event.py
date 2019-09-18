@@ -10,7 +10,6 @@ status_event Module
 import mcsrouter.utils.xml_helper
 
 from . import events
-from ..utils.byte2utf8 import to_utf8
 
 TEMPLATE_STATUS_EVENT = """<?xml version="1.0" encoding="utf-8" ?>
 <ns:statuses schemaVersion="1.0" xmlns:ns="http://www.sophos.com/xml/mcs/statuses"></ns:statuses>"""
@@ -58,6 +57,6 @@ class StatusEvent:
             status.appendChild(events.text_node(doc, "body", adapter_status_xml))
             statuses.appendChild(status)
 
-        output = doc.toxml(encoding="utf-8")
+        output = doc.toxml()
         doc.unlink()
-        return output if isinstance(output, str) else to_utf8(output)
+        return output
