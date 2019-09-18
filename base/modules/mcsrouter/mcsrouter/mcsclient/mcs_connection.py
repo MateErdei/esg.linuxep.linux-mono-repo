@@ -4,21 +4,22 @@ mcs_connection Module
 """
 
 import base64
-import os
-import logging
-import xml.dom.minidom
-import xml.parsers.expat
 import http.client
+import logging
+import os
 # urllib.parse in python 3
 import urllib.parse
+import xml.dom.minidom
+import xml.parsers.expat
 
 import mcsrouter.mcsclient.mcs_commands  # pylint: disable=no-name-in-module, import-error
 import mcsrouter.mcsclient.mcs_exception
+import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
-from mcsrouter import sophos_https
 from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
-import mcsrouter.utils.path_manager as path_manager
+from mcsrouter import sophos_https
+
 from ..utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
@@ -620,22 +621,19 @@ class MCSConnection:
         ENVELOPE_LOGGER.debug("response headers={}".format(str(response_headers)))
 
         if body:
+            # body as a result of HTTPResponse.read return bytes.
+
             # Fix issue where we receive latin1 encoded characters in
             # XML received from Central (LINUXEP-4819)
             try:
-                # body will either be bytes or a string
-                if isinstance(body, str):
-                    body = body.encode('latin-1').decode('utf-8')
-                else:
-                    body = body.decode('utf-8')
-
+                body_decoded = body.decode('utf-8')
             except UnicodeDecodeError:
                 LOGGER.warning(
                     "Cannot decode response as UTF-8, treating as Latin1")
-                if isinstance(body, str):
-                    body = body.encode('utf-8').decode('latin-1')
-                else:
-                    body = body.decode('latin-1')
+                # keep strings as utf-8 by default as this is the way we talk to central.
+                body_decoded = body.decode('latin-1').encode('utf-8').decode('utf-8')
+
+            body = body_decoded
             GLOBAL_ENVELOPE_HANDLER.log_answer(body)
         return (response_headers, body)
 
